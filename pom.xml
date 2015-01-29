@@ -7,7 +7,7 @@
   <packaging>pom</packaging>
   <name>JaqpotQuattro</name>
   <modules>
-    <module>Jaqpot</module>
+    <module>JaqpotEAR</module>
     <module>JaqpotCoreServices</module>
     <module>JaqpotDomain</module>
   </modules>

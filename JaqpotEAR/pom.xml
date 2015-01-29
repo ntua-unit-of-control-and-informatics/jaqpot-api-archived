@@ -8,11 +8,11 @@
   </parent>
 
     <groupId>org.kinkydesign</groupId>
-    <artifactId>Jaqpot</artifactId>
+    <artifactId>JaqpotEAR</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>ear</packaging>
 
-    <name>Jaqpot</name>
+    <name>JaqpotEAR</name>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
