@@ -1,3 +1,6 @@
 /JaqpotDomain/target/
 /JaqpotCoreServices/target/
 /Jaqpot/target/
+/JaqpotDomain/nb-configuration.xml
+/JaqpotCoreServices/nb-configuration.xml
+/JaqpotDomain/src/main/resources/META-INF/jboss.xml
