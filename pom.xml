@@ -10,6 +10,8 @@
     <module>JaqpotEAR</module>
     <module>JaqpotCoreServices</module>
     <module>JaqpotDomain</module>
+    <module>JaqpotDB</module>
+    <module>JaqpotAlgorithmServices</module>
   </modules>
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
