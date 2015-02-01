@@ -9,6 +9,6 @@ package org.jaqpot.core;
  *
  * @author chung
  */
-public class Substance {
+public class Substance extends JaqpotCoreComponent {
     
 }

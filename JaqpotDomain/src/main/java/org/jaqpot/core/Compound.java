@@ -5,10 +5,15 @@
  */
 package org.jaqpot.core;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  *
  * @author chung
  */
-public class Compound {
+public class Compound extends JaqpotCoreComponent {
+    
+    private Set<Conformer> conformers = new HashSet<>();
     
 }

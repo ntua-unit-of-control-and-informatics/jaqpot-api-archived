@@ -9,6 +9,6 @@ package org.jaqpot.core;
  *
  * @author chung
  */
-public class Feature {
+public class Feature extends JaqpotCoreComponent {
     
 }

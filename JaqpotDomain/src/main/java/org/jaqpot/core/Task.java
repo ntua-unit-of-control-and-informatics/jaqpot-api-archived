@@ -9,6 +9,6 @@ package org.jaqpot.core;
  *
  * @author chung
  */
-public class Task {
+public class Task extends JaqpotCoreComponent {
     
 }

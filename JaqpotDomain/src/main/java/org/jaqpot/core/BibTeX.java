@@ -11,7 +11,7 @@ import java.lang.reflect.Field;
  *
  * @author KinkyDesign
  */
-public class BibTeX {
+public class BibTeX extends JaqpotCoreComponent {
 
     /**
      * Enumeration for bibliographic types supported by the Knouf ontology.
@@ -99,7 +99,6 @@ public class BibTeX {
      * BECAUSE SOME METHODS IN BIBTEX USE REFLECTIVE LOOKUPS AND COMPARISONS
      * BASED ON THE NAME OF THE FIELD.
      */
-    private String id;
     private String mAbstract;
     private String mAuthor;
     private String mTitle;
@@ -125,14 +124,6 @@ public class BibTeX {
     private BibTYPE mBibType;
     private User mCreatedBy;
 
-    public String getId() {
-        return id;
-    }
-
-    // <editor-fold defaultstate="collapsed" desc="Getters and Setters">
-    public void setId(String id) {
-        this.id = id;
-    }
 
     /**
      * The user that created the BibTeX object.

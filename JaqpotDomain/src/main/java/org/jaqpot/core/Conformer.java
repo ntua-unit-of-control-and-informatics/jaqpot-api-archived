@@ -9,6 +9,6 @@ package org.jaqpot.core;
  *
  * @author chung
  */
-public class Conformer {
+public class Conformer extends Substance {
     
 }

@@ -9,6 +9,6 @@ package org.jaqpot.core;
  *
  * @author chung
  */
-public class Dataset {
+public class Dataset extends JaqpotCoreComponent {
     
 }

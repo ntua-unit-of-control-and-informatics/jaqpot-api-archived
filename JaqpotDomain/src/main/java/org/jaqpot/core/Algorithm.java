@@ -9,6 +9,6 @@ package org.jaqpot.core;
  *
  * @author chung
  */
-public class Algorithm {
+public class Algorithm extends JaqpotCoreComponent {
     
 }

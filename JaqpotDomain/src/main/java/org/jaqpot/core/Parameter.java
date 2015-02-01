@@ -9,6 +9,6 @@ package org.jaqpot.core;
  *
  * @author chung
  */
-public class Parameter {
+public class Parameter extends JaqpotCoreComponent {
     
 }

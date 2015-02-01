@@ -5,10 +5,12 @@
  */
 package org.jaqpot.core;
 
+import java.io.Serializable;
+
 /**
  *
  * @author chung
  */
-public class ErrorReport extends JaqpotCoreComponent {
+public class ActualModel implements Serializable{
     
 }

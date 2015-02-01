@@ -9,6 +9,8 @@ package org.jaqpot.core;
  *
  * @author chung
  */
-public class User {
+public class User extends JaqpotCoreComponent {
+    
+    
     
 }
