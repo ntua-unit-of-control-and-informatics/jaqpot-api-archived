@@ -11,6 +11,8 @@ import java.io.Serializable;
  *
  * @author chung
  */
-public class ActualModel implements Serializable{
+public class ActualModel implements Serializable {
     
+    private Serializable actualModel;
+    private Serializable pmmlTransformations;
 }

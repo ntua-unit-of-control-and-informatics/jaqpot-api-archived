@@ -5,10 +5,14 @@
  */
 package org.jaqpot.core;
 
+import java.util.Set;
+
 /**
  *
  * @author chung
  */
 public class Dataset extends JaqpotCoreComponent {
     
+    private Set<DataEntry> entries;
+        
 }

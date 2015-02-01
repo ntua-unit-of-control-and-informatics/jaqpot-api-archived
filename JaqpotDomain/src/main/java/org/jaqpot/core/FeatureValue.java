@@ -9,9 +9,15 @@ package org.jaqpot.core;
  *
  * @author chung
  */
-public class Feature extends JaqpotCoreComponent {
+public class FeatureValue {    
     
-    private String units;
+    private String feature;
+    private Double lowValue;
+    private Double highValue;
+    private Double stdError;
+    private String valueType;
+    private String stringValue;
+    private BibTeX bibtex;
     private User createdBy;
     
     public User getCreatedBy() {
@@ -21,5 +27,4 @@ public class Feature extends JaqpotCoreComponent {
     public void setCreatedBy(User createdBy) {
         this.createdBy = createdBy;
     }
-    
 }

@@ -16,12 +16,14 @@ public class Model extends JaqpotCoreComponent {
     private Set<String> dependentFeatures;
     private Set<String> independentFeatures;
     private Set<String> predictedFeatures;
-    private User creator;
+    private User createdBy;
     private int reliability = 0;
     private ActualModel actualModel;
     private String datasetUri;
     private Set<Parameter> parameters;
     private String algorithmUri;
+    private BibTeX bibtex;
+    
     
     
     

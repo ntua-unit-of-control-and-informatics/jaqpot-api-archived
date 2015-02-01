@@ -9,6 +9,17 @@ package org.jaqpot.core;
  *
  * @author chung
  */
-public class Substance extends JaqpotCoreComponent {
+public abstract class Substance extends JaqpotCoreComponent {
+    
+    private User createdBy;
+
+    public User getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(User createdBy) {
+        this.createdBy = createdBy;
+    }
+    
     
 }

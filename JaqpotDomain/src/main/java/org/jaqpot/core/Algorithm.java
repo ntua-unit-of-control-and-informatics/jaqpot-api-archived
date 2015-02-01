@@ -5,10 +5,17 @@
  */
 package org.jaqpot.core;
 
+import java.util.Set;
+
 /**
  *
  * @author chung
  */
 public class Algorithm extends JaqpotCoreComponent {
+    
+    private Set<Parameter> parameters;
+    private int ranking;
+    private BibTeX bibtex;
+    private User createdBy;
     
 }

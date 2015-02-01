@@ -5,11 +5,17 @@
  */
 package org.jaqpot.core;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  *
  * @author chung
  */
 public abstract class JaqpotCoreComponent {
+    
+    private MetaInfo meta;
+    private final Set<String> ontologicalClasses = new HashSet<>();
     
     
     private String id;

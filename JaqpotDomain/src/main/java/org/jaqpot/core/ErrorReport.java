@@ -5,10 +5,17 @@
  */
 package org.jaqpot.core;
 
+
 /**
  *
  * @author chung
  */
 public class ErrorReport extends JaqpotCoreComponent {
     
+    private String code;
+    private String actor;
+    private String message;
+    private String details;
+    private int httpStatus = 0;
+    private ErrorReport errorReportGetter;
 }

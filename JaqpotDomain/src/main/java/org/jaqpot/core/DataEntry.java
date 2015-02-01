@@ -5,16 +5,15 @@
  */
 package org.jaqpot.core;
 
-import java.util.Map;
-
+import java.util.ArrayList;
+import java.util.List;
 /**
  *
  * @author chung
  */
-public class Conformer extends Substance {
-
-    private Map<String, String> representations; //e.g., SMILES --> c1ccccc1 
-    private String fatherCompound;
-    private BibTeX bibtex;
-
+public class DataEntry {
+    
+    private Substance substance;
+    private final List<FeatureValue> featureValues = new ArrayList<>();
+    
 }

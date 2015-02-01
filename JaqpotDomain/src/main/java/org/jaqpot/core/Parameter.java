@@ -11,4 +11,6 @@ package org.jaqpot.core;
  */
 public class Parameter extends JaqpotCoreComponent {
     
+    
+    
 }
