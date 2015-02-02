@@ -3,23 +3,16 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.jaqpot.core;
+package org.jaqpot.core.model;
 
 /**
  *
  * @author chung
  */
-public class FeatureValue {    
+public abstract class Substance extends JaqpotEntity {
     
-    private String feature;
-    private Double lowValue;
-    private Double highValue;
-    private Double stdError;
-    private String valueType;
-    private String stringValue;
-    private BibTeX bibtex;
     private User createdBy;
-    
+
     public User getCreatedBy() {
         return createdBy;
     }
@@ -27,4 +20,6 @@ public class FeatureValue {
     public void setCreatedBy(User createdBy) {
         this.createdBy = createdBy;
     }
+    
+    
 }

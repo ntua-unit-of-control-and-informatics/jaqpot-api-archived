@@ -3,13 +3,13 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.jaqpot.core;
+package org.jaqpot.core.model;
 
 /**
  *
  * @author chung
  */
-public class Feature extends JaqpotCoreComponent {
+public class Feature extends JaqpotEntity {
     
     private String units;
     private User createdBy;

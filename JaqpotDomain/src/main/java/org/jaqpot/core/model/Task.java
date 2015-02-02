@@ -3,13 +3,13 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.jaqpot.core;
+package org.jaqpot.core.model;
 
 /**
  *
  * @author chung
  */
-public class Task extends JaqpotCoreComponent {
+public class Task extends JaqpotEntity {
     
     /**
      * Status of the task revealing information about the asynchronous job with

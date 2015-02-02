@@ -3,16 +3,14 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.jaqpot.core;
-
-import java.io.Serializable;
+package org.jaqpot.core.model;
 
 /**
  *
  * @author chung
  */
-public class ActualModel implements Serializable {
+public class Parameter extends JaqpotEntity {
     
-    private Serializable actualModel;
-    private Serializable pmmlTransformations;
+    
+    
 }

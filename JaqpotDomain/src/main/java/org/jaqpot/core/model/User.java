@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.jaqpot.core;
+package org.jaqpot.core.model;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
@@ -12,7 +12,7 @@ import javax.xml.stream.XMLStreamWriter;
  *
  * @author chung
  */
-public class User extends JaqpotCoreComponent {
+public class User extends JaqpotEntity {
     
       private String uid;
     private String name;

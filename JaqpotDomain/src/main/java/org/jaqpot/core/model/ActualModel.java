@@ -3,16 +3,15 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.jaqpot.core;
+package org.jaqpot.core.model;
 
-import java.util.Set;
+import java.io.Serializable;
 
 /**
  *
  * @author chung
  */
-public class Dataset extends JaqpotCoreComponent {
+public class ActualModel implements Serializable {
     
-    private Set<DataEntry> entries;
-        
+    
 }

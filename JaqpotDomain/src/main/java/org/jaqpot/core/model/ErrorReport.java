@@ -3,14 +3,14 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.jaqpot.core;
+package org.jaqpot.core.model;
 
 
 /**
  *
  * @author chung
  */
-public class ErrorReport extends JaqpotCoreComponent {
+public class ErrorReport extends JaqpotEntity {
     
     private String code;
     private String actor;
