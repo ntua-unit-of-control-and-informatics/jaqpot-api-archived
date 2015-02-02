@@ -1,12 +1,33 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ *
+ * JAQPOT Quattro
+ *
+ * JAQPOT Quattro and the components shipped with it (web applications and beans)
+ * are licenced by GPL v3 as specified hereafter. Additional components may ship
+ * with some other licence as will be specified therein.
+ *
+ * Copyright (C) 2014-2015 KinkyDesign (Charalambos Chomenides, Pantelis Sopasakis)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * 
+ * Source code:
+ * The source code of JAQPOT Quattro is available on github at:
+ * https://github.com/KinkyDesign/JaqpotQuattro
+ * All source files of JAQPOT Quattro that are stored on github are licenced
+ * with the aforementioned licence. 
  */
 package org.jaqpot.core.model;
-
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamWriter;
 
 /**
  *
@@ -14,7 +35,7 @@ import javax.xml.stream.XMLStreamWriter;
  */
 public class User extends JaqpotEntity {
     
-      private String uid;
+    private String uid;
     private String name;
     private String mail;
     private String hashedPass;
@@ -55,7 +76,7 @@ public class User extends JaqpotEntity {
     }
 
     private User(String uid, String name, String mail, String hashedPass) {
-        this.uid = uid;
+        setId(uid);
         this.name = name;
         this.mail = mail;
         this.hashedPass = hashedPass;
@@ -78,7 +99,7 @@ public class User extends JaqpotEntity {
         return mail;
     }
 
-    /**
+    /*
      * Checks whether the provided e-mail address is RDF-2822 compliant and sets
      * the e-mail address of the user accordingly.
      * @param mail

@@ -1,11 +1,36 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ *
+ * JAQPOT Quattro
+ *
+ * JAQPOT Quattro and the components shipped with it (web applications and beans)
+ * are licenced by GPL v3 as specified hereafter. Additional components may ship
+ * with some other licence as will be specified therein.
+ *
+ * Copyright (C) 2014-2015 KinkyDesign (Charalambos Chomenides, Pantelis Sopasakis)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * 
+ * Source code:
+ * The source code of JAQPOT Quattro is available on github at:
+ * https://github.com/KinkyDesign/JaqpotQuattro
+ * All source files of JAQPOT Quattro that are stored on github are licenced
+ * with the aforementioned licence. 
  */
 package org.jaqpot.core.model;
 
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -14,19 +39,19 @@ import java.util.Set;
  */
 public class MetaInfo {
 
-    private Set<String> identifiers;
-    private Set<String> comments;
-    private Set<String> descriptions;
-    private Set<String> titles;
-    private Set<String> subjects;
-    private Set<String> publishers;
-    private Set<String> creators;
-    private Set<String> contributors;
-    private Set<String> audiences;
-    private Set<String> rights;
-    private Set<String> sameAs;
-    private Set<String> seeAlso;
-    private Set<String> hasSources;
+    private Set<String> identifiers = new HashSet<>();
+    private Set<String> comments = new HashSet<>();
+    private Set<String> descriptions = new HashSet<>();
+    private Set<String> titles = new HashSet<>();
+    private Set<String> subjects = new HashSet<>();
+    private Set<String> publishers = new HashSet<>();
+    private Set<String> creators = new HashSet<>();
+    private Set<String> contributors = new HashSet<>();
+    private Set<String> audiences = new HashSet<>();
+    private Set<String> rights = new HashSet<>();
+    private Set<String> sameAs = new HashSet<>();
+    private Set<String> seeAlso = new HashSet<>();
+    private Set<String> hasSources = new HashSet<>();
     private Date date;
 
     public Set<String> getIdentifiers() {

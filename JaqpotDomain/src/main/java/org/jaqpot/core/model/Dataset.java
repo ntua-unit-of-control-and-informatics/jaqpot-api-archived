@@ -1,11 +1,36 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ *
+ * JAQPOT Quattro
+ *
+ * JAQPOT Quattro and the components shipped with it (web applications and beans)
+ * are licenced by GPL v3 as specified hereafter. Additional components may ship
+ * with some other licence as will be specified therein.
+ *
+ * Copyright (C) 2014-2015 KinkyDesign (Charalambos Chomenides, Pantelis Sopasakis)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * 
+ * Source code:
+ * The source code of JAQPOT Quattro is available on github at:
+ * https://github.com/KinkyDesign/JaqpotQuattro
+ * All source files of JAQPOT Quattro that are stored on github are licenced
+ * with the aforementioned licence. 
  */
 package org.jaqpot.core.model;
 
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -13,32 +38,39 @@ import java.util.Set;
  */
 public class Dataset extends JaqpotEntity {
 
-    private Set<String> substances;
-    private Set<String> features;
-    private Set<String> predictedFeatures;
+    private List<String> substances = new ArrayList<>();
+    private List<String> features = new ArrayList<>();
+    private List<String> predictedFeatures = new ArrayList<>();
 
-    public Set<String> getSubstances() {
+    public Dataset() {
+    }
+
+    public Dataset(String id) {
+        super(id);
+    }
+
+    public List<String> getSubstances() {
         return substances;
     }
 
-    public void setSubstances(Set<String> substances) {
+    public void setSubstances(List<String> substances) {
         this.substances = substances;
     }
 
-    public Set<String> getFeatures() {
+    public List<String> getFeatures() {
         return features;
     }
 
-    public void setFeatures(Set<String> features) {
+    public void setFeatures(List<String> features) {
         this.features = features;
     }
 
-    public Set<String> getPredictedFeatures() {
+    public List<String> getPredictedFeatures() {
         return predictedFeatures;
     }
 
-    public void setPredictedFeatures(Set<String> predictedFeatures) {
+    public void setPredictedFeatures(List<String> predictedFeatures) {
         this.predictedFeatures = predictedFeatures;
     }
-
+    
 }
