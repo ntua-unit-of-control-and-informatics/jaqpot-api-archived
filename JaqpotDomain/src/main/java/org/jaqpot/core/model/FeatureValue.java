@@ -5,10 +5,13 @@
  */
 package org.jaqpot.core.model;
 
+import javax.xml.bind.annotation.XmlRootElement;
+
 /**
  *
  * @author chung
  */
+@XmlRootElement
 public class FeatureValue {    
     
     private String feature;
@@ -18,7 +21,7 @@ public class FeatureValue {
     private Double stdError;
     private String valueType;
     private String stringValue;
-    private String value;
+    private Object value;
     
     private String bibtex;
 
@@ -70,11 +73,11 @@ public class FeatureValue {
         this.stringValue = stringValue;
     }
 
-    public String getValue() {
+    public Object getValue() {
         return value;
     }
 
-    public void setValue(String value) {
+    public void setValue(Object value) {
         this.value = value;
     }
 

@@ -5,21 +5,17 @@
  */
 package org.jaqpot.core.model;
 
+import java.util.Map;
+
 /**
  *
  * @author chung
  */
 public abstract class Substance extends JaqpotEntity {
     
-    private User createdBy;
+    private Map<String, FeatureValue> features;
+    private Map<String, FeatureValue> predictedFeatures;
 
-    public User getCreatedBy() {
-        return createdBy;
-    }
+    private String createdBy;
 
-    public void setCreatedBy(User createdBy) {
-        this.createdBy = createdBy;
-    }
-    
-    
 }
