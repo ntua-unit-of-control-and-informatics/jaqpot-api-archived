@@ -6,7 +6,7 @@
  * are licenced by GPL v3 as specified hereafter. Additional components may ship
  * with some other licence as will be specified therein.
  *
- * Copyright (C) 2014-2015 KinkyDesign (Charalambos Chomenides, Pantelis Sopasakis)
+ * Copyright (C) 2014-2015 KinkyDesign (Charalampos Chomenidis, Pantelis Sopasakis)
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,7 +29,6 @@
  */
 package org.jaqpot.core.model;
 
-import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -37,27 +36,22 @@ import java.util.Set;
  * @author chung
  */
 public class Feature extends JaqpotEntity {
-    
+
     private String units;
-    private User createdBy;
+    private String createdBy;
     /**
-     * In case the feature is nominal, this field
-     * stores it admissible values. Whether the field
-     * is Nominal or Numeric or String is determined by
-     * its ontological classes which can be retrieved
-     * from its superclass, {@link JaqpotEntity}.
+     * In case the feature is nominal, this field stores it admissible values.
+     * Whether the field is Nominal or Numeric or String is determined by its
+     * ontological classes which can be retrieved from its superclass,
+     * {@link JaqpotEntity}.
      */
     private Set<String> admissibleValues;
 
-    public Feature() {
-        admissibleValues = new HashSet<>();
-    }       
-    
-    public User getCreatedBy() {
+    public String getCreatedBy() {
         return createdBy;
     }
 
-    public void setCreatedBy(User createdBy) {
+    public void setCreatedBy(String createdBy) {
         this.createdBy = createdBy;
     }
 
@@ -75,6 +69,6 @@ public class Feature extends JaqpotEntity {
 
     public Set<String> getAdmissibleValues() {
         return admissibleValues;
-    }   
-    
+    }
+
 }

@@ -6,7 +6,7 @@
  * are licenced by GPL v3 as specified hereafter. Additional components may ship
  * with some other licence as will be specified therein.
  *
- * Copyright (C) 2014-2015 KinkyDesign (Charalambos Chomenides, Pantelis Sopasakis)
+ * Copyright (C) 2014-2015 KinkyDesign (Charalampos Chomenidis, Pantelis Sopasakis)
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,7 +29,6 @@
  */
 package org.jaqpot.core.model;
 
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -41,12 +40,12 @@ public class Conformer extends Substance {
     /**
      * Mapping from representation name to the representation's content.
      */
-    private Map<String, String> representations = new HashMap<>(); //e.g., SMILES --> c1ccccc1 
+    private Map<String, String> representations; //e.g., SMILES --> c1ccccc1 
 
     /**
      * Mapping: FeatureName ::to:: FeatureValue.
      */
-    private Map<String, FeatureValue> properties = new HashMap<>(); // these are the non-predicted properties
+    private Map<String, FeatureValue> properties; // these are the non-predicted properties
 
     private String fatherCompound;
     private BibTeX bibtex;

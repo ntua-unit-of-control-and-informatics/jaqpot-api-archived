@@ -6,7 +6,7 @@
  * are licenced by GPL v3 as specified hereafter. Additional components may ship
  * with some other licence as will be specified therein.
  *
- * Copyright (C) 2014-2015 KinkyDesign (Charalambos Chomenides, Pantelis Sopasakis)
+ * Copyright (C) 2014-2015 KinkyDesign (Charalampos Chomenidis, Pantelis Sopasakis)
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -80,11 +80,11 @@ public class Task extends JaqpotEntity {
 
     private String resultUri;
     private Status hasStatus;
-    private float percentageCompleted = -1;
+    private float percentageCompleted;
     private ErrorReport errorReport;
-    private float httpStatus = -1;
+    private float httpStatus;
     private User createdBy;
-    private long duration = 0L;
+    private long duration;
 
     public Task() {
         super();

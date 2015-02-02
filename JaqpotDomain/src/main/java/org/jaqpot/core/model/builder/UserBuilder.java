@@ -27,32 +27,35 @@
  * All source files of JAQPOT Quattro that are stored on github are licenced
  * with the aforementioned licence. 
  */
-package org.jaqpot.core.model;
+package org.jaqpot.core.model.builder;
 
-import java.util.Set;
+import org.jaqpot.core.model.User;
 
 /**
  *
- * @author chung
+ * @author hampos
  */
-public class Compound extends JaqpotEntity {
-    
-    private Set<Conformer> conformers;
+public class UserBuilder implements EntityBuilder<User> {
 
-    public Compound() {
+    private final User user;
+
+    public static UserBuilder builder(String id) {
+        return new UserBuilder(id);
     }
 
-    public Compound(String id) {
-        super(id);
+    private UserBuilder(String id) {
+        user = new User();
+        user.setId(id);
     }
 
-    public Set<Conformer> getConformers() {
-        return conformers;
+    public UserBuilder setName(String name) {
+        user.setName(name);
+        return this;
     }
 
-    public void setConformers(Set<Conformer> conformers) {
-        this.conformers = conformers;
+    @Override
+    public User build() {
+        return user;
     }
-        
-    
+
 }

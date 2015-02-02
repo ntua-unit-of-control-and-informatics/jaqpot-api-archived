@@ -27,32 +27,14 @@
  * All source files of JAQPOT Quattro that are stored on github are licenced
  * with the aforementioned licence. 
  */
-package org.jaqpot.core.model;
-
-import java.util.Set;
+package org.jaqpot.core.model.builder;
 
 /**
  *
- * @author chung
+ * @author hampos
  */
-public class Compound extends JaqpotEntity {
+public interface EntityBuilder<T> {
     
-    private Set<Conformer> conformers;
-
-    public Compound() {
-    }
-
-    public Compound(String id) {
-        super(id);
-    }
-
-    public Set<Conformer> getConformers() {
-        return conformers;
-    }
-
-    public void setConformers(Set<Conformer> conformers) {
-        this.conformers = conformers;
-    }
-        
+    T build();
     
 }

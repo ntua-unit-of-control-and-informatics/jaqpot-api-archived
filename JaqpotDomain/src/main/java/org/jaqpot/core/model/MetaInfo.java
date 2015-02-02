@@ -6,7 +6,7 @@
  * are licenced by GPL v3 as specified hereafter. Additional components may ship
  * with some other licence as will be specified therein.
  *
- * Copyright (C) 2014-2015 KinkyDesign (Charalambos Chomenides, Pantelis Sopasakis)
+ * Copyright (C) 2014-2015 KinkyDesign (Charalampos Chomenidis, Pantelis Sopasakis)
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,7 +30,6 @@
 package org.jaqpot.core.model;
 
 import java.util.Date;
-import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -39,19 +38,19 @@ import java.util.Set;
  */
 public class MetaInfo {
 
-    private Set<String> identifiers = new HashSet<>();
-    private Set<String> comments = new HashSet<>();
-    private Set<String> descriptions = new HashSet<>();
-    private Set<String> titles = new HashSet<>();
-    private Set<String> subjects = new HashSet<>();
-    private Set<String> publishers = new HashSet<>();
-    private Set<String> creators = new HashSet<>();
-    private Set<String> contributors = new HashSet<>();
-    private Set<String> audiences = new HashSet<>();
-    private Set<String> rights = new HashSet<>();
-    private Set<String> sameAs = new HashSet<>();
-    private Set<String> seeAlso = new HashSet<>();
-    private Set<String> hasSources = new HashSet<>();
+    private Set<String> identifiers;
+    private Set<String> comments;
+    private Set<String> descriptions;
+    private Set<String> titles;
+    private Set<String> subjects;
+    private Set<String> publishers;
+    private Set<String> creators;
+    private Set<String> contributors;
+    private Set<String> audiences;
+    private Set<String> rights;
+    private Set<String> sameAs;
+    private Set<String> seeAlso;
+    private Set<String> hasSources;
     private Date date;
 
     public Set<String> getIdentifiers() {
