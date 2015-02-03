@@ -32,11 +32,10 @@ package org.jaqpot.db;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
+import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
-import com.mongodb.WriteConcern;
-import java.io.ByteArrayOutputStream;
-import java.io.OutputStream;
+import java.io.IOException;
 import java.util.UUID;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.jaqpot.core.model.MetaInfo;
@@ -54,48 +53,71 @@ import static org.junit.Assert.*;
  * @author chung
  */
 public class JaqpotPojoPersistorTest {
-    
+
     public JaqpotPojoPersistorTest() {
     }
-    
+
     @BeforeClass
     public static void setUpClass() {
     }
-    
+
     @AfterClass
     public static void tearDownClass() {
     }
-    
+
     @Before
     public void setUp() {
     }
-    
+
     @After
     public void tearDown() {
     }
 
     @Test
-    public void testSaveTask() {
+    public void testSaveTask() throws IOException {
         MetaInfoBuilder metaBuilder = MetaInfoBuilder.builder();
-        MetaInfo meta = metaBuilder.addComments("task started", "this task does training", "dataset downloaded").
+        MetaInfo meta = metaBuilder.
+                addComments("task started", "this task does training", "dataset downloaded").
                 addDescriptions("this is a very nice task", "oh, and it's very useful too").
                 addSources("http://jaqpot.org/algorithm/wonk").build();
-        
+
         Task taskPojo = new Task(UUID.randomUUID().toString());
         taskPojo.setCreatedBy("random-user@jaqpot.org");
         taskPojo.setPercentageCompleted(0.95f);
         taskPojo.setDuration(1534l);
         taskPojo.setMeta(meta);
         taskPojo.setHttpStatus(202);
-        taskPojo.setStatus(Task.Status.RUNNING);        
-                
-       
+        taskPojo.setStatus(Task.Status.RUNNING);
+
         /* Initializes a Persistor with default DB configuration */
         JaqpotPojoPersistor persistor = new JaqpotPojoPersistor(taskPojo);
         persistor.persist();
-                            
-        
-        fail("the test is incomplete!");
+
+        //Now find the object in the database:
+        BasicDBObject query = new BasicDBObject("_id", taskPojo.getId()); // Find with ID
+
+        // Now find it in the DB...
+        MongoClient mongoClient = new MongoClient();
+        DB db = mongoClient.getDB("test");
+        DBCollection coll = db.getCollection("tasks");
+        DBCursor cursor = coll.find(query);
+
+        assertTrue("nothing found", cursor.hasNext());
+        DBObject retrieved = cursor.next();
+
+        ObjectMapper mapper = new ObjectMapper();
+        Task objFromDB = (Task) mapper.readValue(retrieved.toString(), Task.class);
+
+        assertEquals("not the same ID", taskPojo.getId(), objFromDB.getId());
+        assertEquals("not the same createdBy", taskPojo.getCreatedBy(), objFromDB.getCreatedBy());
+        assertEquals("not the same percentageComplete", taskPojo.getPercentageCompleted(), objFromDB.getPercentageCompleted());
+        assertEquals("not the same duration", taskPojo.getDuration(), objFromDB.getDuration());
+        assertEquals("not the same HTTP status", taskPojo.getHttpStatus(), objFromDB.getHttpStatus());
+        assertEquals("not the same status", taskPojo.getStatus(), objFromDB.getStatus());
+        assertEquals("not the same comments", taskPojo.getMeta().getComments(), objFromDB.getMeta().getComments());
+        assertEquals("not the same descriptions", taskPojo.getMeta().getDescriptions(), objFromDB.getMeta().getDescriptions());
+
+        //fail("the test is incomplete!");
     }
-    
+
 }
