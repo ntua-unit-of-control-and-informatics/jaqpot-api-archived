@@ -27,7 +27,7 @@
  * All source files of JAQPOT Quattro that are stored on github are licenced
  * with the aforementioned licence. 
  */
-package org.jaqpot.util;
+package org.jaqpot.core.model.validator;
 
 import java.util.regex.Pattern;
 

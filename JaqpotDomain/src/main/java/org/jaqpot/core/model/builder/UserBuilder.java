@@ -30,7 +30,7 @@
 package org.jaqpot.core.model.builder;
 
 import org.jaqpot.core.model.User;
-import org.jaqpot.util.EmailValidator;
+import org.jaqpot.core.model.validator.EmailValidator;
 
 /**
  *
