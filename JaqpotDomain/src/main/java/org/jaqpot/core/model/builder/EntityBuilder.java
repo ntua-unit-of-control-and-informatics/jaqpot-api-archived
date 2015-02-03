@@ -29,14 +29,13 @@
  */
 package org.jaqpot.core.model.builder;
 
-import org.jaqpot.core.model.JaqpotEntity;
 
 /**
  *
  * @author hampos
  * @param <T> Entity to build.
  */
-public interface EntityBuilder<T extends JaqpotEntity> {
+public interface EntityBuilder<T> {
     
     T build();
     

@@ -78,7 +78,7 @@ public class BibTeXBuilder implements EntityBuilder<BibTeX> {
         return this;
     }
 
-    public BibTeXBuilder set(BibTeX.BibTYPE bibType) {
+    public BibTeXBuilder setBibType(BibTeX.BibTYPE bibType) {
         bibtex.setBibType(bibType);
         return this;
     }
