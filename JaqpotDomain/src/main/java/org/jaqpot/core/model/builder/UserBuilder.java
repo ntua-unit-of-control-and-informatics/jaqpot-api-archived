@@ -30,6 +30,7 @@
 package org.jaqpot.core.model.builder;
 
 import org.jaqpot.core.model.User;
+import org.jaqpot.util.EmailValidator;
 
 /**
  *
@@ -42,9 +43,10 @@ public class UserBuilder implements EntityBuilder<User> {
     public static UserBuilder builder(String id) {
         return new UserBuilder(id);
     }
+          
 
     private UserBuilder(String id) {
-        user = new User();
+        user = new User(id);
         user.setId(id);
     }
 
@@ -52,10 +54,45 @@ public class UserBuilder implements EntityBuilder<User> {
         user.setName(name);
         return this;
     }
-
+    
+    public UserBuilder setMail(String mail) throws IllegalArgumentException{
+         if (!EmailValidator.validate(mail)) {
+            throw new IllegalArgumentException("Bad email address according to RFC 2822 : '" + mail + "'");
+        }
+        user.setMail(mail);
+        return this;
+    }
+    
+    public UserBuilder setMaxBibTeX(int maxBibTeX) {
+        user.setMaxBibTeX(maxBibTeX);
+        return this;
+    }
+    
+    public UserBuilder setMaxSubstances(int maxSubstances) {
+        user.setMaxSubstances(maxSubstances);
+        return this;
+    }
+    
+    public UserBuilder setMaxModels(int maxModels) {
+        user.setMaxModels(maxModels);
+        return this;
+    }
+    
+    public UserBuilder setParallelTasks(int maxParallelTasks) {
+        user.setMaxParallelTasks(maxParallelTasks);
+        return this;
+    }
+    
+    public UserBuilder setHashedPassword(String hashedPassword) {
+        user.setHashedPass(hashedPassword);
+        return this;
+    }
+   
     @Override
     public User build() {
         return user;
     }
+    
+    
 
 }

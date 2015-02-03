@@ -61,7 +61,7 @@ public class Task extends JaqpotEntity {
          */
         COMPLETED,
         /**
-         * The task is cancelled by the User.
+         * The task is canceled by the User.
          */
         CANCELLED,
         /**
@@ -98,118 +98,60 @@ public class Task extends JaqpotEntity {
     public Task(String id) {
         super(id);
     }
-    
-
-    /**
-     * The duration of the task, that is the overall time since its execution started,
-     * not including the time it was queued.
-     * @return
-     *      The duration of the task in millisenconds or <code>0</code> if no duration
-     *      is assigned.
-     */
-    public Long getDuration() {
-        return duration;
-    }
-
-    /**
-     * Setter method for the duration of the task in milliseconds. The time during
-     * which the task was in a queue should not be included in the execution
-     * duration.
-     * @param duration
-     *      The duration of the task in milliseconds
-     * @return
-     *      The current updated modifiable Task object.
-     */
-    public Task setDuration(Long duration) {
-        if (duration == null) {
-            this.duration = 0L;
-            return this;
-        }
-        this.duration = duration;
-        return this;
-    }
-
-    /**
-     * Retrieve the user which created the task.
-     * @return
-     *      Creator of the task or <code>null</code> if not available.
-     */
-    public String getCreatedBy() {
-        return createdBy;
-    }
-
-    public Task setCreatedBy(String createdBy) {
-        this.createdBy = createdBy;
-        return this;
-    }
-
-    /**
-     * The status of the task as an element of the enumeration {@link Status }.
-     * A task can either be <code>RUNNING</code>, <code>COMPLETED</code>, <code>
-     * CANCELLED</code> and <code>ERROR</code>.
-     * @return
-     *      The status of the task.
-     */
-    public Status getStatus() {
-        return hasStatus;
-    }
-
-    /**
-     * ParameterValue the status of a task.
-     * 
-     * @param status
-     *      The new value for the status of the task.
-     * 
-     * @return 
-     *      The current modifiable instance of Task.
-     */
-    public Task setStatus(Status status) {
-        this.hasStatus = status;
-        return this;
-    }
-
-    /**
-     *
-     * Get the percentage of completion of a running task.
-     * 
-     * @return
-     *      Percentage of completion as a number in the range <code>[0, 100]</code>.
-     */
-    public Float getPercentageCompleted() {
-        return percentageCompleted;
-    }
-
-    public Task setPercentageCompleted(Float percentageCompleted) {
-        this.percentageCompleted = percentageCompleted;
-        return this;
-    }
 
     public String getResultUri() {
         return resultUri;
     }
 
-    public Task setResultUri(String resultUri) {
+    public void setResultUri(String resultUri) {
         this.resultUri = resultUri;
-        return this;
+    }
+
+    public Status getStatus() {
+        return hasStatus;
+    }
+
+    public void setStatus(Status hasStatus) {
+        this.hasStatus = hasStatus;
+    }
+
+    public Float getPercentageCompleted() {
+        return percentageCompleted;
+    }
+
+    public void setPercentageCompleted(Float percentageCompleted) {
+        this.percentageCompleted = percentageCompleted;
     }
 
     public ErrorReport getErrorReport() {
         return errorReport;
     }
 
-    public Task setErrorReport(ErrorReport errorReport) {
+    public void setErrorReport(ErrorReport errorReport) {
         this.errorReport = errorReport;
-        return this;
     }
 
     public Integer getHttpStatus() {
         return httpStatus;
     }
 
-    public Task setHttpStatus(Integer httpStatus) {
+    public void setHttpStatus(Integer httpStatus) {
         this.httpStatus = httpStatus;
-        return this;
     }
-       
-    
+
+    public String getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(String createdBy) {
+        this.createdBy = createdBy;
+    }
+
+    public Long getDuration() {
+        return duration;
+    }
+
+    public void setDuration(Long duration) {
+        this.duration = duration;
+    }        
 }
