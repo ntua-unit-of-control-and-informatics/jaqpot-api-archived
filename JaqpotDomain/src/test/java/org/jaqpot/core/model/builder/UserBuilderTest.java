@@ -72,6 +72,11 @@ public class UserBuilderTest {
                 setMaxSubstances(500000).build();
     }
     
+    @Test
+    public void testProperSerializationJackson(){
+        fail("Implementation pending!");
+    }
+    
     @Test(expected = IllegalArgumentException.class)
     public void testInvalidEmail() {
         UserBuilder uBuilder = UserBuilder.builder("chung@jaqpot.org");
@@ -79,5 +84,11 @@ public class UserBuilderTest {
         uBuilder.setMail("invalidemail");
         fail("execution shouldn't have reached here!");
     }
-    
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testNullEmail() {
+        UserBuilder uBuilder = UserBuilder.builder("chung@jaqpot.org");
+        uBuilder.setMail(null);
+        fail("execution shouldn't have reached here!");
+    }
 }
