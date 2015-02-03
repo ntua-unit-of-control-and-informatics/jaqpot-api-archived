@@ -6,7 +6,7 @@
  * are licenced by GPL v3 as specified hereafter. Additional components may ship
  * with some other licence as will be specified therein.
  *
- * Copyright (C) 2014-2015 KinkyDesign (Charalambos Chomenides, Pantelis Sopasakis)
+ * Copyright (C) 2014-2015 KinkyDesign (Charalampos Chomenidis, Pantelis Sopasakis)
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -41,15 +41,14 @@ import org.codehaus.jackson.map.annotate.JsonSerialize;
 @XmlRootElement
 @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
 public class Feature extends JaqpotEntity {
-    
+
     private String units;
     private String createdBy;
     /**
-     * In case the feature is nominal, this field
-     * stores it admissible values. Whether the field
-     * is Nominal or Numeric or String is determined by
-     * its ontological classes which can be retrieved
-     * from its superclass, {@link JaqpotEntity}.
+     * In case the feature is nominal, this field stores it admissible values.
+     * Whether the field is Nominal or Numeric or String is determined by its
+     * ontological classes which can be retrieved from its superclass,
+     * {@link JaqpotEntity}.
      */
     private Set<String> admissibleValues;
 
@@ -78,6 +77,6 @@ public class Feature extends JaqpotEntity {
 
     public Set<String> getAdmissibleValues() {
         return admissibleValues;
-    }   
-    
+    }
+
 }

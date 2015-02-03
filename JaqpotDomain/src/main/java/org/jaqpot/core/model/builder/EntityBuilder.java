@@ -27,56 +27,14 @@
  * All source files of JAQPOT Quattro that are stored on github are licenced
  * with the aforementioned licence. 
  */
-package org.jaqpot.core.model;
-
-import java.util.Map;
-import javax.xml.bind.annotation.XmlRootElement;
-import org.codehaus.jackson.map.annotate.JsonSerialize;
+package org.jaqpot.core.model.builder;
 
 /**
  *
- * @author chung
+ * @author hampos
  */
-@XmlRootElement
-@JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
-public abstract class Substance extends JaqpotEntity {
+public interface EntityBuilder<T> {
     
-    private Map<String, FeatureValue> features;
-    private Map<String, FeatureValue> predictedFeatures;
-
-    private String createdBy;
-
-    public Substance() {
-    }
-
-    public Substance(String id) {
-        super(id);
-    }
-
-    public Map<String, FeatureValue> getFeatures() {
-        return features;
-    }
-
-    public void setFeatures(Map<String, FeatureValue> features) {
-        this.features = features;
-    }
-
-    public Map<String, FeatureValue> getPredictedFeatures() {
-        return predictedFeatures;
-    }
-
-    public void setPredictedFeatures(Map<String, FeatureValue> predictedFeatures) {
-        this.predictedFeatures = predictedFeatures;
-    }
-
-    public String getCreatedBy() {
-        return createdBy;
-    }
-
-    public void setCreatedBy(String createdBy) {
-        this.createdBy = createdBy;
-    }
+    T build();
     
-    
-
 }

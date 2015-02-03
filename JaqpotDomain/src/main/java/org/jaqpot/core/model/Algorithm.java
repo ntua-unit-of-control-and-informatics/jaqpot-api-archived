@@ -6,7 +6,7 @@
  * are licenced by GPL v3 as specified hereafter. Additional components may ship
  * with some other licence as will be specified therein.
  *
- * Copyright (C) 2014-2015 KinkyDesign (Charalambos Chomenides, Pantelis Sopasakis)
+ * Copyright (C) 2014-2015 KinkyDesign (Charalampos Chomenidis, Pantelis Sopasakis)
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -49,8 +49,8 @@ public class Algorithm extends JaqpotEntity {
     private Set<BibTeX> bibtex;
     
     /**
-     * User who created the algorithm.
-     * This is useful for user-created algorithms
+     * User who created the algorithm. This is useful for user-created
+     * algorithms
      */
     private String createdBy;
 
@@ -69,11 +69,11 @@ public class Algorithm extends JaqpotEntity {
         this.parameters = parameters;
     }
 
-    public int getRanking() {
+    public Integer getRanking() {
         return ranking;
     }
 
-    public void setRanking(int ranking) {
+    public void setRanking(Integer ranking) {
         this.ranking = ranking;
     }
 
@@ -92,5 +92,5 @@ public class Algorithm extends JaqpotEntity {
     public void setCreatedBy(String createdBy) {
         this.createdBy = createdBy;
     }
-    
+
 }

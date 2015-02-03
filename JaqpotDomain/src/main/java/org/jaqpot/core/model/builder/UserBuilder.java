@@ -27,56 +27,35 @@
  * All source files of JAQPOT Quattro that are stored on github are licenced
  * with the aforementioned licence. 
  */
-package org.jaqpot.core.model;
+package org.jaqpot.core.model.builder;
 
-import java.util.Map;
-import javax.xml.bind.annotation.XmlRootElement;
-import org.codehaus.jackson.map.annotate.JsonSerialize;
+import org.jaqpot.core.model.User;
 
 /**
  *
- * @author chung
+ * @author hampos
  */
-@XmlRootElement
-@JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
-public abstract class Substance extends JaqpotEntity {
-    
-    private Map<String, FeatureValue> features;
-    private Map<String, FeatureValue> predictedFeatures;
+public class UserBuilder implements EntityBuilder<User> {
 
-    private String createdBy;
+    private final User user;
 
-    public Substance() {
+    public static UserBuilder builder(String id) {
+        return new UserBuilder(id);
     }
 
-    public Substance(String id) {
-        super(id);
+    private UserBuilder(String id) {
+        user = new User();
+        user.setId(id);
     }
 
-    public Map<String, FeatureValue> getFeatures() {
-        return features;
+    public UserBuilder setName(String name) {
+        user.setName(name);
+        return this;
     }
 
-    public void setFeatures(Map<String, FeatureValue> features) {
-        this.features = features;
+    @Override
+    public User build() {
+        return user;
     }
-
-    public Map<String, FeatureValue> getPredictedFeatures() {
-        return predictedFeatures;
-    }
-
-    public void setPredictedFeatures(Map<String, FeatureValue> predictedFeatures) {
-        this.predictedFeatures = predictedFeatures;
-    }
-
-    public String getCreatedBy() {
-        return createdBy;
-    }
-
-    public void setCreatedBy(String createdBy) {
-        this.createdBy = createdBy;
-    }
-    
-    
 
 }
