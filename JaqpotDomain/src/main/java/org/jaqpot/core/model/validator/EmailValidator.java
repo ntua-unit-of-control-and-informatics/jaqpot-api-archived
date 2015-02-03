@@ -32,30 +32,36 @@ package org.jaqpot.core.model.validator;
 import java.util.regex.Pattern;
 
 /**
- * <p align=justify>A Class for validating email addresses according to the RFC syntax rules (RFC 2822
- * specification) and other syntatical rules that can identify various fake email
- * addresses like john@yahoo.wtf. Two regular expressions are used found at
- * http://code.iamcal.com/php/rfc822/full_regexp.txt and http://www.regular-expressions.info/email.html
- * respectively and a set of valid email extensions was established from
+ * <p align=justify>A Class for validating email addresses according to the RFC
+ * syntax rules (RFC 2822 specification) and other syntatical rules that can
+ * identify various fake email addresses like john@yahoo.wtf. Two regular
+ * expressions are used found at
+ * http://code.iamcal.com/php/rfc822/full_regexp.txt and
+ * http://www.regular-expressions.info/email.html respectively and a set of
+ * valid email extensions was established from
  * http://www.velocityreviews.com/forums/t125158-java-email-validator.html.</p>
- * 
+ *
  * @author Pantelis Sopasakis
  * @author Charalampos Chomenides
  */
 public class EmailValidator {
-    
-    private EmailValidator(){
+
+    private EmailValidator() {
         // Hidden Constructor - EmailValidator is a utility class.
     }
 
-    /** Regex copied from: http://www.regular-expressions.info/email.html */
+    /**
+     * Regex copied from: http://www.regular-expressions.info/email.html
+     */
     private static final String MAIL_REGEX_RFC_2822 = "(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*"
             + "|\"(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21\\x23-\\x5b\\x5d-\\x7f]//|\\\\[\\x01-"
             + "\\x09\\x0b\\x0c\\x0e-\\x7f])*\")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9]"
             + "(?:[a-z0-9-]*[a-z0-9])?|\\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}"
             + "(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:"
             + "(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21-\\x5a\\x53-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])+)\\])";
-    /** Regex from http://code.iamcal.com/php/rfc822/full_regexp.txt */
+    /**
+     * Regex from http://code.iamcal.com/php/rfc822/full_regexp.txt
+     */
     private static final String MAIL_REGEX_RFC_2822_FULL = "(((((([\\x20\\x09]*(\\x0d\\x0a))?[\\x20\\x09]+)|([\\x20\\x09]+((\\x0d\\x0a)[\\x20\\x09]+)*))*?"
             + "(([\\x41-\\x5a\\x61-\\x7a]|[\\x30-\\x39]|[\\x21\\x23-\\x27\\x2a\\x2b\\x2d\\x2e\\x3d\\x3f\\x5e\\x5f\\x60\\x7b-\\x7e])"
             + "+(\\x2e([\\x41-\\x5a\\x61-\\x7a]|[\\x30-\\x39]|[\\x21\\x23-\\x27\\x2a\\x2b\\x2d\\x2e\\x3d\\x3f\\x5e\\x5f\\x60\\x7b-\\x7e])+)*)"
@@ -96,7 +102,8 @@ public class EmailValidator {
             + "[\\x21\\x23-\\x27\\x2a\\x2b\\x2d\\x2e\\x3d\\x3f\\x5e\\x5f\\x60\\x7b-\\x7e])+((([\\x20\\x09]*"
             + "(\\x0d\\x0a))?[\\x20\\x09]+)|([\\x20\\x09]+((\\x0d\\x0a)[\\x20\\x09]+)*))*?))*)))";
     /**
-     * Extensions copied from http://www.velocityreviews.com/forums/t125158-java-email-validator.html
+     * Extensions copied from
+     * http://www.velocityreviews.com/forums/t125158-java-email-validator.html
      */
     private static final String[] mailExt = new String[]{
         "ac", "ad", "ae", "af", "ag", "ai", "al", "am", "an", "ao", "aq",
@@ -105,7 +112,7 @@ public class EmailValidator {
         "bw", "by", "bz", "ca", "cc", "cd", "cf", "cg", "ch", "ci", "ck",
         "cl", "cm", "cn", "co", "cr", "cu", "cv", "cx", "cy", "cz", "de",
         "dj", "dk", "dm", "do", "dz", "ec", "ee", "eg", "eh", "er", "es",
-        "et", "fi", "fj", "fk", "fm", "fo", "fr", "fx", "ga", "gb", "gd",
+        "et", "eu", "fi", "fj", "fk", "fm", "fo", "fr", "fx", "ga", "gb", "gd",
         "ge", "gf", "gg", "gh", "gi", "gl", "gm", "gn", "gp", "gq", "gr",
         "gs", "gt", "gu", "gw", "gy", "hk", "hm", "hn", "hr", "ht", "hu",
         "id", "ie", "il", "im", "in", "io", "iq", "ir", "is", "it", "je",
@@ -126,13 +133,18 @@ public class EmailValidator {
 
     /**
      * Validate an email address
-     * @param mail
-     *      The email address to be validated
-     * @return
-     *      <code>true</code> if the e-mail address is RFC compliant and meets
-     *      the structural requirements imposed by this class.
+     *
+     * @param mail The email address to be validated
+     * @return <code>true</code> if the e-mail address is RFC compliant and
+     * meets the structural requirements imposed by this class.
      */
     public static boolean validate(String mail) {
+        if (mail == null) {
+            return false;
+        }
+        if (mail.length() > 256) { //too long email! (RFC 5321 specs)
+            return false;
+        }
         StringBuilder sb = new StringBuilder("[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+(?:[A-Z]{2}|");
         for (int i = 0; i < mailExt.length; i++) {
             sb.append(mailExt[i]);
