@@ -29,24 +29,26 @@
  */
 package org.jaqpot.core.model;
 
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import javax.xml.bind.annotation.XmlRootElement;
+import org.codehaus.jackson.map.annotate.JsonSerialize;
 
 /**
  *
  * @author chung
  */
+@XmlRootElement
+@JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
 public class Model extends JaqpotEntity {
     
-    private List<String> dependentFeatures = new ArrayList<>();
-    private List<String> independentFeatures = new ArrayList<>();
-    private List<String> predictedFeatures = new ArrayList<>();
-    private User createdBy;
+    private List<String> dependentFeatures;
+    private List<String> independentFeatures;
+    private List<String> predictedFeatures;
+    private String createdBy;
     private Integer reliability = 0;
     private String datasetUri;
-    private Set<Parameter> parameters = new HashSet<>();
+    private Set<Parameter> parameters;
     private Algorithm algorithm;
     private BibTeX bibtex;
     
@@ -78,11 +80,11 @@ public class Model extends JaqpotEntity {
         this.predictedFeatures = predictedFeatures;
     }
 
-    public User getCreatedBy() {
+    public String getCreatedBy() {
         return createdBy;
     }
 
-    public void setCreatedBy(User createdBy) {
+    public void setCreatedBy(String createdBy) {
         this.createdBy = createdBy;
     }
 

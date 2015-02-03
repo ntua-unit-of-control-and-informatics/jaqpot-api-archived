@@ -29,18 +29,39 @@
  */
 package org.jaqpot.core.model;
 
+import javax.xml.bind.annotation.XmlRootElement;
+import org.codehaus.jackson.map.annotate.JsonSerialize;
+
 
 /**
  *
  * @author chung
  */
+@XmlRootElement
+@JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
 public class ErrorReport extends JaqpotEntity {
     
+    /** Error code. */
     private String code;
+    /**
+     * Who is to blame.
+     */
     private String actor;
+    /**
+     * Short error message;
+     */
     private String message;
+    /**
+     * Details to be used for debugging.
+     */
     private String details;
+    /**
+     * Accompanying HTTP status.
+     */
     private int httpStatus = 0;
+    /**
+     * Trace error report.
+     */
     private ErrorReport trace;
 
     public ErrorReport() {

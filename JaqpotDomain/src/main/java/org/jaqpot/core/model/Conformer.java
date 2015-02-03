@@ -29,26 +29,36 @@
  */
 package org.jaqpot.core.model;
 
-import java.util.HashMap;
 import java.util.Map;
+import javax.xml.bind.annotation.XmlRootElement;
+import org.codehaus.jackson.map.annotate.JsonSerialize;
 
 /**
  *
  * @author chung
  */
+@XmlRootElement
+@JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
 public class Conformer extends Substance {
 
     /**
      * Mapping from representation name to the representation's content.
      */
-    private Map<String, String> representations = new HashMap<>(); //e.g., SMILES --> c1ccccc1 
+    private Map<String, String> representations; //e.g., SMILES --> c1ccccc1 
 
     /**
      * Mapping: FeatureName ::to:: FeatureValue.
+     * JAQPOT properties are simply reported as: /feature/123 to {featureValue}
+     * but one can also map properties that are defined on some
+     * other domain since the key is a String. For instance:
+     * http://otherserver.com/feature/123 to {featureValue}.
      */
-    private Map<String, FeatureValue> properties = new HashMap<>(); // these are the non-predicted properties
+    private Map<String, FeatureValue> properties; // these are the non-predicted properties
 
+    /** The compound that owns this feature. */
     private String fatherCompound;
+    
+    /** BibTeX reference as of where one can find more information. */
     private BibTeX bibtex;
 
     public Conformer() {

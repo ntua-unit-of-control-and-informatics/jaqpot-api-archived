@@ -29,12 +29,16 @@
  */
 package org.jaqpot.core.model;
 
-import java.lang.reflect.Field;
+import javax.xml.bind.annotation.XmlRootElement;
+import org.codehaus.jackson.map.annotate.JsonSerialize;
+
 
 /**
  *
  * @author KinkyDesign
  */
+@XmlRootElement
+@JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
 public class BibTeX extends JaqpotEntity {
 
     /**
@@ -146,7 +150,7 @@ public class BibTeX extends JaqpotEntity {
     private String mSeries;
     private String mUrl;
     private BibTYPE mBibType;
-    private User mCreatedBy;
+    private String mCreatedBy;
 
 
     /**
@@ -154,7 +158,7 @@ public class BibTeX extends JaqpotEntity {
      *
      * @return Instance of {@link User}
      */
-    public User getCreatedBy() {
+    public String getCreatedBy() {
         return mCreatedBy;
     }
 
@@ -163,7 +167,7 @@ public class BibTeX extends JaqpotEntity {
      *
      * @param createdBy Instance of {@link User}
      */
-    public void setCreatedBy(User createdBy) {
+    public void setCreatedBy(String createdBy) {
         this.mCreatedBy = createdBy;
     }
 
@@ -714,37 +718,6 @@ public class BibTeX extends JaqpotEntity {
         return this;
     }// </editor-fold>
     
-    @Override
-    public String toString() {
-        StringBuilder result = new StringBuilder();
-        result.append("@");
-        result.append(mBibType.toString());
-        result.append("{");
-        result.append(getId());
-        result.append(",\n");
-        result.append("author = \"");
-        result.append(mAuthor);
-        result.append("\"");
-
-        for (Field f : this.getClass().getDeclaredFields()) {
-            try {
-                if (!f.getName().equals("mCreatedBy")
-                        && !f.getName().equals("mAuthor")
-                        && !f.getName().equals("mBibType")
-                        && !f.getName().equals("logger")
-                        && f.get(this) != null) {
-                    result.append(",\n");
-                    result.append(f.getName().substring(1));
-                    result.append(" = \"");
-                    result.append(f.get(this));
-                    result.append("\"");
-                }
-            } catch (final IllegalArgumentException | IllegalAccessException ex) {
-                throw new IllegalArgumentException(ex);
-            }
-        }
-        result.append("\n}\n");
-        return result.toString();
-    }
+    
 }
 

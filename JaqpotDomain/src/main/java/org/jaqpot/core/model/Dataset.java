@@ -29,18 +29,36 @@
  */
 package org.jaqpot.core.model;
 
-import java.util.ArrayList;
 import java.util.List;
+import javax.xml.bind.annotation.XmlRootElement;
+import org.codehaus.jackson.map.annotate.JsonSerialize;
 
 /**
  *
  * @author chung
  */
+@XmlRootElement
+@JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
 public class Dataset extends JaqpotEntity {
 
-    private List<String> substances = new ArrayList<>();
-    private List<String> features = new ArrayList<>();
-    private List<String> predictedFeatures = new ArrayList<>();
+    /**
+     * List of links to substances.
+     */
+    private List<String> substances;
+
+    /**
+     * An ordered list of Features. These features are standard properties of
+     * the substance as opposed to prediction features. These are not calculated
+     * or measured properties, but actual values that either measure or computed
+     * in silico.
+     */
+    private List<String> features;
+    /**
+     * List of predicted features. This is an ordered list of features for which
+     * a QSAR/QSPR/QNAR model is needed to predict them.
+     */
+    private List<String> predictedFeatures;
+    private String createdBy;
 
     public Dataset() {
     }
@@ -49,6 +67,15 @@ public class Dataset extends JaqpotEntity {
         super(id);
     }
 
+    public String getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(String createdBy) {
+        this.createdBy = createdBy;
+    }
+
+    
     public List<String> getSubstances() {
         return substances;
     }
@@ -72,5 +99,5 @@ public class Dataset extends JaqpotEntity {
     public void setPredictedFeatures(List<String> predictedFeatures) {
         this.predictedFeatures = predictedFeatures;
     }
-    
+
 }

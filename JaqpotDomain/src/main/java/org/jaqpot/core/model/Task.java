@@ -29,10 +29,15 @@
  */
 package org.jaqpot.core.model;
 
+import javax.xml.bind.annotation.XmlRootElement;
+import org.codehaus.jackson.map.annotate.JsonSerialize;
+
 /**
  *
  * @author chung
  */
+@XmlRootElement
+@JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
 public class Task extends JaqpotEntity {
     
     /**
@@ -80,16 +85,19 @@ public class Task extends JaqpotEntity {
 
     private String resultUri;
     private Status hasStatus;
-    private float percentageCompleted = -1;
+    private Float percentageCompleted;
     private ErrorReport errorReport;
-    private float httpStatus = -1;
-    private User createdBy;
-    private long duration = 0L;
+    private Integer httpStatus;
+    private String createdBy;
+    private Long duration;
 
     public Task() {
         super();
     }
 
+    public Task(String id) {
+        super(id);
+    }
     
 
     /**
@@ -114,7 +122,7 @@ public class Task extends JaqpotEntity {
      */
     public Task setDuration(Long duration) {
         if (duration == null) {
-            this.duration = 0;
+            this.duration = 0L;
             return this;
         }
         this.duration = duration;
@@ -126,11 +134,11 @@ public class Task extends JaqpotEntity {
      * @return
      *      Creator of the task or <code>null</code> if not available.
      */
-    public User getCreatedBy() {
+    public String getCreatedBy() {
         return createdBy;
     }
 
-    public Task setCreatedBy(User createdBy) {
+    public Task setCreatedBy(String createdBy) {
         this.createdBy = createdBy;
         return this;
     }
@@ -167,11 +175,11 @@ public class Task extends JaqpotEntity {
      * @return
      *      Percentage of completion as a number in the range <code>[0, 100]</code>.
      */
-    public float getPercentageCompleted() {
+    public Float getPercentageCompleted() {
         return percentageCompleted;
     }
 
-    public Task setPercentageCompleted(float percentageCompleted) {
+    public Task setPercentageCompleted(Float percentageCompleted) {
         this.percentageCompleted = percentageCompleted;
         return this;
     }
@@ -194,33 +202,14 @@ public class Task extends JaqpotEntity {
         return this;
     }
 
-    public float getHttpStatus() {
+    public Integer getHttpStatus() {
         return httpStatus;
     }
 
-    public Task setHttpStatus(float httpStatus) {
+    public Task setHttpStatus(Integer httpStatus) {
         this.httpStatus = httpStatus;
         return this;
     }
-    
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("Task {");
-        sb.append(getId());
-        sb.append("}\n");
-        sb.append("HTTP Status : ");
-        sb.append(getHttpStatus());
-        sb.append("\n");
-        sb.append("Status      : ");
-        sb.append(hasStatus);
-        sb.append("\n");
-        if (resultUri != null) {
-            sb.append("Result URI  : ");
-            sb.append(resultUri);
-            sb.append("\n");
-        }
-        return new String(sb);
-    }
+       
     
 }

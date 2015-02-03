@@ -29,46 +29,52 @@
  */
 package org.jaqpot.core.model;
 
+import javax.xml.bind.annotation.XmlRootElement;
+import org.codehaus.jackson.map.annotate.JsonSerialize;
+import org.jaqpot.util.EmailValidator;
+
 /**
  *
  * @author chung
  */
+@XmlRootElement
+@JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
 public class User extends JaqpotEntity {
     
     private String uid;
     private String name;
     private String mail;
     private String hashedPass;
-    private int maxParallelTasks = 0;
-    private int maxModels = 0;
-    private int maxBibTeX = 0;
-    private int maxConformers = 0;
+    private Integer maxParallelTasks ;
+    private Integer maxModels;
+    private Integer maxBibTeX;
+    private Integer maxConformers;
     public static final User GUEST = new User("guest@opensso.in-silico.ch", 
             "Guest", 
             "anonymous@anonymous.org", 
             "{SSHA}ficDnnD49QMLnwStKABXzDvFIgrd/c4H");
 
-    public int getMaxBibTeX() {
+    public Integer getMaxBibTeX() {
         return maxBibTeX;
     }
 
-    public void setMaxBibTeX(int maxBibTeX) {
+    public void setMaxBibTeX(Integer maxBibTeX) {
         this.maxBibTeX = maxBibTeX;
     }
 
-    public int getMaxModels() {
+    public Integer getMaxModels() {
         return maxModels;
     }
 
-    public void setMaxModels(int maxModels) {
+    public void setMaxModels(Integer maxModels) {
         this.maxModels = maxModels;
     }
 
-    public int getMaxParallelTasks() {
+    public Integer getMaxParallelTasks() {
         return maxParallelTasks;
     }
 
-    public void setMaxParallelTasks(int maxParallelTasks) {
+    public void setMaxParallelTasks(Integer maxParallelTasks) {
         this.maxParallelTasks = maxParallelTasks;
     }
 
@@ -99,26 +105,26 @@ public class User extends JaqpotEntity {
         return mail;
     }
 
-    /*
+    /**
      * Checks whether the provided e-mail address is RDF-2822 compliant and sets
      * the e-mail address of the user accordingly.
      * @param mail
      *      The e-mail address of the user (Must be RDF-2822 compliant).
      * @return 
      *      The current modifiable instance of User.
-     * @throws ToxOtisException
+     * @throws IllegalArgumentException
      *      In case the provided e-mail address is not compliant to the
      *      specifications of RFC 2822.
      * @see EmailValidator
      */
-//    public User setMail(String mail) throws ToxOtisException {
-//        if (!EmailValidator.validate(mail)) {
-//            throw new org.opentox.toxotis.exceptions.impl.ToxOtisException("Bad email address according to RFC 2822 : '" + mail + "'");
-//        }
-//        this.mail = mail;
-//        return this;
-//
-//    }
+    public User setMail(String mail) throws IllegalArgumentException {
+        if (!EmailValidator.validate(mail)) {
+            throw new IllegalArgumentException("Bad email address according to RFC 2822 : '" + mail + "'");
+        }
+        this.mail = mail;
+        return this;
+
+    }
 
     public String getName() {
         return name;
@@ -138,21 +144,12 @@ public class User extends JaqpotEntity {
         return this;
     }
 
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("UID   : ");
-        sb.append(uid);
-        sb.append("\n");
-        sb.append("Name  : ");
-        sb.append(name);
-        sb.append("\n");
-        sb.append("Mail  : ");
-        sb.append(mail);
-        sb.append("\n");
-        sb.append("Pass  : ");
-        sb.append(hashedPass);
-        return new String(sb);
+    public int getMaxConformers() {
+        return maxConformers;
+    }
+
+    public void setMaxConformers(Integer maxConformers) {
+        this.maxConformers = maxConformers;
     }
 
    

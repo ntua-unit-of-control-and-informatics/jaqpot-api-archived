@@ -29,16 +29,19 @@
  */
 package org.jaqpot.core.model;
 
-import java.util.HashSet;
 import java.util.Set;
+import javax.xml.bind.annotation.XmlRootElement;
+import org.codehaus.jackson.map.annotate.JsonSerialize;
 
 /**
  *
  * @author chung
  */
+@XmlRootElement
+@JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
 public class Compound extends JaqpotEntity {
     
-    private Set<Conformer> conformers = new HashSet<>();
+    private Set<Conformer> conformers;
 
     public Compound() {
     }

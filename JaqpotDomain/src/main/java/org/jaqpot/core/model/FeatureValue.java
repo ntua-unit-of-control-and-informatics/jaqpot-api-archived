@@ -30,29 +30,67 @@
 package org.jaqpot.core.model;
 
 import javax.xml.bind.annotation.XmlRootElement;
+import org.codehaus.jackson.map.annotate.JsonSerialize;
 
 /**
  *
  * @author chung
  */
 @XmlRootElement
-public class FeatureValue {    
-        
-    private String feature;    
-    /* stores numeric lower value value */
+@JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
+public class FeatureValue extends JaqpotEntity {
+
+    public FeatureValue() {
+    }
+
+    public FeatureValue(String id) {
+        super(id);
+    }
+    
+
+    /**
+     * The corresponding feature.
+     */
+    private String feature;
+
+    /**
+     * stores numeric lower value value
+     */
     private Double lowValue;
-    /* stores numeric upper value */
+
+    /**
+     * Stores numeric upper value.
+     */
     private Double highValue;
-    /* stores the standard error of the numeric value */
+
+    /**
+     * Stores the standard error of the numeric value.
+     */
     private Double stdError;
-    
-    /* stores string value */
+
+    /**
+     * Stores string value.
+     */
     private String stringValue;
-    
-    /** single value to be used for training */
-    private Object value; 
-    /** where in the literature the value was found */
+
+    /**
+     * Single value to be used for training.
+     */
+    private Object value;
+    /**
+     * Where in the literature the value was found.
+     */
     private String bibtex;
+
+    private String createdBy;
+
+    public String getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(String createdBy) {
+        this.createdBy = createdBy;
+    }
 
     public String getFeature() {
         return feature;
@@ -110,5 +148,4 @@ public class FeatureValue {
         this.bibtex = bibtex;
     }
 
-    
 }

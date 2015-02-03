@@ -29,20 +29,32 @@
  */
 package org.jaqpot.core.model;
 
-import java.util.HashSet;
 import java.util.Set;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import org.codehaus.jackson.annotate.JsonProperty;
+import org.codehaus.jackson.map.annotate.JsonSerialize;
 
 /**
  *
  * @author chung
  */
 @XmlRootElement
+@JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
 public abstract class JaqpotEntity {
 
+    /**
+     * Identifier of the entity.
+     */  
     private String id;
+    /**
+     * Metadata of the entity.
+     */
     private MetaInfo meta;
-    private Set<String> ontologicalClasses = new HashSet<>();
+    /**
+     * Set of ontological characterizations.
+     */
+    private Set<String> ontologicalClasses;
 
     public JaqpotEntity() {
     }
@@ -51,7 +63,7 @@ public abstract class JaqpotEntity {
         this.id = id;
     }
         
-
+    @JsonProperty("_id")
     public String getId() {
         return id;
     }

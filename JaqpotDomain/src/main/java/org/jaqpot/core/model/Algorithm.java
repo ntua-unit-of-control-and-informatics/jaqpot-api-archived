@@ -29,24 +29,30 @@
  */
 package org.jaqpot.core.model;
 
-import java.util.HashSet;
 import java.util.Set;
+import javax.xml.bind.annotation.XmlRootElement;
+import org.codehaus.jackson.map.annotate.JsonSerialize;
 
 /**
  *
  * @author chung
  */
+@XmlRootElement
+@JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
 public class Algorithm extends JaqpotEntity {
     
-    private Set<Parameter> parameters = new HashSet<>();
+    /** Algorithm's parameters. */
+    private Set<Parameter> parameters;
+    /** users' implenetations are ranked by other users. */
     private int ranking;
-    private BibTeX bibtex;
+    /** BibTeX reference were one can find more info about the algorithm. */
+    private Set<BibTeX> bibtex;
     
     /**
      * User who created the algorithm.
      * This is useful for user-created algorithms
      */
-    private User createdBy;
+    private String createdBy;
 
     public Algorithm() {
     }
@@ -71,22 +77,20 @@ public class Algorithm extends JaqpotEntity {
         this.ranking = ranking;
     }
 
-    public BibTeX getBibtex() {
+    public Set<BibTeX> getBibtex() {
         return bibtex;
     }
 
-    public void setBibtex(BibTeX bibtex) {
+    public void setBibtex(Set<BibTeX> bibtex) {
         this.bibtex = bibtex;
     }
 
-    public User getCreatedBy() {
+    public String getCreatedBy() {
         return createdBy;
     }
 
-    public void setCreatedBy(User createdBy) {
+    public void setCreatedBy(String createdBy) {
         this.createdBy = createdBy;
     }
-    
-    
     
 }
