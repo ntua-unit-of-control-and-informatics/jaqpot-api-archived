@@ -29,14 +29,12 @@
  */
 package org.jaqpot.core.model;
 
-import javax.xml.bind.annotation.XmlRootElement;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 
 /**
  *
  * @author chung
  */
-@XmlRootElement
 @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
 public class Task extends JaqpotEntity {
     
@@ -106,11 +104,11 @@ public class Task extends JaqpotEntity {
     public void setResultUri(String resultUri) {
         this.resultUri = resultUri;
     }
-
+    
     public Status getStatus() {
         return hasStatus;
     }
-
+     
     public void setStatus(Status hasStatus) {
         this.hasStatus = hasStatus;
     }
