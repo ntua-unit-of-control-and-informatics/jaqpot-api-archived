@@ -30,16 +30,12 @@
 package org.jaqpot.core.model;
 
 import java.util.Set;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 
 /**
  *
  * @author chung
  */
-@XmlRootElement
 @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
 public abstract class JaqpotEntity {
 
@@ -62,8 +58,7 @@ public abstract class JaqpotEntity {
     public JaqpotEntity(String id) {
         this.id = id;
     }
-        
-    @JsonProperty("_id")
+            
     public String getId() {
         return id;
     }
@@ -71,7 +66,7 @@ public abstract class JaqpotEntity {
     public void setId(String id) {
         this.id = id;
     }
-
+        
     public MetaInfo getMeta() {
         return meta;
     }
