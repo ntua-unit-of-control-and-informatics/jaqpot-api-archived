@@ -31,9 +31,6 @@ package org.jaqpot.core.model.builder;
 
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.SerializationConfig;
 import org.jaqpot.core.model.User;
@@ -141,20 +138,5 @@ public class UserBuilderTest {
         fail("execution shouldn't have reached here!");
     }
     
-    @Test
-    public void testMarshaller() throws JAXBException{
-        UserBuilder builder = UserBuilder.builder("random@jaqpot.org");
-        User u = builder.setHashedPassword("skjhfkjdshkfjs").
-                setMail("random@gmail.com").
-                setMaxBibTeX(100).
-                setMaxModels(1000).
-                setMaxSubstances(10000).
-                setName("Random Person").
-                setParallelTasks(6).build();
-        JAXBContext jc = JAXBContext.newInstance(User.class);
-        Marshaller marshaller = jc.createMarshaller();
-        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-        
-        marshaller.marshal(u, System.out);
-    }
+    
 }
