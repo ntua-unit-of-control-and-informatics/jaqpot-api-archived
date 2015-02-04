@@ -35,6 +35,8 @@ import java.io.PipedOutputStream;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.SerializationConfig;
 import org.jaqpot.core.model.MetaInfo;
+import org.jaqpot.core.model.serialize.PojoJsonParser;
+import org.jaqpot.core.model.serialize.PojoJsonSerializer;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -94,6 +96,20 @@ public class MetaInfoBuilderTest {
         assertNull(meta.getComments());
     }
 
+    
+    @Test
+    public void testUpdateCascade() {
+        MetaInfoBuilder builder = MetaInfoBuilder.builder();
+        MetaInfo meta = builder.
+                addTitles("title1", "title2").
+                addTitles("title3").
+                addTitles("title4").build();
+        assertEquals(4, meta.getTitles().size());
+        for (int i=1; i<=4; ++i){
+            assertTrue(meta.getTitles().contains("title"+i));
+        }        
+    }
+    
     @Test
     public void testJacksonSerialization() throws IOException {
         /*
@@ -106,23 +122,30 @@ public class MetaInfoBuilderTest {
                 addComments("comment1", "comment2", "comment3").
                 addCreators("creator1").
                 addSubjects((String[]) null).build();
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.enable(SerializationConfig.Feature.INDENT_OUTPUT); // optional
-
-        PipedInputStream in = new PipedInputStream(1024);
-        PipedOutputStream out = new PipedOutputStream(in);
-
-        mapper.writeValue(out, meta);
-
-        MetaInfo recovered = mapper.readValue(in, MetaInfo.class);
-
-        assertNotNull(recovered.getTitles());
-        assertNotNull(recovered.getComments());
-        assertNotNull(recovered.getCreators());
-        assertNull(recovered.getSubjects());
-        assertEquals(recovered.getTitles(), meta.getTitles());
-        assertEquals(recovered.getCreators(), meta.getCreators());
-        assertEquals(recovered.getComments(), meta.getComments());
-        assertEquals(recovered.getDate(), meta.getDate());
+       
+        /* Create an object mapper to serialize the meta */
+        ObjectMapper singletonMapper = new ObjectMapper();
+        singletonMapper.enable(SerializationConfig.Feature.INDENT_OUTPUT); // optional
+        
+        PojoJsonSerializer serializer = new PojoJsonSerializer(meta, singletonMapper);        
+        
+        try (PipedInputStream in = new PipedInputStream(1024) // Piped IS
+        ) {
+            PipedOutputStream out = new PipedOutputStream(in); // Piped OS            
+            serializer.writeValue(out); // Write meta to the OS            
+            PojoJsonParser parser = new PojoJsonParser(singletonMapper);
+            MetaInfo recovered = parser.parse(in, MetaInfo.class);            
+            
+            /* Make sure parsing was done correctly */
+            assertNotNull(recovered.getTitles());
+            assertNotNull(recovered.getComments());
+            assertNotNull(recovered.getCreators());
+            assertNull(recovered.getSubjects());
+            assertEquals(recovered.getTitles(), meta.getTitles());
+            assertEquals(recovered.getCreators(), meta.getCreators());
+            assertEquals(recovered.getComments(), meta.getComments());
+            assertEquals(recovered.getDate(), meta.getDate());
+                        
+        }
     }
 }

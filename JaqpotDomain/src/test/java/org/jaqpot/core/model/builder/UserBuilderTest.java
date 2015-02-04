@@ -29,6 +29,14 @@
  */
 package org.jaqpot.core.model.builder;
 
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.SerializationConfig;
+import org.jaqpot.core.model.User;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -41,46 +49,87 @@ import static org.junit.Assert.*;
  * @author chung
  */
 public class UserBuilderTest {
-    
+
     public UserBuilderTest() {
     }
-    
+
     @BeforeClass
     public static void setUpClass() {
     }
-    
+
     @AfterClass
     public static void tearDownClass() {
     }
-    
+
     @Before
     public void setUp() {
     }
-    
+
     @After
     public void tearDown() {
     }
 
-    
     @Test
-    public void testNormalBuildUser(){
-        UserBuilder uBuilder = UserBuilder.builder("john@jaqpot.org");
-        uBuilder.setHashedPassword("ajsdhkash").
-                setMail("me@my.email.com").
-                setMaxBibTeX(10000).
+    public void testNormalBuildUser() {
+        String userID = "john@jaqpot.org",
+                hashedPass = "ajsdhkash",
+                email = "me@my.email.com";
+        Integer nMaxModels = 100,
+                nMaxBibTeX = 10000,
+                nMaxSubstances = 666;
+        UserBuilder uBuilder = UserBuilder.builder(userID);
+        User u = uBuilder.setHashedPassword(hashedPass).
+                setMail(email).
+                setMaxBibTeX(nMaxBibTeX).
+                setMaxModels(nMaxModels).
+                setMaxSubstances(nMaxSubstances).build();
+        assertNotNull(u);
+        assertEquals(userID, u.getId());
+        assertEquals(hashedPass, u.getHashedPass());
+        assertEquals(email, u.getMail());
+        assertEquals(nMaxBibTeX, u.getMaxBibTeX());
+        assertEquals(nMaxModels, u.getMaxModels());
+        assertEquals(nMaxSubstances, u.getMaxSubstances());               
+    }
+
+    @Test
+    public void testProperSerializationJackson() throws Exception {
+        UserBuilder builder = UserBuilder.builder("random@jaqpot.org");
+        User u = builder.setHashedPassword("skjhfkjdshkfjs").
+                setMail("random@gmail.com").
+                setMaxBibTeX(100).
                 setMaxModels(1000).
-                setMaxSubstances(500000).build();
+                setMaxSubstances(10000).
+                setName("Random Person").
+                setParallelTasks(6).build();
+
+        /* Create an object mapper to serialize the user object */
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.enable(SerializationConfig.Feature.INDENT_OUTPUT); // optional
+
+        try (PipedInputStream in = new PipedInputStream(1024) // Piped IS
+                ) {
+            PipedOutputStream out = new PipedOutputStream(in); // Piped OS
+
+            mapper.writeValue(out, u); // Write user to the OS
+
+            User recovered = mapper.readValue(in, User.class); // Reads user object from IS
+            assertNotNull(recovered);
+            assertNotNull(recovered.getHashedPass());
+            assertNotNull(recovered.getMail());
+            assertNotNull(recovered.getMaxBibTeX());
+            assertNotNull(recovered.getMaxSubstances());
+            assertNotNull(recovered.getName());
+            assertNotNull(recovered.getId());
+            assertEquals(u.getHashedPass(), recovered.getHashedPass());
+            assertEquals(u.getMaxModels(), recovered.getMaxModels());
+        }
     }
-    
-    @Test
-    public void testProperSerializationJackson(){
-        fail("Implementation pending!");
-    }
-    
+
     @Test(expected = IllegalArgumentException.class)
     public void testInvalidEmail() {
         UserBuilder uBuilder = UserBuilder.builder("chung@jaqpot.org");
-        uBuilder.setHashedPassword("password");        
+        uBuilder.setHashedPassword("password");
         uBuilder.setMail("invalidemail");
         fail("execution shouldn't have reached here!");
     }
@@ -90,5 +139,22 @@ public class UserBuilderTest {
         UserBuilder uBuilder = UserBuilder.builder("chung@jaqpot.org");
         uBuilder.setMail(null);
         fail("execution shouldn't have reached here!");
+    }
+    
+    @Test
+    public void testMarshaller() throws JAXBException{
+        UserBuilder builder = UserBuilder.builder("random@jaqpot.org");
+        User u = builder.setHashedPassword("skjhfkjdshkfjs").
+                setMail("random@gmail.com").
+                setMaxBibTeX(100).
+                setMaxModels(1000).
+                setMaxSubstances(10000).
+                setName("Random Person").
+                setParallelTasks(6).build();
+        JAXBContext jc = JAXBContext.newInstance(User.class);
+        Marshaller marshaller = jc.createMarshaller();
+        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+        
+        marshaller.marshal(u, System.out);
     }
 }

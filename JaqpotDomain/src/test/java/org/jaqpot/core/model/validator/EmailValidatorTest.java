@@ -45,6 +45,11 @@ public class EmailValidatorTest {
     public void testValidateWithoutExtension() {
         assertFalse(EmailValidator.validate("someone@somewhere"));
     }
+    
+    @Test
+    public void testValidateWithWhitespace() {
+        assertFalse(EmailValidator.validate("john smith@jaqpot.org"));
+    }
 
     @Test
     public void testValidateWithoutAt() {

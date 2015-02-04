@@ -27,63 +27,54 @@
  * All source files of JAQPOT Quattro that are stored on github are licenced
  * with the aforementioned licence. 
  */
-package org.jaqpot.core.model;
+package org.jaqpot.core.model.serialize;
 
-import java.util.Set;
-import org.codehaus.jackson.annotate.JsonProperty;
-import org.codehaus.jackson.map.annotate.JsonSerialize;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.Writer;
+import org.codehaus.jackson.JsonGenerationException;
+import org.codehaus.jackson.map.JsonMappingException;
+import org.codehaus.jackson.map.ObjectMapper;
 
 /**
  *
  * @author chung
  */
-@JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
-public abstract class JaqpotEntity {
+public class PojoJsonSerializer {
 
-    /**
-     * Identifier of the entity.
-     */  
-    private String id;
-    /**
-     * Metadata of the entity.
-     */
-    private MetaInfo meta;
-    /**
-     * Set of ontological characterizations.
-     */
-    private Set<String> ontologicalClasses;
+    private final Object pojo;
+    private ObjectMapper mapper;
 
-    public JaqpotEntity() {
+    public PojoJsonSerializer(Object pojo) {
+        this.pojo = pojo;
     }
 
-    public JaqpotEntity(String id) {
-        this.id = id;
-    }
-    
-    @JsonProperty("_id")
-    public String getId() {
-        return id;
+    public PojoJsonSerializer(Object pojo, ObjectMapper mapper) {
+        this.pojo = pojo;
+        this.mapper = mapper;
+    }        
+
+    public void setMapper(ObjectMapper mapper) {
+        this.mapper = mapper;
     }
 
-    @JsonProperty("_id")
-    public void setId(String id) {
-        this.id = id;
-    }
-        
-    public MetaInfo getMeta() {
-        return meta;
+    public ObjectMapper getMapper() {
+        return mapper;
+    }        
+
+    public String toJsonString() throws IOException, JsonGenerationException, JsonMappingException {
+        if (mapper == null) {
+            setMapper(new ObjectMapper());
+        }
+        return mapper.writeValueAsString(pojo);
     }
 
-    public void setMeta(MetaInfo meta) {
-        this.meta = meta;
+    public void writeValue(OutputStream out) throws IOException, JsonGenerationException, JsonMappingException {
+        mapper.writeValue(out, pojo);
     }
 
-    public Set<String> getOntologicalClasses() {
-        return ontologicalClasses;
+    public void writeValue(Writer w) throws IOException, JsonGenerationException, JsonMappingException {
+        mapper.writeValue(w, pojo);
     }
 
-    public void setOntologicalClasses(Set<String> ontologicalClasses) {
-        this.ontologicalClasses = ontologicalClasses;
-    }
-   
 }
