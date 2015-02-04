@@ -6,7 +6,7 @@
  * are licenced by GPL v3 as specified hereafter. Additional components may ship
  * with some other licence as will be specified therein.
  *
- * Copyright (C) 2014-2015 KinkyDesign (Charalambos Chomenides, Pantelis Sopasakis)
+ * Copyright (C) 2014-2015 KinkyDesign (Charalampos Chomenidis, Pantelis Sopasakis)
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,32 +27,17 @@
  * All source files of JAQPOT Quattro that are stored on github are licenced
  * with the aforementioned licence. 
  */
-package org.jaqpot.db;
+package org.jaqpot.core.model;
 
-import com.mongodb.MongoClient;
+import javax.xml.bind.annotation.XmlRootElement;
+import org.codehaus.jackson.map.annotate.JsonSerialize;
 
 /**
  *
- * @author chung
+ * @author hampos
  */
-public class JaqpotMongoClient {
-
-    private static JaqpotMongoClient instance = null;
-    private final MongoClient mongoClient;
-
-    protected JaqpotMongoClient() {
-        mongoClient = new MongoClient();
-    }
-
-    public static JaqpotMongoClient getInstance() {
-        if (instance == null) {
-            instance = new JaqpotMongoClient();
-        }
-        return instance;
-    }
-
-    public MongoClient getMongoClient() {
-        return mongoClient;
-    }
-
+@XmlRootElement
+@JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
+public class NanoMaterial extends Substance {
+    
 }

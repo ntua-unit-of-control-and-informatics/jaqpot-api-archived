@@ -27,31 +27,33 @@
  * All source files of JAQPOT Quattro that are stored on github are licenced
  * with the aforementioned licence. 
  */
-package org.jaqpot.db;
+package org.jaqpot.core.db;
 
-import org.codehaus.jackson.map.ObjectMapper;
+import com.mongodb.MongoClient;
 
 /**
  *
  * @author chung
  */
-public class ObjectMapperSingleton {
+public class JaqpotMongoClient {
 
-    private static ObjectMapperSingleton instance = null;
-    private final ObjectMapper mapper;
+    private static JaqpotMongoClient instance = null;
+    private final MongoClient mongoClient;
 
-    protected ObjectMapperSingleton() {
-        mapper = new ObjectMapper();
+    protected JaqpotMongoClient() {
+     //   mongoClient = new MongoClient();
+        mongoClient = null;
     }
 
-    public static ObjectMapperSingleton getInstance() {
+    public static JaqpotMongoClient getInstance() {
         if (instance == null) {
-            instance = new ObjectMapperSingleton();
+            instance = new JaqpotMongoClient();
         }
         return instance;
     }
 
-    public ObjectMapper getObjectMapper() {
-        return mapper;
+    public MongoClient getMongoClient() {
+        return mongoClient;
     }
+
 }

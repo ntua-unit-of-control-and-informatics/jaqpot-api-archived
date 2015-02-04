@@ -104,6 +104,10 @@ public class EmailValidatorTest {
     public void testValidateGood() {
         assertTrue(EmailValidator.validate("someone@somewhere.com"));
         assertTrue(EmailValidator.validate("someone@somewhere.anywhere.everywhere.com"));
+        assertTrue(EmailValidator.validate("someone.anyone@somewhere.anywhere.everywhere.com"));
+        assertTrue(EmailValidator.validate("someone-anyone@somewhere.anywhere.everywhere.com"));
+        assertTrue(EmailValidator.validate("someone-anyone@somewhere-anywhere.everywhere.com"));
+        assertTrue(EmailValidator.validate("someone+anyone@somewhere-anywhere.everywhere.com"));
     }
 
 }

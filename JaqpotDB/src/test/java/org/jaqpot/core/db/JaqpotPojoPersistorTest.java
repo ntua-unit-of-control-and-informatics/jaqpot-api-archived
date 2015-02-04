@@ -27,8 +27,9 @@
  * All source files of JAQPOT Quattro that are stored on github are licenced
  * with the aforementioned licence. 
  */
-package org.jaqpot.db;
+package org.jaqpot.core.db;
 
+import org.jaqpot.core.db.JaqpotPojoPersistor;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
