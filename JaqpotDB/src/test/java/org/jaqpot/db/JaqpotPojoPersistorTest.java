@@ -73,6 +73,10 @@ public class JaqpotPojoPersistorTest {
     public void tearDown() {
     }
 
+    /**
+     * Writes a task to mongodb and retrieves it by ID.
+     * @throws IOException 
+     */
     @Test
     public void testSaveTask() throws IOException {
         MetaInfoBuilder metaBuilder = MetaInfoBuilder.builder();
@@ -116,8 +120,6 @@ public class JaqpotPojoPersistorTest {
         assertEquals("not the same status", taskPojo.getStatus(), objFromDB.getStatus());
         assertEquals("not the same comments", taskPojo.getMeta().getComments(), objFromDB.getMeta().getComments());
         assertEquals("not the same descriptions", taskPojo.getMeta().getDescriptions(), objFromDB.getMeta().getDescriptions());
-
-        //fail("the test is incomplete!");
     }
 
 }
