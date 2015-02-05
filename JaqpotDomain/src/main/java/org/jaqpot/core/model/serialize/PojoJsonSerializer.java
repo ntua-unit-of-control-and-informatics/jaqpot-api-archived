@@ -40,6 +40,7 @@ import org.codehaus.jackson.map.ObjectMapper;
  *
  * @author chung
  */
+@Deprecated
 public class PojoJsonSerializer {
 
     private final Object pojo;

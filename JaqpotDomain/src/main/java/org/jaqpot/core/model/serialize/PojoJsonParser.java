@@ -39,6 +39,7 @@ import org.codehaus.jackson.map.ObjectMapper;
  *
  * @author chung
  */
+@Deprecated
 public class PojoJsonParser {
     
     private final ObjectMapper mapper;
