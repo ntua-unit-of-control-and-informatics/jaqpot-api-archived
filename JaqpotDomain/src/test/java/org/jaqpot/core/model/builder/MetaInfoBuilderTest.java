@@ -29,14 +29,7 @@
  */
 package org.jaqpot.core.model.builder;
 
-import java.io.IOException;
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.SerializationConfig;
 import org.jaqpot.core.model.MetaInfo;
-import org.jaqpot.core.model.serialize.PojoJsonParser;
-import org.jaqpot.core.model.serialize.PojoJsonSerializer;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -110,42 +103,4 @@ public class MetaInfoBuilderTest {
         }        
     }
     
-    @Test
-    public void testJacksonSerialization() throws IOException {
-        /*
-         * This is to make sure that our (simple) Jackson-related
-         * annotations in MetaInfo work fine!
-         */
-        MetaInfoBuilder builder = MetaInfoBuilder.builder();
-        MetaInfo meta = builder.
-                addTitles("title1", "title2").
-                addComments("comment1", "comment2", "comment3").
-                addCreators("creator1").
-                addSubjects((String[]) null).build();
-       
-        /* Create an object mapper to serialize the meta */
-        ObjectMapper singletonMapper = new ObjectMapper();
-        singletonMapper.enable(SerializationConfig.Feature.INDENT_OUTPUT); // optional
-        
-        PojoJsonSerializer serializer = new PojoJsonSerializer(meta, singletonMapper);        
-        
-        try (PipedInputStream in = new PipedInputStream(1024) // Piped IS
-        ) {
-            PipedOutputStream out = new PipedOutputStream(in); // Piped OS            
-            serializer.writeValue(out); // Write meta to the OS            
-            PojoJsonParser parser = new PojoJsonParser(singletonMapper);
-            MetaInfo recovered = parser.parse(in, MetaInfo.class);            
-            
-            /* Make sure parsing was done correctly */
-            assertNotNull(recovered.getTitles());
-            assertNotNull(recovered.getComments());
-            assertNotNull(recovered.getCreators());
-            assertNull(recovered.getSubjects());
-            assertEquals(recovered.getTitles(), meta.getTitles());
-            assertEquals(recovered.getCreators(), meta.getCreators());
-            assertEquals(recovered.getComments(), meta.getComments());
-            assertEquals(recovered.getDate(), meta.getDate());
-                        
-        }
-    }
 }

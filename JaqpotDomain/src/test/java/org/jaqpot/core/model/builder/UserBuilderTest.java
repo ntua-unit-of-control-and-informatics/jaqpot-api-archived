@@ -29,10 +29,6 @@
  */
 package org.jaqpot.core.model.builder;
 
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.SerializationConfig;
 import org.jaqpot.core.model.User;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -88,41 +84,7 @@ public class UserBuilderTest {
         assertEquals(nMaxModels, u.getMaxModels());
         assertEquals(nMaxSubstances, u.getMaxSubstances());               
     }
-
-    @Test
-    public void testProperSerializationJackson() throws Exception {
-        UserBuilder builder = UserBuilder.builder("random@jaqpot.org");
-        User u = builder.setHashedPassword("skjhfkjdshkfjs").
-                setMail("random@gmail.com").
-                setMaxBibTeX(100).
-                setMaxModels(1000).
-                setMaxSubstances(10000).
-                setName("Random Person").
-                setParallelTasks(6).build();
-
-        /* Create an object mapper to serialize the user object */
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.enable(SerializationConfig.Feature.INDENT_OUTPUT); // optional
-
-        try (PipedInputStream in = new PipedInputStream(1024) // Piped IS
-                ) {
-            PipedOutputStream out = new PipedOutputStream(in); // Piped OS
-
-            mapper.writeValue(out, u); // Write user to the OS
-
-            User recovered = mapper.readValue(in, User.class); // Reads user object from IS
-            assertNotNull(recovered);
-            assertNotNull(recovered.getHashedPass());
-            assertNotNull(recovered.getMail());
-            assertNotNull(recovered.getMaxBibTeX());
-            assertNotNull(recovered.getMaxSubstances());
-            assertNotNull(recovered.getName());
-            assertNotNull(recovered.getId());
-            assertEquals(u.getHashedPass(), recovered.getHashedPass());
-            assertEquals(u.getMaxModels(), recovered.getMaxModels());
-        }
-    }
-
+    
     @Test(expected = IllegalArgumentException.class)
     public void testInvalidEmail() {
         UserBuilder uBuilder = UserBuilder.builder("chung@jaqpot.org");

@@ -60,6 +60,21 @@ public class EmailValidatorTest {
     public void testValidateWithoutDomain() {
         assertFalse(EmailValidator.validate("someone@gr"));
     }
+    
+    @Test
+    public void testValidateNonLatin() {
+        assertFalse(EmailValidator.validate("あいうえお@example.com"));
+    }
+    
+    @Test
+    public void testValidateGreek() {
+        assertFalse(EmailValidator.validate("διεύθυνση@example.com"));
+    }
+    
+    @Test
+    public void testValidateWithIP() {
+        assertFalse(EmailValidator.validate("email@123.123.123.123"));
+    }        
 
     @Test
     public void testValidateWithoutName() {
@@ -109,5 +124,6 @@ public class EmailValidatorTest {
         assertTrue(EmailValidator.validate("someone-anyone@somewhere-anywhere.everywhere.com"));
         assertTrue(EmailValidator.validate("someone+anyone@somewhere-anywhere.everywhere.com"));
     }
+    
 
 }
