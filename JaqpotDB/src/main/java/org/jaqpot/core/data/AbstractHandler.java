@@ -5,7 +5,7 @@
  */
 package org.jaqpot.core.data;
 
-import org.jaqpot.core.db.JaqpotEntityManager;
+import org.jaqpot.core.db.entitymanager.JaqpotEntityManager;
 
 /**
  *

@@ -14,15 +14,15 @@ import java.io.Writer;
  * @author hampos
  */
 public interface EntityJSONSerializer {
-    
-    public void write(OutputStream out);
-    
-    public void write(Writer writer);
-    
-    public String write();
-    
+
+    public void write(Object entity, OutputStream out);
+
+    public void write(Object entity, Writer writer);
+
+    public String write(Object entity);
+
     public <T> T parse(String content, Class<T> valueType);
-    
+
     public <T> T parse(InputStream src, Class<T> valueType);
-    
+
 }

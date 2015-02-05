@@ -27,7 +27,7 @@
  * All source files of JAQPOT Quattro that are stored on github are licenced
  * with the aforementioned licence. 
  */
-package org.jaqpot.core.db;
+package org.jaqpot.core.db.entitymanager;
 
 import org.jaqpot.core.db.JaqpotPojoPersistor;
 import com.mongodb.BasicDBObject;
@@ -39,6 +39,7 @@ import com.mongodb.MongoClient;
 import java.io.IOException;
 import java.util.UUID;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.jaqpot.core.db.JaqpotPojoPersistor;
 import org.jaqpot.core.model.MetaInfo;
 import org.jaqpot.core.model.Task;
 import org.jaqpot.core.model.builder.MetaInfoBuilder;
@@ -53,9 +54,9 @@ import static org.junit.Assert.*;
  *
  * @author chung
  */
-public class JaqpotPojoPersistorTest {
+public class MongoDBEntityManagerTest {
 
-    public JaqpotPojoPersistorTest() {
+    public MongoDBEntityManagerTest() {
     }
 
     @BeforeClass
@@ -95,8 +96,8 @@ public class JaqpotPojoPersistorTest {
         taskPojo.setStatus(Task.Status.RUNNING);
 
         /* Initializes a Persistor with default DB configuration */
-        JaqpotPojoPersistor persistor = new JaqpotPojoPersistor(taskPojo);
-        persistor.persist();
+        MongoDBEntityManager em = new MongoDBEntityManager();
+        em.persist(taskPojo);
 
         //Now find the object in the database:
         BasicDBObject query = new BasicDBObject("_id", taskPojo.getId()); // Find with ID

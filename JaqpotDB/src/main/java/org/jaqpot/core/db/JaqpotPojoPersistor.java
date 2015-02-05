@@ -29,6 +29,7 @@
  */
 package org.jaqpot.core.db;
 
+import org.jaqpot.core.db.entitymanager.MongoDBEntityManager;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
@@ -55,19 +56,19 @@ public class JaqpotPojoPersistor {
         this.pojo = pojo;
     }
     
-    public int persist() throws IOException{
-        MongoClient mongoClient = JaqpotMongoClient.getInstance().getMongoClient();
-        DB db = mongoClient.getDB("test");
-        ObjectMapper mapper = ObjectMapperSingleton.getInstance().getObjectMapper();
-        PojoJsonSerializer serializer = new PojoJsonSerializer(pojo, mapper);
-        String pojoJSON = serializer.toJsonString();
-        
-        System.out.println(pojoJSON);
-        DBObject taskDBObj = (DBObject) JSON.parse(pojoJSON);
-        DBCollection collection = db.getCollection("tasks");
-        WriteResult result = collection.insert(taskDBObj);
-        return result.getN();
-    }
+//    public int persist() throws IOException{
+//        MongoClient mongoClient = MongoDBEntityManager.getInstance().getMongoClient();
+//        DB db = mongoClient.getDB("test");
+//        ObjectMapper mapper = ObjectMapperSingleton.getInstance().getObjectMapper();
+//        PojoJsonSerializer serializer = new PojoJsonSerializer(pojo, mapper);
+//        String pojoJSON = serializer.toJsonString();
+//        
+//        System.out.println(pojoJSON);
+//        DBObject taskDBObj = (DBObject) JSON.parse(pojoJSON);
+//        DBCollection collection = db.getCollection("tasks");
+//        WriteResult result = collection.insert(taskDBObj);
+//        return result.getN();
+//    }
     
     
     
