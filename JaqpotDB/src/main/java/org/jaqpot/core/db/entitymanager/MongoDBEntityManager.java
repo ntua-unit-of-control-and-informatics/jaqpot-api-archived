@@ -62,7 +62,7 @@ public class MongoDBEntityManager implements JaqpotEntityManager {
 
     public MongoDBEntityManager() {
         try {
-            mongoClient = new MongoClient("");
+            mongoClient = new MongoClient();
         } catch (UnknownHostException ex) {
             //TODO: create bundle with messages
             LOG.log(Level.SEVERE, "JaqpotEntityManager could not be crated properly. Please check your database configuration settings.", ex);

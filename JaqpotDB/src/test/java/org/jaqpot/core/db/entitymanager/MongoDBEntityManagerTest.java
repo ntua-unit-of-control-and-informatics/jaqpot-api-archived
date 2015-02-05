@@ -39,7 +39,9 @@ import com.mongodb.MongoClient;
 import java.io.IOException;
 import java.util.UUID;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.jaqpot.core.data.serialize.EntityJSONSerializer;
 import org.jaqpot.core.db.JaqpotPojoPersistor;
+import org.jaqpot.core.model.JaqpotEntity;
 import org.jaqpot.core.model.MetaInfo;
 import org.jaqpot.core.model.Task;
 import org.jaqpot.core.model.builder.MetaInfoBuilder;
@@ -49,6 +51,10 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 
 /**
  *
@@ -56,11 +62,23 @@ import static org.junit.Assert.*;
  */
 public class MongoDBEntityManagerTest {
 
+    @Mock
+    private EntityJSONSerializer serializer;
+    @Mock
+    private JaqpotEntity entity;
+
+    ObjectMapper mapper;
+    Task taskPojo;
+
+    @InjectMocks
+    private MongoDBEntityManager em;
+
     public MongoDBEntityManagerTest() {
     }
 
     @BeforeClass
     public static void setUpClass() {
+
     }
 
     @AfterClass
@@ -68,7 +86,25 @@ public class MongoDBEntityManagerTest {
     }
 
     @Before
-    public void setUp() {
+    public void setUp() throws IOException {
+        MetaInfoBuilder metaBuilder = MetaInfoBuilder.builder();
+        MetaInfo meta = metaBuilder.
+                addComments("task started", "this task does training", "dataset downloaded").
+                addDescriptions("this is a very nice task", "oh, and it's very useful too").
+                addSources("http://jaqpot.org/algorithm/wonk").build();
+
+        taskPojo = new Task(UUID.randomUUID().toString());
+        taskPojo.setCreatedBy("random-user@jaqpot.org");
+        taskPojo.setPercentageCompleted(0.95f);
+        taskPojo.setDuration(1534l);
+        taskPojo.setMeta(meta);
+        taskPojo.setHttpStatus(202);
+        taskPojo.setStatus(Task.Status.RUNNING);
+
+        mapper = new ObjectMapper();
+        String json = mapper.writeValueAsString(taskPojo);
+        MockitoAnnotations.initMocks(this);
+        Mockito.when(serializer.write(taskPojo)).thenReturn(json);
     }
 
     @After
@@ -77,26 +113,13 @@ public class MongoDBEntityManagerTest {
 
     /**
      * Writes a task to mongodb and retrieves it by ID.
-     * @throws IOException 
+     *
+     * @throws IOException
      */
     @Test
     public void testSaveTask() throws IOException {
-        MetaInfoBuilder metaBuilder = MetaInfoBuilder.builder();
-        MetaInfo meta = metaBuilder.
-                addComments("task started", "this task does training", "dataset downloaded").
-                addDescriptions("this is a very nice task", "oh, and it's very useful too").
-                addSources("http://jaqpot.org/algorithm/wonk").build();
-
-        Task taskPojo = new Task(UUID.randomUUID().toString());
-        taskPojo.setCreatedBy("random-user@jaqpot.org");
-        taskPojo.setPercentageCompleted(0.95f);
-        taskPojo.setDuration(1534l);
-        taskPojo.setMeta(meta);
-        taskPojo.setHttpStatus(202);
-        taskPojo.setStatus(Task.Status.RUNNING);
-
         /* Initializes a Persistor with default DB configuration */
-        MongoDBEntityManager em = new MongoDBEntityManager();
+        //    MongoDBEntityManager em = new MongoDBEntityManager();
         em.persist(taskPojo);
 
         //Now find the object in the database:
@@ -111,7 +134,6 @@ public class MongoDBEntityManagerTest {
         assertTrue("nothing found", cursor.hasNext());
         DBObject retrieved = cursor.next();
 
-        ObjectMapper mapper = new ObjectMapper();
         Task objFromDB = (Task) mapper.readValue(retrieved.toString(), Task.class);
 
         assertEquals("not the same ID", taskPojo.getId(), objFromDB.getId());
