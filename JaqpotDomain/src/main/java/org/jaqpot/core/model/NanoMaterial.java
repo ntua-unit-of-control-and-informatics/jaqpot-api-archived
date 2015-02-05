@@ -39,5 +39,12 @@ import org.codehaus.jackson.map.annotate.JsonSerialize;
 @XmlRootElement
 @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
 public class NanoMaterial extends Substance {
+
+    public NanoMaterial() {
+    }
+
+    public NanoMaterial(String id) {
+        super(id);
+    }        
     
 }

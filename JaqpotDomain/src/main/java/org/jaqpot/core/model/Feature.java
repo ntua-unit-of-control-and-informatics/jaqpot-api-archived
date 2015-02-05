@@ -54,7 +54,11 @@ public class Feature extends JaqpotEntity {
 
     public Feature() {
     }       
-    
+
+    public Feature(String id) {
+        super(id);
+    }
+        
     public String getCreatedBy() {
         return createdBy;
     }

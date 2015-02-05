@@ -55,6 +55,10 @@ public class MetaInfo {
     private Set<String> hasSources;
     private Date date;
 
+    public MetaInfo() {
+    }
+        
+
     public Set<String> getIdentifiers() {
         return identifiers;
     }

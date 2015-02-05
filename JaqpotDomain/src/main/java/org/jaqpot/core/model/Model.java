@@ -54,7 +54,14 @@ public class Model extends JaqpotEntity {
     
     private String actualModel;
     private String pmmlModel;
-    private String pmmlTransformations;        
+    private String pmmlTransformations;     
+
+    public Model() {
+    }
+
+    public Model(String id) {
+        super(id);
+    }        
 
     public List<String> getDependentFeatures() {
         return dependentFeatures;
