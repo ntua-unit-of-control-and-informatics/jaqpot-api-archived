@@ -29,6 +29,7 @@
  */
 package org.jaqpot.core.model.builder;
 
+import java.util.UUID;
 import org.jaqpot.core.model.BibTeX;
 
 /**
@@ -44,8 +45,24 @@ public class BibTeXBuilder implements EntityBuilder<BibTeX> {
         return this.bibtex;
     }
 
+    /**
+     * Created a BibTeX builder which will instantiate a new BibTeX object with
+     * given ID.
+     * @param id
+     * @return 
+     * @see #builderRandomUuid() 
+     */
     public static BibTeXBuilder builder(String id) {
         return new BibTeXBuilder(id);
+    }
+    
+    /**
+     * Created a BibTeX builder which will instantiate a new BibTeX object with
+     * a randomly generated ID in the form of a UUID.
+     * @return 
+     */
+    public static BibTeXBuilder builderRandomUuid() {
+        return new BibTeXBuilder(UUID.randomUUID().toString());
     }
 
     private BibTeXBuilder(String id) {

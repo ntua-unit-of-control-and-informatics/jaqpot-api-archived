@@ -75,7 +75,7 @@ public class BibTeXBuilderTest {
     public void testSetAddress() {
         System.out.println("setAddress");
         String address = "asdf";
-        BibTeXBuilder instance = BibTeXBuilder.builderRandomId();
+        BibTeXBuilder instance = BibTeXBuilder.builderRandomUuid();
         assertNotNull(instance);
         BibTeXBuilder result = instance.setAddress(address);
         assertNotNull(result);
@@ -89,7 +89,7 @@ public class BibTeXBuilderTest {
     public void testSetTitle() {
         System.out.println("setTitle");
         String title = "asdf";
-        BibTeXBuilder instance = BibTeXBuilder.builderRandomId();
+        BibTeXBuilder instance = BibTeXBuilder.builderRandomUuid();
         assertNotNull(instance);
         BibTeXBuilder result = instance.setTitle(title);
         assertNotNull(result);
@@ -103,7 +103,7 @@ public class BibTeXBuilderTest {
     public void testYear() {
         System.out.println("setTitle");
         String year = "asdf";
-        BibTeXBuilder instance = BibTeXBuilder.builderRandomId();
+        BibTeXBuilder instance = BibTeXBuilder.builderRandomUuid();
         assertNotNull(instance);
         BibTeXBuilder result = instance.setYear(year);
         assertNotNull(result);
