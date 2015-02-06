@@ -49,14 +49,18 @@ public abstract class AbstractHandler<T> {
     protected abstract JaqpotEntityManager getEntityManager();
     
     public void create(T entity){
-        
+        getEntityManager().persist(entity);
     }
     
     public void edit(T entity){
-        
+        getEntityManager().merge(entity);
     }
     
     public void remove(T entity){
-        
+        getEntityManager().remove(entity);
+    }
+    
+    public T find(Object id){
+        return getEntityManager().find(entityClass, id);
     }
 }
