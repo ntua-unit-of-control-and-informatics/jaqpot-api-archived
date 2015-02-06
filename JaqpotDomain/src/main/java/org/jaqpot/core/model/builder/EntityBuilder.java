@@ -29,14 +29,16 @@
  */
 package org.jaqpot.core.model.builder;
 
-
 /**
  *
- * @author hampos
  * @param <T> Entity to build.
+ *
+ * @author Pantelis Sopasakis
+ * @author Charalampos Chomenidis
+ *
  */
 public interface EntityBuilder<T> {
-    
+
     T build();
-    
+
 }

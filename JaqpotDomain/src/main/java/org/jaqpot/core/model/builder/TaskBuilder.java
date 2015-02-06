@@ -39,7 +39,9 @@ import org.jaqpot.core.model.Task;
 
 /**
  *
- * @author chung
+ * @author Pantelis Sopasakis
+ * @author Charalampos Chomenidis
+ *
  */
 public class TaskBuilder implements EntityBuilder<Task> {
 

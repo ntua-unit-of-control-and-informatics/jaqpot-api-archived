@@ -10,7 +10,9 @@ import java.util.Map;
 
 /**
  *
- * @author hampos
+ * @author Pantelis Sopasakis
+ * @author Charalampos Chomenidis
+ *
  */
 @ElasticSearch
 public class ElasticSearchEntityManager implements JaqpotEntityManager {

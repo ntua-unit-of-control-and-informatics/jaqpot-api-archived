@@ -1,7 +1,31 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ *
+ * JAQPOT Quattro
+ *
+ * JAQPOT Quattro and the components shipped with it (web applications and beans)
+ * are licenced by GPL v3 as specified hereafter. Additional components may ship
+ * with some other licence as will be specified therein.
+ *
+ * Copyright (C) 2014-2015 KinkyDesign (Charalampos Chomenidis, Pantelis Sopasakis)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * 
+ * Source code:
+ * The source code of JAQPOT Quattro is available on github at:
+ * https://github.com/KinkyDesign/JaqpotQuattro
+ * All source files of JAQPOT Quattro that are stored on github are licenced
+ * with the aforementioned licence. 
  */
 package org.jaqpot.core.data.serialize;
 
@@ -13,12 +37,13 @@ import java.io.Writer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.enterprise.inject.Default;
-import javax.net.ssl.SSLContext;
 import org.codehaus.jackson.map.ObjectMapper;
 
 /**
  *
- * @author hampos
+ * @author Pantelis Sopasakis
+ * @author Charalampos Chomenidis
+ *
  */
 @Default
 @Jackson
@@ -29,17 +54,25 @@ public class JacksonJSONSerializer implements EntityJSONSerializer {
     ObjectMapper mapper;
 
     public JacksonJSONSerializer() {
-        this.mapper = new ObjectMapper();        
+        this.mapper = new ObjectMapper();
     }
 
     @Override
     public void write(Object entity, OutputStream out) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        try {
+            mapper.writeValue(out, entity);
+        } catch (IOException ex) {
+            LOG.log(Level.SEVERE, null, ex);
+        }
     }
 
     @Override
     public void write(Object entity, Writer writer) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        try {
+            mapper.writeValue(writer, entity);
+        } catch (IOException ex) {
+            LOG.log(Level.SEVERE, null, ex);
+        }
     }
 
     @Override
@@ -48,18 +81,28 @@ public class JacksonJSONSerializer implements EntityJSONSerializer {
             return mapper.writeValueAsString(entity);
         } catch (IOException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return "";
+            return null;
         }
     }
 
     @Override
     public <T> T parse(String content, Class<T> valueType) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        try {
+            return mapper.readValue(content, valueType);
+        } catch (IOException ex) {
+            LOG.log(Level.SEVERE, null, ex);
+            return null;
+        }
     }
 
     @Override
     public <T> T parse(InputStream src, Class<T> valueType) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        try {
+            return mapper.readValue(src, valueType);
+        } catch (IOException ex) {
+            LOG.log(Level.SEVERE, null, ex);
+            return null;
+        }
     }
 
 }

@@ -36,7 +36,9 @@ import org.jaqpot.core.model.MetaInfo;
 
 /**
  *
- * @author chung
+ * @author Pantelis Sopasakis
+ * @author Charalampos Chomenidis
+ *
  */
 public class MetaInfoBuilder implements EntityBuilder<MetaInfo> {
 

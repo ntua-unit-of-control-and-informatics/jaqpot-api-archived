@@ -35,7 +35,9 @@ import org.codehaus.jackson.map.annotate.JsonSerialize;
 
 /**
  *
- * @author KinkyDesign
+ * @author Pantelis Sopasakis
+ * @author Charalampos Chomenidis
+ *
  */
 @XmlRootElement
 @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)

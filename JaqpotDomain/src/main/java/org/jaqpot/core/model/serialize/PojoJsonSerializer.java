@@ -38,7 +38,9 @@ import org.codehaus.jackson.map.ObjectMapper;
 
 /**
  *
- * @author chung
+ * @author Pantelis Sopasakis
+ * @author Charalampos Chomenidis
+ *
  */
 @Deprecated
 public class PojoJsonSerializer {

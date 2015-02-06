@@ -29,20 +29,23 @@
  */
 package org.jaqpot.core.model;
 
+import java.util.Objects;
 import java.util.Set;
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 
 /**
  *
- * @author chung
+ * @author Pantelis Sopasakis
+ * @author Charalampos Chomenidis
+ *
  */
 @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
 public abstract class JaqpotEntity {
 
     /**
      * Identifier of the entity.
-     */  
+     */
     private String id;
     /**
      * Metadata of the entity.
@@ -59,7 +62,7 @@ public abstract class JaqpotEntity {
     public JaqpotEntity(String id) {
         this.id = id;
     }
-    
+
     @JsonProperty("_id")
     public String getId() {
         return id;
@@ -69,7 +72,7 @@ public abstract class JaqpotEntity {
     public void setId(String id) {
         this.id = id;
     }
-        
+
     public MetaInfo getMeta() {
         return meta;
     }
@@ -85,5 +88,27 @@ public abstract class JaqpotEntity {
     public void setOntologicalClasses(Set<String> ontologicalClasses) {
         this.ontologicalClasses = ontologicalClasses;
     }
-   
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 23 * hash + Objects.hashCode(this.id);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final JaqpotEntity other = (JaqpotEntity) obj;
+        if (!Objects.equals(this.id, other.id)) {
+            return false;
+        }
+        return true;
+    }
+
 }

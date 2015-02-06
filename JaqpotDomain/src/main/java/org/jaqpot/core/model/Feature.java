@@ -36,7 +36,10 @@ import org.codehaus.jackson.map.annotate.JsonSerialize;
 /**
  * Feature: The definition of a property, either measured, predicted or
  * computed for a substance.
- * @author chung
+ *
+ * @author Pantelis Sopasakis
+ * @author Charalampos Chomenidis
+ *
  */
 @XmlRootElement
 @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)

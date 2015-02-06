@@ -42,7 +42,7 @@ import java.util.regex.Pattern;
  * http://www.velocityreviews.com/forums/t125158-java-email-validator.html.</p>
  *
  * @author Pantelis Sopasakis
- * @author Charalampos Chomenides
+ * @author Charalampos Chomenidis
  */
 public class EmailValidator {
 

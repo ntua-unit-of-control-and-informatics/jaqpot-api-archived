@@ -39,7 +39,9 @@ import static org.junit.Assert.*;
 
 /**
  *
- * @author chung
+ * @author Pantelis Sopasakis
+ * @author Charalampos Chomenidis
+ *
  */
 public class TaskBuilderTest {
     

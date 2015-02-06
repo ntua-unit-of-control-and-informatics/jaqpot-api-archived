@@ -34,7 +34,9 @@ import org.jaqpot.core.model.BibTeX;
 
 /**
  *
- * @author chung
+ * @author Pantelis Sopasakis
+ * @author Charalampos Chomenidis
+ *
  */
 public class BibTeXBuilder implements EntityBuilder<BibTeX> {
 

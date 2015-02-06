@@ -6,7 +6,7 @@
  * are licenced by GPL v3 as specified hereafter. Additional components may ship
  * with some other licence as will be specified therein.
  *
- * Copyright (C) 2014-2015 KinkyDesign (Charalambos Chomenides, Pantelis Sopasakis)
+ * Copyright (C) 2014-2015 KinkyDesign (Charalampos Chomenidis, Pantelis Sopasakis)
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,19 +36,18 @@ import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
 import com.mongodb.WriteResult;
 import com.mongodb.util.JSON;
-import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.inject.Inject;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.jaqpot.core.data.serialize.EntityJSONSerializer;
-import org.jaqpot.core.annotations.Jackson;
 
 /**
  *
- * @author chung
+ * @author Pantelis Sopasakis
+ * @author Charalampos Chomenidis
+ *
  */
 @MongoDB
 public class MongoDBEntityManager implements JaqpotEntityManager {

@@ -6,7 +6,7 @@
  * are licenced by GPL v3 as specified hereafter. Additional components may ship
  * with some other licence as will be specified therein.
  *
- * Copyright (C) 2014-2015 KinkyDesign (Charalambos Chomenides, Pantelis Sopasakis)
+ * Copyright (C) 2014-2015 KinkyDesign (Charalampos Chomenidis, Pantelis Sopasakis)
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,7 +29,6 @@
  */
 package org.jaqpot.core.db.entitymanager;
 
-import org.jaqpot.core.db.JaqpotPojoPersistor;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
@@ -40,7 +39,6 @@ import java.io.IOException;
 import java.util.UUID;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.jaqpot.core.data.serialize.EntityJSONSerializer;
-import org.jaqpot.core.db.JaqpotPojoPersistor;
 import org.jaqpot.core.model.JaqpotEntity;
 import org.jaqpot.core.model.MetaInfo;
 import org.jaqpot.core.model.Task;
@@ -58,7 +56,9 @@ import org.mockito.MockitoAnnotations;
 
 /**
  *
- * @author chung
+ * @author Pantelis Sopasakis
+ * @author Charalampos Chomenidis
+ *
  */
 public class MongoDBEntityManagerTest {
 
@@ -93,7 +93,7 @@ public class MongoDBEntityManagerTest {
                 addDescriptions("this is a very nice task", "oh, and it's very useful too").
                 addSources("http://jaqpot.org/algorithm/wonk").build();
 
-        taskPojo = new Task(UUID.randomUUID().toString());
+        taskPojo = new Task("7b969020-1b86-4541-bc64-fb5027217043");
         taskPojo.setCreatedBy("random-user@jaqpot.org");
         taskPojo.setPercentageCompleted(0.95f);
         taskPojo.setDuration(1534l);

@@ -34,7 +34,9 @@ import static org.junit.Assert.*;
 
 /**
  *
- * @author hampos
+ * @author Pantelis Sopasakis
+ * @author Charalampos Chomenidis
+ *
  */
 public class EmailValidatorTest {
 

@@ -35,7 +35,9 @@ import org.codehaus.jackson.map.annotate.JsonSerialize;
 
 /**
  *
- * @author chung
+ * @author Pantelis Sopasakis
+ * @author Charalampos Chomenidis
+ *
  */
 @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
 public class MetaInfo {

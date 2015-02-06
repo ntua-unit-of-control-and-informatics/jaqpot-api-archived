@@ -34,7 +34,9 @@ import org.jaqpot.core.model.validator.EmailValidator;
 
 /**
  *
- * @author hampos
+ * @author Pantelis Sopasakis
+ * @author Charalampos Chomenidis
+ *
  */
 public class UserBuilder implements EntityBuilder<User> {
 
