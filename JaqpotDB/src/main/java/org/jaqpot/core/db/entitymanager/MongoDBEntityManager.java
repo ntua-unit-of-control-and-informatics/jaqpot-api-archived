@@ -53,6 +53,8 @@ import org.jaqpot.core.data.serialize.EntityJSONSerializer;
 public class MongoDBEntityManager implements JaqpotEntityManager {
 
     private static final Logger LOG = Logger.getLogger(JaqpotEntityManager.class.getName());
+    
+    private String database;
 
     @Inject
     EntityJSONSerializer serializer;
@@ -70,15 +72,11 @@ public class MongoDBEntityManager implements JaqpotEntityManager {
 
     @Override
     public void persist(Object entity) {
-        DB db = mongoClient.getDB("test");
+        DB db = mongoClient.getDB(database);
         String entityJSON = serializer.write(entity);
-
-        System.out.println(entityJSON);
         DBObject taskDBObj = (DBObject) JSON.parse(entityJSON);
-        DBCollection collection = db.getCollection("tasks");
+        DBCollection collection = db.getCollection(entity.getClass().getSimpleName());
         WriteResult result = collection.insert(taskDBObj);
-        System.out.println(result.getN());
-
     }
 
     @Override
@@ -101,4 +99,13 @@ public class MongoDBEntityManager implements JaqpotEntityManager {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
+    public String getDatabase() {
+        return database;
+    }
+
+    public void setDatabase(String database) {
+        this.database = database;
+    }
+
+    
 }

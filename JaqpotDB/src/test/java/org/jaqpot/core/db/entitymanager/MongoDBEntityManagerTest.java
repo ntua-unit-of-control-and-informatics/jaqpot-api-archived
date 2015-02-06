@@ -87,13 +87,16 @@ public class MongoDBEntityManagerTest {
 
     @Before
     public void setUp() throws IOException {
+        MongoClient mongoClient = new MongoClient();
+        mongoClient.dropDatabase("test");
+
         MetaInfoBuilder metaBuilder = MetaInfoBuilder.builder();
         MetaInfo meta = metaBuilder.
                 addComments("task started", "this task does training", "dataset downloaded").
                 addDescriptions("this is a very nice task", "oh, and it's very useful too").
                 addSources("http://jaqpot.org/algorithm/wonk").build();
 
-        taskPojo = new Task(UUID.randomUUID().toString());
+        taskPojo = new Task("115a0da8-92cc-4ec4-845f-df643ad607ee");
         taskPojo.setCreatedBy("random-user@jaqpot.org");
         taskPojo.setPercentageCompleted(0.95f);
         taskPojo.setDuration(1534l);
@@ -105,6 +108,8 @@ public class MongoDBEntityManagerTest {
         String json = mapper.writeValueAsString(taskPojo);
         MockitoAnnotations.initMocks(this);
         Mockito.when(serializer.write(taskPojo)).thenReturn(json);
+        em.setDatabase("test");
+
     }
 
     @After
@@ -118,10 +123,7 @@ public class MongoDBEntityManagerTest {
      */
     @Test
     public void testSaveTask() throws IOException {
-        Object obj = taskPojo;
-        System.out.println(obj.getClass().getSimpleName());
-        /* Initializes a Persistor with default DB configuration */
-        //    MongoDBEntityManager em = new MongoDBEntityManager();
+        /* Persist entity using EntityManager */
         em.persist(taskPojo);
 
         //Now find the object in the database:
@@ -130,7 +132,7 @@ public class MongoDBEntityManagerTest {
         // Now find it in the DB...
         MongoClient mongoClient = new MongoClient();
         DB db = mongoClient.getDB("test");
-        DBCollection coll = db.getCollection("tasks");
+        DBCollection coll = db.getCollection(taskPojo.getClass().getSimpleName());
         DBCursor cursor = coll.find(query);
 
         assertTrue("nothing found", cursor.hasNext());
@@ -138,6 +140,7 @@ public class MongoDBEntityManagerTest {
 
         Task objFromDB = (Task) mapper.readValue(retrieved.toString(), Task.class);
 
+        assertEquals(taskPojo, objFromDB);
         assertEquals("not the same ID", taskPojo.getId(), objFromDB.getId());
         assertEquals("not the same createdBy", taskPojo.getCreatedBy(), objFromDB.getCreatedBy());
         assertEquals("not the same percentageComplete", taskPojo.getPercentageCompleted(), objFromDB.getPercentageCompleted());

@@ -34,6 +34,7 @@ import javax.ejb.Singleton;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 import org.jaqpot.core.annotations.MongoDB;
+import org.jaqpot.core.db.entitymanager.MongoDBEntityManager;
 
 /**
  *
@@ -43,6 +44,8 @@ import org.jaqpot.core.annotations.MongoDB;
  */
 @Singleton
 public class JaqpotDBManager {
+    
+    private String database;
 
     @Inject
     @MongoDB
@@ -50,6 +53,7 @@ public class JaqpotDBManager {
 
     @Produces
     public JaqpotEntityManager getEntityManager() {
+        ((MongoDBEntityManager)em).setDatabase("production");
         return em;
     }
 
