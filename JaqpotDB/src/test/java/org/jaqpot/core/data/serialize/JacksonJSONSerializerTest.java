@@ -40,10 +40,12 @@ import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
+import java.util.UUID;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.jaqpot.core.model.MetaInfo;
 import org.jaqpot.core.model.Task;
 import org.jaqpot.core.model.builder.MetaInfoBuilder;
+import org.jaqpot.core.model.builder.TaskBuilder;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -60,9 +62,13 @@ import org.junit.Before;
 public class JacksonJSONSerializerTest {
 
     private static JacksonJSONSerializer instance;
-
+    private static String uuid;
     private static Task taskPojo;
-    private static final String taskJSON = "{\"meta\":{\"comments\":[\"dataset downloaded\",\"task started\",\"this task does training\"],\"descriptions\":[\"oh, and it's very useful too\",\"this is a very nice task\"],\"hasSources\":[\"http://jaqpot.org/algorithm/wonk\"]},\"percentageCompleted\":0.95,\"httpStatus\":202,\"createdBy\":\"random-user@jaqpot.org\",\"duration\":1534,\"status\":\"RUNNING\",\"_id\":\"7b969020-1b86-4541-bc64-fb5027217043\"}";
+    private static String taskJSON = "{\"meta\":{\"comments\":[\"dataset downloaded\",\"task started\",\"this task does training\"],"
+                + "\"descriptions\":[\"oh, and it's very useful too\",\"this is a very nice task\"],"
+                + "\"hasSources\":[\"http://jaqpot.org/algorithm/wonk\"]},\"percentageCompleted\":0.95,"
+                + "\"httpStatus\":202,\"createdBy\":\"random-user@jaqpot.org\",\"duration\":1534,"
+                + "\"status\":\"RUNNING\",\"_id\":\"%s\"}";
     private BufferedReader reader;
     private BufferedOutputStream out;
 
@@ -71,15 +77,15 @@ public class JacksonJSONSerializerTest {
 
     @BeforeClass
     public static void setUpClass() {
+        uuid = UUID.randomUUID().toString();
         instance = new JacksonJSONSerializer();
-
+        taskJSON = String.format(taskJSON, uuid);
         MetaInfoBuilder metaBuilder = MetaInfoBuilder.builder();
         MetaInfo meta = metaBuilder.
                 addComments("task started", "this task does training", "dataset downloaded").
                 addDescriptions("this is a very nice task", "oh, and it's very useful too").
                 addSources("http://jaqpot.org/algorithm/wonk").build();
-
-        taskPojo = new Task("7b969020-1b86-4541-bc64-fb5027217043");
+        taskPojo = new Task(uuid);
         taskPojo.setCreatedBy("random-user@jaqpot.org");
         taskPojo.setPercentageCompleted(0.95f);
         taskPojo.setDuration(1534l);
