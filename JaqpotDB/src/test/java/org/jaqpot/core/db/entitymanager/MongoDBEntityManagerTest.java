@@ -118,6 +118,8 @@ public class MongoDBEntityManagerTest {
      */
     @Test
     public void testSaveTask() throws IOException {
+        Object obj = taskPojo;
+        System.out.println(obj.getClass().getSimpleName());
         /* Initializes a Persistor with default DB configuration */
         //    MongoDBEntityManager em = new MongoDBEntityManager();
         em.persist(taskPojo);
