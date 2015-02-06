@@ -32,13 +32,16 @@ package org.jaqpot.core.data.serialize;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
+import java.io.StringWriter;
 import java.io.Writer;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -62,7 +65,7 @@ import org.junit.Before;
 public class JacksonJSONSerializerTest {
 
     private static JacksonJSONSerializer instance;
-    private static String uuid= UUID.randomUUID().toString();
+    private static final String uuid= UUID.randomUUID().toString();
     private static Task taskPojo;
     private static String taskJSON = "{\"meta\":{\"comments\":[\"dataset downloaded\",\"task started\",\"this task does training\"],"
                 + "\"descriptions\":[\"oh, and it's very useful too\",\"this is a very nice task\"],"
@@ -113,13 +116,26 @@ public class JacksonJSONSerializerTest {
 
     /**
      * Test of write method, of class JacksonJSONSerializer.
+     * @throws java.io.IOException
      */
     @Test
     public void testWrite_Object_OutputStream() throws IOException {
         Object entity = taskPojo;
         // OutputStream out = Mockito.mock(OutputStream.class);
-        instance.write(entity, out);
-        assertEquals(taskJSON, reader.readLine());
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        instance.write(entity, baos);
+        byte[] bytes = baos.toByteArray();
+        assertNotNull("ByteArrayOutputStream returned a null byte[]",bytes);
+        assertTrue("Nothing tunneled to the output stream",bytes.length>0);
+        String jsonString = new String(bytes,Charset.defaultCharset());
+        assertNotNull("jsonString generated from OutputStream is null", jsonString);
+        assertTrue("_id not found in serialized string",jsonString.contains("\"_id\":\""+uuid+"\""));
+        assertTrue("percentageCompleted not found in serialized string",jsonString.contains("\"percentageCompleted\":"+taskPojo.getPercentageCompleted()));
+        assertTrue("createdBy not found in serialized string",jsonString.contains("\"createdBy\":\""+taskPojo.getCreatedBy()+"\""));
+        assertTrue("status not found in serialized string",jsonString.contains("\"status\":\""+taskPojo.getStatus()+"\""));
+        assertTrue("duration not found in serialized string",jsonString.contains("\"duration\":"+taskPojo.getDuration()));
+        assertTrue("meta not found", jsonString.contains("\"meta\":{"));
+        fail("TESTING NOT ADEQUATE!");
     }
 
     /**
