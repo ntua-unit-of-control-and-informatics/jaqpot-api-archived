@@ -93,7 +93,7 @@ public class MongoDBEntityManagerTest {
                 addDescriptions("this is a very nice task", "oh, and it's very useful too").
                 addSources("http://jaqpot.org/algorithm/wonk").build();
 
-        taskPojo = new Task("7b969020-1b86-4541-bc64-fb5027217043");
+        taskPojo = new Task(UUID.randomUUID().toString());
         taskPojo.setCreatedBy("random-user@jaqpot.org");
         taskPojo.setPercentageCompleted(0.95f);
         taskPojo.setDuration(1534l);

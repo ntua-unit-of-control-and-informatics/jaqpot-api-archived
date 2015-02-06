@@ -62,7 +62,7 @@ import org.junit.Before;
 public class JacksonJSONSerializerTest {
 
     private static JacksonJSONSerializer instance;
-    private static String uuid;
+    private static String uuid= UUID.randomUUID().toString();
     private static Task taskPojo;
     private static String taskJSON = "{\"meta\":{\"comments\":[\"dataset downloaded\",\"task started\",\"this task does training\"],"
                 + "\"descriptions\":[\"oh, and it's very useful too\",\"this is a very nice task\"],"
@@ -77,9 +77,9 @@ public class JacksonJSONSerializerTest {
 
     @BeforeClass
     public static void setUpClass() {
-        uuid = UUID.randomUUID().toString();
         instance = new JacksonJSONSerializer();
         taskJSON = String.format(taskJSON, uuid);
+        System.out.println(taskJSON);
         MetaInfoBuilder metaBuilder = MetaInfoBuilder.builder();
         MetaInfo meta = metaBuilder.
                 addComments("task started", "this task does training", "dataset downloaded").
