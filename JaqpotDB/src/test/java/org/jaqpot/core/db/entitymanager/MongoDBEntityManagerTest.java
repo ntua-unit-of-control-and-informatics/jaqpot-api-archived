@@ -35,10 +35,13 @@ import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
+import com.mongodb.util.JSON;
 import java.io.IOException;
+import java.net.UnknownHostException;
 import java.util.UUID;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.jaqpot.core.data.serialize.EntityJSONSerializer;
+import org.jaqpot.core.data.serialize.JacksonJSONSerializer;
 import org.jaqpot.core.model.JaqpotEntity;
 import org.jaqpot.core.model.MetaInfo;
 import org.jaqpot.core.model.Task;
@@ -50,9 +53,11 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import org.mockito.InjectMocks;
+import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.mockito.Spy;
 
 /**
  *
@@ -63,12 +68,11 @@ import org.mockito.MockitoAnnotations;
 public class MongoDBEntityManagerTest {
 
     @Mock
-    private EntityJSONSerializer serializer;
-    @Mock
-    private JaqpotEntity entity;
+    private JacksonJSONSerializer serializer;
 
     ObjectMapper mapper;
     Task taskPojo;
+    String taskJSON;
 
     @InjectMocks
     private MongoDBEntityManager em;
@@ -105,9 +109,12 @@ public class MongoDBEntityManagerTest {
         taskPojo.setStatus(Task.Status.RUNNING);
 
         mapper = new ObjectMapper();
-        String json = mapper.writeValueAsString(taskPojo);
+        taskJSON = mapper.writeValueAsString(taskPojo);
+        
         MockitoAnnotations.initMocks(this);
-        Mockito.when(serializer.write(taskPojo)).thenReturn(json);
+        Mockito.when(serializer.write(taskPojo)).thenReturn(taskJSON);
+        Mockito.when(serializer.parse(Matchers.anyString(), Matchers.any(Class.class))).thenReturn(taskPojo);
+        
         em.setDatabase("test");
 
     }
@@ -149,6 +156,19 @@ public class MongoDBEntityManagerTest {
         assertEquals("not the same status", taskPojo.getStatus(), objFromDB.getStatus());
         assertEquals("not the same comments", taskPojo.getMeta().getComments(), objFromDB.getMeta().getComments());
         assertEquals("not the same descriptions", taskPojo.getMeta().getDescriptions(), objFromDB.getMeta().getDescriptions());
+    }
+    
+    @Test
+    public void testFindTask() throws UnknownHostException{
+        MongoClient mongoClient = new MongoClient();
+        DB db = mongoClient.getDB("test");
+        DBCollection coll = db.getCollection(taskPojo.getClass().getSimpleName());
+        DBObject taskDBObj = (DBObject) JSON.parse(taskJSON);
+        coll.insert(taskDBObj);
+        
+        Task foundTask = em.find(Task.class, taskPojo.getId());
+        
+        assertEquals(foundTask, taskPojo);
     }
 
 }
