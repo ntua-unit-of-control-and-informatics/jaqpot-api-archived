@@ -29,6 +29,7 @@
  */
 package org.jaqpot.core.db.entitymanager;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -48,5 +49,7 @@ public interface JaqpotEntityManager {
     public <T> T find(Class<T> entityClass, Object primaryKey);
 
     public <T> T find(Class<T> entityClass, Object primaryKey, Map<String, Object> properties);
+
+    public <T> List<T> findAll(Class<T> entityClass);
 
 }

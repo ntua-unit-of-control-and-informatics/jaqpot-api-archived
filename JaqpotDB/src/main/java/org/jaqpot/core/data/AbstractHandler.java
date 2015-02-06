@@ -29,6 +29,7 @@
  */
 package org.jaqpot.core.data;
 
+import java.util.List;
 import org.jaqpot.core.db.entitymanager.JaqpotEntityManager;
 
 /**
@@ -39,28 +40,32 @@ import org.jaqpot.core.db.entitymanager.JaqpotEntityManager;
  *
  */
 public abstract class AbstractHandler<T> {
-    
+
     private final Class<T> entityClass;
-    
-    public AbstractHandler(Class<T> entityClass){
+
+    public AbstractHandler(Class<T> entityClass) {
         this.entityClass = entityClass;
     }
-    
+
     protected abstract JaqpotEntityManager getEntityManager();
-    
-    public void create(T entity){
+
+    public void create(T entity) {
         getEntityManager().persist(entity);
     }
-    
-    public void edit(T entity){
+
+    public void edit(T entity) {
         getEntityManager().merge(entity);
     }
-    
-    public void remove(T entity){
+
+    public void remove(T entity) {
         getEntityManager().remove(entity);
     }
-    
-    public T find(Object id){
+
+    public T find(Object id) {
         return getEntityManager().find(entityClass, id);
+    }
+
+    public List<T> findAll() {
+        return getEntityManager().findAll(entityClass);
     }
 }

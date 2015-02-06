@@ -5,6 +5,7 @@
  */
 package org.jaqpot.core.db.entitymanager;
 
+import java.util.List;
 import org.jaqpot.core.annotations.ElasticSearch;
 import java.util.Map;
 
@@ -45,4 +46,9 @@ public class ElasticSearchEntityManager implements JaqpotEntityManager {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
+    @Override
+    public <T> List<T> findAll(Class<T> entityClass) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+    
 }

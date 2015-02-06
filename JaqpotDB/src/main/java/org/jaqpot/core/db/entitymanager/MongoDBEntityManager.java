@@ -29,19 +29,23 @@
  */
 package org.jaqpot.core.db.entitymanager;
 
+import com.mongodb.BasicDBObject;
 import org.jaqpot.core.annotations.MongoDB;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
+import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
 import com.mongodb.WriteResult;
 import com.mongodb.util.JSON;
 import java.net.UnknownHostException;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.inject.Inject;
 import org.jaqpot.core.data.serialize.EntityJSONSerializer;
+import org.jaqpot.core.model.Task;
 
 /**
  *
@@ -53,13 +57,12 @@ import org.jaqpot.core.data.serialize.EntityJSONSerializer;
 public class MongoDBEntityManager implements JaqpotEntityManager {
 
     private static final Logger LOG = Logger.getLogger(JaqpotEntityManager.class.getName());
-    
-    private String database;
 
     @Inject
     EntityJSONSerializer serializer;
 
-    MongoClient mongoClient;
+    private MongoClient mongoClient;
+    private String database;
 
     public MongoDBEntityManager() {
         try {
@@ -76,7 +79,7 @@ public class MongoDBEntityManager implements JaqpotEntityManager {
         String entityJSON = serializer.write(entity);
         DBObject taskDBObj = (DBObject) JSON.parse(entityJSON);
         DBCollection collection = db.getCollection(entity.getClass().getSimpleName());
-        WriteResult result = collection.insert(taskDBObj);
+        collection.insert(taskDBObj);
     }
 
     @Override
@@ -91,11 +94,22 @@ public class MongoDBEntityManager implements JaqpotEntityManager {
 
     @Override
     public <T> T find(Class<T> entityClass, Object primaryKey) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        DB db = mongoClient.getDB(database);
+        BasicDBObject query = new BasicDBObject("_id", primaryKey);
+        DBCollection coll = db.getCollection(entityClass.getSimpleName());
+        DBCursor cursor = coll.find(query);
+        DBObject retrieved = cursor.one();
+        System.out.println(retrieved.toString());
+        return serializer.parse(retrieved.toString(), entityClass);
     }
 
     @Override
     public <T> T find(Class<T> entityClass, Object primaryKey, Map<String, Object> properties) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public <T> List<T> findAll(Class<T> entityClass) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -107,5 +121,4 @@ public class MongoDBEntityManager implements JaqpotEntityManager {
         this.database = database;
     }
 
-    
 }
