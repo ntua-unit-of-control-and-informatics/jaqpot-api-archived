@@ -29,6 +29,7 @@
  */
 package org.jaqpot.core.model;
 
+import javax.xml.bind.annotation.XmlRootElement;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 
 /**
@@ -37,6 +38,7 @@ import org.codehaus.jackson.map.annotate.JsonSerialize;
  * @author Charalampos Chomenidis
  *
  */
+@XmlRootElement(name = "Task")
 @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
 public class Task extends JaqpotEntity {
     

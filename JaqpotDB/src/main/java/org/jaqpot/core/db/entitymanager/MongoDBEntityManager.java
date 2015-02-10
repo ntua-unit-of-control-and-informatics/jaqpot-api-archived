@@ -38,14 +38,20 @@ import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
 import com.mongodb.WriteResult;
 import com.mongodb.util.JSON;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.InvocationTargetException;
 import java.net.UnknownHostException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.inject.Inject;
+import javax.xml.bind.annotation.XmlRootElement;
 import org.jaqpot.core.data.serialize.EntityJSONSerializer;
 import org.jaqpot.core.model.Task;
+import org.reflections.Reflections;
 
 /**
  *
@@ -64,13 +70,27 @@ public class MongoDBEntityManager implements JaqpotEntityManager {
     private MongoClient mongoClient;
     private String database;
 
+    private Map<Class, String> collectionNames;
+
     public MongoDBEntityManager() {
         try {
             mongoClient = new MongoClient();
+
+            Reflections reflections = new Reflections("org.jaqpot.core.model");
+            Set<Class<?>> annotatedClasses = reflections.getTypesAnnotatedWith(XmlRootElement.class);
+            collectionNames = new HashMap<>();
+            for (Class c : annotatedClasses) {
+                Annotation xmlRootElement = c.getAnnotation(XmlRootElement.class);
+                String value = (String) xmlRootElement.annotationType().getMethod("name").invoke(xmlRootElement);
+                collectionNames.put(c, !value.equals("##default") ? value : c.getSimpleName());
+            }
         } catch (UnknownHostException ex) {
             //TODO: create bundle with messages
             LOG.log(Level.SEVERE, "JaqpotEntityManager could not be crated properly. Please check your database configuration settings.", ex);
+        } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
+            Logger.getLogger(MongoDBEntityManager.class.getName()).log(Level.SEVERE, null, ex);
         }
+
     }
 
     @Override
@@ -78,7 +98,7 @@ public class MongoDBEntityManager implements JaqpotEntityManager {
         DB db = mongoClient.getDB(database);
         String entityJSON = serializer.write(entity);
         DBObject taskDBObj = (DBObject) JSON.parse(entityJSON);
-        DBCollection collection = db.getCollection(entity.getClass().getSimpleName());
+        DBCollection collection = db.getCollection(collectionNames.get(entity.getClass()));
         collection.insert(taskDBObj);
     }
 
@@ -96,7 +116,7 @@ public class MongoDBEntityManager implements JaqpotEntityManager {
     public <T> T find(Class<T> entityClass, Object primaryKey) {
         DB db = mongoClient.getDB(database);
         BasicDBObject query = new BasicDBObject("_id", primaryKey);
-        DBCollection coll = db.getCollection(entityClass.getSimpleName());
+        DBCollection coll = db.getCollection(collectionNames.get(entityClass));
         DBCursor cursor = coll.find(query);
         DBObject retrieved = cursor.one();
         System.out.println(retrieved.toString());

@@ -55,7 +55,12 @@
             <groupId>org.mongodb</groupId>
             <artifactId>mongo-java-driver</artifactId>
             <version>3.0.0-beta1</version>
-             <classifier>javadoc</classifier>
+            <classifier>javadoc</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.reflections</groupId>
+            <artifactId>reflections</artifactId>
+            <version>0.9.9</version>
         </dependency>
     </dependencies>
 

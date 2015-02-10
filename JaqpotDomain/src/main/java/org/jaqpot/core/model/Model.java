@@ -40,10 +40,10 @@ import org.codehaus.jackson.map.annotate.JsonSerialize;
  * @author Charalampos Chomenidis
  *
  */
-@XmlRootElement
+@XmlRootElement(name = "Model")
 @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
 public class Model extends JaqpotEntity {
-    
+
     private List<String> dependentFeatures;
     private List<String> independentFeatures;
     private List<String> predictedFeatures;
@@ -53,17 +53,17 @@ public class Model extends JaqpotEntity {
     private Set<Parameter> parameters;
     private Algorithm algorithm;
     private BibTeX bibtex;
-    
+
     private String actualModel;
     private String pmmlModel;
-    private String pmmlTransformations;     
+    private String pmmlTransformations;
 
     public Model() {
     }
 
     public Model(String id) {
         super(id);
-    }        
+    }
 
     public List<String> getDependentFeatures() {
         return dependentFeatures;
@@ -160,5 +160,5 @@ public class Model extends JaqpotEntity {
     public void setPmmlTransformations(String pmmlTransformations) {
         this.pmmlTransformations = pmmlTransformations;
     }
-     
+
 }
