@@ -36,7 +36,6 @@ import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
-import com.mongodb.WriteResult;
 import com.mongodb.util.JSON;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
@@ -50,7 +49,6 @@ import java.util.logging.Logger;
 import javax.inject.Inject;
 import javax.xml.bind.annotation.XmlRootElement;
 import org.jaqpot.core.data.serialize.EntityJSONSerializer;
-import org.jaqpot.core.model.Task;
 import org.reflections.Reflections;
 
 /**
@@ -70,25 +68,36 @@ public class MongoDBEntityManager implements JaqpotEntityManager {
     private MongoClient mongoClient;
     private String database;
 
-    private Map<Class, String> collectionNames;
+    private static final Map<Class, String> collectionNames;
 
-    public MongoDBEntityManager() {
+    static {
+        collectionNames = new HashMap<>();
         try {
-            mongoClient = new MongoClient();
 
             Reflections reflections = new Reflections("org.jaqpot.core.model");
-            Set<Class<?>> annotatedClasses = reflections.getTypesAnnotatedWith(XmlRootElement.class);
-            collectionNames = new HashMap<>();
+            Set<Class<?>> annotatedClasses = reflections.getTypesAnnotatedWith(XmlRootElement.class);            
             for (Class c : annotatedClasses) {
                 Annotation xmlRootElement = c.getAnnotation(XmlRootElement.class);
                 String value = (String) xmlRootElement.annotationType().getMethod("name").invoke(xmlRootElement);
                 collectionNames.put(c, !value.equals("##default") ? value : c.getSimpleName());
             }
-        } catch (UnknownHostException ex) {
-            //TODO: create bundle with messages
-            LOG.log(Level.SEVERE, "JaqpotEntityManager could not be crated properly. Please check your database configuration settings.", ex);
         } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
+            String errorMessage = "Improper data model - all elementary POJOs ###MUST### be annotated with @XmlRootElement!";
+            LOG.log(Level.SEVERE, errorMessage, ex);
             Logger.getLogger(MongoDBEntityManager.class.getName()).log(Level.SEVERE, null, ex);
+            throw new RuntimeException(ex); // terrible case: No @XmlRootElement annotation in our data model! 
+        }
+    }
+
+    public MongoDBEntityManager() {
+        // Here construct the mongo client object...
+        try {
+            mongoClient = new MongoClient();
+        } catch (UnknownHostException ex) {
+            String errorMessage = "JaqpotEntityManager could not be crated properly. Please check your database configuration settings.";
+            LOG.log(Level.SEVERE, errorMessage, ex);
+            // this is a terribly bad error - throw a RuntimeException (this shouldn't ever happpen!!!)
+            throw new RuntimeException(errorMessage);
         }
 
     }

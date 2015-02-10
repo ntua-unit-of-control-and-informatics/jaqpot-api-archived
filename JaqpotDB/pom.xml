@@ -62,6 +62,12 @@
             <artifactId>reflections</artifactId>
             <version>0.9.9</version>
         </dependency>
+        <dependency>
+            <groupId>org.reflections</groupId>
+            <artifactId>reflections</artifactId>
+            <version>0.9.9</version>
+            <classifier>javadoc</classifier>
+        </dependency>
     </dependencies>
 
     <build>
