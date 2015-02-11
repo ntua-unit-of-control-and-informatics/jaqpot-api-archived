@@ -29,6 +29,7 @@
  */
 package org.jaqpot.core.model;
 
+import java.util.Map;
 import javax.xml.bind.annotation.XmlRootElement;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 
@@ -45,10 +46,8 @@ public class User extends JaqpotEntity {
     private String name;
     private String mail;
     private String hashedPass;
-    private Integer maxParallelTasks;
-    private Integer maxModels;
-    private Integer maxBibTeX;
-    private Integer maxSubstances;    
+    private Map<String, Integer> capabilities;   
+    private Map<String, Integer> publicationRatePerWeek;
 
     public User() {
     }
@@ -81,41 +80,20 @@ public class User extends JaqpotEntity {
         this.hashedPass = hashedPass;
     }
 
-    public Integer getMaxParallelTasks() {
-        return maxParallelTasks;
+    public Map<String, Integer> getCapabilities() {
+        return capabilities;
     }
 
-    public void setMaxParallelTasks(Integer maxParallelTasks) {
-        this.maxParallelTasks = maxParallelTasks;
+    public void setCapabilities(Map<String, Integer> capabilities) {
+        this.capabilities = capabilities;
     }
 
-    public Integer getMaxModels() {
-        return maxModels;
+    public Map<String, Integer> getPublicationRatePerWeek() {
+        return publicationRatePerWeek;
     }
 
-    public void setMaxModels(Integer maxModels) {
-        this.maxModels = maxModels;
-    }
-
-    public Integer getMaxBibTeX() {
-        return maxBibTeX;
-    }
-
-    public void setMaxBibTeX(Integer maxBibTeX) {
-        this.maxBibTeX = maxBibTeX;
-    }
-
-    public Integer getMaxSubstances() {
-        return maxSubstances;
-    }
-
-    public void setMaxSubstances(Integer maxSubstances) {
-        this.maxSubstances = maxSubstances;
-    }
-
-    
-    
-  
-    
+    public void setPublicationRatePerWeek(Map<String, Integer> publicationRatePerWeek) {
+        this.publicationRatePerWeek = publicationRatePerWeek;
+    }        
 
 }

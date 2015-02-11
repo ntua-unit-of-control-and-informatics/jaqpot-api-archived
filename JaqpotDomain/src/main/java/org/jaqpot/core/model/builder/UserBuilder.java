@@ -29,6 +29,7 @@
  */
 package org.jaqpot.core.model.builder;
 
+import java.util.HashMap;
 import org.jaqpot.core.model.User;
 import org.jaqpot.core.model.validator.EmailValidator;
 
@@ -65,23 +66,45 @@ public class UserBuilder implements EntityBuilder<User> {
         return this;
     }
     
+    private void initCapabilities(){
+        if (user.getCapabilities() == null){
+            user.setCapabilities(new HashMap<>());
+        }
+    }
+    
+    private void initPublicationRatePerWeek(){
+        if (user.getPublicationRatePerWeek()== null){
+            user.setPublicationRatePerWeek(new HashMap<>());
+        }
+    }
+    
     public UserBuilder setMaxBibTeX(int maxBibTeX) {
-        user.setMaxBibTeX(maxBibTeX);
+        initCapabilities();
+        user.getCapabilities().put("bibtex", maxBibTeX);
         return this;
     }
     
     public UserBuilder setMaxSubstances(int maxSubstances) {
-        user.setMaxSubstances(maxSubstances);
+        initCapabilities();
+        user.getCapabilities().put("substances", maxSubstances);
         return this;
     }
     
     public UserBuilder setMaxModels(int maxModels) {
-        user.setMaxModels(maxModels);
+        initCapabilities();
+        user.getCapabilities().put("models", maxModels);
+        return this;
+    }
+    
+    public UserBuilder setMaxFeatures(int maxFeatures) {
+        initCapabilities();
+        user.getCapabilities().put("features",0);
         return this;
     }
     
     public UserBuilder setParallelTasks(int maxParallelTasks) {
-        user.setMaxParallelTasks(maxParallelTasks);
+        initCapabilities();
+        user.getCapabilities().put("tasks.parallel", maxParallelTasks);
         return this;
     }
     
