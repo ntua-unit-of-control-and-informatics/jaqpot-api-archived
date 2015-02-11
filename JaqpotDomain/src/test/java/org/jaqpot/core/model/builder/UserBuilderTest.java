@@ -82,9 +82,9 @@ public class UserBuilderTest {
         assertEquals(userID, u.getId());
         assertEquals(hashedPass, u.getHashedPass());
         assertEquals(email, u.getMail());
-        assertEquals(nMaxBibTeX, u.getMaxBibTeX());
-        assertEquals(nMaxModels, u.getMaxModels());
-        assertEquals(nMaxSubstances, u.getMaxSubstances());               
+        assertEquals(nMaxBibTeX, u.getCapabilities().get("bibtex"));
+        assertEquals(nMaxModels, u.getCapabilities().get("models"));
+        assertEquals(nMaxSubstances, u.getCapabilities().get("substances"));               
     }
     
     @Test(expected = IllegalArgumentException.class)
