@@ -29,18 +29,12 @@
  */
 package org.jaqpot.core.db.entitymanager;
 
-import com.mongodb.BasicDBObject;
-import org.jaqpot.core.annotations.MongoDB;
-import com.mongodb.DB;
-import com.mongodb.DBCollection;
-import com.mongodb.DBCursor;
-import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
-import com.mongodb.WriteResult;
-import com.mongodb.util.JSON;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
+import org.jaqpot.core.annotations.MongoDB;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
-import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,8 +43,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.inject.Inject;
 import javax.xml.bind.annotation.XmlRootElement;
+import org.bson.BSON;
+import org.bson.Document;
 import org.jaqpot.core.data.serialize.EntityJSONSerializer;
-import org.jaqpot.core.model.Task;
+import org.jaqpot.core.model.JaqpotEntity;
 import org.reflections.Reflections;
 
 /**
@@ -75,7 +71,6 @@ public class MongoDBEntityManager implements JaqpotEntityManager {
     public MongoDBEntityManager() {
         try {
             mongoClient = new MongoClient();
-
             Reflections reflections = new Reflections("org.jaqpot.core.model");
             Set<Class<?>> annotatedClasses = reflections.getTypesAnnotatedWith(XmlRootElement.class);
             collectionNames = new HashMap<>();
@@ -84,9 +79,6 @@ public class MongoDBEntityManager implements JaqpotEntityManager {
                 String value = (String) xmlRootElement.annotationType().getMethod("name").invoke(xmlRootElement);
                 collectionNames.put(c, !value.equals("##default") ? value : c.getSimpleName());
             }
-        } catch (UnknownHostException ex) {
-            //TODO: create bundle with messages
-            LOG.log(Level.SEVERE, "JaqpotEntityManager could not be crated properly. Please check your database configuration settings.", ex);
         } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
             Logger.getLogger(MongoDBEntityManager.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -95,16 +87,27 @@ public class MongoDBEntityManager implements JaqpotEntityManager {
 
     @Override
     public void persist(Object entity) {
-        DB db = mongoClient.getDB(database);
+        MongoDatabase db = mongoClient.getDatabase(database);
         String entityJSON = serializer.write(entity);
-        DBObject taskDBObj = (DBObject) JSON.parse(entityJSON);
-        DBCollection collection = db.getCollection(collectionNames.get(entity.getClass()));
-        collection.insert(taskDBObj);
+        MongoCollection collection = db.getCollection(collectionNames.get(entity.getClass()));
+        Document entityBSON = Document.valueOf(entityJSON);
+        collection.insertOne(entityBSON);
     }
 
     @Override
     public <T> T merge(T entity) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        MongoDatabase db = mongoClient.getDatabase(database);
+        Class<T> entityClass = (Class<T>) entity.getClass();
+
+        String entityJSON = serializer.write(entity);
+        Document entityBSON = Document.valueOf(entityJSON);
+
+        MongoCollection collection = db.getCollection(collectionNames.get(entity.getClass()));
+        Object old = collection.find(new Document("_id", ((JaqpotEntity) entity).getId())).first();
+        System.out.println(old);
+        collection.updateOne(new Document("_id", ((JaqpotEntity) entity).getId()), entityBSON);
+
+        return serializer.parse(old.toString(), entityClass);
     }
 
     @Override
@@ -114,12 +117,11 @@ public class MongoDBEntityManager implements JaqpotEntityManager {
 
     @Override
     public <T> T find(Class<T> entityClass, Object primaryKey) {
-        DB db = mongoClient.getDB(database);
-        BasicDBObject query = new BasicDBObject("_id", primaryKey);
-        DBCollection coll = db.getCollection(collectionNames.get(entityClass));
-        DBCursor cursor = coll.find(query);
-        DBObject retrieved = cursor.one();
-        System.out.println(retrieved.toString());
+        MongoDatabase db = mongoClient.getDatabase(database);
+        //BasicDBObject query = new BasicDBObject("_id", primaryKey);
+        MongoCollection collection = db.getCollection(collectionNames.get(entityClass));
+        //DBObject retrieved = coll.find(query).one();
+        Object retrieved = collection.find(new Document("_id", primaryKey)).first();
         return serializer.parse(retrieved.toString(), entityClass);
     }
 

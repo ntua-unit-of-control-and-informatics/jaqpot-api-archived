@@ -38,11 +38,8 @@ import com.mongodb.MongoClient;
 import com.mongodb.util.JSON;
 import java.io.IOException;
 import java.net.UnknownHostException;
-import java.util.UUID;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.jaqpot.core.data.serialize.EntityJSONSerializer;
 import org.jaqpot.core.data.serialize.JacksonJSONSerializer;
-import org.jaqpot.core.model.JaqpotEntity;
 import org.jaqpot.core.model.MetaInfo;
 import org.jaqpot.core.model.Task;
 import org.jaqpot.core.model.builder.MetaInfoBuilder;
@@ -57,7 +54,6 @@ import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.mockito.Spy;
 
 /**
  *
@@ -169,6 +165,68 @@ public class MongoDBEntityManagerTest {
         Task foundTask = em.find(Task.class, taskPojo.getId());
         
         assertEquals(foundTask, taskPojo);
+        assertEquals("not the same ID", taskPojo.getId(), foundTask.getId());
+        assertEquals("not the same createdBy", taskPojo.getCreatedBy(), foundTask.getCreatedBy());
+        assertEquals("not the same percentageComplete", taskPojo.getPercentageCompleted(), foundTask.getPercentageCompleted());
+        assertEquals("not the same duration", taskPojo.getDuration(), foundTask.getDuration());
+        assertEquals("not the same HTTP status", taskPojo.getHttpStatus(), foundTask.getHttpStatus());
+        assertEquals("not the same status", taskPojo.getStatus(), foundTask.getStatus());
+        assertEquals("not the same comments", taskPojo.getMeta().getComments(), foundTask.getMeta().getComments());
+        assertEquals("not the same descriptions", taskPojo.getMeta().getDescriptions(), foundTask.getMeta().getDescriptions());
+    }
+    
+    @Test
+    public void testMergeTask() throws UnknownHostException, IOException {
+        MongoClient mongoClient = new MongoClient();
+        DB db = mongoClient.getDB("test");
+        DBCollection coll = db.getCollection(taskPojo.getClass().getSimpleName());
+        DBObject taskDBObj = (DBObject) JSON.parse(taskJSON);
+        coll.insert(taskDBObj);
+        
+        MetaInfoBuilder metaBuilder = MetaInfoBuilder.builder();
+        MetaInfo meta = metaBuilder.
+                addComments("task started", "this task does training", "dataset downloaded").
+                addDescriptions("this is a very cool task", "oh, and it's super useful too").
+                addSources("http://jaqpot.org/algorithm/wonk").build();
+
+        Task mergeTask = new Task("115a0da8-92cc-4ec4-845f-df643ad607ee");
+        mergeTask.setCreatedBy("random-user@jaqpot.org");
+        mergeTask.setPercentageCompleted(0.95f);
+        mergeTask.setDuration(1534l);
+        mergeTask.setMeta(meta);
+        mergeTask.setHttpStatus(202);
+        mergeTask.setStatus(Task.Status.RUNNING);
+        
+        Task oldTask = em.merge(mergeTask);
+        
+        BasicDBObject query = new BasicDBObject("_id", taskPojo.getId()); // Find with ID
+        DBCursor cursor = coll.find(query);
+
+        assertTrue("nothing found", cursor.hasNext());
+        DBObject retrieved = cursor.next();
+
+        Task objFromDB = (Task) mapper.readValue(retrieved.toString(), Task.class);
+
+        assertEquals(mergeTask, objFromDB);
+        assertEquals("not the same ID", mergeTask.getId(), objFromDB.getId());
+        assertEquals("not the same createdBy", mergeTask.getCreatedBy(), objFromDB.getCreatedBy());
+        assertEquals("not the same percentageComplete", mergeTask.getPercentageCompleted(), objFromDB.getPercentageCompleted());
+        assertEquals("not the same duration", mergeTask.getDuration(), objFromDB.getDuration());
+        assertEquals("not the same HTTP status", mergeTask.getHttpStatus(), objFromDB.getHttpStatus());
+        assertEquals("not the same status", mergeTask.getStatus(), objFromDB.getStatus());
+        assertEquals("not the same comments", mergeTask.getMeta().getComments(), objFromDB.getMeta().getComments());
+        assertEquals("not the same descriptions", mergeTask.getMeta().getDescriptions(), objFromDB.getMeta().getDescriptions());
+        
+        assertEquals(oldTask, taskPojo);
+        assertEquals("not the same ID", taskPojo.getId(), oldTask.getId());
+        assertEquals("not the same createdBy", taskPojo.getCreatedBy(), oldTask.getCreatedBy());
+        assertEquals("not the same percentageComplete", taskPojo.getPercentageCompleted(), oldTask.getPercentageCompleted());
+        assertEquals("not the same duration", taskPojo.getDuration(), oldTask.getDuration());
+        assertEquals("not the same HTTP status", taskPojo.getHttpStatus(), oldTask.getHttpStatus());
+        assertEquals("not the same status", taskPojo.getStatus(), oldTask.getStatus());
+        assertEquals("not the same comments", taskPojo.getMeta().getComments(), oldTask.getMeta().getComments());
+        assertEquals("not the same descriptions", taskPojo.getMeta().getDescriptions(), oldTask.getMeta().getDescriptions());
+        
     }
 
 }

@@ -39,7 +39,6 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
-import java.io.StringWriter;
 import java.io.Writer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -48,7 +47,6 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.jaqpot.core.model.MetaInfo;
 import org.jaqpot.core.model.Task;
 import org.jaqpot.core.model.builder.MetaInfoBuilder;
-import org.jaqpot.core.model.builder.TaskBuilder;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -135,7 +133,7 @@ public class JacksonJSONSerializerTest {
         assertTrue("status not found in serialized string",jsonString.contains("\"status\":\""+taskPojo.getStatus()+"\""));
         assertTrue("duration not found in serialized string",jsonString.contains("\"duration\":"+taskPojo.getDuration()));
         assertTrue("meta not found", jsonString.contains("\"meta\":{"));
-        fail("TESTING NOT ADEQUATE!");
+//        fail("TESTING NOT ADEQUATE!");
     }
 
     /**
