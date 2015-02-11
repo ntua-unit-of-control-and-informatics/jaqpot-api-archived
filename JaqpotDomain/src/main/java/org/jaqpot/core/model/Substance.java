@@ -31,7 +31,7 @@ package org.jaqpot.core.model;
 
 import java.util.Map;
 import javax.xml.bind.annotation.XmlRootElement;
-import org.codehaus.jackson.map.annotate.JsonSerialize;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 /**
  *
@@ -40,7 +40,7 @@ import org.codehaus.jackson.map.annotate.JsonSerialize;
  *
  */
 @XmlRootElement
-@JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public abstract class Substance extends JaqpotEntity {
     
     private Map<String, FeatureValue> features;

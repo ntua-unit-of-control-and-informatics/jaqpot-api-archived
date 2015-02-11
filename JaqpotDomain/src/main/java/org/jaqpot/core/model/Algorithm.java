@@ -29,9 +29,9 @@
  */
 package org.jaqpot.core.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import java.util.Set;
 import javax.xml.bind.annotation.XmlRootElement;
-import org.codehaus.jackson.map.annotate.JsonSerialize;
 
 /**
  *
@@ -40,7 +40,7 @@ import org.codehaus.jackson.map.annotate.JsonSerialize;
  *
  */
 @XmlRootElement
-@JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Algorithm extends JaqpotEntity {
     
     /** Algorithm's parameters. */

@@ -31,7 +31,7 @@ package org.jaqpot.core.model;
 
 import java.util.Set;
 import javax.xml.bind.annotation.XmlRootElement;
-import org.codehaus.jackson.map.annotate.JsonSerialize;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 /**
  *
@@ -40,7 +40,7 @@ import org.codehaus.jackson.map.annotate.JsonSerialize;
  *
  */
 @XmlRootElement
-@JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Compound extends JaqpotEntity {
     
     private Set<Conformer> conformers;

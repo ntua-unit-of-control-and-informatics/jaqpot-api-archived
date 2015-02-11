@@ -32,7 +32,7 @@ package org.jaqpot.core.model;
 import java.util.List;
 import java.util.Set;
 import javax.xml.bind.annotation.XmlRootElement;
-import org.codehaus.jackson.map.annotate.JsonSerialize;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 /**
  *
@@ -41,7 +41,7 @@ import org.codehaus.jackson.map.annotate.JsonSerialize;
  *
  */
 @XmlRootElement(name = "Model")
-@JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Model extends JaqpotEntity {
 
     private List<String> dependentFeatures;
