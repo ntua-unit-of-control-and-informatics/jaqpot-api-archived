@@ -132,8 +132,7 @@ public class JacksonJSONSerializerTest {
         assertTrue("createdBy not found in serialized string",jsonString.contains("\"createdBy\":\""+taskPojo.getCreatedBy()+"\""));
         assertTrue("status not found in serialized string",jsonString.contains("\"status\":\""+taskPojo.getStatus()+"\""));
         assertTrue("duration not found in serialized string",jsonString.contains("\"duration\":"+taskPojo.getDuration()));
-        assertTrue("meta not found", jsonString.contains("\"meta\":{"));
-//        fail("TESTING NOT ADEQUATE!");
+        assertTrue("meta not found", jsonString.contains("\"meta\":{"));        
     }
 
     /**

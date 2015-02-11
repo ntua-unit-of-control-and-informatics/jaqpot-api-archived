@@ -31,6 +31,7 @@ package org.jaqpot.core.model;
 
 import java.util.Objects;
 import java.util.Set;
+import javax.xml.bind.annotation.XmlRootElement;
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 
@@ -40,6 +41,7 @@ import org.codehaus.jackson.map.annotate.JsonSerialize;
  * @author Charalampos Chomenidis
  *
  */
+@XmlRootElement
 @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
 public abstract class JaqpotEntity {
 
