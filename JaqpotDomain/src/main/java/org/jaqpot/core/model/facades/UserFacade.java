@@ -78,4 +78,32 @@ public class UserFacade {
         return maxSubstnaces;
     }
 
+    public int getMaxDatasets() {
+        throw new UnsupportedOperationException("to be supported soon");
+    }
+
+    public int getMaxBibTeX() {
+        throw new UnsupportedOperationException("to be supported soon");
+    }
+
+    public int getMaxAlgorithms() {
+        throw new UnsupportedOperationException("to be supported soon");
+    }
+
+    public int getMaxPublishedSubstancesPerWeek() {
+        throw new UnsupportedOperationException("to be supported soon");
+    }
+
+    public int getMaxPublishedFeaturesPerWeek() {
+        throw new UnsupportedOperationException("to be supported soon");
+    }
+
+    public int getMaxPublishedDatasetsPerWeek() {
+        throw new UnsupportedOperationException("to be supported soon");
+    }
+
+    public int getMaxPublishedAlgorithmsPerWeek() {
+        throw new UnsupportedOperationException("to be supported soon");
+    }
+
 }

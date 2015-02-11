@@ -44,62 +44,62 @@ import static org.junit.Assert.*;
  * @author chung
  */
 public class UserFacadeTest {
-    
+
     private static final Random rng = new Random(System.currentTimeMillis());
-    
+
     public UserFacadeTest() {
     }
-    
+
     @BeforeClass
     public static void setUpClass() {
     }
-    
+
     @AfterClass
     public static void tearDownClass() {
     }
-    
+
     @Before
     public void setUp() {
     }
-    
+
     @After
     public void tearDown() {
     }
 
     @Test
-    public void testGetMaxSubstnaces_EmptyUser() {        
+    public void testGetMaxSubstnaces_EmptyUser() {
         User u = new User();
         UserFacade userFacade = new UserFacade(u);
         int maxSubstances = userFacade.getMaxSubstnaces();
         int expectedMaxSubstances = -1;
         assertEquals(expectedMaxSubstances, maxSubstances);
     }
-    
+
     @Test
-    public void testGetMaxSubstnaces() {        
+    public void testGetMaxSubstnaces() {
         User u = new User();
         int expectedMaxSubstances = 1234;
         u.setCapabilities(new HashMap<>());
         u.getCapabilities().put("substances", expectedMaxSubstances);
         UserFacade userFacade = new UserFacade(u);
-        int maxSubstances = userFacade.getMaxSubstnaces();        
+        int maxSubstances = userFacade.getMaxSubstnaces();
         assertEquals(expectedMaxSubstances, maxSubstances);
     }
-    
+
     @Test
-    public void testGetMaxFeatures_EmptyUser() {        
+    public void testGetMaxFeatures_emptyUser() {
         User u = new User();
         UserFacade userFacade = new UserFacade(u);
         int maxFeatures = userFacade.getMaxFeatures();
         int expectedMaxFeatures = -1;
         assertEquals(expectedMaxFeatures, maxFeatures);
     }
-    
+
     @Test(expected = IllegalArgumentException.class)
-    public void testGetMaxFeatures_nullUser() {        
+    public void testInstantiateFacade_nullUser() {
         User u = null;
         UserFacade userFacade = new UserFacade(u);
-        userFacade.getMaxFeatures();       
+        userFacade.getMaxFeatures();
     }
 
     @Test
@@ -109,10 +109,10 @@ public class UserFacadeTest {
         u.setCapabilities(new HashMap<>());
         u.getCapabilities().put("features", expectedMaxFeatures);
         UserFacade userFacade = new UserFacade(u);
-        int maxFeatures = userFacade.getMaxFeatures();        
+        int maxFeatures = userFacade.getMaxFeatures();
         assertEquals(expectedMaxFeatures, maxFeatures);
     }
-    
+
     @Test
     public void testGetMaxBibTeX() {
         User u = new User();
@@ -120,10 +120,10 @@ public class UserFacadeTest {
         u.setCapabilities(new HashMap<>());
         u.getCapabilities().put("bibtex", expectedMaxBibTeX);
         UserFacade userFacade = new UserFacade(u);
-        int maxBibTeX = userFacade.getMaxBibTeX();        
+        int maxBibTeX = userFacade.getMaxBibTeX();
         assertEquals(expectedMaxBibTeX, maxBibTeX);
     }
-    
+
     @Test
     public void testGetMaxDatasets() {
         User u = new User();
@@ -131,19 +131,68 @@ public class UserFacadeTest {
         u.setCapabilities(new HashMap<>());
         u.getCapabilities().put("datasets", expectedMaxDatasets);
         UserFacade userFacade = new UserFacade(u);
-        int maxDatasets = userFacade.getMaxDatasets();        
+        int maxDatasets = userFacade.getMaxDatasets();
         assertEquals(expectedMaxDatasets, maxDatasets);
+    }
+
+    @Test
+    public void testGetMaxDatasets_emptyUser() {
+        User u = new User();
+        int expectedMaxDatasets = -1;
+        UserFacade userFacade = new UserFacade(u);
+        int maxDatasets = userFacade.getMaxDatasets();
+        assertEquals(expectedMaxDatasets, maxDatasets);
+    }
+
+    @Test
+    public void testGetMaxAlgorithms() {
+        User u = new User();
+        int expectedMaxAlgorithms = rng.nextInt();
+        u.setCapabilities(new HashMap<>());
+        u.getCapabilities().put("algorithms", expectedMaxAlgorithms);
+        UserFacade userFacade = new UserFacade(u);
+        int maxAlgorithms = userFacade.getMaxAlgorithms();
+        assertEquals(expectedMaxAlgorithms, maxAlgorithms);
+    }
+
+    @Test
+    public void testMaxPublishedSubstancesPerWeek() {
+        fail("this is a prototype");
+    }
+
+    @Test
+    public void testMaxPublishedSubstancesPerWeek_emptyUser() {
+        fail("this is a prototype");
+    }
+
+    @Test
+    public void testMaxPublishedFeaturesPerWeek() {
+        fail("this is a prototype");
     }
     
     @Test
-    public void testGetMaxDatasets() {
-        User u = new User();        
-        int expectedMaxDatasets = rng.nextInt();
-        u.setCapabilities(new HashMap<>());
-        u.getCapabilities().put("datasets", expectedMaxDatasets);
-        UserFacade userFacade = new UserFacade(u);
-        int maxDatasets = userFacade.getMaxDatasets();        
-        assertEquals(expectedMaxDatasets, maxDatasets);
+    public void testMaxPublishedFeaturesPerWeek_emptyUser() {
+        fail("this is a prototype");
+    }
+
+    @Test
+    public void testMaxPublishedDatasetsPerWeek() {
+        fail("this is a prototype");
     }
     
+    @Test
+    public void testMaxPublishedDatasetsPerWeek_emptyUser() {
+        fail("this is a prototype");
+    }
+
+    @Test
+    public void testMaxPublishedAlgorithmsPerWeek() {
+        fail("this is a prototype");
+    }
+    
+    @Test
+    public void testMaxPublishedAlgorithmsPerWeek_emptyUser() {
+        fail("this is a prototype");
+    }
+
 }
