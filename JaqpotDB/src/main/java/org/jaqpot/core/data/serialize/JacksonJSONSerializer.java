@@ -29,6 +29,7 @@
  */
 package org.jaqpot.core.data.serialize;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jaqpot.core.annotations.Jackson;
 import java.io.IOException;
 import java.io.InputStream;
@@ -37,7 +38,6 @@ import java.io.Writer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.enterprise.inject.Default;
-import org.codehaus.jackson.map.ObjectMapper;
 
 /**
  *
@@ -47,7 +47,7 @@ import org.codehaus.jackson.map.ObjectMapper;
  */
 @Default
 @Jackson
-public class JacksonJSONSerializer implements EntityJSONSerializer {
+public class JacksonJSONSerializer implements JSONSerializer {
 
     private static final Logger LOG = Logger.getLogger(JacksonJSONSerializer.class.getName());
 

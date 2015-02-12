@@ -29,6 +29,7 @@
  */
 package org.jaqpot.core.db.entitymanager;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
@@ -38,7 +39,6 @@ import com.mongodb.MongoClient;
 import com.mongodb.util.JSON;
 import java.io.IOException;
 import java.net.UnknownHostException;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.jaqpot.core.data.serialize.JacksonJSONSerializer;
 import org.jaqpot.core.model.MetaInfo;
 import org.jaqpot.core.model.Task;
@@ -54,6 +54,8 @@ import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
 /**
  *
@@ -106,11 +108,26 @@ public class MongoDBEntityManagerTest {
 
         mapper = new ObjectMapper();
         taskJSON = mapper.writeValueAsString(taskPojo);
-        
+
         MockitoAnnotations.initMocks(this);
-        Mockito.when(serializer.write(taskPojo)).thenReturn(taskJSON);
-        Mockito.when(serializer.parse(Matchers.anyString(), Matchers.any(Class.class))).thenReturn(taskPojo);
-        
+        Mockito.when(serializer.write(Matchers.any())).thenAnswer(new Answer<String>() {
+
+            @Override
+            public String answer(InvocationOnMock invocation) throws Throwable {
+                Object obj = invocation.getArguments()[0];
+                return mapper.writeValueAsString(obj);
+            }
+        });
+        Mockito.when(serializer.parse(Matchers.anyString(), Matchers.any(Class.class))).thenAnswer(new Answer<Object>() {
+
+            @Override
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+                String pojo = (String) invocation.getArguments()[0];
+                Class clazz = (Class) invocation.getArguments()[1];
+                return mapper.readValue(pojo, clazz);
+            }
+        });
+
         em.setDatabase("test");
 
     }
@@ -153,17 +170,17 @@ public class MongoDBEntityManagerTest {
         assertEquals("not the same comments", taskPojo.getMeta().getComments(), objFromDB.getMeta().getComments());
         assertEquals("not the same descriptions", taskPojo.getMeta().getDescriptions(), objFromDB.getMeta().getDescriptions());
     }
-    
+
     @Test
-    public void testFindTask() throws UnknownHostException{
+    public void testFindTask() throws UnknownHostException {
         MongoClient mongoClient = new MongoClient();
         DB db = mongoClient.getDB("test");
         DBCollection coll = db.getCollection(taskPojo.getClass().getSimpleName());
         DBObject taskDBObj = (DBObject) JSON.parse(taskJSON);
         coll.insert(taskDBObj);
-        
+
         Task foundTask = em.find(Task.class, taskPojo.getId());
-        
+
         assertEquals(foundTask, taskPojo);
         assertEquals("not the same ID", taskPojo.getId(), foundTask.getId());
         assertEquals("not the same createdBy", taskPojo.getCreatedBy(), foundTask.getCreatedBy());
@@ -174,7 +191,7 @@ public class MongoDBEntityManagerTest {
         assertEquals("not the same comments", taskPojo.getMeta().getComments(), foundTask.getMeta().getComments());
         assertEquals("not the same descriptions", taskPojo.getMeta().getDescriptions(), foundTask.getMeta().getDescriptions());
     }
-    
+
     @Test
     public void testMergeTask() throws UnknownHostException, IOException {
         MongoClient mongoClient = new MongoClient();
@@ -182,7 +199,7 @@ public class MongoDBEntityManagerTest {
         DBCollection coll = db.getCollection(taskPojo.getClass().getSimpleName());
         DBObject taskDBObj = (DBObject) JSON.parse(taskJSON);
         coll.insert(taskDBObj);
-        
+
         MetaInfoBuilder metaBuilder = MetaInfoBuilder.builder();
         MetaInfo meta = metaBuilder.
                 addComments("task started", "this task does training", "dataset downloaded").
@@ -196,9 +213,9 @@ public class MongoDBEntityManagerTest {
         mergeTask.setMeta(meta);
         mergeTask.setHttpStatus(202);
         mergeTask.setStatus(Task.Status.RUNNING);
-        
+
         Task oldTask = em.merge(mergeTask);
-        
+
         BasicDBObject query = new BasicDBObject("_id", taskPojo.getId()); // Find with ID
         DBCursor cursor = coll.find(query);
 
@@ -216,7 +233,7 @@ public class MongoDBEntityManagerTest {
         assertEquals("not the same status", mergeTask.getStatus(), objFromDB.getStatus());
         assertEquals("not the same comments", mergeTask.getMeta().getComments(), objFromDB.getMeta().getComments());
         assertEquals("not the same descriptions", mergeTask.getMeta().getDescriptions(), objFromDB.getMeta().getDescriptions());
-        
+
         assertEquals(oldTask, taskPojo);
         assertEquals("not the same ID", taskPojo.getId(), oldTask.getId());
         assertEquals("not the same createdBy", taskPojo.getCreatedBy(), oldTask.getCreatedBy());
@@ -226,7 +243,7 @@ public class MongoDBEntityManagerTest {
         assertEquals("not the same status", taskPojo.getStatus(), oldTask.getStatus());
         assertEquals("not the same comments", taskPojo.getMeta().getComments(), oldTask.getMeta().getComments());
         assertEquals("not the same descriptions", taskPojo.getMeta().getDescriptions(), oldTask.getMeta().getDescriptions());
-        
+
     }
 
 }

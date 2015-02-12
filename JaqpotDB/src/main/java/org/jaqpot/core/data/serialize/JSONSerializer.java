@@ -39,7 +39,7 @@ import java.io.Writer;
  * @author Charalampos Chomenidis
  *
  */
-public interface EntityJSONSerializer {
+public interface JSONSerializer {
 
     public void write(Object entity, OutputStream out);
 

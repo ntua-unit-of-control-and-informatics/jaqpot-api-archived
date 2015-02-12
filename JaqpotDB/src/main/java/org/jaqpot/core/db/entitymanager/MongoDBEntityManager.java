@@ -32,6 +32,7 @@ package org.jaqpot.core.db.entitymanager;
 import com.mongodb.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.util.JSON;
 import org.jaqpot.core.annotations.MongoDB;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
@@ -43,9 +44,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.inject.Inject;
 import javax.xml.bind.annotation.XmlRootElement;
-import org.bson.BSON;
 import org.bson.Document;
-import org.jaqpot.core.data.serialize.EntityJSONSerializer;
+import org.jaqpot.core.data.serialize.JSONSerializer;
 import org.jaqpot.core.model.JaqpotEntity;
 import org.reflections.Reflections;
 
@@ -61,7 +61,7 @@ public class MongoDBEntityManager implements JaqpotEntityManager {
     private static final Logger LOG = Logger.getLogger(JaqpotEntityManager.class.getName());
 
     @Inject
-    EntityJSONSerializer serializer;
+    JSONSerializer serializer;
 
     private MongoClient mongoClient;
     private String database;
@@ -71,9 +71,8 @@ public class MongoDBEntityManager implements JaqpotEntityManager {
     static {
         collectionNames = new HashMap<>();
         try {
-            mongoClient = new MongoClient();
             Reflections reflections = new Reflections("org.jaqpot.core.model");
-            Set<Class<?>> annotatedClasses = reflections.getTypesAnnotatedWith(XmlRootElement.class);            
+            Set<Class<?>> annotatedClasses = reflections.getTypesAnnotatedWith(XmlRootElement.class);
             for (Class c : annotatedClasses) {
                 Annotation xmlRootElement = c.getAnnotation(XmlRootElement.class);
                 String value = (String) xmlRootElement.annotationType().getMethod("name").invoke(xmlRootElement);
@@ -89,14 +88,14 @@ public class MongoDBEntityManager implements JaqpotEntityManager {
 
     public MongoDBEntityManager() {
         // Here construct the mongo client object...
-        try {
-            mongoClient = new MongoClient();
-        } catch (UnknownHostException ex) {
-            String errorMessage = "JaqpotEntityManager could not be crated properly. Please check your database configuration settings.";
-            LOG.log(Level.SEVERE, errorMessage, ex);
-            // this is a terribly bad error - throw a RuntimeException (this shouldn't ever happpen!!!)
-            throw new RuntimeException(errorMessage);
-        }
+//        try {
+        mongoClient = new MongoClient();
+//        } catch (UnknownHostException ex) {
+//            String errorMessage = "JaqpotEntityManager could not be crated properly. Please check your database configuration settings.";
+//            LOG.log(Level.SEVERE, errorMessage, ex);
+//            // this is a terribly bad error - throw a RuntimeException (this shouldn't ever happpen!!!)
+//            throw new RuntimeException(errorMessage);
+//        }
 
     }
 
@@ -113,16 +112,11 @@ public class MongoDBEntityManager implements JaqpotEntityManager {
     public <T> T merge(T entity) {
         MongoDatabase db = mongoClient.getDatabase(database);
         Class<T> entityClass = (Class<T>) entity.getClass();
-
         String entityJSON = serializer.write(entity);
         Document entityBSON = Document.valueOf(entityJSON);
-
-        MongoCollection collection = db.getCollection(collectionNames.get(entity.getClass()));
-        Object old = collection.find(new Document("_id", ((JaqpotEntity) entity).getId())).first();
-        System.out.println(old);
-        collection.updateOne(new Document("_id", ((JaqpotEntity) entity).getId()), entityBSON);
-
-        return serializer.parse(old.toString(), entityClass);
+        MongoCollection<Document> collection = db.getCollection(collectionNames.get(entity.getClass()));
+        Document oldEntity = collection.findOneAndReplace(new Document("_id", ((JaqpotEntity) entity).getId()), entityBSON);
+        return serializer.parse(JSON.serialize(oldEntity), entityClass);
     }
 
     @Override
@@ -133,11 +127,9 @@ public class MongoDBEntityManager implements JaqpotEntityManager {
     @Override
     public <T> T find(Class<T> entityClass, Object primaryKey) {
         MongoDatabase db = mongoClient.getDatabase(database);
-        //BasicDBObject query = new BasicDBObject("_id", primaryKey);
-        MongoCollection collection = db.getCollection(collectionNames.get(entityClass));
-        //DBObject retrieved = coll.find(query).one();
-        Object retrieved = collection.find(new Document("_id", primaryKey)).first();
-        return serializer.parse(retrieved.toString(), entityClass);
+        MongoCollection<Document> collection = db.getCollection(collectionNames.get(entityClass));
+        Document retrieved = collection.find(new Document("_id", primaryKey)).first();
+        return serializer.parse(JSON.serialize(retrieved), entityClass);
     }
 
     @Override
