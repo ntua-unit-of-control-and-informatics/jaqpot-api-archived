@@ -332,12 +332,13 @@ public class MongoDBEntityManagerTest {
         List<String> descriptions = new ArrayList<>();
         List<String> sources = new ArrayList<>();
 
-        comments.add("dataset downloaded");
         comments.add("task started");
+        comments.add("dataset downloaded");        
         comments.add("this task does training");
 
-        descriptions.add("oh, and it's very useful too");
         descriptions.add("this is a very nice task");
+        descriptions.add("oh, and it's very useful too");
+        
         sources.add("http://jaqpot.org/algorithm/wonk");
 
         properties.put("meta.hasSources", sources);

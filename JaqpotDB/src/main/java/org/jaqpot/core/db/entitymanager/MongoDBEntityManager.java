@@ -129,6 +129,17 @@ public class MongoDBEntityManager implements JaqpotEntityManager {
     public <T> List<T> find(Class<T> entityClass, Map<String, Object> properties, Integer start, Integer max) {
         MongoDatabase db = mongoClient.getDatabase(database);
         MongoCollection<Document> collection = db.getCollection(collectionNames.get(entityClass));
+        properties.entrySet()
+                .stream()
+                .filter(e -> {
+                    return e.getValue() instanceof List;
+                })
+                .forEach(e -> {
+                    Map<String, Object> all = new HashMap<>();
+                    all.put("$all", e.getValue());
+                    properties.put(e.getKey(), all);
+                });
+
         List<T> result = new ArrayList<>();
         collection.find(new Document(properties))
                 .skip(start)
