@@ -333,12 +333,12 @@ public class MongoDBEntityManagerTest {
         List<String> sources = new ArrayList<>();
 
         comments.add("task started");
-        comments.add("dataset downloaded");        
+        comments.add("dataset downloaded");
         comments.add("this task does training");
 
         descriptions.add("this is a very nice task");
         descriptions.add("oh, and it's very useful too");
-        
+
         sources.add("http://jaqpot.org/algorithm/wonk");
 
         properties.put("meta.hasSources", sources);
@@ -364,6 +364,45 @@ public class MongoDBEntityManagerTest {
         result = em.find(Task.class, properties, 0, 5);
 
         assertTrue(result.isEmpty());
+
+    }
+
+    @Test
+    public void testFindByIds() throws JsonProcessingException {
+        MongoClient mongoClient = new MongoClient();
+        MongoDatabase db = mongoClient.getDatabase("test");
+        MongoCollection<Document> coll = db.getCollection(taskPojo.getClass().getSimpleName());
+        Document taskDBObj = Document.valueOf(mapper.writeValueAsString(taskPojo));
+        Document taskDBObj2 = Document.valueOf(mapper.writeValueAsString(taskPojo2));
+        coll.insertOne(taskDBObj);
+        coll.insertOne(taskDBObj2);
+
+        List<String> keys = new ArrayList<>();
+        keys.add("115a0da8-92cc-4ec4-845f-df643ad607ee");
+        keys.add("215a0da8-92cc-4ec4-845f-df643ad607ee");
+
+        List<String> fields = new ArrayList<>();
+        fields.add("duration");
+        fields.add("status");
+
+        List<Task> result = em.find(Task.class, keys, fields);
+
+        Task foundTask = result.get(0);
+        Task foundTask2 = result.get(1);
+
+        assertEquals(foundTask, taskPojo);
+        assertEquals("not the same ID", taskPojo.getId(), foundTask.getId());
+        assertNull(foundTask.getCreatedBy());
+        assertNull(foundTask.getPercentageCompleted());
+        assertEquals("not the same duration", taskPojo.getDuration(), foundTask.getDuration());
+        assertEquals("not the same status", taskPojo.getStatus(), foundTask.getStatus());
+
+        assertEquals(foundTask2, taskPojo2);
+        assertEquals("not the same ID", taskPojo2.getId(), foundTask2.getId());
+        assertNull(foundTask2.getCreatedBy());
+        assertNull(foundTask2.getPercentageCompleted());
+        assertEquals("not the same duration", taskPojo2.getDuration(), foundTask2.getDuration());
+        assertEquals("not the same status", taskPojo2.getStatus(), foundTask2.getStatus());
 
     }
 

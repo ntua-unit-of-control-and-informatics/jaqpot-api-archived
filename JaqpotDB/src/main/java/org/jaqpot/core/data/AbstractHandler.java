@@ -30,13 +30,14 @@
 package org.jaqpot.core.data;
 
 import java.util.List;
+import java.util.Map;
 import org.jaqpot.core.db.entitymanager.JaqpotEntityManager;
 
 /**
  *
  * @author Pantelis Sopasakis
  * @author Charalampos Chomenidis
- * @param <T> Entity Type to be handled by the Handler.Ï
+ * @param <T> Entity Type to be handled by the Handler.
  *
  */
 public abstract class AbstractHandler<T> {
@@ -63,6 +64,10 @@ public abstract class AbstractHandler<T> {
 
     public T find(Object id) {
         return getEntityManager().find(entityClass, id);
+    }
+
+    public T find(Map<String, Object> properties) {
+        return getEntityManager().find(entityClass, properties);
     }
 
     public List<T> findAll() {

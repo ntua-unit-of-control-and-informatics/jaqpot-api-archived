@@ -150,6 +150,20 @@ public class MongoDBEntityManager implements JaqpotEntityManager {
     }
 
     @Override
+    public <T> List<T> find(Class<T> entityClass, List<String> keys, List<String> fields) {
+        MongoDatabase db = mongoClient.getDatabase(database);
+        MongoCollection<Document> collection = db.getCollection(collectionNames.get(entityClass));
+        List<T> result = new ArrayList<>();
+        Document query = new Document("_id", new Document("$in", keys));
+        Document filter = new Document();
+        fields.stream().forEach(f -> filter.put(f, 1));
+        collection.find(query).projection(filter)
+                .map(document -> serializer.parse(JSON.serialize(document), entityClass))
+                .into(result);
+        return result;
+    }
+
+    @Override
     public <T> List<T> findAll(Class<T> entityClass, Integer start, Integer max) {
         MongoDatabase db = mongoClient.getDatabase(database);
         MongoCollection<Document> collection = db.getCollection(collectionNames.get(entityClass));
