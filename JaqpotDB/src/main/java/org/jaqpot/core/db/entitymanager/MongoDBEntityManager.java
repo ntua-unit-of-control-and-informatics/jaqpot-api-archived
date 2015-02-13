@@ -126,8 +126,16 @@ public class MongoDBEntityManager implements JaqpotEntityManager {
     }
 
     @Override
-    public <T> T find(Class<T> entityClass, Object primaryKey, Map<String, Object> properties) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public <T> List<T> find(Class<T> entityClass, Map<String, Object> properties, Integer start, Integer max) {
+        MongoDatabase db = mongoClient.getDatabase(database);
+        MongoCollection<Document> collection = db.getCollection(collectionNames.get(entityClass));
+        List<T> result = new ArrayList<>();
+        collection.find(new Document(properties))
+                .skip(start)
+                .limit(max)
+                .map(document -> serializer.parse(JSON.serialize(document), entityClass))
+                .into(result);
+        return result;
     }
 
     @Override

@@ -42,7 +42,7 @@ public class ElasticSearchEntityManager implements JaqpotEntityManager {
     }
 
     @Override
-    public <T> T find(Class<T> entityClass, Object primaryKey, Map<String, Object> properties) {
+    public <T> List<T> find(Class<T> entityClass, Map<String, Object> properties, Integer start, Integer max) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -50,5 +50,5 @@ public class ElasticSearchEntityManager implements JaqpotEntityManager {
     public <T> List<T> findAll(Class<T> entityClass, Integer start, Integer max) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
-    
+
 }

@@ -42,7 +42,12 @@ import com.mongodb.client.MongoDatabase;
 import com.mongodb.util.JSON;
 import java.io.IOException;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import org.bson.Document;
 import org.jaqpot.core.data.serialize.JacksonJSONSerializer;
 import org.jaqpot.core.model.JaqpotEntity;
@@ -310,6 +315,54 @@ public class MongoDBEntityManagerTest {
         MongoCollection<Document> collection = db.getCollection(MongoDBEntityManager.collectionNames.get(taskPojo.getClass()));
         Document foundTask = collection.find(new Document("_id", taskPojo.getId())).first();
         assertNull(foundTask);
+
+    }
+
+    @Test
+    public void testFindByProperties() throws JsonProcessingException {
+        System.out.println(taskJSON);
+        MongoClient mongoClient = new MongoClient();
+        MongoDatabase db = mongoClient.getDatabase("test");
+        MongoCollection<Document> coll = db.getCollection(taskPojo.getClass().getSimpleName());
+        Document taskDBObj = Document.valueOf(taskJSON);
+        coll.insertOne(taskDBObj);
+
+        Map<String, Object> properties = new HashMap<>();
+        List<String> comments = new ArrayList<>();
+        List<String> descriptions = new ArrayList<>();
+        List<String> sources = new ArrayList<>();
+
+        comments.add("dataset downloaded");
+        comments.add("task started");
+        comments.add("this task does training");
+
+        descriptions.add("oh, and it's very useful too");
+        descriptions.add("this is a very nice task");
+        sources.add("http://jaqpot.org/algorithm/wonk");
+
+        properties.put("meta.hasSources", sources);
+        properties.put("meta.comments", comments);
+        properties.put("meta.descriptions", descriptions);
+
+        properties.put("duration", 1534l);
+        List<Task> result = em.find(Task.class, properties, 0, 5);
+
+        Task foundTask = result.get(0);
+        assertEquals(foundTask, taskPojo);
+        assertEquals("not the same ID", taskPojo.getId(), foundTask.getId());
+        assertEquals("not the same createdBy", taskPojo.getCreatedBy(), foundTask.getCreatedBy());
+        assertEquals("not the same percentageComplete", taskPojo.getPercentageCompleted(), foundTask.getPercentageCompleted());
+        assertEquals("not the same duration", taskPojo.getDuration(), foundTask.getDuration());
+        assertEquals("not the same HTTP status", taskPojo.getHttpStatus(), foundTask.getHttpStatus());
+        assertEquals("not the same status", taskPojo.getStatus(), foundTask.getStatus());
+        assertEquals("not the same comments", taskPojo.getMeta().getComments(), foundTask.getMeta().getComments());
+        assertEquals("not the same descriptions", taskPojo.getMeta().getDescriptions(), foundTask.getMeta().getDescriptions());
+
+        properties = new HashMap<>();
+        properties.put("duration", 1535l);
+        result = em.find(Task.class, properties, 0, 5);
+
+        assertTrue(result.isEmpty());
 
     }
 
