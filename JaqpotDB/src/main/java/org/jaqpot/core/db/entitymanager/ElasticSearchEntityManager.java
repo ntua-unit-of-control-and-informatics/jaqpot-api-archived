@@ -47,7 +47,7 @@ public class ElasticSearchEntityManager implements JaqpotEntityManager {
     }
 
     @Override
-    public <T> List<T> findAll(Class<T> entityClass) {
+    public <T> List<T> findAll(Class<T> entityClass, Integer start, Integer max) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     

@@ -36,6 +36,7 @@ import com.mongodb.util.JSON;
 import org.jaqpot.core.annotations.MongoDB;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -58,15 +59,15 @@ import org.reflections.Reflections;
 @MongoDB
 public class MongoDBEntityManager implements JaqpotEntityManager {
 
-    private static final Logger LOG = Logger.getLogger(JaqpotEntityManager.class.getName());
+    private static final Logger LOG = Logger.getLogger(MongoDBEntityManager.class.getName());
 
     @Inject
     JSONSerializer serializer;
 
-    private MongoClient mongoClient;
+    private final MongoClient mongoClient;
     private String database;
 
-    private static final Map<Class, String> collectionNames;
+    public static final Map<Class, String> collectionNames;
 
     static {
         collectionNames = new HashMap<>();
@@ -81,22 +82,12 @@ public class MongoDBEntityManager implements JaqpotEntityManager {
         } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
             String errorMessage = "Improper data model - all elementary POJOs ###MUST### be annotated with @XmlRootElement!";
             LOG.log(Level.SEVERE, errorMessage, ex);
-            Logger.getLogger(MongoDBEntityManager.class.getName()).log(Level.SEVERE, null, ex);
             throw new RuntimeException(ex); // terrible case: No @XmlRootElement annotation in our data model! 
         }
     }
 
     public MongoDBEntityManager() {
-        // Here construct the mongo client object...
-//        try {
         mongoClient = new MongoClient();
-//        } catch (UnknownHostException ex) {
-//            String errorMessage = "JaqpotEntityManager could not be crated properly. Please check your database configuration settings.";
-//            LOG.log(Level.SEVERE, errorMessage, ex);
-//            // this is a terribly bad error - throw a RuntimeException (this shouldn't ever happpen!!!)
-//            throw new RuntimeException(errorMessage);
-//        }
-
     }
 
     @Override
@@ -121,7 +112,9 @@ public class MongoDBEntityManager implements JaqpotEntityManager {
 
     @Override
     public void remove(Object entity) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        MongoDatabase db = mongoClient.getDatabase(database);
+        MongoCollection<Document> collection = db.getCollection(collectionNames.get(entity.getClass()));
+        collection.deleteOne(new Document("_id", ((JaqpotEntity) entity).getId()));
     }
 
     @Override
@@ -138,8 +131,16 @@ public class MongoDBEntityManager implements JaqpotEntityManager {
     }
 
     @Override
-    public <T> List<T> findAll(Class<T> entityClass) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public <T> List<T> findAll(Class<T> entityClass, Integer start, Integer max) {
+        MongoDatabase db = mongoClient.getDatabase(database);
+        MongoCollection<Document> collection = db.getCollection(collectionNames.get(entityClass));
+        List<T> result = new ArrayList<>();
+        collection.find()
+                .skip(start)
+                .limit(max)
+                .map(document -> serializer.parse(JSON.serialize(document), entityClass))
+                .into(result);
+        return result;
     }
 
     public String getDatabase() {

@@ -66,6 +66,6 @@ public abstract class AbstractHandler<T> {
     }
 
     public List<T> findAll() {
-        return getEntityManager().findAll(entityClass);
+        return getEntityManager().findAll(entityClass, 0, Integer.MAX_VALUE);
     }
 }

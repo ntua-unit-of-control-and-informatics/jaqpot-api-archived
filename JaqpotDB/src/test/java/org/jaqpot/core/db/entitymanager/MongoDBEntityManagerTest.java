@@ -29,6 +29,7 @@
  */
 package org.jaqpot.core.db.entitymanager;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
@@ -36,10 +37,15 @@ import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
 import com.mongodb.util.JSON;
 import java.io.IOException;
 import java.net.UnknownHostException;
+import java.util.List;
+import org.bson.Document;
 import org.jaqpot.core.data.serialize.JacksonJSONSerializer;
+import org.jaqpot.core.model.JaqpotEntity;
 import org.jaqpot.core.model.MetaInfo;
 import org.jaqpot.core.model.Task;
 import org.jaqpot.core.model.builder.MetaInfoBuilder;
@@ -70,6 +76,7 @@ public class MongoDBEntityManagerTest {
 
     ObjectMapper mapper;
     Task taskPojo;
+    Task taskPojo2;
     String taskJSON;
 
     @InjectMocks
@@ -105,6 +112,14 @@ public class MongoDBEntityManagerTest {
         taskPojo.setMeta(meta);
         taskPojo.setHttpStatus(202);
         taskPojo.setStatus(Task.Status.RUNNING);
+
+        taskPojo2 = new Task("215a0da8-92cc-4ec4-845f-df643ad607ee");
+        taskPojo2.setCreatedBy("random-user@jaqpot.org");
+        taskPojo2.setPercentageCompleted(0.95f);
+        taskPojo2.setDuration(1534l);
+        taskPojo2.setMeta(meta);
+        taskPojo2.setHttpStatus(202);
+        taskPojo2.setStatus(Task.Status.COMPLETED);
 
         mapper = new ObjectMapper();
         taskJSON = mapper.writeValueAsString(taskPojo);
@@ -243,6 +258,58 @@ public class MongoDBEntityManagerTest {
         assertEquals("not the same status", taskPojo.getStatus(), oldTask.getStatus());
         assertEquals("not the same comments", taskPojo.getMeta().getComments(), oldTask.getMeta().getComments());
         assertEquals("not the same descriptions", taskPojo.getMeta().getDescriptions(), oldTask.getMeta().getDescriptions());
+
+    }
+
+    @Test
+    public void testFindALl() throws JsonProcessingException {
+        MongoClient mongoClient = new MongoClient();
+        MongoDatabase db = mongoClient.getDatabase("test");
+        MongoCollection<Document> coll = db.getCollection(taskPojo.getClass().getSimpleName());
+        Document taskDBObj = Document.valueOf(mapper.writeValueAsString(taskPojo));
+        Document taskDBObj2 = Document.valueOf(mapper.writeValueAsString(taskPojo2));
+        coll.insertOne(taskDBObj);
+        coll.insertOne(taskDBObj2);
+
+        List<Task> result = em.findAll(Task.class, 0, 5);
+        Task foundTask = result.get(0);
+        Task foundTask2 = result.get(1);
+
+        assertEquals(foundTask, taskPojo);
+        assertEquals("not the same ID", taskPojo.getId(), foundTask.getId());
+        assertEquals("not the same createdBy", taskPojo.getCreatedBy(), foundTask.getCreatedBy());
+        assertEquals("not the same percentageComplete", taskPojo.getPercentageCompleted(), foundTask.getPercentageCompleted());
+        assertEquals("not the same duration", taskPojo.getDuration(), foundTask.getDuration());
+        assertEquals("not the same HTTP status", taskPojo.getHttpStatus(), foundTask.getHttpStatus());
+        assertEquals("not the same status", taskPojo.getStatus(), foundTask.getStatus());
+        assertEquals("not the same comments", taskPojo.getMeta().getComments(), foundTask.getMeta().getComments());
+        assertEquals("not the same descriptions", taskPojo.getMeta().getDescriptions(), foundTask.getMeta().getDescriptions());
+
+        assertEquals(foundTask2, taskPojo2);
+        assertEquals("not the same ID", taskPojo2.getId(), foundTask2.getId());
+        assertEquals("not the same createdBy", taskPojo2.getCreatedBy(), foundTask2.getCreatedBy());
+        assertEquals("not the same percentageComplete", taskPojo2.getPercentageCompleted(), foundTask2.getPercentageCompleted());
+        assertEquals("not the same duration", taskPojo2.getDuration(), foundTask2.getDuration());
+        assertEquals("not the same HTTP status", taskPojo2.getHttpStatus(), foundTask2.getHttpStatus());
+        assertEquals("not the same status", taskPojo2.getStatus(), foundTask2.getStatus());
+        assertEquals("not the same comments", taskPojo2.getMeta().getComments(), foundTask2.getMeta().getComments());
+        assertEquals("not the same descriptions", taskPojo2.getMeta().getDescriptions(), foundTask2.getMeta().getDescriptions());
+
+    }
+
+    @Test
+    public void testRemove() throws JsonProcessingException {
+        MongoClient mongoClient = new MongoClient();
+        MongoDatabase db = mongoClient.getDatabase("test");
+        MongoCollection<Document> coll = db.getCollection(taskPojo.getClass().getSimpleName());
+        Document taskDBObj = Document.valueOf(mapper.writeValueAsString(taskPojo));
+        coll.insertOne(taskDBObj);
+
+        em.remove(taskPojo);
+
+        MongoCollection<Document> collection = db.getCollection(MongoDBEntityManager.collectionNames.get(taskPojo.getClass()));
+        Document foundTask = collection.find(new Document("_id", taskPojo.getId())).first();
+        assertNull(foundTask);
 
     }
 
