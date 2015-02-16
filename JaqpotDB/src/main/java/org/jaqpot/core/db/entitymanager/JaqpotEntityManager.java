@@ -29,8 +29,10 @@
  */
 package org.jaqpot.core.db.entitymanager;
 
+import java.io.Closeable;
 import java.util.List;
 import java.util.Map;
+import org.jaqpot.core.model.JaqpotEntity;
 
 /**
  *
@@ -38,20 +40,20 @@ import java.util.Map;
  * @author Charalampos Chomenidis
  *
  */
-public interface JaqpotEntityManager {
+public interface JaqpotEntityManager extends Closeable{
 
     public void persist(Object entity);
 
-    public <T> T merge(T entity);
+    public <T extends JaqpotEntity> T merge(T entity);
 
-    public void remove(Object entity);
+    public void remove(JaqpotEntity entity);
 
-    public <T> T find(Class<T> entityClass, Object primaryKey);
+    public <T extends JaqpotEntity> T find(Class<T> entityClass, Object primaryKey);
 
-    public <T> List<T> find(Class<T> entityClass, Map<String, Object> properties, Integer start, Integer max);
+    public <T extends JaqpotEntity> List<T> find(Class<T> entityClass, Map<String, Object> properties, Integer start, Integer max);
     
-    public <T> List<T> find(Class<T> entityClass, List<String> keys, List<String> fields);
+    public <T extends JaqpotEntity> List<T> find(Class<T> entityClass, List<String> keys, List<String> fields);
 
-    public <T> List<T> findAll(Class<T> entityClass, Integer start, Integer max);
-
+    public <T extends JaqpotEntity> List<T> findAll(Class<T> entityClass, Integer start, Integer max);
+    
 }

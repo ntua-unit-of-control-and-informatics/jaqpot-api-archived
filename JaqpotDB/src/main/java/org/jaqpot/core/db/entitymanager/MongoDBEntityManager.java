@@ -33,6 +33,7 @@ import com.mongodb.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.util.JSON;
+import java.io.IOException;
 import org.jaqpot.core.annotations.MongoDB;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
@@ -91,6 +92,11 @@ public class MongoDBEntityManager implements JaqpotEntityManager {
     }
 
     @Override
+    public void close() throws IOException {
+        mongoClient.close();
+    }
+
+    @Override
     public void persist(Object entity) {
         MongoDatabase db = mongoClient.getDatabase(database);
         String entityJSON = serializer.write(entity);
@@ -100,25 +106,25 @@ public class MongoDBEntityManager implements JaqpotEntityManager {
     }
 
     @Override
-    public <T> T merge(T entity) {
+    public <T extends JaqpotEntity> T merge(T entity) {
         MongoDatabase db = mongoClient.getDatabase(database);
         Class<T> entityClass = (Class<T>) entity.getClass();
         String entityJSON = serializer.write(entity);
         Document entityBSON = Document.valueOf(entityJSON);
         MongoCollection<Document> collection = db.getCollection(collectionNames.get(entity.getClass()));
-        Document oldEntity = collection.findOneAndReplace(new Document("_id", ((JaqpotEntity) entity).getId()), entityBSON);
+        Document oldEntity = collection.findOneAndReplace(new Document("_id", entity.getId()), entityBSON);
         return serializer.parse(JSON.serialize(oldEntity), entityClass);
     }
 
     @Override
-    public void remove(Object entity) {
+    public void remove(JaqpotEntity entity) {
         MongoDatabase db = mongoClient.getDatabase(database);
         MongoCollection<Document> collection = db.getCollection(collectionNames.get(entity.getClass()));
-        collection.deleteOne(new Document("_id", ((JaqpotEntity) entity).getId()));
+        collection.deleteOne(new Document("_id", entity.getId()));
     }
 
     @Override
-    public <T> T find(Class<T> entityClass, Object primaryKey) {
+    public <T extends JaqpotEntity> T find(Class<T> entityClass, Object primaryKey) {
         MongoDatabase db = mongoClient.getDatabase(database);
         MongoCollection<Document> collection = db.getCollection(collectionNames.get(entityClass));
         Document retrieved = collection.find(new Document("_id", primaryKey)).first();
@@ -126,7 +132,7 @@ public class MongoDBEntityManager implements JaqpotEntityManager {
     }
 
     @Override
-    public <T> List<T> find(Class<T> entityClass, Map<String, Object> properties, Integer start, Integer max) {
+    public <T extends JaqpotEntity> List<T> find(Class<T> entityClass, Map<String, Object> properties, Integer start, Integer max) {
         MongoDatabase db = mongoClient.getDatabase(database);
         MongoCollection<Document> collection = db.getCollection(collectionNames.get(entityClass));
         properties.entrySet()
@@ -150,7 +156,7 @@ public class MongoDBEntityManager implements JaqpotEntityManager {
     }
 
     @Override
-    public <T> List<T> find(Class<T> entityClass, List<String> keys, List<String> fields) {
+    public <T extends JaqpotEntity> List<T> find(Class<T> entityClass, List<String> keys, List<String> fields) {
         MongoDatabase db = mongoClient.getDatabase(database);
         MongoCollection<Document> collection = db.getCollection(collectionNames.get(entityClass));
         List<T> result = new ArrayList<>();
@@ -164,7 +170,7 @@ public class MongoDBEntityManager implements JaqpotEntityManager {
     }
 
     @Override
-    public <T> List<T> findAll(Class<T> entityClass, Integer start, Integer max) {
+    public <T extends JaqpotEntity> List<T> findAll(Class<T> entityClass, Integer start, Integer max) {
         MongoDatabase db = mongoClient.getDatabase(database);
         MongoCollection<Document> collection = db.getCollection(collectionNames.get(entityClass));
         List<T> result = new ArrayList<>();

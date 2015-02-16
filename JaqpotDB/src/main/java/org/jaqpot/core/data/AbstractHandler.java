@@ -32,6 +32,7 @@ package org.jaqpot.core.data;
 import java.util.List;
 import java.util.Map;
 import org.jaqpot.core.db.entitymanager.JaqpotEntityManager;
+import org.jaqpot.core.model.JaqpotEntity;
 
 /**
  *
@@ -40,7 +41,7 @@ import org.jaqpot.core.db.entitymanager.JaqpotEntityManager;
  * @param <T> Entity Type to be handled by the Handler.
  *
  */
-public abstract class AbstractHandler<T> {
+public abstract class AbstractHandler<T extends JaqpotEntity> {
 
     private final Class<T> entityClass;
 
