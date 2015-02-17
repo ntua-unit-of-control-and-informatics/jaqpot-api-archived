@@ -1,0 +1,62 @@
+{
+    "mappings":
+            {
+                "user": {
+                    "properties": {
+                        "capabilities": {
+                            "properties": {
+                                "bibtex": {
+                                    "type": "long"
+                                },
+                                "features": {
+                                    "type": "long"
+                                },
+                                "models": {
+                                    "type": "long"
+                                },
+                                "substances": {
+                                    "type": "long"
+                                },
+                                "tasks.parallel": {
+                                    "type": "long"
+                                }
+                            }
+                        },
+                        "hashedPass": {
+                            "include_in_all": false,
+                            "index": "no",
+                            "store": "no",
+                            "type": "string"
+                        },
+                        "mail": {
+                            "type": "string",
+                            "store": "yes"
+                        },
+                        "name": {
+                            "type": "string",
+                            "analyzer": "english",
+                            "store": "yes"
+                        },
+                        "publicationRatePerWeek": {
+                            "properties": {
+                                "algorithms": {
+                                    "type": "long"
+                                },
+                                "bibtex   ": {
+                                    "type": "long"
+                                },
+                                "features": {
+                                    "type": "long"
+                                },
+                                "models": {
+                                    "type": "long"
+                                },
+                                "substances": {
+                                    "type": "long"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+}
