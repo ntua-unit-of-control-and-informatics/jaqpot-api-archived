@@ -52,6 +52,7 @@ import org.jaqpot.core.model.JaqpotEntity;
 import org.reflections.Reflections;
 
 /**
+ * A JaqpotEntityManager implementation for MongoDB.
  *
  * @author Pantelis Sopasakis
  * @author Charalampos Chomenidis
@@ -97,7 +98,7 @@ public class MongoDBEntityManager implements JaqpotEntityManager {
     }
 
     @Override
-    public void persist(Object entity) {
+    public void persist(JaqpotEntity entity) {
         MongoDatabase db = mongoClient.getDatabase(database);
         String entityJSON = serializer.write(entity);
         MongoCollection collection = db.getCollection(collectionNames.get(entity.getClass()));

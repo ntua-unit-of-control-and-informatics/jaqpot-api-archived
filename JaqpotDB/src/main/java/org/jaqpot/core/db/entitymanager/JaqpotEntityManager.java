@@ -36,24 +36,97 @@ import org.jaqpot.core.model.JaqpotEntity;
 
 /**
  *
+ * Interface used to interact with the database context. A JaqpotEntityManager
+ * instance is associated with a specific database vendor mechanism and a set of
+ * entities that is managed by the JaqpotEntityManager. The JaqpotEntityManager
+ * API is used to create and remove persistent entity instances, to find
+ * entities by their primary key, and to query over entities.
+ *
+ * The set of entities that can be managed by a given EntityManager instance is
+ * defined by extending {@link org.jaqpot.core.model.JaqpotEntity} class.
+ *
  * @author Pantelis Sopasakis
  * @author Charalampos Chomenidis
  *
  */
-public interface JaqpotEntityManager extends Closeable{
+public interface JaqpotEntityManager extends Closeable {
 
-    public void persist(Object entity);
+    /**
+     * Makes an entity instance persistent.
+     *
+     * @param entity entity instance
+     */
+    public void persist(JaqpotEntity entity);
 
+    /**
+     * Merges the state of the entity instance to the database context. If the
+     * entity already existed in the database context, the old state is
+     * returned.
+     *
+     * @param <T>
+     * @param entity entity instance
+     * @return old state of entity instance
+     */
     public <T extends JaqpotEntity> T merge(T entity);
 
+    /**
+     * Removes the entity instance from the database context.
+     *
+     * @param entity entity instance
+     */
     public void remove(JaqpotEntity entity);
 
+    /**
+     * Find by primary key. Searches for an entity of the specified class and
+     * primary key.
+     *
+     * @param <T>
+     * @param entityClass entity class
+     * @param primaryKey primary key
+     * @return the found entity instance or null if the entity does not exist
+     */
     public <T extends JaqpotEntity> T find(Class<T> entityClass, Object primaryKey);
 
+    /**
+     * Find by properties. Searches for entities of the specified class that
+     * match the given properties.
+     *
+     * This method has paging capability.
+     *
+     * @param <T>
+     * @param entityClass entity class
+     * @param properties a properties map matching field names with values
+     * @param start the position of the first result to retrieve
+     * @param max the maximum number of results to retrieve
+     * @return a list of entity instances that match the given properties
+     */
     public <T extends JaqpotEntity> List<T> find(Class<T> entityClass, Map<String, Object> properties, Integer start, Integer max);
-    
+
+    /**
+     * Find by primary keys. Searches for entities of the specified class that
+     * match the given primary keys. The returned entity instances will only
+     * contain fields that are present in the fields list.
+     *
+     *
+     * @param <T>
+     * @param entityClass entity class
+     * @param keys list of primary keys
+     * @param fields list of fields to be returned
+     * @return a list of entity instances that match the given primary keys
+     */
     public <T extends JaqpotEntity> List<T> find(Class<T> entityClass, List<String> keys, List<String> fields);
 
+    /**
+     * Find all entities. Searches for all entities of the specified class.
+     *
+     * This method has paging capability.
+     *
+     * @param <T>
+     * @param entityClass entity class
+     * @param start the position of the first result to retrieve
+     * @param max the maximum number of results to retrieve
+     * @return a list with all entity instances of given class
+     */
     public <T extends JaqpotEntity> List<T> findAll(Class<T> entityClass, Integer start, Integer max);
-    
+
 }
