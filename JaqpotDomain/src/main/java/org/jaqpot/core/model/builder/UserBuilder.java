@@ -46,7 +46,6 @@ public class UserBuilder implements EntityBuilder<User> {
     public static UserBuilder builder(String id) {
         return new UserBuilder(id);
     }
-          
 
     private UserBuilder(String id) {
         user = new User(id);
@@ -57,67 +56,84 @@ public class UserBuilder implements EntityBuilder<User> {
         user.setName(name);
         return this;
     }
-    
-    public UserBuilder setMail(String mail) throws IllegalArgumentException{
-         if (!EmailValidator.validate(mail)) {
+
+    public UserBuilder setMail(String mail) throws IllegalArgumentException {
+        if (!EmailValidator.validate(mail)) {
             throw new IllegalArgumentException("Bad email address according to RFC 2822 : '" + mail + "'");
         }
         user.setMail(mail);
         return this;
     }
-    
-    private void initCapabilities(){
-        if (user.getCapabilities() == null){
+
+    private void initCapabilities() {
+        if (user.getCapabilities() == null) {
             user.setCapabilities(new HashMap<>());
         }
     }
-    
-    private void initPublicationRatePerWeek(){
-        if (user.getPublicationRatePerWeek()== null){
+
+    private void initPublicationRatePerWeek() {
+        if (user.getPublicationRatePerWeek() == null) {
             user.setPublicationRatePerWeek(new HashMap<>());
         }
     }
-    
+
+    public UserBuilder setMaxCapability(String capabilityName, int max) {
+        initCapabilities();
+        user.getCapabilities().put(capabilityName, max);
+        return this;
+    }
+
+    public UserBuilder setMaxWeeklyCapability(String weeklyCapabilityName, int max) {
+        initPublicationRatePerWeek();
+        user.getPublicationRatePerWeek().
+                put(weeklyCapabilityName, max);
+        return this;
+    }
+
+    public UserBuilder setMaxWeeklyPublishedBibTeX(int maxBibTeX) {
+        return setMaxWeeklyCapability("bibtex", maxBibTeX);
+    }
+
     public UserBuilder setMaxBibTeX(int maxBibTeX) {
-        initCapabilities();
-        user.getCapabilities().put("bibtex", maxBibTeX);
-        return this;
+        return setMaxCapability("bibtex", maxBibTeX);
     }
-    
+
+    public UserBuilder setMaxWeeklyPublishedSubstances(int maxSubstances) {
+        return setMaxWeeklyCapability("substances", maxSubstances);
+    }
+
     public UserBuilder setMaxSubstances(int maxSubstances) {
-        initCapabilities();
-        user.getCapabilities().put("substances", maxSubstances);
-        return this;
+        return setMaxCapability("substances", maxSubstances);
     }
-    
+
+    public UserBuilder setMaxWeeklyPublishedModels(int maxModels) {
+        return setMaxWeeklyCapability("models", maxModels);
+    }
+
     public UserBuilder setMaxModels(int maxModels) {
-        initCapabilities();
-        user.getCapabilities().put("models", maxModels);
-        return this;
+        return setMaxCapability("models", maxModels);
     }
-    
+
+    public UserBuilder setMaxWeeklyPublishedFeatures(int maxFeatures) {
+        return setMaxWeeklyCapability("features", maxFeatures);
+    }
+
     public UserBuilder setMaxFeatures(int maxFeatures) {
-        initCapabilities();
-        user.getCapabilities().put("features",0);
-        return this;
+        return setMaxCapability("features", maxFeatures);
     }
-    
-    public UserBuilder setParallelTasks(int maxParallelTasks) {
-        initCapabilities();
-        user.getCapabilities().put("tasks.parallel", maxParallelTasks);
-        return this;
+
+    public UserBuilder setMaxParallelTasks(int maxParallelTasks) {
+        return setMaxCapability("tasks.parallel", maxParallelTasks);
     }
-    
+
     public UserBuilder setHashedPassword(String hashedPassword) {
         user.setHashedPass(hashedPassword);
         return this;
     }
-   
+
     @Override
     public User build() {
         return user;
     }
-    
-    
 
 }

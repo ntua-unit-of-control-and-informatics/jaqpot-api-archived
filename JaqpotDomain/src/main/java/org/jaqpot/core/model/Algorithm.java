@@ -45,7 +45,7 @@ public class Algorithm extends JaqpotEntity {
     
     /** Algorithm's parameters. */
     private Set<Parameter> parameters;
-    /** users' implenetations are ranked by other users. */
+    /** Users' implementations are ranked by other users. */
     private int ranking;
     /** BibTeX reference were one can find more info about the algorithm. */
     private Set<BibTeX> bibtex;

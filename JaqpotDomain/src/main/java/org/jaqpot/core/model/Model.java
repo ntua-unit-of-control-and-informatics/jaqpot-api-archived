@@ -44,18 +44,54 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Model extends JaqpotEntity {
 
+    /**
+     * List of dependent features of the model.
+     */
     private List<String> dependentFeatures;
+    /**
+     * List of independent features.
+     */
     private List<String> independentFeatures;
+    /**
+     * List of predicted features.
+     */
     private List<String> predictedFeatures;
+    /**
+     * ID of the user who created the model.
+     */
     private String createdBy;
+    /**
+     * Reliability of the model (ranking).
+     */
     private Integer reliability = 0;
+    /**
+     * URI of the dataset of this model.
+     */
     private String datasetUri;
+    /**
+     * Set of parameters of this model.
+     */
     private Set<Parameter> parameters;
+    /**
+     * Algorithm that was used to create this model.
+     */
     private Algorithm algorithm;
+    /**
+     * BibTeX reference where one can find published info about the model.
+     */
     private BibTeX bibtex;
-
+    /**
+     * The actual model as a string (ASCII).
+     */
     private String actualModel;
+    /**
+     * PMML representation of the model itself.
+     * Equivalent to the actualModel, but in PMML format.
+     */
     private String pmmlModel;
+    /**
+     * A PMML defining the transformations of input features.
+     */
     private String pmmlTransformations;
 
     public Model() {

@@ -84,6 +84,9 @@ public class FeatureValue extends JaqpotEntity {
      */
     private String bibtex;
 
+    /**
+     * ID of the user who created the feature value.
+     */
     private String createdBy;
 
     public String getCreatedBy() {

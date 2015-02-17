@@ -61,8 +61,19 @@ public class Parameter extends JaqpotEntity {
         MANDATORY;
     };
 
+    /**
+     * Name of the parameter.
+     */
     private String name;
+    /**
+     * Parameter's value.
+     * Default value if it is a parameter of an algorithm, or actual value
+     * if it is the parameter of a model.
+     */
     private Object value;
+    /**
+     * Scope of the parameter (optional/mandatory).
+     */
     private Scope scope;
 
     public Parameter() {

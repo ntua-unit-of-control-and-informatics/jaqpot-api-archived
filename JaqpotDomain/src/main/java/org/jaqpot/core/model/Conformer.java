@@ -29,9 +29,11 @@
  */
 package org.jaqpot.core.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.Map;
 import javax.xml.bind.annotation.XmlRootElement;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import java.util.HashMap;
 
 /**
  *
@@ -82,7 +84,11 @@ public class Conformer extends Substance {
         return representations;
     }
 
+    @JsonIgnore // To make sure that nothing strange happens with the serialization
     public String putRepresentation(String key, String value) {
+        if (representations == null){ // initialize representations if null
+            setRepresentations(new HashMap<>());
+        }
         return representations.put(key, value);
     }
 

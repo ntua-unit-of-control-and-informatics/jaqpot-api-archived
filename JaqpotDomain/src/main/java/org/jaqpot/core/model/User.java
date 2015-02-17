@@ -34,7 +34,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 /**
- *
+ * User of  Jaqpot.
  * @author Pantelis Sopasakis
  * @author Charalampos Chomenidis
  *
@@ -43,10 +43,30 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class User extends JaqpotEntity {
 
+    /**
+     * Name of the user.
+     */
     private String name;
+    /**
+     * Email address of the user.
+     */
     private String mail;
+    /**
+     * Hashed password.
+     */
     private String hashedPass;
+    /**
+     * Storage capabilities of the user.
+     * E.g., number of models, algorithms, etc, that the user
+     * can create.
+     */
     private Map<String, Integer> capabilities;   
+    /**
+     * Weekly publication capabilities of the user.
+     * How many resources the user can publish per week.
+     * 
+     * @see UserFacade
+     */
     private Map<String, Integer> publicationRatePerWeek;
 
     public User() {

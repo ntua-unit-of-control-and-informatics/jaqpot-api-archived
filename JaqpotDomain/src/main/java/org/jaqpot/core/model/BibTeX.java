@@ -131,11 +131,7 @@ public class BibTeX extends JaqpotEntity {
          */
         Entry;
     }
-    /*
-     * WARNING: DO NOT MODIFY THE NAMES OF THE FOLLOWING FIELDS
-     * BECAUSE SOME METHODS IN BIBTEX USE REFLECTIVE LOOKUPS AND COMPARISONS
-     * BASED ON THE NAME OF THE FIELD.
-     */
+   
     private String bibTeXAbstract;
     private String author;
     private String title;
@@ -161,7 +157,7 @@ public class BibTeX extends JaqpotEntity {
     private BibTYPE bibType;
     private String createdBy;
 
-     @JsonProperty("abstract")
+    @JsonProperty("abstract")
     public String getBibTeXAbstract() {
         return bibTeXAbstract;
     }
@@ -353,8 +349,5 @@ public class BibTeX extends JaqpotEntity {
     public void setCreatedBy(String createdBy) {
         this.createdBy = createdBy;
     }
-
-
-    
-
+ 
 }

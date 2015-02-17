@@ -42,10 +42,19 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 @XmlRootElement
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public abstract class Substance extends JaqpotEntity {
-    
-    private Map<String, FeatureValue> features;
-    private Map<String, FeatureValue> predictedFeatures;
 
+    /**
+     * Set of features and feature values (mapping) for this feature. These are
+     * actual values (experimental or descriptors)
+     */
+    private Map<String, FeatureValue> features;
+    /**
+     * Predicted features.
+     */
+    private Map<String, FeatureValue> predictedFeatures;
+    /**
+     * ID of the user who created this substance.
+     */
     private String createdBy;
 
     public Substance() {
@@ -78,7 +87,5 @@ public abstract class Substance extends JaqpotEntity {
     public void setCreatedBy(String createdBy) {
         this.createdBy = createdBy;
     }
-    
-    
 
 }
