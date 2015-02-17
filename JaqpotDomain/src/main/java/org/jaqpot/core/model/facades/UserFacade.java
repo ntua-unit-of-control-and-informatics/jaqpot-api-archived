@@ -55,55 +55,69 @@ public class UserFacade {
     public User getUser() {
         return user;
     }
-
-    public int getMaxSubstnaces() {
-        int maxSubstnaces = -1;
-        if (user.getCapabilities() != null && user.getCapabilities().containsKey("substances")) {
-            Integer maxSubstancesRetrieved = user.getCapabilities().get("substances");
-            if (maxSubstancesRetrieved != null) {
-                return (int) maxSubstancesRetrieved;
+    
+    public int getMaxCapability(String capability){
+        if (capability == null){
+            throw new NullPointerException("You need to provide the name of a capability!");
+        }
+        int maxCapability = -1;
+        if (user.getCapabilities() != null && user.getCapabilities().containsKey(capability)) {
+            Integer maxCapabilityRetrieved = user.getCapabilities().get(capability);
+            if (maxCapabilityRetrieved != null) {
+                return (int) maxCapabilityRetrieved;
             }
         }
-        return maxSubstnaces;
+        return maxCapability;
+    }
+    
+    public int getMaxWeeklyPublicationRate(String capability){
+        if (capability == null){
+            throw new NullPointerException("You need to provide the name of a publication rate capability!");
+        }
+        int maxPublicationRateCapability = -1;
+        if (user.getPublicationRatePerWeek()!= null && user.getPublicationRatePerWeek().containsKey(capability)) {
+            Integer maxPublicationRateCapabilityRetrieved = user.getPublicationRatePerWeek().get(capability);
+            if (maxPublicationRateCapabilityRetrieved != null) {
+                return (int) maxPublicationRateCapabilityRetrieved;
+            }
+        }
+        return maxPublicationRateCapability;
+    }
+
+    public int getMaxSubstnaces() {        
+        return getMaxCapability("substances");
     }
 
     public int getMaxFeatures() {
-        int maxSubstnaces = -1;
-        if (user.getCapabilities() != null && user.getCapabilities().containsKey("features")) {
-            Integer maxSubstancesRetrieved = user.getCapabilities().get("features");
-            if (maxSubstancesRetrieved != null) {
-                return (int) maxSubstancesRetrieved;
-            }
-        }
-        return maxSubstnaces;
+        return getMaxCapability("features");
     }
 
     public int getMaxDatasets() {
-        throw new UnsupportedOperationException("to be supported soon");
+        return getMaxCapability("datasets");    
     }
 
     public int getMaxBibTeX() {
-        throw new UnsupportedOperationException("to be supported soon");
+        return getMaxCapability("bibtex");
     }
 
     public int getMaxAlgorithms() {
-        throw new UnsupportedOperationException("to be supported soon");
+        return getMaxCapability("algorithms");
     }
 
     public int getMaxPublishedSubstancesPerWeek() {
-        throw new UnsupportedOperationException("to be supported soon");
+        return getMaxWeeklyPublicationRate("substances");
     }
 
     public int getMaxPublishedFeaturesPerWeek() {
-        throw new UnsupportedOperationException("to be supported soon");
+        return getMaxWeeklyPublicationRate("features");
     }
 
     public int getMaxPublishedDatasetsPerWeek() {
-        throw new UnsupportedOperationException("to be supported soon");
+        return getMaxWeeklyPublicationRate("datasets");
     }
 
     public int getMaxPublishedAlgorithmsPerWeek() {
-        throw new UnsupportedOperationException("to be supported soon");
+        return getMaxWeeklyPublicationRate("algorithms");
     }
 
 }
