@@ -75,6 +75,14 @@ public class User extends JaqpotEntity {
     public User(String id) {
         super(id);
     }
+    public User(User other){
+        super(other);
+        this.capabilities = other.capabilities;
+        this.hashedPass = other.hashedPass;
+        this.mail = other.mail;
+        this.name = other.name;
+        this.publicationRatePerWeek = other.publicationRatePerWeek;
+    }
 
     public String getName() {
         return name;

@@ -32,6 +32,7 @@ package org.jaqpot.core.model;
 import java.util.List;
 import javax.xml.bind.annotation.XmlRootElement;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import java.util.ArrayList;
 
 /**
  *
@@ -69,6 +70,14 @@ public class Dataset extends JaqpotEntity {
         super(id);
     }
 
+    public Dataset(Dataset other) {
+        super(other);
+        this.createdBy = other.createdBy;
+        this.features = other.features != null ? new ArrayList<>(other.features) : null;
+        this.predictedFeatures = other.predictedFeatures != null ? new ArrayList<>(other.predictedFeatures) : null;
+        this.substances = other.substances != null ? new ArrayList<>(other.substances) : null;
+    }
+
     public String getCreatedBy() {
         return createdBy;
     }
@@ -77,7 +86,6 @@ public class Dataset extends JaqpotEntity {
         this.createdBy = createdBy;
     }
 
-    
     public List<String> getSubstances() {
         return substances;
     }

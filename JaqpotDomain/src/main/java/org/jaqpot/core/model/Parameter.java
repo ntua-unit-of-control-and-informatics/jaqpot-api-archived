@@ -82,6 +82,13 @@ public class Parameter extends JaqpotEntity {
     public Parameter(String id) {
         super(id);
     }
+    
+    public Parameter(Parameter other) {
+        super(other);
+        this.name = other.name;
+        this.scope = other.scope;
+        this.value = other.value;
+    }
         
 
     public String getName() {

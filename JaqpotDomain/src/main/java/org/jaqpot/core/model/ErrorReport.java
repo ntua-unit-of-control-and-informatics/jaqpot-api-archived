@@ -72,6 +72,16 @@ public class ErrorReport extends JaqpotEntity {
     public ErrorReport(String id) {
         super(id);
     }        
+    
+    public ErrorReport(ErrorReport other) {
+        super(other);
+        this.actor = other.actor;
+        this.code = other.code;
+        this.details = other.details;
+        this.httpStatus = other.httpStatus;
+        this.message = other.message;
+        this.trace = new ErrorReport(other.trace);
+    } 
 
     public String getCode() {
         return code;

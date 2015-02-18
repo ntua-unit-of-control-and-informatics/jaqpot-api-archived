@@ -33,6 +33,8 @@ import java.util.List;
 import java.util.Set;
 import javax.xml.bind.annotation.XmlRootElement;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import java.util.ArrayList;
+import java.util.HashSet;
 
 /**
  *
@@ -85,8 +87,8 @@ public class Model extends JaqpotEntity {
      */
     private String actualModel;
     /**
-     * PMML representation of the model itself.
-     * Equivalent to the actualModel, but in PMML format.
+     * PMML representation of the model itself. Equivalent to the actualModel,
+     * but in PMML format.
      */
     private String pmmlModel;
     /**
@@ -99,6 +101,27 @@ public class Model extends JaqpotEntity {
 
     public Model(String id) {
         super(id);
+    }
+
+    public Model(Model other) {
+        super(other);
+        this.actualModel = other.actualModel;
+        this.algorithm = other.algorithm != null ? new Algorithm(other.algorithm) : null;
+        this.bibtex = other.bibtex != null ? new BibTeX(other.bibtex) : null;
+
+        this.createdBy = other.createdBy;
+        this.datasetUri = other.datasetUri;
+        this.dependentFeatures = other.dependentFeatures != null
+                ? new ArrayList<>(other.dependentFeatures) : null;
+        this.independentFeatures = other.independentFeatures != null
+                ? new ArrayList<>(other.independentFeatures) : null;
+        this.parameters = other.parameters != null
+                ? new HashSet<>(other.parameters) : null;
+        this.pmmlModel = other.pmmlModel;
+        this.pmmlTransformations = other.pmmlTransformations;
+        this.predictedFeatures = other.predictedFeatures != null
+                ? new ArrayList<>(other.predictedFeatures) : null;
+        this.reliability = other.reliability;
     }
 
     public List<String> getDependentFeatures() {

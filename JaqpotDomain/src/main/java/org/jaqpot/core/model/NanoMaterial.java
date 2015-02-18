@@ -49,4 +49,8 @@ public class NanoMaterial extends Substance {
         super(id);
     }        
     
+    public NanoMaterial(NanoMaterial other) {
+        super(other);
+    }  
+    
 }

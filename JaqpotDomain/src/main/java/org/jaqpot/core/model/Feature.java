@@ -32,10 +32,11 @@ package org.jaqpot.core.model;
 import java.util.Set;
 import javax.xml.bind.annotation.XmlRootElement;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import java.util.HashSet;
 
 /**
- * Feature: The definition of a property, either measured, predicted or
- * computed for a substance.
+ * Feature: The definition of a property, either measured, predicted or computed
+ * for a substance.
  *
  * @author Pantelis Sopasakis
  * @author Charalampos Chomenidis
@@ -56,12 +57,19 @@ public class Feature extends JaqpotEntity {
     private Set<String> admissibleValues;
 
     public Feature() {
-    }       
+    }
 
     public Feature(String id) {
         super(id);
     }
-        
+
+    public Feature(Feature other) {
+        super(other);
+        this.admissibleValues = other.admissibleValues != null ? new HashSet<>(other.admissibleValues) : null;
+        this.createdBy = other.createdBy;
+        this.units = other.units;
+    }
+
     public String getCreatedBy() {
         return createdBy;
     }

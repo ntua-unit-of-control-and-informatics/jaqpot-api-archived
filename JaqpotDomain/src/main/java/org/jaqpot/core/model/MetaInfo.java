@@ -33,6 +33,7 @@ import java.util.Date;
 import java.util.Set;
 import javax.xml.bind.annotation.XmlRootElement;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import java.util.HashSet;
 
 /**
  *
@@ -59,9 +60,29 @@ public class MetaInfo {
     private Set<String> hasSources;
     private Date date;
 
+    public MetaInfo(MetaInfo other) {
+        if (other == null) {
+            throw new NullPointerException("You cannot clone a null MetaInfo object");
+        }
+        this.audiences = other.audiences != null ? new HashSet<>(other.audiences) : null;
+        this.comments = other.comments != null ? new HashSet<>(other.comments) : null;
+        this.contributors = other.contributors != null ? new HashSet<>(other.contributors) : null;
+        this.creators = other.creators != null ? new HashSet<>(other.creators) : null;
+        this.descriptions = other.descriptions != null ? new HashSet<>(other.descriptions) : null;
+        this.hasSources = other.hasSources != null ? new HashSet<>(other.hasSources) : null;
+        this.identifiers = other.identifiers != null ? new HashSet<>(other.identifiers) : null;
+        this.publishers = other.publishers != null ? new HashSet<>(other.publishers) : null;
+        this.rights = other.rights != null ? new HashSet<>(other.rights) : null;
+        this.sameAs = other.sameAs != null ? new HashSet<>(other.sameAs) : null;
+        this.seeAlso = other.seeAlso != null ? new HashSet<>(other.seeAlso) : null;
+        this.subjects = other.subjects != null ? new HashSet<>(other.subjects) : null;
+        this.titles = other.titles != null ? new HashSet<>(other.titles) : null;
+        this.date = other.date != null ? (Date) other.date.clone() : null;
+
+    }
+
     public MetaInfo() {
     }
-        
 
     public Set<String> getIdentifiers() {
         return identifiers;
@@ -174,6 +195,5 @@ public class MetaInfo {
     public void setDate(Date date) {
         this.date = date;
     }
-    
-    
+
 }

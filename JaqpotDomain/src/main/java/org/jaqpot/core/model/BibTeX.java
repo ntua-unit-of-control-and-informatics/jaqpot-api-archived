@@ -49,6 +49,34 @@ public class BibTeX extends JaqpotEntity {
     public BibTeX(String id) {
         super(id);
     }       
+    
+    public BibTeX(BibTeX other){
+        super(other);
+        this.address = other.address;
+        this.annotation = other.annotation;
+        this.author = other.author;
+        this.bibTeXAbstract = other.bibTeXAbstract;
+        this.bibType = other.bibType;
+        this.bookTitle = other.bookTitle;
+        this.chapter = other.chapter;
+        this.copyright = other.copyright;
+        this.createdBy = other.createdBy;
+        this.crossref = other.crossref;
+        this.edition = other.edition;
+        this.editor = other.editor;
+        this.isbn = other.isbn;
+        this.issn = other.issn;
+        this.journal = other.journal;
+        this.key = other.key;
+        this.keywords = other.keywords;
+        this.number = other.number;
+        this.pages = other.pages;
+        this.series = other.series;
+        this.title = other.title;
+        this.url = other.url;
+        this.volume = other.volume;
+        this.year = other.year;
+    }
 
     /**
      * Enumeration for bibliographic types supported by the Knouf ontology.

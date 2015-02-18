@@ -32,6 +32,7 @@ package org.jaqpot.core.model;
 import java.util.Map;
 import javax.xml.bind.annotation.XmlRootElement;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import java.util.HashMap;
 
 /**
  *
@@ -43,9 +44,16 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public abstract class Substance extends JaqpotEntity {
 
+    /*
+     * Mapping: FeatureName ::to:: FeatureValue.
+     * JAQPOT properties are simply reported as: /feature/123 to {featureValue}
+     * but one can also map properties that are defined on some
+     * other domain since the key is a String. For instance:
+     * http://otherserver.com/feature/123 to {featureValue}.
+     */
     /**
-     * Set of features and feature values (mapping) for this feature. These are
-     * actual values (experimental or descriptors)
+     * Set of feature values (mapping) for this feature. These are actual values
+     * (experimental or descriptors)
      */
     private Map<String, FeatureValue> features;
     /**
@@ -62,6 +70,13 @@ public abstract class Substance extends JaqpotEntity {
 
     public Substance(String id) {
         super(id);
+    }
+
+    public Substance(Substance other) {
+        super(other);
+        this.createdBy = other.createdBy;
+        this.features = other.features!=null ? new HashMap<>(other.features) : null;
+        this.predictedFeatures = other.predictedFeatures != null ? new HashMap<>(other.predictedFeatures) : null;
     }
 
     public Map<String, FeatureValue> getFeatures() {

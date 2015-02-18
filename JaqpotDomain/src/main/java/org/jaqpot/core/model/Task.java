@@ -117,6 +117,17 @@ public class Task extends JaqpotEntity {
     public Task() {
         super();
     }
+    
+    public Task(Task other) {
+        super(other);
+        this.createdBy = other.createdBy;
+        this.duration = other.duration;
+        this.errorReport = other.errorReport;
+        this.hasStatus = other.hasStatus;
+        this.httpStatus = other.httpStatus;
+        this.percentageCompleted = other.percentageCompleted;
+        this.resultUri = other.resultUri;
+    }
 
     public Task(String id) {
         super(id);

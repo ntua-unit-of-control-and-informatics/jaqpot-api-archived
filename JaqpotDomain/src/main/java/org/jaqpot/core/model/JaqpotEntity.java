@@ -34,6 +34,7 @@ import java.util.Set;
 import javax.xml.bind.annotation.XmlRootElement;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.HashSet;
 
 /**
  *
@@ -63,6 +64,15 @@ public abstract class JaqpotEntity {
 
     public JaqpotEntity(String id) {
         this.id = id;
+    }
+
+    public JaqpotEntity(JaqpotEntity other) {
+        if (other == null) {
+            throw new NullPointerException("Cannot copy null object");
+        }
+        this.id = other.id;
+        this.meta = other.meta != null ? new MetaInfo(other.meta) : null;
+        this.ontologicalClasses = other.ontologicalClasses != null ? new HashSet<>(other.ontologicalClasses) : null;
     }
 
     @JsonProperty("_id")
