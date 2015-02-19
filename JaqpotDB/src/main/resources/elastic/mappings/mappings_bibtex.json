@@ -1,0 +1,83 @@
+{
+    "bibtex": {
+        "dynamic": false,
+        "properties": {
+            "abstract": {
+                "type": "string",
+                "ignore_above": 1024
+            },
+            "address": {
+                "type": "string"
+            },
+            "annotation": {
+                "type": "string"
+            },
+            "author": {
+                "type": "string"
+            },
+            "bibType": {
+                "type": "string"
+            },
+            "bookTitle": {
+                "type": "string",
+                "analyzer": "english"
+            },
+            "chapter": {
+                "type": "string"
+            },
+            "copyright": {
+                "type": "string"
+            },
+            "createdBy": {
+                "type": "string"
+            },
+            "crossref": {
+                "type": "string"
+            },
+            "edition": {
+                "type": "string"
+            },
+            "editor": {
+                "type": "string"
+            },
+            "isbn": {
+                "type": "string"
+            },
+            "issn": {
+                "type": "string"
+            },
+            "journal": {
+                "type": "string"
+            },
+            "key": {
+                "type": "string"
+            },
+            "keywords": {
+                "type": "string",
+                "analyzer": "english"
+            },
+            "number": {
+                "type": "string"
+            },
+            "pages": {
+                "type": "string"
+            },
+            "series": {
+                "type": "string"
+            },
+            "title": {
+                "type": "string",
+                "analyzer": "english"
+            },
+            "url": {
+                "type": "string"
+            },
+            "volume": {
+                "type": "string"
+            },
+            "year": {
+                "type": "string"
+            }
+        }
+    }
+}
