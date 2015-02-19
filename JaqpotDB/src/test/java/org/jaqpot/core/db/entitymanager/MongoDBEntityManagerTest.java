@@ -84,6 +84,8 @@ public class MongoDBEntityManagerTest {
     Task taskPojo2;
     String taskJSON;
 
+    private static MongoClient mongoClient = new MongoClient();
+
     @InjectMocks
     private MongoDBEntityManager em;
 
@@ -101,7 +103,7 @@ public class MongoDBEntityManagerTest {
 
     @Before
     public void setUp() throws IOException {
-        MongoClient mongoClient = new MongoClient();
+
         mongoClient.dropDatabase("test");
 
         MetaInfoBuilder metaBuilder = MetaInfoBuilder.builder();
@@ -130,22 +132,14 @@ public class MongoDBEntityManagerTest {
         taskJSON = mapper.writeValueAsString(taskPojo);
 
         MockitoAnnotations.initMocks(this);
-        Mockito.when(serializer.write(Matchers.any())).thenAnswer(new Answer<String>() {
-
-            @Override
-            public String answer(InvocationOnMock invocation) throws Throwable {
-                Object obj = invocation.getArguments()[0];
-                return mapper.writeValueAsString(obj);
-            }
+        Mockito.when(serializer.write(Matchers.any())).thenAnswer((InvocationOnMock invocation) -> {
+            Object obj = invocation.getArguments()[0];
+            return mapper.writeValueAsString(obj);
         });
-        Mockito.when(serializer.parse(Matchers.anyString(), Matchers.any(Class.class))).thenAnswer(new Answer<Object>() {
-
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                String pojo = (String) invocation.getArguments()[0];
-                Class clazz = (Class) invocation.getArguments()[1];
-                return mapper.readValue(pojo, clazz);
-            }
+        Mockito.when(serializer.parse(Matchers.anyString(), Matchers.any(Class.class))).thenAnswer((InvocationOnMock invocation) -> {
+            String pojo = (String) invocation.getArguments()[0];
+            Class clazz = (Class) invocation.getArguments()[1];
+            return mapper.readValue(pojo, clazz);
         });
 
         em.setDatabase("test");
@@ -154,6 +148,7 @@ public class MongoDBEntityManagerTest {
 
     @After
     public void tearDown() {
+        em.close();
     }
 
     /**
@@ -170,7 +165,6 @@ public class MongoDBEntityManagerTest {
         BasicDBObject query = new BasicDBObject("_id", taskPojo.getId()); // Find with ID
 
         // Now find it in the DB...
-        MongoClient mongoClient = new MongoClient();
         DB db = mongoClient.getDB("test");
         DBCollection coll = db.getCollection(taskPojo.getClass().getSimpleName());
         DBCursor cursor = coll.find(query);
@@ -193,7 +187,6 @@ public class MongoDBEntityManagerTest {
 
     @Test
     public void testFindTask() throws UnknownHostException {
-        MongoClient mongoClient = new MongoClient();
         DB db = mongoClient.getDB("test");
         DBCollection coll = db.getCollection(taskPojo.getClass().getSimpleName());
         DBObject taskDBObj = (DBObject) JSON.parse(taskJSON);
@@ -214,7 +207,6 @@ public class MongoDBEntityManagerTest {
 
     @Test
     public void testMergeTask() throws UnknownHostException, IOException {
-        MongoClient mongoClient = new MongoClient();
         DB db = mongoClient.getDB("test");
         DBCollection coll = db.getCollection(taskPojo.getClass().getSimpleName());
         DBObject taskDBObj = (DBObject) JSON.parse(taskJSON);
@@ -268,7 +260,6 @@ public class MongoDBEntityManagerTest {
 
     @Test
     public void testFindALl() throws JsonProcessingException {
-        MongoClient mongoClient = new MongoClient();
         MongoDatabase db = mongoClient.getDatabase("test");
         MongoCollection<Document> coll = db.getCollection(taskPojo.getClass().getSimpleName());
         Document taskDBObj = Document.valueOf(mapper.writeValueAsString(taskPojo));
@@ -304,7 +295,6 @@ public class MongoDBEntityManagerTest {
 
     @Test
     public void testRemove() throws JsonProcessingException {
-        MongoClient mongoClient = new MongoClient();
         MongoDatabase db = mongoClient.getDatabase("test");
         MongoCollection<Document> coll = db.getCollection(taskPojo.getClass().getSimpleName());
         Document taskDBObj = Document.valueOf(mapper.writeValueAsString(taskPojo));
@@ -321,7 +311,6 @@ public class MongoDBEntityManagerTest {
     @Test
     public void testFindByProperties() throws JsonProcessingException {
         System.out.println(taskJSON);
-        MongoClient mongoClient = new MongoClient();
         MongoDatabase db = mongoClient.getDatabase("test");
         MongoCollection<Document> coll = db.getCollection(taskPojo.getClass().getSimpleName());
         Document taskDBObj = Document.valueOf(taskJSON);
@@ -369,7 +358,6 @@ public class MongoDBEntityManagerTest {
 
     @Test
     public void testFindByIds() throws JsonProcessingException {
-        MongoClient mongoClient = new MongoClient();
         MongoDatabase db = mongoClient.getDatabase("test");
         MongoCollection<Document> coll = db.getCollection(taskPojo.getClass().getSimpleName());
         Document taskDBObj = Document.valueOf(mapper.writeValueAsString(taskPojo));
@@ -404,6 +392,72 @@ public class MongoDBEntityManagerTest {
         assertEquals("not the same duration", taskPojo2.getDuration(), foundTask2.getDuration());
         assertEquals("not the same status", taskPojo2.getStatus(), foundTask2.getStatus());
 
+    }
+
+    @Test
+    public void testCount() throws JsonProcessingException {
+        MongoDatabase db = mongoClient.getDatabase("test");
+        MongoCollection<Document> coll = db.getCollection(taskPojo.getClass().getSimpleName());
+        Document taskDBObj = Document.valueOf(mapper.writeValueAsString(taskPojo));
+        Document taskDBObj2 = Document.valueOf(mapper.writeValueAsString(taskPojo2));
+        coll.insertOne(taskDBObj);
+        coll.insertOne(taskDBObj2);
+
+        Map<String, Object> properties = new HashMap<>();
+        List<String> comments = new ArrayList<>();
+        List<String> descriptions = new ArrayList<>();
+        List<String> sources = new ArrayList<>();
+
+        comments.add("task started");
+        comments.add("dataset downloaded");
+        comments.add("this task does training");
+
+        descriptions.add("this is a very nice task");
+        descriptions.add("oh, and it's very useful too");
+
+        sources.add("http://jaqpot.org/algorithm/wonk");
+
+        properties.put("meta.hasSources", sources);
+        properties.put("meta.comments", comments);
+        properties.put("meta.descriptions", descriptions);
+
+        properties.put("duration", 1534l);
+        Long result = em.count(Task.class, properties);
+
+        assertEquals(result, new Long(2));
+    }
+
+    @Test
+    public void testCountAll() throws JsonProcessingException {
+        MongoDatabase db = mongoClient.getDatabase("test");
+        MongoCollection<Document> coll = db.getCollection(taskPojo.getClass().getSimpleName());
+        Document taskDBObj = Document.valueOf(mapper.writeValueAsString(taskPojo));
+        Document taskDBObj2 = Document.valueOf(mapper.writeValueAsString(taskPojo2));
+        coll.insertOne(taskDBObj);
+        coll.insertOne(taskDBObj2);
+
+        Map<String, Object> properties = new HashMap<>();
+        List<String> comments = new ArrayList<>();
+        List<String> descriptions = new ArrayList<>();
+        List<String> sources = new ArrayList<>();
+
+        comments.add("task started");
+        comments.add("dataset downloaded");
+        comments.add("this task does training");
+
+        descriptions.add("this is a very nice task");
+        descriptions.add("oh, and it's very useful too");
+
+        sources.add("http://jaqpot.org/algorithm/wonk");
+
+        properties.put("meta.hasSources", sources);
+        properties.put("meta.comments", comments);
+        properties.put("meta.descriptions", descriptions);
+
+        properties.put("duration", 1534l);
+        Long result = em.countAll(Task.class);
+
+        assertEquals(result, new Long(2));
     }
 
 }
