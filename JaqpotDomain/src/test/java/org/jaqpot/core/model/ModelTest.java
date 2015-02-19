@@ -77,23 +77,7 @@ public class ModelTest {
         
         assertNotNull(m.getBibtex().getMeta());
         assertEquals(m, copy);
-    }
-    
-    @Test
-    public void testClone_bigData() {        
-        Model m = rog.nextModel();
-        assertNotNull(m.getPmmlModel());
-        assertNotNull(m.getPmmlTransformations());
-        assertNotNull(m.getActualModel());
-        
-        Model copy = new Model(m);
-        
-        assertNull(copy.getActualModel());
-        assertNull(copy.getPmmlModel());
-        assertNull(copy.getPmmlTransformations());
-        
-        
-    }
+    }    
     
     @Test
     public void testClone_nullDependent() {        
@@ -126,5 +110,66 @@ public class ModelTest {
         assertNull(copy.getOntologicalClasses());        
     }
     
+    @Test
+    public void testClone_actualModel(){
+        Model m = rog.nextModel();
+        String originalActualModel = m.getActualModel();
+        Model copy = new Model(m);
+        copy.setActualModel(null);
+        assertNotNull(m.getActualModel());
+        assertEquals(originalActualModel, m.getActualModel());
+    }
+    
+    @Test
+    public void testClone_pmmlModel(){
+        Model m = rog.nextModel();
+        String originalPMML = m.getPmmlModel();
+        Model copy = new Model(m);
+        copy.setPmmlModel(null);
+        assertNotNull(m.getPmmlModel());
+        assertEquals(originalPMML, m.getPmmlModel());
+    }
+    
+    @Test
+    public void testClone_pmmlTransformations(){
+        Model m = rog.nextModel();
+        String originalPMML = m.getPmmlTransformations();
+        Model copy = new Model(m);
+        copy.setPmmlTransformations(null);
+        assertNotNull(m.getPmmlTransformations());
+        assertEquals(originalPMML, m.getPmmlTransformations());      
+    }
+    
+    @Test
+    public void testClone_createdBy(){
+        Model m = rog.nextModel();
+        String originalCreatedBy = m.getCreatedBy();
+        Model copy = new Model(m);
+        copy.setCreatedBy(null);
+        assertNotNull(m.getCreatedBy());
+        assertEquals(originalCreatedBy, m.getCreatedBy());
+    }
+    
+    @Test
+    public void testClone_datasetUri(){
+        Model m = rog.nextModel();
+        String originalDatasetUri = m.getDatasetUri();
+        Model copy = new Model(m);
+        copy.setDatasetUri(rog.nextString(10));
+        assertFalse(copy.getDatasetUri().equals(m.getDatasetUri()));
+        assertEquals(originalDatasetUri, m.getDatasetUri());
+    }
+    
+    @Test
+    public void testClone_algorithm(){
+        Model m = rog.nextModel();
+        Algorithm originalAlgorithm = m.getAlgorithm();
+        Model copy = new Model(m);
+        copy.setAlgorithm(rog.nextAlgorithm());
+        assertFalse(copy.getAlgorithm().equals(m.getAlgorithm()));
+        assertEquals(originalAlgorithm, m.getAlgorithm());
+    }
+    
+  
     
 }

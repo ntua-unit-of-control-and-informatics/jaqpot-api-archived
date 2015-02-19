@@ -122,7 +122,7 @@ public class Task extends JaqpotEntity {
         super(other);
         this.createdBy = other.createdBy;
         this.duration = other.duration;
-        this.errorReport = other.errorReport;
+        this.errorReport = other.errorReport!=null ? new ErrorReport(other.errorReport) : null;
         this.hasStatus = other.hasStatus;
         this.httpStatus = other.httpStatus;
         this.percentageCompleted = other.percentageCompleted;
