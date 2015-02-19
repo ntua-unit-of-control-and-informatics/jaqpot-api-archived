@@ -46,7 +46,13 @@ public class ConformerMetaStripper extends AbstractMetaStripper<Conformer>{
 
     @Override
     public Conformer strip() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        Conformer conformer = new Conformer(entity);
+        conformer.setRepresentations(null);
+        conformer.setPredictedFeatures(null);
+        if (conformer.getBibtex()!=null){
+            conformer.setBibtex(new BibTeXMetaStripper(conformer.getBibtex()).stripTease());
+        }
+        return conformer;
     }
 
 }

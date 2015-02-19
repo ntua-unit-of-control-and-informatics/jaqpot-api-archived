@@ -27,8 +27,6 @@
  * All source files of JAQPOT Quattro that are stored on github are licenced
  * with the aforementioned licence. 
  */
-
-
 package org.jaqpot.core.elastic;
 
 import org.jaqpot.core.model.Model;
@@ -38,25 +36,31 @@ import org.jaqpot.core.model.Model;
  * @author Pantelis Sopasakis
  * @author Charalambos Chomenidis
  */
-public class ModelMetaStripper extends AbstractMetaStripper<Model>{
-
+public class ModelMetaStripper extends AbstractMetaStripper<Model> {
 
     public ModelMetaStripper(Model entity) {
         super(entity);
     }
-        
+
     @Override
     public Model strip() {
-        Model stripped = new Model(entity);              
-        //  we don't need to index the parameters of the training algorithm in the model
-        stripped.getAlgorithm().setParameters(null);        
+        Model model = new Model(entity);
+        //  we don't need to index the parameters of the trainig algorithm in the model
+        if (model.getAlgorithm() != null) {
+            model.getAlgorithm().setParameters(null);
+            model.getAlgorithm().setBibtex(null);
+        }
+
         // we don't need the meta of the bibtex in the model
-        stripped.getBibtex().setMeta(null);       
+        if (model.getBibtex() != null) {
+            model.setBibtex(new BibTeXMetaStripper(model.getBibtex()).stripTease());
+        }
+
         // we don't need actual data:
-        stripped.setActualModel(null);
-        stripped.setPmmlModel(null);
-        stripped.setPmmlTransformations(null);               
-        return stripped;
+        model.setActualModel(null);
+        model.setPmmlModel(null);
+        model.setPmmlTransformations(null);
+        return model;
     }
 
 }

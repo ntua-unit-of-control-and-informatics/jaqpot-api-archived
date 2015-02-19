@@ -27,8 +27,6 @@
  * All source files of JAQPOT Quattro that are stored on github are licenced
  * with the aforementioned licence. 
  */
-
-
 package org.jaqpot.core.elastic;
 
 import org.jaqpot.core.model.BibTeX;
@@ -38,7 +36,7 @@ import org.jaqpot.core.model.BibTeX;
  * @author Pantelis Sopasakis
  * @author Charalambos Chomenidis
  */
-public class BibTeXMetaStripper extends AbstractMetaStripper<BibTeX>{
+public class BibTeXMetaStripper extends AbstractMetaStripper<BibTeX> {
 
     public BibTeXMetaStripper(BibTeX entity) {
         super(entity);
@@ -46,7 +44,28 @@ public class BibTeXMetaStripper extends AbstractMetaStripper<BibTeX>{
 
     @Override
     public BibTeX strip() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        BibTeX bibtex = new BibTeX(entity);
+        bibtex.setOntologicalClasses(null);
+        return bibtex;
+    }
+
+    /**
+     * This method will strip BibTeX entities from all that is potentially
+     * unnecessary. It creates very small entities to be used as references in
+     * other entities in ES.
+     *
+     * @return Ferociously stripped BibTeX object.
+     */
+    public BibTeX stripTease() {
+        BibTeX bibtex = new BibTeX(entity);
+        bibtex.setBibTeXAbstract(null);
+        bibtex.setCopyright(null);
+        bibtex.setCreatedBy(null);
+        bibtex.setCrossref(null);
+        bibtex.setMeta(null);
+        bibtex.setPages(null);
+        bibtex.setOntologicalClasses(null);
+        return bibtex;
     }
 
 }
