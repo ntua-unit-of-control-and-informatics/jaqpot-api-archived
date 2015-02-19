@@ -30,6 +30,7 @@
 package org.jaqpot.core.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import java.util.HashSet;
 import java.util.Set;
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -42,14 +43,20 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Algorithm extends JaqpotEntity {
-    
-    /** Algorithm's parameters. */
+
+    /**
+     * Algorithm's parameters.
+     */
     private Set<Parameter> parameters;
-    /** users' implenetations are ranked by other users. */
+    /**
+     * Users' implementations are ranked by other users.
+     */
     private int ranking;
-    /** BibTeX reference were one can find more info about the algorithm. */
+    /**
+     * BibTeX reference were one can find more info about the algorithm.
+     */
     private Set<BibTeX> bibtex;
-    
+
     /**
      * User who created the algorithm. This is useful for user-created
      * algorithms
@@ -61,6 +68,14 @@ public class Algorithm extends JaqpotEntity {
 
     public Algorithm(String id) {
         super(id);
+    }
+
+    public Algorithm(Algorithm other) {
+        super(other);
+        this.bibtex = other.bibtex;
+        this.createdBy = other.createdBy;
+        this.parameters = other.parameters != null ? new HashSet<>(other.parameters) : null;
+        this.ranking = other.ranking;
     }
 
     public Set<Parameter> getParameters() {

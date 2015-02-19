@@ -85,16 +85,48 @@ public class Task extends JaqpotEntity {
         QUEUED;
     }
 
+    /**
+     * Result URI.
+     */
     private String resultUri;
+    /**
+     * Status of the feature.
+     */
     private Status hasStatus;
+    /**
+     * Percentage of completion.
+     */
     private Float percentageCompleted;
+    /**
+     * Error report if the task has failed, or null.
+     */
     private ErrorReport errorReport;
+    /**
+     * HTTP status code.
+     */
     private Integer httpStatus;
+    /**
+     * ID of the user that triggered this task.
+     */
     private String createdBy;
+    /**
+     * Duration of the task when it has completed or has failed.
+     */
     private Long duration;
 
     public Task() {
         super();
+    }
+    
+    public Task(Task other) {
+        super(other);
+        this.createdBy = other.createdBy;
+        this.duration = other.duration;
+        this.errorReport = other.errorReport;
+        this.hasStatus = other.hasStatus;
+        this.httpStatus = other.httpStatus;
+        this.percentageCompleted = other.percentageCompleted;
+        this.resultUri = other.resultUri;
     }
 
     public Task(String id) {

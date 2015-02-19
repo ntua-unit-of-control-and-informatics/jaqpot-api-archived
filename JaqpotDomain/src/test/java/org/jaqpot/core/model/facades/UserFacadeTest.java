@@ -125,6 +125,15 @@ public class UserFacadeTest {
     }
 
     @Test
+    public void testGetMaxBibTeX_emptyUser() {
+        User u = new User();
+        int expectedMaxBibTeX = -1;
+        UserFacade userFacade = new UserFacade(u);
+        int maxBibTeX = userFacade.getMaxBibTeX();
+        assertEquals(expectedMaxBibTeX, maxBibTeX);
+    }
+
+    @Test
     public void testGetMaxDatasets() {
         User u = new User();
         int expectedMaxDatasets = rng.nextInt();
@@ -156,43 +165,114 @@ public class UserFacadeTest {
     }
 
     @Test
+    public void testGetMaxAlgorithms_emptyUser() {
+        User u = new User();
+        int expectedMaxAlgorithms = -1;
+        UserFacade userFacade = new UserFacade(u);
+        int maxAlgorithms = userFacade.getMaxAlgorithms();
+        assertEquals(expectedMaxAlgorithms, maxAlgorithms);
+    }
+
+    @Test
+    public void testGetMaxCapabilityX() {
+        User u = new User();
+        int expectedMaxAlgorithms = rng.nextInt();
+        u.setCapabilities(new HashMap<>());
+        u.getCapabilities().put("x", expectedMaxAlgorithms);
+        UserFacade userFacade = new UserFacade(u);
+        int maxAlgorithms = userFacade.getMaxCapability("x");
+        assertEquals(expectedMaxAlgorithms, maxAlgorithms);
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testGetMaxCapability_nullString() {
+        User u = new User();
+        UserFacade userFacade = new UserFacade(u);
+        userFacade.getMaxCapability(null);
+    }
+
+    @Test
     public void testMaxPublishedSubstancesPerWeek() {
-        fail("this is a prototype");
+        String capability = "substances";
+        User u = new User();
+        int expectedMaxCapability = rng.nextInt();
+        u.setPublicationRatePerWeek(new HashMap<>());
+        u.getPublicationRatePerWeek().put(capability, expectedMaxCapability);
+        UserFacade userFacade = new UserFacade(u);
+        int maxCapability = userFacade.getMaxPublishedSubstancesPerWeek();
+        assertEquals(expectedMaxCapability, maxCapability);
     }
 
     @Test
     public void testMaxPublishedSubstancesPerWeek_emptyUser() {
-        fail("this is a prototype");
+        User u = new User();
+        int expectedMaxCapability = -1;        
+        UserFacade userFacade = new UserFacade(u);
+        int maxCapability = userFacade.getMaxPublishedSubstancesPerWeek();
+        assertEquals(expectedMaxCapability, maxCapability);
     }
 
     @Test
     public void testMaxPublishedFeaturesPerWeek() {
-        fail("this is a prototype");
+        String capability = "features";
+        User u = new User();
+        int expectedMaxCapability = rng.nextInt();
+        u.setPublicationRatePerWeek(new HashMap<>());
+        u.getPublicationRatePerWeek().put(capability, expectedMaxCapability);
+        UserFacade userFacade = new UserFacade(u);
+        int maxCapability = userFacade.getMaxPublishedFeaturesPerWeek();
+        assertEquals(expectedMaxCapability, maxCapability);
     }
-    
+
     @Test
     public void testMaxPublishedFeaturesPerWeek_emptyUser() {
-        fail("this is a prototype");
+        User u = new User();
+        int expectedMaxCapability = -1;        
+        UserFacade userFacade = new UserFacade(u);
+        int maxCapability = userFacade.getMaxPublishedFeaturesPerWeek();
+        assertEquals(expectedMaxCapability, maxCapability);
     }
 
     @Test
     public void testMaxPublishedDatasetsPerWeek() {
-        fail("this is a prototype");
+        String capability = "datasets";
+        User u = new User();
+        int expectedMaxCapability = rng.nextInt();
+        u.setPublicationRatePerWeek(new HashMap<>());
+        u.getPublicationRatePerWeek().put(capability, expectedMaxCapability);
+        UserFacade userFacade = new UserFacade(u);
+        int maxCapability = userFacade.getMaxPublishedDatasetsPerWeek();
+        assertEquals(expectedMaxCapability, maxCapability);
     }
-    
+
     @Test
     public void testMaxPublishedDatasetsPerWeek_emptyUser() {
-        fail("this is a prototype");
+        User u = new User();
+        int expectedMaxCapability = -1;        
+        UserFacade userFacade = new UserFacade(u);
+        int maxCapability = userFacade.getMaxPublishedDatasetsPerWeek();
+        assertEquals(expectedMaxCapability, maxCapability);
     }
 
     @Test
     public void testMaxPublishedAlgorithmsPerWeek() {
-        fail("this is a prototype");
+        String capability = "algorithms";
+        User u = new User();
+        int expectedMaxCapability = rng.nextInt();
+        u.setPublicationRatePerWeek(new HashMap<>());
+        u.getPublicationRatePerWeek().put(capability, expectedMaxCapability);
+        UserFacade userFacade = new UserFacade(u);
+        int maxCapability = userFacade.getMaxPublishedAlgorithmsPerWeek();
+        assertEquals(expectedMaxCapability, maxCapability);
     }
-    
+
     @Test
     public void testMaxPublishedAlgorithmsPerWeek_emptyUser() {
-        fail("this is a prototype");
+        User u = new User();
+        int expectedMaxCapability = -1;        
+        UserFacade userFacade = new UserFacade(u);
+        int maxCapability = userFacade.getMaxPublishedAlgorithmsPerWeek();
+        assertEquals(expectedMaxCapability, maxCapability);
     }
 
 }

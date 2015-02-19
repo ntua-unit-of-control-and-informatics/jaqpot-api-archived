@@ -32,6 +32,7 @@ package org.jaqpot.core.model;
 import java.util.Set;
 import javax.xml.bind.annotation.XmlRootElement;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import java.util.HashSet;
 
 /**
  *
@@ -42,7 +43,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 @XmlRootElement
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Compound extends JaqpotEntity {
-    
+
     private Set<Conformer> conformers;
 
     public Compound() {
@@ -52,6 +53,11 @@ public class Compound extends JaqpotEntity {
         super(id);
     }
 
+    public Compound(Compound other) {
+        super(other);
+        this.conformers = other.conformers != null ? new HashSet<>(other.conformers) : other.conformers;
+    }
+
     public Set<Conformer> getConformers() {
         return conformers;
     }
@@ -59,6 +65,5 @@ public class Compound extends JaqpotEntity {
     public void setConformers(Set<Conformer> conformers) {
         this.conformers = conformers;
     }
-        
-    
+
 }

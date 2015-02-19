@@ -45,10 +45,21 @@ public class FeatureValue extends JaqpotEntity {
     public FeatureValue() {
     }
 
+    public FeatureValue(FeatureValue other) {
+        super(other);
+        this.bibtex = other.bibtex;
+        this.createdBy = other.createdBy;
+        this.feature = other.feature;
+        this.highValue = other.highValue;
+        this.lowValue = other.lowValue;
+        this.stdError = other.stdError;
+        this.stringValue = other.stringValue;
+        this.value = other.value;
+    }
+
     public FeatureValue(String id) {
         super(id);
     }
-    
 
     /**
      * The corresponding feature.
@@ -84,6 +95,9 @@ public class FeatureValue extends JaqpotEntity {
      */
     private String bibtex;
 
+    /**
+     * ID of the user who created the feature value.
+     */
     private String createdBy;
 
     public String getCreatedBy() {

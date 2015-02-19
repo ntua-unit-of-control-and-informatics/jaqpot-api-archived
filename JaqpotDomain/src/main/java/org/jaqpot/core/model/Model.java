@@ -33,6 +33,8 @@ import java.util.List;
 import java.util.Set;
 import javax.xml.bind.annotation.XmlRootElement;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import java.util.ArrayList;
+import java.util.HashSet;
 
 /**
  *
@@ -44,18 +46,54 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Model extends JaqpotEntity {
 
+    /**
+     * List of dependent features of the model.
+     */
     private List<String> dependentFeatures;
+    /**
+     * List of independent features.
+     */
     private List<String> independentFeatures;
+    /**
+     * List of predicted features.
+     */
     private List<String> predictedFeatures;
+    /**
+     * ID of the user who created the model.
+     */
     private String createdBy;
+    /**
+     * Reliability of the model (ranking).
+     */
     private Integer reliability = 0;
+    /**
+     * URI of the dataset of this model.
+     */
     private String datasetUri;
+    /**
+     * Set of parameters of this model.
+     */
     private Set<Parameter> parameters;
+    /**
+     * Algorithm that was used to create this model.
+     */
     private Algorithm algorithm;
+    /**
+     * BibTeX reference where one can find published info about the model.
+     */
     private BibTeX bibtex;
-
+    /**
+     * The actual model as a string (ASCII).
+     */
     private String actualModel;
+    /**
+     * PMML representation of the model itself. Equivalent to the actualModel,
+     * but in PMML format.
+     */
     private String pmmlModel;
+    /**
+     * A PMML defining the transformations of input features.
+     */
     private String pmmlTransformations;
 
     public Model() {
@@ -63,6 +101,34 @@ public class Model extends JaqpotEntity {
 
     public Model(String id) {
         super(id);
+    }
+
+    /**
+     * Copy-constructor for Model objects. Important note: This copy-constructor
+     * hard-copies all fields except for the actual model, pmml model and pmml
+     * transformations.
+     *
+     * @param other model to be copied
+     *
+     * @see #getPmmlModel()
+     * @see #getPmmlTransformations()
+     * @see #getActualModel()
+     */
+    public Model(Model other) {
+        super(other);
+        this.algorithm = other.algorithm != null ? new Algorithm(other.algorithm) : null;
+        this.bibtex = other.bibtex != null ? new BibTeX(other.bibtex) : null;
+        this.createdBy = other.createdBy;
+        this.datasetUri = other.datasetUri;
+        this.dependentFeatures = other.dependentFeatures != null
+                ? new ArrayList<>(other.dependentFeatures) : null;
+        this.independentFeatures = other.independentFeatures != null
+                ? new ArrayList<>(other.independentFeatures) : null;
+        this.parameters = other.parameters != null
+                ? new HashSet<>(other.parameters) : null;
+        this.predictedFeatures = other.predictedFeatures != null
+                ? new ArrayList<>(other.predictedFeatures) : null;
+        this.reliability = other.reliability;
     }
 
     public List<String> getDependentFeatures() {

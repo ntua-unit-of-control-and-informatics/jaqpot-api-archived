@@ -29,9 +29,11 @@
  */
 package org.jaqpot.core.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.Map;
 import javax.xml.bind.annotation.XmlRootElement;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import java.util.HashMap;
 
 /**
  *
@@ -49,18 +51,13 @@ public class Conformer extends Substance {
     private Map<String, String> representations; //e.g., SMILES --> c1ccccc1 
 
     /**
-     * Mapping: FeatureName ::to:: FeatureValue.
-     * JAQPOT properties are simply reported as: /feature/123 to {featureValue}
-     * but one can also map properties that are defined on some
-     * other domain since the key is a String. For instance:
-     * http://otherserver.com/feature/123 to {featureValue}.
+     * The compound that owns this feature.
      */
-    private Map<String, FeatureValue> properties; // these are the non-predicted properties
-
-    /** The compound that owns this feature. */
     private String fatherCompound;
-    
-    /** BibTeX reference as of where one can find more information. */
+
+    /**
+     * BibTeX reference as of where one can find more information.
+     */
     private BibTeX bibtex;
 
     public Conformer() {
@@ -70,19 +67,22 @@ public class Conformer extends Substance {
         super(id);
     }
 
-    public Map<String, FeatureValue> getProperties() {
-        return properties;
-    }
-
-    public void setProperties(Map<String, FeatureValue> properties) {
-        this.properties = properties;
+    public Conformer(Conformer other) {
+        super(other);
+        this.bibtex = other.bibtex != null ? new BibTeX(other.bibtex) : null;
+        this.fatherCompound = other.fatherCompound;
+        this.representations = other.representations != null ? new HashMap<>(other.representations) : null;
     }
 
     public Map<String, String> getRepresentations() {
         return representations;
     }
 
+    @JsonIgnore // To make sure that nothing strange happens with the serialization
     public String putRepresentation(String key, String value) {
+        if (representations == null) { // initialize representations if null
+            setRepresentations(new HashMap<>());
+        }
         return representations.put(key, value);
     }
 

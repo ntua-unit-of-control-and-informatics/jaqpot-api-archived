@@ -1,0 +1,13 @@
+{
+    "feature": {
+        "dynamic": false,
+        "properties": {
+            "createdBy": {
+                "type": "string"
+            },
+            "units": {
+                "type": "string"
+            }
+        }
+    }
+}
