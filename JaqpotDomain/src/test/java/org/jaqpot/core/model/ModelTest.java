@@ -76,6 +76,23 @@ public class ModelTest {
         copy.getBibtex().setMeta(null);
         
         assertNotNull(m.getBibtex().getMeta());
+        assertEquals(m, copy);
+    }
+    
+    @Test
+    public void testClone_bigData() {        
+        Model m = rog.nextModel();
+        assertNotNull(m.getPmmlModel());
+        assertNotNull(m.getPmmlTransformations());
+        assertNotNull(m.getActualModel());
+        
+        Model copy = new Model(m);
+        
+        assertNull(copy.getActualModel());
+        assertNull(copy.getPmmlModel());
+        assertNull(copy.getPmmlTransformations());
+        
+        
     }
     
     @Test

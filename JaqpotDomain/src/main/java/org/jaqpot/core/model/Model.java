@@ -103,12 +103,21 @@ public class Model extends JaqpotEntity {
         super(id);
     }
 
+    /**
+     * Copy-constructor for Model objects. Important note: This copy-constructor
+     * hard-copies all fields except for the actual model, pmml model and pmml
+     * transformations.
+     *
+     * @param other model to be copied
+     *
+     * @see #getPmmlModel()
+     * @see #getPmmlTransformations()
+     * @see #getActualModel()
+     */
     public Model(Model other) {
         super(other);
-        this.actualModel = other.actualModel;
         this.algorithm = other.algorithm != null ? new Algorithm(other.algorithm) : null;
         this.bibtex = other.bibtex != null ? new BibTeX(other.bibtex) : null;
-
         this.createdBy = other.createdBy;
         this.datasetUri = other.datasetUri;
         this.dependentFeatures = other.dependentFeatures != null
@@ -117,8 +126,6 @@ public class Model extends JaqpotEntity {
                 ? new ArrayList<>(other.independentFeatures) : null;
         this.parameters = other.parameters != null
                 ? new HashSet<>(other.parameters) : null;
-        this.pmmlModel = other.pmmlModel;
-        this.pmmlTransformations = other.pmmlTransformations;
         this.predictedFeatures = other.predictedFeatures != null
                 ? new ArrayList<>(other.predictedFeatures) : null;
         this.reliability = other.reliability;
