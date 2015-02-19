@@ -53,6 +53,12 @@
             <artifactId>mongo-java-driver</artifactId>
             <version>3.0.0-beta2</version>
         </dependency>
+        <dependency>
+            <groupId>org.mongodb</groupId>
+            <artifactId>mongo-java-driver</artifactId>
+            <version>3.0.0-beta2</version>
+            <classifier>javadoc</classifier>
+        </dependency>
         
         <!-- REFLECTIONS -  A classpath scanning library (with Javadoc) -->
         <dependency>
