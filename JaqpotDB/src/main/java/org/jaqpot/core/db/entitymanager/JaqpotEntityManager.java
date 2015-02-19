@@ -103,6 +103,18 @@ public interface JaqpotEntityManager extends Closeable {
     public <T extends JaqpotEntity> List<T> find(Class<T> entityClass, Map<String, Object> properties, Integer start, Integer max);
 
     /**
+     * Count by properties. Counts the entities of the specified class that
+     * match the given properties.
+     *
+     *
+     * @param <T>
+     * @param entityClass entity class
+     * @param properties a properties map matching field names with values
+     * @return the total of entity instances that match the given properties
+     */
+    public <T extends JaqpotEntity> Long count(Class<T> entityClass, Map<String, Object> properties);
+
+    /**
      * Find by primary keys. Searches for entities of the specified class that
      * match the given primary keys. The returned entity instances will only
      * contain fields that are present in the fields list.
@@ -128,5 +140,15 @@ public interface JaqpotEntityManager extends Closeable {
      * @return a list with all entity instances of given class
      */
     public <T extends JaqpotEntity> List<T> findAll(Class<T> entityClass, Integer start, Integer max);
+
+    /**
+     * Count all entities. Counts all persisted entities of the specified class.
+     *
+     *
+     * @param <T>
+     * @param entityClass entity class
+     * @return the total of entity instances that match the given properties
+     */
+    public <T extends JaqpotEntity> Long countAll(Class<T> entityClass);
 
 }

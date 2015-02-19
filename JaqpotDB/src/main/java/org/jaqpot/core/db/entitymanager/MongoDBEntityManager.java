@@ -33,7 +33,6 @@ import com.mongodb.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.util.JSON;
-import java.io.IOException;
 import org.jaqpot.core.annotations.MongoDB;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
@@ -62,6 +61,7 @@ import org.reflections.Reflections;
 public class MongoDBEntityManager implements JaqpotEntityManager {
 
     private static final Logger LOG = Logger.getLogger(MongoDBEntityManager.class.getName());
+    private static final Integer DEFAULT_PAGE_SIZE = 10;
 
     @Inject
     JSONSerializer serializer;
@@ -93,7 +93,7 @@ public class MongoDBEntityManager implements JaqpotEntityManager {
     }
 
     @Override
-    public void close() throws IOException {
+    public void close() {
         mongoClient.close();
     }
 
@@ -149,11 +149,28 @@ public class MongoDBEntityManager implements JaqpotEntityManager {
 
         List<T> result = new ArrayList<>();
         collection.find(new Document(properties))
-                .skip(start)
-                .limit(max)
+                .skip(start != null ? start : 0)
+                .limit(max != null ? max : DEFAULT_PAGE_SIZE)
                 .map(document -> serializer.parse(JSON.serialize(document), entityClass))
                 .into(result);
         return result;
+    }
+
+    @Override
+    public <T extends JaqpotEntity> Long count(Class<T> entityClass, Map<String, Object> properties) {
+        MongoDatabase db = mongoClient.getDatabase(database);
+        MongoCollection<Document> collection = db.getCollection(collectionNames.get(entityClass));
+        properties.entrySet()
+                .stream()
+                .filter(e -> {
+                    return e.getValue() instanceof List;
+                })
+                .forEach(e -> {
+                    Map<String, Object> all = new HashMap<>();
+                    all.put("$all", e.getValue());
+                    properties.put(e.getKey(), all);
+                });
+        return collection.count(new Document(properties));
     }
 
     @Override
@@ -176,11 +193,18 @@ public class MongoDBEntityManager implements JaqpotEntityManager {
         MongoCollection<Document> collection = db.getCollection(collectionNames.get(entityClass));
         List<T> result = new ArrayList<>();
         collection.find()
-                .skip(start)
-                .limit(max)
+                .skip(start != null ? start : 0)
+                .limit(max != null ? max : DEFAULT_PAGE_SIZE)
                 .map(document -> serializer.parse(JSON.serialize(document), entityClass))
                 .into(result);
         return result;
+    }
+
+    @Override
+    public <T extends JaqpotEntity> Long countAll(Class<T> entityClass) {
+        MongoDatabase db = mongoClient.getDatabase(database);
+        MongoCollection<Document> collection = db.getCollection(collectionNames.get(entityClass));
+        return collection.count();
     }
 
     public String getDatabase() {
