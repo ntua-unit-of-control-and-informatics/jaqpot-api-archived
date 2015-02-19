@@ -53,7 +53,7 @@ public class Dataset extends JaqpotEntity {
      * An ordered list of Features. These features are standard properties of
      * the substance as opposed to prediction features. These are not calculated
      * or measured properties, but actual values that either measure or computed
-     * in silico.
+     * in-silico.
      */
     private List<String> features;
     /**
@@ -61,6 +61,9 @@ public class Dataset extends JaqpotEntity {
      * a QSAR/QSPR/QNAR model is needed to predict them.
      */
     private List<String> predictedFeatures;
+    /**
+     * User ID of the creator of the dataset.
+     */
     private String createdBy;
 
     public Dataset() {

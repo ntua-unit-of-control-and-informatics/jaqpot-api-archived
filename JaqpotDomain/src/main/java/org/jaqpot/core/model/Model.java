@@ -104,9 +104,7 @@ public class Model extends JaqpotEntity {
     }
 
     /**
-     * Copy-constructor for Model objects. Important note: This copy-constructor
-     * hard-copies all fields except for the actual model, pmml model and pmml
-     * transformations.
+     * Copy-constructor for Model objects. 
      *
      * @param other model to be copied
      *
@@ -129,6 +127,9 @@ public class Model extends JaqpotEntity {
         this.predictedFeatures = other.predictedFeatures != null
                 ? new ArrayList<>(other.predictedFeatures) : null;
         this.reliability = other.reliability;
+        this.actualModel = other.actualModel;
+        this.pmmlModel = other.pmmlModel;
+        this.pmmlTransformations = other.pmmlTransformations;
     }
 
     public List<String> getDependentFeatures() {

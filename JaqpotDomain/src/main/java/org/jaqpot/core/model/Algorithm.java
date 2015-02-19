@@ -72,7 +72,7 @@ public class Algorithm extends JaqpotEntity {
 
     public Algorithm(Algorithm other) {
         super(other);
-        this.bibtex = other.bibtex;
+        this.bibtex = other.bibtex!=null ? new HashSet<>(other.bibtex) : null;
         this.createdBy = other.createdBy;
         this.parameters = other.parameters != null ? new HashSet<>(other.parameters) : null;
         this.ranking = other.ranking;
