@@ -58,14 +58,14 @@ public class TaskHandler extends AbstractHandler<Task> {
         return em;
     }
 
-    public List<Task> findByUserName(String userName, Integer start, Integer max) {
+    public List<Task> findByUser(String userName, Integer start, Integer max) {
         Map<String, Object> properties = new HashMap<>();
         properties.put("createdBy", userName);
 
         return em.find(Task.class, properties, start, max);
     }
 
-    public Long countByUserName(String userName) {
+    public Long countByUser(String userName) {
         Map<String, Object> properties = new HashMap<>();
         properties.put("createdBy", userName);
 
@@ -73,7 +73,17 @@ public class TaskHandler extends AbstractHandler<Task> {
     }
 
     public List<Task> findByStatus(Task.Status status, Integer start, Integer max) {
-        throw new UnsupportedOperationException("not supported yet");
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("hasStatus", status);
+
+        return em.find(Task.class, properties, start, max);
+    }
+
+    public Long countByStatus(Task.Status status) {
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("hasStatus", status);
+
+        return em.count(Task.class, properties);
     }
 
 }

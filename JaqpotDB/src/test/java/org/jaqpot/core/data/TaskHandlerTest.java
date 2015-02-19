@@ -88,7 +88,7 @@ public class TaskHandlerTest {
     }
 
     /**
-     * Test of findByUserId method, of class TaskHandler.
+     * Test of findByUser method, of class TaskHandler.
      */
     @Test
     public void testFindByUserName() {
@@ -96,7 +96,7 @@ public class TaskHandlerTest {
         Integer start = 0;
         Integer max = 10;
 
-        List<Task> result = taskHandler.findByUserName(userName, start, max);
+        List<Task> result = taskHandler.findByUser(userName, start, max);
 
         Task foundTask = result.get(0);
         Task foundTask2 = result.get(1);
@@ -120,6 +120,60 @@ public class TaskHandlerTest {
         assertEquals("not the same status", taskPojo2.getStatus(), foundTask2.getStatus());
         assertEquals("not the same comments", taskPojo2.getMeta().getComments(), foundTask2.getMeta().getComments());
         assertEquals("not the same descriptions", taskPojo2.getMeta().getDescriptions(), foundTask2.getMeta().getDescriptions());
+    }
+
+    @Test
+    public void testCountByUserName() {
+        String userName = "random-user@jaqpot.org";
+        Integer start = 0;
+        Integer max = 10;
+
+        Long result = taskHandler.countByUser(userName);
+
+        assertEquals(result, new Long(2));
+    }
+
+    @Test
+    public void testFindByStatus() {
+        String userName = "random-user@jaqpot.org";
+        Integer start = 0;
+        Integer max = 10;
+
+        List<Task> result = taskHandler.findByStatus(Task.Status.RUNNING, start, max);
+
+        Task foundTask = result.get(0);
+        Task foundTask2 = result.get(1);
+
+        assertEquals(foundTask, taskPojo);
+        assertEquals("not the same ID", taskPojo.getId(), foundTask.getId());
+        assertEquals("not the same createdBy", taskPojo.getCreatedBy(), foundTask.getCreatedBy());
+        assertEquals("not the same percentageComplete", taskPojo.getPercentageCompleted(), foundTask.getPercentageCompleted());
+        assertEquals("not the same duration", taskPojo.getDuration(), foundTask.getDuration());
+        assertEquals("not the same HTTP status", taskPojo.getHttpStatus(), foundTask.getHttpStatus());
+        assertEquals("not the same status", taskPojo.getStatus(), foundTask.getStatus());
+        assertEquals("not the same comments", taskPojo.getMeta().getComments(), foundTask.getMeta().getComments());
+        assertEquals("not the same descriptions", taskPojo.getMeta().getDescriptions(), foundTask.getMeta().getDescriptions());
+
+        assertEquals(foundTask2, taskPojo2);
+        assertEquals("not the same ID", taskPojo2.getId(), foundTask2.getId());
+        assertEquals("not the same createdBy", taskPojo2.getCreatedBy(), foundTask2.getCreatedBy());
+        assertEquals("not the same percentageComplete", taskPojo2.getPercentageCompleted(), foundTask2.getPercentageCompleted());
+        assertEquals("not the same duration", taskPojo2.getDuration(), foundTask2.getDuration());
+        assertEquals("not the same HTTP status", taskPojo2.getHttpStatus(), foundTask2.getHttpStatus());
+        assertEquals("not the same status", taskPojo2.getStatus(), foundTask2.getStatus());
+        assertEquals("not the same comments", taskPojo2.getMeta().getComments(), foundTask2.getMeta().getComments());
+        assertEquals("not the same descriptions", taskPojo2.getMeta().getDescriptions(), foundTask2.getMeta().getDescriptions());
+    }
+
+    @Test
+    public void testCountByStatus() {
+        String userName = "random-user@jaqpot.org";
+        Integer start = 0;
+        Integer max = 10;
+
+        Long result = taskHandler.countByStatus(Task.Status.RUNNING);
+
+        assertEquals(result, new Long(2));
     }
 
 }
