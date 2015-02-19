@@ -228,6 +228,9 @@ public class ROG {
         c.getRepresentations().put("inchi", nextString(20));
         c.getRepresentations().put("sdf", nextString(200));
         c.getRepresentations().put("mol", nextString(200));
+        
+        // Substructures
+        c.setSubstructures(nextSetString(20, 5));
 
         c.setMeta(nextMeta());
 

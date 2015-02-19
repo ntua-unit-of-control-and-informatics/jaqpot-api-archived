@@ -34,6 +34,8 @@ import java.util.Map;
 import javax.xml.bind.annotation.XmlRootElement;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  *
@@ -59,6 +61,12 @@ public class Conformer extends Substance {
      * BibTeX reference as of where one can find more information.
      */
     private BibTeX bibtex;
+    
+    /**
+     * Substructures and fragments of the compound.
+     * Used to facilitate look-ups.
+     */
+    private Set<String> substructures;
 
     public Conformer() {
     }
@@ -72,7 +80,18 @@ public class Conformer extends Substance {
         this.bibtex = other.bibtex != null ? new BibTeX(other.bibtex) : null;
         this.fatherCompound = other.fatherCompound;
         this.representations = other.representations != null ? new HashMap<>(other.representations) : null;
+        this.substructures = other.substructures != null ? new HashSet<>(other.substructures) : null;
     }
+
+    public Set<String> getSubstructures() {
+        return substructures;
+    }
+
+    public void setSubstructures(Set<String> substructures) {
+        this.substructures = substructures;
+    }
+    
+    
 
     public Map<String, String> getRepresentations() {
         return representations;
