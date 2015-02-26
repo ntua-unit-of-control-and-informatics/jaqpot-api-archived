@@ -34,7 +34,7 @@ import org.jaqpot.core.model.JaqpotEntity;
 /**
  *
  * @author Pantelis Sopasakis
- * @author Charalambos Chomenidis
+ * @author Charalampos Chomenidis
  * @param <T>
  */
 public abstract class AbstractMetaStripper<T extends JaqpotEntity> {

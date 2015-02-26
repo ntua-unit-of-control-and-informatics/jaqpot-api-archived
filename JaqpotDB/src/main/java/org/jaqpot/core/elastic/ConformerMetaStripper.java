@@ -36,7 +36,7 @@ import org.jaqpot.core.model.Conformer;
 /**
  *
  * @author Pantelis Sopasakis
- * @author Charalambos Chomenidis
+ * @author Charalampos Chomenidis
  */
 public class ConformerMetaStripper extends AbstractMetaStripper<Conformer>{
 

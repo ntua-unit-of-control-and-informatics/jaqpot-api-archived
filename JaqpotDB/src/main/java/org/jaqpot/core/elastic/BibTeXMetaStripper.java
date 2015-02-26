@@ -34,7 +34,7 @@ import org.jaqpot.core.model.BibTeX;
 /**
  *
  * @author Pantelis Sopasakis
- * @author Charalambos Chomenidis
+ * @author Charalampos Chomenidis
  */
 public class BibTeXMetaStripper extends AbstractMetaStripper<BibTeX> {
 

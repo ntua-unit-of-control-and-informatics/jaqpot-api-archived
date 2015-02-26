@@ -34,7 +34,7 @@ import org.jaqpot.core.model.Model;
 /**
  *
  * @author Pantelis Sopasakis
- * @author Charalambos Chomenidis
+ * @author Charalampos Chomenidis
  */
 public class ModelMetaStripper extends AbstractMetaStripper<Model> {
 
