@@ -27,32 +27,50 @@
  * All source files of JAQPOT Quattro that are stored on github are licenced
  * with the aforementioned licence. 
  */
-
-
 package org.jaqpot.core.elastic;
 
-import org.jaqpot.core.model.Conformer;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.jaqpot.core.model.BibTeX;
+import org.jaqpot.core.model.util.ROG;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 /**
  *
- * @author Pantelis Sopasakis
- * @author Charalampos Chomenidis
+ * @author chung
  */
-public class ConformerMetaStripper extends AbstractMetaStripper<Conformer>{
-
-    public ConformerMetaStripper(Conformer entity) {
-        super(entity);
+public class ElasticIndexerTest {
+    
+    public ElasticIndexerTest() {
+    }
+    
+    @BeforeClass
+    public static void setUpClass() {
+    }
+    
+    @AfterClass
+    public static void tearDownClass() {
+    }
+    
+    @Before
+    public void setUp() {
+    }
+    
+    @After
+    public void tearDown() {
     }
 
-    @Override
-    public Conformer strip() {
-        Conformer conformer = new Conformer(entity);
-        conformer.setRepresentations(null);
-        conformer.setPredictedFeatures(null);
-        if (conformer.getBibtex()!=null){
-            conformer.setBibtex(new BibTeXMetaStripper(conformer.getBibtex()).strip());
-        }
-        return conformer;
+    @Test
+    public void testIndexBibTeX() {
+        ROG rog = new ROG(false);
+        BibTeX bib = rog.nextBibTeX();
+        ElasticIndexer indexer = new ElasticIndexer(bib);
+        indexer.index(new ObjectMapper());
+        fail("Not enough testing yet!");
     }
-
+    
 }
