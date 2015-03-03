@@ -45,10 +45,11 @@ public class BibTeXMetaStripper extends AbstractMetaStripper<BibTeX> {
     @Override
     public BibTeX strip() {
         BibTeX bibtex = new BibTeX(entity);
+        bibtex.setCopyright(null);
         bibtex.setOntologicalClasses(null);
         return bibtex;
     }
-
+   
     /**
      * This method will strip BibTeX entities from all that is potentially
      * unnecessary. It creates very small entities to be used as references in

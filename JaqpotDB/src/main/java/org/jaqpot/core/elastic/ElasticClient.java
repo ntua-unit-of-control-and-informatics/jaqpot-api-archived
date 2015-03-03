@@ -27,32 +27,28 @@
  * All source files of JAQPOT Quattro that are stored on github are licenced
  * with the aforementioned licence. 
  */
-
-
 package org.jaqpot.core.elastic;
 
-import org.jaqpot.core.model.Conformer;
+import org.elasticsearch.client.transport.TransportClient;
+import org.elasticsearch.common.transport.InetSocketTransportAddress;
 
 /**
  *
  * @author Pantelis Sopasakis
  * @author Charalampos Chomenidis
  */
-public class ConformerMetaStripper extends AbstractMetaStripper<Conformer>{
+public class ElasticClient {
 
-    public ConformerMetaStripper(Conformer entity) {
-        super(entity);
+    private static final ElasticClient singleton = new ElasticClient();
+    private final TransportClient client;
+
+    private ElasticClient() {
+        client = new TransportClient();
+        client.addTransportAddress(new InetSocketTransportAddress("147.102.82.32", 49101));
     }
 
-    @Override
-    public Conformer strip() {
-        Conformer conformer = new Conformer(entity);
-        conformer.setRepresentations(null);
-        conformer.setPredictedFeatures(null);
-        if (conformer.getBibtex()!=null){
-            conformer.setBibtex(new BibTeXMetaStripper(conformer.getBibtex()).strip());
-        }
-        return conformer;
+    public static TransportClient getClient() {
+        return singleton.client;
     }
 
 }
