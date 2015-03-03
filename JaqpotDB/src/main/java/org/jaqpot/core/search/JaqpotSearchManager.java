@@ -33,6 +33,7 @@ import javax.ejb.Singleton;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 import org.jaqpot.core.annotations.ElasticSearch;
+import org.jaqpot.core.search.engine.ElasticSearchEngine;
 import org.jaqpot.core.search.engine.JaqpotSearchEngine;
 
 /**
@@ -43,13 +44,14 @@ import org.jaqpot.core.search.engine.JaqpotSearchEngine;
  */
 @Singleton
 public class JaqpotSearchManager {
-    
-    @Inject
-    @ElasticSearch
-    JaqpotSearchEngine elasticSearchEngine;
-    
-    @Produces
-    public JaqpotSearchEngine getEngine(){
-        return this.elasticSearchEngine;
+
+    JaqpotSearchEngine searchEngine;
+
+//    @Produces
+    public JaqpotSearchEngine getEngine() {
+        if (searchEngine == null) {
+            searchEngine = new ElasticSearchEngine();
+        }
+        return this.searchEngine;
     }
 }

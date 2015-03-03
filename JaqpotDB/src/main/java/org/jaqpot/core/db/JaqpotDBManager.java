@@ -32,8 +32,6 @@ package org.jaqpot.core.db;
 import org.jaqpot.core.db.entitymanager.JaqpotEntityManager;
 import javax.ejb.Singleton;
 import javax.enterprise.inject.Produces;
-import javax.inject.Inject;
-import org.jaqpot.core.annotations.MongoDB;
 import org.jaqpot.core.db.entitymanager.MongoDBEntityManager;
 
 /**
@@ -44,16 +42,17 @@ import org.jaqpot.core.db.entitymanager.MongoDBEntityManager;
  */
 @Singleton
 public class JaqpotDBManager {
-    
+
     private String database;
 
-    @Inject
-    @MongoDB
     private JaqpotEntityManager em;
 
     @Produces
     public JaqpotEntityManager getEntityManager() {
-        ((MongoDBEntityManager)em).setDatabase("production");
+        if (em == null) {
+            em = new MongoDBEntityManager();
+        }
+        ((MongoDBEntityManager) em).setDatabase("production");
         return em;
     }
 

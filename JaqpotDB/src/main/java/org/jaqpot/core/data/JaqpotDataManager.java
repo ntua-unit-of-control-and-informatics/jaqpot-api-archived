@@ -31,9 +31,8 @@ package org.jaqpot.core.data;
 
 import javax.ejb.Singleton;
 import javax.enterprise.inject.Produces;
-import javax.inject.Inject;
 import org.jaqpot.core.data.serialize.JSONSerializer;
-import org.jaqpot.core.annotations.Jackson;
+import org.jaqpot.core.data.serialize.JacksonJSONSerializer;
 
 /**
  *
@@ -44,12 +43,13 @@ import org.jaqpot.core.annotations.Jackson;
 @Singleton
 public class JaqpotDataManager {
 
-    @Inject
-    @Jackson
     JSONSerializer jsonSerializer;
 
     @Produces
     public JSONSerializer getJSONSerializer() {
+        if (jsonSerializer == null) {
+            jsonSerializer = new JacksonJSONSerializer();
+        }
         return jsonSerializer;
     }
 }

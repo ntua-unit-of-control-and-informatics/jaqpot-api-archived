@@ -31,6 +31,7 @@ package org.jaqpot.core.data;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import org.jaqpot.core.annotations.MongoDB;
 import org.jaqpot.core.db.entitymanager.JaqpotEntityManager;
 import org.jaqpot.core.model.User;
 
@@ -41,9 +42,10 @@ import org.jaqpot.core.model.User;
  *
  */
 @Stateless
-public class UserHandler extends AbstractHandler<User>{
-    
-    @Inject JaqpotEntityManager em;
+public class UserHandler extends AbstractHandler<User> {
+
+    @Inject
+    JaqpotEntityManager em;
 
     public UserHandler() {
         super(User.class);
@@ -53,5 +55,5 @@ public class UserHandler extends AbstractHandler<User>{
     protected JaqpotEntityManager getEntityManager() {
         return em;
     }
-    
+
 }

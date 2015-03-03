@@ -29,6 +29,7 @@
  */
 package org.jaqpot.core.search.engine;
 
+import javax.enterprise.inject.Default;
 import org.jaqpot.core.annotations.ElasticSearch;
 
 /**
@@ -38,6 +39,7 @@ import org.jaqpot.core.annotations.ElasticSearch;
  *
  */
 @ElasticSearch
+@Default
 public class ElasticSearchEngine implements JaqpotSearchEngine{
     
 }

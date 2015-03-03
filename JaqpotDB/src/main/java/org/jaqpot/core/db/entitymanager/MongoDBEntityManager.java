@@ -43,9 +43,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.enterprise.inject.Default;
 import javax.inject.Inject;
 import javax.xml.bind.annotation.XmlRootElement;
 import org.bson.Document;
+import org.jaqpot.core.annotations.Jackson;
 import org.jaqpot.core.data.serialize.JSONSerializer;
 import org.jaqpot.core.model.JaqpotEntity;
 import org.reflections.Reflections;
@@ -58,6 +60,7 @@ import org.reflections.Reflections;
  *
  */
 @MongoDB
+@Default
 public class MongoDBEntityManager implements JaqpotEntityManager {
 
     private static final Logger LOG = Logger.getLogger(MongoDBEntityManager.class.getName());

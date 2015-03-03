@@ -45,8 +45,8 @@ import javax.enterprise.inject.Default;
  * @author Charalampos Chomenidis
  *
  */
-@Default
 @Jackson
+@Default
 public class JacksonJSONSerializer implements JSONSerializer {
 
     private static final Logger LOG = Logger.getLogger(JacksonJSONSerializer.class.getName());
