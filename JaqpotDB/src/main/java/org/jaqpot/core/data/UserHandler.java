@@ -45,6 +45,7 @@ import org.jaqpot.core.model.User;
 public class UserHandler extends AbstractHandler<User> {
 
     @Inject
+    @MongoDB
     JaqpotEntityManager em;
 
     public UserHandler() {

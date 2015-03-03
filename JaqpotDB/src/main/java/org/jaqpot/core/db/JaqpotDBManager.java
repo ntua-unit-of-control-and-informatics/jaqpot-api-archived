@@ -29,10 +29,16 @@
  */
 package org.jaqpot.core.db;
 
+import javax.annotation.PostConstruct;
 import org.jaqpot.core.db.entitymanager.JaqpotEntityManager;
 import javax.ejb.Singleton;
+import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
+import org.jaqpot.core.annotations.MongoDB;
 import org.jaqpot.core.db.entitymanager.MongoDBEntityManager;
+import org.jaqpot.core.model.MetaInfo;
+import org.jaqpot.core.model.Task;
+import org.jaqpot.core.model.builder.MetaInfoBuilder;
 
 /**
  *
@@ -47,13 +53,14 @@ public class JaqpotDBManager {
 
     private JaqpotEntityManager em;
 
-    @Produces
-    public JaqpotEntityManager getEntityManager() {
-        if (em == null) {
-            em = new MongoDBEntityManager();
-        }
-        ((MongoDBEntityManager) em).setDatabase("production");
-        return em;
-    }
+//    @Produces @ApplicationScoped
+//    public JaqpotEntityManager getEntityManager(@MongoDB JaqpotEntityManager em) {
+////        if (em == null) {
+////            em = new MongoDBEntityManager();
+////            ((MongoDBEntityManager) em).setDatabase("production");
+////        }
+//  //      this.em = em;
+//        return em;
+//    }    
 
 }

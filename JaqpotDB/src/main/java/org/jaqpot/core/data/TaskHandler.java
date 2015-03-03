@@ -32,11 +32,14 @@ package org.jaqpot.core.data;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.PostConstruct;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import org.jaqpot.core.annotations.MongoDB;
 import org.jaqpot.core.db.entitymanager.JaqpotEntityManager;
+import org.jaqpot.core.model.MetaInfo;
 import org.jaqpot.core.model.Task;
+import org.jaqpot.core.model.builder.MetaInfoBuilder;
 
 /**
  *
@@ -48,10 +51,31 @@ import org.jaqpot.core.model.Task;
 public class TaskHandler extends AbstractHandler<Task> {
 
     @Inject
+    @MongoDB
     JaqpotEntityManager em;
 
     public TaskHandler() {
         super(Task.class);
+    }
+
+    @PostConstruct
+    public void init() {
+
+        MetaInfoBuilder metaBuilder = MetaInfoBuilder.builder();
+        MetaInfo meta = metaBuilder.
+                addComments("task started", "this task does training", "dataset downloaded").
+                addDescriptions("this is a very nice task", "oh, and it's very useful too").
+                addSources("http://jaqpot.org/algorithm/wonk").build();
+
+        Task taskPojo;
+        taskPojo = new Task("115a0da8-92cc-4ec4-845f-df643ad607ee");
+        taskPojo.setCreatedBy("random-user@jaqpot.org");
+        taskPojo.setPercentageCompleted(0.95f);
+        taskPojo.setDuration(1534l);
+        taskPojo.setMeta(meta);
+        taskPojo.setHttpStatus(202);
+        taskPojo.setStatus(Task.Status.RUNNING);
+        em.merge(taskPojo);
     }
 
     @Override

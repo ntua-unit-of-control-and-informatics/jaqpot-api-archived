@@ -37,6 +37,7 @@ import java.io.OutputStream;
 import java.io.Writer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.enterprise.context.Dependent;
 import javax.enterprise.inject.Default;
 
 /**
@@ -46,7 +47,7 @@ import javax.enterprise.inject.Default;
  *
  */
 @Jackson
-@Default
+@Dependent
 public class JacksonJSONSerializer implements JSONSerializer {
 
     private static final Logger LOG = Logger.getLogger(JacksonJSONSerializer.class.getName());

@@ -43,6 +43,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.enterprise.context.Dependent;
 import javax.enterprise.inject.Default;
 import javax.inject.Inject;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -60,13 +61,14 @@ import org.reflections.Reflections;
  *
  */
 @MongoDB
-@Default
+@Dependent
 public class MongoDBEntityManager implements JaqpotEntityManager {
 
     private static final Logger LOG = Logger.getLogger(MongoDBEntityManager.class.getName());
     private static final Integer DEFAULT_PAGE_SIZE = 10;
 
     @Inject
+    @Jackson
     JSONSerializer serializer;
 
     private final MongoClient mongoClient;
@@ -93,6 +95,7 @@ public class MongoDBEntityManager implements JaqpotEntityManager {
 
     public MongoDBEntityManager() {
         mongoClient = new MongoClient();
+        database = "production";
     }
 
     @Override

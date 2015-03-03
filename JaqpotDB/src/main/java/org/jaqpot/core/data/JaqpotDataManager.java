@@ -45,11 +45,11 @@ public class JaqpotDataManager {
 
     JSONSerializer jsonSerializer;
 
-    @Produces
-    public JSONSerializer getJSONSerializer() {
-        if (jsonSerializer == null) {
-            jsonSerializer = new JacksonJSONSerializer();
-        }
-        return jsonSerializer;
-    }
+//    @Produces
+//    public JSONSerializer getJSONSerializer() {
+//        if (jsonSerializer == null) {
+//            jsonSerializer = new JacksonJSONSerializer();
+//        }
+//        return jsonSerializer;
+//    }
 }
