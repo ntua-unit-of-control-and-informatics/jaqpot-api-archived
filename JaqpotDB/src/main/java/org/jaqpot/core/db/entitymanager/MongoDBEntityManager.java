@@ -33,6 +33,10 @@ import com.mongodb.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.util.JSON;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import org.jaqpot.core.annotations.MongoDB;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
@@ -40,6 +44,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -73,6 +78,7 @@ public class MongoDBEntityManager implements JaqpotEntityManager {
 
     private final MongoClient mongoClient;
     private String database;
+    private static Properties dbProperties = new Properties();
 
     public static final Map<Class, String> collectionNames;
 
@@ -94,8 +100,25 @@ public class MongoDBEntityManager implements JaqpotEntityManager {
     }
 
     public MongoDBEntityManager() {
-        mongoClient = new MongoClient();
-        database = "production";
+        mongoClient = new MongoClient();        
+        ClassLoader classLoader = this.getClass().getClassLoader();
+        InputStream is = classLoader.getResourceAsStream("config/db.properties");
+        try {
+            dbProperties.load(is);
+            database = dbProperties.getProperty("db.name");
+        } catch (IOException ex) {
+            Logger.getLogger(MongoDBEntityManager.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    public static void main(String... args) throws IOException {
+        MongoDBEntityManager a = new MongoDBEntityManager();
+        ClassLoader classLoader = a.getClass().getClassLoader();
+        InputStream is = classLoader.getResourceAsStream("config/db.properties");
+        Properties p = new Properties();
+        p.load(is);
+        System.out.println(p.get("name"));
+
     }
 
     @Override
