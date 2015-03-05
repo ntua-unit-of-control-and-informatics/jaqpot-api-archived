@@ -37,11 +37,14 @@ import java.security.GeneralSecurityException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
+import javax.ws.rs.BadRequestException;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
@@ -55,7 +58,9 @@ import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.jaqpot.core.model.Algorithm;
+import org.jaqpot.core.model.Task;
 import org.jaqpot.core.service.dto.dataset.Dataset;
+import org.jaqpot.core.service.dto.jpdi.TrainingRequest;
 import org.jaqpot.core.service.dto.study.Studies;
 
 /**
@@ -104,6 +109,10 @@ public class AlgorithmResource {
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/{name}")
+    @ApiOperation(value = "Creates Model",
+            notes = "Applies Dataset and Parameters on Algorithm and creates Model.",
+            response = Task.class
+    )
     public Response trainModel(
             @FormParam("dataset_uri") String datasetURI,
             @FormParam("prediction_feature") String predictionFeature,
@@ -113,6 +122,14 @@ public class AlgorithmResource {
 
         System.out.println(subjectId);
         try {
+            Map<String, Object> parameterMap = new HashMap<>();
+            if (parameters != null) {
+                String[] parameterArray = parameters.split(",");
+                for (String parameter : parameterArray) {
+                    String[] keyValuePair = parameter.split("=");
+                    parameterMap.put(keyValuePair[0].trim(), keyValuePair[1].trim());
+                }
+            }
             Client client = buildUnsecureRestClient();
             Dataset dataset = client.target(datasetURI)
                     .request()
@@ -120,9 +137,16 @@ public class AlgorithmResource {
                     .accept(MediaType.APPLICATION_JSON)
                     .get(Dataset.class);
 
-            return Response.ok(dataset).build();
+            dataset.setDatasetURI(datasetURI);
+            TrainingRequest request = new TrainingRequest();
+            request.setDataset(dataset);
+            request.setPredictionFeature(predictionFeature);
+            request.setParameters(parameterMap);
+            return Response.ok(request).build();
         } catch (GeneralSecurityException ex) {
             throw new InternalServerErrorException(ex);
+        } catch (ArrayIndexOutOfBoundsException ex) {
+            throw new BadRequestException();
         }
     }
 

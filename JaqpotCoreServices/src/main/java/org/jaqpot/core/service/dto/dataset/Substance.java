@@ -20,8 +20,6 @@ public class Substance {
 
     @JsonProperty("URI")
     String URI;
-    
-    String structype;
 
     @JsonIgnore
     public String getURI() {
@@ -30,14 +28,6 @@ public class Substance {
 
     public void setURI(String URI) {
         this.URI = URI;
-    }
-
-    public String getStructype() {
-        return structype;
-    }
-
-    public void setStructype(String structype) {
-        this.structype = structype;
     }
 
     @Override
