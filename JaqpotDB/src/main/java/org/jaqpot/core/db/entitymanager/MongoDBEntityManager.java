@@ -33,8 +33,6 @@ import com.mongodb.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.util.JSON;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import org.jaqpot.core.annotations.MongoDB;
@@ -49,7 +47,6 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.enterprise.context.Dependent;
-import javax.enterprise.inject.Default;
 import javax.inject.Inject;
 import javax.xml.bind.annotation.XmlRootElement;
 import org.bson.Document;
@@ -100,25 +97,29 @@ public class MongoDBEntityManager implements JaqpotEntityManager {
     }
 
     public MongoDBEntityManager() {
-        mongoClient = new MongoClient();        
         ClassLoader classLoader = this.getClass().getClassLoader();
         InputStream is = classLoader.getResourceAsStream("config/db.properties");
+        String dbName = "production"; // Default DB name in case no properties file is found!
+        String dbHost = "localhost"; // Default DB host
+        int dbPort = 27017; // Default DB port
         try {
             dbProperties.load(is);
-            database = dbProperties.getProperty("db.name");
+            dbName = dbProperties.getProperty("db.name");
+            dbHost = dbProperties.getProperty("db.host", dbHost);
+            dbPort = Integer.parseInt(dbProperties.getProperty("db.port", Integer.toString(dbPort)));
         } catch (IOException ex) {
-            Logger.getLogger(MongoDBEntityManager.class.getName()).log(Level.SEVERE, null, ex);
+            String errorMessage = "No DB properties file found!";
+            LOG.log(Level.SEVERE, errorMessage, ex); // Log the event (but use the default properties)
+        } finally {
+            database = dbName;
+            mongoClient = new MongoClient(dbHost, dbPort); // Connect to the DB
         }
+
     }
 
     public static void main(String... args) throws IOException {
         MongoDBEntityManager a = new MongoDBEntityManager();
-        ClassLoader classLoader = a.getClass().getClassLoader();
-        InputStream is = classLoader.getResourceAsStream("config/db.properties");
-        Properties p = new Properties();
-        p.load(is);
-        System.out.println(p.get("name"));
-
+        System.out.println(a.mongoClient.getAddress());
     }
 
     @Override
