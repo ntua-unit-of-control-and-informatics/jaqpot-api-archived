@@ -40,7 +40,7 @@ public class TrainingService {
 
     public Task initiateTraining(Map<String, Object> options) {
 
-        String algorithmId = (String) options.get("algorithm_id");
+        String algorithmId = (String) options.get("algorithmId");
 
         Algorithm algorithm = algorithmHandler.find(algorithmId);
         if (algorithm == null) {
