@@ -23,10 +23,10 @@ import org.jaqpot.core.service.resource.TaskResource;
 @ApplicationPath("/services")
 public class JaqpotRestApplication extends Application {
 
-    public JaqpotRestApplication() {
+    public JaqpotRestApplication() {        
         BeanConfig beanConfig = new BeanConfig();
         beanConfig.setVersion("1.0.0");
-        beanConfig.setBasePath("http://localhost:8080/JaqpotCoreServices/services");
+        beanConfig.setBasePath("http://localhost:8080/jaqpot/services");
         beanConfig.setResourcePackage("org.jaqpot.core.service.resource");
         beanConfig.setScan(true);
     }

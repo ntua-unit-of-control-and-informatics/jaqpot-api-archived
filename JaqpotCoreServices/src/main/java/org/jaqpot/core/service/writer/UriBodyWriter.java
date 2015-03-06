@@ -41,7 +41,9 @@ public class UriBodyWriter implements MessageBodyWriter<JaqpotEntity> {
     }
 
     @Override
-    public void writeTo(JaqpotEntity entity, Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType, MultivaluedMap<String, Object> httpHeaders, OutputStream entityStream) throws IOException, WebApplicationException {
+    public void writeTo(JaqpotEntity entity, Class<?> type, Type genericType, 
+            Annotation[] annotations, MediaType mediaType, MultivaluedMap<String, Object> httpHeaders, 
+            OutputStream entityStream) throws IOException, WebApplicationException {        
         String uri = uriInfo.getBaseUri() + entity.getClass().getSimpleName().toLowerCase() + "/" + entity.getId();
         entityStream.write(uri.getBytes());
         entityStream.flush();
