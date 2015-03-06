@@ -58,27 +58,6 @@ public class TaskHandler extends AbstractHandler<Task> {
         super(Task.class);
     }
 
-    @PostConstruct
-    public void init() {
-        System.out.println("came to this point!");
-        MetaInfoBuilder metaBuilder = MetaInfoBuilder.builder();
-        MetaInfo meta = metaBuilder.
-                addComments("task started", "this task does training", "dataset downloaded").
-                addDescriptions("this is a very nice task", "oh, and it's very useful too").
-                addSources("http://jaqpot.org/algorithm/wonk").build();
-
-        Task taskPojo;
-        taskPojo = new Task("asdf");
-        taskPojo.setCreatedBy("random-user@jaqpot.org");
-        taskPojo.setPercentageCompleted(0.95f);
-        taskPojo.setDuration(1534l);
-        taskPojo.setMeta(meta);
-        taskPojo.setHttpStatus(202);
-        taskPojo.setStatus(Task.Status.RUNNING);
-        //TODO: Fix this!!! Important!!!
-        //em.persist(taskPojo);
-    }
-
     @Override
     protected JaqpotEntityManager getEntityManager() {
         return em;
