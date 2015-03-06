@@ -60,7 +60,7 @@ public class TaskHandler extends AbstractHandler<Task> {
 
     @PostConstruct
     public void init() {
-
+        System.out.println("came to this point!");
         MetaInfoBuilder metaBuilder = MetaInfoBuilder.builder();
         MetaInfo meta = metaBuilder.
                 addComments("task started", "this task does training", "dataset downloaded").
@@ -68,14 +68,15 @@ public class TaskHandler extends AbstractHandler<Task> {
                 addSources("http://jaqpot.org/algorithm/wonk").build();
 
         Task taskPojo;
-        taskPojo = new Task("115a0da8-92cc-4ec4-845f-df643ad607ee");
+        taskPojo = new Task("asdf");
         taskPojo.setCreatedBy("random-user@jaqpot.org");
         taskPojo.setPercentageCompleted(0.95f);
         taskPojo.setDuration(1534l);
         taskPojo.setMeta(meta);
         taskPojo.setHttpStatus(202);
         taskPojo.setStatus(Task.Status.RUNNING);
-        em.merge(taskPojo);
+        //TODO: Fix this!!! Important!!!
+        //em.persist(taskPojo);
     }
 
     @Override

@@ -30,6 +30,7 @@
 package org.jaqpot.core.data.serialize;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import org.jaqpot.core.annotations.Jackson;
 import java.io.IOException;
 import java.io.InputStream;

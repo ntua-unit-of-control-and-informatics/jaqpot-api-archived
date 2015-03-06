@@ -29,45 +29,27 @@
  */
 
 
-package org.jaqpot.core.service.dto.dataset;
+package org.jaqpot.core.util;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import java.util.List;
-import java.util.Map;
 import javax.xml.bind.annotation.XmlRootElement;
+import org.jaqpot.core.model.JaqpotEntity;
 
 /**
- *
- * @author hampos
+ * Utility class used to extract the @XmlRootElement parameter #name of a given
+ * JaqpotEntity class.
+ * 
+ * @author Pantelis Sopasakis
+ * @author Charalampos Chomenidis
  */
-@XmlRootElement
-@JsonIgnoreProperties(ignoreUnknown = true)
-public class Dataset {
+public class XmlNameExtractor {
     
-    String datasetURI;
-    
-    List<DataEntry> dataEntry;
-
-    public String getDatasetURI() {
-        return datasetURI;
+    public static String extractName(Class<? extends JaqpotEntity> clazz){
+        String className;
+        className = clazz.getAnnotation(XmlRootElement.class).name();
+        if ("##default".equals(className)){
+            className = clazz.getSimpleName().toLowerCase();
+        }
+        return className;
     }
 
-    public void setDatasetURI(String datasetURI) {
-        this.datasetURI = datasetURI;
-    }
-
-    public List<DataEntry> getDataEntry() {
-        return dataEntry;
-    }
-
-    public void setDataEntry(List<DataEntry> dataEntry) {
-        this.dataEntry = dataEntry;
-    }
-
-    @Override
-    public String toString() {
-        return "Dataset{" + "datasetURI=" + datasetURI + ", dataEntry=" + dataEntry + '}';
-    }
-    
-    
 }

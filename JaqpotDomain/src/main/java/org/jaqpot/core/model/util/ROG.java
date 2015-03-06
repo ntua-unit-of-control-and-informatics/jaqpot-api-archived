@@ -51,19 +51,20 @@ public class ROG {
 
     private final Random random;
 
+    static final String AB = "0123456789ABabcdefgCDEFhijklmnoGHIJKpqrstuvLMNOPQRSwxyzTUVWXYZ";
+    static Random rnd = new Random();
+   
+
     public ROG(boolean secure) {
         random = !secure ? new Random() : new SecureRandom();
     }
 
-    private final int startChar = (int) '!';
-    private final int endChar = (int) '~';
-
-    public String nextString(final int maxLength) {
-        final int length = random.nextInt(maxLength + 1);
-        return random.ints(length, startChar, endChar + 1)
-                .mapToObj((i) -> (char) i)
-                .collect(StringBuilder::new, StringBuilder::append, StringBuilder::append)
-                .toString();
+    public String nextString(final int len) {
+        StringBuilder sb = new StringBuilder(len);
+        for (int i = 0; i < len; i++) {
+            sb.append(AB.charAt(rnd.nextInt(AB.length())));
+        }
+        return sb.toString();
     }
 
     public MetaInfo nextMeta() {
@@ -73,7 +74,7 @@ public class ROG {
                 .addContributors(nextString(10), nextString(50))
                 .addCreators(nextString(10))
                 .addDescriptions(nextString(2000))
-                .addIdentifiers(nextString(20), nextString(100))
+                .addIdentifiers(nextString(20), nextString(10))
                 .addPublishers(nextString(100))
                 .addRights(nextString(2000))
                 .addSameAs(nextString(10), nextString(10), nextString(10), nextString(10), nextString(10))
@@ -88,7 +89,7 @@ public class ROG {
 
     public BibTeX nextBibTeX() {
         BibTeX bib = BibTeXBuilder.builder(nextString(10))
-                .setAbstract(nextString(3000))
+                .setAbstract(nextString(30))
                 .setAddress(nextString(50))
                 .setAnnotation(nextString(50))
                 .setAuthor(nextString(50))
@@ -167,9 +168,9 @@ public class ROG {
         m.setActualModel(nextString(10000));
         m.setAlgorithm(nextAlgorithm());
         m.setBibtex(nextBibTeX());
-        m.setCreatedBy(nextString(100));
+        m.setCreatedBy(nextString(20));
         m.setDatasetUri(nextString(50));
-        m.setDependentFeatures(nextListString(100, 5));
+        m.setDependentFeatures(nextListString(20, 5));
         m.setIndependentFeatures(nextListString(2, 5));
         m.setPredictedFeatures(nextListString(2, 10));
         m.setReliability(1);
@@ -228,7 +229,7 @@ public class ROG {
         c.getRepresentations().put("inchi", nextString(20));
         c.getRepresentations().put("sdf", nextString(200));
         c.getRepresentations().put("mol", nextString(200));
-        
+
         // Substructures
         c.setSubstructures(nextSetString(20, 5));
 

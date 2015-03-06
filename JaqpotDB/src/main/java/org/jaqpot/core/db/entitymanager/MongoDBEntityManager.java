@@ -117,11 +117,6 @@ public class MongoDBEntityManager implements JaqpotEntityManager {
 
     }
 
-    public static void main(String... args) throws IOException {
-        MongoDBEntityManager a = new MongoDBEntityManager();
-        System.out.println(a.mongoClient.getAddress());
-    }
-
     @Override
     public void close() {
         mongoClient.close();
@@ -135,6 +130,7 @@ public class MongoDBEntityManager implements JaqpotEntityManager {
         Document entityBSON = Document.valueOf(entityJSON);
         collection.insertOne(entityBSON);
     }
+       
 
     @Override
     public <T extends JaqpotEntity> T merge(T entity) {
