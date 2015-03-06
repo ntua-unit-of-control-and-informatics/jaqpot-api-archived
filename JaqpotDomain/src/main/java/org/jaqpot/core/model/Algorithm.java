@@ -63,6 +63,9 @@ public class Algorithm extends JaqpotEntity {
      */
     private String createdBy;
 
+    private String trainingService;
+    private String predictionService;
+
     public Algorithm() {
     }
 
@@ -72,7 +75,7 @@ public class Algorithm extends JaqpotEntity {
 
     public Algorithm(Algorithm other) {
         super(other);
-        this.bibtex = other.bibtex!=null ? new HashSet<>(other.bibtex) : null;
+        this.bibtex = other.bibtex != null ? new HashSet<>(other.bibtex) : null;
         this.createdBy = other.createdBy;
         this.parameters = other.parameters != null ? new HashSet<>(other.parameters) : null;
         this.ranking = other.ranking;
@@ -108,6 +111,22 @@ public class Algorithm extends JaqpotEntity {
 
     public void setCreatedBy(String createdBy) {
         this.createdBy = createdBy;
+    }
+
+    public String getTrainingService() {
+        return trainingService;
+    }
+
+    public void setTrainingService(String trainingService) {
+        this.trainingService = trainingService;
+    }
+
+    public String getPredictionService() {
+        return predictionService;
+    }
+
+    public void setPredictionService(String predictionService) {
+        this.predictionService = predictionService;
     }
 
 }
