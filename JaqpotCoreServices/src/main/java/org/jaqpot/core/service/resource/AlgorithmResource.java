@@ -31,37 +31,23 @@ package org.jaqpot.core.service.resource;
 
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.security.GeneralSecurityException;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSession;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
-import javax.ws.rs.BadRequestException;
+import javax.ejb.EJB;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
-import javax.ws.rs.InternalServerErrorException;
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import org.jaqpot.core.data.AlgorithmHandler;
 import org.jaqpot.core.model.Algorithm;
 import org.jaqpot.core.model.Task;
-import org.jaqpot.core.service.dto.dataset.Dataset;
-import org.jaqpot.core.service.dto.jpdi.TrainingRequest;
-import org.jaqpot.core.service.dto.study.Studies;
+import org.jaqpot.core.service.data.TrainingService;
 
 /**
  *
@@ -72,6 +58,12 @@ import org.jaqpot.core.service.dto.study.Studies;
 @Produces({"application/json", "text/uri-list"})
 public class AlgorithmResource {
 
+    @EJB
+    TrainingService trainingService;
+
+    @EJB
+    AlgorithmHandler algorithmHandler;
+
     @GET
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @ApiOperation(value = "Finds all Algorithms",
@@ -79,36 +71,48 @@ public class AlgorithmResource {
             response = Algorithm.class,
             responseContainer = "List")
     public Response getAlgorithms() {
-        List<Algorithm> algorithms = new ArrayList<>();
-        algorithms.add(new Algorithm("asdfasdf"));
-        algorithms.add(new Algorithm("qwerqwer"));
-        return Response.ok(algorithms).build();
+        return Response.ok(algorithmHandler.findAll()).build();
     }
 
     @POST
-    @Produces("text/uri-list")
-    public Response createAlgorithm() {
-        try {
-            return Response.created(new URI("")).build();
-        } catch (URISyntaxException ex) {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-        }
+    @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
+    @ApiOperation(value = "Creates Algorithm",
+            notes = "Creates a new JPDI compliant Algorithm Service",
+            response = Algorithm.class
+    )
+    public Response createAlgorithm(
+            @FormParam("algorithmId") String algorithmId,
+            @FormParam("training_service") String trainingServiceURI,
+            @FormParam("prediction_service") String predictionServiceURI,
+            @FormParam("parameters") String parameters,
+            @HeaderParam("subjectid") String subjectId) {
+
+        Algorithm algorithm = new Algorithm(algorithmId);
+        algorithm.setCreatedBy("hampos");
+        algorithm.setTrainingService(trainingServiceURI);
+        algorithm.setPredictionService(predictionServiceURI);
+        algorithmHandler.create(algorithm);
+        return Response.status(Response.Status.CREATED).entity(algorithm).build();
     }
 
     @GET
-    @Path("/{name}")
+    @Path("/{id}")
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @ApiOperation(value = "Finds Algorithm",
             notes = "Finds Algorithm with provided name",
             response = Algorithm.class
     )
-    public Response getAlgorithm(@PathParam("name") String algorithmName) {
-        return Response.ok(new Algorithm(algorithmName)).build();
+    public Response getAlgorithm(@PathParam("id") String algorithmId) {
+        Algorithm algorithm = algorithmHandler.find(algorithmId);
+        if (algorithm == null) {
+            throw new NotFoundException("Could not find Algorithm with id:" + algorithmId);
+        }
+        return Response.ok(algorithm).build();
     }
 
     @POST
-    @Produces(MediaType.APPLICATION_JSON)
-    @Path("/{name}")
+    @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
+    @Path("/{id}")
     @ApiOperation(value = "Creates Model",
             notes = "Applies Dataset and Parameters on Algorithm and creates Model.",
             response = Task.class
@@ -117,84 +121,15 @@ public class AlgorithmResource {
             @FormParam("dataset_uri") String datasetURI,
             @FormParam("prediction_feature") String predictionFeature,
             @FormParam("parameters") String parameters,
-            @PathParam("name") String algorithmName,
+            @PathParam("id") String algorithmId,
             @HeaderParam("subjectid") String subjectId) {
-
-        System.out.println(subjectId);
-        try {
-            Map<String, Object> parameterMap = new HashMap<>();
-            if (parameters != null) {
-                String[] parameterArray = parameters.split(",");
-                for (String parameter : parameterArray) {
-                    String[] keyValuePair = parameter.split("=");
-                    parameterMap.put(keyValuePair[0].trim(), keyValuePair[1].trim());
-                }
-            }
-            Client client = buildUnsecureRestClient();
-            Dataset dataset = client.target(datasetURI)
-                    .request()
-                    .header("subjectid", subjectId)
-                    .accept(MediaType.APPLICATION_JSON)
-                    .get(Dataset.class);
-
-            dataset.setDatasetURI(datasetURI);
-            TrainingRequest request = new TrainingRequest();
-            request.setDataset(dataset);
-            request.setPredictionFeature(predictionFeature);
-            request.setParameters(parameterMap);
-            return Response.ok(request).build();
-        } catch (GeneralSecurityException ex) {
-            throw new InternalServerErrorException(ex);
-        } catch (ArrayIndexOutOfBoundsException ex) {
-            throw new BadRequestException();
-        }
-    }
-
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    @Path("/studies/1")
-    @ApiOperation(value = "Finds Studies",
-            notes = "Finds Studies test",
-            response = Studies.class
-    )
-    public Response testStudies() {
-        try {
-            Client client = buildUnsecureRestClient();
-            Studies studies = client.target("https://svn.code.sf.net/p/ambit/code/trunk/ambit2-all/ambit2-core/src/test/resources/ambit2/core/data/json/matrixupdate.json")
-                    .request()
-                    // .header("subjectid", subjectId)
-                    .accept(MediaType.APPLICATION_JSON)
-                    .get(Studies.class);
-
-            return Response.ok(studies).build();
-        } catch (GeneralSecurityException ex) {
-            throw new InternalServerErrorException(ex);
-        }
-    }
-
-    public Client buildUnsecureRestClient() throws GeneralSecurityException {
-        SSLContext context = SSLContext.getInstance("TLSv1");
-        TrustManager[] trustManagerArray = {
-            new X509TrustManager() {
-
-                @Override
-                public void checkClientTrusted(X509Certificate[] xcs, String string) throws CertificateException {
-                }
-
-                @Override
-                public void checkServerTrusted(X509Certificate[] xcs, String string) throws CertificateException {
-                }
-
-                @Override
-                public X509Certificate[] getAcceptedIssuers() {
-                    return new X509Certificate[0];
-                }
-            }
-        };
-        context.init(null, trustManagerArray, null);
-        return ClientBuilder.newBuilder()
-                .hostnameVerifier((String string, SSLSession ssls) -> true)
-                .sslContext(context)
-                .build();
+        Map<String, Object> options = new HashMap<>();
+        options.put("dataset_uri", datasetURI);
+        options.put("prediction_feature", predictionFeature);
+        options.put("subjectid", subjectId);
+        options.put("algorithmId", algorithmId);
+        options.put("parameters", parameters);
+        Task task = trainingService.initiateTraining(options);
+        return Response.ok(task).build();
     }
 }

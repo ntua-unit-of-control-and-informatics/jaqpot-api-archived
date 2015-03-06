@@ -27,7 +27,6 @@
  * All source files of JAQPOT Quattro that are stored on github are licenced
  * with the aforementioned licence. 
  */
-
 package org.jaqpot.core.service;
 
 import com.wordnik.swagger.jaxrs.config.BeanConfig;
@@ -39,7 +38,9 @@ import org.jaqpot.core.service.filter.JacksonJsonProvider;
 import org.jaqpot.core.service.writer.UriBodyWriter;
 import org.jaqpot.core.service.writer.UriListBodyWriter;
 import org.jaqpot.core.service.resource.AlgorithmResource;
+import org.jaqpot.core.service.resource.ModelResource;
 import org.jaqpot.core.service.resource.TaskResource;
+import org.jaqpot.core.service.resource.UserResource;
 
 /**
  *
@@ -60,9 +61,10 @@ public class JaqpotRestApplication extends Application {
     public Set<Class<?>> getClasses() {
         Set<Class<?>> resources = new HashSet();
 
-        
         resources.add(AlgorithmResource.class);
         resources.add(TaskResource.class);
+        resources.add(ModelResource.class);
+        resources.add(UserResource.class);
 
         resources.add(JacksonJsonProvider.class);
         resources.add(UriListBodyWriter.class);
@@ -75,6 +77,5 @@ public class JaqpotRestApplication extends Application {
 
         return resources;
     }
-    
-    
+
 }

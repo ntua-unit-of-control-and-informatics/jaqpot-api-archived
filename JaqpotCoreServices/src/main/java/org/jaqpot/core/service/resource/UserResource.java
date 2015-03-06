@@ -40,7 +40,7 @@ public class UserResource {
     @ApiOperation(value = "Creates Security Token",
             notes = "Uses OpenAM server to get a security token.",
             response = String.class)
-    public Response getAlgorithms(
+    public Response login(
             @FormParam("username") String username,
             @FormParam("password") String password) {
         try {
