@@ -48,9 +48,9 @@ public class BibTeX extends JaqpotEntity {
 
     public BibTeX(String id) {
         super(id);
-    }       
-    
-    public BibTeX(BibTeX other){
+    }
+
+    public BibTeX(BibTeX other) {
         super(other);
         this.address = other.address;
         this.annotation = other.annotation;
@@ -76,6 +76,8 @@ public class BibTeX extends JaqpotEntity {
         this.url = other.url;
         this.volume = other.volume;
         this.year = other.year;
+        this.school = other.school;
+        this.publisher = other.publisher;
     }
 
     /**
@@ -159,31 +161,99 @@ public class BibTeX extends JaqpotEntity {
          */
         Entry;
     }
-   
+
     private String bibTeXAbstract;
+    /**
+     * The name(s) of the author(s). In the case of more than one author,
+     * separated by and.
+     */
     private String author;
+    /**
+     * The title of the work.
+     */
     private String title;
+    /**
+     * The title of the book, if only part of it is being cited.
+     */
     private String bookTitle;
+    /**
+     * The school where the thesis was written.
+     */
+    private String school;
+    /**
+     * The chapter number
+     */
     private String chapter;
+    /**
+     * Short copyright notice.
+     */
     private String copyright;
+    /**
+     * The edition of a book, long form (such as "First" or "Second").
+     */
     private String edition;
+    /**
+     * The name(s) of the editor(s).
+     */
     private String editor;
+    /**
+     * The key of the cross-referenced entry.
+     */
     private String crossref;
+    /**
+     * Publisher's address (usually just the city, but can be the full address
+     * for lesser-known publishers).
+     */
     private String address;
+    /**
+     * The year of publication (or, if unpublished, the year of creation).
+     */
     private String year;
+    /**
+     * Page numbers, separated either by commas or double-hyphens.
+     */
     private String pages;
+    /**
+     * The volume of a journal or multi-volume book.
+     */
     private String volume;
+    /**
+     * The "(issue) number" of a journal, magazine, or tech-report, if
+     * applicable. (Most publications have a "volume", but no "number" field.)
+     */
     private String number;
+    /**
+     * The journal or magazine the work was published in.
+     */
     private String journal;
     private String isbn;
     private String issn;
     private String keywords;
+    /**
+     * A hidden field used for specifying or overriding the alphabetical order
+     * of entries (when the "author" and "editor" fields are missing). Note that
+     * this is very different from the key (mentioned just after this list) that
+     * is used to cite or cross-reference the entry.
+     */
     private String key;
+    /**
+     * An annotation for annotated bibliography styles (not typical).
+     */
     private String annotation;
+    /**
+     * The series of books the book was published in.
+     */
     private String series;
+    /**
+     * The WWW address.
+     */
     private String url;
     private BibTYPE bibType;
     private String createdBy;
+    /**
+     * The publisher's name.
+     */
+    private String publisher;
 
     @JsonProperty("abstract")
     public String getBibTeXAbstract() {
@@ -192,6 +262,22 @@ public class BibTeX extends JaqpotEntity {
 
     public void setBibTeXAbstract(String bibTeXAbstract) {
         this.bibTeXAbstract = bibTeXAbstract;
+    }
+
+    public String getPublisher() {
+        return publisher;
+    }
+
+    public void setPublisher(String publisher) {
+        this.publisher = publisher;
+    }
+
+    public String getSchool() {
+        return school;
+    }
+
+    public void setSchool(String school) {
+        this.school = school;
     }
 
     public String getAuthor() {
@@ -377,5 +463,5 @@ public class BibTeX extends JaqpotEntity {
     public void setCreatedBy(String createdBy) {
         this.createdBy = createdBy;
     }
- 
+
 }
