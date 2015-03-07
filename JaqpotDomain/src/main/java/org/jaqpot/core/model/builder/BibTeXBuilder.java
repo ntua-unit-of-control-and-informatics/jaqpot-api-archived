@@ -186,6 +186,16 @@ public class BibTeXBuilder implements EntityBuilder<BibTeX> {
         bibtex.setVolume(volume);
         return this;
     }
+    
+    public BibTeXBuilder setSchool(String school) {
+        bibtex.setSchool(school);
+        return this;
+    }
+    
+    public BibTeXBuilder setPublisher(String publisher) {
+        bibtex.setPublisher(publisher);
+        return this;
+    }
 
     public BibTeXBuilder setYear(String year) {
         bibtex.setYear(year);
