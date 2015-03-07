@@ -260,6 +260,7 @@ public class BibTeX extends JaqpotEntity {
         return bibTeXAbstract;
     }
 
+    @JsonProperty("abstract")
     public void setBibTeXAbstract(String bibTeXAbstract) {
         this.bibTeXAbstract = bibTeXAbstract;
     }

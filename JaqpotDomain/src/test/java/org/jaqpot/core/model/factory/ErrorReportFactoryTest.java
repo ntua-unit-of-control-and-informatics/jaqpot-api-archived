@@ -83,7 +83,7 @@ public class ErrorReportFactoryTest {
     public void testAuthenticationRequired() {
         System.out.println("authenticationRequired");
         ErrorReport expResult = null;
-        ErrorReport result = ErrorReportFactory.authenticationRequired();
+        ErrorReport result = ErrorReportFactory.authenticationRequired("details");
         assertEquals(expResult, result);
         fail("The test case is a prototype.");
     }

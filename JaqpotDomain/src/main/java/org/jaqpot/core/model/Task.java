@@ -29,8 +29,10 @@
  */
 package org.jaqpot.core.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import javax.xml.bind.annotation.XmlRootElement;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  *
@@ -141,10 +143,12 @@ public class Task extends JaqpotEntity {
         this.resultUri = resultUri;
     }
     
+    @JsonProperty("status")
     public Status getStatus() {
         return hasStatus;
     }
      
+    @JsonProperty("status")
     public void setStatus(Status hasStatus) {
         this.hasStatus = hasStatus;
     }
