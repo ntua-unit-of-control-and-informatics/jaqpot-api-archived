@@ -27,22 +27,21 @@
  * All source files of JAQPOT Quattro that are stored on github are licenced
  * with the aforementioned licence. 
  */
-
 package org.jaqpot.core.service.dto.study;
 
-import java.util.Map;
+import java.util.TreeMap;
 
-public class Effects {
+public class Effect {
 
-    private Map<String, Object> conditions;
+    private TreeMap<String, Object> conditions;
     private String endpoint;
     private Result result;
 
-    public Map<String, Object> getConditions() {
+    public TreeMap<String, Object> getConditions() {
         return conditions;
     }
 
-    public void setConditions(Map<String, Object> conditions) {
+    public void setConditions(TreeMap<String, Object> conditions) {
         this.conditions = conditions;
     }
 

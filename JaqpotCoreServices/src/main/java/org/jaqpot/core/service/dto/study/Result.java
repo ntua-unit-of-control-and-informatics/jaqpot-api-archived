@@ -27,7 +27,6 @@
  * All source files of JAQPOT Quattro that are stored on github are licenced
  * with the aforementioned licence. 
  */
-
 package org.jaqpot.core.service.dto.study;
 
 public class Result {
@@ -37,6 +36,9 @@ public class Result {
     private String upQualifier;
     private Number upValue;
     private String unit;
+    private String errQualifier;
+    private Number errorValue;
+    private String textValue;
 
     public String getLoQualifier() {
         return this.loQualifier;
@@ -77,4 +79,29 @@ public class Result {
     public void setUnit(String unit) {
         this.unit = unit;
     }
+
+    public String getErrQualifier() {
+        return errQualifier;
+    }
+
+    public void setErrQualifier(String errQualifier) {
+        this.errQualifier = errQualifier;
+    }
+
+    public Number getErrorValue() {
+        return errorValue;
+    }
+
+    public void setErrorValue(Number errorValue) {
+        this.errorValue = errorValue;
+    }
+
+    public String getTextValue() {
+        return textValue;
+    }
+
+    public void setTextValue(String textValue) {
+        this.textValue = textValue;
+    }
+
 }

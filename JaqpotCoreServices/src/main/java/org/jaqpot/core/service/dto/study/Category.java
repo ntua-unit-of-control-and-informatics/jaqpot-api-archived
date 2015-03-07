@@ -27,12 +27,12 @@
  * All source files of JAQPOT Quattro that are stored on github are licenced
  * with the aforementioned licence. 
  */
-
 package org.jaqpot.core.service.dto.study;
 
 public class Category {
 
     private String code;
+    private String title;
 
     public String getCode() {
         return this.code;
@@ -41,4 +41,13 @@ public class Category {
     public void setCode(String code) {
         this.code = code;
     }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
 }

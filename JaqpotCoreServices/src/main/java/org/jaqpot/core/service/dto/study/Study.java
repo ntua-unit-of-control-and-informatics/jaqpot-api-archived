@@ -27,27 +27,29 @@
  * All source files of JAQPOT Quattro that are stored on github are licenced
  * with the aforementioned licence. 
  */
-
-
 package org.jaqpot.core.service.dto.study;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.List;
 import java.util.Map;
 
+//@JsonIgnoreProperties(ignoreUnknown = true)
 public class Study {
 
-    private List effects;
+    private List<Effect> effects;
     private Interpretation interpretation;
     private Owner owner;
     private Map<String, Object> parameters;
     private Protocol protocol;
     private String uuid;
+    private Citation citation;
+    private Map<String, Object> reliability;
 
-    public List getEffects() {
-        return this.effects;
+    public List<Effect> getEffects() {
+        return effects;
     }
 
-    public void setEffects(List effects) {
+    public void setEffects(List<Effect> effects) {
         this.effects = effects;
     }
 
@@ -90,4 +92,21 @@ public class Study {
     public void setUuid(String uuid) {
         this.uuid = uuid;
     }
+
+    public Citation getCitation() {
+        return citation;
+    }
+
+    public void setCitation(Citation citation) {
+        this.citation = citation;
+    }
+
+    public Map<String, Object> getReliability() {
+        return reliability;
+    }
+
+    public void setReliability(Map<String, Object> reliability) {
+        this.reliability = reliability;
+    }
+
 }

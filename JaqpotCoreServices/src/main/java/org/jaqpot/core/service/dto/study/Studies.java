@@ -27,20 +27,19 @@
  * All source files of JAQPOT Quattro that are stored on github are licenced
  * with the aforementioned licence. 
  */
-
 package org.jaqpot.core.service.dto.study;
 
 import java.util.List;
 
 public class Studies {
 
-    private List study;
+    private List<Study> study;
 
-    public List getStudy() {
-        return this.study;
+    public List<Study> getStudy() {
+        return study;
     }
 
-    public void setStudy(List study) {
+    public void setStudy(List<Study> study) {
         this.study = study;
     }
 }
