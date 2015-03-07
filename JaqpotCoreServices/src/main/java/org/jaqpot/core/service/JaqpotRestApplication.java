@@ -38,6 +38,7 @@ import org.jaqpot.core.service.filter.JacksonJsonProvider;
 import org.jaqpot.core.service.writer.UriBodyWriter;
 import org.jaqpot.core.service.writer.UriListBodyWriter;
 import org.jaqpot.core.service.resource.AlgorithmResource;
+import org.jaqpot.core.service.resource.EnanomapperResource;
 import org.jaqpot.core.service.resource.ModelResource;
 import org.jaqpot.core.service.resource.TaskResource;
 import org.jaqpot.core.service.resource.UserResource;
@@ -65,6 +66,7 @@ public class JaqpotRestApplication extends Application {
         resources.add(TaskResource.class);
         resources.add(ModelResource.class);
         resources.add(UserResource.class);
+        resources.add(EnanomapperResource.class);
 
         resources.add(JacksonJsonProvider.class);
         resources.add(UriListBodyWriter.class);
