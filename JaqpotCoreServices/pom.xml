@@ -50,11 +50,13 @@
             <version>2.5.0</version>
             <scope>compile</scope>
         </dependency>
+        
+        <!-- SWAGGER FOR JAX-RS-->
         <dependency>
             <groupId>com.wordnik</groupId>
             <artifactId>swagger-jaxrs_2.10</artifactId>
             <version>1.3.12</version>
-        </dependency>
+        </dependency>    
     </dependencies>
 
     <build>

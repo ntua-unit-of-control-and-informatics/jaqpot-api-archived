@@ -70,6 +70,7 @@ public class AlgorithmResource {
             notes = "Finds all Algorithms JaqpotQuattro supports",
             response = Algorithm.class,
             responseContainer = "List")
+    
     public Response getAlgorithms() {
         return Response.ok(algorithmHandler.findAll()).build();
     }

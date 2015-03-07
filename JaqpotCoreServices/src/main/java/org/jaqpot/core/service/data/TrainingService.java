@@ -17,7 +17,9 @@ import javax.ws.rs.NotFoundException;
 import org.jaqpot.core.data.AlgorithmHandler;
 import org.jaqpot.core.data.TaskHandler;
 import org.jaqpot.core.model.Algorithm;
+import org.jaqpot.core.model.MetaInfo;
 import org.jaqpot.core.model.Task;
+import org.jaqpot.core.model.factory.TaskFactory;
 
 /**
  *
@@ -47,7 +49,10 @@ public class TrainingService {
             throw new NotFoundException("Could not find algorithm with id:" + algorithmId);
         }
 
-        Task task = new Task(UUID.randomUUID().toString());
+        Task task = TaskFactory.queuedTask("This is a new task",
+                "this is a description for my task",
+                "chung");
+
         options.put("taskId", task.getId());
         taskHandler.create(task);
         options.entrySet().stream().forEach(e -> {

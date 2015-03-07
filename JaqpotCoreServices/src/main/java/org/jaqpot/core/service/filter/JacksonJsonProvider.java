@@ -57,7 +57,16 @@ public class JacksonJsonProvider extends JacksonJaxbJsonProvider {
         mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
         mapper.enable(SerializationFeature.INDENT_OUTPUT);
         mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-        mapper.setVisibilityChecker(VisibilityChecker.Std.defaultInstance().withFieldVisibility(JsonAutoDetect.Visibility.ANY));
+        /**
+         * The mapper must use only getters and setters and not
+         * 
+         */
+        mapper.setVisibilityChecker(
+                VisibilityChecker.Std.defaultInstance()
+                    .withFieldVisibility(JsonAutoDetect.Visibility.NONE)
+                    .withGetterVisibility(JsonAutoDetect.Visibility.PUBLIC_ONLY)
+                    .withSetterVisibility(JsonAutoDetect.Visibility.PUBLIC_ONLY)
+                    .withCreatorVisibility(JsonAutoDetect.Visibility.PUBLIC_ONLY));
         super.setMapper(mapper);
     }
 }
