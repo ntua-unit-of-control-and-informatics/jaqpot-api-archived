@@ -27,15 +27,52 @@
  * All source files of JAQPOT Quattro that are stored on github are licenced
  * with the aforementioned licence. 
  */
-
-
 package org.jaqpot.core.model.factory;
+
+import org.jaqpot.core.model.Task;
+import org.jaqpot.core.model.builder.TaskBuilder;
 
 /**
  *
  * @author Pantelis Sopasakis
- * @author Charalambos Chomenidis
+ * @author Charalamπos Chomenidis
  */
 public class TaskFactory {
+
+    /**
+     * Creates the default queued task. The default task has the following
+     * characteristics:
+     * <ul>
+     * <li>HTTP Status: 201</li>
+     * <li>Task status: {@link Task.Status.QUEUED QUEUED}</li>
+     * <li>Date: current date</li>
+     * <li>Comment: task created</li>
+     * <li>title: user defined</li>
+     * <li>description: user defined</li>
+     * </ul>
+     *
+     * @param title 
+     *      Title of the task, e.g., <code>SVM Task 34</code>. 
+     *      Can potentially be set to <code>null</code>, although it is not
+     *      advisable.
+     * @param description 
+     *      Short description of the task, e.g., <code>this task
+     *      was created to train a SVM model</code>. The description can be set
+     *      to <code>null</code>, but it is not advisable to help discoverability
+     *      of tasks.
+     * @return
+     *      The default queued task.
+     */
+    public static Task queuedTask(String title, String description, String creator) {
+        return TaskBuilder.builderRandomUuid().
+                addProgressComments("Task created").
+                addDescription(description).
+                addTitles(title).
+                setCreatedBy(creator).
+                setCurrentDate().
+                setHttpStatus(201).
+                setStatus(Task.Status.QUEUED).
+                build();
+    }
 
 }

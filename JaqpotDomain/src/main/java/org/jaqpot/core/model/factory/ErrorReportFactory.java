@@ -57,8 +57,8 @@ public class ErrorReportFactory {
                 setActor("server").
                 setCode(code).
                 setMessage(message).
-                setDetails(details). //TODO: Additional HTTP status explanation
-                setHttpStatus(501).
+                setDetails(details).
+                setHttpStatus(500).
                 build();
     }
 

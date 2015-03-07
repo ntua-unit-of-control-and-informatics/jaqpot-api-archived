@@ -129,6 +129,15 @@ public class TaskBuilder implements EntityBuilder<Task> {
         task.getMeta().getComments().addAll(Arrays.asList(progressComments));
         return this;
     }
+    
+    public TaskBuilder addDescription(String... descriptions) {
+        initMeta();
+        if (task.getMeta().getDescriptions()== null) {
+            task.getMeta().setDescriptions(new HashSet<>(descriptions.length));
+        }
+        task.getMeta().getDescriptions().addAll(Arrays.asList(descriptions));
+        return this;
+    }
 
     public TaskBuilder setDate(Date date) {
         initMeta();

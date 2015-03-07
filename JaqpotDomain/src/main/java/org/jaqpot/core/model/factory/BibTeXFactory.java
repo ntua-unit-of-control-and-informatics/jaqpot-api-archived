@@ -96,7 +96,8 @@ public class BibTeXFactory {
                 setBibType(BibTeX.BibTYPE.Book).
                 setTitle(title).
                 setAuthor(authors).
-                setPublisher(series).
+                setPublisher(publisher).
+                setSeries(series).
                 setAddress(address).
                 setYear(Integer.toString(year)).
                 build();
