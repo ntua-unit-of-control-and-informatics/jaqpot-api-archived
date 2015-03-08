@@ -30,12 +30,8 @@
 package org.jaqpot.core.model.builder;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
-import java.util.Set;
 import org.jaqpot.core.model.Algorithm;
-import org.jaqpot.core.model.BibTeX;
-import org.jaqpot.core.model.Parameter;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -86,17 +82,17 @@ public class AlgorithmBuilderTest {
             assertTrue(a.getMeta().getTitles().contains(t));
         }
     }
-    
+
     @Test
     public void testAddTitlesNull() {
         System.out.println("addTitles");
         String[] titles = null;
         Algorithm a = AlgorithmBuilder
-            .builderRandomUuid()
-            .addTitles(titles)
-            .build();
+                .builderRandomUuid()
+                .addTitles(titles)
+                .build();
         assertNull(a.getMeta());
-        
+
     }
 
     /**
@@ -121,9 +117,9 @@ public class AlgorithmBuilderTest {
         System.out.println("addDescriptions");
         String[] descriptions = null;
         AlgorithmBuilder
-            .builderRandomUuid()
-            .addDescriptions(descriptions)
-            .build();
+                .builderRandomUuid()
+                .addDescriptions(descriptions)
+                .build();
     }
 
     /**
@@ -145,11 +141,27 @@ public class AlgorithmBuilderTest {
 
     @Test
     public void testAddTagsNull() {
-        System.out.println("addTags");
+        System.out.println("addTagsNull");
         AlgorithmBuilder
-            .builderRandomUuid()
-            .addTags((String[]) null)
-            .build();
+                .builderRandomUuid()
+                .addTags((String[]) null)
+                .build();
+    }
+
+    @Test
+    public void testAddTagsCSV() {
+        System.out.println("addTagsCSV");
+        String tagList = "tag1, tag2,tag3 , tag4    ";
+        Algorithm a = AlgorithmBuilder
+                .builderRandomUuid()
+                .addTagsCSV(tagList)
+                .build();               
+        
+        for (int i = 1; i <= 4; ++i) {
+            assertTrue("Not found: 'tag" + i + "'", 
+                    a.getMeta().getSubjects().contains("tag" + i));
+        }
+        
     }
 
 }

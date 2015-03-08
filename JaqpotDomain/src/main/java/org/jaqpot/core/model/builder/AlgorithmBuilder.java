@@ -31,6 +31,7 @@ package org.jaqpot.core.model.builder;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import org.jaqpot.core.model.Algorithm;
@@ -128,6 +129,20 @@ public class AlgorithmBuilder implements EntityBuilder<Algorithm> {
             algorithm.getMeta().setSubjects(new HashSet<>(subjects.length));
         }
         algorithm.getMeta().getSubjects().addAll(Arrays.asList(subjects));
+        return this;
+    }
+
+    public AlgorithmBuilder addTagsCSV(String tagList) {
+        if (tagList == null) {
+            return this;
+        }
+        List<String> items = Arrays.asList(tagList.split("\\s*,\\s*"));
+        items.forEach(s -> {items.set(items.indexOf(s), s.trim());});
+        initMeta();
+        if (algorithm.getMeta().getSubjects() == null) {
+            algorithm.getMeta().setSubjects(new HashSet<>(items.size()));
+        }
+        algorithm.getMeta().getSubjects().addAll(items);        
         return this;
     }
 
