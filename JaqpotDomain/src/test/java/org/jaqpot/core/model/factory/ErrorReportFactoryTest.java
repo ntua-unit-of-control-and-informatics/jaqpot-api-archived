@@ -72,31 +72,28 @@ public class ErrorReportFactoryTest {
     @Test
     public void testUnauthorizedAccessError() {
         System.out.println("unauthorizedAccessError");
-        String uri = "";
-        ErrorReport expResult = null;
+        String uri = "http://someserver.com/services/uri/123";
         ErrorReport result = ErrorReportFactory.unauthorizedAccessError(uri);
-        assertEquals(expResult, result);
-        fail("The test case is a prototype.");
+        assertEquals(403, (int)result.getHttpStatus());
+        assertEquals("UnauthorizedAccessError", result.getCode());
     }
 
     @Test
     public void testAuthenticationRequired() {
         System.out.println("authenticationRequired");
-        ErrorReport expResult = null;
         ErrorReport result = ErrorReportFactory.authenticationRequired("details");
-        assertEquals(expResult, result);
-        fail("The test case is a prototype.");
+        assertEquals(401, (int) result.getHttpStatus());
     }
 
     @Test
     public void testRemoteError() {
         System.out.println("remoteError");
-        String remoteUri = "";
-        ErrorReport remoteException = null;
-        ErrorReport expResult = null;
+        String remoteUri = "http://remote.org/service/model/44541392";
+        ErrorReport remoteException = ErrorReportFactory.notImplementedYet();
         ErrorReport result = ErrorReportFactory.remoteError(remoteUri, remoteException);
-        assertEquals(expResult, result);
-        fail("The test case is a prototype.");
+        assertEquals(remoteUri, result.getActor());
+        assertEquals("RemoteInvocationError", result.getCode());
+        assertEquals(502, (int) result.getHttpStatus());
     }
     
 }

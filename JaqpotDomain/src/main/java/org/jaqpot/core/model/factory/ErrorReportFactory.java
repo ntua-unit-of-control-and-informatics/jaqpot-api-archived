@@ -153,7 +153,7 @@ public class ErrorReportFactory {
         return ErrorReportBuilder.
                 builderRandomUuid().
                 setActor("client").
-                setCode("Unauthorized").
+                setCode("UnauthorizedAccessError").
                 setMessage("You are not authorized to access " + uri).
                 setDetails("The server understood the request, but is refusing to fulfill it. "
                         + "Authorization will not help and the request SHOULD NOT be repeated.").
@@ -184,7 +184,7 @@ public class ErrorReportFactory {
         return ErrorReportBuilder.
                 builderRandomUuid().
                 setActor(remoteUri).
-                setCode("Remote Invocation Error").
+                setCode("RemoteInvocationError").
                 setMessage("Remote invocation error").
                 setDetails("HTTP status code 502: The server, while acting as a gateway or "
                         + "proxy, received an invalid response from the upstream server "
