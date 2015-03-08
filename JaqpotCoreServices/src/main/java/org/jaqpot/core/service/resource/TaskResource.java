@@ -79,7 +79,7 @@ public class TaskResource {
     })
     public Response getTasks(
             @ApiParam(value = "Creator of the task (username)") @QueryParam("creator") String creator,
-            @ApiParam(value = "Status of the task") @QueryParam("status") String status
+            @ApiParam(value = "Status of the task", allowableValues = "RUNNING,QUEUED,COMPLETED,ERROR,CANCELLED,REJECTED") @QueryParam("status") String status
     ) {
         return Response.ok(taskHandler.findAll()).build();
     }
