@@ -50,6 +50,7 @@ import javax.ws.rs.core.UriInfo;
 import org.jaqpot.core.data.TaskHandler;
 import org.jaqpot.core.model.ErrorReport;
 import org.jaqpot.core.model.Task;
+import org.jaqpot.core.model.builder.ErrorReportBuilder;
 import org.jaqpot.core.model.factory.ErrorReportFactory;
 
 /**
@@ -57,7 +58,7 @@ import org.jaqpot.core.model.factory.ErrorReportFactory;
  * @author hampos
  */
 @Path("task")
-@Api(value = "/task", description = "Operations about Tasks")
+@Api(value = "/task", description = "Tasks API")
 public class TaskResource {
 
     @Context UriInfo uriInfo;
@@ -98,7 +99,7 @@ public class TaskResource {
             @ApiParam(value = "ID of the task to be retrieved") @PathParam("id") String id) {
         Task task = taskHandler.find(id);
         System.out.println("task:" + task);
-        if (task == null) {            
+        if (task == null) {
             return Response
                     .ok(ErrorReportFactory.notFoundError(uriInfo.getPath()))
                     .status(Response.Status.NOT_FOUND)

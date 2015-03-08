@@ -29,10 +29,14 @@
  */
 package org.jaqpot.core.service.resource;
 
+import com.mongodb.MongoException;
+import com.mongodb.MongoWriteException;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
+import com.wordnik.swagger.annotations.ApiParam;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import javax.ejb.EJB;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
@@ -46,7 +50,10 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.jaqpot.core.data.AlgorithmHandler;
 import org.jaqpot.core.model.Algorithm;
+import org.jaqpot.core.model.ErrorReport;
 import org.jaqpot.core.model.Task;
+import org.jaqpot.core.model.builder.AlgorithmBuilder;
+import org.jaqpot.core.model.factory.ErrorReportFactory;
 import org.jaqpot.core.service.data.TrainingService;
 
 /**
@@ -54,7 +61,7 @@ import org.jaqpot.core.service.data.TrainingService;
  * @author hampos
  */
 @Path("algorithm")
-@Api(value = "/algorithm", description = "Operations about Algorithms")
+@Api(value = "/algorithm", description = "Algorithms API")
 @Produces({"application/json", "text/uri-list"})
 public class AlgorithmResource {
 
@@ -70,7 +77,7 @@ public class AlgorithmResource {
             notes = "Finds all Algorithms JaqpotQuattro supports",
             response = Algorithm.class,
             responseContainer = "List")
-    
+
     public Response getAlgorithms() {
         return Response.ok(algorithmHandler.findAll()).build();
     }
@@ -82,17 +89,46 @@ public class AlgorithmResource {
             response = Algorithm.class
     )
     public Response createAlgorithm(
-            @FormParam("algorithmId") String algorithmId,
-            @FormParam("training_service") String trainingServiceURI,
-            @FormParam("prediction_service") String predictionServiceURI,
-            @FormParam("parameters") String parameters,
-            @HeaderParam("subjectid") String subjectId) {
+            @ApiParam(value = "Unique ID of the algorithm. If not provided, a UUID will be created") @FormParam("algorithmId") String algorithmId,
+            @ApiParam(value = "URI of the JPDI training service", required = true) @FormParam("training_service") String trainingServiceURI,
+            @ApiParam(value = "URI of the corresponding JPDI prediction service", required = true) @FormParam("prediction_service") String predictionServiceURI,
+            @ApiParam(value = "Parameters that are expected by the algorithm", required = true) @FormParam("parameters") String parameters,
+            @ApiParam(value = "Auth token", required = true) @HeaderParam("subjectid") String subjectId,
+            @ApiParam(value = "Title of your algorithm") @HeaderParam("title") String title,
+            @ApiParam(value = "Short description of your algorithm") @HeaderParam("description") String description,
+            @ApiParam(value = "Tags for your algorithm (in a comma separated list) to facilitate look-up") @HeaderParam("tags") String tags
+    ) {
 
-        Algorithm algorithm = new Algorithm(algorithmId);
-        algorithm.setCreatedBy("hampos");
-        algorithm.setTrainingService(trainingServiceURI);
-        algorithm.setPredictionService(predictionServiceURI);
-        algorithmHandler.create(algorithm);
+        if (algorithmId == null) {
+            algorithmId = UUID.randomUUID().toString();
+        }
+        Algorithm algorithm = AlgorithmBuilder
+                .builder(algorithmId)
+                .setCreatedBy("user")
+                .setTrainingService(trainingServiceURI)
+                .setPredictionService(predictionServiceURI)
+                .addTitles(title)
+                .addDescriptions(description)
+                .addTagsCSV(tags)
+                .build();
+        //TODO: Take care of parameters. How are they provided? As JSON?
+        try {
+            algorithmHandler.create(algorithm);
+        } catch (final Exception ex) { 
+            ErrorReport error;
+            if (ex.getCause() instanceof MongoWriteException) { // DB Exception (already registered)
+                error = ErrorReportFactory
+                        .alreadyInDatabase(algorithmId, ex.getMessage());
+            } else { // something else went wrong!!! ISE-500
+                error = ErrorReportFactory.
+                        internalServerError(ex, "InternalServerError",
+                                "Exception while trying to register an algorithm in the DB", null);
+            }
+            return Response
+                    .ok(error)
+                    .status(Response.Status.BAD_REQUEST)
+                    .build();
+        }
         return Response.status(Response.Status.CREATED).entity(algorithm).build();
     }
 

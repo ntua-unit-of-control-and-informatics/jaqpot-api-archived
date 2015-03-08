@@ -55,7 +55,7 @@ import org.jaqpot.core.model.factory.ErrorReportFactory;
  * @author hampos
  */
 @Path("model")
-@Api(value = "/model", description = "Operations about Models")
+@Api(value = "/model", description = "Models API")
 public class ModelResource {
 
     @Context

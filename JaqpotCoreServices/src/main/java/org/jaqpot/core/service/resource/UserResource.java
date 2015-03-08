@@ -39,22 +39,17 @@ import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.InternalServerErrorException;
-import javax.ws.rs.NotFoundException;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
-import org.jaqpot.core.model.ErrorReport;
-import org.jaqpot.core.model.Model;
 import org.jaqpot.core.model.User;
-import org.jaqpot.core.model.builder.ErrorReportBuilder;
 import org.jaqpot.core.model.factory.ErrorReportFactory;
 import org.jaqpot.core.service.client.Util;
 import org.jaqpot.core.service.dto.aa.AuthToken;
@@ -64,13 +59,14 @@ import org.jaqpot.core.service.dto.aa.AuthToken;
  * @author hampos
  */
 @Path("user")
-@Api(value = "/user", description = "Operations about Users")
+@Api(value = "/user", description = "Users API")
+@Produces({"application/json", "text/uri-list"})
 public class UserResource {
 
     @GET
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @ApiOperation(value = "Finds all Users",
-            notes = "Finds all Models from Jaqpot Dataset",
+            notes = "Finds all Users of Jaqpot Quattro",
             response = User.class,
             responseContainer = "List")
     @ApiResponses(value = {
