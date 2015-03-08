@@ -27,31 +27,23 @@
  * All source files of JAQPOT Quattro that are stored on github are licenced
  * with the aforementioned licence. 
  */
-package org.jaqpot.core.data;
+package org.jaqpot.core.elastic;
 
-import javax.ejb.Stateless;
-import javax.inject.Inject;
-import org.jaqpot.core.annotations.MongoDB;
-import org.jaqpot.core.db.entitymanager.JaqpotEntityManager;
-import org.jaqpot.core.model.Model;
+import org.jaqpot.core.model.JaqpotEntity;
 
 /**
  *
- * @author hampos
+ * @author Pantelis Sopasakis
+ * @author Charalambos Chomenidis
+ * @param <T>
  */
-@Stateless
-public class ModelHandler extends AbstractHandler<Model> {
-
-    @Inject
-    @MongoDB
-    JaqpotEntityManager em;
-
-    public ModelHandler() {
-        super(Model.class);
+public class ElasticFinder<T extends JaqpotEntity> {
+    
+    // TENTATIVE 
+    
+    public T findById(){
+        
+        return null;
     }
 
-    @Override
-    protected JaqpotEntityManager getEntityManager() {
-        return em;
-    }
 }

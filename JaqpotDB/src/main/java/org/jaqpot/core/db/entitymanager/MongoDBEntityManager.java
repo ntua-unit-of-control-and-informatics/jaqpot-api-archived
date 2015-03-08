@@ -30,6 +30,7 @@
 package org.jaqpot.core.db.entitymanager;
 
 import com.mongodb.MongoClient;
+import com.mongodb.MongoWriteException;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.util.JSON;
@@ -128,9 +129,14 @@ public class MongoDBEntityManager implements JaqpotEntityManager {
         String entityJSON = serializer.write(entity);
         MongoCollection collection = db.getCollection(collectionNames.get(entity.getClass()));
         Document entityBSON = Document.valueOf(entityJSON);
-        collection.insertOne(entityBSON);
+        try {
+            collection.insertOne(entityBSON);
+        } catch (final MongoWriteException ex) {
+            String errorMessage = "Entity with ID " + entity.getId() + " is already registered and will not be overwritten!";
+            LOG.log(Level.FINE, errorMessage, ex);
+            throw ex;
+        }
     }
-       
 
     @Override
     public <T extends JaqpotEntity> T merge(T entity) {

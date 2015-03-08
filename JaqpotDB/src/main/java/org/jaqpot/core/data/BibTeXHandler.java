@@ -33,25 +33,25 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 import org.jaqpot.core.annotations.MongoDB;
 import org.jaqpot.core.db.entitymanager.JaqpotEntityManager;
-import org.jaqpot.core.model.Model;
+import org.jaqpot.core.model.BibTeX;
 
 /**
  *
- * @author hampos
+ * @author chung
  */
 @Stateless
-public class ModelHandler extends AbstractHandler<Model> {
+public class BibTeXHandler extends AbstractHandler<BibTeX>{
 
     @Inject
     @MongoDB
     JaqpotEntityManager em;
 
-    public ModelHandler() {
-        super(Model.class);
+    public BibTeXHandler() {
+        super(BibTeX.class);
     }
-
     @Override
     protected JaqpotEntityManager getEntityManager() {
         return em;
     }
+    
 }

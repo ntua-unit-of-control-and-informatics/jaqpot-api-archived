@@ -161,6 +161,7 @@ public class BibTeX extends JaqpotEntity {
          */
         Entry;
     }
+        
 
     private String bibTeXAbstract;
     /**

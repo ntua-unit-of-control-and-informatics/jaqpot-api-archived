@@ -29,7 +29,6 @@
  */
 package org.jaqpot.core.service.resource;
 
-import com.mongodb.MongoException;
 import com.mongodb.MongoWriteException;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;

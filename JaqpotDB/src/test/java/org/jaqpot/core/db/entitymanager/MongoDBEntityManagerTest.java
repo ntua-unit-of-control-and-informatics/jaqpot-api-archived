@@ -44,13 +44,10 @@ import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import org.bson.Document;
 import org.jaqpot.core.data.serialize.JacksonJSONSerializer;
-import org.jaqpot.core.model.JaqpotEntity;
 import org.jaqpot.core.model.MetaInfo;
 import org.jaqpot.core.model.Task;
 import org.jaqpot.core.model.builder.MetaInfoBuilder;
@@ -66,7 +63,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
 /**
  *

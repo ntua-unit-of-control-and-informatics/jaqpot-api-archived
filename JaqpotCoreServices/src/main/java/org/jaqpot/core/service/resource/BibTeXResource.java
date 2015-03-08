@@ -34,7 +34,11 @@ import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
 import com.wordnik.swagger.annotations.ApiResponse;
 import com.wordnik.swagger.annotations.ApiResponses;
+import java.util.UUID;
+import javax.ejb.EJB;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
+import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
@@ -45,9 +49,12 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import org.jaqpot.core.data.BibTeXHandler;
 import org.jaqpot.core.model.BibTeX;
+import org.jaqpot.core.model.ErrorReport;
 import org.jaqpot.core.model.User;
 import org.jaqpot.core.model.factory.ErrorReportFactory;
+import org.jaqpot.core.model.validator.BibTeXValidator;
 
 /**
  *
@@ -57,15 +64,17 @@ import org.jaqpot.core.model.factory.ErrorReportFactory;
 @Api(value = "/bibtex", description = "BibTeX API")
 @Produces({"application/json", "text/uri-list"})
 public class BibTeXResource {
-    
+
+    @EJB
+    BibTeXHandler handler;
 
     @GET
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @ApiOperation(value = "Finds all BibTeX entries",
-            notes = "Finds all BibTeX entries in the DB of Jaqpot",
+            notes = "Finds all BibTeX entries in the DB of Jaqpot and returns them in a list",
             response = BibTeX.class,
             responseContainer = "List",
-            position = 0)
+            position = 1)
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "BibTeX entries found and are listed in the response body"),
         @ApiResponse(code = 401, message = "You are not authorized to access this user"),
@@ -76,8 +85,9 @@ public class BibTeXResource {
             @ApiParam(value = "BibTeX type of entry", 
                     allowableValues = "Article,Conference,Book,PhDThesis,InBook,InCollection,"
                             + "InProceedings,Manual,Mastersthesis,Proceedings,TechReport,"
-                            + "Unpublished,Entry") @QueryParam("bibtype") String bibtype,
-            @ApiParam("Creator of the BibTeX entry") @QueryParam("creator") String creator
+                            + "Unpublished,Entry", defaultValue = "Entry") @QueryParam("bibtype") String bibtype,
+            @ApiParam("Creator of the BibTeX entry") @QueryParam("creator") String creator,
+            @ApiParam("Generic query (e.g., Article title, journal name, etc)") @QueryParam("query") String query
     ) {
         return Response
                 .ok(ErrorReportFactory.notImplementedYet())
@@ -91,7 +101,7 @@ public class BibTeXResource {
     @ApiOperation(value = "Returns BibTeX entry",
             notes = "Finds and returns a BibTeX by ID",
             response = BibTeX.class,
-            position = 1)
+            position = 2)
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "BibTeX entries found and are listed in the response body"),
         @ApiResponse(code = 401, message = "You are not authorized to access this user"),
@@ -108,24 +118,48 @@ public class BibTeXResource {
 
     @POST
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
+    @Consumes(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Creates a new BibTeX entry",
             notes = "Creates a new BibTeX entry which is assigned a random unique ID",
             response = BibTeX.class,
-            position = 2)
+            position = 3)
     //TODO add code for user's quota exceeded
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "BibTeX entry was created successfully."),
+        @ApiResponse(code = 400, message = "Bad request: malformed bibtex (e.g., mandatory fields are missing)"),
         @ApiResponse(code = 401, message = "You are not authorized to access this user"),
         @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)"),
         @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
     })
     public Response createBibTeX(
-            @ApiParam(value = "Clients need to authenticate in order to create resources on the server") @HeaderParam("subjectid") String subjectId
+            @ApiParam(value = "Clients need to authenticate in order to create resources on the server") 
+            @HeaderParam("subjectid") 
+                    String subjectId,
+            @ApiParam(value="BibTeX in JSON representation compliant with the BibTeX specifications. "
+                    + "Malformed BibTeX entries with missing fields will not be accepted.", required = true) 
+                    BibTeX bib
     ) {
-        return Response
-                .ok(ErrorReportFactory.notImplementedYet())
-                .status(Response.Status.NOT_IMPLEMENTED)
+        
+        if (bib==null){
+            ErrorReport report = ErrorReportFactory.badRequest("No bibtex provided; check out the API specs", 
+                    "Clients MUST provide a BibTeX document in JSON to perform this request");
+            return Response.ok(report).status(Response.Status.BAD_REQUEST).build();
+        }
+        bib.setId(UUID.randomUUID().toString());
+        ErrorReport error = BibTeXValidator.validate(bib);
+        if (error!=null)
+        {
+            return Response
+                .ok(error)
+                .status(Response.Status.BAD_REQUEST)
                 .build();
+        }
+        handler.create(bib);        
+        return Response
+                .ok(bib)
+                .status(Response.Status.OK)
+                .build();
+        
     }
 
     @PUT
@@ -134,7 +168,7 @@ public class BibTeXResource {
     @ApiOperation(value = "Places a new BibTeX entry at a particular URI",
             notes = "Creates a new BibTeX entry which is assigned a random unique ID",
             response = BibTeX.class,
-            position = 3)
+            position = 4)
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "BibTeX entry was created successfully."),
         @ApiResponse(code = 400, message = "BibTeX entry was not created because the request was malformed"),
@@ -157,7 +191,7 @@ public class BibTeXResource {
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @ApiOperation(value = "Deletes a particular BibTeX resource",
             notes = "Deletes a BibTeX resource of a given ID",
-            position = 4)
+            position = 5)
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "BibTeX entry was deleted successfully."),
         @ApiResponse(code = 404, message = "No such BibTeX - nothing was deleted"),
