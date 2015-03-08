@@ -42,10 +42,13 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 import org.jaqpot.core.data.ModelHandler;
 import org.jaqpot.core.model.Model;
+import org.jaqpot.core.model.factory.ErrorReportFactory;
 
 /**
  *
@@ -55,6 +58,9 @@ import org.jaqpot.core.model.Model;
 @Api(value = "/model", description = "Operations about Models")
 public class ModelResource {
 
+    @Context
+    UriInfo uriInfo;
+            
     @EJB
     ModelHandler modelHandler;
 
@@ -94,7 +100,10 @@ public class ModelResource {
             @ApiParam(value = "Clients need to authenticate in order to access models") @HeaderParam("subjectid") String subjectId) {
         Model model = modelHandler.find(id);
         if (model == null) {
-            throw new NotFoundException();
+            return Response
+                    .ok(ErrorReportFactory.notFoundError(uriInfo.getPath()))
+                    .status(Response.Status.NOT_FOUND)
+                    .build();
         }
         return Response.ok(model).build();
     }

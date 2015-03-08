@@ -39,6 +39,15 @@ import org.jaqpot.core.model.builder.ErrorReportBuilder;
  */
 public class ErrorReportFactory {
 
+    public static ErrorReport notImplementedYet() {
+        ErrorReport error = ErrorReportBuilder.builderRandomUuid()
+                .setActor("server")
+                .setMessage("This is not implemented yet.")
+                .setDetails("This method will be implemneted in the future.")
+                .setCode("NotImplemented").build();
+        return error;
+    }
+
     /**
      * Resource not found error. Error report that is generated when a resource
      * is not found.

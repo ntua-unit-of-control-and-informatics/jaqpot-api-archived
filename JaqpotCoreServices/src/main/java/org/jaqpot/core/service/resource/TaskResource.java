@@ -43,11 +43,14 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 import org.jaqpot.core.data.TaskHandler;
 import org.jaqpot.core.model.ErrorReport;
 import org.jaqpot.core.model.Task;
+import org.jaqpot.core.model.factory.ErrorReportFactory;
 
 /**
  *
@@ -57,6 +60,8 @@ import org.jaqpot.core.model.Task;
 @Api(value = "/task", description = "Operations about Tasks")
 public class TaskResource {
 
+    @Context UriInfo uriInfo;
+    
     @EJB
     TaskHandler taskHandler;
 
@@ -69,8 +74,6 @@ public class TaskResource {
             responseContainer = "List")
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "Success; the list of tasks is found in the response"),
-        @ApiResponse(code = 204, message = "No content: the request succeeded, but there are no "
-                + "tasks to be listed matching your search criteria"),
         @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
     })
     public Response getTasks(
@@ -95,8 +98,11 @@ public class TaskResource {
             @ApiParam(value = "ID of the task to be retrieved") @PathParam("id") String id) {
         Task task = taskHandler.find(id);
         System.out.println("task:" + task);
-        if (task == null) {
-            throw new NotFoundException();
+        if (task == null) {            
+            return Response
+                    .ok(ErrorReportFactory.notFoundError(uriInfo.getPath()))
+                    .status(Response.Status.NOT_FOUND)
+                    .build();
         }
         return Response.ok(task).build();
     }

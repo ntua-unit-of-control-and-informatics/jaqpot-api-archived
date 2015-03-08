@@ -36,16 +36,25 @@ import com.wordnik.swagger.annotations.ApiResponse;
 import com.wordnik.swagger.annotations.ApiResponses;
 import java.security.GeneralSecurityException;
 import javax.ws.rs.FormParam;
+import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.InternalServerErrorException;
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
+import org.jaqpot.core.model.ErrorReport;
+import org.jaqpot.core.model.Model;
+import org.jaqpot.core.model.User;
+import org.jaqpot.core.model.builder.ErrorReportBuilder;
 import org.jaqpot.core.model.factory.ErrorReportFactory;
 import org.jaqpot.core.service.client.Util;
 import org.jaqpot.core.service.dto.aa.AuthToken;
@@ -57,6 +66,50 @@ import org.jaqpot.core.service.dto.aa.AuthToken;
 @Path("user")
 @Api(value = "/user", description = "Operations about Users")
 public class UserResource {
+
+    @GET
+    @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
+    @ApiOperation(value = "Finds all Users",
+            notes = "Finds all Models from Jaqpot Dataset",
+            response = User.class,
+            responseContainer = "List")
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "Users found and are listed in the response body"),
+        @ApiResponse(code = 401, message = "You are not authorized to access this user"),
+        @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)"),
+        @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
+    })
+    public Response getUsers(
+            @ApiParam(value = "Clients need to authenticate in order to access models") @HeaderParam("subjectid") String subjectId
+    ) {
+        return Response
+                .ok(ErrorReportFactory.notImplementedYet())
+                .status(Response.Status.NOT_IMPLEMENTED)
+                .build();
+    }
+
+    @GET
+    @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
+    @Path("/{id}")
+    @ApiOperation(value = "Finds User by Id",
+            notes = "Finds specified user",
+            response = User.class)
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "User is found"),
+        @ApiResponse(code = 401, message = "You are not authorized to access this user"),
+        @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)"),
+        @ApiResponse(code = 404, message = "This user was not found."),
+        @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
+    })
+    public Response getUser(
+            @PathParam("id") String id,
+            @ApiParam(value = "Clients need to authenticate in order to access models") @HeaderParam("subjectid") String subjectId) {
+
+        return Response
+                .ok(ErrorReportFactory.notImplementedYet())
+                .status(Response.Status.NOT_IMPLEMENTED)
+                .build();
+    }
 
     @POST
     @Path("/login")
