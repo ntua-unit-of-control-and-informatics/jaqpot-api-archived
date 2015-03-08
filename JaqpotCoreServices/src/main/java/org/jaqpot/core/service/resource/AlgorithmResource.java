@@ -29,7 +29,6 @@
  */
 package org.jaqpot.core.service.resource;
 
-import com.mongodb.MongoWriteException;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
@@ -49,10 +48,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.jaqpot.core.data.AlgorithmHandler;
 import org.jaqpot.core.model.Algorithm;
-import org.jaqpot.core.model.ErrorReport;
 import org.jaqpot.core.model.Task;
 import org.jaqpot.core.model.builder.AlgorithmBuilder;
-import org.jaqpot.core.model.factory.ErrorReportFactory;
 import org.jaqpot.core.service.data.TrainingService;
 
 /**
@@ -111,23 +108,7 @@ public class AlgorithmResource {
                 .addTagsCSV(tags)
                 .build();
         //TODO: Take care of parameters. How are they provided? As JSON?
-        try {
-            algorithmHandler.create(algorithm);
-        } catch (final Exception ex) { 
-            ErrorReport error;
-            if (ex.getCause() instanceof MongoWriteException) { // DB Exception (already registered)
-                error = ErrorReportFactory
-                        .alreadyInDatabase(algorithmId, ex.getMessage());
-            } else { // something else went wrong!!! ISE-500
-                error = ErrorReportFactory.
-                        internalServerError(ex, "InternalServerError",
-                                "Exception while trying to register an algorithm in the DB", null);
-            }
-            return Response
-                    .ok(error)
-                    .status(Response.Status.BAD_REQUEST)
-                    .build();
-        }
+        algorithmHandler.create(algorithm);
         return Response.status(Response.Status.CREATED).entity(algorithm).build();
     }
 

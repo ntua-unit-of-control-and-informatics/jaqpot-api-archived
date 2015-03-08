@@ -38,7 +38,6 @@ import java.util.UUID;
 import javax.ejb.EJB;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
-import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
@@ -52,7 +51,6 @@ import javax.ws.rs.core.Response;
 import org.jaqpot.core.data.BibTeXHandler;
 import org.jaqpot.core.model.BibTeX;
 import org.jaqpot.core.model.ErrorReport;
-import org.jaqpot.core.model.User;
 import org.jaqpot.core.model.factory.ErrorReportFactory;
 import org.jaqpot.core.model.validator.BibTeXValidator;
 
@@ -90,9 +88,9 @@ public class BibTeXResource {
             @ApiParam("Generic query (e.g., Article title, journal name, etc)") @QueryParam("query") String query
     ) {
         return Response
-                .ok(ErrorReportFactory.notImplementedYet())
-                .status(Response.Status.NOT_IMPLEMENTED)
-                .build();
+                .ok(handler.findAll())
+                .status(Response.Status.OK)
+                .build();       
     }
 
     @GET

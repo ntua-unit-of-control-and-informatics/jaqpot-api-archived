@@ -35,6 +35,7 @@ import java.util.Set;
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
 import org.jaqpot.core.service.filter.JacksonJsonProvider;
+import org.jaqpot.core.service.filter.excmappers.*;
 import org.jaqpot.core.service.writer.UriBodyWriter;
 import org.jaqpot.core.service.writer.UriListBodyWriter;
 import org.jaqpot.core.service.resource.*;
@@ -53,12 +54,17 @@ public class JaqpotRestApplication extends Application {
         beanConfig.setBasePath("http://localhost:8080/jaqpot/services");
         beanConfig.setResourcePackage("org.jaqpot.core.service.resource");
         beanConfig.setScan(true);
+        beanConfig.setTitle("Jaqpot Quattro");
+        beanConfig.setDescription("Jaqpot Quattro: The YouTube of molecules,"
+                + "The Flickr of algorithms, The Facebook of QSAR.");
     }
 
+    
     @Override
     public Set<Class<?>> getClasses() {
         Set<Class<?>> resources = new HashSet();
 
+        // Resources
         resources.add(AlgorithmResource.class);
         resources.add(TaskResource.class);
         resources.add(ModelResource.class);
@@ -66,7 +72,15 @@ public class JaqpotRestApplication extends Application {
         resources.add(BibTeXResource.class);
         resources.add(EnanomapperResource.class);
 
+        // Various providers
         resources.add(JacksonJsonProvider.class);
+        
+        // Exception mappers:
+        resources.add(JsonParseExceptionMapper.class);
+        resources.add(MongoWriteExceptionMapper.class);
+        resources.add(UnrecognizedPropertyMapper.class);
+        
+        // Writers:
         resources.add(UriListBodyWriter.class);
         resources.add(UriBodyWriter.class);
 

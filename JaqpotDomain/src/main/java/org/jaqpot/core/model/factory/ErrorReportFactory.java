@@ -40,10 +40,10 @@ import org.jaqpot.core.model.builder.ErrorReportBuilder;
 public class ErrorReportFactory {
 
     
-    public static ErrorReport alreadyInDatabase(String id, String details) {
+    public static ErrorReport alreadyInDatabase(String details) {
         ErrorReport error = ErrorReportBuilder.builderRandomUuid()
                 .setActor("server")
-                .setMessage("You tried to register a resource with id "+id+", but it is already registered in our DB.")
+                .setMessage("You tried to register a resource, but it is already registered in our DB.")
                 .setDetails(details)
                 .setCode("AlreadyRegistered")
                 .setHttpStatus(400)
