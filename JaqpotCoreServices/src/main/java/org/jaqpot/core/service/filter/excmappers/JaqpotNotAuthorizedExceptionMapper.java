@@ -43,7 +43,10 @@ public class JaqpotNotAuthorizedExceptionMapper implements ExceptionMapper<Jaqpo
 
     @Override
     public Response toResponse(JaqpotNotAuthorizedException exception) {
-        return Response.ok(exception.getError()).status(Response.Status.UNAUTHORIZED).build();
+        return Response
+                .ok(exception.getError())
+                .status(Response.Status.UNAUTHORIZED)
+                .build();
     }
 
 }

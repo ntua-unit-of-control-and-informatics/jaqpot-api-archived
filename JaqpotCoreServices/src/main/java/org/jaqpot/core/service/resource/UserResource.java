@@ -34,10 +34,13 @@ import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
 import com.wordnik.swagger.annotations.ApiResponse;
 import com.wordnik.swagger.annotations.ApiResponses;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.ejb.EJB;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
+import javax.ws.rs.NotAuthorizedException;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -122,13 +125,14 @@ public class UserResource {
     public Response login(
             @ApiParam("Username") @FormParam("username") String username,
             @ApiParam("Password") @FormParam("password") String password) {
-        
-            AuthToken aToken = aaService.login(username, password);
-            if (aToken == null) {
-                throw new JaqpotNotAuthorizedException("We could not log you in", "LoginError");
-            }
+
+        AuthToken aToken;
+        try {
+            aToken = aaService.login(username, password);
             return Response.ok(aToken).status(Response.Status.OK).build();
-        
+        } catch (JaqpotNotAuthorizedException ex) {
+            throw new NotAuthorizedException(Response.ok(ex.getError()).status(Response.Status.UNAUTHORIZED).build());
+        }
 
     }
 

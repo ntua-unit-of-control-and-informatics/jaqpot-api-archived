@@ -29,20 +29,23 @@
  */
 package org.jaqpot.core.service.exceptions;
 
-import org.jaqpot.core.model.factory.ErrorReportFactory;
+import org.jaqpot.core.model.ErrorReport;
 
 /**
  *
  * @author chung
  */
-public class JaqpotNotAuthorizedException extends JaqpotWebException {
+public class JaqpotWebException extends Exception {
 
-    public JaqpotNotAuthorizedException(final String message) {
-        super(ErrorReportFactory.unauthorized(message));
+    private final ErrorReport error;
+
+    
+    public JaqpotWebException(ErrorReport error) {
+        this.error = error;
     }
 
-    public JaqpotNotAuthorizedException(final String message, final String code) {
-        super(ErrorReportFactory.unauthorized(message, code));
+    public ErrorReport getError() {
+        return error;
     }
 
 }

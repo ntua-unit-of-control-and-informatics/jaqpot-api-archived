@@ -58,7 +58,7 @@ public class AAService {
     @EJB
     UserHandler userHandler;
 
-    public AuthToken login(String username, String password) {
+    public AuthToken login(String username, String password) throws JaqpotNotAuthorizedException {
         try {
             Client client = Util.buildUnsecureRestClient();
             MultivaluedMap<String, String> formData = new MultivaluedHashMap<>();
@@ -70,7 +70,7 @@ public class AAService {
             String responseValue = response.readEntity(String.class);
             response.close();
             if (response.getStatus() == 401) {
-                return null;
+                throw new JaqpotNotAuthorizedException("You cannot login - please, check your credentials.");
             } else {
                 AuthToken aToken = new AuthToken();
                 aToken.setAuthToken(responseValue.substring(9).replaceAll("\n", ""));
