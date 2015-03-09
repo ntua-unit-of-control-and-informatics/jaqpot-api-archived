@@ -76,7 +76,7 @@ public class ErrorReportFactory {
                 builderRandomUuid().
                 setActor("client").
                 setCode("NotFound").
-                setMessage("URI " + uriNotFound + " was not found on the server").
+                setMessage("URI was not found on the server").
                 setDetails("The server has not found anything matching the Request-URI. "
                         + "No indication is given of whether the condition is temporary or permanent. ").
                 setHttpStatus(404).

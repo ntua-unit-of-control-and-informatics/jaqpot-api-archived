@@ -51,6 +51,7 @@ import javax.ws.rs.core.Response;
 import org.jaqpot.core.data.BibTeXHandler;
 import org.jaqpot.core.model.BibTeX;
 import org.jaqpot.core.model.ErrorReport;
+import org.jaqpot.core.model.builder.BibTeXBuilder;
 import org.jaqpot.core.model.factory.ErrorReportFactory;
 import org.jaqpot.core.model.validator.BibTeXValidator;
 
@@ -62,6 +63,16 @@ import org.jaqpot.core.model.validator.BibTeXValidator;
 @Api(value = "/bibtex", description = "BibTeX API")
 @Produces({"application/json", "text/uri-list"})
 public class BibTeXResource {
+    
+    private static final String DEFAULT_BIBTEX=
+                              "{\n"
+                            + "  \"bibType\":\"Article\",\n"
+                            + "  \"title\":\"title goes here\",\n"
+                            + "  \"author\":\"A.N.Onymous\",\n"
+                            + "  \"journal\":\"Int. J. Biochem.\",\n"
+                            + "  \"year\":2010,\n"
+                            + "  \"meta\":{\"comments\":[\"default bibtex\"]}\n"
+                            + "}";
 
     @EJB
     BibTeXHandler handler;
@@ -134,7 +145,8 @@ public class BibTeXResource {
             @HeaderParam("subjectid") 
                     String subjectId,
             @ApiParam(value="BibTeX in JSON representation compliant with the BibTeX specifications. "
-                    + "Malformed BibTeX entries with missing fields will not be accepted.", required = true) 
+                    + "Malformed BibTeX entries with missing fields will not be accepted.", required = true,
+                    defaultValue = DEFAULT_BIBTEX) 
                     BibTeX bib
     ) {
         
