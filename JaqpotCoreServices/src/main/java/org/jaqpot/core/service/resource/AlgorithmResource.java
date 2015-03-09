@@ -65,6 +65,23 @@ import org.jaqpot.core.service.data.TrainingService;
 @Api(value = "/algorithm", description = "Algorithms API")
 @Produces({"application/json", "text/uri-list"})
 public class AlgorithmResource {
+    
+    private static final String DEFAULT_ALGORITHM = "{\n"
+            + "  \"trainingService\":\"http://z.ch/t/a\",\n"
+            + "  \"predictionService\":\"http://z.ch/p/b\",\n"
+            + "  \"ontologicalClasses\":[\n"
+            + "        \"ot:Algorithm\",\n"
+            + "        \"ot:Regression\",\n"
+            + "        \"ot:SupervisedLearning\"\n"
+            + "       ],\n"
+            + "  \"parameters\": [\n"
+            + "    {\n"
+            + "       \"name\":\"alpha\",\n"
+            + "       \"scope\":\"OPTIONAL\",\n"
+            + "       \"value\":101.635\n"
+            + "    }\n"
+            + "  ]\n"
+            + "}";
 
     @EJB
     TrainingService trainingService;
@@ -90,31 +107,24 @@ public class AlgorithmResource {
             response = Algorithm.class
     )
     public Response createAlgorithm(
-            @ApiParam(value = "Unique ID of the algorithm. If not provided, a UUID will be created") @FormParam("algorithmId") String algorithmId,
-            @ApiParam(value = "URI of the JPDI training service", required = true) @FormParam("training_service") String trainingServiceURI,
-            @ApiParam(value = "URI of the corresponding JPDI prediction service", required = true) @FormParam("prediction_service") String predictionServiceURI,
-            @ApiParam(value = "Parameters that are expected by the algorithm", required = true) @FormParam("parameters") String parameters,
-            @ApiParam(value = "Auth token", required = true) @HeaderParam("subjectid") String subjectId,
+            @ApiParam(value = "Algorithm in JSON", defaultValue = DEFAULT_ALGORITHM, required = true) Algorithm algorithm,
+            @ApiParam(value = "Authorization token", required = true) @HeaderParam("subjectid") String subjectId,
             @ApiParam(value = "Title of your algorithm") @HeaderParam("title") String title,
             @ApiParam(value = "Short description of your algorithm") @HeaderParam("description") String description,
             @ApiParam(value = "Tags for your algorithm (in a comma separated list) to facilitate look-up") @HeaderParam("tags") String tags
     ) {
-
-        if (algorithmId == null) {
-            algorithmId = UUID.randomUUID().toString();
+        if (algorithm.getId() == null) {
+            algorithm.setId(UUID.randomUUID().toString());
         }
-        Algorithm algorithm = AlgorithmBuilder
-                .builder(algorithmId)
-                .setCreatedBy("user")
-                .setTrainingService(trainingServiceURI)
-                .setPredictionService(predictionServiceURI)
+        algorithm = AlgorithmBuilder.builder(algorithm)
                 .addTitles(title)
                 .addDescriptions(description)
                 .addTagsCSV(tags)
                 .build();
-        //TODO: Take care of parameters. How are they provided? As JSON?
         algorithmHandler.create(algorithm);
-        return Response.status(Response.Status.CREATED).entity(algorithm).build();
+        return Response
+                .status(Response.Status.OK)
+                .entity(algorithm).build();
     }
 
     @GET
@@ -154,13 +164,13 @@ public class AlgorithmResource {
         Task task = trainingService.initiateTraining(options);
         return Response.ok(task).build();
     }
-    
+
     @DELETE
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/{id}")
     @ApiOperation(value = "Unregisters an algorithm of given ID",
             notes = "Deletes an algorithm of given ID. The application of this method "
-                    + "requires authentication and assumes certain priviledges."
+            + "requires authentication and assumes certain priviledges."
     )
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "Algorithm deleted successfully"),
@@ -174,5 +184,5 @@ public class AlgorithmResource {
         algorithmHandler.remove(new Algorithm(id));
         return Response.ok().build();
     }
-    
+
 }

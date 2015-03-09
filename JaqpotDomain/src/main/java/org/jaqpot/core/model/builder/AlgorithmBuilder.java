@@ -47,6 +47,19 @@ public class AlgorithmBuilder implements EntityBuilder<Algorithm> {
 
     private final Algorithm algorithm;
 
+    public AlgorithmBuilder(final String id) {
+        this.algorithm = new Algorithm();
+        this.algorithm.setId(id);
+    }
+    
+    public AlgorithmBuilder(final Algorithm a){
+        this.algorithm = new Algorithm(a);
+    }
+    
+    public static AlgorithmBuilder builder(Algorithm algorithm) {
+        return new AlgorithmBuilder(algorithm);
+    }
+    
     public static AlgorithmBuilder builder(String id) {
         return new AlgorithmBuilder(id);
     }
@@ -146,9 +159,6 @@ public class AlgorithmBuilder implements EntityBuilder<Algorithm> {
         return this;
     }
 
-    public AlgorithmBuilder(final String id) {
-        algorithm = new Algorithm();
-        algorithm.setId(id);
-    }
+    
 
 }
