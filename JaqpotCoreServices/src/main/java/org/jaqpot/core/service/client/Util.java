@@ -17,7 +17,9 @@ import javax.ws.rs.client.ClientBuilder;
 
 /**
  *
- * @author hampos
+ * @author Pantelis Sopasakis
+ * @author Charalampos Chomenidis
+ *
  */
 public class Util {
 

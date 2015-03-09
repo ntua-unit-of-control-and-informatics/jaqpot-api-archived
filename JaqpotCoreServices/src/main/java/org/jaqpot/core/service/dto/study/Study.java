@@ -29,11 +29,15 @@
  */
 package org.jaqpot.core.service.dto.study;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.List;
 import java.util.Map;
 
-//@JsonIgnoreProperties(ignoreUnknown = true)
+/**
+ *
+ * @author Pantelis Sopasakis
+ * @author Charalampos Chomenidis
+ *
+ */
 public class Study {
 
     private List<Effect> effects;

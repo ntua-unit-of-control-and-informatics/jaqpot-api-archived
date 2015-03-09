@@ -57,7 +57,9 @@ import org.jaqpot.core.service.data.TrainingService;
 
 /**
  *
- * @author hampos
+ * @author Pantelis Sopasakis
+ * @author Charalampos Chomenidis
+ *
  */
 @Path("algorithm")
 @Api(value = "/algorithm", description = "Algorithms API")

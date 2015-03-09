@@ -40,7 +40,9 @@ import org.reflections.Reflections;
 
 /**
  *
- * @author hampos
+ * @author Pantelis Sopasakis
+ * @author Charalampos Chomenidis
+ *
  */
 @ApplicationPath("/services")
 public class JaqpotRestApplication extends Application {

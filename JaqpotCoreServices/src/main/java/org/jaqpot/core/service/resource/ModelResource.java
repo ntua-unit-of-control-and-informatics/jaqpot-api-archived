@@ -37,7 +37,6 @@ import com.wordnik.swagger.annotations.ApiResponses;
 import javax.ejb.EJB;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
-import javax.ws.rs.NotFoundException;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -52,7 +51,9 @@ import org.jaqpot.core.model.factory.ErrorReportFactory;
 
 /**
  *
- * @author hampos
+ * @author Pantelis Sopasakis
+ * @author Charalampos Chomenidis
+ *
  */
 @Path("model")
 @Api(value = "/model", description = "Models API")

@@ -34,7 +34,9 @@ import org.jaqpot.core.service.dto.jpdi.TrainingResponse;
 
 /**
  *
- * @author hampos
+ * @author Pantelis Sopasakis
+ * @author Charalampos Chomenidis
+ *
  */
 @MessageDriven(activationConfig = {
     @ActivationConfigProperty(propertyName = "destinationLookup",

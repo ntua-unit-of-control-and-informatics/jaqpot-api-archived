@@ -11,7 +11,9 @@ import org.jaqpot.core.service.dto.dataset.Substance;
 
 /**
  *
- * @author hampos
+ * @author Pantelis Sopasakis
+ * @author Charalampos Chomenidis
+ *
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class BundleSubstances {

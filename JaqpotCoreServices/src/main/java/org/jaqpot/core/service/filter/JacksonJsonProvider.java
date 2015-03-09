@@ -44,7 +44,9 @@ import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 
 /**
  *
- * @author hampos
+ * @author Pantelis Sopasakis
+ * @author Charalampos Chomenidis
+ *
  */
 @Provider
 @Produces(MediaType.APPLICATION_JSON)

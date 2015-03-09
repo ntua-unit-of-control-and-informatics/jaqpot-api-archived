@@ -23,7 +23,9 @@ import org.jaqpot.core.model.factory.TaskFactory;
 
 /**
  *
- * @author hampos
+ * @author Pantelis Sopasakis
+ * @author Charalampos Chomenidis
+ *
  */
 @Singleton
 public class TrainingService {

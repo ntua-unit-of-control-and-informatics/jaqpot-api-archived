@@ -9,7 +9,9 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  *
- * @author chung
+ * @author Pantelis Sopasakis
+ * @author Charalampos Chomenidis
+ *
  */
 @XmlRootElement
 public class AuthToken {

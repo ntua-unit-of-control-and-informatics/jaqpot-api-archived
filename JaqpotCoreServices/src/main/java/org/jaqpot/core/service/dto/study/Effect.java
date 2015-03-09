@@ -31,6 +31,12 @@ package org.jaqpot.core.service.dto.study;
 
 import java.util.TreeMap;
 
+/**
+ *
+ * @author Pantelis Sopasakis
+ * @author Charalampos Chomenidis
+ *
+ */
 public class Effect {
 
     private TreeMap<String, Object> conditions;

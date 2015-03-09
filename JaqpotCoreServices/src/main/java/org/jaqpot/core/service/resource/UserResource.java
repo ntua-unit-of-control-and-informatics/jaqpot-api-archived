@@ -56,7 +56,9 @@ import org.jaqpot.core.service.dto.aa.AuthToken;
 
 /**
  *
- * @author hampos
+ * @author Pantelis Sopasakis
+ * @author Charalampos Chomenidis
+ *
  */
 @Path("user")
 @Api(value = "/user", description = "Users API", position = 1)

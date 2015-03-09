@@ -35,7 +35,9 @@ import java.util.List;
 
 /**
  *
- * @author hampos
+ * @author Pantelis Sopasakis
+ * @author Charalampos Chomenidis
+ *
  */
 public class TrainingResponse {
 

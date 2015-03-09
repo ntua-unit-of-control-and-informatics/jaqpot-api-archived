@@ -35,7 +35,9 @@ import org.jaqpot.core.service.dto.study.Study;
 
 /**
  *
- * @author hampos
+ * @author Pantelis Sopasakis
+ * @author Charalampos Chomenidis
+ *
  */
 @Stateless
 public class ConjoinerService {

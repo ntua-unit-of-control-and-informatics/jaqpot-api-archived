@@ -16,13 +16,14 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import org.jaqpot.core.model.BibTeX;
 import org.jaqpot.core.model.Feature;
 import org.jaqpot.core.model.factory.ErrorReportFactory;
 
 /**
  *
- * @author chung
+ * @author Pantelis Sopasakis
+ * @author Charalampos Chomenidis
+ *
  */
 @Path("feature")
 @Api(value = "/feature", description = "Feature API")

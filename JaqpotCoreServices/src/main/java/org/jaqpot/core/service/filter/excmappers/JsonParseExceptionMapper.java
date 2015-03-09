@@ -41,7 +41,10 @@ import org.jaqpot.core.model.builder.ErrorReportBuilder;
 
 /**
  * Maps Jackson parse exceptions to error reports.
- * @author chung
+ *
+ * @author Pantelis Sopasakis
+ * @author Charalampos Chomenidis
+ *
  */
 @Provider
 public class JsonParseExceptionMapper implements ExceptionMapper<JsonParseException>{

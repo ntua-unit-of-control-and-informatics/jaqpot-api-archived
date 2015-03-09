@@ -31,6 +31,12 @@ package org.jaqpot.core.service.dto.study;
 
 import java.util.List;
 
+/**
+ *
+ * @author Pantelis Sopasakis
+ * @author Charalampos Chomenidis
+ *
+ */
 public class Studies {
 
     private List<Study> study;

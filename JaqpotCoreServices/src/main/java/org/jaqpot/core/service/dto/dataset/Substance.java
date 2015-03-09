@@ -38,7 +38,9 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  *
- * @author hampos
+ * @author Pantelis Sopasakis
+ * @author Charalampos Chomenidis
+ *
  */
 @XmlRootElement
 @JsonIgnoreProperties(ignoreUnknown = true)

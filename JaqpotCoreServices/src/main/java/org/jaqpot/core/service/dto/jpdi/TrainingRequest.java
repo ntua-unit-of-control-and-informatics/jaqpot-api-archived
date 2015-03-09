@@ -36,7 +36,9 @@ import org.jaqpot.core.service.dto.dataset.Dataset;
 
 /**
  *
- * @author hampos
+ * @author Pantelis Sopasakis
+ * @author Charalampos Chomenidis
+ *
  */
 public class TrainingRequest {
 

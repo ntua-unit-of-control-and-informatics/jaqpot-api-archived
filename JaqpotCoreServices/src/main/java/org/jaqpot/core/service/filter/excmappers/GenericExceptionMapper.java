@@ -40,7 +40,9 @@ import org.jaqpot.core.model.builder.ErrorReportBuilder;
 
 /**
  *
- * @author chung
+ * @author Pantelis Sopasakis
+ * @author Charalampos Chomenidis
+ *
  */
 @Provider
 public class GenericExceptionMapper implements ExceptionMapper<Throwable> {

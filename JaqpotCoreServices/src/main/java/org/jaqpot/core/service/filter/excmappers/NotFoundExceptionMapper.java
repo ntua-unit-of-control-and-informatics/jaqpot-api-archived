@@ -41,7 +41,9 @@ import org.jaqpot.core.model.factory.ErrorReportFactory;
 
 /**
  *
- * @author chung
+ * @author Pantelis Sopasakis
+ * @author Charalampos Chomenidis
+ *
  */
 @Provider
 public class NotFoundExceptionMapper implements ExceptionMapper<NotFoundException> {

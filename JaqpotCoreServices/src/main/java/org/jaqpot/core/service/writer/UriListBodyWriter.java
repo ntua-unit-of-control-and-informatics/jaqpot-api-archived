@@ -48,7 +48,9 @@ import org.jaqpot.core.model.JaqpotEntity;
 
 /**
  *
- * @author hampos
+ * @author Pantelis Sopasakis
+ * @author Charalampos Chomenidis
+ *
  */
 @Provider
 @Produces("text/uri-list")

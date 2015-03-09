@@ -57,7 +57,9 @@ import org.jaqpot.core.model.validator.BibTeXValidator;
 
 /**
  *
- * @author chung
+ * @author Pantelis Sopasakis
+ * @author Charalampos Chomenidis
+ *
  */
 @Path("bibtex")
 @Api(value = "/bibtex", description = "BibTeX API")

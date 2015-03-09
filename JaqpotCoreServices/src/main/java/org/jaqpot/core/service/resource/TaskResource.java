@@ -48,12 +48,13 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import org.jaqpot.core.data.TaskHandler;
-import org.jaqpot.core.model.ErrorReport;
 import org.jaqpot.core.model.Task;
 
 /**
  *
- * @author hampos
+ * @author Pantelis Sopasakis
+ * @author Charalampos Chomenidis
+ *
  */
 @Path("task")
 @Api(value = "/task", description = "Tasks API")
