@@ -34,11 +34,8 @@ import java.util.HashSet;
 import java.util.Set;
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
-import org.jaqpot.core.service.filter.JacksonJsonProvider;
-import org.jaqpot.core.service.filter.excmappers.*;
-import org.jaqpot.core.service.writer.UriBodyWriter;
-import org.jaqpot.core.service.writer.UriListBodyWriter;
-import org.jaqpot.core.service.resource.*;
+import javax.ws.rs.ext.Provider;
+import org.reflections.Reflections;
 
 
 /**
@@ -55,35 +52,37 @@ public class JaqpotRestApplication extends Application {
         beanConfig.setResourcePackage("org.jaqpot.core.service.resource");
         beanConfig.setScan(true);
         beanConfig.setTitle("Jaqpot Quattro");
-        beanConfig.setDescription("Jaqpot Quattro: The YouTube of molecules,"
-                + "The Flickr of algorithms, The Facebook of QSAR.");
+        beanConfig.setDescription("Jaqpot Quattro");
+        
     }
 
     
     @Override
     public Set<Class<?>> getClasses() {
         Set<Class<?>> resources = new HashSet();
-
-        // Resources
-        resources.add(AlgorithmResource.class);
-        resources.add(TaskResource.class);
-        resources.add(ModelResource.class);
-        resources.add(UserResource.class);
-        resources.add(BibTeXResource.class);
-        resources.add(EnanomapperResource.class);
-
-        // Various providers
-        resources.add(JacksonJsonProvider.class);
         
-        // Exception mappers:
-        resources.add(JsonParseExceptionMapper.class);
-        resources.add(MongoWriteExceptionMapper.class);
-        resources.add(UnrecognizedPropertyMapper.class);
-        
-        // Writers:
-        resources.add(UriListBodyWriter.class);
-        resources.add(UriBodyWriter.class);
+        /*
+         * We are here using reflections to discover and register
+         * resources, filters and providers. 
+         */
 
+        // Resources [Annotated with @Path]
+        Reflections reflectedResources = new Reflections("org.jaqpot.core.service.resource");
+        resources.addAll(reflectedResources.getTypesAnnotatedWith(javax.ws.rs.Path.class));
+                                
+        // Various providers [Annotated with @Provider]
+        Reflections reflectedProviders = new Reflections("org.jaqpot.core.service.filter");
+        resources.addAll(reflectedProviders.getTypesAnnotatedWith(Provider.class));
+        
+        // Various providers [Annotated with @Provider]
+        Reflections reflectedExceptionMappers = new Reflections("org.jaqpot.core.service.filter");
+        resources.addAll(reflectedExceptionMappers.getTypesAnnotatedWith(Provider.class));
+                        
+        // Writers [Annotated with @Provider]
+        Reflections reflectedWriters = new Reflections("org.jaqpot.core.service.writer");
+        resources.addAll(reflectedWriters.getTypesAnnotatedWith(Provider.class));
+
+        // Swagger-related stuff [Registered directly]
         resources.add(com.wordnik.swagger.jaxrs.listing.ApiListingResource.class);
         resources.add(com.wordnik.swagger.jaxrs.listing.ApiDeclarationProvider.class);
         resources.add(com.wordnik.swagger.jaxrs.listing.ApiListingResourceJSON.class);
