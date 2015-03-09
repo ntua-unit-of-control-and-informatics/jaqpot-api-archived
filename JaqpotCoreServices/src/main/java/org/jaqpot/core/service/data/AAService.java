@@ -29,10 +29,22 @@
  */
 package org.jaqpot.core.service.data;
 
+import java.security.GeneralSecurityException;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.ws.rs.InternalServerErrorException;
+import javax.ws.rs.NotAuthorizedException;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.MultivaluedHashMap;
+import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Response;
 import org.jaqpot.core.data.UserHandler;
+import org.jaqpot.core.model.factory.ErrorReportFactory;
+import org.jaqpot.core.service.client.Util;
 import org.jaqpot.core.service.dto.aa.AuthToken;
+import org.jaqpot.core.service.exceptions.JaqpotNotAuthorizedException;
 
 /**
  *
@@ -46,8 +58,29 @@ public class AAService {
     @EJB
     UserHandler userHandler;
 
-    public AuthToken login(String userName, String password) {
-        return null;
+    public AuthToken login(String username, String password) {
+        try {
+            Client client = Util.buildUnsecureRestClient();
+            MultivaluedMap<String, String> formData = new MultivaluedHashMap<>();
+            formData.putSingle("username", username);
+            formData.putSingle("password", password);
+            Response response = client.target("https://openam.in-silico.ch/auth/authenticate")
+                    .request()
+                    .post(Entity.form(formData));
+            String responseValue = response.readEntity(String.class);
+            response.close();
+            if (response.getStatus() == 401) {
+                return null;
+            } else {
+                AuthToken aToken = new AuthToken();
+                aToken.setAuthToken(responseValue.substring(9).replaceAll("\n", ""));
+                aToken.setUserName(username);
+                return aToken;
+            }
+
+        } catch (GeneralSecurityException ex) {
+            throw new InternalServerErrorException(ex);
+        }
     }
 
 }

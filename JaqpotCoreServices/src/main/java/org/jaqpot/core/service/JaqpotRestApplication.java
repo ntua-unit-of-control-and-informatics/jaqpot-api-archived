@@ -77,7 +77,7 @@ public class JaqpotRestApplication extends Application {
         resources.addAll(reflectedProviders.getTypesAnnotatedWith(Provider.class));
         
         // Various providers [Annotated with @Provider]
-        Reflections reflectedExceptionMappers = new Reflections("org.jaqpot.core.service.filter");
+        Reflections reflectedExceptionMappers = new Reflections("org.jaqpot.core.service.filter.excmappers");
         resources.addAll(reflectedExceptionMappers.getTypesAnnotatedWith(Provider.class));
                         
         // Writers [Annotated with @Provider]

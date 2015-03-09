@@ -34,25 +34,21 @@ import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
 import com.wordnik.swagger.annotations.ApiResponse;
 import com.wordnik.swagger.annotations.ApiResponses;
-import java.security.GeneralSecurityException;
+import javax.ejb.EJB;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
-import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedHashMap;
-import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import org.jaqpot.core.model.User;
 import org.jaqpot.core.model.factory.ErrorReportFactory;
-import org.jaqpot.core.service.client.Util;
+import org.jaqpot.core.service.data.AAService;
 import org.jaqpot.core.service.dto.aa.AuthToken;
+import org.jaqpot.core.service.exceptions.JaqpotNotAuthorizedException;
 
 /**
  *
@@ -64,6 +60,9 @@ import org.jaqpot.core.service.dto.aa.AuthToken;
 @Api(value = "/user", description = "Users API", position = 1)
 @Produces({"application/json", "text/uri-list"})
 public class UserResource {
+
+    @EJB
+    AAService aaService;
 
     @GET
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
@@ -123,34 +122,14 @@ public class UserResource {
     public Response login(
             @ApiParam("Username") @FormParam("username") String username,
             @ApiParam("Password") @FormParam("password") String password) {
-        try {
-            Client client = Util.buildUnsecureRestClient();
-            MultivaluedMap<String, String> formData = new MultivaluedHashMap<>();
-            formData.putSingle("username", username);
-            formData.putSingle("password", password);
-            Response response = client.target("https://openam.in-silico.ch/auth/authenticate")
-                    .request()
-                    .post(Entity.form(formData));
-            String responseValue = response.readEntity(String.class);
-            response.close();
-            if (response.getStatus() == 401) {
-                return Response
-                        .ok(ErrorReportFactory.authenticationRequired(responseValue))
-                        .status(response.getStatus())
-                        .build();
-            } else {
-                AuthToken aToken = new AuthToken();
-                aToken.setAuthToken(responseValue.substring(9).replaceAll("\n", ""));
-                aToken.setUserName(username);
-                return Response
-                        .ok(aToken)
-                        .status(response.getStatus())
-                        .build();
+        
+            AuthToken aToken = aaService.login(username, password);
+            if (aToken == null) {
+                throw new JaqpotNotAuthorizedException("We could not log you in", "LoginError");
             }
+            return Response.ok(aToken).status(Response.Status.OK).build();
+        
 
-        } catch (GeneralSecurityException ex) {
-            throw new InternalServerErrorException();
-        }
     }
 
     @POST

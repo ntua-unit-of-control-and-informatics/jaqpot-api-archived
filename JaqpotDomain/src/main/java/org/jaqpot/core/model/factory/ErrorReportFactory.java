@@ -39,7 +39,48 @@ import org.jaqpot.core.model.builder.ErrorReportBuilder;
  */
 public class ErrorReportFactory {
 
-    
+    private final static String ERROR400 = "The request could not be understood by the server due to malformed syntax. "
+            + "The client SHOULD NOT repeat the request without modifications.",
+            ERROR401 = "The request requires user authentication.",
+            ERROR403 = "The server understood the request, but is refusing to fulfill it. "
+            + "Authorization will not help and the request SHOULD NOT be repeated. "
+            + "If the request method was not HEAD and the server wishes to make public why "
+            + "the request has not been fulfilled, it SHOULD describe the reason for the "
+            + "refusal in the entity. If the server does not wish to make this information "
+            + "available to the client, the status code 404 (Not Found) can be used instead. ",
+            ERROR404 = "The server has not found anything matching the Request-URI. "
+            + "No indication is given of whether the condition is temporary or permanent.",
+            ERROR500 = "The server encountered an unexpected condition which prevented it "
+            + "from fulfilling the request. ",
+            ERROR501 = "The server does not support the functionality required to fulfill the request. "
+            + "This is the appropriate response when the server does not recognize the request method "
+            + "and is not capable of supporting it for any resource. ",
+            ERROR502 = "The server, while acting as a gateway or proxy, received an invalid response "
+            + "from the upstream server it accessed in attempting to fulfill the request. ";
+
+    public static ErrorReport unauthorized() {
+        return ErrorReportFactory.unauthorized(null, null, null);
+    }
+
+    public static ErrorReport unauthorized(String message) {
+        return ErrorReportFactory.unauthorized(message, null, null);
+    }
+
+    public static ErrorReport unauthorized(String message, String code) {
+        return ErrorReportFactory.unauthorized(message, code, null);
+    }
+
+    public static ErrorReport unauthorized(String message, String code, String details) {
+        ErrorReport error = ErrorReportBuilder.builderRandomUuid()
+                .setActor("client")
+                .setMessage(message != null ? message : "You are not authorized to perform this operation.")
+                .setDetails(details != null ? details : ERROR401)
+                .setCode("Unauthorized" + (code != null ? "::" + code : ""))
+                .setHttpStatus(400)
+                .build();
+        return error;
+    }
+
     public static ErrorReport alreadyInDatabase(String details) {
         ErrorReport error = ErrorReportBuilder.builderRandomUuid()
                 .setActor("server")
@@ -50,13 +91,12 @@ public class ErrorReportFactory {
                 .build();
         return error;
     }
-    
-    
+
     public static ErrorReport notImplementedYet() {
         ErrorReport error = ErrorReportBuilder.builderRandomUuid()
                 .setActor("server")
                 .setMessage("This is not implemented yet.")
-                .setDetails("This method will be implemneted in the future.")
+                .setDetails(ERROR501)
                 .setCode("NotImplemented")
                 .setHttpStatus(501)
                 .build();
@@ -77,8 +117,7 @@ public class ErrorReportFactory {
                 setActor("client").
                 setCode("NotFound").
                 setMessage("URI was not found on the server").
-                setDetails("The server has not found anything matching the Request-URI. "
-                        + "No indication is given of whether the condition is temporary or permanent. ").
+                setDetails(ERROR404).
                 setHttpStatus(404).
                 build();
     }
@@ -102,6 +141,17 @@ public class ErrorReportFactory {
                 setCode(code).
                 setMessage(message).
                 setDetails(details).
+                setHttpStatus(500).
+                build();
+    }
+
+    public static ErrorReport internalServerError() {
+        return ErrorReportBuilder.
+                builderRandomUuid().
+                setActor("server").
+                setCode("UnknownServerError").
+                setMessage("Utterly unexpected condition").
+                setDetails(ERROR500).
                 setHttpStatus(500).
                 build();
     }
@@ -149,9 +199,7 @@ public class ErrorReportFactory {
                 setCode("BadRequest").
                 setMessage(message != null ? message : "Bad request").
                 setDetails((details != null ? (details + ".\n") : "")
-                        + "The request could not be "
-                        + "understood by the server due to malformed syntax. The client "
-                        + "SHOULD NOT repeat the request without modifications. ").
+                        + ERROR400).
                 setHttpStatus(400).
                 build();
     }
@@ -170,8 +218,7 @@ public class ErrorReportFactory {
                 setActor("client").
                 setCode("UnauthorizedAccessError").
                 setMessage("You are not authorized to access " + uri).
-                setDetails("The server understood the request, but is refusing to fulfill it. "
-                        + "Authorization will not help and the request SHOULD NOT be repeated.").
+                setDetails(ERROR403).
                 setHttpStatus(403).
                 build();
     }
@@ -183,12 +230,7 @@ public class ErrorReportFactory {
                 setCode("Authentication Required (Missing/insuficient credentials)").
                 setMessage("Authentication is required tp access this URI").
                 setDetails((details != null ? "Details: " + details + "." : "")
-                        + "Access to this URI requires authentication while the client "
-                        + "has not provided any authentication credentials. Please, try again "
-                        + "using a proper authentication token (you need to login first). HTTP statsus "
-                        + "401 The request requires user authentication. "
-                        + "The client MAY repeat the request with a suitable "
-                        + "Authorization header field.").
+                        + ERROR401).
                 setHttpStatus(401).
                 build();
     }
@@ -201,9 +243,7 @@ public class ErrorReportFactory {
                 setActor(remoteUri).
                 setCode("RemoteInvocationError").
                 setMessage("Remote invocation error").
-                setDetails("HTTP status code 502: The server, while acting as a gateway or "
-                        + "proxy, received an invalid response from the upstream server "
-                        + "it accessed in attempting to fulfill the request.").
+                setDetails(ERROR502).
                 setHttpStatus(502).
                 setTrace(remoteException).
                 build();
