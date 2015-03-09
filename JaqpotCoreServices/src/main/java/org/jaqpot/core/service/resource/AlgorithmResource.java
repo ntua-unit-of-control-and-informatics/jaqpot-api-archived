@@ -32,10 +32,13 @@ package org.jaqpot.core.service.resource;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
+import com.wordnik.swagger.annotations.ApiResponse;
+import com.wordnik.swagger.annotations.ApiResponses;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import javax.ejb.EJB;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
@@ -149,4 +152,25 @@ public class AlgorithmResource {
         Task task = trainingService.initiateTraining(options);
         return Response.ok(task).build();
     }
+    
+    @DELETE
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/{id}")
+    @ApiOperation(value = "Unregisters an algorithm of given ID",
+            notes = "Deletes an algorithm of given ID. The application of this method "
+                    + "requires authentication and assumes certain priviledges."
+    )
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "Algorithm deleted successfully"),
+        @ApiResponse(code = 401, message = "Wrong, missing or insufficient credentials. Error report is produced."),
+        @ApiResponse(code = 403, message = "This is a forbidden operation (do not attempt to repeat it)."),
+        @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
+    })
+    public Response deleteAlgorithm(
+            @ApiParam(value = "ID of the task which is to be deleted.", required = true) @PathParam("id") String id,
+            @HeaderParam("subjectid") String subjectId) {
+        algorithmHandler.remove(new Algorithm(id));
+        return Response.ok().build();
+    }
+    
 }

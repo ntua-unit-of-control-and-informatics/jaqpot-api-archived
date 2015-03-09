@@ -59,8 +59,9 @@ import org.jaqpot.core.model.Task;
 @Api(value = "/task", description = "Tasks API")
 public class TaskResource {
 
-    @Context UriInfo uriInfo;
-    
+    @Context
+    UriInfo uriInfo;
+
     @EJB
     TaskHandler taskHandler;
 
@@ -96,9 +97,8 @@ public class TaskResource {
     public Response getTask(
             @ApiParam(value = "ID of the task to be retrieved") @PathParam("id") String id) {
         Task task = taskHandler.find(id);
-        System.out.println("task:" + task);
         if (task == null) {
-            throw new NotFoundException("Task with ID "+uriInfo.getPath()+"not found");            
+            throw new NotFoundException("Task " + uriInfo.getPath() + "not found");
         }
         return Response.ok(task).build();
     }
@@ -108,29 +108,19 @@ public class TaskResource {
     @Path("/{id}")
     @ApiOperation(value = "Deletes a Task of given ID",
             notes = "Deletes a Task given its ID in the URI. When the DELETE method is applied, the task "
-            + "is interrupted and tagged as CANCELLED."
+            + "is interrupted and tagged as CANCELLED. Note that this method does not return a response "
+            + "on success and, if the task does not exist, no 404 message is generated."
     )
-    @ApiResponses(value = {          
+    @ApiResponses(value = {
         @ApiResponse(code = 200, message = "Task deleted successfully"),
         @ApiResponse(code = 401, message = "Wrong, missing or insufficient credentials. Error report is produced."),
         @ApiResponse(code = 403, message = "This is a forbidden operation (do not attempt to repeat it)."),
-        @ApiResponse(code = 404, message = "There is no such task; no deletion took place!"),        
         @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
     })
     public Response deleteTask(
             @ApiParam(value = "ID of the task which is to be deleted.", required = true) @PathParam("id") String id,
             @HeaderParam("subjectid") String subjectId) {
-        try {
-            taskHandler.remove(new Task(id));
-        } catch (Exception e) {
-            ErrorReport error = new ErrorReport("1234");
-            error.setCode("msg::" + e.getMessage());
-            error.setDetails("sth went wrong!");
-            return Response
-                    .ok(error)
-                    .status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .build();
-        }
-        return Response.ok("{\"status\":\"fine\"}").build();
+        taskHandler.remove(new Task(id));
+        return Response.ok().build();
     }
 }

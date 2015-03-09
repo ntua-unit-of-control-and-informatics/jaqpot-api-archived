@@ -52,7 +52,7 @@ public class JaqpotRestApplication extends Application {
         beanConfig.setResourcePackage("org.jaqpot.core.service.resource");
         beanConfig.setScan(true);
         beanConfig.setTitle("Jaqpot Quattro");
-        beanConfig.setDescription("Jaqpot Quattro");
+        beanConfig.setDescription("Jaqpot Quattro");        
         
     }
 

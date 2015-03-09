@@ -40,6 +40,7 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -51,7 +52,6 @@ import javax.ws.rs.core.Response;
 import org.jaqpot.core.data.BibTeXHandler;
 import org.jaqpot.core.model.BibTeX;
 import org.jaqpot.core.model.ErrorReport;
-import org.jaqpot.core.model.builder.BibTeXBuilder;
 import org.jaqpot.core.model.factory.ErrorReportFactory;
 import org.jaqpot.core.model.validator.BibTeXValidator;
 
@@ -118,11 +118,12 @@ public class BibTeXResource {
         @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)"),
         @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
     })
-    public Response getBibTeX() {
-        return Response
-                .ok(ErrorReportFactory.notImplementedYet())
-                .status(Response.Status.NOT_IMPLEMENTED)
-                .build();
+    public Response getBibTeX(
+            @ApiParam(value = "ID of the BibTeX", required = true) @PathParam("id") String id
+    ) {
+        BibTeX b = handler.find(id);
+        if (b == null) throw new NotFoundException("BibTeX " + id + " not found.");
+        return Response.ok(b).build();
     }
 
     @POST

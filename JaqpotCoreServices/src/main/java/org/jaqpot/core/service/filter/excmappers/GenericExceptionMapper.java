@@ -31,31 +31,35 @@ package org.jaqpot.core.service.filter.excmappers;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 import org.jaqpot.core.model.ErrorReport;
-import org.jaqpot.core.model.factory.ErrorReportFactory;
+import org.jaqpot.core.model.builder.ErrorReportBuilder;
 
 /**
  *
  * @author chung
  */
 @Provider
-public class NotFoundExceptionMapper implements ExceptionMapper<NotFoundException> {
+public class GenericExceptionMapper implements ExceptionMapper<Throwable> {
 
     @Override
-    public Response toResponse(NotFoundException exception) {
+    public Response toResponse(Throwable exception) {
         StringWriter sw = new StringWriter();
         exception.printStackTrace(new PrintWriter(sw));
         String details = sw.toString();
-        ErrorReport error = ErrorReportFactory.notFoundError(details);
-        error.setMessage(exception.getMessage());
+        ErrorReport error = ErrorReportBuilder.builderRandomUuid()
+                .setCode("GenericUnhandledException")
+                .setMessage("Utterly unhandled exception. "
+                        + (exception.getMessage() != null ? exception.getMessage() : ""))
+                .setDetails(details)
+                .setHttpStatus(500)
+                .build();
         return Response
                 .ok(error, MediaType.APPLICATION_JSON)
-                .status(Response.Status.NOT_FOUND)
+                .status(Response.Status.INTERNAL_SERVER_ERROR)
                 .build();
     }
 

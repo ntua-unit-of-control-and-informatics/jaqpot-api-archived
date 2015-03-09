@@ -59,7 +59,7 @@ import org.jaqpot.core.service.dto.aa.AuthToken;
  * @author hampos
  */
 @Path("user")
-@Api(value = "/user", description = "Users API")
+@Api(value = "/user", description = "Users API", position = 1)
 @Produces({"application/json", "text/uri-list"})
 public class UserResource {
 
@@ -149,5 +149,25 @@ public class UserResource {
         } catch (GeneralSecurityException ex) {
             throw new InternalServerErrorException();
         }
+    }
+
+    @POST
+    @Path("/logout")
+    @Produces(MediaType.APPLICATION_JSON)
+    @ApiOperation(
+            value = "Logsout user",
+            notes = "Invalidates a security token and logs out the user",
+            produces = "application/json")
+    @ApiResponses(value = {
+        @ApiResponse(code = 401, message = "Wrong, missing or insufficient credentials. Error report is produced."),
+        @ApiResponse(code = 200, message = "Logged out")
+    })
+    public Response logout(
+            @HeaderParam("subjectid") String subjectId
+    ) {
+        return Response
+                .ok(ErrorReportFactory.notImplementedYet())
+                .status(Response.Status.NOT_IMPLEMENTED)
+                .build();
     }
 }
