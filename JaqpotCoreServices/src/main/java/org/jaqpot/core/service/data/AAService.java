@@ -64,7 +64,7 @@ public class AAService {
             MultivaluedMap<String, String> formData = new MultivaluedHashMap<>();
             formData.putSingle("username", username);
             formData.putSingle("password", password);
-            Response response = client.target("https://openam.in-silico.ch/auth/authenticate")
+            Response response = client.target("https://opensso.in-silico.ch/auth/authenticate")
                     .request()
                     .post(Entity.form(formData));
             String responseValue = response.readEntity(String.class);
