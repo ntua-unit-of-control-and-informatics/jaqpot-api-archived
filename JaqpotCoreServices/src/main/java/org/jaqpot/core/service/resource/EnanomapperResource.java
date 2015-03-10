@@ -36,16 +36,20 @@ import java.util.Map;
 import javax.ejb.EJB;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.HeaderParam;
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import org.jaqpot.core.data.ModelHandler;
+import org.jaqpot.core.model.Model;
 import org.jaqpot.core.model.Task;
 import org.jaqpot.core.service.data.ConjoinerService;
 import org.jaqpot.core.service.data.TrainingService;
 import org.jaqpot.core.service.dto.dataset.Dataset;
+import org.jaqpot.core.service.dto.jpdi.PredictionRequest;
 
 /**
  *
@@ -54,7 +58,7 @@ import org.jaqpot.core.service.dto.dataset.Dataset;
  *
  */
 @Path("enanomapper")
-@Api(value = "/enanomapper", description = "Operations on eNM")
+@Api(value = "/enanomapper", description = "eNM API")
 public class EnanomapperResource {
 
     @EJB
@@ -62,6 +66,9 @@ public class EnanomapperResource {
 
     @EJB
     TrainingService trainingService;
+
+    @EJB
+    ModelHandler modelHandler;
 
     @POST
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
@@ -89,6 +96,37 @@ public class EnanomapperResource {
         options.put("parameters", parameters);
         // Task task = trainingService.initiateTraining(options);
         return Response.ok(dataset).build();
+    }
+
+    @POST
+    @Produces({MediaType.APPLICATION_JSON})
+    @Path("/prediction")
+    @ApiOperation(value = "Creates Prediction",
+            notes = "Reads Studies from Bundle's Substances, creates Dateaset,"
+            + "calculates Descriptors, applies Dataset and Parameters on "
+            + "Algorithm and creates Model.",
+            response = Task.class
+    )
+    public Response makeEnmPrediction(
+            @FormParam("bundle_uri") String bundleURI,
+            @FormParam("model_uri") String modelURI,
+            @HeaderParam("subjectid") String subjectId) {
+
+        Dataset dataset = conjoinerService.prepareDataset(bundleURI, subjectId);
+        Model model = modelHandler.find(modelURI);
+        if (model == null) {
+            throw new NotFoundException("Model not found.");
+        }
+
+        Map<String, Object> options = new HashMap<>();
+        //  options.put("dataset_uri", datasetURI);
+        options.put("subjectid", subjectId);
+        options.put("model_uri", modelURI);
+        // Task task = trainingService.initiateTraining(options);
+        PredictionRequest predictionRequest = new PredictionRequest();
+        predictionRequest.setDataset(dataset);
+        predictionRequest.setRawModel(model.getActualModel());
+        return Response.ok(predictionRequest).build();
     }
 
 }

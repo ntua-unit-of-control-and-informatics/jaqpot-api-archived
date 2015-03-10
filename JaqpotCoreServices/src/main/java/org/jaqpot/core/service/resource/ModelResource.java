@@ -34,20 +34,31 @@ import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
 import com.wordnik.swagger.annotations.ApiResponse;
 import com.wordnik.swagger.annotations.ApiResponses;
+import java.security.GeneralSecurityException;
+import java.util.HashMap;
+import java.util.Map;
 import javax.ejb.EJB;
+import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
+import javax.ws.rs.NotFoundException;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.client.Client;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import org.jaqpot.core.data.ModelHandler;
 import org.jaqpot.core.model.Model;
+import org.jaqpot.core.model.Task;
 import org.jaqpot.core.model.factory.ErrorReportFactory;
+import org.jaqpot.core.service.client.Util;
+import org.jaqpot.core.service.dto.dataset.Dataset;
+import org.jaqpot.core.service.dto.jpdi.PredictionRequest;
 
 /**
  *
@@ -61,7 +72,7 @@ public class ModelResource {
 
     @Context
     UriInfo uriInfo;
-            
+
     @EJB
     ModelHandler modelHandler;
 
@@ -107,5 +118,40 @@ public class ModelResource {
                     .build();
         }
         return Response.ok(model).build();
+    }
+
+    @POST
+    @Produces({MediaType.APPLICATION_JSON})
+    @Path("/{id}")
+    @ApiOperation(value = "Creates Prediction",
+            notes = "Creates Prediction",
+            response = Task.class
+    )
+    public Response makePrediction(
+            @FormParam("dataset_uri") String datasetURI,
+            @PathParam("id") String id,
+            @HeaderParam("subjectid") String subjectId) throws GeneralSecurityException {
+
+        Model model = modelHandler.find(id);
+        if (model == null) {
+            throw new NotFoundException("Model not found.");
+        }
+
+        Client client = Util.buildUnsecureRestClient();
+        Dataset dataset = client.target(datasetURI)
+                .request()
+                .header("subjectid", subjectId)
+                .accept(MediaType.APPLICATION_JSON)
+                .get(Dataset.class);
+        dataset.setDatasetURI(datasetURI);
+
+        Map<String, Object> options = new HashMap<>();
+        options.put("dataset_uri", datasetURI);
+        options.put("subjectid", subjectId);
+        options.put("model_uri", id);
+        PredictionRequest predictionRequest = new PredictionRequest();
+        predictionRequest.setDataset(dataset);
+        predictionRequest.setRawModel(model.getActualModel());
+        return Response.ok(predictionRequest).build();
     }
 }
