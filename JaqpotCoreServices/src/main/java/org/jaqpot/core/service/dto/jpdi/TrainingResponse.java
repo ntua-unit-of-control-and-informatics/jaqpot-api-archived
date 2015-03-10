@@ -27,8 +27,6 @@
  * All source files of JAQPOT Quattro that are stored on github are licenced
  * with the aforementioned licence. 
  */
-
-
 package org.jaqpot.core.service.dto.jpdi;
 
 import java.util.List;
@@ -41,23 +39,23 @@ import java.util.List;
  */
 public class TrainingResponse {
 
-    private String rawModel;
-    private String pmmlModel;
+    private Object rawModel;
+    private Object pmmlModel;
     List<String> independentFeatures;
 
-    public String getRawModel() {
+    public Object getRawModel() {
         return rawModel;
     }
 
-    public void setRawModel(String rawModel) {
+    public void setRawModel(Object rawModel) {
         this.rawModel = rawModel;
     }
 
-    public String getPmmlModel() {
+    public Object getPmmlModel() {
         return pmmlModel;
     }
 
-    public void setPmmlModel(String pmmlModel) {
+    public void setPmmlModel(Object pmmlModel) {
         this.pmmlModel = pmmlModel;
     }
 

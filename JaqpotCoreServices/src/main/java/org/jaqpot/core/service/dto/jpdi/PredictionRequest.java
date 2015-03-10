@@ -27,8 +27,6 @@
  * All source files of JAQPOT Quattro that are stored on github are licenced
  * with the aforementioned licence. 
  */
-
-
 package org.jaqpot.core.service.dto.jpdi;
 
 import org.jaqpot.core.service.dto.dataset.Dataset;
@@ -42,7 +40,7 @@ import org.jaqpot.core.service.dto.dataset.Dataset;
 public class PredictionRequest {
 
     Dataset dataset;
-    String rawModel;
+    Object rawModel;
 
     public Dataset getDataset() {
         return dataset;
@@ -52,11 +50,11 @@ public class PredictionRequest {
         this.dataset = dataset;
     }
 
-    public String getRawModel() {
+    public Object getRawModel() {
         return rawModel;
     }
 
-    public void setRawModel(String rawModel) {
+    public void setRawModel(Object rawModel) {
         this.rawModel = rawModel;
     }
 

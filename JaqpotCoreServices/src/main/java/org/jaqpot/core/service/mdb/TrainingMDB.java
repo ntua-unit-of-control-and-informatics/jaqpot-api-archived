@@ -27,6 +27,8 @@ import org.jaqpot.core.data.TaskHandler;
 import org.jaqpot.core.model.Algorithm;
 import org.jaqpot.core.model.Model;
 import org.jaqpot.core.model.Task;
+import org.jaqpot.core.model.builder.ErrorReportBuilder;
+import org.jaqpot.core.model.factory.ErrorReportFactory;
 import org.jaqpot.core.service.client.Util;
 import org.jaqpot.core.service.dto.dataset.Dataset;
 import org.jaqpot.core.service.dto.jpdi.TrainingRequest;
@@ -46,12 +48,14 @@ import org.jaqpot.core.service.dto.jpdi.TrainingResponse;
 })
 public class TrainingMDB implements MessageListener {
 
+    private static final Logger LOG = Logger.getLogger(TrainingMDB.class.getName());
+
     @EJB
     TaskHandler taskHandler;
 
     @EJB
     AlgorithmHandler algorithmHandler;
-    
+
     @EJB
     ModelHandler modelHandler;
 
@@ -61,10 +65,10 @@ public class TrainingMDB implements MessageListener {
         try {
             Map<String, Object> messageBody = msg.getBody(Map.class);
             task = taskHandler.find(messageBody.get("taskId"));
-            
+
             task.setStatus(Task.Status.RUNNING);
             taskHandler.edit(task);
-            
+
             Client client = Util.buildUnsecureRestClient();
             Dataset dataset = client.target((String) messageBody.get("dataset_uri"))
                     .request()
@@ -87,7 +91,7 @@ public class TrainingMDB implements MessageListener {
             }
             request.setParameters(parameterMap);
 
-            String algorithmId = (String) messageBody.get("algorithm_id");
+            String algorithmId = (String) messageBody.get("algorithmId");
             Algorithm algorithm = algorithmHandler.find(algorithmId);
 
             Response response = client.target(algorithm.getTrainingService())
@@ -96,21 +100,30 @@ public class TrainingMDB implements MessageListener {
                     .post(Entity.json(request));
 
             TrainingResponse trainingResponse = response.readEntity(TrainingResponse.class);
-            
+
             Model model = new Model(UUID.randomUUID().toString());
             model.setActualModel(trainingResponse.getRawModel());
             model.setPmmlModel(trainingResponse.getPmmlModel());
             model.setAlgorithm(algorithm);
             model.setIndependentFeatures(trainingResponse.getIndependentFeatures());
             modelHandler.create(model);
-            
+
             task.setResultUri(model.getId());
             task.setStatus(Task.Status.COMPLETED);
-            taskHandler.edit(task);
-
-        } catch (JMSException | GeneralSecurityException | ArrayIndexOutOfBoundsException ex) {
-            Logger.getLogger(TrainingMDB.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+        } catch (JMSException | GeneralSecurityException ex) {
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
             task.setStatus(Task.Status.ERROR);
+            task.setErrorReport(ErrorReportFactory.internalServerError(ex, "", ex.getMessage(), ""));
+        } catch (ArrayIndexOutOfBoundsException ex) {
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
+            task.setStatus(Task.Status.ERROR);
+            task.setErrorReport(ErrorReportFactory.badRequest(ex.getMessage(), ""));
+        } catch (Exception ex) {
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
+            task.setStatus(Task.Status.ERROR);
+            task.setErrorReport(ErrorReportFactory.internalServerError(ex, "", ex.getMessage(), ""));
+        } finally {
+            taskHandler.edit(task);
         }
     }
 
