@@ -113,7 +113,7 @@ public class ModelTest {
     @Test
     public void testClone_actualModel(){
         Model m = rog.nextModel();
-        String originalActualModel = m.getActualModel();
+        Object originalActualModel = m.getActualModel();
         Model copy = new Model(m);
         copy.setActualModel(null);
         assertNotNull(m.getActualModel());
@@ -123,7 +123,7 @@ public class ModelTest {
     @Test
     public void testClone_pmmlModel(){
         Model m = rog.nextModel();
-        String originalPMML = m.getPmmlModel();
+        Object originalPMML = m.getPmmlModel();
         Model copy = new Model(m);
         copy.setPmmlModel(null);
         assertNotNull(m.getPmmlModel());

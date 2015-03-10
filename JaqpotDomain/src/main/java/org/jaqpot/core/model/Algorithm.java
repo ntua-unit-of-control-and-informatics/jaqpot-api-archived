@@ -79,6 +79,8 @@ public class Algorithm extends JaqpotEntity {
         this.createdBy = other.createdBy;
         this.parameters = other.parameters != null ? new HashSet<>(other.parameters) : null;
         this.ranking = other.ranking;
+        this.trainingService = other.trainingService;
+        this.predictionService = other.predictionService;
     }
 
     public Set<Parameter> getParameters() {

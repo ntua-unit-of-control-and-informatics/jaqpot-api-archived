@@ -85,12 +85,12 @@ public class Model extends JaqpotEntity {
     /**
      * The actual model as a string (ASCII).
      */
-    private String actualModel;
+    private Object actualModel;
     /**
      * PMML representation of the model itself. Equivalent to the actualModel,
      * but in PMML format.
      */
-    private String pmmlModel;
+    private Object pmmlModel;
     /**
      * A PMML defining the transformations of input features.
      */
@@ -104,7 +104,7 @@ public class Model extends JaqpotEntity {
     }
 
     /**
-     * Copy-constructor for Model objects. 
+     * Copy-constructor for Model objects.
      *
      * @param other model to be copied
      *
@@ -204,19 +204,19 @@ public class Model extends JaqpotEntity {
         this.bibtex = bibtex;
     }
 
-    public String getActualModel() {
+    public Object getActualModel() {
         return actualModel;
     }
 
-    public void setActualModel(String actualModel) {
+    public void setActualModel(Object actualModel) {
         this.actualModel = actualModel;
     }
 
-    public String getPmmlModel() {
+    public Object getPmmlModel() {
         return pmmlModel;
     }
 
-    public void setPmmlModel(String pmmlModel) {
+    public void setPmmlModel(Object pmmlModel) {
         this.pmmlModel = pmmlModel;
     }
 
