@@ -54,6 +54,8 @@ import org.jaqpot.core.model.BibTeX;
 import org.jaqpot.core.model.ErrorReport;
 import org.jaqpot.core.model.factory.ErrorReportFactory;
 import org.jaqpot.core.model.validator.BibTeXValidator;
+import org.jaqpot.core.service.data.AAService;
+import org.jaqpot.core.service.exceptions.JaqpotNotAuthorizedException;
 
 /**
  *
@@ -65,16 +67,19 @@ import org.jaqpot.core.model.validator.BibTeXValidator;
 @Api(value = "/bibtex", description = "BibTeX API")
 @Produces({"application/json", "text/uri-list"})
 public class BibTeXResource {
-    
-    private static final String DEFAULT_BIBTEX=
-                              "{\n"
-                            + "  \"bibType\":\"Article\",\n"
-                            + "  \"title\":\"title goes here\",\n"
-                            + "  \"author\":\"A.N.Onymous\",\n"
-                            + "  \"journal\":\"Int. J. Biochem.\",\n"
-                            + "  \"year\":2010,\n"
-                            + "  \"meta\":{\"comments\":[\"default bibtex\"]}\n"
-                            + "}";
+
+    @EJB
+    AAService aaService;
+
+    private static final String DEFAULT_BIBTEX
+            = "{\n"
+            + "  \"bibType\":\"Article\",\n"
+            + "  \"title\":\"title goes here\",\n"
+            + "  \"author\":\"A.N.Onymous\",\n"
+            + "  \"journal\":\"Int. J. Biochem.\",\n"
+            + "  \"year\":2010,\n"
+            + "  \"meta\":{\"comments\":[\"default bibtex\"]}\n"
+            + "}";
 
     @EJB
     BibTeXHandler handler;
@@ -93,17 +98,17 @@ public class BibTeXResource {
         @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
     })
     public Response getBibTeXs(
-            @ApiParam(value = "BibTeX type of entry", 
+            @ApiParam(value = "BibTeX type of entry",
                     allowableValues = "Article,Conference,Book,PhDThesis,InBook,InCollection,"
-                            + "InProceedings,Manual,Mastersthesis,Proceedings,TechReport,"
-                            + "Unpublished,Entry", defaultValue = "Entry") @QueryParam("bibtype") String bibtype,
+                    + "InProceedings,Manual,Mastersthesis,Proceedings,TechReport,"
+                    + "Unpublished,Entry", defaultValue = "Entry") @QueryParam("bibtype") String bibtype,
             @ApiParam("Creator of the BibTeX entry") @QueryParam("creator") String creator,
             @ApiParam("Generic query (e.g., Article title, journal name, etc)") @QueryParam("query") String query
     ) {
         return Response
                 .ok(handler.findAll())
                 .status(Response.Status.OK)
-                .build();       
+                .build();
     }
 
     @GET
@@ -124,7 +129,9 @@ public class BibTeXResource {
             @ApiParam(value = "ID of the BibTeX", required = true) @PathParam("id") String id
     ) {
         BibTeX b = handler.find(id);
-        if (b == null) throw new NotFoundException("BibTeX " + id + " not found.");
+        if (b == null) {
+            throw new NotFoundException("BibTeX " + id + " not found.");
+        }
         return Response.ok(b).build();
     }
 
@@ -144,35 +151,35 @@ public class BibTeXResource {
         @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
     })
     public Response createBibTeX(
-            @ApiParam(value = "Clients need to authenticate in order to create resources on the server") 
-            @HeaderParam("subjectid") 
-                    String subjectId,
-            @ApiParam(value="BibTeX in JSON representation compliant with the BibTeX specifications. "
+            @ApiParam(value = "Clients need to authenticate in order to create resources on the server")
+            @HeaderParam("subjectid") String subjectId,
+            @ApiParam(value = "BibTeX in JSON representation compliant with the BibTeX specifications. "
                     + "Malformed BibTeX entries with missing fields will not be accepted.", required = true,
-                    defaultValue = DEFAULT_BIBTEX) 
-                    BibTeX bib
-    ) {
-        
-        if (bib==null){
-            ErrorReport report = ErrorReportFactory.badRequest("No bibtex provided; check out the API specs", 
+                    defaultValue = DEFAULT_BIBTEX) BibTeX bib
+    ) throws JaqpotNotAuthorizedException {
+        // First check the subjectid:
+        if (subjectId == null || !aaService.validate(subjectId)) {
+            throw new JaqpotNotAuthorizedException("Invalid auth token");
+        }
+        if (bib == null) {
+            ErrorReport report = ErrorReportFactory.badRequest("No bibtex provided; check out the API specs",
                     "Clients MUST provide a BibTeX document in JSON to perform this request");
             return Response.ok(report).status(Response.Status.BAD_REQUEST).build();
         }
         bib.setId(UUID.randomUUID().toString());
         ErrorReport error = BibTeXValidator.validate(bib);
-        if (error!=null)
-        {
+        if (error != null) {
             return Response
-                .ok(error)
-                .status(Response.Status.BAD_REQUEST)
-                .build();
+                    .ok(error)
+                    .status(Response.Status.BAD_REQUEST)
+                    .build();
         }
-        handler.create(bib);        
+        handler.create(bib);
         return Response
                 .ok(bib)
                 .status(Response.Status.OK)
                 .build();
-        
+
     }
 
     @PUT
