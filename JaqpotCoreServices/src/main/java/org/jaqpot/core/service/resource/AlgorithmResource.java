@@ -108,7 +108,7 @@ public class AlgorithmResource {
     )
     public Response createAlgorithm(
             @ApiParam(value = "Algorithm in JSON", defaultValue = DEFAULT_ALGORITHM, required = true) Algorithm algorithm,
-            @ApiParam(value = "Authorization token", required = true) @HeaderParam("subjectid") String subjectId,
+            @ApiParam(value = "Authorization token") @HeaderParam("subjectid") String subjectId,
             @ApiParam(value = "Title of your algorithm") @HeaderParam("title") String title,
             @ApiParam(value = "Short description of your algorithm") @HeaderParam("description") String description,
             @ApiParam(value = "Tags for your algorithm (in a comma separated list) to facilitate look-up") @HeaderParam("tags") String tags

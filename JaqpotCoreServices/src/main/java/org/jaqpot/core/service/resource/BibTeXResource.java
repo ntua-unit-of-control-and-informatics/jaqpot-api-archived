@@ -190,6 +190,7 @@ public class BibTeXResource {
             notes = "Creates a new BibTeX entry which is assigned a random unique ID",
             response = BibTeX.class,
             position = 4)
+    @Consumes(MediaType.APPLICATION_JSON)
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "BibTeX entry was created successfully."),
         @ApiResponse(code = 400, message = "BibTeX entry was not created because the request was malformed"),
@@ -199,11 +200,26 @@ public class BibTeXResource {
     })
     public Response createBibTeXGivenID(
             @ApiParam(value = "ID of the BibTeX.", required = true) @PathParam("id") String id,
+            @ApiParam(value = "BibTeX in JSON", defaultValue = DEFAULT_BIBTEX, required = true) BibTeX bib,
             @ApiParam("Clients need to authenticate in order to create resources on the server") @HeaderParam("subjectid") String subjectId
     ) {
+        if (bib == null) {
+            ErrorReport report = ErrorReportFactory.badRequest("No bibtex provided; check out the API specs",
+                    "Clients MUST provide a BibTeX document in JSON to perform this request");
+            return Response.ok(report).status(Response.Status.BAD_REQUEST).build();
+        }
+        bib.setId(id);
+        ErrorReport error = BibTeXValidator.validate(bib);
+        if (error != null) {
+            return Response
+                    .ok(error)
+                    .status(Response.Status.BAD_REQUEST)
+                    .build();
+        }
+        handler.create(bib);
         return Response
-                .ok(ErrorReportFactory.notImplementedYet())
-                .status(Response.Status.NOT_IMPLEMENTED)
+                .ok(bib)
+                .status(Response.Status.OK)
                 .build();
     }
 
