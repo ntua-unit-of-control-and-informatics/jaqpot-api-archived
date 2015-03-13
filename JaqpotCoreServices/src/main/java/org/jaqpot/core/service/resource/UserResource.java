@@ -34,14 +34,9 @@ import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
 import com.wordnik.swagger.annotations.ApiResponse;
 import com.wordnik.swagger.annotations.ApiResponses;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.ejb.EJB;
-import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
-import javax.ws.rs.NotAuthorizedException;
-import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -50,8 +45,6 @@ import javax.ws.rs.core.Response;
 import org.jaqpot.core.model.User;
 import org.jaqpot.core.model.factory.ErrorReportFactory;
 import org.jaqpot.core.service.data.AAService;
-import org.jaqpot.core.service.dto.aa.AuthToken;
-import org.jaqpot.core.service.exceptions.JaqpotNotAuthorizedException;
 
 /**
  *
@@ -110,49 +103,5 @@ public class UserResource {
                 .status(Response.Status.NOT_IMPLEMENTED)
                 .build();
     }
-
-    @POST
-    @Path("/login")
-    @Produces(MediaType.APPLICATION_JSON)
-    @ApiOperation(
-            value = "Creates Security Token",
-            notes = "Uses OpenAM server to get a security token.",
-            produces = "application/json")
-    @ApiResponses(value = {
-        @ApiResponse(code = 401, message = "Wrong, missing or insufficient credentials. Error report is produced."),
-        @ApiResponse(code = 200, message = "Logged in - authentication token can be found in the response body (in JSON)")
-    })
-    public Response login(
-            @ApiParam("Username") @FormParam("username") String username,
-            @ApiParam("Password") @FormParam("password") String password) {
-
-        AuthToken aToken;
-        try {
-            aToken = aaService.login(username, password);
-            return Response.ok(aToken).status(Response.Status.OK).build();
-        } catch (JaqpotNotAuthorizedException ex) {
-            throw new NotAuthorizedException(Response.ok(ex.getError()).status(Response.Status.UNAUTHORIZED).build());
-        }
-
-    }
-
-    @POST
-    @Path("/logout")
-    @Produces(MediaType.APPLICATION_JSON)
-    @ApiOperation(
-            value = "Logsout user",
-            notes = "Invalidates a security token and logs out the user",
-            produces = "application/json")
-    @ApiResponses(value = {
-        @ApiResponse(code = 401, message = "Wrong, missing or insufficient credentials. Error report is produced."),
-        @ApiResponse(code = 200, message = "Logged out")
-    })
-    public Response logout(
-            @HeaderParam("subjectid") String subjectId
-    ) {
-        return Response
-                .ok(ErrorReportFactory.notImplementedYet())
-                .status(Response.Status.NOT_IMPLEMENTED)
-                .build();
-    }
+    
 }
