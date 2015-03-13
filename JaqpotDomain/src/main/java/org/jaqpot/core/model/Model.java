@@ -94,6 +94,9 @@ public class Model extends JaqpotEntity {
     /**
      * A PMML defining the transformations of input features.
      */
+
+    private Object additionalInfo;
+
     private String pmmlTransformations;
 
     public Model() {
@@ -218,6 +221,14 @@ public class Model extends JaqpotEntity {
 
     public void setPmmlModel(Object pmmlModel) {
         this.pmmlModel = pmmlModel;
+    }
+
+    public Object getAdditionalInfo() {
+        return additionalInfo;
+    }
+
+    public void setAdditionalInfo(Object additionalInfo) {
+        this.additionalInfo = additionalInfo;
     }
 
     public String getPmmlTransformations() {
