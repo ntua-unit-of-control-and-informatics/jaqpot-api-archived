@@ -41,11 +41,15 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.util.JSON;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
+import java.util.ResourceBundle;
+import java.util.logging.Level;
 import org.bson.Document;
 import org.jaqpot.core.data.serialize.JacksonJSONSerializer;
 import org.jaqpot.core.model.MetaInfo;
@@ -80,7 +84,27 @@ public class MongoDBEntityManagerTest {
     Task taskPojo2;
     String taskJSON;
 
-    private static MongoClient mongoClient = new MongoClient();
+    private static final MongoClient mongoClient;
+    private static final Properties dbProperties;
+
+    static {
+        ClassLoader classLoader = MongoDBEntityManager.class.getClassLoader();
+        InputStream is = classLoader.getResourceAsStream("config/db.properties");
+        String dbHost = "localhost"; // Default DB host
+        int dbPort = 27017; // Default DB port
+        dbProperties = new Properties();
+
+        try {
+            dbProperties.load(is);
+            dbHost = dbProperties.getProperty("db.host", dbHost);
+            dbPort = Integer.parseInt(dbProperties.getProperty("db.port", Integer.toString(dbPort)));
+        } catch (IOException ex) {
+            String errorMessage = "No DB properties file found!";
+            System.out.println(errorMessage);
+        } finally {
+        }
+        mongoClient = new MongoClient(dbHost, dbPort);
+    }
 
     @InjectMocks
     private MongoDBEntityManager em;
@@ -298,7 +322,7 @@ public class MongoDBEntityManagerTest {
 
         em.remove(taskPojo);
 
-        MongoCollection<Document> collection = db.getCollection(MongoDBEntityManager.collectionNames.get(taskPojo.getClass()));
+        MongoCollection<Document> collection = db.getCollection("Task");
         Document foundTask = collection.find(new Document("_id", taskPojo.getId())).first();
         assertNull(foundTask);
 

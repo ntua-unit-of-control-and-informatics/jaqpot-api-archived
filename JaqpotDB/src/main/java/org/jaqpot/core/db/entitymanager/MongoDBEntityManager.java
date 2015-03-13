@@ -48,7 +48,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.enterprise.context.Dependent;
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.xml.bind.annotation.XmlRootElement;
 import org.bson.Document;
@@ -65,7 +65,7 @@ import org.reflections.Reflections;
  *
  */
 @MongoDB
-@Dependent
+@ApplicationScoped
 public class MongoDBEntityManager implements JaqpotEntityManager {
 
     private static final Logger LOG = Logger.getLogger(MongoDBEntityManager.class.getName());
@@ -79,7 +79,7 @@ public class MongoDBEntityManager implements JaqpotEntityManager {
     private String database;
     private static Properties dbProperties = new Properties();
 
-    public static final Map<Class, String> collectionNames;
+    private static final Map<Class, String> collectionNames;
 
     static {
         collectionNames = new HashMap<>();
@@ -99,6 +99,7 @@ public class MongoDBEntityManager implements JaqpotEntityManager {
     }
 
     public MongoDBEntityManager() {
+        LOG.log(Level.INFO, "Initializing MongoDB EntityManager");
         ClassLoader classLoader = this.getClass().getClassLoader();
         InputStream is = classLoader.getResourceAsStream("config/db.properties");
         String dbName = "production"; // Default DB name in case no properties file is found!
