@@ -6,6 +6,7 @@
 package org.jaqpot.core.service.mdb;
 
 import java.security.GeneralSecurityException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -76,9 +77,9 @@ public class TrainingMDB implements MessageListener {
                     .accept(MediaType.APPLICATION_JSON)
                     .get(Dataset.class);
             dataset.setDatasetURI((String) messageBody.get("dataset_uri"));
-            TrainingRequest request = new TrainingRequest();
-            request.setDataset(dataset);
-            request.setPredictionFeature((String) messageBody.get("prediction_feature"));
+            TrainingRequest trainingRequest = new TrainingRequest();
+            trainingRequest.setDataset(dataset);
+            trainingRequest.setPredictionFeature((String) messageBody.get("prediction_feature"));
 
             String parameters = (String) messageBody.get("parameters");
             Map<String, Object> parameterMap = new HashMap<>();
@@ -89,7 +90,7 @@ public class TrainingMDB implements MessageListener {
                     parameterMap.put(keyValuePair[0].trim(), keyValuePair[1].trim());
                 }
             }
-            request.setParameters(parameterMap);
+            trainingRequest.setParameters(parameterMap);
 
             String algorithmId = (String) messageBody.get("algorithmId");
             Algorithm algorithm = algorithmHandler.find(algorithmId);
@@ -97,7 +98,7 @@ public class TrainingMDB implements MessageListener {
             Response response = client.target(algorithm.getTrainingService())
                     .request()
                     .accept(MediaType.APPLICATION_JSON)
-                    .post(Entity.json(request));
+                    .post(Entity.json(trainingRequest));
 
             TrainingResponse trainingResponse = response.readEntity(TrainingResponse.class);
 
@@ -106,6 +107,10 @@ public class TrainingMDB implements MessageListener {
             model.setPmmlModel(trainingResponse.getPmmlModel());
             model.setAlgorithm(algorithm);
             model.setIndependentFeatures(trainingResponse.getIndependentFeatures());
+            model.setAdditionalInfo(trainingResponse.getAdditionalInfo());
+            ArrayList<String> predictedFeatures = new ArrayList<>();
+            predictedFeatures.add(trainingRequest.getPredictionFeature());
+            model.setPredictedFeatures(predictedFeatures);
             modelHandler.create(model);
 
             task.setResultUri(model.getId());

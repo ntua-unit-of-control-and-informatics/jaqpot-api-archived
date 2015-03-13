@@ -41,6 +41,7 @@ public class PredictionRequest {
 
     Dataset dataset;
     Object rawModel;
+    Object additionalInfo;
 
     public Dataset getDataset() {
         return dataset;
@@ -56,6 +57,14 @@ public class PredictionRequest {
 
     public void setRawModel(Object rawModel) {
         this.rawModel = rawModel;
+    }
+
+    public Object getAdditionalInfo() {
+        return additionalInfo;
+    }
+
+    public void setAdditionalInfo(Object additionalInfo) {
+        this.additionalInfo = additionalInfo;
     }
 
 }

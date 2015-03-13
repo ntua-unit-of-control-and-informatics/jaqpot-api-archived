@@ -10,6 +10,7 @@ import java.util.UUID;
 import javax.annotation.Resource;
 import javax.ejb.EJB;
 import javax.ejb.Singleton;
+import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.jms.JMSContext;
 import javax.jms.Topic;
@@ -27,7 +28,7 @@ import org.jaqpot.core.model.factory.TaskFactory;
  * @author Charalampos Chomenidis
  *
  */
-@Singleton
+@Stateless
 public class TrainingService {
 
     @EJB
@@ -45,23 +46,18 @@ public class TrainingService {
     public Task initiateTraining(Map<String, Object> options) {
 
         String algorithmId = (String) options.get("algorithmId");
-
         Algorithm algorithm = algorithmHandler.find(algorithmId);
         if (algorithm == null) {
             throw new NotFoundException("Could not find algorithm with id:" + algorithmId);
         }
 
-        Task task = TaskFactory.queuedTask("This is a new task",
-                "this is a description for my task",
+        Task task = TaskFactory.queuedTask("Training on algorithm:" + algorithm.getId(),
+                "A training procedure will return a Model if completed successfully.",
                 "chung");
 
         options.put("taskId", task.getId());
         taskHandler.create(task);
-        options.entrySet().stream().forEach(e -> {
-            System.out.println(e.getKey() + ":" + e.getValue());
-        });
         jmsContext.createProducer().setDeliveryDelay(1000).send(trainingQueue, options);
-
         return task;
     }
 

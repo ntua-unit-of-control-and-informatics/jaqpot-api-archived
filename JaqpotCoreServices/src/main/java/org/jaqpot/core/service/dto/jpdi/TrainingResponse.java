@@ -41,6 +41,7 @@ public class TrainingResponse {
 
     private Object rawModel;
     private Object pmmlModel;
+    private Object additionalInfo;
     List<String> independentFeatures;
 
     public Object getRawModel() {
@@ -57,6 +58,14 @@ public class TrainingResponse {
 
     public void setPmmlModel(Object pmmlModel) {
         this.pmmlModel = pmmlModel;
+    }
+
+    public Object getAdditionalInfo() {
+        return additionalInfo;
+    }
+
+    public void setAdditionalInfo(Object additionalInfo) {
+        this.additionalInfo = additionalInfo;
     }
 
     public List<String> getIndependentFeatures() {

@@ -57,6 +57,7 @@ import org.jaqpot.core.model.Model;
 import org.jaqpot.core.model.Task;
 import org.jaqpot.core.model.factory.ErrorReportFactory;
 import org.jaqpot.core.service.client.Util;
+import org.jaqpot.core.service.data.PredictionService;
 import org.jaqpot.core.service.dto.dataset.Dataset;
 import org.jaqpot.core.service.dto.jpdi.PredictionRequest;
 
@@ -75,6 +76,9 @@ public class ModelResource {
 
     @EJB
     ModelHandler modelHandler;
+
+    @EJB
+    PredictionService predictionService;
 
     @GET
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
@@ -137,21 +141,11 @@ public class ModelResource {
             throw new NotFoundException("Model not found.");
         }
 
-        Client client = Util.buildUnsecureRestClient();
-        Dataset dataset = client.target(datasetURI)
-                .request()
-                .header("subjectid", subjectId)
-                .accept(MediaType.APPLICATION_JSON)
-                .get(Dataset.class);
-        dataset.setDatasetURI(datasetURI);
-
         Map<String, Object> options = new HashMap<>();
         options.put("dataset_uri", datasetURI);
         options.put("subjectid", subjectId);
-        options.put("model_uri", id);
-        PredictionRequest predictionRequest = new PredictionRequest();
-        predictionRequest.setDataset(dataset);
-        predictionRequest.setRawModel(model.getActualModel());
-        return Response.ok(predictionRequest).build();
+        options.put("modelId", id);
+        Task task = predictionService.initiatePrediction(options);
+        return Response.ok(task).build();
     }
 }

@@ -27,8 +27,6 @@
  * All source files of JAQPOT Quattro that are stored on github are licenced
  * with the aforementioned licence. 
  */
-
-
 package org.jaqpot.core.service.dto.jpdi;
 
 import java.util.List;
@@ -47,8 +45,8 @@ public class PredictionResponse {
         return predictions;
     }
 
-    public void setPredictions(List<Object> predictions) {
-        this.predictions = predictions;
+    public void setPredictions(List<Object> prediction) {
+        this.predictions = prediction;
     }
 
 }
