@@ -45,6 +45,8 @@ import java.util.HashSet;
 @XmlRootElement
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public abstract class JaqpotEntity {
+    
+    private String URI;
 
     /**
      * Identifier of the entity.
@@ -73,6 +75,16 @@ public abstract class JaqpotEntity {
         this.id = other.id;
         this.meta = other.meta != null ? new MetaInfo(other.meta) : null;
         this.ontologicalClasses = other.ontologicalClasses != null ? new HashSet<>(other.ontologicalClasses) : null;
+    }
+
+    @JsonProperty("URI")
+    public String getURI() {
+        return URI;
+    }
+   
+    @JsonProperty("URI")
+    public void setURI(String URI) {
+        this.URI = URI;
     }
 
     @JsonProperty("_id")
