@@ -56,7 +56,7 @@ import org.jaqpot.core.data.ModelHandler;
 import org.jaqpot.core.model.Model;
 import org.jaqpot.core.model.Task;
 import org.jaqpot.core.model.factory.ErrorReportFactory;
-import org.jaqpot.core.service.client.Util;
+import org.jaqpot.core.service.client.ClientUtils;
 import org.jaqpot.core.service.data.PredictionService;
 import org.jaqpot.core.service.dto.dataset.Dataset;
 import org.jaqpot.core.service.dto.jpdi.PredictionRequest;

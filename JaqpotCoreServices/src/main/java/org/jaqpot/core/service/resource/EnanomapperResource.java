@@ -34,22 +34,28 @@ import com.wordnik.swagger.annotations.ApiOperation;
 import java.util.HashMap;
 import java.util.Map;
 import javax.ejb.EJB;
+import javax.inject.Inject;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
+import org.jaqpot.core.annotations.MongoDB;
+import org.jaqpot.core.data.DatasetHandler;
 import org.jaqpot.core.data.ModelHandler;
+import org.jaqpot.core.db.entitymanager.JaqpotEntityManager;
 import org.jaqpot.core.model.Model;
 import org.jaqpot.core.model.Task;
 import org.jaqpot.core.service.data.ConjoinerService;
 import org.jaqpot.core.service.data.TrainingService;
-import org.jaqpot.core.service.dto.dataset.Dataset;
-import org.jaqpot.core.service.dto.jpdi.PredictionRequest;
+import org.jaqpot.core.model.dto.dataset.Dataset;
+import org.jaqpot.core.model.dto.jpdi.PredictionRequest;
+import org.jaqpot.core.service.data.PredictionService;
 
 /**
  *
@@ -68,7 +74,16 @@ public class EnanomapperResource {
     TrainingService trainingService;
 
     @EJB
+    PredictionService predictionService;
+
+    @EJB
     ModelHandler modelHandler;
+
+    @EJB
+    DatasetHandler datasetHandler;
+
+    @Context
+    UriInfo uriInfo;
 
     @POST
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
@@ -87,15 +102,18 @@ public class EnanomapperResource {
             @HeaderParam("subjectid") String subjectId) {
 
         Dataset dataset = conjoinerService.prepareDataset(bundleURI, subjectId);
+        dataset.setId(dataset.getDatasetURI());
+        datasetHandler.create(dataset);
+        String datasetURI = uriInfo.getBaseUri() + dataset.getClass().getSimpleName().toLowerCase() + "/" + dataset.getId();
 
         Map<String, Object> options = new HashMap<>();
-        //  options.put("dataset_uri", datasetURI);
+        options.put("dataset_uri", datasetURI);
         options.put("prediction_feature", predictionFeature);
         options.put("subjectid", subjectId);
         options.put("algorithmId", algorithmURI);
         options.put("parameters", parameters);
-        // Task task = trainingService.initiateTraining(options);
-        return Response.ok(dataset).build();
+        Task task = trainingService.initiateTraining(options);
+        return Response.ok(task).build();
     }
 
     @POST
@@ -113,20 +131,20 @@ public class EnanomapperResource {
             @HeaderParam("subjectid") String subjectId) {
 
         Dataset dataset = conjoinerService.prepareDataset(bundleURI, subjectId);
+        dataset.setId(dataset.getDatasetURI());
         Model model = modelHandler.find(modelURI);
         if (model == null) {
             throw new NotFoundException("Model not found.");
         }
+        datasetHandler.create(dataset);
+        String datasetURI = uriInfo.getBaseUri() + dataset.getClass().getSimpleName().toLowerCase() + "/" + dataset.getId();
 
         Map<String, Object> options = new HashMap<>();
-        //  options.put("dataset_uri", datasetURI);
+        options.put("dataset_uri", datasetURI);
         options.put("subjectid", subjectId);
-        options.put("model_uri", modelURI);
-        // Task task = trainingService.initiateTraining(options);
-        PredictionRequest predictionRequest = new PredictionRequest();
-        predictionRequest.setDataset(dataset);
-        predictionRequest.setRawModel(model.getActualModel());
-        return Response.ok(predictionRequest).build();
+        options.put("modelId", modelURI);
+        Task task = predictionService.initiatePrediction(options);
+        return Response.ok(task).build();
     }
 
 }
