@@ -12,10 +12,7 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.jms.JMSContext;
 import javax.jms.Topic;
-import javax.ws.rs.NotFoundException;
 import org.jaqpot.core.data.TaskHandler;
-import org.jaqpot.core.model.Algorithm;
-import org.jaqpot.core.model.Model;
 import org.jaqpot.core.model.Task;
 import org.jaqpot.core.model.factory.TaskFactory;
 

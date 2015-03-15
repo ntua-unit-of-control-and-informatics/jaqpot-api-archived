@@ -39,7 +39,7 @@ import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import org.jaqpot.core.data.UserHandler;
-import org.jaqpot.core.service.client.Util;
+import org.jaqpot.core.service.client.ClientUtils;
 import org.jaqpot.core.service.dto.aa.AuthToken;
 import org.jaqpot.core.service.exceptions.JaqpotNotAuthorizedException;
 
@@ -87,7 +87,7 @@ public class AAService {
 
     public AuthToken login(String username, String password) throws JaqpotNotAuthorizedException {
         try {
-            Client client = Util.buildUnsecureRestClient();
+            Client client = ClientUtils.buildUnsecureRestClient();
             MultivaluedMap<String, String> formData = new MultivaluedHashMap<>();
             formData.putSingle("username", username);
             formData.putSingle("password", password);
@@ -116,7 +116,7 @@ public class AAService {
     */
     public boolean validate(String token) {
         try {
-            Client client = Util.buildUnsecureRestClient();
+            Client client = ClientUtils.buildUnsecureRestClient();
             MultivaluedMap<String, String> formData = new MultivaluedHashMap<>();
             formData.putSingle("tokenid", token);
             Response response = client.target(SSOvalidate)
@@ -137,7 +137,7 @@ public class AAService {
     
     public boolean logout(String token) {
         try {
-            Client client = Util.buildUnsecureRestClient();
+            Client client = ClientUtils.buildUnsecureRestClient();
             MultivaluedMap<String, String> formData = new MultivaluedHashMap<>();
             formData.putSingle("subjectid", token);
             Response response = client.target(SSOlogout)

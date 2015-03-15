@@ -30,7 +30,7 @@ import org.jaqpot.core.model.Model;
 import org.jaqpot.core.model.Task;
 import org.jaqpot.core.model.builder.ErrorReportBuilder;
 import org.jaqpot.core.model.factory.ErrorReportFactory;
-import org.jaqpot.core.service.client.Util;
+import org.jaqpot.core.service.client.ClientUtils;
 import org.jaqpot.core.service.dto.dataset.Dataset;
 import org.jaqpot.core.service.dto.jpdi.TrainingRequest;
 import org.jaqpot.core.service.dto.jpdi.TrainingResponse;
@@ -70,7 +70,7 @@ public class TrainingMDB implements MessageListener {
             task.setStatus(Task.Status.RUNNING);
             taskHandler.edit(task);
 
-            Client client = Util.buildUnsecureRestClient();
+            Client client = ClientUtils.buildUnsecureRestClient();
             Dataset dataset = client.target((String) messageBody.get("dataset_uri"))
                     .request()
                     .header("subjectid", messageBody.get("subjectid"))
@@ -108,9 +108,9 @@ public class TrainingMDB implements MessageListener {
             model.setAlgorithm(algorithm);
             model.setIndependentFeatures(trainingResponse.getIndependentFeatures());
             model.setAdditionalInfo(trainingResponse.getAdditionalInfo());
-            ArrayList<String> predictedFeatures = new ArrayList<>();
-            predictedFeatures.add(trainingRequest.getPredictionFeature());
-            model.setPredictedFeatures(predictedFeatures);
+            ArrayList<String> dependentFeatures = new ArrayList<>();
+            dependentFeatures.add(trainingRequest.getPredictionFeature());
+            model.setDependentFeatures(dependentFeatures);
             modelHandler.create(model);
 
             task.setResultUri(model.getId());

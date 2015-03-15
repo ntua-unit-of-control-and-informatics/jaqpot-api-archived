@@ -21,7 +21,7 @@ import javax.ws.rs.client.ClientBuilder;
  * @author Charalampos Chomenidis
  *
  */
-public class Util {
+public class ClientUtils {
 
     public static Client buildUnsecureRestClient() throws GeneralSecurityException {
         SSLContext context = SSLContext.getInstance("TLSv1");

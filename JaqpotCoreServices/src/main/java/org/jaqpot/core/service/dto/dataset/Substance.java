@@ -27,8 +27,6 @@
  * All source files of JAQPOT Quattro that are stored on github are licenced
  * with the aforementioned licence. 
  */
-
-
 package org.jaqpot.core.service.dto.dataset;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -42,18 +40,18 @@ import javax.xml.bind.annotation.XmlRootElement;
  * @author Charalampos Chomenidis
  *
  */
-@XmlRootElement
+//@XmlRootElement
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Substance {
 
-    @JsonProperty("URI")
     String URI;
 
-    @JsonIgnore
+    @JsonProperty("URI")
     public String getURI() {
         return URI;
     }
 
+    @JsonProperty("URI")
     public void setURI(String URI) {
         this.URI = URI;
     }

@@ -13,7 +13,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
@@ -22,20 +21,16 @@ import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ejb.Stateless;
-import javax.inject.Inject;
 import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.core.MediaType;
-import org.jaqpot.core.annotations.Jackson;
-import org.jaqpot.core.data.serialize.JSONSerializer;
 import org.jaqpot.core.data.serialize.JacksonJSONSerializer;
-import org.jaqpot.core.service.client.Util;
-import org.jaqpot.core.service.dto.bundle.BundleSubstances;
-import org.jaqpot.core.service.dto.dataset.DataEntry;
-import org.jaqpot.core.service.dto.dataset.Dataset;
-import org.jaqpot.core.service.dto.dataset.Substance;
+import org.jaqpot.core.service.client.ClientUtils;
+import org.jaqpot.core.model.dto.bundle.BundleSubstances;
+import org.jaqpot.core.model.dto.dataset.DataEntry;
+import org.jaqpot.core.model.dto.dataset.Dataset;
+import org.jaqpot.core.model.dto.dataset.Substance;
 import org.jaqpot.core.service.dto.study.Effect;
-import org.jaqpot.core.service.dto.study.Result;
 import org.jaqpot.core.service.dto.study.Studies;
 import org.jaqpot.core.service.dto.study.Study;
 import org.jaqpot.core.service.dto.study.proteomics.Proteomics;
@@ -55,7 +50,7 @@ public class ConjoinerService {
     public Dataset prepareDataset(String bundleURI, String subjectId) {
 
         try {
-            Client client = Util.buildUnsecureRestClient();
+            Client client = ClientUtils.buildUnsecureRestClient();
 
             BundleSubstances substances = client.target(bundleURI + "/substance")
                     .request()

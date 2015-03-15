@@ -27,14 +27,13 @@
  * All source files of JAQPOT Quattro that are stored on github are licenced
  * with the aforementioned licence. 
  */
-
-
 package org.jaqpot.core.service.dto.dataset;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.List;
 import java.util.Map;
 import javax.xml.bind.annotation.XmlRootElement;
+import org.jaqpot.core.model.JaqpotEntity;
 
 /**
  *
@@ -44,10 +43,10 @@ import javax.xml.bind.annotation.XmlRootElement;
  */
 @XmlRootElement
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Dataset {
-    
+public class Dataset extends JaqpotEntity {
+
     String datasetURI;
-    
+
     List<DataEntry> dataEntry;
 
     public String getDatasetURI() {
@@ -70,6 +69,5 @@ public class Dataset {
     public String toString() {
         return "Dataset{" + "datasetURI=" + datasetURI + ", dataEntry=" + dataEntry + '}';
     }
-    
-    
+
 }
