@@ -7,11 +7,11 @@ package org.jaqpot.core.service.data;
 
 import java.util.TreeMap;
 import javax.ejb.embeddable.EJBContainer;
-import org.jaqpot.core.service.dto.dataset.DataEntry;
-import org.jaqpot.core.service.dto.dataset.Dataset;
-import org.jaqpot.core.service.dto.study.Effect;
-import org.jaqpot.core.service.dto.study.Result;
-import org.jaqpot.core.service.dto.study.Studies;
+import org.jaqpot.core.model.dto.dataset.DataEntry;
+import org.jaqpot.core.model.dto.dataset.Dataset;
+import org.jaqpot.core.model.dto.study.Effect;
+import org.jaqpot.core.model.dto.study.Result;
+import org.jaqpot.core.model.dto.study.Studies;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -73,16 +73,16 @@ public class ConjoinerServiceTest {
      */
     //@Test
     public void testCreateDataEntry() throws Exception {
-        System.out.println("createDataEntry");
-        Studies studies = null;
-        EJBContainer container = javax.ejb.embeddable.EJBContainer.createEJBContainer();
-        ConjoinerService instance = (ConjoinerService)container.getContext().lookup("java:global/classes/ConjoinerService");
-        DataEntry expResult = null;
-        DataEntry result = instance.createDataEntry(studies);
-        assertEquals(expResult, result);
-        container.close();
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+//        System.out.println("createDataEntry");
+//        Studies studies = null;
+//        EJBContainer container = javax.ejb.embeddable.EJBContainer.createEJBContainer();
+//        ConjoinerService instance = (ConjoinerService)container.getContext().lookup("java:global/classes/ConjoinerService");
+//        DataEntry expResult = null;
+//        DataEntry result = instance.createDataEntry(studies);
+//        assertEquals(expResult, result);
+//        container.close();
+//        // TODO review the generated test code and remove the default call to fail.
+//        fail("The test case is a prototype.");
     }
 
     /**

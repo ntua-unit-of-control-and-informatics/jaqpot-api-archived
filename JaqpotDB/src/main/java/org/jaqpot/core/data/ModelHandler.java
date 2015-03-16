@@ -29,6 +29,8 @@
  */
 package org.jaqpot.core.data;
 
+import java.util.ArrayList;
+import java.util.List;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import org.jaqpot.core.annotations.MongoDB;
@@ -53,5 +55,23 @@ public class ModelHandler extends AbstractHandler<Model> {
     @Override
     protected JaqpotEntityManager getEntityManager() {
         return em;
+    }
+
+    public Model findModelMeta(String id) {
+        List<String> keys = new ArrayList<>();
+        keys.add(id);
+
+        List<String> fields = new ArrayList<>();
+        fields.add("_id");
+        fields.add("createdBy");
+        fields.add("dependentFeatures");
+        fields.add("independentFeatures");
+        fields.add("predictedFeatures");
+        fields.add("algorithm");
+        fields.add("bibtext");
+        fields.add("datasetUri");
+        fields.add("parameters");
+
+        return em.find(Model.class, keys, fields).stream().findFirst().orElse(null);
     }
 }

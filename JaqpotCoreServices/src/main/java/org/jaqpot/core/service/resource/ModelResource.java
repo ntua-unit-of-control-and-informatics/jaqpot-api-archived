@@ -114,7 +114,7 @@ public class ModelResource {
     public Response getModel(
             @PathParam("id") String id,
             @ApiParam(value = "Clients need to authenticate in order to access models") @HeaderParam("subjectid") String subjectId) {
-        Model model = modelHandler.find(id);
+        Model model = modelHandler.findModelMeta(id);
         if (model == null) {
             return Response
                     .ok(ErrorReportFactory.notFoundError(uriInfo.getPath()))

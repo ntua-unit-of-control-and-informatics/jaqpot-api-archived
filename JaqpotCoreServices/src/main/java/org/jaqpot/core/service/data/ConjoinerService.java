@@ -96,12 +96,14 @@ public class ConjoinerService {
         Substance compound = new Substance();
         Map<String, Object> values = new TreeMap<>();
         for (Study study : studies.getStudy()) {
+            compound.setURI(study.getOwner().getSubstance().getUuid());
+
+            //Checks if the protocol category is present in the selection Set
             String code = study.getProtocol().getCategory().getCode();
             if (!propertyCategories.stream().filter(c -> c.contains(code)).findAny().isPresent()) {
                 continue;
             }
 
-            compound.setURI(study.getOwner().getSubstance().getUuid());
             if (study.getProtocol().getCategory().getCode().equals("PROTEOMICS_SECTION")) {
                 values.putAll(parseProteomics(study));
                 continue;
@@ -132,33 +134,32 @@ public class ConjoinerService {
     public Object calculateValue(Effect effect) {
 
         Object currentValue = null; // return null if conditions not satisfied
-        
+
         // values not allowed for loQualifier & upQualifier --> this can be switched to "allowed values" if necessary
         List<String> loNotAllowed = Arrays.asList(null, "", " ", "~", "!=", ">", ">=");
         List<String> upNotAllowed = Arrays.asList(null, "", " ", "~", "!=", "<", "<=");
 
-        if ((effect.getResult().getLoValue() != null) && (!(loNotAllowed.contains(effect.getResult().getLoQualifier())))){
-            
+        if ((effect.getResult().getLoValue() != null) && (!(loNotAllowed.contains(effect.getResult().getLoQualifier())))) {
+
             checker:
-            if ((effect.getResult().getUpValue() != null) && (!(upNotAllowed.contains(effect.getResult().getUpQualifier())))){
-                
+            if ((effect.getResult().getUpValue() != null) && (!(upNotAllowed.contains(effect.getResult().getUpQualifier())))) {
+
                 // check whether loValue <= upValue
-                if (effect.getResult().getLoValue().doubleValue()> effect.getResult().getUpValue().doubleValue()){
+                if (effect.getResult().getLoValue().doubleValue() > effect.getResult().getUpValue().doubleValue()) {
                     break checker;
                 }
-                
+
                 // check whether error exists and > diff(loValue, upValue)
-                if ((effect.getResult().getErrorValue()!=null) && (effect.getResult().getErrorValue().doubleValue()>= Math.abs(effect.getResult().getUpValue().doubleValue() - effect.getResult().getLoValue().doubleValue()))){
+                if ((effect.getResult().getErrorValue() != null) && (effect.getResult().getErrorValue().doubleValue() >= Math.abs(effect.getResult().getUpValue().doubleValue() - effect.getResult().getLoValue().doubleValue()))) {
                     break checker;
                 }
-                
+
                 /*
-                // can add if we decide on matching qualifiers
-                if(!(effect.getResult().getLoQualifier().equals(effect.getResult().getUpQualifier()))){
-                    break checker;
-                }
-                */
-                
+                 // can add if we decide on matching qualifiers
+                 if(!(effect.getResult().getLoQualifier().equals(effect.getResult().getUpQualifier()))){
+                 break checker;
+                 }
+                 */
                 // return avg
                 currentValue = (effect.getResult().getLoValue().doubleValue() + effect.getResult().getUpValue().doubleValue()) / 2;
             } else {
@@ -169,7 +170,7 @@ public class ConjoinerService {
                 currentValue = effect.getResult().getUpValue().doubleValue();
             }
         }
-        
+
         return currentValue;
     }
 
