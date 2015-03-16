@@ -43,49 +43,49 @@ import org.jaqpot.core.model.dto.jpdi.PredictionResponse;
             propertyValue = "javax.jms.Topic")
 })
 public class PredictionMDB implements MessageListener {
-    
+
     private static final Logger LOG = Logger.getLogger(PredictionMDB.class.getName());
-    
+
     @EJB
     TaskHandler taskHandler;
-    
+
     @EJB
     ModelHandler modelHandler;
-    
+
     @EJB
     DatasetHandler datasetHandler;
-    
+
     @Override
     public void onMessage(Message msg) {
         Task task = null;
         try {
             Map<String, Object> messageBody = msg.getBody(Map.class);
             task = taskHandler.find(messageBody.get("taskId"));
-            
+
             task.setStatus(Task.Status.RUNNING);
             taskHandler.edit(task);
-            
+
             Model model = modelHandler.find(messageBody.get("modelId"));
-            
+
             Client client = ClientUtils.buildUnsecureRestClient();
             Dataset dataset = client.target((String) messageBody.get("dataset_uri"))
                     .request()
                     .header("subjectid", messageBody.get("subjectid"))
                     .accept(MediaType.APPLICATION_JSON)
                     .get(Dataset.class);
-            
+
             dataset.setDatasetURI((String) messageBody.get("dataset_uri"));
-            
+
             PredictionRequest predictionRequest = new PredictionRequest();
             predictionRequest.setDataset(dataset);
             predictionRequest.setRawModel(model.getActualModel());
             predictionRequest.setAdditionalInfo(model.getAdditionalInfo());
-            
+
             Response response = client.target(model.getAlgorithm().getPredictionService())
                     .request()
                     .accept(MediaType.APPLICATION_JSON)
                     .post(Entity.json(predictionRequest));
-            
+
             PredictionResponse predictionResponse = response.readEntity(PredictionResponse.class);
             List<Object> predictions = predictionResponse.getPredictions();
             for (int i = 0; i < dataset.getDataEntry().size(); i++) {
@@ -93,9 +93,9 @@ public class PredictionMDB implements MessageListener {
             }
             dataset.setId(UUID.randomUUID().toString());
             datasetHandler.create(dataset);
-            
+
             task.setStatus(Task.Status.COMPLETED);
-            task.setResultUri(dataset.getId());
+            task.setResult(dataset.getId());
         } catch (GeneralSecurityException ex) {
             LOG.log(Level.SEVERE, null, ex);
             task.setStatus(Task.Status.ERROR);
@@ -112,5 +112,5 @@ public class PredictionMDB implements MessageListener {
             taskHandler.edit(task);
         }
     }
-    
+
 }

@@ -37,7 +37,7 @@ public class PredictionService {
         Task task = TaskFactory.queuedTask("Prediction by model" + options.get("modelId"),
                 "A prediction procedure will return a new Dataset if completed successfully.",
                 "chung");
-
+        task.setType(Task.Type.PREDICTION);
         options.put("taskId", task.getId());
         taskHandler.create(task);
         jmsContext.createProducer().setDeliveryDelay(1000).send(predictionQueue, options);

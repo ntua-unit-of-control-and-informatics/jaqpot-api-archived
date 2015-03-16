@@ -113,7 +113,7 @@ public class TrainingMDB implements MessageListener {
             model.setDependentFeatures(dependentFeatures);
             modelHandler.create(model);
 
-            task.setResultUri(model.getId());
+            task.setResult(model.getId());
             task.setStatus(Task.Status.COMPLETED);
         } catch (JMSException | GeneralSecurityException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);

@@ -29,7 +29,6 @@
  */
 package org.jaqpot.core.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import javax.xml.bind.annotation.XmlRootElement;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -43,7 +42,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @XmlRootElement(name = "Task")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Task extends JaqpotEntity {
-    
+
     /**
      * Status of the task revealing information about the asynchronous job with
      * which the task is related and runs on a server.
@@ -51,17 +50,18 @@ public class Task extends JaqpotEntity {
     public enum Status {
 
         /**
-         * The task is still Running in the background as an asynchronous job. This
-         * status means that the task has been submitted to the Execution Pool but has
-         * not completed yet.
+         * The task is still Running in the background as an asynchronous job.
+         * This status means that the task has been submitted to the Execution
+         * Pool but has not completed yet.
          */
         RUNNING,
         /**
-         * The task has completed execution successfully. The result can be found under
-         * #resultUri and is accessible via {@link Task#getResultUri() #getResultUri()}.
-         * The corresponding status is either 200 if the result is the URI of a created
-         * resource or 201 if it redirects to some other task (most probably on some
-         * other server)
+         * The task has completed execution successfully. The result can be
+         * found under #resultUri and is accessible via
+         * {@link Task#getResultUri() #getResultUri()}. The corresponding status
+         * is either 200 if the result is the URI of a created resource or 201
+         * if it redirects to some other task (most probably on some other
+         * server)
          */
         COMPLETED,
         /**
@@ -69,28 +69,38 @@ public class Task extends JaqpotEntity {
          */
         CANCELLED,
         /**
-         * Task execution was interrupted due to some error related with the asynchronous
-         * job, either due to a bad request by the client, an internal server error or an
-         * error related to a third remote service. In such a case, the task is accompanied
-         * by an error report that provides access to details about the exceptional event.
+         * Task execution was interrupted due to some error related with the
+         * asynchronous job, either due to a bad request by the client, an
+         * internal server error or an error related to a third remote service.
+         * In such a case, the task is accompanied by an error report that
+         * provides access to details about the exceptional event.
          */
         ERROR,
         /**
-         * Due to large load on the server or issues related to A&amp;A or user quota,
-         * the task was rejected for execution.
+         * Due to large load on the server or issues related to A&amp;A or user
+         * quota, the task was rejected for execution.
          */
         REJECTED,
         /**
-         * The task is created and put in an execution queue but is not running yet.
-         * HTTP status codes of queued tasks is 202.
+         * The task is created and put in an execution queue but is not running
+         * yet. HTTP status codes of queued tasks is 202.
          */
         QUEUED;
+    }
+
+    public enum Type {
+
+        TRAINING,
+        PREDICTION
     }
 
     /**
      * Result URI.
      */
     private String resultUri;
+
+    private String result;
+
     /**
      * Status of the feature.
      */
@@ -116,23 +126,34 @@ public class Task extends JaqpotEntity {
      */
     private Long duration;
 
+    private Type type;
+
     public Task() {
         super();
     }
-    
+
     public Task(Task other) {
         super(other);
         this.createdBy = other.createdBy;
         this.duration = other.duration;
-        this.errorReport = other.errorReport!=null ? new ErrorReport(other.errorReport) : null;
+        this.errorReport = other.errorReport != null ? new ErrorReport(other.errorReport) : null;
         this.hasStatus = other.hasStatus;
         this.httpStatus = other.httpStatus;
         this.percentageCompleted = other.percentageCompleted;
-        this.resultUri = other.resultUri;
+        this.result = other.result;
+        this.type = other.type;
     }
 
     public Task(String id) {
         super(id);
+    }
+
+    public String getResult() {
+        return result;
+    }
+
+    public void setResult(String result) {
+        this.result = result;
     }
 
     public String getResultUri() {
@@ -142,12 +163,12 @@ public class Task extends JaqpotEntity {
     public void setResultUri(String resultUri) {
         this.resultUri = resultUri;
     }
-    
+
     @JsonProperty("status")
     public Status getStatus() {
         return hasStatus;
     }
-     
+
     @JsonProperty("status")
     public void setStatus(Status hasStatus) {
         this.hasStatus = hasStatus;
@@ -191,5 +212,14 @@ public class Task extends JaqpotEntity {
 
     public void setDuration(Long duration) {
         this.duration = duration;
-    }        
+    }
+
+    public Type getType() {
+        return type;
+    }
+
+    public void setType(Type type) {
+        this.type = type;
+    }
+
 }

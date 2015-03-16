@@ -54,7 +54,7 @@ public class TrainingService {
         Task task = TaskFactory.queuedTask("Training on algorithm:" + algorithm.getId(),
                 "A training procedure will return a Model if completed successfully.",
                 "chung");
-
+        task.setType(Task.Type.TRAINING);
         options.put("taskId", task.getId());
         taskHandler.create(task);
         jmsContext.createProducer().setDeliveryDelay(1000).send(trainingQueue, options);

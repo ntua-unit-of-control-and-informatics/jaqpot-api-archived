@@ -21,6 +21,7 @@ import javax.ws.rs.ext.Provider;
 import org.jaqpot.core.annotations.Jackson;
 import org.jaqpot.core.data.serialize.JSONSerializer;
 import org.jaqpot.core.model.JaqpotEntity;
+import org.jaqpot.core.model.Task;
 
 /**
  *
@@ -53,6 +54,16 @@ public class JSONBodyWriter implements MessageBodyWriter<JaqpotEntity> {
             OutputStream entityStream) throws IOException, WebApplicationException {
         String uri = uriInfo.getBaseUri() + entity.getClass().getSimpleName().toLowerCase() + "/" + entity.getId();
         entity.setURI(uri);
+        if (entity instanceof Task) {
+            Task task = (Task) entity;
+            if (task.getStatus().equals(Task.Status.COMPLETED)) {
+                if (task.getType().equals(Task.Type.TRAINING)) {
+                    task.setResultUri(uriInfo.getBaseUri() + "model" + "/" + task.getResult());
+                } else if (task.getType().equals(Task.Type.PREDICTION)) {
+                    task.setResultUri(uriInfo.getBaseUri() + "dataset" + "/" + task.getResult());
+                }
+            }
+        }
         JSONSerializer.write(entity, entityStream);
         entityStream.flush();
     }
