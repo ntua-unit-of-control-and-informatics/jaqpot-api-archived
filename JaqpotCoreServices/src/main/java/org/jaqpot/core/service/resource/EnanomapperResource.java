@@ -98,7 +98,6 @@ public class EnanomapperResource {
             @HeaderParam("subjectid") String subjectId) {
 
         Dataset dataset = conjoinerService.prepareDataset(bundleURI, subjectId);
-        dataset.setId(dataset.getDatasetURI());
         datasetHandler.create(dataset);
         String datasetURI = uriInfo.getBaseUri() + dataset.getClass().getSimpleName().toLowerCase() + "/" + dataset.getId();
 
@@ -113,7 +112,7 @@ public class EnanomapperResource {
     }
 
     @POST
-    @Produces({MediaType.APPLICATION_JSON})
+    @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @Path("/prediction")
     @ApiOperation(value = "Creates Prediction",
             notes = "Reads Studies from Bundle's Substances, creates Dateaset,"
@@ -127,7 +126,6 @@ public class EnanomapperResource {
             @HeaderParam("subjectid") String subjectId) {
 
         Dataset dataset = conjoinerService.prepareDataset(bundleURI, subjectId);
-        dataset.setId(dataset.getDatasetURI());
         Model model = modelHandler.find(modelURI);
         if (model == null) {
             throw new NotFoundException("Model not found.");
@@ -141,6 +139,23 @@ public class EnanomapperResource {
         options.put("modelId", modelURI);
         Task task = predictionService.initiatePrediction(options);
         return Response.ok(task).build();
+    }
+
+    @POST
+    @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
+    @Path("/dataset")
+    @ApiOperation(value = "Creates Dataset",
+            notes = "Reads Studies from Bundle's Substances, creates Dateaset,"
+            + "calculates Descriptors, returns Dataset",
+            response = Task.class
+    )
+    public Response prepareDataset(
+            @FormParam("bundle_uri") String bundleURI,
+            @HeaderParam("subjectid") String subjectId) {
+        Dataset dataset = conjoinerService.prepareDataset(bundleURI, subjectId);
+        datasetHandler.create(dataset);
+
+        return Response.ok(dataset).build();
     }
 
 }

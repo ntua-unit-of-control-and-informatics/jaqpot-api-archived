@@ -23,6 +23,7 @@ import java.util.TreeMap;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.IntStream;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.ws.rs.InternalServerErrorException;
@@ -81,8 +82,15 @@ public class ConjoinerService {
                 dataEntries.add(dataEntry);
             }
 
-            dataset.setDatasetURI(UUID.randomUUID().toString());
+            dataset.setId(UUID.randomUUID().toString());
             dataset.setDataEntry(dataEntries);
+
+            //Takes the intersection of properties of all substances
+            dataset.getDataEntry().parallelStream().forEach(de -> {
+                dataset.getDataEntry().parallelStream().forEach(e -> {
+                    de.getValues().keySet().retainAll(e.getValues().keySet());
+                });
+            });
 
             return dataset;
         } catch (GeneralSecurityException ex) {
@@ -104,10 +112,13 @@ public class ConjoinerService {
                 continue;
             }
 
+            //Parses Proteomics data if study's protocol category is PROTEOMICS_SECTION
             if (study.getProtocol().getCategory().getCode().equals("PROTEOMICS_SECTION")) {
                 values.putAll(parseProteomics(study));
                 continue;
             }
+            
+            //Parses each effect of the study as a different property
             for (Effect effect : study.getEffects()) {
                 String name = effect.getEndpoint();
                 String units = effect.getResult().getUnit();
