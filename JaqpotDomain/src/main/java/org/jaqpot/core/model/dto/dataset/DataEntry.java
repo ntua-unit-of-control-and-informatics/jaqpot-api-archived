@@ -31,6 +31,7 @@ package org.jaqpot.core.model.dto.dataset;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.Map;
+import java.util.TreeMap;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
@@ -45,7 +46,7 @@ public class DataEntry {
 
     Substance compound;
 
-    Map<String, Object> values;
+    TreeMap<String, Object> values;
 
     public Substance getCompound() {
         return compound;
@@ -59,7 +60,7 @@ public class DataEntry {
         return values;
     }
 
-    public void setValues(Map<String, Object> values) {
+    public void setValues(TreeMap<String, Object> values) {
         this.values = values;
     }
 

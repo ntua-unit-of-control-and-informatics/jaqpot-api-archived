@@ -5,6 +5,7 @@
  */
 package org.jaqpot.core.service.mdb;
 
+import java.net.URLEncoder;
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -111,6 +112,9 @@ public class TrainingMDB implements MessageListener {
             ArrayList<String> dependentFeatures = new ArrayList<>();
             dependentFeatures.add(trainingRequest.getPredictionFeature());
             model.setDependentFeatures(dependentFeatures);
+            ArrayList<String> predictedFeatures = new ArrayList<>();
+            predictedFeatures.add(trainingRequest.getPredictionFeature() + URLEncoder.encode("/Predicted By Model " + model.getId(), "UTF-8"));
+            model.setPredictedFeatures(predictedFeatures);
             modelHandler.create(model);
 
             task.setResult(model.getId());

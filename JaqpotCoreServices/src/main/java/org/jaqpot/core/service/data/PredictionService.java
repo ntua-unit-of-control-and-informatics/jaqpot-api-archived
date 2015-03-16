@@ -34,7 +34,7 @@ public class PredictionService {
 
     public Task initiatePrediction(Map<String, Object> options) {
 
-        Task task = TaskFactory.queuedTask("Prediction by model" + options.get("modelId"),
+        Task task = TaskFactory.queuedTask("Prediction by model " + options.get("modelId"),
                 "A prediction procedure will return a new Dataset if completed successfully.",
                 "chung");
         task.setType(Task.Type.PREDICTION);

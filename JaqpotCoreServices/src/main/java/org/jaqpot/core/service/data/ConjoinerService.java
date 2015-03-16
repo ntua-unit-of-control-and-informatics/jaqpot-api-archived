@@ -14,7 +14,6 @@ import java.net.URLEncoder;
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -23,7 +22,6 @@ import java.util.TreeMap;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.IntStream;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.ws.rs.InternalServerErrorException;
@@ -31,7 +29,6 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.core.MediaType;
 import org.jaqpot.core.annotations.Jackson;
 import org.jaqpot.core.data.serialize.JSONSerializer;
-import org.jaqpot.core.data.serialize.JacksonJSONSerializer;
 import org.jaqpot.core.model.dto.bundle.BundleProperties;
 import org.jaqpot.core.service.client.ClientUtils;
 import org.jaqpot.core.model.dto.bundle.BundleSubstances;
@@ -102,7 +99,7 @@ public class ConjoinerService {
     public DataEntry createDataEntry(Studies studies, Set<String> propertyCategories) {
         DataEntry dataEntry = new DataEntry();
         Substance compound = new Substance();
-        Map<String, Object> values = new TreeMap<>();
+        TreeMap<String, Object> values = new TreeMap<>();
         for (Study study : studies.getStudy()) {
             compound.setURI(study.getOwner().getSubstance().getUuid());
 
@@ -117,7 +114,7 @@ public class ConjoinerService {
                 values.putAll(parseProteomics(study));
                 continue;
             }
-            
+
             //Parses each effect of the study as a different property
             for (Effect effect : study.getEffects()) {
                 String name = effect.getEndpoint();

@@ -51,7 +51,7 @@ public class TrainingService {
             throw new NotFoundException("Could not find algorithm with id:" + algorithmId);
         }
 
-        Task task = TaskFactory.queuedTask("Training on algorithm:" + algorithm.getId(),
+        Task task = TaskFactory.queuedTask("Training on algorithm: " + algorithm.getId(),
                 "A training procedure will return a Model if completed successfully.",
                 "chung");
         task.setType(Task.Type.TRAINING);
