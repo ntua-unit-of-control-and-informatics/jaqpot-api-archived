@@ -15,25 +15,30 @@ import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.StringJoiner;
 import java.util.TreeMap;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.core.MediaType;
+import org.jaqpot.core.annotations.Jackson;
+import org.jaqpot.core.data.serialize.JSONSerializer;
 import org.jaqpot.core.data.serialize.JacksonJSONSerializer;
+import org.jaqpot.core.model.dto.bundle.BundleProperties;
 import org.jaqpot.core.service.client.ClientUtils;
 import org.jaqpot.core.model.dto.bundle.BundleSubstances;
 import org.jaqpot.core.model.dto.dataset.DataEntry;
 import org.jaqpot.core.model.dto.dataset.Dataset;
 import org.jaqpot.core.model.dto.dataset.Substance;
-import org.jaqpot.core.service.dto.study.Effect;
-import org.jaqpot.core.service.dto.study.Studies;
-import org.jaqpot.core.service.dto.study.Study;
-import org.jaqpot.core.service.dto.study.proteomics.Proteomics;
+import org.jaqpot.core.model.dto.study.Effect;
+import org.jaqpot.core.model.dto.study.Studies;
+import org.jaqpot.core.model.dto.study.Study;
+import org.jaqpot.core.model.dto.study.proteomics.Proteomics;
 
 /**
  *
@@ -44,9 +49,10 @@ import org.jaqpot.core.service.dto.study.proteomics.Proteomics;
 @Stateless
 public class ConjoinerService {
 
-//    @Inject
-//    @Jackson
-//    JSONSerializer jsonSerializer;
+    @Inject
+    @Jackson
+    JSONSerializer serializer;
+
     public Dataset prepareDataset(String bundleURI, String subjectId) {
 
         try {
@@ -56,6 +62,11 @@ public class ConjoinerService {
                     .request()
                     .accept(MediaType.APPLICATION_JSON)
                     .get(BundleSubstances.class);
+            BundleProperties properties = client.target(bundleURI + "/property")
+                    .request()
+                    .accept(MediaType.APPLICATION_JSON)
+                    .get(BundleProperties.class);
+
             Dataset dataset = new Dataset();
             List<DataEntry> dataEntries = new ArrayList<>();
 
@@ -64,7 +75,7 @@ public class ConjoinerService {
                         .request()
                         .accept(MediaType.APPLICATION_JSON)
                         .get(Studies.class);
-                DataEntry dataEntry = createDataEntry(studies);
+                DataEntry dataEntry = createDataEntry(studies, properties.getFeature().keySet());
                 dataEntries.add(dataEntry);
             }
 
@@ -78,18 +89,22 @@ public class ConjoinerService {
         }
     }
 
-    public DataEntry createDataEntry(Studies studies) {
+    public DataEntry createDataEntry(Studies studies, Set<String> propertyCategories) {
         DataEntry dataEntry = new DataEntry();
         Substance compound = new Substance();
         Map<String, Object> values = new TreeMap<>();
         for (Study study : studies.getStudy()) {
+            String code = study.getProtocol().getCategory().getCode();
+            if (!propertyCategories.stream().filter(c -> c.contains(code)).findAny().isPresent()) {
+                continue;
+            }
+
             compound.setURI(study.getOwner().getSubstance().getUuid());
             if (study.getProtocol().getCategory().getCode().equals("PROTEOMICS_SECTION")) {
                 values.putAll(parseProteomics(study));
                 continue;
             }
             for (Effect effect : study.getEffects()) {
-                JacksonJSONSerializer serializer = new JacksonJSONSerializer();
                 String name = effect.getEndpoint();
                 String units = effect.getResult().getUnit();
                 String conditions = serializer.write(effect.getConditions());
@@ -120,7 +135,6 @@ public class ConjoinerService {
         Map<String, Object> values = new TreeMap<>();
         study.getEffects().stream().findFirst().ifPresent(effect -> {
             String textValue = effect.getResult().getTextValue();
-            JacksonJSONSerializer serializer = new JacksonJSONSerializer();
             Proteomics proteomics = serializer.parse(textValue, Proteomics.class);
             proteomics.entrySet().stream().forEach(entry -> {
                 String name = effect.getEndpoint();

@@ -34,7 +34,6 @@ import com.wordnik.swagger.annotations.ApiOperation;
 import java.util.HashMap;
 import java.util.Map;
 import javax.ejb.EJB;
-import javax.inject.Inject;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.NotFoundException;
@@ -45,16 +44,13 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-import org.jaqpot.core.annotations.MongoDB;
 import org.jaqpot.core.data.DatasetHandler;
 import org.jaqpot.core.data.ModelHandler;
-import org.jaqpot.core.db.entitymanager.JaqpotEntityManager;
 import org.jaqpot.core.model.Model;
 import org.jaqpot.core.model.Task;
 import org.jaqpot.core.service.data.ConjoinerService;
 import org.jaqpot.core.service.data.TrainingService;
 import org.jaqpot.core.model.dto.dataset.Dataset;
-import org.jaqpot.core.model.dto.jpdi.PredictionRequest;
 import org.jaqpot.core.service.data.PredictionService;
 
 /**
