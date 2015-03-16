@@ -13,6 +13,8 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -128,7 +130,47 @@ public class ConjoinerService {
     }
 
     public Object calculateValue(Effect effect) {
-        return effect.getResult().getLoValue() == null ? null : effect.getResult().getLoValue();
+
+        Object currentValue = null; // return null if conditions not satisfied
+        
+        // values not allowed for loQualifier & upQualifier --> this can be switched to "allowed values" if necessary
+        List<String> loNotAllowed = Arrays.asList(null, "", " ", "~", "!=", ">", ">=");
+        List<String> upNotAllowed = Arrays.asList(null, "", " ", "~", "!=", "<", "<=");
+
+        if ((effect.getResult().getLoValue() != null) && (!(loNotAllowed.contains(effect.getResult().getLoQualifier())))){
+            
+            checker:
+            if ((effect.getResult().getUpValue() != null) && (!(upNotAllowed.contains(effect.getResult().getUpQualifier())))){
+                
+                // check whether loValue <= upValue
+                if (effect.getResult().getLoValue().doubleValue()> effect.getResult().getUpValue().doubleValue()){
+                    break checker;
+                }
+                
+                // check whether error exists and > diff(loValue, upValue)
+                if ((effect.getResult().getErrorValue()!=null) && (effect.getResult().getErrorValue().doubleValue()>= Math.abs(effect.getResult().getUpValue().doubleValue() - effect.getResult().getLoValue().doubleValue()))){
+                    break checker;
+                }
+                
+                /*
+                // can add if we decide on matching qualifiers
+                if(!(effect.getResult().getLoQualifier().equals(effect.getResult().getUpQualifier()))){
+                    break checker;
+                }
+                */
+                
+                // return avg
+                currentValue = (effect.getResult().getLoValue().doubleValue() + effect.getResult().getUpValue().doubleValue()) / 2;
+            } else {
+                currentValue = effect.getResult().getLoValue().doubleValue();
+            }
+        } else {
+            if ((effect.getResult().getUpValue() != null) && (!(upNotAllowed.contains(effect.getResult().getUpQualifier())))) {
+                currentValue = effect.getResult().getUpValue().doubleValue();
+            }
+        }
+        
+        return currentValue;
     }
 
     public Map<String, Object> parseProteomics(Study study) {
