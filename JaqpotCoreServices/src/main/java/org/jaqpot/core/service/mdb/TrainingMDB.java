@@ -69,6 +69,7 @@ public class TrainingMDB implements MessageListener {
             task = taskHandler.find(messageBody.get("taskId"));
 
             task.setStatus(Task.Status.RUNNING);
+            task.getMeta().getComments().add("Task is now running.");
             taskHandler.edit(task);
 
             Client client = ClientUtils.buildUnsecureRestClient();
@@ -78,10 +79,17 @@ public class TrainingMDB implements MessageListener {
                     .accept(MediaType.APPLICATION_JSON)
                     .get(Dataset.class);
             dataset.setDatasetURI((String) messageBody.get("dataset_uri"));
+            
+            task.getMeta().getComments().add("Dataset has been retrieved.");
+            taskHandler.edit(task);
+            
             TrainingRequest trainingRequest = new TrainingRequest();
             trainingRequest.setDataset(dataset);
             trainingRequest.setPredictionFeature((String) messageBody.get("prediction_feature"));
-
+            
+            task.getMeta().getComments().add("Got prediction feature.");
+            taskHandler.edit(task);
+            
             String parameters = (String) messageBody.get("parameters");
             Map<String, Object> parameterMap = new HashMap<>();
             if (parameters != null) {
@@ -92,17 +100,26 @@ public class TrainingMDB implements MessageListener {
                 }
             }
             trainingRequest.setParameters(parameterMap);
-
+            
+            task.getMeta().getComments().add("Processing training request.");
+            taskHandler.edit(task);
+            
             String algorithmId = (String) messageBody.get("algorithmId");
             Algorithm algorithm = algorithmHandler.find(algorithmId);
 
+            task.getMeta().getComments().add("Retrieved algorithm.");
+            taskHandler.edit(task);
+            
             Response response = client.target(algorithm.getTrainingService())
                     .request()
                     .accept(MediaType.APPLICATION_JSON)
                     .post(Entity.json(trainingRequest));
 
             TrainingResponse trainingResponse = response.readEntity(TrainingResponse.class);
-
+            
+            task.getMeta().getComments().add("Building model.");
+            taskHandler.edit(task);
+            
             Model model = new Model(UUID.randomUUID().toString());
             model.setActualModel(trainingResponse.getRawModel());
             model.setPmmlModel(trainingResponse.getPmmlModel());
@@ -119,6 +136,9 @@ public class TrainingMDB implements MessageListener {
 
             task.setResult(model.getId());
             task.setStatus(Task.Status.COMPLETED);
+            
+            task.getMeta().getComments().add("Task Completed Successfully.");
+            taskHandler.edit(task);
         } catch (JMSException | GeneralSecurityException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             task.setStatus(Task.Status.ERROR);
