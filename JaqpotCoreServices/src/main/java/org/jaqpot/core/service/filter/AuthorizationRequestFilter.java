@@ -30,13 +30,17 @@
 package org.jaqpot.core.service.filter;
 
 import java.io.IOException;
+import java.security.Principal;
 import javax.ejb.EJB;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.ext.Provider;
 import org.jaqpot.core.service.annotations.Authorize;
 import org.jaqpot.core.service.data.AAService;
+import org.jaqpot.core.service.security.SecurityContextImpl;
+import org.jaqpot.core.service.security.UserPrincipal;
 
 /**
  *
@@ -57,17 +61,32 @@ public class AuthorizationRequestFilter implements ContainerRequestFilter {
         if (path.contains("api-docs") || path.contains("login")) {
             return;
         }
-        String subjectid = requestContext.getHeaderString("subjectid");
-        if (subjectid == null) {
+        String token = requestContext.getHeaderString("subjectid");
+        if (token == null) {
             requestContext.abortWith(Response
                     .status(Response.Status.UNAUTHORIZED)
                     .entity("Please provide an authorization token in a subjectid header.")
                     .build());
         }
-        if (!aaService.validate(subjectid)) {
+        String user = aaService.getUserFromToken(token);
+        if (!aaService.validate(token)) {
+            if (user != null) {
+                aaService.removeToken(token);
+            }
             requestContext.abortWith(Response
                     .status(Response.Status.UNAUTHORIZED)
                     .entity("Your authorization token is not valid.")
+                    .build());
+        }
+
+        if (user != null) {
+            Principal userPrincipal = new UserPrincipal(user);
+            SecurityContext securityContext = new SecurityContextImpl(userPrincipal);
+            requestContext.setSecurityContext(securityContext);
+        } else {
+            requestContext.abortWith(Response
+                    .status(Response.Status.UNAUTHORIZED)
+                    .entity("Please login first!")
                     .build());
         }
     }

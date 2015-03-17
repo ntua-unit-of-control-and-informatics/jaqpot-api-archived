@@ -29,6 +29,7 @@
  */
 package org.jaqpot.core.model.builder;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
@@ -84,7 +85,7 @@ public class MetaInfoBuilder implements EntityBuilder<MetaInfo> {
             return this;
         }
         if (meta.getComments() == null) {
-            meta.setComments(new HashSet<>());
+            meta.setComments(new ArrayList<>());
         }
         meta.getComments().addAll(Arrays.asList(comments));
         return this;

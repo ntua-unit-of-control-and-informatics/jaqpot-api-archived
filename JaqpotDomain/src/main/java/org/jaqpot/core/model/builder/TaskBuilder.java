@@ -29,6 +29,7 @@
  */
 package org.jaqpot.core.model.builder;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
@@ -124,7 +125,7 @@ public class TaskBuilder implements EntityBuilder<Task> {
     public TaskBuilder addProgressComments(String... progressComments) {
         initMeta();
         if (task.getMeta().getComments() == null) {
-            task.getMeta().setComments(new HashSet<>(progressComments.length));
+            task.getMeta().setComments(new ArrayList<>(progressComments.length));
         }
         task.getMeta().getComments().addAll(Arrays.asList(progressComments));
         return this;

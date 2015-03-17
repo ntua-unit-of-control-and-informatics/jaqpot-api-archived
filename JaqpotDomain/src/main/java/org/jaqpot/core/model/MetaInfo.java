@@ -33,7 +33,9 @@ import java.util.Date;
 import java.util.Set;
 import javax.xml.bind.annotation.XmlRootElement;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 
 /**
  *
@@ -46,7 +48,7 @@ import java.util.HashSet;
 public class MetaInfo {
 
     private Set<String> identifiers;
-    private Set<String> comments;
+    private List<String> comments;
     private Set<String> descriptions;
     private Set<String> titles;
     private Set<String> subjects;
@@ -65,7 +67,7 @@ public class MetaInfo {
             throw new NullPointerException("You cannot clone a null MetaInfo object");
         }
         this.audiences = other.audiences != null ? new HashSet<>(other.audiences) : null;
-        this.comments = other.comments != null ? new HashSet<>(other.comments) : null;
+        this.comments = other.comments != null ? new ArrayList<>(other.comments) : null;
         this.contributors = other.contributors != null ? new HashSet<>(other.contributors) : null;
         this.creators = other.creators != null ? new HashSet<>(other.creators) : null;
         this.descriptions = other.descriptions != null ? new HashSet<>(other.descriptions) : null;
@@ -92,11 +94,11 @@ public class MetaInfo {
         this.identifiers = identifiers;
     }
 
-    public Set<String> getComments() {
+    public List<String> getComments() {
         return comments;
     }
 
-    public void setComments(Set<String> comments) {
+    public void setComments(List<String> comments) {
         this.comments = comments;
     }
 

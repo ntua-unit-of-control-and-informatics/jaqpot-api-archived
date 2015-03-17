@@ -43,6 +43,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.jaqpot.core.model.factory.ErrorReportFactory;
+import org.jaqpot.core.service.annotations.Authorize;
 import org.jaqpot.core.service.data.AAService;
 import org.jaqpot.core.service.dto.aa.AuthToken;
 import org.jaqpot.core.service.exceptions.JaqpotNotAuthorizedException;
@@ -87,6 +88,7 @@ public class AAResource {
     @POST
     @Path("/logout")
     @Produces(MediaType.APPLICATION_JSON)
+    @Authorize
     @ApiOperation(
             value = "Logs out a user",
             notes = "Invalidates a security token and logs out the corresponding user",
@@ -108,6 +110,7 @@ public class AAResource {
     @POST
     @Path("/validate")
     @Produces(MediaType.APPLICATION_JSON)
+    @Authorize
     @ApiOperation(
             value = "Validate authorization token",
             notes = "Checks whether an authorization token is valid",
@@ -128,6 +131,7 @@ public class AAResource {
     @POST
     @Path("/authorize")
     @Produces(MediaType.APPLICATION_JSON)
+    @Authorize
     @ApiOperation(
             value = "Requests authorization from SSO",
             notes = "Checks whether the client identified by the provided AA token can apply a method to a URI",
