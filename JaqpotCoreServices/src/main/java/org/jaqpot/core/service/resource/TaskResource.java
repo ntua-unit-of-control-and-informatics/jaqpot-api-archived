@@ -34,6 +34,7 @@ import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
 import com.wordnik.swagger.annotations.ApiResponse;
 import com.wordnik.swagger.annotations.ApiResponses;
+import java.util.List;
 import javax.ejb.EJB;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -81,7 +82,18 @@ public class TaskResource {
             @ApiParam(value = "Creator of the task (username)") @QueryParam("creator") String creator,
             @ApiParam(value = "Status of the task", allowableValues = "RUNNING,QUEUED,COMPLETED,ERROR,CANCELLED,REJECTED") @QueryParam("status") String status
     ) {
-        return Response.ok(taskHandler.findAll()).build();
+        List<Task> foundTasks = null;
+        if (creator == null && status == null) {
+            foundTasks = taskHandler.findAll();
+        } else if (creator != null && status == null) {
+            foundTasks = taskHandler.findByUser(creator, 0, Integer.MAX_VALUE);
+        } else if (creator == null && status != null) {
+            foundTasks = taskHandler.findByStatus(Task.Status.valueOf(status), 0, Integer.MAX_VALUE);
+        } else {
+            foundTasks = taskHandler.findByUserAndStatus(creator, Task.Status.valueOf(status), 0, Integer.MAX_VALUE);
+        }
+
+        return Response.ok(foundTasks).build();
     }
 
     @GET
