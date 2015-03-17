@@ -32,14 +32,11 @@ package org.jaqpot.core.data;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import javax.annotation.PostConstruct;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import org.jaqpot.core.annotations.MongoDB;
 import org.jaqpot.core.db.entitymanager.JaqpotEntityManager;
-import org.jaqpot.core.model.MetaInfo;
 import org.jaqpot.core.model.Task;
-import org.jaqpot.core.model.builder.MetaInfoBuilder;
 
 /**
  *
@@ -79,14 +76,30 @@ public class TaskHandler extends AbstractHandler<Task> {
 
     public List<Task> findByStatus(Task.Status status, Integer start, Integer max) {
         Map<String, Object> properties = new HashMap<>();
-        properties.put("hasStatus", status);
+        properties.put("status", status.name());
 
         return em.find(Task.class, properties, start, max);
     }
 
     public Long countByStatus(Task.Status status) {
         Map<String, Object> properties = new HashMap<>();
-        properties.put("hasStatus", status);
+        properties.put("status", status.name());
+
+        return em.count(Task.class, properties);
+    }
+
+    public List<Task> findByUserAndStatus(String userName, Task.Status status, Integer start, Integer max) {
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("createdBy", userName);
+        properties.put("status", status.name());
+
+        return em.find(Task.class, properties, start, max);
+    }
+
+    public Long countByUserAndStatus(String userName, Task.Status status) {
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("createdBy", userName);
+        properties.put("status", status.name());
 
         return em.count(Task.class, properties);
     }
