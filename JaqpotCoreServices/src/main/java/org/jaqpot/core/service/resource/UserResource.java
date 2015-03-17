@@ -42,9 +42,9 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import org.jaqpot.core.data.UserHandler;
 import org.jaqpot.core.model.User;
-import org.jaqpot.core.model.factory.ErrorReportFactory;
-import org.jaqpot.core.service.data.AAService;
+import org.jaqpot.core.service.annotations.Authorize;
 
 /**
  *
@@ -55,10 +55,11 @@ import org.jaqpot.core.service.data.AAService;
 @Path("user")
 @Api(value = "/user", description = "Users API", position = 1)
 @Produces({"application/json", "text/uri-list"})
+@Authorize
 public class UserResource {
 
     @EJB
-    AAService aaService;
+    UserHandler userHandler;
 
     @GET
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
@@ -76,8 +77,7 @@ public class UserResource {
             @ApiParam(value = "Clients need to authenticate in order to access models") @HeaderParam("subjectid") String subjectId
     ) {
         return Response
-                .ok(ErrorReportFactory.notImplementedYet())
-                .status(Response.Status.NOT_IMPLEMENTED)
+                .ok(userHandler.findAll())
                 .build();
     }
 
@@ -98,10 +98,11 @@ public class UserResource {
             @PathParam("id") String id,
             @ApiParam(value = "Clients need to authenticate in order to access models") @HeaderParam("subjectid") String subjectId) {
 
-        return Response
-                .ok(ErrorReportFactory.notImplementedYet())
-                .status(Response.Status.NOT_IMPLEMENTED)
-                .build();
+        User user = userHandler.find(id);
+        if (user == null) {
+            return Response.status(Response.Status.NOT_FOUND).entity("Could not find User with id:" + id).build();
+        }
+        return Response.ok(user).build();
     }
-    
+
 }

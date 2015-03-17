@@ -50,6 +50,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import org.jaqpot.core.data.TaskHandler;
 import org.jaqpot.core.model.Task;
+import org.jaqpot.core.service.annotations.Authorize;
 
 /**
  *
@@ -59,6 +60,7 @@ import org.jaqpot.core.model.Task;
  */
 @Path("task")
 @Api(value = "/task", description = "Tasks API")
+@Authorize
 public class TaskResource {
 
     @Context

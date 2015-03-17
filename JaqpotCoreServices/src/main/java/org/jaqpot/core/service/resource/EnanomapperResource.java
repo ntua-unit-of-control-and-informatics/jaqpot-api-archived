@@ -43,6 +43,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
 import org.jaqpot.core.data.DatasetHandler;
 import org.jaqpot.core.data.ModelHandler;
@@ -51,6 +52,7 @@ import org.jaqpot.core.model.Task;
 import org.jaqpot.core.service.data.ConjoinerService;
 import org.jaqpot.core.service.data.TrainingService;
 import org.jaqpot.core.model.dto.dataset.Dataset;
+import org.jaqpot.core.service.annotations.Authorize;
 import org.jaqpot.core.service.data.PredictionService;
 
 /**
@@ -61,6 +63,7 @@ import org.jaqpot.core.service.data.PredictionService;
  */
 @Path("enanomapper")
 @Api(value = "/enanomapper", description = "eNM API")
+@Authorize
 public class EnanomapperResource {
 
     @EJB
@@ -80,6 +83,9 @@ public class EnanomapperResource {
 
     @Context
     UriInfo uriInfo;
+
+    @Context
+    SecurityContext securityContext;
 
     @POST
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
@@ -107,7 +113,7 @@ public class EnanomapperResource {
         options.put("subjectid", subjectId);
         options.put("algorithmId", algorithmURI);
         options.put("parameters", parameters);
-        Task task = trainingService.initiateTraining(options);
+        Task task = trainingService.initiateTraining(options, securityContext.getUserPrincipal().getName());
         return Response.ok(task).build();
     }
 

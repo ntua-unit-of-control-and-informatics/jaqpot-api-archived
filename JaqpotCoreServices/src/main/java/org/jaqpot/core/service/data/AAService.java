@@ -30,7 +30,15 @@
 package org.jaqpot.core.service.data;
 
 import java.security.GeneralSecurityException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
+import javax.ejb.Lock;
+import javax.ejb.LockType;
+import javax.ejb.Singleton;
 import javax.ejb.Stateless;
 import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.client.Client;
@@ -39,6 +47,8 @@ import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import org.jaqpot.core.data.UserHandler;
+import org.jaqpot.core.model.User;
+import org.jaqpot.core.model.factory.UserFactory;
 import org.jaqpot.core.service.client.ClientUtils;
 import org.jaqpot.core.service.dto.aa.AuthToken;
 import org.jaqpot.core.service.exceptions.JaqpotNotAuthorizedException;
@@ -49,11 +59,29 @@ import org.jaqpot.core.service.exceptions.JaqpotNotAuthorizedException;
  * @author Charalampos Chomenidis
  *
  */
-@Stateless
+@Singleton
 public class AAService {
+
+    private static final Logger LOG = Logger.getLogger(AAService.class.getName());
 
     @EJB
     UserHandler userHandler;
+
+    Map<String, String> tokenMap;
+
+    @PostConstruct
+    private void init() {
+        tokenMap = new HashMap<>();
+    }
+
+    @Lock(LockType.READ)
+    public String getUserFromToken(String token) {
+        return tokenMap.get(token);
+    }
+
+    public void removeToken(String token) {
+        tokenMap.remove(token);
+    }
 
     public static final String SSO_HOST = "opensso.in-silico.ch",
             SSO_SERVER = "https://" + SSO_HOST,
@@ -102,6 +130,14 @@ public class AAService {
                 AuthToken aToken = new AuthToken();
                 aToken.setAuthToken(responseValue.substring(9).replaceAll("\n", ""));
                 aToken.setUserName(username);
+                User user = userHandler.find(username);
+                if (user == null) {
+                    LOG.log(Level.INFO, "User {0} is valid but doesn''t exist in the database. Creating...", username);
+                    user = UserFactory.newNormalUser(username, password);
+                    userHandler.create(user);
+                    LOG.log(Level.INFO, "User {0} created.", username);
+                }
+                tokenMap.put(aToken.getAuthToken(), aToken.getUserName());
                 return aToken;
             }
 
@@ -113,7 +149,7 @@ public class AAService {
     /*
      CURL example:
      curl  -XPOST -d "tokenid=..." https://opensso.in-silico.ch/auth/isTokenValid -k
-    */
+     */
     public boolean validate(String token) {
         try {
             Client client = ClientUtils.buildUnsecureRestClient();
@@ -131,10 +167,7 @@ public class AAService {
             throw new InternalServerErrorException(ex);
         }
     }
-    
-    
-    
-    
+
     public boolean logout(String token) {
         try {
             Client client = ClientUtils.buildUnsecureRestClient();
@@ -145,6 +178,7 @@ public class AAService {
                     .post(Entity.form(formData));
             //TODO (IMPT) Take care of remote exceptions
             // the remote service may return gibberish...
+            tokenMap.remove(token);
             int status = response.getStatus();
             return status == 200;
         } catch (GeneralSecurityException ex) {

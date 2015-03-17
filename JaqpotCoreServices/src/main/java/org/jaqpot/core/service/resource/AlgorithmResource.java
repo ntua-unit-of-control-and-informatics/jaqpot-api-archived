@@ -47,12 +47,15 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.SecurityContext;
 import org.jaqpot.core.data.AlgorithmHandler;
 import org.jaqpot.core.model.Algorithm;
 import org.jaqpot.core.model.Task;
 import org.jaqpot.core.model.builder.AlgorithmBuilder;
+import org.jaqpot.core.service.annotations.Authorize;
 import org.jaqpot.core.service.data.TrainingService;
 
 /**
@@ -64,6 +67,7 @@ import org.jaqpot.core.service.data.TrainingService;
 @Path("algorithm")
 @Api(value = "/algorithm", description = "Algorithms API")
 @Produces({"application/json", "text/uri-list"})
+@Authorize
 public class AlgorithmResource {
     
     private static final String DEFAULT_ALGORITHM = "{\n"
@@ -82,24 +86,27 @@ public class AlgorithmResource {
             + "    }\n"
             + "  ]\n"
             + "}";
-
+    
     @EJB
     TrainingService trainingService;
-
+    
     @EJB
     AlgorithmHandler algorithmHandler;
-
+    
+    @Context
+    SecurityContext securityContext;
+    
     @GET
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @ApiOperation(value = "Finds all Algorithms",
             notes = "Finds all Algorithms JaqpotQuattro supports",
             response = Algorithm.class,
             responseContainer = "List")
-
+    
     public Response getAlgorithms() {
         return Response.ok(algorithmHandler.findAll()).build();
     }
-
+    
     @POST
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @ApiOperation(value = "Creates Algorithm",
@@ -120,13 +127,14 @@ public class AlgorithmResource {
                 .addTitles(title)
                 .addDescriptions(description)
                 .addTagsCSV(tags)
+                .setCreatedBy(securityContext.getUserPrincipal().getName())
                 .build();
         algorithmHandler.create(algorithm);
         return Response
                 .status(Response.Status.OK)
                 .entity(algorithm).build();
     }
-
+    
     @GET
     @Path("/{id}")
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
@@ -141,7 +149,7 @@ public class AlgorithmResource {
         }
         return Response.ok(algorithm).build();
     }
-
+    
     @POST
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @Path("/{id}")
@@ -161,10 +169,10 @@ public class AlgorithmResource {
         options.put("subjectid", subjectId);
         options.put("algorithmId", algorithmId);
         options.put("parameters", parameters);
-        Task task = trainingService.initiateTraining(options);
+        Task task = trainingService.initiateTraining(options, securityContext.getUserPrincipal().getName());
         return Response.ok(task).build();
     }
-
+    
     @DELETE
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/{id}")
@@ -184,5 +192,5 @@ public class AlgorithmResource {
         algorithmHandler.remove(new Algorithm(id));
         return Response.ok().build();
     }
-
+    
 }

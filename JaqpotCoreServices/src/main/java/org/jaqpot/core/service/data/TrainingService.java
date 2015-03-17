@@ -15,6 +15,8 @@ import javax.inject.Inject;
 import javax.jms.JMSContext;
 import javax.jms.Topic;
 import javax.ws.rs.NotFoundException;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.SecurityContext;
 import org.jaqpot.core.data.AlgorithmHandler;
 import org.jaqpot.core.data.TaskHandler;
 import org.jaqpot.core.model.Algorithm;
@@ -43,7 +45,7 @@ public class TrainingService {
     @Inject
     private JMSContext jmsContext;
 
-    public Task initiateTraining(Map<String, Object> options) {
+    public Task initiateTraining(Map<String, Object> options, String userName) {
 
         String algorithmId = (String) options.get("algorithmId");
         Algorithm algorithm = algorithmHandler.find(algorithmId);
@@ -53,7 +55,7 @@ public class TrainingService {
 
         Task task = TaskFactory.queuedTask("Training on algorithm: " + algorithm.getId(),
                 "A training procedure will return a Model if completed successfully.",
-                "chung");
+                userName);
         task.setType(Task.Type.TRAINING);
         options.put("taskId", task.getId());
         taskHandler.create(task);
