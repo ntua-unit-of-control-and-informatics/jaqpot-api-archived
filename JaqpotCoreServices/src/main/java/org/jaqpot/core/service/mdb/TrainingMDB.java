@@ -19,8 +19,11 @@ import javax.ejb.MessageDriven;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageListener;
+import javax.ws.rs.ProcessingException;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.ResponseProcessingException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.jaqpot.core.data.AlgorithmHandler;
@@ -73,10 +76,10 @@ public class TrainingMDB implements MessageListener {
             taskHandler.edit(task);
 
             Client client = ClientUtils.buildUnsecureRestClient();
-            Dataset dataset = client.target((String) messageBody.get("dataset_uri"))
+            Dataset dataset = client.target((String) messageBody.get("dataset_uri")) 
                     .request()
-                    .header("subjectid", messageBody.get("subjectid"))
-                    .accept(MediaType.APPLICATION_JSON)
+                    .header("subjectid", messageBody.get("subjectid")) 
+                    .accept(MediaType.APPLICATION_JSON) /////////////////
                     .get(Dataset.class);
             dataset.setDatasetURI((String) messageBody.get("dataset_uri"));
             
@@ -139,7 +142,36 @@ public class TrainingMDB implements MessageListener {
             
             task.getMeta().getComments().add("Task Completed Successfully.");
             taskHandler.edit(task);
-        } catch (JMSException | GeneralSecurityException ex) {
+        } catch (NullPointerException ex){
+            LOG.log(Level.SEVERE,ex.getMessage(), ex);
+            task.setStatus(Task.Status.ERROR);
+            task.setErrorReport(ErrorReportFactory.badRequest(ex.getMessage(), ""));
+        } catch (ClassCastException ex){
+            LOG.log(Level.SEVERE,ex.getMessage(), ex);
+            task.setStatus(Task.Status.ERROR);
+            task.setErrorReport(ErrorReportFactory.badRequest(ex.getMessage(), ""));
+        } catch (UnsupportedOperationException ex){
+            LOG.log(Level.SEVERE,ex.getMessage(), ex);
+            task.setStatus(Task.Status.ERROR);
+            task.setErrorReport(ErrorReportFactory.badRequest(ex.getMessage(), ""));
+        } catch (IllegalStateException ex){
+            LOG.log(Level.SEVERE,ex.getMessage(), ex);
+            task.setStatus(Task.Status.ERROR);
+            task.setErrorReport(ErrorReportFactory.badRequest(ex.getMessage(), ""));
+        }/////////////////////////////////////////////////////// 
+        catch (ResponseProcessingException ex) {
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
+            task.setStatus(Task.Status.ERROR);
+            task.setErrorReport(ErrorReportFactory.badRequest(ex.getMessage(), ""));
+        } catch (ProcessingException ex) {
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
+            task.setStatus(Task.Status.ERROR);
+            task.setErrorReport(ErrorReportFactory.badRequest(ex.getMessage(), ""));
+        } catch (WebApplicationException ex) {
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
+            task.setStatus(Task.Status.ERROR);
+            task.setErrorReport(ErrorReportFactory.internalServerError(ex, "", ex.getMessage(), ""));
+        }catch (JMSException | GeneralSecurityException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             task.setStatus(Task.Status.ERROR);
             task.setErrorReport(ErrorReportFactory.internalServerError(ex, "", ex.getMessage(), ""));
