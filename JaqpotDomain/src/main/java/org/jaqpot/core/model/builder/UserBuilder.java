@@ -123,7 +123,7 @@ public class UserBuilder implements EntityBuilder<User> {
     }
 
     public UserBuilder setMaxParallelTasks(int maxParallelTasks) {
-        return setMaxCapability("tasks.parallel", maxParallelTasks);
+        return setMaxCapability("tasksParallel", maxParallelTasks);
     }
 
     public UserBuilder setHashedPassword(String hashedPassword) {

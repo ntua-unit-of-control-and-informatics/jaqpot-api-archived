@@ -27,9 +27,14 @@
  * All source files of JAQPOT Quattro that are stored on github are licenced
  * with the aforementioned licence. 
  */
-
-
 package org.jaqpot.core.model.factory;
+
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.jaqpot.core.model.User;
+import org.jaqpot.core.model.builder.UserBuilder;
 
 /**
  *
@@ -38,5 +43,29 @@ package org.jaqpot.core.model.factory;
  */
 public class UserFactory {
 
-    
+    private static MessageDigest sha256;
+
+    static {
+        try {
+            sha256 = MessageDigest.getInstance("SHA-256");
+        } catch (NoSuchAlgorithmException ex) {
+            Logger.getLogger(UserFactory.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    public static User newNormalUser(String userName, String password) {
+        String hashedPassword = new String(sha256.digest(password.getBytes()));
+        sha256.reset();
+        return UserBuilder.builder(userName)
+                .setHashedPassword(hashedPassword)
+                .setMaxBibTeX(100)
+                .setMaxModels(100)
+                .setMaxParallelTasks(5)
+                .setMaxSubstances(1000)
+                .setMaxWeeklyPublishedModels(10)
+                .setMaxWeeklyPublishedSubstances(10)
+                .setMaxWeeklyPublishedBibTeX(10)
+                .build();
+    }
+
 }
