@@ -84,7 +84,7 @@ public class TrainingMDB implements MessageListener {
             Dataset dataset = client.target((String) messageBody.get("dataset_uri"))
                     .request()
                     .header("subjectid", messageBody.get("subjectid")) 
-                    .accept(MediaType.APPLICATION_JSON) /////////////////
+                    .accept(MediaType.APPLICATION_JSON) 
                     .get(Dataset.class);
             dataset.setDatasetURI((String) messageBody.get("dataset_uri"));
 
