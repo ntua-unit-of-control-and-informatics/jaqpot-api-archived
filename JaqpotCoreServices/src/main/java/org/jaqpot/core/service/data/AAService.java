@@ -40,6 +40,7 @@ import javax.ejb.Lock;
 import javax.ejb.LockType;
 import javax.ejb.Singleton;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
@@ -49,7 +50,8 @@ import javax.ws.rs.core.Response;
 import org.jaqpot.core.data.UserHandler;
 import org.jaqpot.core.model.User;
 import org.jaqpot.core.model.factory.UserFactory;
-import org.jaqpot.core.service.client.ClientUtils;
+import org.jaqpot.core.service.annotations.UnSecure;
+import org.jaqpot.core.service.client.ClientFactory;
 import org.jaqpot.core.service.dto.aa.AuthToken;
 import org.jaqpot.core.service.exceptions.JaqpotNotAuthorizedException;
 
@@ -66,6 +68,10 @@ public class AAService {
 
     @EJB
     UserHandler userHandler;
+
+    @Inject
+    @UnSecure
+    Client client;
 
     Map<String, String> tokenMap;
 
@@ -114,35 +120,30 @@ public class AAService {
             SSOauthorization = String.format(SSO_IDENTITY, "authorize");
 
     public AuthToken login(String username, String password) throws JaqpotNotAuthorizedException {
-        try {
-            Client client = ClientUtils.buildUnsecureRestClient();
-            MultivaluedMap<String, String> formData = new MultivaluedHashMap<>();
-            formData.putSingle("username", username);
-            formData.putSingle("password", password);
-            Response response = client.target(SSOauthenticate)
-                    .request()
-                    .post(Entity.form(formData));
-            String responseValue = response.readEntity(String.class);
-            response.close();
-            if (response.getStatus() == 401) {
-                throw new JaqpotNotAuthorizedException("You cannot login - please, check your credentials.");
-            } else {
-                AuthToken aToken = new AuthToken();
-                aToken.setAuthToken(responseValue.substring(9).replaceAll("\n", ""));
-                aToken.setUserName(username);
-                User user = userHandler.find(username);
-                if (user == null) {
-                    LOG.log(Level.INFO, "User {0} is valid but doesn''t exist in the database. Creating...", username);
-                    user = UserFactory.newNormalUser(username, password);
-                    userHandler.create(user);
-                    LOG.log(Level.INFO, "User {0} created.", username);
-                }
-                tokenMap.put(aToken.getAuthToken(), aToken.getUserName());
-                return aToken;
-            }
 
-        } catch (GeneralSecurityException ex) {
-            throw new InternalServerErrorException(ex);
+        MultivaluedMap<String, String> formData = new MultivaluedHashMap<>();
+        formData.putSingle("username", username);
+        formData.putSingle("password", password);
+        Response response = client.target(SSOauthenticate)
+                .request()
+                .post(Entity.form(formData));
+        String responseValue = response.readEntity(String.class);
+        response.close();
+        if (response.getStatus() == 401) {
+            throw new JaqpotNotAuthorizedException("You cannot login - please, check your credentials.");
+        } else {
+            AuthToken aToken = new AuthToken();
+            aToken.setAuthToken(responseValue.substring(9).replaceAll("\n", ""));
+            aToken.setUserName(username);
+            User user = userHandler.find(username);
+            if (user == null) {
+                LOG.log(Level.INFO, "User {0} is valid but doesn''t exist in the database. Creating...", username);
+                user = UserFactory.newNormalUser(username, password);
+                userHandler.create(user);
+                LOG.log(Level.INFO, "User {0} created.", username);
+            }
+            tokenMap.put(aToken.getAuthToken(), aToken.getUserName());
+            return aToken;
         }
     }
 
@@ -151,39 +152,30 @@ public class AAService {
      curl  -XPOST -d "tokenid=..." https://opensso.in-silico.ch/auth/isTokenValid -k
      */
     public boolean validate(String token) {
-        try {
-            Client client = ClientUtils.buildUnsecureRestClient();
-            MultivaluedMap<String, String> formData = new MultivaluedHashMap<>();
-            formData.putSingle("tokenid", token);
-            Response response = client.target(SSOvalidate)
-                    .request()
-                    .post(Entity.form(formData));
-            //TODO (IMPT) Take care of remote exceptions
-            // the remote service may return gibberish...
-            String message = response.readEntity(String.class).trim();
-            int status = response.getStatus();
-            return "boolean=true".equals(message) && status == 200;
-        } catch (GeneralSecurityException ex) {
-            throw new InternalServerErrorException(ex);
-        }
+        MultivaluedMap<String, String> formData = new MultivaluedHashMap<>();
+        formData.putSingle("tokenid", token);
+        Response response = client.target(SSOvalidate)
+                .request()
+                .post(Entity.form(formData));
+        //TODO (IMPT) Take care of remote exceptions
+        // the remote service may return gibberish...
+        String message = response.readEntity(String.class).trim();
+        int status = response.getStatus();
+        return "boolean=true".equals(message) && status == 200;
     }
 
     public boolean logout(String token) {
-        try {
-            Client client = ClientUtils.buildUnsecureRestClient();
-            MultivaluedMap<String, String> formData = new MultivaluedHashMap<>();
-            formData.putSingle("subjectid", token);
-            Response response = client.target(SSOlogout)
-                    .request()
-                    .post(Entity.form(formData));
-            //TODO (IMPT) Take care of remote exceptions
-            // the remote service may return gibberish...
-            tokenMap.remove(token);
-            int status = response.getStatus();
-            return status == 200;
-        } catch (GeneralSecurityException ex) {
-            throw new InternalServerErrorException(ex);
-        }
+
+        MultivaluedMap<String, String> formData = new MultivaluedHashMap<>();
+        formData.putSingle("subjectid", token);
+        Response response = client.target(SSOlogout)
+                .request()
+                .post(Entity.form(formData));
+        //TODO (IMPT) Take care of remote exceptions
+        // the remote service may return gibberish...
+        tokenMap.remove(token);
+        int status = response.getStatus();
+        return status == 200;
     }
 
 }
