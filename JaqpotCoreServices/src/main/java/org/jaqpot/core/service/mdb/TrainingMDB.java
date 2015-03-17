@@ -150,32 +150,35 @@ public class TrainingMDB implements MessageListener {
         } catch (NullPointerException ex){
             LOG.log(Level.SEVERE,ex.getMessage(), ex);
             task.setStatus(Task.Status.ERROR);
-            task.setErrorReport(ErrorReportFactory.badRequest(ex.getMessage(), ""));
+            task.setErrorReport(ErrorReportFactory.badRequest(ex.getMessage(), "")); //null pointer
         } catch (ClassCastException ex){
             LOG.log(Level.SEVERE,ex.getMessage(), ex);
             task.setStatus(Task.Status.ERROR);
-            task.setErrorReport(ErrorReportFactory.badRequest(ex.getMessage(), ""));
+            task.setErrorReport(ErrorReportFactory.badRequest(ex.getMessage(), "")); //Key type invalid
         } catch (UnsupportedOperationException ex){
             LOG.log(Level.SEVERE,ex.getMessage(), ex);
             task.setStatus(Task.Status.ERROR);
-            task.setErrorReport(ErrorReportFactory.badRequest(ex.getMessage(), ""));
+            task.setErrorReport(ErrorReportFactory.badRequest(ex.getMessage(), "")); // Operation not supported
         } catch (IllegalStateException ex){
             LOG.log(Level.SEVERE,ex.getMessage(), ex);
             task.setStatus(Task.Status.ERROR);
-            task.setErrorReport(ErrorReportFactory.badRequest(ex.getMessage(), ""));
-        }/////////////////////////////////////////////////////// 
-        catch (ResponseProcessingException ex) {
+            task.setErrorReport(ErrorReportFactory.badRequest(ex.getMessage(), "")); // Method invoked at illegal time
+        } catch (IllegalArgumentException ex){
+            LOG.log(Level.SEVERE,ex.getMessage(), ex);
+            task.setStatus(Task.Status.ERROR);
+            task.setErrorReport(ErrorReportFactory.badRequest(ex.getMessage(), "")); // Illegal argument
+        }catch (ResponseProcessingException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             task.setStatus(Task.Status.ERROR);
-            task.setErrorReport(ErrorReportFactory.badRequest(ex.getMessage(), ""));
+            task.setErrorReport(ErrorReportFactory.remoteError("", null)); //  Process response failed
         } catch (ProcessingException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             task.setStatus(Task.Status.ERROR);
-            task.setErrorReport(ErrorReportFactory.badRequest(ex.getMessage(), ""));
+            task.setErrorReport(ErrorReportFactory.remoteError("", null)); // Process response runtime error
         } catch (WebApplicationException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             task.setStatus(Task.Status.ERROR);
-            task.setErrorReport(ErrorReportFactory.internalServerError(ex, "", ex.getMessage(), ""));
+            task.setErrorReport(ErrorReportFactory.internalServerError(ex, "", ex.getMessage(), "")); // Applucation runtime error
         }catch (JMSException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             task.setStatus(Task.Status.ERROR);
@@ -187,7 +190,7 @@ public class TrainingMDB implements MessageListener {
         } catch (Exception ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             task.setStatus(Task.Status.ERROR);
-            task.setErrorReport(ErrorReportFactory.internalServerError(ex, "", ex.getMessage(), ""));
+            task.setErrorReport(ErrorReportFactory.internalServerError(ex, "", ex.getMessage(), "")); // rest
         } finally {
             taskHandler.edit(task);
         }

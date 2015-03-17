@@ -57,7 +57,7 @@ public class ErrorReportFactory {
             + "and is not capable of supporting it for any resource. ",
             ERROR502 = "The server, while acting as a gateway or proxy, received an invalid response "
             + "from the upstream server it accessed in attempting to fulfill the request. ",
-            ERROR503 = "";
+            ERROR503 = "Service overloaded or down. ";
 
     public static ErrorReport unauthorized() {
         return ErrorReportFactory.unauthorized(null, null, null);
