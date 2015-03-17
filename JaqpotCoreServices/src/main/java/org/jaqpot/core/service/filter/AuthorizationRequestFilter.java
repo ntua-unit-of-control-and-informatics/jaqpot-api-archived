@@ -30,13 +30,13 @@
 package org.jaqpot.core.service.filter;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import javax.ejb.EJB;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
-import javax.ws.rs.container.PreMatching;
-import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.Provider;
+import org.jaqpot.core.service.annotations.Authorize;
+import org.jaqpot.core.service.data.AAService;
 
 /**
  *
@@ -45,23 +45,31 @@ import javax.ws.rs.ext.Provider;
  *
  */
 @Provider
-@PreMatching
-public class InboundRequestFilter implements ContainerRequestFilter {
+@Authorize
+public class AuthorizationRequestFilter implements ContainerRequestFilter {
+
+    @EJB
+    AAService aaService;
 
     @Override
     public void filter(ContainerRequestContext requestContext) throws IOException {
-        /*
-         * If api_key is provided by swagger as a URL parameter, this filter
-         * will create a subjectid header for A&A.
-         */
-        MultivaluedMap<String, String> urlParams = requestContext.getUriInfo().getQueryParameters(true);
-        String api_key = urlParams.getFirst("api_key");        
-        if (api_key != null) {
-            List<String> list = new ArrayList<>();
-            list.add(api_key);
-            requestContext.getHeaders().putIfAbsent("subjectid", list);
-        } //TODO Needs testing!!!!!!!        
-
+        String path = requestContext.getUriInfo().getRequestUri().getPath();
+        if (path.contains("api-docs") || path.contains("login")) {
+            return;
+        }
+        String subjectid = requestContext.getHeaderString("subjectid");
+        if (subjectid == null) {
+            requestContext.abortWith(Response
+                    .status(Response.Status.UNAUTHORIZED)
+                    .entity("Please provide an authorization token in a subjectid header.")
+                    .build());
+        }
+        if (!aaService.validate(subjectid)) {
+            requestContext.abortWith(Response
+                    .status(Response.Status.UNAUTHORIZED)
+                    .entity("Your authorization token is not valid.")
+                    .build());
+        }
     }
 
 }

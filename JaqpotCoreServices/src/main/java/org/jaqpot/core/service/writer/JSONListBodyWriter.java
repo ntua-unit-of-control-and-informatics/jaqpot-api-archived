@@ -5,14 +5,11 @@
  */
 package org.jaqpot.core.service.writer;
 
-import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.Writer;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.List;
-import java.util.StringJoiner;
 import javax.inject.Inject;
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
@@ -59,7 +56,7 @@ public class JSONListBodyWriter implements MessageBodyWriter<List<JaqpotEntity>>
             entity.setURI(uri);
             if (entity instanceof Task) {
                 Task task = (Task) entity;
-                if (task.getStatus().equals(Task.Status.COMPLETED)) {
+                if (task.getStatus().equals(Task.Status.COMPLETED) && task.getType() != null) {
                     if (task.getType().equals(Task.Type.TRAINING)) {
                         task.setResultUri(uriInfo.getBaseUri() + "model" + "/" + task.getResult());
                     } else if (task.getType().equals(Task.Type.PREDICTION)) {

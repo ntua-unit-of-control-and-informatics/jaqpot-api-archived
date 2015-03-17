@@ -56,7 +56,7 @@ public class JSONBodyWriter implements MessageBodyWriter<JaqpotEntity> {
         entity.setURI(uri);
         if (entity instanceof Task) {
             Task task = (Task) entity;
-            if (task.getStatus().equals(Task.Status.COMPLETED)) {
+            if (task.getStatus().equals(Task.Status.COMPLETED) && task.getType() != null) {
                 if (task.getType().equals(Task.Type.TRAINING)) {
                     task.setResultUri(uriInfo.getBaseUri() + "model" + "/" + task.getResult());
                 } else if (task.getType().equals(Task.Type.PREDICTION)) {

@@ -113,7 +113,7 @@ public class TrainingMDB implements MessageListener {
             dependentFeatures.add(trainingRequest.getPredictionFeature());
             model.setDependentFeatures(dependentFeatures);
             ArrayList<String> predictedFeatures = new ArrayList<>();
-            predictedFeatures.add(trainingRequest.getPredictionFeature() + URLEncoder.encode("/Predicted By Model " + model.getId(), "UTF-8"));
+            predictedFeatures.add(trainingRequest.getPredictionFeature() + "/" + URLEncoder.encode("Predicted By Model " + model.getId(), "UTF-8"));
             model.setPredictedFeatures(predictedFeatures);
             modelHandler.create(model);
 

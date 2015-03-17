@@ -27,7 +27,6 @@
  * All source files of JAQPOT Quattro that are stored on github are licenced
  * with the aforementioned licence. 
  */
-
 package org.jaqpot.core.service.filter;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
@@ -61,14 +60,14 @@ public class JacksonJsonProvider extends JacksonJaxbJsonProvider {
         mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
         /**
          * The mapper must use only getters and setters and not
-         * 
+         *
          */
         mapper.setVisibilityChecker(
                 VisibilityChecker.Std.defaultInstance()
-                    .withFieldVisibility(JsonAutoDetect.Visibility.NONE)
-                    .withGetterVisibility(JsonAutoDetect.Visibility.PUBLIC_ONLY)
-                    .withSetterVisibility(JsonAutoDetect.Visibility.PUBLIC_ONLY)
-                    .withCreatorVisibility(JsonAutoDetect.Visibility.PUBLIC_ONLY));
+                .withFieldVisibility(JsonAutoDetect.Visibility.NONE)
+                .withGetterVisibility(JsonAutoDetect.Visibility.PUBLIC_ONLY)
+                .withSetterVisibility(JsonAutoDetect.Visibility.PUBLIC_ONLY)
+                .withCreatorVisibility(JsonAutoDetect.Visibility.PUBLIC_ONLY));
         super.setMapper(mapper);
     }
 }
