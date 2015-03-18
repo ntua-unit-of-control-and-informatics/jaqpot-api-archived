@@ -58,11 +58,7 @@ public class AuthorizationRequestFilter implements ContainerRequestFilter {
     AAService aaService;
 
     @Override
-    public void filter(ContainerRequestContext requestContext) throws IOException {
-        String path = requestContext.getUriInfo().getRequestUri().getPath();
-        if (path.contains("api-docs") || path.contains("login")) {
-            return;
-        }
+    public void filter(ContainerRequestContext requestContext) throws IOException {       
         String token = requestContext.getHeaderString("subjectid");
         if (token == null) {
             requestContext.abortWith(Response

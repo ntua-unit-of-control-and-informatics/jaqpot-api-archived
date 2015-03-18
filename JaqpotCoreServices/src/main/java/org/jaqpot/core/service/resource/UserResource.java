@@ -101,6 +101,9 @@ public class UserResource {
         User user = userHandler.find(id);
         if (user == null) {
             return Response.status(Response.Status.NOT_FOUND).entity("Could not find User with id:" + id).build();
+        } else {
+            // Hide the hashed password!
+            user.setHashedPass(null);
         }
         return Response.ok(user).build();
     }
