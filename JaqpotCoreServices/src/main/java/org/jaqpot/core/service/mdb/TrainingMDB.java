@@ -159,7 +159,6 @@ public class TrainingMDB implements MessageListener {
 
             task.setResult(model.getId());
             task.setStatus(Task.Status.COMPLETED);
-
             task.getMeta().getComments().add("Task Completed Successfully.");
             taskHandler.edit(task);
         } /*catch (NullPointerException ex){
