@@ -34,9 +34,11 @@ import java.security.Principal;
 import javax.ejb.EJB;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.ext.Provider;
+import org.jaqpot.core.model.factory.ErrorReportFactory;
 import org.jaqpot.core.service.annotations.Authorize;
 import org.jaqpot.core.service.data.AAService;
 import org.jaqpot.core.service.security.SecurityContextImpl;
@@ -64,8 +66,8 @@ public class AuthorizationRequestFilter implements ContainerRequestFilter {
         String token = requestContext.getHeaderString("subjectid");
         if (token == null) {
             requestContext.abortWith(Response
-                    .status(Response.Status.UNAUTHORIZED)
-                    .entity("Please provide an authorization token in a subjectid header.")
+                    .ok(ErrorReportFactory.unauthorized("Please provide an authorization token in a subjectid header."))
+                    .status(Response.Status.UNAUTHORIZED)                    
                     .build());
         }
         String user = aaService.getUserFromToken(token);
@@ -73,9 +75,9 @@ public class AuthorizationRequestFilter implements ContainerRequestFilter {
             if (user != null) {
                 aaService.removeToken(token);
             }
-            requestContext.abortWith(Response
+            requestContext.abortWith(Response.
+                    ok(ErrorReportFactory.unauthorized("Your authorization token is not valid."))
                     .status(Response.Status.UNAUTHORIZED)
-                    .entity("Your authorization token is not valid.")
                     .build());
         }
 
@@ -84,9 +86,10 @@ public class AuthorizationRequestFilter implements ContainerRequestFilter {
             SecurityContext securityContext = new SecurityContextImpl(userPrincipal);
             requestContext.setSecurityContext(securityContext);
         } else {
+
             requestContext.abortWith(Response
+                    .ok(ErrorReportFactory.unauthorized("Please login first!"), MediaType.APPLICATION_JSON)
                     .status(Response.Status.UNAUTHORIZED)
-                    .entity("Please login first!")
                     .build());
         }
     }
