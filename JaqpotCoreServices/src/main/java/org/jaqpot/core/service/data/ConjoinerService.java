@@ -15,14 +15,22 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.StringJoiner;
 import java.util.TreeMap;
 import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.ws.rs.client.Client;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Form;
+import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Variant;
 import org.jaqpot.core.annotations.Jackson;
 import org.jaqpot.core.data.serialize.JSONSerializer;
 import org.jaqpot.core.model.dto.bundle.BundleProperties;
@@ -111,6 +119,31 @@ public class ConjoinerService {
 
             //Parses each effect of the study as a different property
             for (Effect effect : study.getEffects()) {
+                if (effect.getEndpoint().equals("IMAGE")) {
+                    Response response = client.target("http://localhost:8080/imageAnalysis/service/analyze")
+                            .request()
+                            .accept(MediaType.APPLICATION_JSON)
+                            .post(Entity.entity(new Form("image", effect.getResult().getTextValue()), "application/x-www-form-urlencoded"));
+                    GenericType<List<Map<String, Object>>> type = new GenericType<List<Map<String, Object>>>() {
+                    };
+                    List<Map<String, Object>> allParticles = response.readEntity(type);
+                    for (Map<String, Object> particle : allParticles) {
+                        try {
+                            String propertyURI = "property/image/" + URLEncoder.encode((String) particle.remove("id"), "UTF-8");
+                            for (Entry<String, Object> entry : particle.entrySet()) {
+                                try {
+                                    Number value = Double.parseDouble((String) entry.getValue());
+                                    values.put(propertyURI + "/" + entry.getKey(), value);
+                                } catch (NumberFormatException ex) {
+                                    continue;
+                                }
+                            }
+                        } catch (UnsupportedEncodingException ex) {
+                            continue;
+                        }
+                    }
+                    continue;
+                }
                 String name = effect.getEndpoint();
                 String units = effect.getResult().getUnit();
                 String conditions = serializer.write(effect.getConditions());
