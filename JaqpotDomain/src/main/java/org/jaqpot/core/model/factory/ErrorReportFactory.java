@@ -56,7 +56,8 @@ public class ErrorReportFactory {
             + "This is the appropriate response when the server does not recognize the request method "
             + "and is not capable of supporting it for any resource. ",
             ERROR502 = "The server, while acting as a gateway or proxy, received an invalid response "
-            + "from the upstream server it accessed in attempting to fulfill the request. ";
+            + "from the upstream server it accessed in attempting to fulfill the request. ",
+            ERROR503 = "Service overloaded or down. ";
 
     public static ErrorReport unauthorized() {
         return ErrorReportFactory.unauthorized(null, null, null);
@@ -99,6 +100,19 @@ public class ErrorReportFactory {
                 .setDetails(ERROR501)
                 .setCode("NotImplemented")
                 .setHttpStatus(501)
+                .build();
+        return error;
+    }
+
+    public static ErrorReport serviceUnavailable(
+            String message,
+            String details) {
+         ErrorReport error = ErrorReportBuilder.builderRandomUuid()
+                .setActor("server")
+                .setMessage(message != null ? message :"Service overloaded or down.")
+                .setDetails(ERROR503)
+                .setCode("ServiceUnavailable")
+                .setHttpStatus(503)
                 .build();
         return error;
     }
