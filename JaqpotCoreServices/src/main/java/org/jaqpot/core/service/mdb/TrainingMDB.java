@@ -147,15 +147,15 @@ public class TrainingMDB implements MessageListener {
 
             task.getMeta().getComments().add("Task Completed Successfully.");
             taskHandler.edit(task);
-        } catch (NullPointerException ex){
+        } /*catch (NullPointerException ex){
             LOG.log(Level.SEVERE,ex.getMessage(), ex);
             task.setStatus(Task.Status.ERROR);
-            task.setErrorReport(ErrorReportFactory.badRequest(ex.getMessage(), "")); //null pointer
+            task.setErrorReport(ErrorReportFactory.internalServerError(ex, "", ex.getMessage(), "")); //null pointer
         } catch (ClassCastException ex){
             LOG.log(Level.SEVERE,ex.getMessage(), ex);
             task.setStatus(Task.Status.ERROR);
-            task.setErrorReport(ErrorReportFactory.badRequest(ex.getMessage(), "")); //Key type invalid
-        } catch (UnsupportedOperationException ex){
+            task.setErrorReport(ErrorReportFactory.internalServerError(ex, "", ex.getMessage(), "")); //Key type invalid
+        } */catch (UnsupportedOperationException ex){
             LOG.log(Level.SEVERE,ex.getMessage(), ex);
             task.setStatus(Task.Status.ERROR);
             task.setErrorReport(ErrorReportFactory.badRequest(ex.getMessage(), "")); // Operation not supported
