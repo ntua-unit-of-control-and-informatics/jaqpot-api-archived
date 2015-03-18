@@ -78,6 +78,8 @@ public class TrainingMDB implements MessageListener {
             task.getMeta().getComments().add("Task is now running.");
             taskHandler.edit(task);
 
+            task.getMeta().getComments().add("Attempting to download dataset...");
+            taskHandler.edit(task);
             Dataset dataset = client.target((String) messageBody.get("dataset_uri"))
                     .request()
                     .header("subjectid", messageBody.get("subjectid"))
@@ -86,13 +88,17 @@ public class TrainingMDB implements MessageListener {
             dataset.setDatasetURI((String) messageBody.get("dataset_uri"));
 
             task.getMeta().getComments().add("Dataset has been retrieved.");
+            
+            task.getMeta().getComments().add("Creating JPDI training request...");
             taskHandler.edit(task);
-
+            
             TrainingRequest trainingRequest = new TrainingRequest();
-            trainingRequest.setDataset(dataset);
+            trainingRequest.setDataset(dataset);            
+            task.getMeta().getComments().add("Inserted dataset.");
+            taskHandler.edit(task);
+            
             trainingRequest.setPredictionFeature((String) messageBody.get("prediction_feature"));
-
-            task.getMeta().getComments().add("Got prediction feature.");
+            task.getMeta().getComments().add("Inserted prediction feature.");
             taskHandler.edit(task);
 
             String parameters = (String) messageBody.get("parameters");
@@ -105,22 +111,31 @@ public class TrainingMDB implements MessageListener {
                 }
             }
             trainingRequest.setParameters(parameterMap);
-
-            task.getMeta().getComments().add("Processing training request.");
+            
+            task.getMeta().getComments().add("Inserted parameters.");
             taskHandler.edit(task);
 
             String algorithmId = (String) messageBody.get("algorithmId");
             Algorithm algorithm = algorithmHandler.find(algorithmId);
 
-            task.getMeta().getComments().add("Retrieved algorithm.");
+            task.getMeta().getComments().add("Inserted algorithm id.");
             taskHandler.edit(task);
 
+            task.getMeta().getComments().add("Sending request to  algorithm service:"+algorithm.getTrainingService());
+            taskHandler.edit(task);
             Response response = client.target(algorithm.getTrainingService())
                     .request()
                     .accept(MediaType.APPLICATION_JSON)
                     .post(Entity.json(trainingRequest));
-
+            task.getMeta().getComments().add("Algorithm service responded with status:"+response.getStatus());
+            taskHandler.edit(task);
+            
+            task.getMeta().getComments().add("Attempting to parse response...");
+            taskHandler.edit(task);
             TrainingResponse trainingResponse = response.readEntity(TrainingResponse.class);
+            task.getMeta().getComments().add("Response was parsed successfully");
+            taskHandler.edit(task);
+            
 
             task.getMeta().getComments().add("Building model.");
             taskHandler.edit(task);
