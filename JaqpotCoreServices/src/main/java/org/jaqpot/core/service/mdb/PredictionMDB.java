@@ -18,6 +18,7 @@ import javax.inject.Inject;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageListener;
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
@@ -68,39 +69,72 @@ public class PredictionMDB implements MessageListener {
             Map<String, Object> messageBody = msg.getBody(Map.class);
             task = taskHandler.find(messageBody.get("taskId"));
 
+            if (task == null) {
+                throw new NullPointerException("FATAL: Could not find task with id:" + messageBody.get("taskId"));
+            }
+
             task.setStatus(Task.Status.RUNNING);
+            task.setType(Task.Type.PREDICTION);
+            task.getMeta().getComments().add("Training Task is now running.");
             taskHandler.edit(task);
 
+            task.getMeta().getComments().add("Attempting to find model in dataset...");
+            taskHandler.edit(task);
             Model model = modelHandler.find(messageBody.get("modelId"));
+            if (model == null) {
+                task.setStatus(Task.Status.ERROR);
+                task.setErrorReport(ErrorReportFactory.notFoundError((String) messageBody.get("modelId")));
+                taskHandler.edit(task);
+                return;
+            }
+            task.getMeta().getComments().add("Model retrieved successfully.");
 
+            task.getMeta().getComments().add("Attempting to download dataset...");
+            taskHandler.edit(task);
             Dataset dataset = client.target((String) messageBody.get("dataset_uri"))
                     .request()
                     .header("subjectid", messageBody.get("subjectid"))
                     .accept(MediaType.APPLICATION_JSON)
                     .get(Dataset.class);
-
             dataset.setDatasetURI((String) messageBody.get("dataset_uri"));
+            task.getMeta().getComments().add("Dataset has been retrieved.");
 
+            task.getMeta().getComments().add("Creating JPDI prediction request...");
+            taskHandler.edit(task);
             PredictionRequest predictionRequest = new PredictionRequest();
             predictionRequest.setDataset(dataset);
             predictionRequest.setRawModel(model.getActualModel());
             predictionRequest.setAdditionalInfo(model.getAdditionalInfo());
 
+            task.getMeta().getComments().add("Sending request to  algorithm service:" + model.getAlgorithm().getPredictionService());
+            taskHandler.edit(task);
             Response response = client.target(model.getAlgorithm().getPredictionService())
                     .request()
                     .accept(MediaType.APPLICATION_JSON)
                     .post(Entity.json(predictionRequest));
+            task.getMeta().getComments().add("Algorithm service responded with status:" + response.getStatus());
+            taskHandler.edit(task);
 
+            task.getMeta().getComments().add("Attempting to parse response...");
+            taskHandler.edit(task);
             PredictionResponse predictionResponse = response.readEntity(PredictionResponse.class);
+            task.getMeta().getComments().add("Response was parsed successfully.");
+
+            task.getMeta().getComments().add("Creating new Dataset for predictions...");
+            taskHandler.edit(task);
             List<Object> predictions = predictionResponse.getPredictions();
             for (int i = 0; i < dataset.getDataEntry().size(); i++) {
                 dataset.getDataEntry().get(i).getValues().put(model.getPredictedFeatures().stream().findFirst().orElse("property/predicted"), predictions.get(i));
             }
             dataset.setId(UUID.randomUUID().toString());
+            task.getMeta().getComments().add("Dataset ready.");
+            task.getMeta().getComments().add("Saving to database...");
+            taskHandler.edit(task);
             datasetHandler.create(dataset);
 
             task.setStatus(Task.Status.COMPLETED);
             task.setResult(dataset.getId());
+            task.getMeta().getComments().add("Task Completed Successfully.");
         } catch (JMSException ex) {
             LOG.log(Level.SEVERE, null, ex);
             task.setStatus(Task.Status.ERROR);
