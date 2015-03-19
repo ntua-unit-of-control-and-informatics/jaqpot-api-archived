@@ -91,7 +91,8 @@ public class Task extends JaqpotEntity {
     public enum Type {
 
         TRAINING,
-        PREDICTION
+        PREDICTION,
+        PREPARATION
     }
 
     /**
