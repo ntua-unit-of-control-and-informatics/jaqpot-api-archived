@@ -57,10 +57,16 @@ public class JSONListBodyWriter implements MessageBodyWriter<List<JaqpotEntity>>
             if (entity instanceof Task) {
                 Task task = (Task) entity;
                 if (task.getStatus().equals(Task.Status.COMPLETED) && task.getType() != null) {
-                    if (task.getType().equals(Task.Type.TRAINING)) {
-                        task.setResultUri(uriInfo.getBaseUri() + "model" + "/" + task.getResult());
-                    } else if (task.getType().equals(Task.Type.PREDICTION)) {
-                        task.setResultUri(uriInfo.getBaseUri() + "dataset" + "/" + task.getResult());
+                    switch (task.getType()) {
+                        case PREDICTION:
+                            task.setResultUri(uriInfo.getBaseUri() + "dataset" + "/" + task.getResult());
+                            break;
+                        case TRAINING:
+                            task.setResultUri(uriInfo.getBaseUri() + "model" + "/" + task.getResult());
+                            break;
+                        case PREPARATION:
+                            task.setResultUri(uriInfo.getBaseUri() + "dataset" + "/" + task.getResult());
+                            break;
                     }
                 }
             }

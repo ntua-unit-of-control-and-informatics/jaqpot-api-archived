@@ -29,7 +29,6 @@
  */
 package org.jaqpot.core.service.data;
 
-import java.security.GeneralSecurityException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -39,9 +38,7 @@ import javax.ejb.EJB;
 import javax.ejb.Lock;
 import javax.ejb.LockType;
 import javax.ejb.Singleton;
-import javax.ejb.Stateless;
 import javax.inject.Inject;
-import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MultivaluedHashMap;
@@ -51,7 +48,6 @@ import org.jaqpot.core.data.UserHandler;
 import org.jaqpot.core.model.User;
 import org.jaqpot.core.model.factory.UserFactory;
 import org.jaqpot.core.service.annotations.UnSecure;
-import org.jaqpot.core.service.client.ClientFactory;
 import org.jaqpot.core.service.dto.aa.AuthToken;
 import org.jaqpot.core.service.exceptions.JaqpotNotAuthorizedException;
 

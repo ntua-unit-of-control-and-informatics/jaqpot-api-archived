@@ -20,19 +20,22 @@ import java.util.Set;
 import java.util.StringJoiner;
 import java.util.TreeMap;
 import java.util.UUID;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import javax.annotation.Resource;
+import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import javax.jms.JMSContext;
+import javax.jms.Topic;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Form;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Variant;
 import org.jaqpot.core.annotations.Jackson;
+import org.jaqpot.core.data.TaskHandler;
 import org.jaqpot.core.data.serialize.JSONSerializer;
+import org.jaqpot.core.model.Task;
 import org.jaqpot.core.model.dto.bundle.BundleProperties;
 import org.jaqpot.core.model.dto.bundle.BundleSubstances;
 import org.jaqpot.core.model.dto.dataset.DataEntry;
@@ -42,6 +45,7 @@ import org.jaqpot.core.model.dto.study.Effect;
 import org.jaqpot.core.model.dto.study.Studies;
 import org.jaqpot.core.model.dto.study.Study;
 import org.jaqpot.core.model.dto.study.proteomics.Proteomics;
+import org.jaqpot.core.model.factory.TaskFactory;
 import org.jaqpot.core.service.annotations.UnSecure;
 
 /**
@@ -61,15 +65,39 @@ public class ConjoinerService {
     @UnSecure
     Client client;
 
+    @EJB
+    TaskHandler taskHandler;
+
+    @Resource(lookup = "java:jboss/exported/jms/topic/preparation")
+    private Topic preparationQueue;
+
+    @Inject
+    private JMSContext jmsContext;
+
+    public Task initiatePreparation(Map<String, Object> options, String userName) {
+
+        Task task = TaskFactory.queuedTask("Preparation on bundle: " + options.get("bundle_uri"),
+                "A preparation procedure will return a Dataset if completed successfully."
+                + "It may also initiate other procedures if desired.",
+                userName);
+        task.setType(Task.Type.PREPARATION);
+        options.put("taskId", task.getId());
+        taskHandler.create(task);
+        jmsContext.createProducer().setDeliveryDelay(1000).send(preparationQueue, options);
+        return task;
+    }
+
     public Dataset prepareDataset(String bundleURI, String subjectId) {
 
         BundleSubstances substances = client.target(bundleURI + "/substance")
                 .request()
                 .accept(MediaType.APPLICATION_JSON)
+                .header("subjectid", subjectId)
                 .get(BundleSubstances.class);
         BundleProperties properties = client.target(bundleURI + "/property")
                 .request()
                 .accept(MediaType.APPLICATION_JSON)
+                .header("subjectid", subjectId)
                 .get(BundleProperties.class);
 
         Dataset dataset = new Dataset();
@@ -79,6 +107,7 @@ public class ConjoinerService {
             Studies studies = client.target(s.getURI() + "/study")
                     .request()
                     .accept(MediaType.APPLICATION_JSON)
+                    .header("subjectid", subjectId)
                     .get(Studies.class);
             DataEntry dataEntry = createDataEntry(studies, properties.getFeature().keySet());
             dataEntries.add(dataEntry);
@@ -120,7 +149,7 @@ public class ConjoinerService {
             //Parses each effect of the study as a different property
             for (Effect effect : study.getEffects()) {
                 if (effect.getEndpoint().equals("IMAGE")) {
-                    Response response = client.target("http://localhost:8080/imageAnalysis/service/analyze")
+                    Response response = client.target("http://enanomapper.ntua.gr:8880/imageAnalysis/service/analyze")
                             .request()
                             .accept(MediaType.APPLICATION_JSON)
                             .post(Entity.entity(new Form("image", effect.getResult().getTextValue()), "application/x-www-form-urlencoded"));

@@ -103,17 +103,15 @@ public class EnanomapperResource {
             @FormParam("parameters") String parameters,
             @HeaderParam("subjectid") String subjectId) {
 
-        Dataset dataset = conjoinerService.prepareDataset(bundleURI, subjectId);
-        datasetHandler.create(dataset);
-        String datasetURI = uriInfo.getBaseUri() + dataset.getClass().getSimpleName().toLowerCase() + "/" + dataset.getId();
-
         Map<String, Object> options = new HashMap<>();
-        options.put("dataset_uri", datasetURI);
+        options.put("bundle_uri", bundleURI);
         options.put("prediction_feature", predictionFeature);
         options.put("subjectid", subjectId);
         options.put("algorithmId", algorithmURI);
         options.put("parameters", parameters);
-        Task task = trainingService.initiateTraining(options, securityContext.getUserPrincipal().getName());
+        options.put("base_uri", uriInfo.getBaseUri().toString());
+        options.put("mode", "TRAINING");
+        Task task = conjoinerService.initiatePreparation(options, securityContext.getUserPrincipal().getName());
         return Response.ok(task).build();
     }
 
@@ -131,19 +129,17 @@ public class EnanomapperResource {
             @FormParam("model_uri") String modelURI,
             @HeaderParam("subjectid") String subjectId) {
 
-        Dataset dataset = conjoinerService.prepareDataset(bundleURI, subjectId);
         Model model = modelHandler.find(modelURI);
         if (model == null) {
             throw new NotFoundException("Model not found.");
         }
-        datasetHandler.create(dataset);
-        String datasetURI = uriInfo.getBaseUri() + dataset.getClass().getSimpleName().toLowerCase() + "/" + dataset.getId();
-
         Map<String, Object> options = new HashMap<>();
-        options.put("dataset_uri", datasetURI);
+        options.put("bundle_uri", bundleURI);
         options.put("subjectid", subjectId);
         options.put("modelId", modelURI);
-        Task task = predictionService.initiatePrediction(options);
+        options.put("base_uri", uriInfo.getBaseUri().toString());
+        options.put("mode", "PREDICTION");
+        Task task = conjoinerService.initiatePreparation(options, securityContext.getUserPrincipal().getName());
         return Response.ok(task).build();
     }
 
@@ -158,10 +154,14 @@ public class EnanomapperResource {
     public Response prepareDataset(
             @FormParam("bundle_uri") String bundleURI,
             @HeaderParam("subjectid") String subjectId) {
-        Dataset dataset = conjoinerService.prepareDataset(bundleURI, subjectId);
-        datasetHandler.create(dataset);
-
-        return Response.ok(dataset).build();
+        
+        Map<String, Object> options = new HashMap<>();
+        options.put("bundle_uri", bundleURI);
+        options.put("subjectid", subjectId);
+        options.put("base_uri", uriInfo.getBaseUri().toString());
+        options.put("mode", "PREPARATION");
+        Task task = conjoinerService.initiatePreparation(options, securityContext.getUserPrincipal().getName());
+        return Response.ok(task).build();
     }
 
 }
