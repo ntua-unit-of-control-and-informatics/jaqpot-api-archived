@@ -31,12 +31,12 @@ package org.jaqpot.core.service;
 
 import com.wordnik.swagger.jaxrs.config.BeanConfig;
 import java.util.HashSet;
+import java.util.ResourceBundle;
 import java.util.Set;
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.ext.Provider;
 import org.reflections.Reflections;
-
 
 /**
  *
@@ -48,38 +48,37 @@ import org.reflections.Reflections;
 public class JaqpotRestApplication extends Application {
 
     public JaqpotRestApplication() {
+        ResourceBundle config = ResourceBundle.getBundle("config");
         BeanConfig beanConfig = new BeanConfig();
         beanConfig.setVersion("1.0.0");
-        beanConfig.setBasePath("http://localhost:8080/jaqpot/services");
+        beanConfig.setBasePath(config.getString("SwaggerPath"));
         beanConfig.setResourcePackage("org.jaqpot.core.service.resource");
         beanConfig.setScan(true);
         beanConfig.setTitle("Jaqpot Quattro");
-        beanConfig.setDescription("Jaqpot Quattro");        
-        
+        beanConfig.setDescription("Jaqpot Quattro");
+
     }
 
-    
     @Override
     public Set<Class<?>> getClasses() {
         Set<Class<?>> resources = new HashSet();
-        
+
         /*
          * We are here using reflections to discover and register
          * resources, filters and providers. 
          */
-
         // Resources [Annotated with @Path]
         Reflections reflectedResources = new Reflections("org.jaqpot.core.service.resource");
         resources.addAll(reflectedResources.getTypesAnnotatedWith(javax.ws.rs.Path.class));
-                                
+
         // Various providers [Annotated with @Provider]
         Reflections reflectedProviders = new Reflections("org.jaqpot.core.service.filter");
         resources.addAll(reflectedProviders.getTypesAnnotatedWith(Provider.class));
-        
+
         // Various providers [Annotated with @Provider]
         Reflections reflectedExceptionMappers = new Reflections("org.jaqpot.core.service.filter.excmappers");
         resources.addAll(reflectedExceptionMappers.getTypesAnnotatedWith(Provider.class));
-                        
+
         // Writers [Annotated with @Provider]
         Reflections reflectedWriters = new Reflections("org.jaqpot.core.service.writer");
         resources.addAll(reflectedWriters.getTypesAnnotatedWith(Provider.class));
