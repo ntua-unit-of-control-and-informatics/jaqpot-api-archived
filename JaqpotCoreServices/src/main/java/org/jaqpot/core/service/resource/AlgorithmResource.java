@@ -69,7 +69,7 @@ import org.jaqpot.core.service.data.TrainingService;
 @Produces({"application/json", "text/uri-list"})
 @Authorize
 public class AlgorithmResource {
-    
+
     private static final String DEFAULT_ALGORITHM = "{\n"
             + "  \"trainingService\":\"http://z.ch/t/a\",\n"
             + "  \"predictionService\":\"http://z.ch/p/b\",\n"
@@ -86,27 +86,27 @@ public class AlgorithmResource {
             + "    }\n"
             + "  ]\n"
             + "}";
-    
+
     @EJB
     TrainingService trainingService;
-    
+
     @EJB
     AlgorithmHandler algorithmHandler;
-    
+
     @Context
     SecurityContext securityContext;
-    
+
     @GET
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @ApiOperation(value = "Finds all Algorithms",
             notes = "Finds all Algorithms JaqpotQuattro supports",
             response = Algorithm.class,
             responseContainer = "List")
-    
+
     public Response getAlgorithms() {
         return Response.ok(algorithmHandler.findAll()).build();
     }
-    
+
     @POST
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @ApiOperation(value = "Creates Algorithm",
@@ -134,7 +134,7 @@ public class AlgorithmResource {
                 .status(Response.Status.OK)
                 .entity(algorithm).build();
     }
-    
+
     @GET
     @Path("/{id}")
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
@@ -149,7 +149,7 @@ public class AlgorithmResource {
         }
         return Response.ok(algorithm).build();
     }
-    
+
     @POST
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @Path("/{id}")
@@ -161,6 +161,7 @@ public class AlgorithmResource {
             @FormParam("dataset_uri") String datasetURI,
             @FormParam("prediction_feature") String predictionFeature,
             @FormParam("parameters") String parameters,
+            @FormParam("transformations") String transformations,
             @PathParam("id") String algorithmId,
             @HeaderParam("subjectid") String subjectId) {
         Map<String, Object> options = new HashMap<>();
@@ -169,10 +170,11 @@ public class AlgorithmResource {
         options.put("subjectid", subjectId);
         options.put("algorithmId", algorithmId);
         options.put("parameters", parameters);
+        options.put("transformations", transformations);
         Task task = trainingService.initiateTraining(options, securityContext.getUserPrincipal().getName());
         return Response.ok(task).build();
     }
-    
+
     @DELETE
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/{id}")
@@ -192,5 +194,5 @@ public class AlgorithmResource {
         algorithmHandler.remove(new Algorithm(id));
         return Response.ok().build();
     }
-    
+
 }

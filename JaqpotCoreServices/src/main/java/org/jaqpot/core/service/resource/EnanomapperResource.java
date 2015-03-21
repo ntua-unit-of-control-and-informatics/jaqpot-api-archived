@@ -153,10 +153,12 @@ public class EnanomapperResource {
     )
     public Response prepareDataset(
             @FormParam("bundle_uri") String bundleURI,
+            @FormParam("transformations") String transformations,
             @HeaderParam("subjectid") String subjectId) {
-        
+
         Map<String, Object> options = new HashMap<>();
         options.put("bundle_uri", bundleURI);
+        options.put("transformations", transformations);
         options.put("subjectid", subjectId);
         options.put("base_uri", uriInfo.getBaseUri().toString());
         options.put("mode", "PREPARATION");

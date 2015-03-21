@@ -26,7 +26,7 @@ import org.jaqpot.core.model.factory.ErrorReportFactory;
  *
  */
 @Path("feature")
-@Api(value = "/feature", description = "Feature API")
+//@Api(value = "/feature", description = "Feature API")
 @Produces({"application/json", "text/uri-list"})
 public class FeatureResource {
     
