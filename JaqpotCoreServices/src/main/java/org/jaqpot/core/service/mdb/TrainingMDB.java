@@ -34,9 +34,9 @@ import org.jaqpot.core.model.Model;
 import org.jaqpot.core.model.Task;
 import org.jaqpot.core.model.factory.ErrorReportFactory;
 import org.jaqpot.core.service.annotations.UnSecure;
-import org.jaqpot.core.service.dto.dataset.Dataset;
-import org.jaqpot.core.service.dto.jpdi.TrainingRequest;
-import org.jaqpot.core.service.dto.jpdi.TrainingResponse;
+import org.jaqpot.core.model.dto.dataset.Dataset;
+import org.jaqpot.core.model.dto.jpdi.TrainingRequest;
+import org.jaqpot.core.model.dto.jpdi.TrainingResponse;
 
 /**
  *
@@ -51,38 +51,38 @@ import org.jaqpot.core.service.dto.jpdi.TrainingResponse;
             propertyValue = "javax.jms.Topic")
 })
 public class TrainingMDB implements MessageListener {
-    
+
     private static final Logger LOG = Logger.getLogger(TrainingMDB.class.getName());
-    
+
     @EJB
     TaskHandler taskHandler;
-    
+
     @EJB
     AlgorithmHandler algorithmHandler;
-    
+
     @EJB
     ModelHandler modelHandler;
-    
+
     @Inject
     @UnSecure
     Client client;
-    
+
     @Override
     public void onMessage(Message msg) {
         Task task = null;
         try {
             Map<String, Object> messageBody = msg.getBody(Map.class);
             task = taskHandler.find(messageBody.get("taskId"));
-            
+
             if (task == null) {
                 throw new NullPointerException("FATAL: Could not find task with id:" + messageBody.get("taskId"));
             }
-            
+
             task.setStatus(Task.Status.RUNNING);
             task.setType(Task.Type.TRAINING);
             task.getMeta().getComments().add("Training Task is now running.");
             taskHandler.edit(task);
-            
+
             task.getMeta().getComments().add("Attempting to download dataset...");
             taskHandler.edit(task);
             Dataset dataset = client.target((String) messageBody.get("dataset_uri"))
@@ -91,21 +91,21 @@ public class TrainingMDB implements MessageListener {
                     .accept(MediaType.APPLICATION_JSON)
                     .get(Dataset.class);
             dataset.setDatasetURI((String) messageBody.get("dataset_uri"));
-            
+
             task.getMeta().getComments().add("Dataset has been retrieved.");
-            
+
             task.getMeta().getComments().add("Creating JPDI training request...");
             taskHandler.edit(task);
-            
+
             TrainingRequest trainingRequest = new TrainingRequest();
-            trainingRequest.setDataset(dataset);            
+            trainingRequest.setDataset(dataset);
             task.getMeta().getComments().add("Inserted dataset.");
             taskHandler.edit(task);
-            
+
             trainingRequest.setPredictionFeature((String) messageBody.get("prediction_feature"));
             task.getMeta().getComments().add("Inserted prediction feature.");
             taskHandler.edit(task);
-            
+
             String parameters = (String) messageBody.get("parameters");
             Map<String, Object> parameterMap = new HashMap<>();
             if (parameters != null) {
@@ -116,16 +116,16 @@ public class TrainingMDB implements MessageListener {
                 }
             }
             trainingRequest.setParameters(parameterMap);
-            
+
             task.getMeta().getComments().add("Inserted parameters.");
             taskHandler.edit(task);
-            
+
             String algorithmId = (String) messageBody.get("algorithmId");
             Algorithm algorithm = algorithmHandler.find(algorithmId);
-            
+
             task.getMeta().getComments().add("Inserted algorithm id.");
             taskHandler.edit(task);
-            
+
             task.getMeta().getComments().add("Sending request to  algorithm service:" + algorithm.getTrainingService());
             taskHandler.edit(task);
             Response response = client.target(algorithm.getTrainingService())
@@ -134,16 +134,16 @@ public class TrainingMDB implements MessageListener {
                     .post(Entity.json(trainingRequest));
             task.getMeta().getComments().add("Algorithm service responded with status:" + response.getStatus());
             taskHandler.edit(task);
-            
+
             task.getMeta().getComments().add("Attempting to parse response...");
             taskHandler.edit(task);
             TrainingResponse trainingResponse = response.readEntity(TrainingResponse.class);
             task.getMeta().getComments().add("Response was parsed successfully");
             taskHandler.edit(task);
-            
+
             task.getMeta().getComments().add("Building model...");
             taskHandler.edit(task);
-            
+
             Model model = new Model(UUID.randomUUID().toString());
             model.setActualModel(trainingResponse.getRawModel());
             model.setPmmlModel(trainingResponse.getPmmlModel());
@@ -156,12 +156,12 @@ public class TrainingMDB implements MessageListener {
             ArrayList<String> predictedFeatures = new ArrayList<>();
             predictedFeatures.add(trainingRequest.getPredictionFeature() + "/" + URLEncoder.encode("Predicted By Model " + model.getId(), "UTF-8"));
             model.setPredictedFeatures(predictedFeatures);
-            
+
             task.getMeta().getComments().add("Model was built successfully. Now saving to database...");
             taskHandler.edit(task);
             modelHandler.create(model);
-            
-            task.setResult(model.getId());
+
+            task.setResult("model/"+model.getId());
             task.setStatus(Task.Status.COMPLETED);
             task.getMeta().getComments().add("Task Completed Successfully.");
             taskHandler.edit(task);
@@ -213,5 +213,5 @@ public class TrainingMDB implements MessageListener {
             taskHandler.edit(task);
         }
     }
-    
+
 }

@@ -94,7 +94,9 @@ public class TaskResource {
         } else {
             foundTasks = taskHandler.findByUserAndStatus(creator, Task.Status.valueOf(status), 0, Integer.MAX_VALUE);
         }
-
+        foundTasks.stream().forEach(task -> {
+            task.setResultUri(uriInfo.getBaseUri() + task.getResult());
+        });
         return Response.ok(foundTasks).build();
     }
 
@@ -115,6 +117,7 @@ public class TaskResource {
         if (task == null) {
             throw new NotFoundException("Task " + uriInfo.getPath() + "not found");
         }
+        task.setResultUri(uriInfo.getBaseUri() + task.getResult());
         return Response.ok(task).build();
     }
 

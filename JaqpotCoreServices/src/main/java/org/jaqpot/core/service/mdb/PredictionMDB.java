@@ -5,7 +5,6 @@
  */
 package org.jaqpot.core.service.mdb;
 
-import java.security.GeneralSecurityException;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -18,7 +17,6 @@ import javax.inject.Inject;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageListener;
-import javax.ws.rs.NotFoundException;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
@@ -29,7 +27,6 @@ import org.jaqpot.core.data.TaskHandler;
 import org.jaqpot.core.model.Model;
 import org.jaqpot.core.model.Task;
 import org.jaqpot.core.model.factory.ErrorReportFactory;
-import org.jaqpot.core.service.client.ClientFactory;
 import org.jaqpot.core.model.dto.dataset.Dataset;
 import org.jaqpot.core.model.dto.jpdi.PredictionRequest;
 import org.jaqpot.core.model.dto.jpdi.PredictionResponse;
@@ -133,7 +130,7 @@ public class PredictionMDB implements MessageListener {
             datasetHandler.create(dataset);
 
             task.setStatus(Task.Status.COMPLETED);
-            task.setResult(dataset.getId());
+            task.setResult("dataset/"+dataset.getId());
             task.getMeta().getComments().add("Task Completed Successfully.");
         } catch (JMSException ex) {
             LOG.log(Level.SEVERE, null, ex);
