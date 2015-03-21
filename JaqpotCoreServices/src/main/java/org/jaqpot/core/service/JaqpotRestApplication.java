@@ -51,7 +51,7 @@ public class JaqpotRestApplication extends Application {
         ResourceBundle config = ResourceBundle.getBundle("config");
         BeanConfig beanConfig = new BeanConfig();
         beanConfig.setVersion("1.0.0");
-        beanConfig.setBasePath(config.getString("SwaggerPath"));
+        beanConfig.setBasePath(config.getString("ServerBasePath"));
         beanConfig.setResourcePackage("org.jaqpot.core.service.resource");
         beanConfig.setScan(true);
         beanConfig.setTitle("Jaqpot Quattro");
