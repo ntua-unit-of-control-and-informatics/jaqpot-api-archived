@@ -1,13 +1,38 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ *
+ * JAQPOT Quattro
+ *
+ * JAQPOT Quattro and the components shipped with it (web applications and beans)
+ * are licenced by GPL v3 as specified hereafter. Additional components may ship
+ * with some other licence as will be specified therein.
+ *
+ * Copyright (C) 2014-2015 KinkyDesign (Charalampos Chomenidis, Pantelis Sopasakis)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * 
+ * Source code:
+ * The source code of JAQPOT Quattro is available on github at:
+ * https://github.com/KinkyDesign/JaqpotQuattro
+ * All source files of JAQPOT Quattro that are stored on github are licenced
+ * with the aforementioned licence. 
  */
 package org.jaqpot.core.service.mdb;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -31,7 +56,9 @@ import org.dmg.pmml.DerivedField;
 import org.dmg.pmml.PMML;
 import org.jaqpot.core.data.DatasetHandler;
 import org.jaqpot.core.data.TaskHandler;
+import org.jaqpot.core.model.MetaInfo;
 import org.jaqpot.core.model.Task;
+import org.jaqpot.core.model.builder.MetaInfoBuilder;
 import org.jaqpot.core.model.dto.dataset.DataEntry;
 import org.jaqpot.core.model.dto.dataset.Dataset;
 import org.jaqpot.core.model.factory.ErrorReportFactory;
@@ -122,31 +149,37 @@ public class PreparationMDB implements MessageListener {
                 task.getMeta().getComments().add("Transformations file is downloaded and parsed. Applying transformations...");
                 taskHandler.edit(task);
 
-                for (DataEntry dataEntry : dataset.getDataEntry()) {
+                dataset.getDataEntry().stream().forEach((dataEntry) -> {
                     //For each data entry a PMMLEvaluationContext is saturated with values for each data field
                     PMMLEvaluationContext context = new PMMLEvaluationContext(pmmlManager);
                     Map<String, Object> values = dataEntry.getValues();
                     dataFields.stream().forEach(dataField -> {
                         if (!values.containsKey(dataField.getName().getValue())) {
-                            throw new BadRequestException("DataField " + dataField.getName().getValue() + "specified in transformations PMML does not exist in dataset.");
+                            throw new BadRequestException("DataField " + dataField.getName().getValue() + 
+                                    "specified in transformations PMML does not exist in dataset.");
                         }
                         context.declare(dataField.getName(), values.get(dataField.getName().getValue()));
                     });
                     TreeMap<String, Object> result = new TreeMap<>();
                     //Each derived field is evaluated by the context and a value is produced
-                    for (DerivedField derivedField : derivedFields) {
+                    derivedFields.stream().forEach((derivedField) -> {
                         FieldValue value = ExpressionUtil.evaluate(derivedField, context);
                         result.put(derivedField.getName().getValue(), value.asNumber());
-                    }
+                    });
                     //A newly created map of transformed property names and values is placed in the data entry
                     dataEntry.setValues(result);
-                }
+                });
                 task.getMeta().getComments().add("Transformations have been applied.");
                 taskHandler.edit(task);
             }
             task.getMeta().getComments().add("Dataset ready.");
             task.getMeta().getComments().add("Saving to database...");
             taskHandler.edit(task);
+            MetaInfo datasetMeta = MetaInfoBuilder.builder().addSources(bundleUri)
+                    .addComments("Created by task "+task.getId()).build();
+            dataset.setMeta(datasetMeta);
+                    
+            
             datasetHandler.create(dataset);
 
             task.getMeta().getComments().add("Dataset saved successfully.");
@@ -176,6 +209,7 @@ public class PreparationMDB implements MessageListener {
                     task.setStatus(Task.Status.COMPLETED);
                     task.getMeta().getComments().add("Preparation Task is now completed.");
                     task.setResult("dataset/"+dataset.getId());
+                    task.setHttpStatus(200);
                     taskHandler.edit(task);
                     break;
             }

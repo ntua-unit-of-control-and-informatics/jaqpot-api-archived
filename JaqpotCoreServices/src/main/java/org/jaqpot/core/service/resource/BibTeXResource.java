@@ -94,7 +94,7 @@ public class BibTeXResource {
             position = 1)
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "BibTeX entries found and are listed in the response body"),
-        @ApiResponse(code = 401, message = "You are not authorized to access this user"),
+        @ApiResponse(code = 401, message = "You are not authorized to access this resource"),
         @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)"),
         @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
     })

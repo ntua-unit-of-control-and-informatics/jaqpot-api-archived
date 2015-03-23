@@ -108,6 +108,8 @@ public class TaskResource {
             response = Task.class)
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "Task is found"),
+        @ApiResponse(code = 201, message = "Task is created (see content - redirects to other task)"),
+        @ApiResponse(code = 202, message = "Task is accepted (still running)"),
         @ApiResponse(code = 404, message = "This task was not found."),
         @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
     })
@@ -118,7 +120,10 @@ public class TaskResource {
             throw new NotFoundException("Task " + uriInfo.getPath() + "not found");
         }
         task.setResultUri(uriInfo.getBaseUri() + task.getResult());
-        return Response.ok(task).build();
+        return Response
+                .ok(task)
+                .status(task.getHttpStatus())
+                .build();
     }
 
     @DELETE
@@ -138,6 +143,7 @@ public class TaskResource {
     public Response deleteTask(
             @ApiParam(value = "ID of the task which is to be deleted.", required = true) @PathParam("id") String id,
             @HeaderParam("subjectid") String subjectId) {
+        //TODO: Cancel the task! (stop the job)
         taskHandler.remove(new Task(id));
         return Response.ok().build();
     }
