@@ -6,13 +6,27 @@ which is typically found at
 
 add the following inside the tag <jms-destinations>:
 
-<jms-topic name="training">
-    <entry name="jms/topic/training"/>
-    <entry name="java:jboss/exported/jms/topic/training"/>
-</jms-topic>
-<jms-topic name="prediction">
-    <entry name="jms/topic/prediction"/>
-    <entry name="java:jboss/exported/jms/topic/prediction"/>
-</jms-topic>
+<jms-destinations>
+    <jms-queue name="ExpiryQueue">
+        <entry name="java:/jms/queue/ExpiryQueue"/>
+    </jms-queue>
+    <jms-queue name="DLQ">
+        <entry name="java:/jms/queue/DLQ"/>
+    </jms-queue>
+    <jms-topic name="training">
+        <entry name="jms/topic/training"/>
+        <entry name="java:jboss/exported/jms/topic/training"/>
+    </jms-topic>
+    <jms-topic name="prediction">
+        <entry name="jms/topic/prediction"/>
+        <entry name="java:jboss/exported/jms/topic/prediction"/>
+    </jms-topic>
+    <jms-topic name="preparation">
+       <entry name="jms/topic/preparation"/>
+       <entry name="java:jboss/exported/jms/topic/preparation"/>
+    </jms-topic> 
+</jms-destinations>
 
-and example standalone-full.xml file is found in this directory.
+an example standalone-full.xml file is found in this directory.
+
+An example settings can be also found here.
