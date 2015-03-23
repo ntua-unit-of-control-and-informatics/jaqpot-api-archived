@@ -71,14 +71,7 @@ public class DatasetResource {
         @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)"),
         @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
     })
-    public Response getDatasets(
-            @ApiParam(value = "BibTeX type of entry",
-                    allowableValues = "Article,Conference,Book,PhDThesis,InBook,InCollection,"
-                    + "InProceedings,Manual,Mastersthesis,Proceedings,TechReport,"
-                    + "Unpublished,Entry", defaultValue = "Entry") @QueryParam("bibtype") String bibtype,
-            @ApiParam("Creator of the BibTeX entry") @QueryParam("creator") String creator,
-            @ApiParam("Generic query (e.g., Article title, journal name, etc)") @QueryParam("query") String query
-    ) {
+    public Response getDatasets() {
         return Response
                 .ok(datasetHandler.findAll())
                 .status(Response.Status.OK)
