@@ -68,10 +68,25 @@ public class ModelHandler extends AbstractHandler<Model> {
         fields.add("independentFeatures");
         fields.add("predictedFeatures");
         fields.add("algorithm");
-        fields.add("bibtext");
+        fields.add("bibtex");
         fields.add("datasetUri");
         fields.add("parameters");
 
         return em.find(Model.class, keys, fields).stream().findFirst().orElse(null);
+    }
+
+    public List<Model> findAllMeta() {
+        List<String> fields = new ArrayList<>();
+        fields.add("_id");
+        fields.add("createdBy");
+        fields.add("dependentFeatures");
+        fields.add("independentFeatures");
+        fields.add("predictedFeatures");
+        fields.add("algorithm");
+        fields.add("bibtex");
+        fields.add("datasetUri");
+        fields.add("parameters");
+
+        return em.findAll(Model.class, fields, 0, Integer.MAX_VALUE);
     }
 }

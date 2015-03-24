@@ -31,7 +31,6 @@ package org.jaqpot.core.db.entitymanager;
 
 import com.mongodb.MongoClient;
 import com.mongodb.MongoWriteException;
-import com.mongodb.WriteConcern;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.util.JSON;
@@ -227,6 +226,22 @@ public class MongoDBEntityManager implements JaqpotEntityManager {
         MongoCollection<Document> collection = db.getCollection(collectionNames.get(entityClass));
         List<T> result = new ArrayList<>();
         collection.find()
+                .skip(start != null ? start : 0)
+                .limit(max != null ? max : DEFAULT_PAGE_SIZE)
+                .map(document -> serializer.parse(JSON.serialize(document), entityClass))
+                .into(result);
+        return result;
+    }
+
+    @Override
+    public <T extends JaqpotEntity> List<T> findAll(Class<T> entityClass, List<String> fields, Integer start, Integer max) {
+        MongoDatabase db = mongoClient.getDatabase(database);
+        MongoCollection<Document> collection = db.getCollection(collectionNames.get(entityClass));
+        List<T> result = new ArrayList<>();
+        Document filter = new Document();
+        fields.stream().forEach(f -> filter.put(f, 1));
+        collection.find()
+                .projection(filter)
                 .skip(start != null ? start : 0)
                 .limit(max != null ? max : DEFAULT_PAGE_SIZE)
                 .map(document -> serializer.parse(JSON.serialize(document), entityClass))

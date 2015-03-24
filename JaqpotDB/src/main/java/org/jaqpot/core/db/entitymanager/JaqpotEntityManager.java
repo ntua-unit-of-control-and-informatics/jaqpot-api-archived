@@ -141,6 +141,8 @@ public interface JaqpotEntityManager extends Closeable {
      */
     public <T extends JaqpotEntity> List<T> findAll(Class<T> entityClass, Integer start, Integer max);
 
+    public <T extends JaqpotEntity> List<T> findAll(Class<T> entityClass, List<String> fields, Integer start, Integer max);
+
     /**
      * Count all entities. Counts all persisted entities of the specified class.
      *
