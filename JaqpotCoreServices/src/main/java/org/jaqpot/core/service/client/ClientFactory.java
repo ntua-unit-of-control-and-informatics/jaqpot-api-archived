@@ -5,15 +5,13 @@
  */
 package org.jaqpot.core.service.client;
 
-import java.security.GeneralSecurityException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Default;
+import javax.enterprise.context.Dependent;
 import javax.enterprise.inject.Produces;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSession;
@@ -30,7 +28,7 @@ import org.jaqpot.core.service.annotations.UnSecure;
  * @author Charalampos Chomenidis
  *
  */
-@ApplicationScoped
+@Dependent
 public class ClientFactory {
 
     private static final Logger LOG = Logger.getLogger(ClientFactory.class.getName());

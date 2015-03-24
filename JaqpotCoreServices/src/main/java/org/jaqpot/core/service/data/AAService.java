@@ -157,6 +157,7 @@ public class AAService {
         // the remote service may return gibberish...
         String message = response.readEntity(String.class).trim();
         int status = response.getStatus();
+        response.close();
         return "boolean=true".equals(message) && status == 200;
     }
 
@@ -171,6 +172,7 @@ public class AAService {
         // the remote service may return gibberish...
         tokenMap.remove(token);
         int status = response.getStatus();
+        response.close();
         return status == 200;
     }
 

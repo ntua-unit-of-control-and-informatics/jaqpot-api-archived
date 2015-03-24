@@ -138,6 +138,7 @@ public class TrainingMDB implements MessageListener {
             task.getMeta().getComments().add("Attempting to parse response...");
             taskHandler.edit(task);
             TrainingResponse trainingResponse = response.readEntity(TrainingResponse.class);
+            response.close();
             task.getMeta().getComments().add("Response was parsed successfully");
             taskHandler.edit(task);
 
@@ -161,7 +162,7 @@ public class TrainingMDB implements MessageListener {
             taskHandler.edit(task);
             modelHandler.create(model);
 
-            task.setResult("model/"+model.getId());
+            task.setResult("model/" + model.getId());
             task.setStatus(Task.Status.COMPLETED);
             task.getMeta().getComments().add("Task Completed Successfully.");
             taskHandler.edit(task);

@@ -156,6 +156,7 @@ public class ConjoinerService {
                     GenericType<List<Map<String, Object>>> type = new GenericType<List<Map<String, Object>>>() {
                     };
                     List<Map<String, Object>> allParticles = response.readEntity(type);
+                    response.close();
                     for (Map<String, Object> particle : allParticles) {
                         try {
                             String propertyURI = "property/image/" + URLEncoder.encode((String) particle.remove("id"), "UTF-8");

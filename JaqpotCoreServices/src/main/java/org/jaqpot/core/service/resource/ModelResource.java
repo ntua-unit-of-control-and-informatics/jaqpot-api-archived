@@ -47,7 +47,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.client.Client;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -57,10 +56,7 @@ import org.jaqpot.core.model.Model;
 import org.jaqpot.core.model.Task;
 import org.jaqpot.core.model.factory.ErrorReportFactory;
 import org.jaqpot.core.service.annotations.Authorize;
-import org.jaqpot.core.service.client.ClientFactory;
 import org.jaqpot.core.service.data.PredictionService;
-import org.jaqpot.core.service.dto.dataset.Dataset;
-import org.jaqpot.core.service.dto.jpdi.PredictionRequest;
 
 /**
  *
@@ -97,7 +93,7 @@ public class ModelResource {
     public Response getModels(
             @ApiParam(value = "Creator of the model (username)") @QueryParam("creator") String creator
     ) {
-        return Response.ok(modelHandler.findAll()).build();
+        return Response.ok(modelHandler.findAllMeta()).build();
     }
 
     @GET
