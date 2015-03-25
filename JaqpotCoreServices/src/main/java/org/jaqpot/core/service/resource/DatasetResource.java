@@ -72,12 +72,12 @@ public class DatasetResource {
         @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
     })
     public Response getDatasets(
-            @ApiParam(value = "page number", defaultValue = "1") @QueryParam("page") int page,
-            @ApiParam(value = "page length", defaultValue = "10") @QueryParam("page_size") int pageSize
+            @ApiParam(value = "start", defaultValue = "0") @QueryParam("start") int page,
+            @ApiParam(value = "max", defaultValue = "10") @QueryParam("max") int pageSize
     ) {
 
         return Response
-                .ok(datasetHandler.findAll(page, pageSize))
+                .ok(datasetHandler.findAll(page*pageSize, pageSize))
                 .status(Response.Status.OK)
                 .build();
     }

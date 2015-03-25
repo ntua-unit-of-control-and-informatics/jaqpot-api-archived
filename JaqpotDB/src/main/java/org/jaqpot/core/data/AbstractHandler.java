@@ -75,7 +75,7 @@ public abstract class AbstractHandler<T extends JaqpotEntity> {
         return getEntityManager().findAll(entityClass, 0, Integer.MAX_VALUE);
     }
     
-    public List<T> findAll(int start, int max) {
+    public List<T> findAll(int start, int max) {        
         return getEntityManager().findAll(entityClass, start, max);
     }
 }
