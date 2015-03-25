@@ -99,6 +99,8 @@ public class Model extends JaqpotEntity {
 
     private String pmmlTransformations;
 
+    private String doaModel;
+
     public Model() {
     }
 
@@ -237,6 +239,14 @@ public class Model extends JaqpotEntity {
 
     public void setPmmlTransformations(String pmmlTransformations) {
         this.pmmlTransformations = pmmlTransformations;
+    }
+
+    public String getDoaModel() {
+        return doaModel;
+    }
+
+    public void setDoaModel(String doaModel) {
+        this.doaModel = doaModel;
     }
 
 }

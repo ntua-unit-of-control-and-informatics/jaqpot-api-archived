@@ -42,6 +42,11 @@
                             <artifactId>JaqpotCoreServices</artifactId>
                             <contextRoot>jaqpot</contextRoot>
                         </webModule>
+                        <webModule>
+                            <groupId>org.kinkydesign</groupId>
+                            <artifactId>JaqpotAlgorithmServices</artifactId>
+                            <contextRoot>algorithms</contextRoot>
+                        </webModule>
                     </modules>
                 </configuration>
             </plugin>

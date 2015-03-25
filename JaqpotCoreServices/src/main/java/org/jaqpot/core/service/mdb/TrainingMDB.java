@@ -5,10 +5,15 @@
  */
 package org.jaqpot.core.service.mdb;
 
+import Jama.Matrix;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -32,6 +37,7 @@ import org.jaqpot.core.data.TaskHandler;
 import org.jaqpot.core.model.Algorithm;
 import org.jaqpot.core.model.Model;
 import org.jaqpot.core.model.Task;
+import org.jaqpot.core.model.builder.MetaInfoBuilder;
 import org.jaqpot.core.model.factory.ErrorReportFactory;
 import org.jaqpot.core.service.annotations.UnSecure;
 import org.jaqpot.core.model.dto.dataset.Dataset;
@@ -157,6 +163,19 @@ public class TrainingMDB implements MessageListener {
             ArrayList<String> predictedFeatures = new ArrayList<>();
             predictedFeatures.add(trainingRequest.getPredictionFeature() + "/" + URLEncoder.encode("Predicted By Model " + model.getId(), "UTF-8"));
             model.setPredictedFeatures(predictedFeatures);
+            model.setMeta(MetaInfoBuilder
+                    .builder()
+                    .addCreators(task.getCreatedBy())
+                    .addSources(dataset.getDatasetURI())
+                    .addComments("Created by task " + task.getId())
+                    .addDescriptions("QSAR model by algorithm " + algorithmId)
+                    .build());
+
+            double[][] omega = createOmega(dataset, model.getIndependentFeatures());
+            double gamma = (3.0 * model.getIndependentFeatures().size()) / dataset.getDataEntry().size();
+
+            System.out.println("omega:" + Arrays.deepToString(omega));
+            System.out.println("gamma: " + gamma);
 
             task.getMeta().getComments().add("Model was built successfully. Now saving to database...");
             taskHandler.edit(task);
@@ -213,6 +232,31 @@ public class TrainingMDB implements MessageListener {
         } finally {
             taskHandler.edit(task);
         }
+    }
+
+    private double[][] createOmega(Dataset dataset, List<String> selectedFeatures) {
+        Set<String> selectedFeaturesSet = new HashSet<>(selectedFeatures);
+
+        int numOfSubstances = dataset.getDataEntry().size();
+        int numOfFeatures = selectedFeatures.size();
+
+        double[][] dataArray = new double[numOfSubstances][numOfFeatures];
+
+        for (int i = 0; i < numOfSubstances; i++) {
+            dataArray[i] = dataset.getDataEntry()
+                    .get(i)
+                    .getValues()
+                    .entrySet()
+                    .stream()
+                    .filter(entry -> {
+                        return selectedFeaturesSet.contains(entry.getKey());
+                    })
+                    .mapToDouble(entry -> {
+                        return Double.parseDouble(entry.getValue().toString());
+                    }).toArray();
+        }
+        Matrix dataMatrix = new Matrix(dataArray);
+        return (dataMatrix.transpose().times(dataMatrix)).getArray();
     }
 
 }

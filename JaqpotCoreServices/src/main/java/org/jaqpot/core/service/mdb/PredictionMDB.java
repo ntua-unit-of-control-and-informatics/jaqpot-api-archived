@@ -125,7 +125,7 @@ public class PredictionMDB implements MessageListener {
             predictionRequest.setRawModel(model.getActualModel());
             predictionRequest.setAdditionalInfo(model.getAdditionalInfo());
 
-            task.getMeta().getComments().add("Sending request to  algorithm service:" + model.getAlgorithm().getPredictionService());
+            task.getMeta().getComments().add("Sending request to algorithm service:" + model.getAlgorithm().getPredictionService());
             taskHandler.edit(task);
             Response response = client.target(model.getAlgorithm().getPredictionService())
                     .request()
@@ -188,6 +188,7 @@ public class PredictionMDB implements MessageListener {
                 task.getMeta().getComments().add("An upload task has been started with URI:" + taskUri.trim());
                 taskHandler.edit(task);
             }
+                        
             task.setStatus(Task.Status.COMPLETED);
             task.setResult("dataset/" + dataset.getId());
             task.getMeta().getComments().add("Task Completed Successfully.");
