@@ -58,7 +58,7 @@ public class DatasetResource {
     @EJB
     DatasetHandler datasetHandler;
 
-     @GET
+    @GET
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @ApiOperation(value = "Finds all Datasets",
             notes = "Finds all Datasets in the DB of Jaqpot and returns them in a list",
@@ -71,14 +71,17 @@ public class DatasetResource {
         @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)"),
         @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
     })
-    public Response getDatasets() {
+    public Response getDatasets(
+            @ApiParam(value = "page number", defaultValue = "1") @QueryParam("page") int page,
+            @ApiParam(value = "page length", defaultValue = "10") @QueryParam("page_size") int pageSize
+    ) {
+
         return Response
-                .ok(datasetHandler.findAll())
+                .ok(datasetHandler.findAll(page, pageSize))
                 .status(Response.Status.OK)
                 .build();
     }
-    
-    
+
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/{id}")

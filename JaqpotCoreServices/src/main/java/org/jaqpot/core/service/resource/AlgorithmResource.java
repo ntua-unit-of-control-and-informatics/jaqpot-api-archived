@@ -158,7 +158,7 @@ public class AlgorithmResource {
             response = Task.class
     )
     public Response trainModel(
-            @FormParam("dataset_uri") String datasetURI,
+            @ApiParam(name = "dataset_uri", defaultValue = "http://enanomapper.ntua.gr:8880/jaqpot/services/dataset/ca8da7f6-ee9f-4a61-9ae4-b1d1525cef88") @FormParam("dataset_uri") String datasetURI,
             @FormParam("prediction_feature") String predictionFeature,
             @FormParam("parameters") String parameters,
             @FormParam("transformations") String transformations,

@@ -34,6 +34,7 @@ import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
 import com.wordnik.swagger.annotations.ApiResponse;
 import com.wordnik.swagger.annotations.ApiResponses;
+import java.util.List;
 import javax.ejb.EJB;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
@@ -57,10 +58,10 @@ import org.jaqpot.core.service.annotations.Authorize;
 @Produces({"application/json", "text/uri-list"})
 @Authorize
 public class UserResource {
-
+    
     @EJB
     UserHandler userHandler;
-
+    
     @GET
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @ApiOperation(value = "Finds all Users",
@@ -76,11 +77,13 @@ public class UserResource {
     public Response getUsers(
             @ApiParam(value = "Clients need to authenticate in order to access models") @HeaderParam("subjectid") String subjectId
     ) {
+        List<User> users = userHandler.findAll();
+        users.stream().forEach((u) -> { u.setHashedPass(null); });
         return Response
-                .ok(userHandler.findAll())
+                .ok(users)
                 .build();
     }
-
+    
     @GET
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @Path("/{id}")
@@ -96,8 +99,8 @@ public class UserResource {
     })
     public Response getUser(
             @PathParam("id") String id,
-            @ApiParam(value = "Clients need to authenticate in order to access models") @HeaderParam("subjectid") String subjectId) {
-
+            @ApiParam(value = "Clients need to authenticate in order to access this resource") @HeaderParam("subjectid") String subjectId) {
+        
         User user = userHandler.find(id);
         if (user == null) {
             return Response.status(Response.Status.NOT_FOUND).entity("Could not find User with id:" + id).build();
@@ -107,5 +110,5 @@ public class UserResource {
         }
         return Response.ok(user).build();
     }
-
+    
 }
