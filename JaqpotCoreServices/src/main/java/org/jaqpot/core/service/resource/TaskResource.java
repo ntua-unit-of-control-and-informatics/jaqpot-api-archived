@@ -82,17 +82,21 @@ public class TaskResource {
     })
     public Response getTasks(
             @ApiParam(value = "Creator of the task (username)") @QueryParam("creator") String creator,
-            @ApiParam(value = "Status of the task", allowableValues = "RUNNING,QUEUED,COMPLETED,ERROR,CANCELLED,REJECTED") @QueryParam("status") String status
+            @ApiParam(value = "Status of the task", allowableValues = "RUNNING,QUEUED,COMPLETED,ERROR,CANCELLED,REJECTED") @QueryParam("status") String status,
+            @ApiParam(value = "start", defaultValue = "0") @QueryParam("start") Integer start,
+            @ApiParam(value = "max", defaultValue = "10") @QueryParam("max") Integer max
     ) {
+        start = start != null ? start : 0;
+        max = max != null ? max : Integer.MAX_VALUE;
         List<Task> foundTasks = null;
         if (creator == null && status == null) {
             foundTasks = taskHandler.findAll();
         } else if (creator != null && status == null) {
-            foundTasks = taskHandler.findByUser(creator, 0, Integer.MAX_VALUE);
+            foundTasks = taskHandler.findByUser(creator, start, max);
         } else if (creator == null && status != null) {
-            foundTasks = taskHandler.findByStatus(Task.Status.valueOf(status), 0, Integer.MAX_VALUE);
+            foundTasks = taskHandler.findByStatus(Task.Status.valueOf(status), start, max);
         } else {
-            foundTasks = taskHandler.findByUserAndStatus(creator, Task.Status.valueOf(status), 0, Integer.MAX_VALUE);
+            foundTasks = taskHandler.findByUserAndStatus(creator, Task.Status.valueOf(status), start, max);
         }
         foundTasks.stream().forEach(task -> {
             task.setResultUri(uriInfo.getBaseUri() + task.getResult());
