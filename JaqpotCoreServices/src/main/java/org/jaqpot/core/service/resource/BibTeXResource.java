@@ -48,13 +48,16 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.container.ContainerRequestFilter;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.SecurityContext;
 import org.jaqpot.core.data.BibTeXHandler;
 import org.jaqpot.core.model.BibTeX;
 import org.jaqpot.core.model.ErrorReport;
 import org.jaqpot.core.model.factory.ErrorReportFactory;
 import org.jaqpot.core.model.validator.BibTeXValidator;
+import org.jaqpot.core.service.annotations.Authorize;
 import org.jaqpot.core.service.data.AAService;
 import org.jaqpot.core.service.exceptions.JaqpotNotAuthorizedException;
 
@@ -71,6 +74,9 @@ public class BibTeXResource {
 
     @EJB
     AAService aaService;
+
+    @Context
+    SecurityContext securityContext;
 
     private static final String DEFAULT_BIBTEX
             = "{\n"
@@ -151,6 +157,7 @@ public class BibTeXResource {
         @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)"),
         @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
     })
+    @Authorize
     public Response createBibTeX(
             @ApiParam(value = "Clients need to authenticate in order to create resources on the server")
             @HeaderParam("subjectid") String subjectId,
@@ -167,7 +174,8 @@ public class BibTeXResource {
                     "Clients MUST provide a BibTeX document in JSON to perform this request");
             return Response.ok(report).status(Response.Status.BAD_REQUEST).build();
         }
-        bib.setId(UUID.randomUUID().toString());
+        if (bib.getId()==null) { bib.setId(UUID.randomUUID().toString());  }
+        bib.setCreatedBy(securityContext.getUserPrincipal().getName());
         ErrorReport error = BibTeXValidator.validate(bib);
         if (error != null) {
             return Response
