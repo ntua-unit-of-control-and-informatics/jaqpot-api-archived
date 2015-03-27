@@ -127,6 +127,7 @@ public class ConjoinerService {
 
     }
 
+    //TODO: Handle multiple effects that map to the same property
     public DataEntry createDataEntry(Studies studies, Set<String> propertyCategories) {
         DataEntry dataEntry = new DataEntry();
         Substance compound = new Substance();
@@ -196,6 +197,7 @@ public class ConjoinerService {
         return dataEntry;
     }
 
+    //TODO: Implement Dixon's q-test
     public Object calculateValue(Effect effect) {
 
         Object currentValue = null; // return null if conditions not satisfied
