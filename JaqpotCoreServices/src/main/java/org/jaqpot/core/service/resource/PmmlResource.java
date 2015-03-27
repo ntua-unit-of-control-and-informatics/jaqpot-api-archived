@@ -36,6 +36,7 @@ import com.wordnik.swagger.annotations.ApiResponse;
 import com.wordnik.swagger.annotations.ApiResponses;
 import javax.ejb.EJB;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.NotFoundException;
@@ -45,6 +46,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
@@ -74,13 +76,17 @@ public class PmmlResource {
 
     @Context
     UriInfo uriInfo;
-    
+
     @EJB
     PmmlHandler pmmlHandler;
 
+    @Context
+    HttpHeaders httpHeaders;
+    
+
     @POST
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
-    @Consumes(MediaType.APPLICATION_JSON)
+    @Consumes({MediaType.APPLICATION_XML, MediaType.TEXT_XML})
     @ApiOperation(value = "Creates a new BibTeX entry",
             notes = "Creates a new BibTeX entry which is assigned a random unique ID",
             response = Pmml.class)
@@ -93,26 +99,29 @@ public class PmmlResource {
         @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
     })
     @Authorize
+
     public Response createPMML(
             @ApiParam(value = "Clients need to authenticate in order to create resources on the server")
             @HeaderParam("subjectid") String subjectId,
-            @ApiParam(value = "PMML in JSON representation.", required = true) Pmml pmml
+            @ApiParam(value = "PMML in JSON representation.", required = true) String pmmlString
     ) throws JaqpotNotAuthorizedException {
         // First check the subjectid:
         if (subjectId == null || !aaService.validate(subjectId)) {
             throw new JaqpotNotAuthorizedException("Invalid auth token");
         }
-        if (pmml == null) {
+        if (pmmlString == null) {
             ErrorReport report = ErrorReportFactory.badRequest("No PMML document provided; check out the API specs",
                     "Clients MUST provide a PMML document in JSON to perform this request");
             return Response.ok(report).status(Response.Status.BAD_REQUEST).build();
         }
+        Pmml pmml = new Pmml();
+        pmml.setPmml(pmmlString);
         if (pmml.getId() == null) {
             ROG rog = new ROG(true);
             pmml.setId(rog.nextString(10));
         }
         pmml.setCreatedBy(securityContext.getUserPrincipal().getName());
-        
+
         pmmlHandler.create(pmml);
         return Response
                 .ok(pmml)
@@ -121,14 +130,12 @@ public class PmmlResource {
                 .build();
 
     }
-    
-    
+
     @GET
     @Path("/{id}")
-    @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
+    @Produces({MediaType.APPLICATION_JSON, "text/uri-list", MediaType.APPLICATION_XML})
     @ApiOperation(value = "Returns PMML entry",
-            notes = "Finds and returns a PMML document by ID",
-            response = Pmml.class)
+            notes = "Finds and returns a PMML document by ID")
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "BibTeX entries found and are listed in the response body"),
         @ApiResponse(code = 401, message = "You are not authorized to access this user"),
@@ -139,13 +146,20 @@ public class PmmlResource {
     public Response getPmml(
             @ApiParam(value = "ID of the BibTeX", required = true) @PathParam("id") String id
     ) {
+
         Pmml retrievedPmml = pmmlHandler.find(id);
         if (retrievedPmml == null) {
             throw new NotFoundException("PMML with ID " + id + " not found.");
         }
-        return Response.ok(retrievedPmml).build();
+        String accept = httpHeaders.getRequestHeader("Accept").stream().findFirst().orElse(null);        
+        if (accept!=null && "application/xml".equals(accept)) {
+            System.out.println("went here!");
+            return Response.ok(retrievedPmml.getPmml(), MediaType.APPLICATION_XML).build();
+        } else {
+            return Response.ok(retrievedPmml).build();
+        }
     }
-    
+
     @GET
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @ApiOperation(value = "Finds all PMML entries",
