@@ -46,9 +46,21 @@ import org.jaqpot.core.service.exceptions.JaqpotNotAuthorizedException;
 @Produces({"application/json", "text/uri-list"})
 public class FeatureResource {
 
-    private static final String DEFAULT_FEATURE = "{\n"
-            + "  \"units\":\"kDa\",\n"
-            + "}";
+    private static final String DEFAULT_FEATURE = "{\n" +
+            "  \"units\":\"kDa\",\n" +
+            "  \"ontologicalClasses\": [\n" +
+            "    \"ot:Feature\",\n" +
+            "    \"ot:NumericFeature\"\n" +
+            "  ],\n" +
+            "  \"meta\": {\n" +
+            "    \"titles\":        [ \"Molecular Weight\" ],\n" +
+            "    \"descriptions\":  [ \"The molecular weight is the mass of one mole of a substance.\" ],\n" +
+            "    \"subjects\":      [ \"MW\", \"Molecular Weight\"],\n" +
+            "    \"sameAs\":        [ \"ot:MolecularWeight\"],\n" +
+            "    \"seeAlso\":       [ \"http://en.wikipedia.org/wiki/Molecular_mass\" ],\n" +
+            "    \"hasSources\":    [ \"http://enanomapper.ntua.gr:8880/jaqpot/services/algorithm/DescCalcMW\"]\n" +
+            "  }\n" +
+            "}";
 
     @EJB
     AAService aaService;
