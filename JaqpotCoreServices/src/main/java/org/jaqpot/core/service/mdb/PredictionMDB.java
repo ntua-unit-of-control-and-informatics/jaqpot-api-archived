@@ -87,7 +87,7 @@ import org.jaqpot.core.service.annotations.UnSecure;
     @ActivationConfigProperty(propertyName = "destinationType",
             propertyValue = "javax.jms.Topic")
 })
-public class PredictionMDB implements MessageListener {
+public class PredictionMDB extends RunningTaskMDB {
 
     private static final Logger LOG = Logger.getLogger(PredictionMDB.class.getName());
 
@@ -114,7 +114,10 @@ public class PredictionMDB implements MessageListener {
             if (task == null) {
                 throw new NullPointerException("FATAL: Could not find task with id:" + messageBody.get("taskId"));
             }
-
+            
+            init(task.getId());
+            
+            task.setHttpStatus(202);
             task.setStatus(Task.Status.RUNNING);
             task.setType(Task.Type.PREDICTION);
             task.getMeta().getComments().add("Prediction Task is now running.");
@@ -226,7 +229,7 @@ public class PredictionMDB implements MessageListener {
                         
             task.setStatus(Task.Status.COMPLETED);
             task.setPercentageCompleted(100.f);
-            task.setHttpStatus(200);
+            task.setHttpStatus(201);
             task.setResult("dataset/" + dataset.getId());
             task.getMeta().getComments().add("Task Completed Successfully.");
         } catch (JMSException ex) {
@@ -240,6 +243,7 @@ public class PredictionMDB implements MessageListener {
             task.setHttpStatus(500);
             task.setErrorReport(ErrorReportFactory.internalServerError(ex, "", ex.getMessage(), ""));
         } finally {
+            if (task!=null) terminate(task.getId());
             taskHandler.edit(task);
         }
     }

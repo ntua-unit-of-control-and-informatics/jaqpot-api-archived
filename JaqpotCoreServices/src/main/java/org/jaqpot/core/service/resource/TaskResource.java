@@ -34,8 +34,10 @@ import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
 import com.wordnik.swagger.annotations.ApiResponse;
 import com.wordnik.swagger.annotations.ApiResponses;
+import java.lang.management.ThreadMXBean;
 import java.util.List;
 import javax.ejb.EJB;
+import javax.inject.Inject;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
@@ -51,6 +53,7 @@ import javax.ws.rs.core.UriInfo;
 import org.jaqpot.core.data.TaskHandler;
 import org.jaqpot.core.model.Task;
 import org.jaqpot.core.service.annotations.Authorize;
+import org.jaqpot.core.service.mdb.ThreadReference;
 
 /**
  *
@@ -68,6 +71,9 @@ public class TaskResource {
 
     @EJB
     TaskHandler taskHandler;
+
+    @Inject
+    ThreadReference threadMap;
 
     @GET
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
@@ -99,7 +105,9 @@ public class TaskResource {
             foundTasks = taskHandler.findByUserAndStatus(creator, Task.Status.valueOf(status), start, max);
         }
         foundTasks.stream().forEach(task -> {
-            task.setResultUri(uriInfo.getBaseUri() + task.getResult());
+            if (task.getResult() != null) {
+                task.setResultUri(uriInfo.getBaseUri() + task.getResult());
+            }
         });
         return Response.ok(foundTasks).build();
     }
@@ -123,11 +131,17 @@ public class TaskResource {
         if (task == null) {
             throw new NotFoundException("Task " + uriInfo.getPath() + "not found");
         }
-        task.setResultUri(uriInfo.getBaseUri() + task.getResult());
-        return Response
+        if (task.getResult() != null) {
+            task.setResultUri(uriInfo.getBaseUri() + task.getResult());
+        }
+
+        Response.ResponseBuilder builder = Response
                 .ok(task)
-                .status(task.getHttpStatus())
-                .build();
+                .status(task.getHttpStatus());
+        if (Task.Status.COMPLETED == task.getStatus()) {
+            builder.header("Location", task.getResultUri());
+        }
+        return builder.build();
     }
 
     @DELETE
@@ -148,7 +162,17 @@ public class TaskResource {
             @ApiParam(value = "ID of the task which is to be deleted.", required = true) @PathParam("id") String id,
             @HeaderParam("subjectid") String subjectId) {
         //TODO: Cancel the task! (stop the job)
-        taskHandler.remove(new Task(id));
+
+        Thread thread = threadMap.getThreadReferenceMap().get(id);
+        if (thread != null) {
+            thread.interrupt();
+            threadMap.getThreadReferenceMap().remove(id);
+        }
+
+        Task task = taskHandler.find(id);
+        task.setStatus(Task.Status.CANCELLED);
+        taskHandler.edit(task);
+
         return Response.ok().build();
     }
 }

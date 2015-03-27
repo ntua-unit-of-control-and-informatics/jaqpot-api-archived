@@ -50,6 +50,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
+import javax.ws.rs.core.UriInfo;
 import org.jaqpot.core.data.BibTeXHandler;
 import org.jaqpot.core.model.BibTeX;
 import org.jaqpot.core.model.ErrorReport;
@@ -77,6 +78,9 @@ public class BibTeXResource {
     @Context
     SecurityContext securityContext;
 
+    @Context
+    UriInfo uriInfo;
+
     private static final String DEFAULT_BIBTEX
             = "{\n"
             + "  \"bibType\":\"Article\",\n"
@@ -103,16 +107,18 @@ public class BibTeXResource {
         @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)"),
         @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
     })
-    public Response getBibTeXs(
+    public Response listBibTeXs(
             @ApiParam(value = "BibTeX type of entry",
                     allowableValues = "Article,Conference,Book,PhDThesis,InBook,InCollection,"
                     + "InProceedings,Manual,Mastersthesis,Proceedings,TechReport,"
                     + "Unpublished,Entry", defaultValue = "Entry") @QueryParam("bibtype") String bibtype,
             @ApiParam("Creator of the BibTeX entry") @QueryParam("creator") String creator,
-            @ApiParam("Generic query (e.g., Article title, journal name, etc)") @QueryParam("query") String query
+            @ApiParam("Generic query (e.g., Article title, journal name, etc)") @QueryParam("query") String query,
+            @ApiParam(value = "start", defaultValue = "0") @QueryParam("start") Integer start,
+            @ApiParam(value = "max", defaultValue = "10") @QueryParam("max") Integer max
     ) {
         return Response
-                .ok(handler.findAll())
+                .ok(handler.findAll(start, max))
                 .status(Response.Status.OK)
                 .build();
     }
@@ -173,9 +179,9 @@ public class BibTeXResource {
                     "Clients MUST provide a BibTeX document in JSON to perform this request");
             return Response.ok(report).status(Response.Status.BAD_REQUEST).build();
         }
-        if (bib.getId()==null) { 
+        if (bib.getId() == null) {
             ROG rog = new ROG(true);
-            bib.setId(rog.nextString(10));  
+            bib.setId(rog.nextString(10));
         }
         bib.setCreatedBy(securityContext.getUserPrincipal().getName());
         ErrorReport error = BibTeXValidator.validate(bib);
@@ -188,7 +194,8 @@ public class BibTeXResource {
         handler.create(bib);
         return Response
                 .ok(bib)
-                .status(Response.Status.OK)
+                .status(Response.Status.CREATED)
+                .header("Location", uriInfo.getBaseUri().toString() + "bibtex/" + bib.getId())
                 .build();
 
     }
@@ -230,6 +237,7 @@ public class BibTeXResource {
         return Response
                 .ok(bib)
                 .status(Response.Status.OK)
+                .header("Location", uriInfo.getBaseUri().toString() + "bibtex/" + bib.getId())
                 .build();
     }
 

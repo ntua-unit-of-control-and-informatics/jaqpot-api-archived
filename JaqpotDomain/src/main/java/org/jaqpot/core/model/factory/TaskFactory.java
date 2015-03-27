@@ -59,6 +59,7 @@ public class TaskFactory {
      *      Short description of the task, e.g., <code>this task
      *      was created to train a SVM model</code>. The description can be set
      *      to <code>null</code>, but it is not advisable to help discoverability
+     * @param creator
      *      of tasks.
      * @return
      *      The default queued task.
@@ -70,7 +71,7 @@ public class TaskFactory {
                 addTitles(title).
                 setCreatedBy(creator).
                 setCurrentDate().
-                setHttpStatus(201).
+                setHttpStatus(202).
                 setStatus(Task.Status.QUEUED).
                 build();
     }
