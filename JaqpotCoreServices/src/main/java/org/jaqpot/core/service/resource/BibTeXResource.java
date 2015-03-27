@@ -50,6 +50,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
+import javax.ws.rs.core.UriInfo;
 import org.jaqpot.core.data.BibTeXHandler;
 import org.jaqpot.core.model.BibTeX;
 import org.jaqpot.core.model.ErrorReport;
@@ -76,6 +77,9 @@ public class BibTeXResource {
 
     @Context
     SecurityContext securityContext;
+
+    @Context
+    UriInfo uriInfo;
 
     private static final String DEFAULT_BIBTEX
             = "{\n"
@@ -173,9 +177,9 @@ public class BibTeXResource {
                     "Clients MUST provide a BibTeX document in JSON to perform this request");
             return Response.ok(report).status(Response.Status.BAD_REQUEST).build();
         }
-        if (bib.getId()==null) { 
+        if (bib.getId() == null) {
             ROG rog = new ROG(true);
-            bib.setId(rog.nextString(10));  
+            bib.setId(rog.nextString(10));
         }
         bib.setCreatedBy(securityContext.getUserPrincipal().getName());
         ErrorReport error = BibTeXValidator.validate(bib);
@@ -188,7 +192,8 @@ public class BibTeXResource {
         handler.create(bib);
         return Response
                 .ok(bib)
-                .status(Response.Status.OK)
+                .status(Response.Status.CREATED)
+                .header("Location", uriInfo.getBaseUri().toString() + "bibtex/" + bib.getId())
                 .build();
 
     }
