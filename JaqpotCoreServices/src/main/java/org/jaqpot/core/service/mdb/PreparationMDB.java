@@ -38,6 +38,7 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.ejb.ActivationConfigProperty;
 import javax.ejb.EJB;
@@ -61,7 +62,6 @@ import org.jaqpot.core.model.Task;
 import org.jaqpot.core.model.builder.MetaInfoBuilder;
 import org.jaqpot.core.model.dto.dataset.Dataset;
 import org.jaqpot.core.model.factory.ErrorReportFactory;
-import org.jaqpot.core.model.util.ROG;
 import org.jaqpot.core.service.data.ConjoinerService;
 import org.jpmml.evaluator.ExpressionUtil;
 import org.jpmml.evaluator.FieldValue;
@@ -82,7 +82,7 @@ import org.xml.sax.SAXException;
     @ActivationConfigProperty(propertyName = "destinationType",
             propertyValue = "javax.jms.Topic")
 })
-public class PreparationMDB implements MessageListener {
+public class PreparationMDB extends RunningTaskMDB {
 
     private static final Logger LOG = Logger.getLogger(PreparationMDB.class.getName());
 
@@ -104,8 +104,9 @@ public class PreparationMDB implements MessageListener {
     @EJB
     DatasetHandler datasetHandler;
 
-    @Inject
-    ThreadReference threadMap;
+    
+
+   
 
     @Override
     public void onMessage(Message msg) {
@@ -120,10 +121,9 @@ public class PreparationMDB implements MessageListener {
                 throw new NullPointerException("FATAL: Could not find task with id:" + messageBody.get("taskId"));
             }
 
-            threadMap.getThreadReferenceMap().put(task.getId(), Thread.currentThread());
-
+            init(task.getId());
             task.setStatus(Task.Status.RUNNING);
-            
+
             task.getMeta().getComments().add("Preparation Task is now running with ID " + Thread.currentThread().getName());
             task.setPercentageCompleted(1.0f);
             taskHandler.edit(task);
@@ -257,7 +257,9 @@ public class PreparationMDB implements MessageListener {
             task.setStatus(Task.Status.ERROR);
             task.setErrorReport(ErrorReportFactory.badRequest("Error while processing input.", ex.getMessage()));
         } finally {
-            threadMap.getThreadReferenceMap().remove(task.getId());
+            if (task != null && task.getId() != null) {
+                terminate(task.getId());
+            }
             taskHandler.edit(task);
         }
     }

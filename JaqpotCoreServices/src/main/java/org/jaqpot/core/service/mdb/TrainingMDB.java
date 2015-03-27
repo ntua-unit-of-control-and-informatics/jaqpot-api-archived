@@ -56,7 +56,7 @@ import org.jaqpot.core.model.util.ROG;
     @ActivationConfigProperty(propertyName = "destinationType",
             propertyValue = "javax.jms.Topic")
 })
-public class TrainingMDB implements MessageListener {
+public class TrainingMDB extends RunningTaskMDB {
 
     private static final Logger LOG = Logger.getLogger(TrainingMDB.class.getName());
 
@@ -83,6 +83,8 @@ public class TrainingMDB implements MessageListener {
             if (task == null) {
                 throw new NullPointerException("FATAL: Could not find task with id:" + messageBody.get("taskId"));
             }
+            
+            init(task.getId());
 
             task.setStatus(Task.Status.RUNNING);
             task.setType(Task.Type.TRAINING);
@@ -238,6 +240,7 @@ public class TrainingMDB implements MessageListener {
             task.setStatus(Task.Status.ERROR);
             task.setErrorReport(ErrorReportFactory.internalServerError(ex, "", ex.getMessage(), "")); // rest
         } finally {
+            if (task!=null) init(task.getId());
             taskHandler.edit(task);
         }
     }
