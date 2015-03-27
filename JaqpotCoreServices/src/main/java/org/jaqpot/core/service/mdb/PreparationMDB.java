@@ -29,7 +29,9 @@
  */
 package org.jaqpot.core.service.mdb;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
@@ -50,6 +52,8 @@ import javax.jms.Message;
 import javax.jms.MessageListener;
 import javax.jms.Topic;
 import javax.ws.rs.BadRequestException;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.core.MediaType;
 import javax.xml.bind.JAXBException;
 import javax.xml.transform.sax.SAXSource;
 import org.dmg.pmml.DataField;
@@ -62,6 +66,7 @@ import org.jaqpot.core.model.Task;
 import org.jaqpot.core.model.builder.MetaInfoBuilder;
 import org.jaqpot.core.model.dto.dataset.Dataset;
 import org.jaqpot.core.model.factory.ErrorReportFactory;
+import org.jaqpot.core.service.annotations.UnSecure;
 import org.jaqpot.core.service.data.ConjoinerService;
 import org.jpmml.evaluator.ExpressionUtil;
 import org.jpmml.evaluator.FieldValue;
@@ -104,9 +109,9 @@ public class PreparationMDB extends RunningTaskMDB {
     @EJB
     DatasetHandler datasetHandler;
 
-    
-
-   
+    @Inject
+    @UnSecure
+    Client client;
 
     @Override
     public void onMessage(Message msg) {
@@ -144,8 +149,12 @@ public class PreparationMDB extends RunningTaskMDB {
                 String transformations = (String) messageBody.get("transformations");
 
                 //Open InputStream from transformations URL and parse it as PMML object
-                URL transformationsURL = new URL(transformations);
-                InputSource source = new InputSource(transformationsURL.openStream());
+                String pmmlString = client.target(transformations)
+                        .request()
+                        .accept(MediaType.APPLICATION_XML)
+                        .get(String.class);
+                InputStream in = new ByteArrayInputStream(pmmlString.getBytes());
+                InputSource source = new InputSource(in);
                 SAXSource transformedSource = ImportFilter.apply(source);
                 PMML pmml = JAXBUtil.unmarshalPMML(transformedSource);
 
@@ -236,14 +245,6 @@ public class PreparationMDB extends RunningTaskMDB {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             task.setStatus(Task.Status.ERROR);
             task.setErrorReport(ErrorReportFactory.internalServerError(ex, "JMS", "Error Accessing JMS asynchronous queues.", ex.getMessage()));
-        } catch (MalformedURLException ex) {
-            LOG.log(Level.SEVERE, null, ex);
-            task.setStatus(Task.Status.ERROR);
-            task.setErrorReport(ErrorReportFactory.badRequest("Error downloading transformations file.", ex.getMessage()));
-        } catch (IOException ex) {
-            LOG.log(Level.SEVERE, null, ex);
-            task.setStatus(Task.Status.ERROR);
-            task.setErrorReport(ErrorReportFactory.internalServerError("IOError", "IO Error while downloading transformations file.", ex.getMessage()));
         } catch (SAXException ex) {
             LOG.log(Level.SEVERE, null, ex);
             task.setStatus(Task.Status.ERROR);
