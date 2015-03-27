@@ -31,17 +31,26 @@ package org.jaqpot.core.service.resource;
 
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.ejb.EJB;
+import javax.inject.Inject;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedHashMap;
+import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
@@ -49,9 +58,16 @@ import org.jaqpot.core.data.DatasetHandler;
 import org.jaqpot.core.data.ModelHandler;
 import org.jaqpot.core.model.Model;
 import org.jaqpot.core.model.Task;
+import org.jaqpot.core.model.dto.ambit.AmbitTask;
+import org.jaqpot.core.model.dto.ambit.AmbitTaskArray;
+import org.jaqpot.core.model.dto.ambit.ProtocolCategory;
+import org.jaqpot.core.model.dto.bundle.BundleSubstances;
+import org.jaqpot.core.model.dto.dataset.Substance;
+import org.jaqpot.core.model.factory.ErrorReportFactory;
 import org.jaqpot.core.service.data.ConjoinerService;
 import org.jaqpot.core.service.data.TrainingService;
 import org.jaqpot.core.service.annotations.Authorize;
+import org.jaqpot.core.service.annotations.UnSecure;
 import org.jaqpot.core.service.data.PredictionService;
 
 /**
@@ -85,6 +101,10 @@ public class EnanomapperResource {
 
     @Context
     SecurityContext securityContext;
+
+    @Inject
+    @UnSecure
+    Client client;
 
     @POST
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
@@ -163,6 +183,99 @@ public class EnanomapperResource {
         options.put("mode", "PREPARATION");
         Task task = conjoinerService.initiatePreparation(options, securityContext.getUserPrincipal().getName());
         return Response.ok(task).build();
+    }
+
+    @POST
+    @Produces("text/uri-list")
+    @Path("/bundle")
+    @ApiOperation(value = "Creates Bundle",
+            notes = "Reads Substances from SubstanceOwner and creates Bundle.",
+            response = String.class
+    )
+    public Response createBundle(
+            @FormParam("substanceowner_uri") String substanceOwnerUri,
+            @HeaderParam("subjectid") String subjectId) {
+
+        String userName = securityContext.getUserPrincipal().getName();
+
+        MultivaluedMap<String, String> formParameters = new MultivaluedHashMap<>();
+        formParameters.add("title", "owner-bundle");
+        formParameters.add("description", "A bundle created from substance owner:" + substanceOwnerUri);
+        formParameters.add("source", userName);
+        formParameters.add("url", substanceOwnerUri);
+        formParameters.add("license", "Copyright of " + userName);
+        formParameters.add("rightsHolder", userName);
+        formParameters.add("maintainer", userName);
+        formParameters.add("stars", "1");
+
+        String[] parts = substanceOwnerUri.split("substanceowner");
+        String bundleBaseUri = parts[0] + "bundle";
+        AmbitTaskArray ambitTaskArray = client.target(bundleBaseUri)
+                .request()
+                .accept(MediaType.APPLICATION_JSON)
+                .header("subjectid", subjectId)
+                .post(Entity.form(formParameters), AmbitTaskArray.class);
+
+        AmbitTask ambitTask = ambitTaskArray.getTask().get(0);
+        String ambitTaskUri = ambitTask.getUri();
+        while (ambitTask.getStatus().equals("Running")) {
+            ambitTaskArray = client.target(ambitTaskUri)
+                    .request()
+                    .accept(MediaType.APPLICATION_JSON)
+                    .header("subjectid", subjectId)
+                    .get(AmbitTaskArray.class);
+            ambitTask = ambitTaskArray.getTask().get(0);
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException ex) {
+                continue;
+            }
+        }
+        String bundleUri;
+        if (ambitTask.getStatus().equals("Completed")) {
+            bundleUri = ambitTask.getResult();
+        } else {
+            return Response
+                    .status(Response.Status.BAD_GATEWAY)
+                    .entity(ErrorReportFactory.remoteError(ambitTaskUri, ErrorReportFactory.internalServerError()))
+                    .build();
+        }
+        BundleSubstances substances = client.target(substanceOwnerUri + "/substance")
+                .request()
+                .accept(MediaType.APPLICATION_JSON)
+                .header("subjectid", subjectId)
+                .get(BundleSubstances.class);
+
+        for (Substance substance : substances.getSubstance()) {
+            formParameters.clear();
+            formParameters.putSingle("substance_uri", substance.getURI());
+            formParameters.putSingle("command", "add");
+            client.target(bundleUri + "/substance")
+                    .request()
+                    .accept(MediaType.APPLICATION_JSON)
+                    .header("subjectid", subjectId)
+                    .put(Entity.form(formParameters))
+                    .close();
+        }
+        for (ProtocolCategory category : ProtocolCategory.values()) {
+            formParameters.clear();
+            formParameters.putSingle("topcategory", category.getTopCategory());
+            formParameters.putSingle("endpointcategory", category.name());
+            formParameters.putSingle("command", "add");
+            client.target(bundleUri + "/property")
+                    .request()
+                    .accept(MediaType.APPLICATION_JSON)
+                    .header("subjectid", subjectId)
+                    .put(Entity.form(formParameters))
+                    .close();
+        }
+        try {
+            return Response.created(new URI(bundleUri)).build();
+        } catch (URISyntaxException ex) {
+            return Response.status(Response.Status.BAD_GATEWAY)
+                    .entity(ErrorReportFactory.remoteError(bundleUri, ErrorReportFactory.internalServerError()))
+                    .build();
+        }
     }
 
 }
