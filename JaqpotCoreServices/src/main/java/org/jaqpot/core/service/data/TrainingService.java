@@ -41,6 +41,7 @@ import org.jaqpot.core.data.AlgorithmHandler;
 import org.jaqpot.core.data.TaskHandler;
 import org.jaqpot.core.model.Algorithm;
 import org.jaqpot.core.model.Task;
+import org.jaqpot.core.model.builder.MetaInfoBuilder;
 import org.jaqpot.core.model.factory.TaskFactory;
 
 /**
@@ -75,6 +76,11 @@ public class TrainingService {
         Task task = TaskFactory.queuedTask("Training on algorithm: " + algorithm.getId(),
                 "A training procedure will return a Model if completed successfully.",
                 userName);
+        task.setMeta(
+                MetaInfoBuilder.builder()
+                        .setCurrentDate()
+                        .addSources(options.get("algorithmId").toString())
+                        .build());
         task.setType(Task.Type.TRAINING);
         options.put("taskId", task.getId());
         taskHandler.create(task);

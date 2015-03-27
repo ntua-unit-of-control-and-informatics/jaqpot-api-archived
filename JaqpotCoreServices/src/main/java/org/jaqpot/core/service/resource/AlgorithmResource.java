@@ -55,6 +55,7 @@ import org.jaqpot.core.data.AlgorithmHandler;
 import org.jaqpot.core.model.Algorithm;
 import org.jaqpot.core.model.Task;
 import org.jaqpot.core.model.builder.AlgorithmBuilder;
+import org.jaqpot.core.model.builder.MetaInfoBuilder;
 import org.jaqpot.core.model.util.ROG;
 import org.jaqpot.core.service.annotations.Authorize;
 import org.jaqpot.core.service.data.TrainingService;
@@ -70,7 +71,7 @@ import org.jaqpot.core.service.data.TrainingService;
 @Produces({"application/json", "text/uri-list"})
 @Authorize
 public class AlgorithmResource {
-
+    
     private static final String DEFAULT_ALGORITHM = "{\n"
             + "  \"trainingService\":\"http://z.ch/t/a\",\n"
             + "  \"predictionService\":\"http://z.ch/p/b\",\n"
@@ -87,30 +88,30 @@ public class AlgorithmResource {
             + "    }\n"
             + "  ]\n"
             + "}";
-
+    
     @EJB
     TrainingService trainingService;
-
+    
     @EJB
     AlgorithmHandler algorithmHandler;
-
+    
     @Context
     SecurityContext securityContext;
     
     @Context
     UriInfo uriInfo;
-
+    
     @GET
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @ApiOperation(value = "Finds all Algorithms",
             notes = "Finds all Algorithms JaqpotQuattro supports",
             response = Algorithm.class,
             responseContainer = "List")
-
+    
     public Response getAlgorithms() {
         return Response.ok(algorithmHandler.findAll()).build();
     }
-
+    
     @POST
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @ApiOperation(value = "Creates Algorithm",
@@ -128,19 +129,25 @@ public class AlgorithmResource {
             ROG rog = new ROG(true);            
             algorithm.setId(rog.nextString(10));
         }
-        algorithm = AlgorithmBuilder.builder(algorithm)
-                .addTitles(title)
-                .addDescriptions(description)
-                .addTagsCSV(tags)
-                .setCreatedBy(securityContext.getUserPrincipal().getName())
-                .build();
+        AlgorithmBuilder algorithmBuilder = AlgorithmBuilder.builder(algorithm)
+                .setCreatedBy(securityContext.getUserPrincipal().getName());
+        if (title!=null){
+            algorithmBuilder.addTitles(title);
+        }
+        if (description!=null){
+            algorithmBuilder.addDescriptions(description);
+        }
+        if (tags!=null){
+            algorithmBuilder.addTagsCSV(tags);
+        }
+        algorithm = algorithmBuilder.build();
         algorithmHandler.create(algorithm);
         return Response
                 .status(Response.Status.OK)
                 .header("Location", uriInfo.getBaseUri().toString() + "algorithm/" + algorithm.getId())
                 .entity(algorithm).build();
     }
-
+    
     @GET
     @Path("/{id}")
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
@@ -155,7 +162,7 @@ public class AlgorithmResource {
         }
         return Response.ok(algorithm).build();
     }
-
+    
     @POST
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @Path("/{id}")
@@ -177,10 +184,10 @@ public class AlgorithmResource {
         options.put("algorithmId", algorithmId);
         options.put("parameters", parameters);
         options.put("transformations", transformations);
-        Task task = trainingService.initiateTraining(options, securityContext.getUserPrincipal().getName());
+        Task task = trainingService.initiateTraining(options, securityContext.getUserPrincipal().getName());        
         return Response.ok(task).build();
     }
-
+    
     @DELETE
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/{id}")
@@ -200,5 +207,5 @@ public class AlgorithmResource {
         algorithmHandler.remove(new Algorithm(id));
         return Response.ok().build();
     }
-
+    
 }

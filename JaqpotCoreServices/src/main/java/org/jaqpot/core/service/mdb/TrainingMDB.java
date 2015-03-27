@@ -46,6 +46,7 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.ResponseProcessingException;
+import javax.ws.rs.core.Form;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.jaqpot.core.data.AlgorithmHandler;
@@ -94,7 +95,7 @@ public class TrainingMDB extends RunningTaskMDB {
     @Override
     public void onMessage(Message msg) {
         Task task = null;
-        
+
         try {
             Map<String, Object> messageBody = msg.getBody(Map.class);
             task = taskHandler.find(messageBody.get("taskId"));
@@ -102,8 +103,10 @@ public class TrainingMDB extends RunningTaskMDB {
             if (task == null) {
                 throw new NullPointerException("FATAL: Could not find task with id:" + messageBody.get("taskId"));
             }
-            if (task.getMeta()==null) task.setMeta(MetaInfoBuilder.builder().setCurrentDate().build());
-            
+            if (task.getMeta() == null) {
+                task.setMeta(MetaInfoBuilder.builder().setCurrentDate().build());
+            }
+
             init(task.getId());
 
             task.setHttpStatus(202);
@@ -206,17 +209,18 @@ public class TrainingMDB extends RunningTaskMDB {
                     .addComments("Created by task " + task.getId())
                     .addDescriptions("QSAR model by algorithm " + algorithmId)
                     .build());
-            
-            
+
             /*
              * Create DoA model by POSTing to the leverages algorithm
              */
-            Algorithm leveragesAlgorithm = algorithmHandler.find("leverage");
-            if (leveragesAlgorithm != null){
-                String leveragesAlgTrainingURI = leveragesAlgorithm.getTrainingService();
-                //TODO complete implementation
+            if (!algorithm.getOntologicalClasses().contains("ot:ApplicabilityDomain"));
+            {
+                Form form = new Form();
+                form.param("", "");
+                client.target("http://localhost:8080/jaqpot/services/algorithm/leverage")
+                        .request()
+                        .post(Entity.form(form));
             }
-                
 
             task.getMeta().getComments().add("Model was built successfully. Now saving to database...");
             taskHandler.edit(task);
@@ -229,7 +233,7 @@ public class TrainingMDB extends RunningTaskMDB {
             task.setStatus(Task.Status.COMPLETED);
             task.getMeta().getComments().add("Task Completed Successfully.");
             taskHandler.edit(task);
-            
+
         } catch (UnsupportedOperationException | IllegalStateException | IllegalArgumentException | ArrayIndexOutOfBoundsException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             task.setStatus(Task.Status.ERROR);
@@ -255,11 +259,11 @@ public class TrainingMDB extends RunningTaskMDB {
             task.setStatus(Task.Status.ERROR);
             task.setErrorReport(ErrorReportFactory.internalServerError(ex, "", ex.getMessage(), "")); // rest
         } finally {
-            if (task!=null) init(task.getId());
+            if (task != null) {
+                init(task.getId());
+            }
             taskHandler.edit(task);
         }
     }
-
-    
 
 }
