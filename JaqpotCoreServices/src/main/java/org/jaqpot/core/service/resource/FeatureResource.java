@@ -11,7 +11,6 @@ import com.wordnik.swagger.annotations.ApiParam;
 import com.wordnik.swagger.annotations.ApiResponse;
 import com.wordnik.swagger.annotations.ApiResponses;
 import java.util.Date;
-import java.util.UUID;
 import javax.ejb.EJB;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -25,12 +24,11 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import org.jaqpot.core.data.FeatureHandler;
-import org.jaqpot.core.model.BibTeX;
 import org.jaqpot.core.model.ErrorReport;
 import org.jaqpot.core.model.Feature;
 import org.jaqpot.core.model.MetaInfo;
 import org.jaqpot.core.model.factory.ErrorReportFactory;
-import org.jaqpot.core.model.validator.BibTeXValidator;
+import org.jaqpot.core.model.util.ROG;
 import org.jaqpot.core.service.annotations.Authorize;
 import org.jaqpot.core.service.data.AAService;
 import org.jaqpot.core.service.exceptions.JaqpotNotAuthorizedException;
@@ -127,8 +125,9 @@ public class FeatureResource {
             feature.setMeta(new MetaInfo());
         }
         feature.getMeta().setDate(new Date());
+        ROG rog = new ROG(true);
         if (feature.getId() == null) {
-            feature.setId(UUID.randomUUID().toString());
+            feature.setId(rog.nextString(10));
         }
         feature.setCreatedBy(securityContext.getUserPrincipal().getName());
 
