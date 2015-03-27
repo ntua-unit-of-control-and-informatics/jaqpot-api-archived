@@ -215,11 +215,13 @@ public class TrainingMDB extends RunningTaskMDB {
              */
             if (!algorithm.getOntologicalClasses().contains("ot:ApplicabilityDomain"));
             {
-                Form form = new Form();
-                form.param("", "");
-                client.target("http://localhost:8080/jaqpot/services/algorithm/leverage")
-                        .request()
-                        .post(Entity.form(form));
+//                Form form = new Form();
+//                form.param("dataset_uri", messageBody.get("dataset_uri"));
+//                form.param("prediction_feature", "");                
+//                client.target("http://localhost:8080/jaqpot/services/algorithm/leverage")
+//                        .request()
+//                        .header("subjectid", messageBody.get("subjectid"))
+//                        .post(Entity.form(form));
             }
 
             task.getMeta().getComments().add("Model was built successfully. Now saving to database...");
