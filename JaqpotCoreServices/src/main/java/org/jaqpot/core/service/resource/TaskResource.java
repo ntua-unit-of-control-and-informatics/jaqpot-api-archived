@@ -124,10 +124,14 @@ public class TaskResource {
             throw new NotFoundException("Task " + uriInfo.getPath() + "not found");
         }
         task.setResultUri(uriInfo.getBaseUri() + task.getResult());
-        return Response
+
+        Response.ResponseBuilder builder = Response
                 .ok(task)
-                .status(task.getHttpStatus())
-                .build();
+                .status(task.getHttpStatus());
+        if (Task.Status.COMPLETED == task.getStatus()){
+            builder.header("Location", task.getResultUri());
+        }
+        return builder.build();
     }
 
     @DELETE
