@@ -115,17 +115,20 @@ public class PreparationMDB implements MessageListener {
 
             task.setStatus(Task.Status.RUNNING);
             task.getMeta().getComments().add("Preparation Task is now running.");
+            task.setPercentageCompleted(1.0f);
             taskHandler.edit(task);
 
             String bundleUri = (String) messageBody.get("bundle_uri");
             String subjectId = (String) messageBody.get("subjectid");
 
             task.getMeta().getComments().add("Starting Dataset preparation...");
+            task.setPercentageCompleted(6.0f);
             taskHandler.edit(task);
             Dataset dataset = conjoinerService.prepareDataset(bundleUri, subjectId);
 
             if (messageBody.containsKey("transformations") && messageBody.get("transformations") != null) {
                 task.getMeta().getComments().add("Attempting to download transformations file...");
+                task.setPercentageCompleted(8.0f);
                 taskHandler.edit(task);
 
                 String transformations = (String) messageBody.get("transformations");
@@ -145,6 +148,7 @@ public class PreparationMDB implements MessageListener {
                 List<DataField> dataFields = pmmlManager.getDataDictionary().getDataFields();
 
                 task.getMeta().getComments().add("Transformations file is downloaded and parsed. Applying transformations...");
+                task.setPercentageCompleted(20.0f);
                 taskHandler.edit(task);
 
                 dataset.getDataEntry().stream().forEach((dataEntry) -> {
@@ -168,10 +172,12 @@ public class PreparationMDB implements MessageListener {
                     dataEntry.setValues(result);
                 });
                 task.getMeta().getComments().add("Transformations have been applied.");
+                task.setPercentageCompleted(46.0f);
                 taskHandler.edit(task);
             }
             task.getMeta().getComments().add("Dataset ready.");
             task.getMeta().getComments().add("Saving to database...");
+            task.setPercentageCompleted(55.0f);
             taskHandler.edit(task);
             MetaInfo datasetMeta = MetaInfoBuilder.builder().addSources(bundleUri)
                     .addComments("Created by task "+task.getId()).build();
@@ -181,6 +187,7 @@ public class PreparationMDB implements MessageListener {
             datasetHandler.create(dataset);
 
             task.getMeta().getComments().add("Dataset saved successfully.");
+            task.setPercentageCompleted(80.0f);
             taskHandler.edit(task);
 
             String mode = (String) messageBody.get("mode");
@@ -191,6 +198,7 @@ public class PreparationMDB implements MessageListener {
                 case "TRAINING":
                     task.getMeta().getComments().add("Preparation Task is now completed.");
                     task.getMeta().getComments().add("Initiating Training Task...");
+                    task.setPercentageCompleted(90.0f);
                     taskHandler.edit(task);
                     messageBody.put("dataset_uri", datasetUri);
                     jmsContext.createProducer().setDeliveryDelay(1000).send(trainingQueue, messageBody);
@@ -198,6 +206,7 @@ public class PreparationMDB implements MessageListener {
                 case "PREDICTION":
                     task.getMeta().getComments().add("Preparation Task is now completed.");
                     task.getMeta().getComments().add("Initiating Prediction Task...");
+                    task.setPercentageCompleted(91.0f);
                     taskHandler.edit(task);
                     messageBody.put("dataset_uri", datasetUri);
                     jmsContext.createProducer().setDeliveryDelay(1000).send(predictionQueue, messageBody);
@@ -208,10 +217,12 @@ public class PreparationMDB implements MessageListener {
                     task.getMeta().getComments().add("Preparation Task is now completed.");
                     task.setResult("dataset/"+dataset.getId());
                     task.setHttpStatus(200);
+                    task.setPercentageCompleted(92.0f);
                     taskHandler.edit(task);
                     break;
             }
-
+            task.setHttpStatus(200);
+            task.setPercentageCompleted(100.0f);
         } catch (JMSException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             task.setStatus(Task.Status.ERROR);
@@ -236,7 +247,7 @@ public class PreparationMDB implements MessageListener {
             LOG.log(Level.SEVERE, null, ex);
             task.setStatus(Task.Status.ERROR);
             task.setErrorReport(ErrorReportFactory.badRequest("Error while processing input.", ex.getMessage()));
-        } finally {
+        } finally {            
             taskHandler.edit(task);
         }
     }
