@@ -153,7 +153,7 @@ public class BibTeXResource {
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "BibTeX entry was created successfully."),
         @ApiResponse(code = 400, message = "Bad request: malformed bibtex (e.g., mandatory fields are missing)"),
-        @ApiResponse(code = 401, message = "You are not authorized to access this user"),
+        @ApiResponse(code = 401, message = "You are not authorized to access this resource"),
         @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)"),
         @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
     })
