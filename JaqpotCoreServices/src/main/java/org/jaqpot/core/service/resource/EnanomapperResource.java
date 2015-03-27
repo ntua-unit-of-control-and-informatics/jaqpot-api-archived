@@ -51,7 +51,6 @@ import org.jaqpot.core.model.Model;
 import org.jaqpot.core.model.Task;
 import org.jaqpot.core.service.data.ConjoinerService;
 import org.jaqpot.core.service.data.TrainingService;
-import org.jaqpot.core.model.dto.dataset.Dataset;
 import org.jaqpot.core.service.annotations.Authorize;
 import org.jaqpot.core.service.data.PredictionService;
 

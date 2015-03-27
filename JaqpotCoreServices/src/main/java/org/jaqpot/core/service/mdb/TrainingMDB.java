@@ -14,7 +14,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ejb.ActivationConfigProperty;
@@ -43,6 +42,7 @@ import org.jaqpot.core.service.annotations.UnSecure;
 import org.jaqpot.core.model.dto.dataset.Dataset;
 import org.jaqpot.core.model.dto.jpdi.TrainingRequest;
 import org.jaqpot.core.model.dto.jpdi.TrainingResponse;
+import org.jaqpot.core.model.util.ROG;
 
 /**
  *
@@ -87,9 +87,11 @@ public class TrainingMDB implements MessageListener {
             task.setStatus(Task.Status.RUNNING);
             task.setType(Task.Type.TRAINING);
             task.getMeta().getComments().add("Training Task is now running.");
+            task.setPercentageCompleted(10.f);
             taskHandler.edit(task);
 
             task.getMeta().getComments().add("Attempting to download dataset...");
+            task.setPercentageCompleted(12.f);
             taskHandler.edit(task);
             Dataset dataset = client.target((String) messageBody.get("dataset_uri"))
                     .request()
@@ -101,15 +103,18 @@ public class TrainingMDB implements MessageListener {
             task.getMeta().getComments().add("Dataset has been retrieved.");
 
             task.getMeta().getComments().add("Creating JPDI training request...");
+            task.setPercentageCompleted(20.f);
             taskHandler.edit(task);
 
             TrainingRequest trainingRequest = new TrainingRequest();
             trainingRequest.setDataset(dataset);
             task.getMeta().getComments().add("Inserted dataset.");
+            task.setPercentageCompleted(34.f);
             taskHandler.edit(task);
 
             trainingRequest.setPredictionFeature((String) messageBody.get("prediction_feature"));
             task.getMeta().getComments().add("Inserted prediction feature.");
+            task.setPercentageCompleted(41.f);
             taskHandler.edit(task);
 
             String parameters = (String) messageBody.get("parameters");
@@ -124,34 +129,42 @@ public class TrainingMDB implements MessageListener {
             trainingRequest.setParameters(parameterMap);
 
             task.getMeta().getComments().add("Inserted parameters.");
+            task.setPercentageCompleted(53.f);
             taskHandler.edit(task);
 
             String algorithmId = (String) messageBody.get("algorithmId");
             Algorithm algorithm = algorithmHandler.find(algorithmId);
 
             task.getMeta().getComments().add("Inserted algorithm id.");
+            task.setPercentageCompleted(55.f);
             taskHandler.edit(task);
 
             task.getMeta().getComments().add("Sending request to  algorithm service:" + algorithm.getTrainingService());
+            task.setPercentageCompleted(64.f);
             taskHandler.edit(task);
             Response response = client.target(algorithm.getTrainingService())
                     .request()
                     .accept(MediaType.APPLICATION_JSON)
                     .post(Entity.json(trainingRequest));
             task.getMeta().getComments().add("Algorithm service responded with status:" + response.getStatus());
+            task.setPercentageCompleted(69.f);
             taskHandler.edit(task);
 
             task.getMeta().getComments().add("Attempting to parse response...");
+            task.setPercentageCompleted(71.f);
             taskHandler.edit(task);
             TrainingResponse trainingResponse = response.readEntity(TrainingResponse.class);
             response.close();
             task.getMeta().getComments().add("Response was parsed successfully");
+            task.setPercentageCompleted(77.f);
             taskHandler.edit(task);
 
             task.getMeta().getComments().add("Building model...");
+            task.setPercentageCompleted(84.f);
             taskHandler.edit(task);
 
-            Model model = new Model(UUID.randomUUID().toString());
+            ROG randomStringGenerator = new ROG(true);
+            Model model = new Model(randomStringGenerator.nextString(12));
             model.setActualModel(trainingResponse.getRawModel());
             model.setPmmlModel(trainingResponse.getPmmlModel());
             model.setAlgorithm(algorithm);
@@ -182,18 +195,13 @@ public class TrainingMDB implements MessageListener {
             modelHandler.create(model);
 
             task.setResult("model/" + model.getId());
+            task.setPercentageCompleted(100.f);
+            //TODO task.setDuration(System.currentTimeMillis() - task.getMeta().getDate().getTime());
             task.setStatus(Task.Status.COMPLETED);
             task.getMeta().getComments().add("Task Completed Successfully.");
             taskHandler.edit(task);
-        } /*catch (NullPointerException ex){
-         LOG.log(Level.SEVERE,ex.getMessage(), ex);
-         task.setStatus(Task.Status.ERROR);
-         task.setErrorReport(ErrorReportFactory.internalServerError(ex, "", ex.getMessage(), "")); //null pointer
-         } catch (ClassCastException ex){
-         LOG.log(Level.SEVERE,ex.getMessage(), ex);
-         task.setStatus(Task.Status.ERROR);
-         task.setErrorReport(ErrorReportFactory.internalServerError(ex, "", ex.getMessage(), "")); //Key type invalid
-         } */ catch (UnsupportedOperationException ex) {
+            //TODO Better handle these exceptions: 
+        } catch (UnsupportedOperationException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             task.setStatus(Task.Status.ERROR);
             task.setErrorReport(ErrorReportFactory.badRequest(ex.getMessage(), "")); // Operation not supported

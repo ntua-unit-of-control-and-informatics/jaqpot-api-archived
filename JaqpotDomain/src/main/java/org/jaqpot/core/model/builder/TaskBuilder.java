@@ -33,10 +33,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
-import java.util.UUID;
 import org.jaqpot.core.model.ErrorReport;
 import org.jaqpot.core.model.MetaInfo;
 import org.jaqpot.core.model.Task;
+import org.jaqpot.core.model.util.ROG;
 
 /**
  *
@@ -71,7 +71,8 @@ public class TaskBuilder implements EntityBuilder<Task> {
      * @see #builder(java.lang.String) 
      */
     public static TaskBuilder builderRandomUuid() {
-        return new TaskBuilder(UUID.randomUUID().toString());
+        ROG rog = new ROG(true);
+        return new TaskBuilder(rog.nextString(12));
     }
 
     private TaskBuilder(String id) {

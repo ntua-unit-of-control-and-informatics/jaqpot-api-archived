@@ -36,7 +36,6 @@ import com.wordnik.swagger.annotations.ApiResponse;
 import com.wordnik.swagger.annotations.ApiResponses;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 import javax.ejb.EJB;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.FormParam;
@@ -55,6 +54,7 @@ import org.jaqpot.core.data.AlgorithmHandler;
 import org.jaqpot.core.model.Algorithm;
 import org.jaqpot.core.model.Task;
 import org.jaqpot.core.model.builder.AlgorithmBuilder;
+import org.jaqpot.core.model.util.ROG;
 import org.jaqpot.core.service.annotations.Authorize;
 import org.jaqpot.core.service.data.TrainingService;
 
@@ -121,7 +121,8 @@ public class AlgorithmResource {
             @ApiParam(value = "Tags for your algorithm (in a comma separated list) to facilitate look-up") @HeaderParam("tags") String tags
     ) {
         if (algorithm.getId() == null) {
-            algorithm.setId(UUID.randomUUID().toString());
+            ROG rog = new ROG(true);            
+            algorithm.setId(rog.nextString(10));
         }
         algorithm = AlgorithmBuilder.builder(algorithm)
                 .addTitles(title)

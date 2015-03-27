@@ -1,13 +1,36 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ *
+ * JAQPOT Quattro
+ *
+ * JAQPOT Quattro and the components shipped with it (web applications and beans)
+ * are licenced by GPL v3 as specified hereafter. Additional components may ship
+ * with some other licence as will be specified therein.
+ *
+ * Copyright (C) 2014-2015 KinkyDesign (Charalampos Chomenidis, Pantelis Sopasakis)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * 
+ * Source code:
+ * The source code of JAQPOT Quattro is available on github at:
+ * https://github.com/KinkyDesign/JaqpotQuattro
+ * All source files of JAQPOT Quattro that are stored on github are licenced
+ * with the aforementioned licence. 
  */
 package org.jaqpot.core.service.mdb;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import java.io.UnsupportedEncodingException;
@@ -18,7 +41,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -52,6 +74,7 @@ import org.jaqpot.core.model.dto.study.Result;
 import org.jaqpot.core.model.dto.study.Studies;
 import org.jaqpot.core.model.dto.study.Study;
 import org.jaqpot.core.model.dto.study.Substance;
+import org.jaqpot.core.model.util.ROG;
 import org.jaqpot.core.service.annotations.UnSecure;
 
 /**
@@ -95,9 +118,11 @@ public class PredictionMDB implements MessageListener {
             task.setStatus(Task.Status.RUNNING);
             task.setType(Task.Type.PREDICTION);
             task.getMeta().getComments().add("Prediction Task is now running.");
+            task.setPercentageCompleted(1.0f);
             taskHandler.edit(task);
 
             task.getMeta().getComments().add("Attempting to find model in database...");
+            task.setPercentageCompleted(1.5f);
             taskHandler.edit(task);
             Model model = modelHandler.find(messageBody.get("modelId"));
             if (model == null) {
@@ -107,7 +132,7 @@ public class PredictionMDB implements MessageListener {
                 return;
             }
             task.getMeta().getComments().add("Model retrieved successfully.");
-
+            task.setPercentageCompleted(5.f);
             task.getMeta().getComments().add("Attempting to download dataset...");
             taskHandler.edit(task);
             Dataset dataset = client.target((String) messageBody.get("dataset_uri"))
@@ -118,6 +143,7 @@ public class PredictionMDB implements MessageListener {
             dataset.setDatasetURI((String) messageBody.get("dataset_uri"));
             task.getMeta().getComments().add("Dataset has been retrieved.");
 
+            task.setPercentageCompleted(15.f);
             task.getMeta().getComments().add("Creating JPDI prediction request...");
             taskHandler.edit(task);
             PredictionRequest predictionRequest = new PredictionRequest();
@@ -126,6 +152,7 @@ public class PredictionMDB implements MessageListener {
             predictionRequest.setAdditionalInfo(model.getAdditionalInfo());
 
             task.getMeta().getComments().add("Sending request to algorithm service:" + model.getAlgorithm().getPredictionService());
+            task.setPercentageCompleted(17.f);
             taskHandler.edit(task);
             Response response = client.target(model.getAlgorithm().getPredictionService())
                     .request()
@@ -135,20 +162,24 @@ public class PredictionMDB implements MessageListener {
             taskHandler.edit(task);
 
             task.getMeta().getComments().add("Attempting to parse response...");
+            task.setPercentageCompleted(18.f);
             taskHandler.edit(task);
             PredictionResponse predictionResponse = response.readEntity(PredictionResponse.class);
             response.close();
             task.getMeta().getComments().add("Response was parsed successfully.");
 
             task.getMeta().getComments().add("Creating new Dataset for predictions...");
+            task.setPercentageCompleted(22.f);
             taskHandler.edit(task);
             List<Object> predictions = predictionResponse.getPredictions();
             for (int i = 0; i < dataset.getDataEntry().size(); i++) {
                 dataset.getDataEntry().get(i).getValues().put(model.getPredictedFeatures().stream().findFirst().orElse("property/predicted"), predictions.get(i));
             }
-            dataset.setId(UUID.randomUUID().toString());
+            ROG randomStringGenerator = new ROG(true);
+            dataset.setId(randomStringGenerator.nextString(14));
             task.getMeta().getComments().add("Dataset ready.");
             task.getMeta().getComments().add("Saving to database...");
+            task.setPercentageCompleted(30.f);
             taskHandler.edit(task);
             datasetHandler.create(dataset);
             task.getMeta().getComments().add("Dataset saved...");
@@ -157,6 +188,7 @@ public class PredictionMDB implements MessageListener {
             if (messageBody.containsKey("bundle_uri") && messageBody.get("bundle_uri") != null) {
                 task.getMeta().getComments().add("A bundle associated with these predictions was found.");
                 task.getMeta().getComments().add("We will attempt to upload results into the bundle.");
+                task.setPercentageCompleted(35.f);
                 taskHandler.edit(task);
 
                 String bundleUri = (String) messageBody.get("bundle_uri");
@@ -167,6 +199,7 @@ public class PredictionMDB implements MessageListener {
                 String studyJSON = createStudyJSON(model.getPredictedFeatures().stream().findFirst().get(), model.getId(), predictions, substances);
 
                 task.getMeta().getComments().add("Creating a working matrix in the bundle...");
+                task.setPercentageCompleted(45.f);
                 taskHandler.edit(task);
                 MultivaluedMap<String, String> formData = new MultivaluedHashMap<>();
                 formData.putSingle("deletematrix", "true");
@@ -175,6 +208,7 @@ public class PredictionMDB implements MessageListener {
                         .post(Entity.form(formData)).close();
 
                 task.getMeta().getComments().add("Now putting results in the bundle...");
+                task.setPercentageCompleted(50.f);
                 taskHandler.edit(task);
                 Response taskResponse = client.target(bundleUri + "/matrix")
                         .request()
@@ -186,26 +220,36 @@ public class PredictionMDB implements MessageListener {
                 taskResponse.close();
 
                 task.getMeta().getComments().add("An upload task has been started with URI:" + taskUri.trim());
+                task.setPercentageCompleted(85.f);
                 taskHandler.edit(task);
             }
                         
             task.setStatus(Task.Status.COMPLETED);
+            task.setPercentageCompleted(100.f);
+            task.setHttpStatus(200);
             task.setResult("dataset/" + dataset.getId());
             task.getMeta().getComments().add("Task Completed Successfully.");
         } catch (JMSException ex) {
             LOG.log(Level.SEVERE, null, ex);
             task.setStatus(Task.Status.ERROR);
+            task.setHttpStatus(500);
             task.setErrorReport(ErrorReportFactory.internalServerError(ex, "", ex.getMessage(), ""));
         } catch (Exception ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             task.setStatus(Task.Status.ERROR);
+            task.setHttpStatus(500);
             task.setErrorReport(ErrorReportFactory.internalServerError(ex, "", ex.getMessage(), ""));
         } finally {
             taskHandler.edit(task);
         }
     }
 
-    private String createStudyJSON(String predictedProperty, String modelId, List<Object> predictions, List<String> substances) throws UnsupportedEncodingException, JsonProcessingException {
+    private String createStudyJSON(
+            String predictedProperty, 
+            String modelId, 
+            List<Object> predictions, 
+            List<String> substances) 
+        throws UnsupportedEncodingException, JsonProcessingException {
         Studies studies = new Studies();
         List<Study> studyList = new ArrayList<>();
 

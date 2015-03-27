@@ -34,7 +34,6 @@ import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
 import com.wordnik.swagger.annotations.ApiResponse;
 import com.wordnik.swagger.annotations.ApiResponses;
-import java.util.UUID;
 import javax.ejb.EJB;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -47,7 +46,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -56,6 +54,7 @@ import org.jaqpot.core.data.BibTeXHandler;
 import org.jaqpot.core.model.BibTeX;
 import org.jaqpot.core.model.ErrorReport;
 import org.jaqpot.core.model.factory.ErrorReportFactory;
+import org.jaqpot.core.model.util.ROG;
 import org.jaqpot.core.model.validator.BibTeXValidator;
 import org.jaqpot.core.service.annotations.Authorize;
 import org.jaqpot.core.service.data.AAService;
@@ -153,7 +152,7 @@ public class BibTeXResource {
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "BibTeX entry was created successfully."),
         @ApiResponse(code = 400, message = "Bad request: malformed bibtex (e.g., mandatory fields are missing)"),
-        @ApiResponse(code = 401, message = "You are not authorized to access this user"),
+        @ApiResponse(code = 401, message = "You are not authorized to access this resource"),
         @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)"),
         @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
     })
@@ -174,7 +173,10 @@ public class BibTeXResource {
                     "Clients MUST provide a BibTeX document in JSON to perform this request");
             return Response.ok(report).status(Response.Status.BAD_REQUEST).build();
         }
-        if (bib.getId()==null) { bib.setId(UUID.randomUUID().toString());  }
+        if (bib.getId()==null) { 
+            ROG rog = new ROG(true);
+            bib.setId(rog.nextString(10));  
+        }
         bib.setCreatedBy(securityContext.getUserPrincipal().getName());
         ErrorReport error = BibTeXValidator.validate(bib);
         if (error != null) {
