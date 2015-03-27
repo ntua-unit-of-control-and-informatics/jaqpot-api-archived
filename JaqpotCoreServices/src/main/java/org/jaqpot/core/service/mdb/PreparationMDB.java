@@ -32,6 +32,7 @@ package org.jaqpot.core.service.mdb;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -60,6 +61,7 @@ import org.jaqpot.core.model.Task;
 import org.jaqpot.core.model.builder.MetaInfoBuilder;
 import org.jaqpot.core.model.dto.dataset.Dataset;
 import org.jaqpot.core.model.factory.ErrorReportFactory;
+import org.jaqpot.core.model.util.ROG;
 import org.jaqpot.core.service.data.ConjoinerService;
 import org.jpmml.evaluator.ExpressionUtil;
 import org.jpmml.evaluator.FieldValue;
@@ -102,10 +104,15 @@ public class PreparationMDB implements MessageListener {
     @EJB
     DatasetHandler datasetHandler;
 
+    @Inject
+    ThreadReference threadMap;
+
     @Override
     public void onMessage(Message msg) {
+
         Task task = null;
         try {
+
             Map<String, Object> messageBody = msg.getBody(Map.class);
             task = taskHandler.find(messageBody.get("taskId"));
 
@@ -113,8 +120,11 @@ public class PreparationMDB implements MessageListener {
                 throw new NullPointerException("FATAL: Could not find task with id:" + messageBody.get("taskId"));
             }
 
+            threadMap.getThreadReferenceMap().put(task.getId(), Thread.currentThread());
+
             task.setStatus(Task.Status.RUNNING);
-            task.getMeta().getComments().add("Preparation Task is now running.");
+            
+            task.getMeta().getComments().add("Preparation Task is now running with ID " + Thread.currentThread().getName());
             task.setPercentageCompleted(1.0f);
             taskHandler.edit(task);
 
@@ -157,8 +167,8 @@ public class PreparationMDB implements MessageListener {
                     Map<String, Object> values = dataEntry.getValues();
                     dataFields.stream().forEach(dataField -> {
                         if (!values.containsKey(dataField.getName().getValue())) {
-                            throw new BadRequestException("DataField " + dataField.getName().getValue() + 
-                                    "specified in transformations PMML does not exist in dataset.");
+                            throw new BadRequestException("DataField " + dataField.getName().getValue()
+                                    + "specified in transformations PMML does not exist in dataset.");
                         }
                         context.declare(dataField.getName(), values.get(dataField.getName().getValue()));
                     });
@@ -180,10 +190,9 @@ public class PreparationMDB implements MessageListener {
             task.setPercentageCompleted(55.0f);
             taskHandler.edit(task);
             MetaInfo datasetMeta = MetaInfoBuilder.builder().addSources(bundleUri)
-                    .addComments("Created by task "+task.getId()).build();
+                    .addComments("Created by task " + task.getId()).build();
             dataset.setMeta(datasetMeta);
-                    
-            
+
             datasetHandler.create(dataset);
 
             task.getMeta().getComments().add("Dataset saved successfully.");
@@ -215,7 +224,7 @@ public class PreparationMDB implements MessageListener {
                 default:
                     task.setStatus(Task.Status.COMPLETED);
                     task.getMeta().getComments().add("Preparation Task is now completed.");
-                    task.setResult("dataset/"+dataset.getId());
+                    task.setResult("dataset/" + dataset.getId());
                     task.setHttpStatus(200);
                     task.setPercentageCompleted(92.0f);
                     taskHandler.edit(task);
@@ -247,7 +256,8 @@ public class PreparationMDB implements MessageListener {
             LOG.log(Level.SEVERE, null, ex);
             task.setStatus(Task.Status.ERROR);
             task.setErrorReport(ErrorReportFactory.badRequest("Error while processing input.", ex.getMessage()));
-        } finally {            
+        } finally {
+            threadMap.getThreadReferenceMap().remove(task.getId());
             taskHandler.edit(task);
         }
     }
