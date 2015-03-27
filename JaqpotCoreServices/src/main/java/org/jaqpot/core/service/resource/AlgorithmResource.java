@@ -50,6 +50,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
+import javax.ws.rs.core.UriInfo;
 import org.jaqpot.core.data.AlgorithmHandler;
 import org.jaqpot.core.model.Algorithm;
 import org.jaqpot.core.model.Task;
@@ -95,6 +96,9 @@ public class AlgorithmResource {
 
     @Context
     SecurityContext securityContext;
+    
+    @Context
+    UriInfo uriInfo;
 
     @GET
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
@@ -133,6 +137,7 @@ public class AlgorithmResource {
         algorithmHandler.create(algorithm);
         return Response
                 .status(Response.Status.OK)
+                .header("Location", uriInfo.getBaseUri().toString() + "algorithm/" + algorithm.getId())
                 .entity(algorithm).build();
     }
 

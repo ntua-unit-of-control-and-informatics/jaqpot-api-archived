@@ -49,6 +49,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
+import javax.ws.rs.core.UriInfo;
 import org.jaqpot.core.data.FeatureHandler;
 import org.jaqpot.core.model.ErrorReport;
 import org.jaqpot.core.model.Feature;
@@ -87,6 +88,9 @@ public class FeatureResource {
             "  }\n" +
             "}";
 
+    @Context
+    UriInfo uriInfo;
+    
     @EJB
     AAService aaService;
 
@@ -179,6 +183,7 @@ public class FeatureResource {
         return Response
                 .ok(feature)
                 .status(Response.Status.OK)
+                .header("Location", uriInfo.getBaseUri().toString() + "feature/" + feature.getId())
                 .build();
 
     }

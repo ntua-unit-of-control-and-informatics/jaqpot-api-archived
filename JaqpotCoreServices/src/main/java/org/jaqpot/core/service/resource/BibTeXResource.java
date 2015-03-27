@@ -235,6 +235,7 @@ public class BibTeXResource {
         return Response
                 .ok(bib)
                 .status(Response.Status.OK)
+                .header("Location", uriInfo.getBaseUri().toString() + "bibtex/" + bib.getId())
                 .build();
     }
 
