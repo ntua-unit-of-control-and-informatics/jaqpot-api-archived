@@ -1,19 +1,38 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ *
+ * JAQPOT Quattro
+ *
+ * JAQPOT Quattro and the components shipped with it (web applications and beans)
+ * are licenced by GPL v3 as specified hereafter. Additional components may ship
+ * with some other licence as will be specified therein.
+ *
+ * Copyright (C) 2014-2015 KinkyDesign (Charalampos Chomenidis, Pantelis Sopasakis)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * 
+ * Source code:
+ * The source code of JAQPOT Quattro is available on github at:
+ * https://github.com/KinkyDesign/JaqpotQuattro
+ * All source files of JAQPOT Quattro that are stored on github are licenced
+ * with the aforementioned licence. 
  */
 package org.jaqpot.core.service.mdb;
 
-import Jama.Matrix;
 import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ejb.ActivationConfigProperty;
@@ -22,7 +41,6 @@ import javax.ejb.MessageDriven;
 import javax.inject.Inject;
 import javax.jms.JMSException;
 import javax.jms.Message;
-import javax.jms.MessageListener;
 import javax.ws.rs.ProcessingException;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.client.Client;
@@ -76,6 +94,7 @@ public class TrainingMDB extends RunningTaskMDB {
     @Override
     public void onMessage(Message msg) {
         Task task = null;
+        
         try {
             Map<String, Object> messageBody = msg.getBody(Map.class);
             task = taskHandler.find(messageBody.get("taskId"));
@@ -83,9 +102,11 @@ public class TrainingMDB extends RunningTaskMDB {
             if (task == null) {
                 throw new NullPointerException("FATAL: Could not find task with id:" + messageBody.get("taskId"));
             }
+            if (task.getMeta()==null) task.setMeta(MetaInfoBuilder.builder().setCurrentDate().build());
             
             init(task.getId());
 
+            task.setHttpStatus(202);
             task.setStatus(Task.Status.RUNNING);
             task.setType(Task.Type.TRAINING);
             task.getMeta().getComments().add("Training Task is now running.");
@@ -185,36 +206,34 @@ public class TrainingMDB extends RunningTaskMDB {
                     .addComments("Created by task " + task.getId())
                     .addDescriptions("QSAR model by algorithm " + algorithmId)
                     .build());
-
-            double[][] omega = createOmega(dataset, model.getIndependentFeatures());
-            double gamma = (3.0 * model.getIndependentFeatures().size()) / dataset.getDataEntry().size();
-
-            System.out.println("omega:" + Arrays.deepToString(omega));
-            System.out.println("gamma: " + gamma);
+            
+            
+            /*
+             * Create DoA model by POSTing to the leverages algorithm
+             */
+            Algorithm leveragesAlgorithm = algorithmHandler.find("leverage");
+            if (leveragesAlgorithm != null){
+                String leveragesAlgTrainingURI = leveragesAlgorithm.getTrainingService();
+                //TODO complete implementation
+            }
+                
 
             task.getMeta().getComments().add("Model was built successfully. Now saving to database...");
             taskHandler.edit(task);
             modelHandler.create(model);
 
             task.setResult("model/" + model.getId());
+            task.setHttpStatus(201);
             task.setPercentageCompleted(100.f);
-            //TODO task.setDuration(System.currentTimeMillis() - task.getMeta().getDate().getTime());
+            task.setDuration(System.currentTimeMillis() - task.getMeta().getDate().getTime()); // in ms
             task.setStatus(Task.Status.COMPLETED);
             task.getMeta().getComments().add("Task Completed Successfully.");
             taskHandler.edit(task);
-            //TODO Better handle these exceptions: 
-        } catch (UnsupportedOperationException ex) {
+            
+        } catch (UnsupportedOperationException | IllegalStateException | IllegalArgumentException | ArrayIndexOutOfBoundsException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             task.setStatus(Task.Status.ERROR);
             task.setErrorReport(ErrorReportFactory.badRequest(ex.getMessage(), "")); // Operation not supported
-        } catch (IllegalStateException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            task.setStatus(Task.Status.ERROR);
-            task.setErrorReport(ErrorReportFactory.badRequest(ex.getMessage(), "")); // Method invoked at illegal time
-        } catch (IllegalArgumentException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            task.setStatus(Task.Status.ERROR);
-            task.setErrorReport(ErrorReportFactory.badRequest(ex.getMessage(), "")); // Illegal argument
         } catch (ResponseProcessingException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             task.setStatus(Task.Status.ERROR);
@@ -231,10 +250,6 @@ public class TrainingMDB extends RunningTaskMDB {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             task.setStatus(Task.Status.ERROR);
             task.setErrorReport(ErrorReportFactory.internalServerError(ex, "", ex.getMessage(), ""));
-        } catch (ArrayIndexOutOfBoundsException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            task.setStatus(Task.Status.ERROR);
-            task.setErrorReport(ErrorReportFactory.badRequest(ex.getMessage(), ""));
         } catch (Exception ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             task.setStatus(Task.Status.ERROR);
@@ -245,29 +260,6 @@ public class TrainingMDB extends RunningTaskMDB {
         }
     }
 
-    private double[][] createOmega(Dataset dataset, List<String> selectedFeatures) {
-        Set<String> selectedFeaturesSet = new HashSet<>(selectedFeatures);
-
-        int numOfSubstances = dataset.getDataEntry().size();
-        int numOfFeatures = selectedFeatures.size();
-
-        double[][] dataArray = new double[numOfSubstances][numOfFeatures];
-
-        for (int i = 0; i < numOfSubstances; i++) {
-            dataArray[i] = dataset.getDataEntry()
-                    .get(i)
-                    .getValues()
-                    .entrySet()
-                    .stream()
-                    .filter(entry -> {
-                        return selectedFeaturesSet.contains(entry.getKey());
-                    })
-                    .mapToDouble(entry -> {
-                        return Double.parseDouble(entry.getValue().toString());
-                    }).toArray();
-        }
-        Matrix dataMatrix = new Matrix(dataArray);
-        return (dataMatrix.transpose().times(dataMatrix)).getArray();
-    }
+    
 
 }
