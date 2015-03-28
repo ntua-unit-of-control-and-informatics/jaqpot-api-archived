@@ -184,6 +184,7 @@ public class AlgorithmResource {
         options.put("algorithmId", algorithmId);
         options.put("parameters", parameters);
         options.put("transformations", transformations);
+        options.put("base_uri", uriInfo.getBaseUri().toString());
         Task task = trainingService.initiateTraining(options, securityContext.getUserPrincipal().getName());        
         return Response.ok(task).build();
     }

@@ -31,6 +31,7 @@ package org.jaqpot.core.service.mdb;
 
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -50,9 +51,11 @@ import javax.ws.rs.core.Form;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.jaqpot.core.data.AlgorithmHandler;
+import org.jaqpot.core.data.FeatureHandler;
 import org.jaqpot.core.data.ModelHandler;
 import org.jaqpot.core.data.TaskHandler;
 import org.jaqpot.core.model.Algorithm;
+import org.jaqpot.core.model.Feature;
 import org.jaqpot.core.model.Model;
 import org.jaqpot.core.model.Task;
 import org.jaqpot.core.model.builder.MetaInfoBuilder;
@@ -81,6 +84,9 @@ public class TrainingMDB extends RunningTaskMDB {
 
     @EJB
     TaskHandler taskHandler;
+
+    @EJB
+    FeatureHandler featureHandler;
 
     @EJB
     AlgorithmHandler algorithmHandler;
@@ -195,13 +201,44 @@ public class TrainingMDB extends RunningTaskMDB {
             model.setPmmlModel(trainingResponse.getPmmlModel());
             model.setAlgorithm(algorithm);
             model.setIndependentFeatures(trainingResponse.getIndependentFeatures());
+            model.setDatasetUri((String) messageBody.get("dataset_uri"));
             model.setAdditionalInfo(trainingResponse.getAdditionalInfo());
             ArrayList<String> dependentFeatures = new ArrayList<>();
             dependentFeatures.add(trainingRequest.getPredictionFeature());
             model.setDependentFeatures(dependentFeatures);
             ArrayList<String> predictedFeatures = new ArrayList<>();
-            predictedFeatures.add(trainingRequest.getPredictionFeature() + "/" + URLEncoder.encode("Predicted By Model " + model.getId(), "UTF-8"));
+            //TODO simplify the URI of the predicted feature
+            // String predFeatURI = trainingRequest.getPredictionFeature() + "/" + URLEncoder.encode("Predicted By Model " + model.getId(), "UTF-8");
+            String predFeatID = randomStringGenerator.nextString(12);
+            predictedFeatures.add(predFeatID);
             model.setPredictedFeatures(predictedFeatures);
+
+            task.getMeta().getComments().add("Model was built successfully");
+            task.getMeta().getComments().add("Defining the prediction feature");
+            task.getMeta().getComments().add("Creating the prediction feature resource with ID "
+                    + predFeatID);
+            task.setPercentageCompleted(85.f);
+            taskHandler.edit(task);
+
+            // Create the prediction features (POST /feature)
+            Feature predictionFeatureResource = new Feature();
+            predictionFeatureResource.setId(predFeatID);
+            predictionFeatureResource.setCreatedBy(task.getCreatedBy());
+            predictionFeatureResource.setMeta(MetaInfoBuilder
+                    .builder()
+                    .addSources(messageBody.get("base_uri") + "model/" + model.getId())
+                    .addComments("Feature predicted by model with ID " + model.getId())
+                    .addTitles("Prediction feature for model " + model.getId())
+                    .addSeeAlso(dependentFeatures.toArray(new String[dependentFeatures.size()]))
+                    .build());
+
+            /* Create feature */
+            featureHandler.create(predictionFeatureResource);
+
+            task.getMeta().getComments().add("Feature created");
+            task.setPercentageCompleted(85.f);
+            taskHandler.edit(task);
+
             model.setMeta(MetaInfoBuilder
                     .builder()
                     .addCreators(task.getCreatedBy())
@@ -210,9 +247,8 @@ public class TrainingMDB extends RunningTaskMDB {
                     .addDescriptions("QSAR model by algorithm " + algorithmId)
                     .build());
 
-            /*
-             * Create DoA model by POSTing to the leverages algorithm
-             */
+
+            /* Create DoA model by POSTing to the leverages algorithm */
             if (!algorithm.getOntologicalClasses().contains("ot:ApplicabilityDomain"));
             {
 //                Form form = new Form();
