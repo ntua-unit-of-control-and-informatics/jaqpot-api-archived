@@ -112,6 +112,9 @@ public class TrainingMDB extends RunningTaskMDB {
             if (task.getMeta() == null) {
                 task.setMeta(MetaInfoBuilder.builder().setCurrentDate().build());
             }
+            if (task.getMeta().getComments()==null){
+                task.getMeta().setComments(new ArrayList<>());
+            }
 
             init(task.getId());
 
