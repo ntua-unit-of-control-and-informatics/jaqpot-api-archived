@@ -213,7 +213,7 @@ public class TrainingMDB extends RunningTaskMDB {
             //TODO simplify the URI of the predicted feature
             // String predFeatURI = trainingRequest.getPredictionFeature() + "/" + URLEncoder.encode("Predicted By Model " + model.getId(), "UTF-8");
             String predFeatID = randomStringGenerator.nextString(12);
-            predictedFeatures.add(messageBody.get("base_uri") + "feature/" + predFeatID);
+            predictedFeatures.add(/* messageBody.get("base_uri") + */ "feature/" + predFeatID);
             model.setPredictedFeatures(predictedFeatures);
 
             task.getMeta().getComments().add("Model was built successfully");
