@@ -187,6 +187,10 @@ public class PreparationMDB extends RunningTaskMDB {
                         FieldValue value = ExpressionUtil.evaluate(derivedField, context);
                         result.put(derivedField.getName().getValue(), value.asNumber());
                     });
+                    String predictionFeature = (String) messageBody.get("prediction_feature");
+                    if (predictionFeature != null) {
+                        result.put(predictionFeature, values.get(predictionFeature));
+                    }
                     //A newly created map of transformed property names and values is placed in the data entry
                     dataEntry.setValues(result);
                 });
