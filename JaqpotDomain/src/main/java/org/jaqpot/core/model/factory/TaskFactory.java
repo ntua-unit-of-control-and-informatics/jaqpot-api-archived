@@ -65,7 +65,7 @@ public class TaskFactory {
      *      The default queued task.
      */
     public static Task queuedTask(String title, String description, String creator) {
-        return TaskBuilder.builderRandomUuid().
+        Task queuedTask =  TaskBuilder.builderRandomUuid().
                 addProgressComments("Task created").
                 addDescription(description).
                 addTitles(title).
@@ -74,6 +74,7 @@ public class TaskFactory {
                 setHttpStatus(202).
                 setStatus(Task.Status.QUEUED).
                 build();
+        return queuedTask;
     }
 
 }

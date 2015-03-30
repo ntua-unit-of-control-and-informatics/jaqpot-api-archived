@@ -53,9 +53,17 @@ public class MetaInfoBuilder implements EntityBuilder<MetaInfo> {
     public static MetaInfoBuilder builder() {
         return new MetaInfoBuilder();
     }
+    
+    public static MetaInfoBuilder builder(MetaInfo other) {
+        return new MetaInfoBuilder(other);
+    }
 
     private MetaInfoBuilder() {
         meta = new MetaInfo();
+    }
+    
+    private MetaInfoBuilder(MetaInfo meta) {
+        this.meta = meta;
     }
 
     public MetaInfoBuilder addTitles(String... titles) {

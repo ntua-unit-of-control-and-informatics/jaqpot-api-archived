@@ -42,7 +42,6 @@ import org.jaqpot.core.data.TaskHandler;
 import org.jaqpot.core.model.Algorithm;
 import org.jaqpot.core.model.Task;
 import org.jaqpot.core.model.builder.MetaInfoBuilder;
-import org.jaqpot.core.model.factory.TaskFactory;
 import org.jaqpot.core.model.util.ROG;
 
 /**
@@ -85,6 +84,7 @@ public class TrainingService {
                 .addComments("Training task created")
                 .addDescriptions("Training task using algorithm " + algorithmId)
                 .build());
+        task.setStatus(Task.Status.RUNNING);
         task.setType(Task.Type.TRAINING);
         options.put("taskId", task.getId());
         taskHandler.create(task);
