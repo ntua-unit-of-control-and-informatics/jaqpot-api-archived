@@ -31,6 +31,7 @@ package org.jaqpot.core.model.builder;
 
 import java.util.HashMap;
 import org.jaqpot.core.model.User;
+import org.jaqpot.core.model.util.ROG;
 import org.jaqpot.core.model.validator.EmailValidator;
 
 /**
@@ -47,9 +48,17 @@ public class UserBuilder implements EntityBuilder<User> {
         return new UserBuilder(id);
     }
 
+    public static UserBuilder builder(User other) {
+        return new UserBuilder(other);
+    }
+
     private UserBuilder(String id) {
         user = new User(id);
         user.setId(id);
+    }
+
+    private UserBuilder(User other) {
+        this.user = other;
     }
 
     public UserBuilder setName(String name) {

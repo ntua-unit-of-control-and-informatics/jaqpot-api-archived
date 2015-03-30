@@ -58,7 +58,7 @@ public class JsonMappingExceptionMapper implements ExceptionMapper<JsonMappingEx
         StringWriter sw = new StringWriter();
         exception.printStackTrace(new PrintWriter(sw));
         String details = sw.toString();
-        ErrorReport error = ErrorReportBuilder.builderRandomUuid()
+        ErrorReport error = ErrorReportBuilder.builderRandomId()
                 .setCode("JsonMappingError")
                 .setMessage(exception.getMessage())
                 .setDetails(details)

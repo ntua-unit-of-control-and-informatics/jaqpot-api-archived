@@ -72,7 +72,7 @@ public class AlgorithmBuilderTest {
         System.out.println("addTitles");
         String[] titles = {"title1", "title2", "this is another title"};
         Algorithm a = AlgorithmBuilder
-                .builderRandomUuid()
+                .builderRandomId()
                 .addTitles(titles)
                 .build();
         assertNotNull(a.getMeta());
@@ -88,7 +88,7 @@ public class AlgorithmBuilderTest {
         System.out.println("addTitles");
         String[] titles = null;
         Algorithm a = AlgorithmBuilder
-                .builderRandomUuid()
+                .builderRandomId()
                 .addTitles(titles)
                 .build();
         assertNull(a.getMeta());
@@ -103,7 +103,7 @@ public class AlgorithmBuilderTest {
         System.out.println("addDescriptions");
         String[] descriptions = {"descr1", "descr2", "this is another description"};
         Algorithm a = AlgorithmBuilder
-                .builderRandomUuid()
+                .builderRandomId()
                 .addDescriptions(descriptions)
                 .build();
         assertNotNull(a.getMeta());
@@ -117,7 +117,7 @@ public class AlgorithmBuilderTest {
         System.out.println("addDescriptions");
         String[] descriptions = null;
         AlgorithmBuilder
-                .builderRandomUuid()
+                .builderRandomId()
                 .addDescriptions(descriptions)
                 .build();
     }
@@ -130,7 +130,7 @@ public class AlgorithmBuilderTest {
         System.out.println("addTags");
         String[] tags = {"algorithm", "training", "regression", "supervised"};
         Algorithm a = AlgorithmBuilder
-                .builderRandomUuid()
+                .builderRandomId()
                 .addTags(tags)
                 .build();
         assertNotNull(a.getMeta());
@@ -143,7 +143,7 @@ public class AlgorithmBuilderTest {
     public void testAddTagsNull() {
         System.out.println("addTagsNull");
         AlgorithmBuilder
-                .builderRandomUuid()
+                .builderRandomId()
                 .addTags((String[]) null)
                 .build();
     }
@@ -153,7 +153,7 @@ public class AlgorithmBuilderTest {
         System.out.println("addTagsCSV");
         String tagList = "tag1, tag2,tag3 , tag4    ";
         Algorithm a = AlgorithmBuilder
-                .builderRandomUuid()
+                .builderRandomId()
                 .addTagsCSV(tagList)
                 .build();               
         

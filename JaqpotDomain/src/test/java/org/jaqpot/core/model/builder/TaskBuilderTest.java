@@ -44,30 +44,30 @@ import static org.junit.Assert.*;
  *
  */
 public class TaskBuilderTest {
-    
+
     public TaskBuilderTest() {
     }
-    
+
     @BeforeClass
     public static void setUpClass() {
     }
-    
+
     @AfterClass
     public static void tearDownClass() {
     }
-    
+
     @Before
     public void setUp() {
     }
-    
+
     @After
     public void tearDown() {
     }
 
     @Test
     public void testBuildTask() {
-        System.out.println("build");
-        TaskBuilder instance = TaskBuilder.builderRandomUuid();
+        System.out.println("buildTask");
+        TaskBuilder instance = TaskBuilder.builderRandomId();
         String taskCreator = "some.user@jaqpot.org";
         String taskTitle = "Task for Model 2324123";
         Task queuedTask = instance.addProgressComments("Task is queued", "Task is about to start").
@@ -86,6 +86,28 @@ public class TaskBuilderTest {
         assertEquals(1, queuedTask.getMeta().getTitles().size());
     }
 
-   
-    
+    @Test
+    public void testBuildTask_nullComments() {
+        System.out.println("buildTaskNullComments");
+        TaskBuilder instance = TaskBuilder.builderRandomId();
+        String[] x = null;
+        Task queuedTask = instance.addProgressComments(x).build();
+        assertNotNull(queuedTask);
+        assertNull(queuedTask.getMeta());
+    }
+
+    @Test
+    public void testBuildTask_nullComments2() {
+        System.out.println("buildTaskNullComments2");
+        TaskBuilder instance = TaskBuilder.builderRandomId();
+        String[] x = null;
+        String description = "abcd";
+        Task queuedTask = instance.
+                addDescription(description).
+                addProgressComments(x).build();
+        assertNotNull(queuedTask);
+        assertNotNull(queuedTask.getMeta());
+        assertTrue(queuedTask.getMeta().getDescriptions().contains(description));
+    }
+
 }

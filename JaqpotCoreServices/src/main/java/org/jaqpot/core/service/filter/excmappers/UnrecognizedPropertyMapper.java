@@ -59,7 +59,7 @@ public class UnrecognizedPropertyMapper implements ExceptionMapper<UnrecognizedP
         StringWriter sw = new StringWriter();
         exception.printStackTrace(new PrintWriter(sw));
         String details = sw.toString();
-        ErrorReport error = ErrorReportBuilder.builderRandomUuid()
+        ErrorReport error = ErrorReportBuilder.builderRandomId()
                 .setCode("UnrecognisedProperty")
                 .setMessage(exception.getMessage())
                 .setDetails(details)

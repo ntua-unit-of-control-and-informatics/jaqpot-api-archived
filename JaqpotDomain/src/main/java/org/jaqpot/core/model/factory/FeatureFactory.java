@@ -27,8 +27,6 @@
  * All source files of JAQPOT Quattro that are stored on github are licenced
  * with the aforementioned licence. 
  */
-
-
 package org.jaqpot.core.model.factory;
 
 import org.jaqpot.core.model.Feature;
@@ -39,9 +37,9 @@ import org.jaqpot.core.model.Feature;
  * @author Charalambos Chomenidis
  */
 public class FeatureFactory {
-    
-    public static Feature predictionFeature(String modelUri){        
-                
+
+    public static Feature predictionFeature(String modelUri) {
+
         throw new UnsupportedOperationException();
     }
 

@@ -72,7 +72,7 @@ public class ErrorReportFactory {
     }
 
     public static ErrorReport unauthorized(String message, String code, String details) {
-        ErrorReport error = ErrorReportBuilder.builderRandomUuid()
+        ErrorReport error = ErrorReportBuilder.builderRandomId()
                 .setActor("client")
                 .setMessage(message != null ? message : "You are not authorized to perform this operation.")
                 .setDetails(details != null ? details : ERROR401)
@@ -83,7 +83,7 @@ public class ErrorReportFactory {
     }
 
     public static ErrorReport alreadyInDatabase(String details) {
-        ErrorReport error = ErrorReportBuilder.builderRandomUuid()
+        ErrorReport error = ErrorReportBuilder.builderRandomId()
                 .setActor("server")
                 .setMessage("You tried to register a resource, but it is already registered in our DB.")
                 .setDetails(details)
@@ -94,7 +94,7 @@ public class ErrorReportFactory {
     }
 
     public static ErrorReport notImplementedYet() {
-        ErrorReport error = ErrorReportBuilder.builderRandomUuid()
+        ErrorReport error = ErrorReportBuilder.builderRandomId()
                 .setActor("server")
                 .setMessage("This is not implemented yet.")
                 .setDetails(ERROR501)
@@ -107,7 +107,7 @@ public class ErrorReportFactory {
     public static ErrorReport serviceUnavailable(
             String message,
             String details) {
-         ErrorReport error = ErrorReportBuilder.builderRandomUuid()
+         ErrorReport error = ErrorReportBuilder.builderRandomId()
                 .setActor("server")
                 .setMessage(message != null ? message :"Service overloaded or down.")
                 .setDetails(ERROR503)
@@ -126,8 +126,7 @@ public class ErrorReportFactory {
      */
     public static ErrorReport notFoundError(
             String uriNotFound) {
-        return ErrorReportBuilder.
-                builderRandomUuid().
+        return ErrorReportBuilder.builderRandomId().
                 setActor("client").
                 setCode("NotFound").
                 setMessage("URI was not found on the server").
@@ -149,8 +148,7 @@ public class ErrorReportFactory {
             String code,
             String message,
             String details) {
-        return ErrorReportBuilder.
-                builderRandomUuid().
+        return ErrorReportBuilder.builderRandomId().
                 setActor("server").
                 setCode(code).
                 setMessage(message).
@@ -160,8 +158,7 @@ public class ErrorReportFactory {
     }
 
     public static ErrorReport internalServerError() {
-        return ErrorReportBuilder.
-                builderRandomUuid().
+        return ErrorReportBuilder.builderRandomId().
                 setActor("server").
                 setCode("UnknownServerError").
                 setMessage("Utterly unexpected condition").
@@ -189,8 +186,7 @@ public class ErrorReportFactory {
             String code,
             String additionalMessage,
             String addittionalDetails) {
-        return ErrorReportBuilder.
-                builderRandomUuid().
+        return ErrorReportBuilder.builderRandomId().
                 setHttpStatus(500).
                 build();
     }
@@ -207,8 +203,7 @@ public class ErrorReportFactory {
     public static ErrorReport badRequest(
             String message,
             String details) {
-        return ErrorReportBuilder.
-                builderRandomUuid().
+        return ErrorReportBuilder.builderRandomId().
                 setActor("client").
                 setCode("BadRequest").
                 setMessage(message != null ? message : "Bad request").
@@ -227,8 +222,7 @@ public class ErrorReportFactory {
      * @return
      */
     public static ErrorReport unauthorizedAccessError(String uri) {
-        return ErrorReportBuilder.
-                builderRandomUuid().
+        return ErrorReportBuilder.builderRandomId().
                 setActor("client").
                 setCode("UnauthorizedAccessError").
                 setMessage("You are not authorized to access " + uri).
@@ -238,8 +232,7 @@ public class ErrorReportFactory {
     }
 
     public static ErrorReport authenticationRequired(String details) {
-        return ErrorReportBuilder.
-                builderRandomUuid().
+        return ErrorReportBuilder.builderRandomId().
                 setActor("client").
                 setCode("Authentication Required (Missing/insuficient credentials)").
                 setMessage("Authentication is required tp access this URI").
@@ -252,8 +245,7 @@ public class ErrorReportFactory {
     public static ErrorReport remoteError(
             String remoteUri,
             ErrorReport remoteException) {
-        return ErrorReportBuilder.
-                builderRandomUuid().
+        return ErrorReportBuilder.builderRandomId().
                 setActor(remoteUri).
                 setCode("RemoteInvocationError").
                 setMessage("Remote invocation error").

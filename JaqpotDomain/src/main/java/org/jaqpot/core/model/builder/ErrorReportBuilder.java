@@ -31,6 +31,7 @@ package org.jaqpot.core.model.builder;
 
 import java.util.UUID;
 import org.jaqpot.core.model.ErrorReport;
+import org.jaqpot.core.model.util.ROG;
 
 /**
  *
@@ -49,8 +50,9 @@ public class ErrorReportBuilder implements EntityBuilder<ErrorReport> {
         return new ErrorReportBuilder(id);
     }
 
-    public static ErrorReportBuilder builderRandomUuid() {
-        return new ErrorReportBuilder(UUID.randomUUID().toString());
+    public static ErrorReportBuilder builderRandomId() {
+        ROG rog = new ROG(true);
+        return new ErrorReportBuilder("ERR" + rog.nextString(10));
     }
 
     public ErrorReportBuilder setCode(String code) {

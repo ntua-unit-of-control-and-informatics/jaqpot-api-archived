@@ -57,7 +57,7 @@ public class GenericExceptionMapper implements ExceptionMapper<Throwable> {
         exception.printStackTrace(new PrintWriter(sw));
         String details = sw.toString();
         LOG.log(Level.INFO, "GenericExceptionMapper exception caught", exception);
-        ErrorReport error = ErrorReportBuilder.builderRandomUuid()
+        ErrorReport error = ErrorReportBuilder.builderRandomId()
                 .setCode("GenericUnhandledException")
                 .setMessage("Utterly unhandled exception. "
                         + (exception.getMessage() != null ? exception.getMessage() : ""))
