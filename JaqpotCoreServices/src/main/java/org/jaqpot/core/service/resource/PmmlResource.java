@@ -128,14 +128,14 @@ public class PmmlResource {
                 .status(Response.Status.CREATED)
                 .header("Location", uriInfo.getBaseUri().toString() + "pmml/" + pmml.getId())
                 .build();
-
     }
 
     @GET
     @Path("/{id}")
-    @Produces({MediaType.APPLICATION_JSON, "text/uri-list", MediaType.APPLICATION_XML})
+    @Produces({MediaType.APPLICATION_JSON, "text/uri-list", MediaType.APPLICATION_XML, "text/xml"})
     @ApiOperation(value = "Returns PMML entry",
-            notes = "Finds and returns a PMML document by ID")
+            notes = "Finds and returns a PMML document by ID",
+            response = Pmml.class)
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "BibTeX entries found and are listed in the response body"),
         @ApiResponse(code = 401, message = "You are not authorized to access this user"),
@@ -151,10 +151,10 @@ public class PmmlResource {
         if (retrievedPmml == null) {
             throw new NotFoundException("PMML with ID " + id + " not found.");
         }
+        // get the Accept header to judge how to format the PMML (JSON or XML)
         String accept = httpHeaders.getRequestHeader("Accept").stream().findFirst().orElse(null);        
-        if (accept!=null && "application/xml".equals(accept)) {
-            System.out.println("went here!");
-            return Response.ok(retrievedPmml.getPmml(), MediaType.APPLICATION_XML).build();
+        if (accept!=null && ("application/xml".equals(accept) || "text/xml".equals(accept))) {
+            return Response.ok(retrievedPmml.getPmml(), accept).build();
         } else {
             return Response.ok(retrievedPmml).build();
         }
@@ -168,7 +168,7 @@ public class PmmlResource {
             responseContainer = "List",
             position = 1)
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "PMML  entries found and are listed in the response body"),
+        @ApiResponse(code = 200, message = "PMML entries found and are listed in the response body"),
         @ApiResponse(code = 401, message = "You are not authorized to access this resource"),
         @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)"),
         @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")

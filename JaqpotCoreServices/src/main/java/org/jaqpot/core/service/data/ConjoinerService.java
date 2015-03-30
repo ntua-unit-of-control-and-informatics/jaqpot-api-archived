@@ -46,6 +46,7 @@ import org.jaqpot.core.model.dto.study.Studies;
 import org.jaqpot.core.model.dto.study.Study;
 import org.jaqpot.core.model.dto.study.proteomics.Proteomics;
 import org.jaqpot.core.model.factory.TaskFactory;
+import org.jaqpot.core.model.util.ROG;
 import org.jaqpot.core.service.annotations.UnSecure;
 
 /**
@@ -113,7 +114,8 @@ public class ConjoinerService {
             dataEntries.add(dataEntry);
         }
 
-        dataset.setId(UUID.randomUUID().toString());
+        ROG rog = new ROG(true);
+        dataset.setId(rog.nextString(12));
         dataset.setDataEntry(dataEntries);
 
         //Takes the intersection of properties of all substances

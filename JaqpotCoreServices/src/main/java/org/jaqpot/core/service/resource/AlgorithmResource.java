@@ -71,7 +71,7 @@ import org.jaqpot.core.service.data.TrainingService;
 @Produces({"application/json", "text/uri-list"})
 @Authorize
 public class AlgorithmResource {
-    
+
     private static final String DEFAULT_ALGORITHM = "{\n"
             + "  \"trainingService\":\"http://z.ch/t/a\",\n"
             + "  \"predictionService\":\"http://z.ch/p/b\",\n"
@@ -87,31 +87,33 @@ public class AlgorithmResource {
             + "       \"value\":101.635\n"
             + "    }\n"
             + "  ]\n"
-            + "}";
-    
+            + "}",
+            DEFAULT_DATASET = "http://enanomapper.ntua.gr:8880/jaqpot/services/dataset/ca8da7f6-ee9f-4a61-9ae4-b1d1525cef88",
+            DEFAULT_PRED_FEATURE = "property/TOX/UNKNOWN_TOXICITY_SECTION/Total+surface+area++SAtot+/52D93BC3B68F26C8E787CC7A05E5130A23164405/3ed642f9-1b42-387a-9966-dea5b91e5f8a";
+
     @EJB
     TrainingService trainingService;
-    
+
     @EJB
     AlgorithmHandler algorithmHandler;
-    
+
     @Context
     SecurityContext securityContext;
-    
+
     @Context
     UriInfo uriInfo;
-    
+
     @GET
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @ApiOperation(value = "Finds all Algorithms",
             notes = "Finds all Algorithms JaqpotQuattro supports",
             response = Algorithm.class,
             responseContainer = "List")
-    
+
     public Response getAlgorithms() {
         return Response.ok(algorithmHandler.findAll()).build();
     }
-    
+
     @POST
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @ApiOperation(value = "Creates Algorithm",
@@ -126,18 +128,18 @@ public class AlgorithmResource {
             @ApiParam(value = "Tags for your algorithm (in a comma separated list) to facilitate look-up") @HeaderParam("tags") String tags
     ) {
         if (algorithm.getId() == null) {
-            ROG rog = new ROG(true);            
+            ROG rog = new ROG(true);
             algorithm.setId(rog.nextString(10));
         }
         AlgorithmBuilder algorithmBuilder = AlgorithmBuilder.builder(algorithm)
                 .setCreatedBy(securityContext.getUserPrincipal().getName());
-        if (title!=null){
+        if (title != null) {
             algorithmBuilder.addTitles(title);
         }
-        if (description!=null){
+        if (description != null) {
             algorithmBuilder.addDescriptions(description);
         }
-        if (tags!=null){
+        if (tags != null) {
             algorithmBuilder.addTagsCSV(tags);
         }
         algorithm = algorithmBuilder.build();
@@ -147,7 +149,7 @@ public class AlgorithmResource {
                 .header("Location", uriInfo.getBaseUri().toString() + "algorithm/" + algorithm.getId())
                 .entity(algorithm).build();
     }
-    
+
     @GET
     @Path("/{id}")
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
@@ -162,7 +164,7 @@ public class AlgorithmResource {
         }
         return Response.ok(algorithm).build();
     }
-    
+
     @POST
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @Path("/{id}")
@@ -171,8 +173,8 @@ public class AlgorithmResource {
             response = Task.class
     )
     public Response trainModel(
-            @ApiParam(name = "dataset_uri", defaultValue = "http://enanomapper.ntua.gr:8880/jaqpot/services/dataset/ca8da7f6-ee9f-4a61-9ae4-b1d1525cef88") @FormParam("dataset_uri") String datasetURI,
-            @FormParam("prediction_feature") String predictionFeature,
+            @ApiParam(name = "dataset_uri", defaultValue = DEFAULT_DATASET) @FormParam("dataset_uri") String datasetURI,
+            @ApiParam(name = "prediction_feature", defaultValue = DEFAULT_PRED_FEATURE) @FormParam("prediction_feature") String predictionFeature,
             @FormParam("parameters") String parameters,
             @FormParam("transformations") String transformations,
             @PathParam("id") String algorithmId,
@@ -184,10 +186,13 @@ public class AlgorithmResource {
         options.put("algorithmId", algorithmId);
         options.put("parameters", parameters);
         options.put("transformations", transformations);
-        Task task = trainingService.initiateTraining(options, securityContext.getUserPrincipal().getName());        
+        options.put("base_uri", uriInfo.getBaseUri().toString());
+        Task task = trainingService.initiateTraining(options, securityContext.getUserPrincipal().getName());
+        task.setHttpStatus(202);
+        task.setStatus(Task.Status.QUEUED);
         return Response.ok(task).build();
     }
-    
+
     @DELETE
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/{id}")
@@ -207,5 +212,5 @@ public class AlgorithmResource {
         algorithmHandler.remove(new Algorithm(id));
         return Response.ok().build();
     }
-    
+
 }

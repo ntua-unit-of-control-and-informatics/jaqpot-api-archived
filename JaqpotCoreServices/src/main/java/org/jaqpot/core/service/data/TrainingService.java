@@ -42,7 +42,7 @@ import org.jaqpot.core.data.TaskHandler;
 import org.jaqpot.core.model.Algorithm;
 import org.jaqpot.core.model.Task;
 import org.jaqpot.core.model.builder.MetaInfoBuilder;
-import org.jaqpot.core.model.factory.TaskFactory;
+import org.jaqpot.core.model.util.ROG;
 
 /**
  *
@@ -73,14 +73,18 @@ public class TrainingService {
             throw new NotFoundException("Could not find algorithm with id:" + algorithmId);
         }
 
-        Task task = TaskFactory.queuedTask("Training on algorithm: " + algorithm.getId(),
-                "A training procedure will return a Model if completed successfully.",
-                userName);
+        //TODO Improve TaskFactory to create queued tasks (add more methods)
+        //TODO Create MetaInfoBuilder form existing meta
+        Task task = new Task(new ROG(true).nextString(12));
         task.setMeta(
                 MetaInfoBuilder.builder()
-                        .setCurrentDate()
-                        .addSources(options.get("algorithmId").toString())
-                        .build());
+                .setCurrentDate()
+                .addTitles("Training on algorithm: " + algorithm.getId())
+                .addSources("algorithm" + options.get("algorithmId").toString())
+                .addComments("Training task created")
+                .addDescriptions("Training task using algorithm " + algorithmId)
+                .build());
+        task.setStatus(Task.Status.RUNNING);
         task.setType(Task.Type.TRAINING);
         options.put("taskId", task.getId());
         taskHandler.create(task);

@@ -114,7 +114,6 @@ public class Leverage {
             }
             Matrix dataMatrix = new Matrix(dataArray);
             Matrix omega = new Matrix(model.getOmega());
-            omega.print(10, 2);
             double gamma = model.getGamma();
             Matrix x = null;
             List<Object> predictions = new ArrayList<>();
@@ -129,10 +128,8 @@ public class Leverage {
                 }
             }
             Matrix pseudoInverse = U.times(S).times(V.transpose());
-            pseudoInverse.print(10, 2);
             for (int i = 0; i < numOfSubstances; i++) {
                 x = dataMatrix.getMatrix(i, i, 0, numOfFeatures - 1);
-                x.print(10, 2);
 
                 double indicator = Math.max(0, (gamma - x.times(pseudoInverse.times(x.transpose())).get(0, 0)) / gamma);
                 predictions.add(indicator);
