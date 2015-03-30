@@ -13,13 +13,16 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.StringJoiner;
 import java.util.TreeMap;
 import java.util.UUID;
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
@@ -33,9 +36,12 @@ import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.jaqpot.core.annotations.Jackson;
+import org.jaqpot.core.data.FeatureHandler;
 import org.jaqpot.core.data.TaskHandler;
 import org.jaqpot.core.data.serialize.JSONSerializer;
+import org.jaqpot.core.model.Feature;
 import org.jaqpot.core.model.Task;
+import org.jaqpot.core.model.builder.MetaInfoBuilder;
 import org.jaqpot.core.model.dto.bundle.BundleProperties;
 import org.jaqpot.core.model.dto.bundle.BundleSubstances;
 import org.jaqpot.core.model.dto.dataset.DataEntry;
@@ -69,11 +75,21 @@ public class ConjoinerService {
     @EJB
     TaskHandler taskHandler;
 
+    @EJB
+    FeatureHandler featureHandler;
+
     @Resource(lookup = "java:jboss/exported/jms/topic/preparation")
     private Topic preparationQueue;
 
     @Inject
     private JMSContext jmsContext;
+
+    private ResourceBundle configResourceBundle;
+
+    @PostConstruct
+    private void init() {
+        configResourceBundle = ResourceBundle.getBundle("config");
+    }
 
     public Task initiatePreparation(Map<String, Object> options, String userName) {
 
@@ -161,12 +177,37 @@ public class ConjoinerService {
                     List<Map<String, Object>> allParticles = response.readEntity(type);
                     response.close();
                     for (Map<String, Object> particle : allParticles) {
+                        if (!particle.get("id").equals("Average Particle")) {
+                            continue;
+                        }
                         try {
-                            String propertyURI = "property/image/" + URLEncoder.encode((String) particle.remove("id"), "UTF-8");
+
                             for (Entry<String, Object> entry : particle.entrySet()) {
                                 try {
+
+                                    String descriptorID = URLEncoder.encode("image average particle " + entry.getKey(), "UTF-8");
+                                    Feature f = new Feature();
+                                    f.setId(descriptorID);
+//                                    f.setOntologicalClasses(new HashSet<>());
+//                                    f.getOntologicalClasses().add("ot:Descriptor");
+//                                    f.getOntologicalClasses().add("ot:ImageDescriptor");
+//                                    f.getOntologicalClasses().add("ot:Feature");
+//                                    f.getOntologicalClasses().add("ot:NumericFeature");
+//                                    f.setCreatedBy("jaqpot");
+//                                    f.setMeta(MetaInfoBuilder
+//                                            .builder()
+//                                            .addComments("Image descriptor")
+//                                            .addTitles(entry.getKey())
+//                                            .addCreators("jaqpot")
+//                                            .addSeeAlso("https://github.com/mkotsiandris/imageAnalysis",
+//                                                    "http://enanomapper.ntua.gr:8880/imageAnalysis/")
+//                                            .build());
+                                    //featureHandler.create(f);
+
                                     Number value = Double.parseDouble((String) entry.getValue());
-                                    values.put(propertyURI + "/" + entry.getKey(), value);
+                                    values.put(configResourceBundle.getString("ServerBasePath")
+                                            + "feature/" + f.getId(), value);
+
                                 } catch (NumberFormatException ex) {
                                     continue;
                                 }

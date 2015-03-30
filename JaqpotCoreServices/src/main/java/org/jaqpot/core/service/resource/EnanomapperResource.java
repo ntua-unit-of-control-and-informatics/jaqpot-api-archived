@@ -31,6 +31,7 @@ package org.jaqpot.core.service.resource;
 
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
+import com.wordnik.swagger.annotations.ApiParam;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
@@ -105,6 +106,8 @@ public class EnanomapperResource {
     @Inject
     @UnSecure
     Client client;
+            
+    private static final String DEFAULT_BUNDLE = "https://apps.ideaconsult.net/enmtest/bundle/14";
 
     @POST
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
@@ -171,7 +174,7 @@ public class EnanomapperResource {
             response = Task.class
     )
     public Response prepareDataset(
-            @FormParam("bundle_uri") String bundleURI,
+            @ApiParam(name = "bundle_uri", defaultValue = DEFAULT_BUNDLE) @FormParam("bundle_uri") String bundleURI,
             @FormParam("transformations") String transformations,
             @HeaderParam("subjectid") String subjectId) {
 
