@@ -31,6 +31,8 @@ package org.jaqpot.core.service.filter.excmappers;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -48,8 +50,11 @@ import org.jaqpot.core.model.factory.ErrorReportFactory;
 @Provider
 public class NotFoundExceptionMapper implements ExceptionMapper<NotFoundException> {
 
+    private static final Logger LOG = Logger.getLogger(NotFoundExceptionMapper.class.getName());
+            
     @Override
     public Response toResponse(NotFoundException exception) {
+        LOG.log(Level.FINEST, "NotFoundExceptionMapper exception caught", exception);
         StringWriter sw = new StringWriter();
         exception.printStackTrace(new PrintWriter(sw));
         String details = sw.toString();

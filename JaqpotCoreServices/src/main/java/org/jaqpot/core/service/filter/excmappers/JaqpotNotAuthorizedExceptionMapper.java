@@ -30,6 +30,8 @@
 package org.jaqpot.core.service.filter.excmappers;
 
 import javax.ws.rs.core.Response;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 import org.jaqpot.core.service.exceptions.JaqpotNotAuthorizedException;
@@ -40,9 +42,12 @@ import org.jaqpot.core.service.exceptions.JaqpotNotAuthorizedException;
  */
 @Provider
 public class JaqpotNotAuthorizedExceptionMapper implements ExceptionMapper<JaqpotNotAuthorizedException> {
+    
+    private static final Logger LOG = Logger.getLogger(JaqpotNotAuthorizedExceptionMapper.class.getName());    
 
     @Override
     public Response toResponse(JaqpotNotAuthorizedException exception) {
+        LOG.log(Level.INFO, "JaqpotNotAuthorizedExceptionMapper exception caught", exception);
         return Response
                 .ok(exception.getError())
                 .status(Response.Status.UNAUTHORIZED)
