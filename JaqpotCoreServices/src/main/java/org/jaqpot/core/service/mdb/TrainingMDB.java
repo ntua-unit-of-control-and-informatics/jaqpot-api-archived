@@ -29,9 +29,7 @@
  */
 package org.jaqpot.core.service.mdb;
 
-import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -213,7 +211,7 @@ public class TrainingMDB extends RunningTaskMDB {
             //TODO simplify the URI of the predicted feature
             // String predFeatURI = trainingRequest.getPredictionFeature() + "/" + URLEncoder.encode("Predicted By Model " + model.getId(), "UTF-8");
             String predFeatID = randomStringGenerator.nextString(12);
-            predictedFeatures.add(/* messageBody.get("base_uri") + */ "feature/" + predFeatID);
+            predictedFeatures.add(/* messageBody.get("base_uri") + */"feature/" + predFeatID);
             model.setPredictedFeatures(predictedFeatures);
 
             task.getMeta().getComments().add("Model was built successfully");
@@ -254,13 +252,20 @@ public class TrainingMDB extends RunningTaskMDB {
             /* Create DoA model by POSTing to the leverages algorithm */
             if (!algorithm.getOntologicalClasses().contains("ot:ApplicabilityDomain"));
             {
-//                Form form = new Form();
-//                form.param("dataset_uri", messageBody.get("dataset_uri"));
-//                form.param("prediction_feature", "");                
-//                client.target("http://localhost:8080/jaqpot/services/algorithm/leverage")
-//                        .request()
-//                        .header("subjectid", messageBody.get("subjectid"))
-//                        .post(Entity.form(form));
+                task.getMeta().getComments().add("Constructing DoA for this model...");
+                taskHandler.edit(task);
+                modelHandler.create(model);
+                Form form = new Form();
+                form.param("dataset_uri", (String) messageBody.get("dataset_uri"));
+                form.param("prediction_feature", (String) messageBody.get("prediction_feature"));
+                Task leverageTask = client.target("http://localhost:8080/jaqpot/services/algorithm/leverage")
+                        .request()
+                        .header("subjectid", messageBody.get("subjectid"))
+                        .post(Entity.form(form)).readEntity(Task.class);
+                task.getMeta().getComments().add("DoA to be created by task: " + leverageTask.getId());
+                taskHandler.edit(task);
+                modelHandler.create(model);
+
             }
 
             task.getMeta().getComments().add("Model was built successfully. Now saving to database...");
@@ -301,7 +306,7 @@ public class TrainingMDB extends RunningTaskMDB {
             task.setErrorReport(ErrorReportFactory.internalServerError(ex, "", ex.getMessage(), "")); // rest
         } finally {
             if (task != null) {
-                init(task.getId());
+                terminate(task.getId());
             }
             taskHandler.edit(task);
         }

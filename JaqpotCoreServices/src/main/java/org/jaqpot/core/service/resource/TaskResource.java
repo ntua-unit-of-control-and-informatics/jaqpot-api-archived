@@ -34,7 +34,6 @@ import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
 import com.wordnik.swagger.annotations.ApiResponse;
 import com.wordnik.swagger.annotations.ApiResponses;
-import java.lang.management.ThreadMXBean;
 import java.util.List;
 import javax.ejb.EJB;
 import javax.inject.Inject;
@@ -161,7 +160,6 @@ public class TaskResource {
     public Response deleteTask(
             @ApiParam(value = "ID of the task which is to be deleted.", required = true) @PathParam("id") String id,
             @HeaderParam("subjectid") String subjectId) {
-        //TODO: Cancel the task! (stop the job)
 
         Thread thread = threadMap.getThreadReferenceMap().get(id);
         if (thread != null) {

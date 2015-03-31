@@ -258,10 +258,8 @@ public class BibTeXResource {
             @ApiParam("Clients need to authenticate in order to create resources on the server") @HeaderParam("subjectid") String subjectId,
             @ApiParam(value = "ID of the BibTeX.", required = true) @PathParam("id") String id
     ) {
-        return Response
-                .ok(ErrorReportFactory.notImplementedYet())
-                .status(Response.Status.NOT_IMPLEMENTED)
-                .build();
+        handler.remove(new BibTeX(id));
+        return Response.ok().build();
     }
 
 }

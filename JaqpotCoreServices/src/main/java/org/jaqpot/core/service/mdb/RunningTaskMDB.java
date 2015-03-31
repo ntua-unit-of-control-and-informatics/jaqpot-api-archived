@@ -57,6 +57,5 @@ public abstract class RunningTaskMDB implements MessageListener {
 
     public RunningTaskMDB() {
     }
-   
 
 }

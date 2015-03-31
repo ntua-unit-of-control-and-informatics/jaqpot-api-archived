@@ -55,7 +55,6 @@ import org.jaqpot.core.data.AlgorithmHandler;
 import org.jaqpot.core.model.Algorithm;
 import org.jaqpot.core.model.Task;
 import org.jaqpot.core.model.builder.AlgorithmBuilder;
-import org.jaqpot.core.model.builder.MetaInfoBuilder;
 import org.jaqpot.core.model.util.ROG;
 import org.jaqpot.core.service.annotations.Authorize;
 import org.jaqpot.core.service.data.TrainingService;
