@@ -56,27 +56,37 @@ public class TaskBuilder implements EntityBuilder<Task> {
     /**
      * Created a Task builder which will instantiate a new Task object with
      * given ID. You cannot generate a task without specifying an ID.
+     *
      * @param id
-     * @return 
-     * @see #builderRandomUuid() 
+     * @return
+     * @see #builderRandomId()
      */
     public static TaskBuilder builder(String id) {
         return new TaskBuilder(id);
     }
-    
+
+    public static TaskBuilder builder(Task task) {
+        return new TaskBuilder(task);
+    }
+
     /**
-     * Created a Task builder which will instantiate a new Task object with
-     * a randomly generated ID in the form of a UUID.
-     * @return 
-     * @see #builder(java.lang.String) 
+     * Created a Task builder which will instantiate a new Task object with a
+     * randomly generated ID in the form of a UUID.
+     *
+     * @return
+     * @see #builder(java.lang.String)
      */
-    public static TaskBuilder builderRandomUuid() {
+    public static TaskBuilder builderRandomId() {
         ROG rog = new ROG(true);
-        return new TaskBuilder(rog.nextString(12));
+        return new TaskBuilder("TSK" + rog.nextString(12));
     }
 
     private TaskBuilder(String id) {
         task = new Task(id);
+    }
+
+    private TaskBuilder(Task other) {
+        this.task = other;
     }
 
     public TaskBuilder setCreatedBy(String createdBy) {
@@ -112,7 +122,7 @@ public class TaskBuilder implements EntityBuilder<Task> {
     public TaskBuilder setStatus(Task.Status status) {
         task.setStatus(status);
         return this;
-    }        
+    }
 
     /**
      * Add comments on the progress of the task. While a task is running,
@@ -124,24 +134,49 @@ public class TaskBuilder implements EntityBuilder<Task> {
      * @return The current modifiable instance of TaskBuilder.
      */
     public TaskBuilder addProgressComments(String... progressComments) {
+        if (progressComments==null){
+            return this;
+        }
         initMeta();
         if (task.getMeta().getComments() == null) {
             task.getMeta().setComments(new ArrayList<>(progressComments.length));
         }
-        task.getMeta().getComments().addAll(Arrays.asList(progressComments));
+        for (String entry : progressComments){
+            if (entry != null){
+                task.getMeta().getComments().add(entry);
+            }
+        }
         return this;
     }
-    
+
     public TaskBuilder addDescription(String... descriptions) {
+        if (descriptions == null) {
+            return this;
+        }
         initMeta();
-        if (task.getMeta().getDescriptions()== null) {
+        if (task.getMeta().getDescriptions() == null) {
             task.getMeta().setDescriptions(new HashSet<>(descriptions.length));
         }
         task.getMeta().getDescriptions().addAll(Arrays.asList(descriptions));
         return this;
     }
 
+    public TaskBuilder addSources(String... sources) {
+        if (sources == null) {
+            return this;
+        }
+        initMeta();
+        if (task.getMeta().getHasSources() == null) {
+            task.getMeta().setHasSources(new HashSet<>(sources.length));
+        }
+        task.getMeta().getHasSources().addAll(Arrays.asList(sources));
+        return this;
+    }
+
     public TaskBuilder setDate(Date date) {
+        if (date==null){
+            return null;
+        }
         initMeta();
         task.getMeta().setDate(date);
         return this;
@@ -152,10 +187,10 @@ public class TaskBuilder implements EntityBuilder<Task> {
         task.getMeta().setDate(new Date());
         return this;
     }
-    
+
     public TaskBuilder addTitles(String... titles) {
         initMeta();
-        if (task.getMeta().getTitles()== null) {
+        if (task.getMeta().getTitles() == null) {
             task.getMeta().setTitles(new HashSet<>(titles.length));
         }
         task.getMeta().getTitles().addAll(Arrays.asList(titles));

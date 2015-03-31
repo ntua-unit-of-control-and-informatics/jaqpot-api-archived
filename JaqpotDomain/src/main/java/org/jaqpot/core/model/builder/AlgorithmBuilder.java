@@ -38,6 +38,7 @@ import org.jaqpot.core.model.Algorithm;
 import org.jaqpot.core.model.BibTeX;
 import org.jaqpot.core.model.MetaInfo;
 import org.jaqpot.core.model.Parameter;
+import org.jaqpot.core.model.util.ROG;
 
 /**
  *
@@ -51,21 +52,21 @@ public class AlgorithmBuilder implements EntityBuilder<Algorithm> {
         this.algorithm = new Algorithm();
         this.algorithm.setId(id);
     }
-    
-    public AlgorithmBuilder(final Algorithm a){
+
+    public AlgorithmBuilder(final Algorithm a) {
         this.algorithm = new Algorithm(a);
     }
-    
+
     public static AlgorithmBuilder builder(Algorithm algorithm) {
         return new AlgorithmBuilder(algorithm);
     }
-    
+
     public static AlgorithmBuilder builder(String id) {
         return new AlgorithmBuilder(id);
     }
 
-    public static AlgorithmBuilder builderRandomUuid() {
-        return new AlgorithmBuilder(UUID.randomUUID().toString());
+    public static AlgorithmBuilder builderRandomId() {
+        return new AlgorithmBuilder("ALG" + new ROG(true).nextString(12));
     }
 
     @Override
@@ -150,15 +151,15 @@ public class AlgorithmBuilder implements EntityBuilder<Algorithm> {
             return this;
         }
         List<String> items = Arrays.asList(tagList.split("\\s*,\\s*"));
-        items.forEach(s -> {items.set(items.indexOf(s), s.trim());});
+        items.forEach(s -> {
+            items.set(items.indexOf(s), s.trim());
+        });
         initMeta();
         if (algorithm.getMeta().getSubjects() == null) {
             algorithm.getMeta().setSubjects(new HashSet<>(items.size()));
         }
-        algorithm.getMeta().getSubjects().addAll(items);        
+        algorithm.getMeta().getSubjects().addAll(items);
         return this;
     }
-
-    
 
 }

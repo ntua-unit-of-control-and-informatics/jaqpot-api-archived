@@ -51,25 +51,47 @@ public class TaskFactory {
      * <li>description: user defined</li>
      * </ul>
      *
-     * @param title 
-     *      Title of the task, e.g., <code>SVM Task 34</code>. 
-     *      Can potentially be set to <code>null</code>, although it is not
-     *      advisable.
-     * @param description 
-     *      Short description of the task, e.g., <code>this task
-     *      was created to train a SVM model</code>. The description can be set
-     *      to <code>null</code>, but it is not advisable to help discoverability
-     * @param creator
-     *      of tasks.
-     * @return
-     *      The default queued task.
+     * @param title Title of the task, e.g., <code>SVM Task 34</code>. Can
+     * potentially be set to <code>null</code>, although it is not advisable.
+     * @param description Short description of the task, e.g., <code>this task
+     *      was created to train a SVM model</code>. The description can be set to
+     * <code>null</code>, but it is not advisable to help discoverability
+     * @param creator of tasks.
+     * @return The default queued task.
      */
     public static Task queuedTask(String title, String description, String creator) {
-        Task queuedTask =  TaskBuilder.builderRandomUuid().
-                addProgressComments("Task created").
+        return queuedTask(title, description, creator, "Task created", null);
+    }
+
+    /**
+     * Creates the default queued task. The default task has the following
+     * characteristics:
+     * <ul>
+     * <li>HTTP Status: 201</li>
+     * <li>Task status: {@link Task.Status.QUEUED QUEUED}</li>
+     * <li>Date: current date</li>
+     * <li>Comment: task created</li>
+     * <li>title: user defined</li>
+     * <li>description: user defined</li>
+     * </ul>
+     *
+     * @param title Title of the task, e.g., <code>SVM Task 34</code>. Can
+     * potentially be set to <code>null</code>, although it is not advisable.
+     * @param description Short description of the task, e.g., <code>this task
+     *      was created to train a SVM model</code>. The description can be set to
+     * <code>null</code>, but it is not advisable to help discoverability
+     * @param creator of tasks.
+     * @param comment comments
+     * @param hasSource the source of the task (who created it, e.g., an algorithm)
+     * @return The default queued task.
+     */
+    public static Task queuedTask(String title, String description, String creator, String comment, String hasSource) {
+        Task queuedTask = TaskBuilder.builderRandomId().
+                addProgressComments(hasSource).
                 addDescription(description).
                 addTitles(title).
                 setCreatedBy(creator).
+                addSources(hasSource).
                 setCurrentDate().
                 setHttpStatus(202).
                 setStatus(Task.Status.QUEUED).

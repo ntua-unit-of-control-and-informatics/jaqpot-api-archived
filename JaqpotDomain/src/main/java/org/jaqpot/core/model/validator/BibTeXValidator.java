@@ -58,7 +58,7 @@ public class BibTeXValidator {
         ErrorReport error = null;
         
         if (bibtex.getTitle() == null){
-            error = ErrorReportBuilder.builderRandomUuid()
+            error = ErrorReportBuilder.builderRandomId()
                         .setActor("client")
                         .setCode("BibTeX::TitleMissing")
                         .setMessage("Every BibTeX entry must have a title")
@@ -68,7 +68,7 @@ public class BibTeXValidator {
         
         
         if (bibtex.getBibType() == null) {
-            error = ErrorReportBuilder.builderRandomUuid()
+            error = ErrorReportBuilder.builderRandomId()
                     .setActor("client")
                     .setCode("BibTeX::noBibType")
                     .setDetails("Every BibTeX entity must define a BibTeX type")
@@ -81,7 +81,7 @@ public class BibTeXValidator {
                     || bibtex.getTitle() == null
                     || bibtex.getJournal() == null
                     || bibtex.getYear() == null) {
-                error = ErrorReportBuilder.builderRandomUuid()
+                error = ErrorReportBuilder.builderRandomId()
                         .setActor("client")
                         .setCode("BibTeX::malformedArticle")
                         .setMessage("Every article must define the fields: Author, Title, Journal, Year")
@@ -95,7 +95,7 @@ public class BibTeXValidator {
                     || bibtex.getTitle() == null
                     || bibtex.getPublisher()== null
                     || bibtex.getYear() == null) {
-                error = ErrorReportBuilder.builderRandomUuid()
+                error = ErrorReportBuilder.builderRandomId()
                         .setActor("client")
                         .setCode("BibTeX::malformedBook")
                         .setMessage("Every book must define the fields: Author OR Editor, Title, Publisher, Year")
@@ -109,7 +109,7 @@ public class BibTeXValidator {
                     || bibtex.getTitle() == null
                     || bibtex.getBookTitle()== null
                     || bibtex.getYear() == null) {
-                error = ErrorReportBuilder.builderRandomUuid()
+                error = ErrorReportBuilder.builderRandomId()
                         .setActor("client")
                         .setCode("BibTeX::malformedInProceedings")
                         .setDetails("Every InProceedings must define the fields: Author, Title, Booktitle, Year")

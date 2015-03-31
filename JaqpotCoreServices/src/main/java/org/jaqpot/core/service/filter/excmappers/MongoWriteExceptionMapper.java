@@ -31,6 +31,8 @@ package org.jaqpot.core.service.filter.excmappers;
 
 import com.mongodb.ErrorCategory;
 import com.mongodb.MongoWriteException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
@@ -47,9 +49,11 @@ import org.jaqpot.core.model.factory.ErrorReportFactory;
 @Provider
 public class MongoWriteExceptionMapper implements ExceptionMapper<MongoWriteException> {
 
+    private static final Logger LOG = Logger.getLogger(MongoWriteExceptionMapper.class.getName());
+            
     @Override
     public Response toResponse(MongoWriteException exception) {
-
+        LOG.log(Level.INFO, "MongoWriteExceptionMapper exception caught", exception);
         ErrorReport error;
         Response.Status status = Response.Status.INTERNAL_SERVER_ERROR;
         if (ErrorCategory.DUPLICATE_KEY.equals(exception.getError().getCategory())) {

@@ -31,6 +31,8 @@ package org.jaqpot.core.service.filter.excmappers;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
@@ -47,12 +49,15 @@ import org.jaqpot.core.model.builder.ErrorReportBuilder;
 @Provider
 public class GenericExceptionMapper implements ExceptionMapper<Throwable> {
 
+    private static final Logger LOG = Logger.getLogger(GenericExceptionMapper.class.getName());
+    
     @Override
     public Response toResponse(Throwable exception) {
         StringWriter sw = new StringWriter();
         exception.printStackTrace(new PrintWriter(sw));
         String details = sw.toString();
-        ErrorReport error = ErrorReportBuilder.builderRandomUuid()
+        LOG.log(Level.INFO, "GenericExceptionMapper exception caught", exception);
+        ErrorReport error = ErrorReportBuilder.builderRandomId()
                 .setCode("GenericUnhandledException")
                 .setMessage("Utterly unhandled exception. "
                         + (exception.getMessage() != null ? exception.getMessage() : ""))

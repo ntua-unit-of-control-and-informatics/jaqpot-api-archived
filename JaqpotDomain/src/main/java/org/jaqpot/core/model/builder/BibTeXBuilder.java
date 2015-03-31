@@ -31,6 +31,7 @@ package org.jaqpot.core.model.builder;
 
 import java.util.UUID;
 import org.jaqpot.core.model.BibTeX;
+import org.jaqpot.core.model.util.ROG;
 
 /**
  *
@@ -50,26 +51,37 @@ public class BibTeXBuilder implements EntityBuilder<BibTeX> {
     /**
      * Created a BibTeX builder which will instantiate a new BibTeX object with
      * given ID.
+     *
      * @param id
-     * @return 
-     * @see #builderRandomUuid() 
+     * @return
+     * @see #builderRandomUuid()
      */
     public static BibTeXBuilder builder(String id) {
         return new BibTeXBuilder(id);
     }
-    
+
+    public static BibTeXBuilder builder(BibTeX bibtex) {
+        return new BibTeXBuilder(bibtex);
+    }
+
     /**
      * Created a BibTeX builder which will instantiate a new BibTeX object with
      * a randomly generated ID in the form of a UUID.
-     * @return 
+     *
+     * @return
      */
     public static BibTeXBuilder builderRandomUuid() {
-        return new BibTeXBuilder(UUID.randomUUID().toString());
+        ROG rog = new ROG(true);
+        return new BibTeXBuilder("BIB" + rog.nextString(12));
     }
 
     private BibTeXBuilder(String id) {
         bibtex = new BibTeX(id);
         bibtex.setId(id);
+    }
+
+    private BibTeXBuilder(BibTeX other) {
+        this.bibtex = other;
     }
 
     public BibTeXBuilder setAddress(String address) {
@@ -186,12 +198,12 @@ public class BibTeXBuilder implements EntityBuilder<BibTeX> {
         bibtex.setVolume(volume);
         return this;
     }
-    
+
     public BibTeXBuilder setSchool(String school) {
         bibtex.setSchool(school);
         return this;
     }
-    
+
     public BibTeXBuilder setPublisher(String publisher) {
         bibtex.setPublisher(publisher);
         return this;

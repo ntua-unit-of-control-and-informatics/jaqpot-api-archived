@@ -32,6 +32,8 @@ package org.jaqpot.core.service.filter.excmappers;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
@@ -50,12 +52,14 @@ import org.jaqpot.core.model.builder.ErrorReportBuilder;
 @Provider
 public class UnrecognizedPropertyMapper implements ExceptionMapper<UnrecognizedPropertyException> {
 
+    private static final Logger LOG = Logger.getLogger(UnrecognizedPropertyMapper.class.getName());
     @Override
     public Response toResponse(UnrecognizedPropertyException exception) {       
+        LOG.log(Level.INFO, "UnrecognizedPropertyMapper exception caught", exception);
         StringWriter sw = new StringWriter();
         exception.printStackTrace(new PrintWriter(sw));
         String details = sw.toString();
-        ErrorReport error = ErrorReportBuilder.builderRandomUuid()
+        ErrorReport error = ErrorReportBuilder.builderRandomId()
                 .setCode("UnrecognisedProperty")
                 .setMessage(exception.getMessage())
                 .setDetails(details)
