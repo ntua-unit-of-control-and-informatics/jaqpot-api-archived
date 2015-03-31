@@ -58,8 +58,10 @@ import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import org.jaqpot.core.data.DatasetHandler;
+import org.jaqpot.core.data.FeatureHandler;
 import org.jaqpot.core.data.ModelHandler;
 import org.jaqpot.core.data.TaskHandler;
+import org.jaqpot.core.model.Feature;
 import org.jaqpot.core.model.Model;
 import org.jaqpot.core.model.Task;
 import org.jaqpot.core.model.factory.ErrorReportFactory;
@@ -99,6 +101,9 @@ public class PredictionMDB extends RunningTaskMDB {
 
     @EJB
     DatasetHandler datasetHandler;
+    
+    @EJB
+    FeatureHandler featureHandler;
 
     @Inject
     @UnSecure
@@ -199,7 +204,10 @@ public class PredictionMDB extends RunningTaskMDB {
                 List<String> substances = dataset.getDataEntry().stream().map(de -> {
                     return de.getCompound().getURI();
                 }).collect(Collectors.toList());
-                String studyJSON = createStudyJSON(model.getPredictedFeatures().stream().findFirst().get(), model.getId(), predictions, substances);
+                String predictionFeature = model.getPredictedFeatures().stream().findFirst().get();
+                Feature feature = featureHandler.find(predictionFeature.split("/")[1]);
+                String predictedProperty = feature.getMeta().getSeeAlso().stream().findFirst().get();
+                String studyJSON = createStudyJSON(predictedProperty, model.getId(), predictions, substances);
 
                 task.getMeta().getComments().add("Creating a working matrix in the bundle...");
                 task.setPercentageCompleted(45.f);
