@@ -3,7 +3,7 @@
  * JAQPOT Quattro
  *
  * JAQPOT Quattro and the components shipped with it (web applications and beans)
- * are licenced by GPL v3 as specified hereafter. Additional components may ship
+ * are licensed by GPL v3 as specified hereafter. Additional components may ship
  * with some other licence as will be specified therein.
  *
  * Copyright (C) 2014-2015 KinkyDesign (Charalampos Chomenidis, Pantelis Sopasakis)
@@ -24,7 +24,7 @@
  * Source code:
  * The source code of JAQPOT Quattro is available on github at:
  * https://github.com/KinkyDesign/JaqpotQuattro
- * All source files of JAQPOT Quattro that are stored on github are licenced
+ * All source files of JAQPOT Quattro that are stored on github are licensed
  * with the aforementioned licence. 
  */
 package org.jaqpot.core.model;
