@@ -2,7 +2,12 @@
  *
  * JAQPOT Quattro
  *
- * JAQPOT Quattro and the components shipped with it (web applications and beans)
+ * JAQPOT Quattro and the components shipped with it, in particular:
+ * (i)   JaqpotCoreServices
+ * (ii)  JaqpotAlgorithmServices
+ * (iii) JaqpotDB
+ * (iv)  JaqpotDomain
+ * (v)   JaqpotEAR
  * are licensed by GPL v3 as specified hereafter. Additional components may ship
  * with some other licence as will be specified therein.
  *
@@ -62,6 +67,7 @@ import org.jaqpot.core.service.annotations.UnSecure;
 import org.jaqpot.core.model.dto.dataset.Dataset;
 import org.jaqpot.core.model.dto.jpdi.TrainingRequest;
 import org.jaqpot.core.model.dto.jpdi.TrainingResponse;
+import org.jaqpot.core.model.util.AlgorithmOntologicalTypes;
 import org.jaqpot.core.model.util.ROG;
 
 /**
@@ -96,9 +102,13 @@ public class TrainingMDB extends RunningTaskMDB {
     @UnSecure
     Client client;
 
+    long DOA_TASK_MAX_WAITING_TIME = 45; // 45s
+
     @Override
     public void onMessage(Message msg) {
         Task task = null;
+        ROG randomStringGenerator = new ROG(true);
+        String modelId = randomStringGenerator.nextString(12);
 
         try {
             Map<String, Object> messageBody = msg.getBody(Map.class);
@@ -196,8 +206,8 @@ public class TrainingMDB extends RunningTaskMDB {
             task.setPercentageCompleted(84.f);
             taskHandler.edit(task);
 
-            ROG randomStringGenerator = new ROG(true);
-            Model model = new Model(randomStringGenerator.nextString(12));
+            
+            Model model = new Model(modelId);
             model.setActualModel(trainingResponse.getRawModel());
             model.setPmmlModel(trainingResponse.getPmmlModel());
             model.setAlgorithm(algorithm);
@@ -236,7 +246,7 @@ public class TrainingMDB extends RunningTaskMDB {
             /* Create feature */
             featureHandler.create(predictionFeatureResource);
 
-            task.getMeta().getComments().add("Feature created with ID "+predFeatID);
+            task.getMeta().getComments().add("Feature created with ID " + predFeatID);
             task.setPercentageCompleted(85.f);
             taskHandler.edit(task);
 
@@ -249,12 +259,13 @@ public class TrainingMDB extends RunningTaskMDB {
                     .build());
 
 
-            /* Create DoA model by POSTing to the leverages algorithm */            
-            if (!algorithm.getOntologicalClasses().contains("ot:ApplicabilityDomain"))
+            /* Create DoA model by POSTing to the leverages algorithm */
+            if ((!algorithm.getOntologicalClasses().contains(AlgorithmOntologicalTypes.ApplicabilityDomain.toString()))
+                 && (!algorithm.getOntologicalClasses().contains(AlgorithmOntologicalTypes.ApplicabilityDomain.getURI()))) 
             {
                 task.getMeta().getComments().add("Constructing DoA for this model...");
                 taskHandler.edit(task);
-                
+
                 Form form = new Form();
                 form.param("dataset_uri", (String) messageBody.get("dataset_uri"));
                 form.param("prediction_feature", (String) messageBody.get("prediction_feature"));
@@ -263,9 +274,24 @@ public class TrainingMDB extends RunningTaskMDB {
                         .header("subjectid", messageBody.get("subjectid"))
                         .post(Entity.form(form)).readEntity(Task.class);
                 task.getMeta().getComments().add("DoA to be created by task: " + leverageTask.getId());
-                taskHandler.edit(task);    
-                
-                
+                taskHandler.edit(task);
+
+                int i_leverage_check = 0;
+                while ((Task.Status.RUNNING == leverageTask.getStatus() || Task.Status.QUEUED == leverageTask.getStatus()) 
+                        && i_leverage_check < DOA_TASK_MAX_WAITING_TIME) {
+                    leverageTask = taskHandler.find(leverageTask.getId());
+                    Thread.sleep(1000);
+                    i_leverage_check++;
+                }
+                if (Task.Status.RUNNING == leverageTask.getStatus()) {
+                    task.getMeta().getComments().add("DoA task is still running - check out its progress at "
+                            + messageBody.get("base_uri") + "task/" + leverageTask.getId());
+                }
+                if (Task.Status.COMPLETED == leverageTask.getStatus()) {
+                    task.getMeta().getComments().add("DoA model created - ID : " + leverageTask.getResult());
+                    model.setDoaModel(leverageTask.getResultUri());
+                }
+                taskHandler.edit(task);
                 //TODO link model to DoA
 
             }
@@ -297,7 +323,7 @@ public class TrainingMDB extends RunningTaskMDB {
         } catch (WebApplicationException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             task.setStatus(Task.Status.ERROR);
-            task.setErrorReport(ErrorReportFactory.internalServerError(ex, "", ex.getMessage(), "")); // Applucation runtime error
+            task.setErrorReport(ErrorReportFactory.internalServerError(ex, "", ex.getMessage(), "")); // Application runtime error
         } catch (JMSException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             task.setStatus(Task.Status.ERROR);
