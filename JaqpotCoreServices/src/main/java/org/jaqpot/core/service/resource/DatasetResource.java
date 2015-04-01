@@ -78,7 +78,7 @@ public class DatasetResource {
         start = start != null ? start : 0;
         max = max != null ? max : 100;
         return Response
-                .ok(datasetHandler.findAll(start, max))
+                .ok(datasetHandler.listOnlyIDs(start, max))
                 .status(Response.Status.OK)
                 .build();
     }

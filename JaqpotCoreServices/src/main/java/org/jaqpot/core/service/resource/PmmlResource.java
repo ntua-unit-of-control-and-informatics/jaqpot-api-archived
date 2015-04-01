@@ -178,7 +178,7 @@ public class PmmlResource {
             @ApiParam(value = "max", defaultValue = "10") @QueryParam("max") Integer max
     ) {
         return Response
-                .ok(pmmlHandler.findAll(start, max))
+                .ok(pmmlHandler.listOnlyIDs(start, max))
                 .status(Response.Status.OK)
                 .build();
     }

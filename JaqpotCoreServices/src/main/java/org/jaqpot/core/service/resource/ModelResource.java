@@ -92,9 +92,11 @@ public class ModelResource {
         @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
     })
     public Response getModels(
-            @ApiParam(value = "Creator of the model (username)") @QueryParam("creator") String creator
+            @ApiParam(value = "Creator of the model (username)") @QueryParam("creator") String creator,
+            @ApiParam(value = "start", defaultValue = "0") @QueryParam("start") Integer start,
+            @ApiParam(value = "max", defaultValue = "20") @QueryParam("max") Integer max
     ) {
-        return Response.ok(modelHandler.findAllMeta()).build();
+        return Response.ok(modelHandler.listOnlyIDs(start, max)).build();
     }
 
     @GET

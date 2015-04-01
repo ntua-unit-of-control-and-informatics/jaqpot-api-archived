@@ -98,12 +98,6 @@ public class ModelHandler extends AbstractHandler<Model> {
         fields.add("parameters");
 
         return em.findAll(Model.class, fields, 0, Integer.MAX_VALUE);
-    }
+    }    
     
-    public List<Model> listOnlyIDs(int start, int max) {
-        List<String> fields = new ArrayList<>();
-        fields.add("_id");
-        
-        return em.findAll(Model.class, fields, start, max);
-    }
 }

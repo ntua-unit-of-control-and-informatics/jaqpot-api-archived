@@ -54,7 +54,6 @@ import org.jaqpot.core.data.FeatureHandler;
 import org.jaqpot.core.model.ErrorReport;
 import org.jaqpot.core.model.Feature;
 import org.jaqpot.core.model.MetaInfo;
-import org.jaqpot.core.model.dto.dataset.Dataset;
 import org.jaqpot.core.model.factory.ErrorReportFactory;
 import org.jaqpot.core.model.util.ROG;
 import org.jaqpot.core.service.annotations.Authorize;
@@ -120,7 +119,7 @@ public class FeatureResource {
     ) {
         //TODO Support querying at GET /feature
         return Response
-                .ok(featureHandler.findAll(start, max))
+                .ok(featureHandler.listOnlyIDs(start, max))
                 .status(Response.Status.OK)
                 .build();
     }

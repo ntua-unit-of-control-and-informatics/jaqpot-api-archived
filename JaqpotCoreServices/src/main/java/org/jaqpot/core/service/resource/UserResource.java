@@ -41,6 +41,7 @@ import javax.ws.rs.HeaderParam;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.jaqpot.core.data.UserHandler;
@@ -75,10 +76,11 @@ public class UserResource {
         @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
     })
     public Response getUsers(
-            @ApiParam(value = "Clients need to authenticate in order to access models") @HeaderParam("subjectid") String subjectId
+            @ApiParam(value = "Clients need to authenticate in order to access models") @HeaderParam("subjectid") String subjectId,
+            @ApiParam(value = "start", defaultValue = "0") @QueryParam("start") Integer start,
+            @ApiParam(value = "max", defaultValue = "10") @QueryParam("max") Integer max
     ) {
-        List<User> users = userHandler.findAll();
-        users.stream().forEach((u) -> { u.setHashedPass(null); });
+        List<User> users = userHandler.listOnlyIDs(start, max);        
         return Response
                 .ok(users)
                 .build();
