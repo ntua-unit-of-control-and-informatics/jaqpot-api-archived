@@ -252,7 +252,6 @@ public class TrainingMDB extends RunningTaskMDB {
             /* Create DoA model by POSTing to the leverages algorithm */            
             if (!algorithm.getOntologicalClasses().contains("ot:ApplicabilityDomain"))
             {
-                System.out.println("THIS IS NOT AN APPLICABILITY DOMAIN ALGORITHM");
                 task.getMeta().getComments().add("Constructing DoA for this model...");
                 taskHandler.edit(task);
                 
