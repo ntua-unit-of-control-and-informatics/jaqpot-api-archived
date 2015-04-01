@@ -57,6 +57,16 @@ public class ModelHandler extends AbstractHandler<Model> {
         return em;
     }
 
+    public Model findModelPmml(String id) {
+        List<String> keys = new ArrayList<>();
+        keys.add(id);
+
+        List<String> fields = new ArrayList<>();
+        fields.add("_id");
+        fields.add("pmmlModel");        
+        return em.find(Model.class, keys, fields).stream().findFirst().orElse(null);
+    }
+    
     public Model findModelMeta(String id) {
         List<String> keys = new ArrayList<>();
         keys.add(id);
@@ -88,5 +98,12 @@ public class ModelHandler extends AbstractHandler<Model> {
         fields.add("parameters");
 
         return em.findAll(Model.class, fields, 0, Integer.MAX_VALUE);
+    }
+    
+    public List<Model> listOnlyIDs(int start, int max) {
+        List<String> fields = new ArrayList<>();
+        fields.add("_id");
+        
+        return em.findAll(Model.class, fields, start, max);
     }
 }

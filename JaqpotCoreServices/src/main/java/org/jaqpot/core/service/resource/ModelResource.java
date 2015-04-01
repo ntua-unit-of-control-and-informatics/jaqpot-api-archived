@@ -36,6 +36,7 @@ import com.wordnik.swagger.annotations.ApiResponse;
 import com.wordnik.swagger.annotations.ApiResponses;
 import java.security.GeneralSecurityException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import javax.ejb.EJB;
 import javax.ws.rs.FormParam;
@@ -120,6 +121,45 @@ public class ModelResource {
                     .build();
         }
         return Response.ok(model).build();
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_XML)
+    @Path("/{id}/pmml")
+    @ApiOperation(value = "Finds Model by Id",
+            notes = "Finds specified Model",
+            response = Model.class)
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "Model is found"),
+        @ApiResponse(code = 401, message = "You are not authorized to access this model"),
+        @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)"),
+        @ApiResponse(code = 404, message = "This model was not found."),
+        @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
+    })
+    public Response getModelPmml(
+            @PathParam("id") String id,
+            @ApiParam(value = "Clients need to authenticate in order to access models") @HeaderParam("subjectid") String subjectId) {
+        Model model = modelHandler.findModelPmml(id);
+        if (model == null || model.getPmmlModel() == null) {
+            return Response
+                    .ok(ErrorReportFactory.notFoundError(uriInfo.getPath()))
+                    .status(Response.Status.NOT_FOUND)
+                    .build();
+        }
+
+        Object pmmlObj = model.getPmmlModel();
+        if (pmmlObj instanceof List) {
+            List pmmlObjList = (List) pmmlObj;
+            Object pmml = pmmlObjList.stream().findFirst().orElse(null);
+            return Response
+                    .ok(pmml.toString(), MediaType.APPLICATION_XML)
+                    .build();
+        } else {
+            return Response
+                    .ok(pmmlObj.toString(), MediaType.APPLICATION_XML)
+                    .build();
+        }
+
     }
 
     @POST
