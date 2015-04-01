@@ -80,7 +80,7 @@ public class TrainingService {
                 MetaInfoBuilder.builder()
                 .setCurrentDate()
                 .addTitles("Training on algorithm: " + algorithm.getId())
-                .addSources("algorithm" + options.get("algorithmId").toString())
+                .addSources("algorithm/" + options.get("algorithmId").toString())
                 .addComments("Training task created")
                 .addDescriptions("Training task using algorithm " + algorithmId)
                 .build());

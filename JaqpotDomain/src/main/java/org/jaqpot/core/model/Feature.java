@@ -46,7 +46,19 @@ import java.util.HashSet;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Feature extends JaqpotEntity {
 
+    /**
+     * Units of measurement.
+     */
     private String units;
+    /**
+     * In case the feature is a prediction feature, this field is used to refer
+     * to the original feature that is predicted. This field will point to a
+     * URI.
+     */
+    private String predictorFor;
+    /**
+     * Username of the creator of the feature.
+     */
     private String createdBy;
     /**
      * In case the feature is nominal, this field stores it admissible values.
@@ -92,6 +104,14 @@ public class Feature extends JaqpotEntity {
 
     public Set<String> getAdmissibleValues() {
         return admissibleValues;
+    }
+
+    public String getPredictorFor() {
+        return predictorFor;
+    }
+
+    public void setPredictorFor(String predictorFor) {
+        this.predictorFor = predictorFor;
     }
 
 }

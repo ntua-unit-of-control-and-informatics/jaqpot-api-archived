@@ -208,8 +208,6 @@ public class TrainingMDB extends RunningTaskMDB {
             dependentFeatures.add(trainingRequest.getPredictionFeature());
             model.setDependentFeatures(dependentFeatures);
             ArrayList<String> predictedFeatures = new ArrayList<>();
-            //TODO simplify the URI of the predicted feature
-            // String predFeatURI = trainingRequest.getPredictionFeature() + "/" + URLEncoder.encode("Predicted By Model " + model.getId(), "UTF-8");
             String predFeatID = randomStringGenerator.nextString(12);
             predictedFeatures.add(/* messageBody.get("base_uri") + */"feature/" + predFeatID);
             model.setPredictedFeatures(predictedFeatures);
@@ -224,6 +222,8 @@ public class TrainingMDB extends RunningTaskMDB {
             // Create the prediction features (POST /feature)
             Feature predictionFeatureResource = new Feature();
             predictionFeatureResource.setId(predFeatID);
+            predictionFeatureResource
+                    .setPredictorFor(dependentFeatures.stream().findFirst().orElse(null));
             predictionFeatureResource.setCreatedBy(task.getCreatedBy());
             predictionFeatureResource.setMeta(MetaInfoBuilder
                     .builder()
@@ -236,7 +236,7 @@ public class TrainingMDB extends RunningTaskMDB {
             /* Create feature */
             featureHandler.create(predictionFeatureResource);
 
-            task.getMeta().getComments().add("Feature created");
+            task.getMeta().getComments().add("Feature created with ID "+predFeatID);
             task.setPercentageCompleted(85.f);
             taskHandler.edit(task);
 
@@ -249,12 +249,13 @@ public class TrainingMDB extends RunningTaskMDB {
                     .build());
 
 
-            /* Create DoA model by POSTing to the leverages algorithm */
-            if (!algorithm.getOntologicalClasses().contains("ot:ApplicabilityDomain"));
+            /* Create DoA model by POSTing to the leverages algorithm */            
+            if (!algorithm.getOntologicalClasses().contains("ot:ApplicabilityDomain"))
             {
+                System.out.println("THIS IS NOT AN APPLICABILITY DOMAIN ALGORITHM");
                 task.getMeta().getComments().add("Constructing DoA for this model...");
                 taskHandler.edit(task);
-                modelHandler.create(model);
+                
                 Form form = new Form();
                 form.param("dataset_uri", (String) messageBody.get("dataset_uri"));
                 form.param("prediction_feature", (String) messageBody.get("prediction_feature"));
@@ -263,8 +264,10 @@ public class TrainingMDB extends RunningTaskMDB {
                         .header("subjectid", messageBody.get("subjectid"))
                         .post(Entity.form(form)).readEntity(Task.class);
                 task.getMeta().getComments().add("DoA to be created by task: " + leverageTask.getId());
-                taskHandler.edit(task);
-                modelHandler.create(model);
+                taskHandler.edit(task);    
+                
+                
+                //TODO link model to DoA
 
             }
 
