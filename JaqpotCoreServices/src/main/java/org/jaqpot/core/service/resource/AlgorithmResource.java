@@ -88,7 +88,8 @@ public class AlgorithmResource {
             + "  ]\n"
             + "}",
             DEFAULT_DATASET = "http://enanomapper.ntua.gr:8880/jaqpot/services/dataset/ca8da7f6-ee9f-4a61-9ae4-b1d1525cef88",
-            DEFAULT_PRED_FEATURE = "property/TOX/UNKNOWN_TOXICITY_SECTION/Total+surface+area++SAtot+/52D93BC3B68F26C8E787CC7A05E5130A23164405/3ed642f9-1b42-387a-9966-dea5b91e5f8a";
+            DEFAULT_PRED_FEATURE = "property/TOX/UNKNOWN_TOXICITY_SECTION/Total+surface+area++SAtot+/52D93BC3B68F26C8E787CC7A05E5130A23164405/3ed642f9-1b42-387a-9966-dea5b91e5f8a",
+            DEFAULT_DOA = "http://enanomapper.ntua.gr:8880/jaqpot/services/algorithm/l2";
 
     @EJB
     TrainingService trainingService;
@@ -176,6 +177,7 @@ public class AlgorithmResource {
             @ApiParam(name = "prediction_feature", defaultValue = DEFAULT_PRED_FEATURE) @FormParam("prediction_feature") String predictionFeature,
             @FormParam("parameters") String parameters,
             @FormParam("transformations") String transformations,
+            @ApiParam(name = "doa", defaultValue = DEFAULT_DOA) @FormParam("doa") String doa,
             @PathParam("id") String algorithmId,
             @HeaderParam("subjectid") String subjectId) {
         Map<String, Object> options = new HashMap<>();
@@ -186,6 +188,7 @@ public class AlgorithmResource {
         options.put("parameters", parameters);
         options.put("transformations", transformations);
         options.put("base_uri", uriInfo.getBaseUri().toString());
+        options.put("doa", doa);
         Task task = trainingService.initiateTraining(options, securityContext.getUserPrincipal().getName());
         task.setHttpStatus(202);
         task.setStatus(Task.Status.QUEUED);
