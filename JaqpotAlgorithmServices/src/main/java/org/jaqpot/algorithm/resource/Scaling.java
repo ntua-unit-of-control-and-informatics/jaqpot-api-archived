@@ -2,7 +2,12 @@
  *
  * JAQPOT Quattro
  *
- * JAQPOT Quattro and the components shipped with it (web applications and beans)
+ * JAQPOT Quattro and the components shipped with it, in particular:
+ * (i)   JaqpotCoreServices
+ * (ii)  JaqpotAlgorithmServices
+ * (iii) JaqpotDB
+ * (iv)  JaqpotDomain
+ * (v)   JaqpotEAR
  * are licensed by GPL v3 as specified hereafter. Additional components may ship
  * with some other licence as will be specified therein.
  *
@@ -38,7 +43,9 @@ import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -48,31 +55,26 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import org.jaqpot.algorithm.model.ScalingModel;
 import org.jaqpot.algorithm.model.WekaModel;
-import org.jaqpot.algorithm.pmml.PmmlUtils;
-import org.jaqpot.algorithm.weka.InstanceUtils;
 import org.jaqpot.core.model.dto.jpdi.PredictionRequest;
 import org.jaqpot.core.model.dto.jpdi.PredictionResponse;
 import org.jaqpot.core.model.dto.jpdi.TrainingRequest;
 import org.jaqpot.core.model.dto.jpdi.TrainingResponse;
 import org.jaqpot.core.model.factory.ErrorReportFactory;
-import weka.classifiers.Classifier;
-import weka.classifiers.functions.LinearRegression;
-import weka.core.Instances;
 
 /**
  *
  * @author hampos
  */
-@Path("mlr")
+@Path("scaling")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
-public class WekaMLR {
+public class Scaling {
 
     @POST
     @Path("training")
     public Response training(TrainingRequest request) {
-
         try {
             if (request.getDataset().getDataEntry().isEmpty() || request.getDataset().getDataEntry().get(0).getValues().isEmpty()) {
                 return Response.status(Response.Status.BAD_REQUEST)
@@ -89,17 +91,22 @@ public class WekaMLR {
                     .stream()
                     .collect(Collectors.toList());
 
-            Instances data = InstanceUtils.createFromDataset(request.getDataset(), request.getPredictionFeature());
+            Map<String, Number> maxValues = new HashMap<>();
+            Map<String, Number> minValues = new HashMap<>();
 
-            LinearRegression linreg = new LinearRegression();
-            String[] linRegOptions = {"-S", "1", "-C"};
-            linreg.setOptions(linRegOptions);
-            linreg.buildClassifier(data);
-
-            WekaModel model = new WekaModel();
-            model.setClassifier(linreg);
-
-            String pmml = PmmlUtils.createRegressionModel(features, request.getPredictionFeature(), linreg.coefficients(), "MLR");
+            features.parallelStream().forEach(feature -> {
+                Double max = request.getDataset().getDataEntry().stream().map(dataEntry -> {
+                    return Double.parseDouble(dataEntry.getValues().get(feature).toString());
+                }).max(Double::compare).get();
+                Double min = request.getDataset().getDataEntry().stream().map(dataEntry -> {
+                    return Double.parseDouble(dataEntry.getValues().get(feature).toString());
+                }).min(Double::compare).get();
+                maxValues.put(feature, max);
+                minValues.put(feature, min);
+            });
+            ScalingModel model = new ScalingModel();
+            model.setMaxValues(maxValues);
+            model.setMinValues(minValues);
 
             TrainingResponse response = new TrainingResponse();
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -107,16 +114,10 @@ public class WekaMLR {
             out.writeObject(model);
             String base64Model = Base64.getEncoder().encodeToString(baos.toByteArray());
             response.setRawModel(base64Model);
-            List<String> independentFeatures = features
-                    .stream()
-                    .filter(feature -> !feature.equals(request.getPredictionFeature()))
-                    .collect(Collectors.toList());
-            response.setIndependentFeatures(independentFeatures);
-            response.setPmmlModel(pmml);
-
+            response.setIndependentFeatures(features);
             return Response.ok(response).build();
-        } catch (Exception ex) {
-            Logger.getLogger(WekaMLR.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(Scaling.class.getName()).log(Level.SEVERE, null, ex);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ErrorReportFactory.internalServerError()).build();
         }
     }
@@ -124,41 +125,53 @@ public class WekaMLR {
     @POST
     @Path("prediction")
     public Response prediction(PredictionRequest request) {
-
         try {
             if (request.getDataset().getDataEntry().isEmpty() || request.getDataset().getDataEntry().get(0).getValues().isEmpty()) {
                 return Response.status(Response.Status.BAD_REQUEST)
                         .entity(ErrorReportFactory.badRequest("Dataset is empty", "Cannot train model on empty dataset"))
                         .build();
             }
-
+            List<String> features = request.getDataset()
+                    .getDataEntry()
+                    .stream()
+                    .findFirst()
+                    .get()
+                    .getValues()
+                    .keySet()
+                    .stream()
+                    .collect(Collectors.toList());
             String base64Model = (String) request.getRawModel();
             byte[] modelBytes = Base64.getDecoder().decode(base64Model);
             ByteArrayInputStream bais = new ByteArrayInputStream(modelBytes);
             ObjectInput in = new ObjectInputStream(bais);
-            WekaModel model = (WekaModel) in.readObject();
+            ScalingModel model = (ScalingModel) in.readObject();
 
-            Classifier classifier = model.getClassifier();
-            Instances data = InstanceUtils.createFromDataset(request.getDataset());
-            List<Object> predictions = new ArrayList<>();
-            data.stream().forEach(instance -> {
-                try {
-                    double prediction = classifier.classifyInstance(instance);
-                    predictions.add(prediction);
-                } catch (Exception ex) {
-                    Logger.getLogger(WekaMLR.class.getName()).log(Level.SEVERE, null, ex);
-                }
+            features.parallelStream().forEach(feature -> {
+                Double max = model.getMaxValues().get(feature).doubleValue();
+                Double min = model.getMinValues().get(feature).doubleValue();
+
+                request.getDataset().getDataEntry().stream().forEach(dataEntry -> {
+                    Double value = Double.parseDouble(dataEntry.getValues().get(feature).toString());
+                    value = (value - min) / (max - min);
+                    dataEntry.getValues().put(feature, value);
+                });
             });
 
+            List<Object> predictions = new ArrayList<>(request.getDataset()
+                    .getDataEntry()
+                    .stream()
+                    .map(dataEntry -> {
+                        return dataEntry.getValues().values();
+                    })
+                    .collect(Collectors.toList())
+            );
             PredictionResponse response = new PredictionResponse();
             response.setPredictions(predictions);
+
             return Response.ok(response).build();
         } catch (IOException | ClassNotFoundException ex) {
-            Logger.getLogger(WekaMLR.class.getName()).log(Level.SEVERE, null, ex);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity(ErrorReportFactory.internalServerError())
-                    .build();
+            Logger.getLogger(Scaling.class.getName()).log(Level.SEVERE, null, ex);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ErrorReportFactory.internalServerError()).build();
         }
     }
-
 }
