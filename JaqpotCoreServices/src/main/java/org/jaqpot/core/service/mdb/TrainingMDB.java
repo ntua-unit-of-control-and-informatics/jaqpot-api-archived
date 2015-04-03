@@ -206,7 +206,6 @@ public class TrainingMDB extends RunningTaskMDB {
             task.setPercentageCompleted(84.f);
             taskHandler.edit(task);
 
-            
             Model model = new Model(modelId);
             model.setActualModel(trainingResponse.getRawModel());
             model.setPmmlModel(trainingResponse.getPmmlModel());
@@ -260,16 +259,16 @@ public class TrainingMDB extends RunningTaskMDB {
 
 
             /* Create DoA model by POSTing to the leverages algorithm */
-            if ((!algorithm.getOntologicalClasses().contains(AlgorithmOntologicalTypes.ApplicabilityDomain.toString()))
-                 && (!algorithm.getOntologicalClasses().contains(AlgorithmOntologicalTypes.ApplicabilityDomain.getURI()))) 
-            {
+            if (messageBody.containsKey("doa") && messageBody.get("doa") != null
+                    && (!algorithm.getOntologicalClasses().contains(AlgorithmOntologicalTypes.ApplicabilityDomain.toString()))
+                    && (!algorithm.getOntologicalClasses().contains(AlgorithmOntologicalTypes.ApplicabilityDomain.getURI()))) {
                 task.getMeta().getComments().add("Constructing DoA for this model...");
                 taskHandler.edit(task);
 
                 Form form = new Form();
                 form.param("dataset_uri", (String) messageBody.get("dataset_uri"));
                 form.param("prediction_feature", (String) messageBody.get("prediction_feature"));
-                Task leverageTask = client.target("http://localhost:8080/jaqpot/services/algorithm/leverage")
+                Task leverageTask = client.target((String)messageBody.get("doa"))
                         .request()
                         .header("subjectid", messageBody.get("subjectid"))
                         .post(Entity.form(form)).readEntity(Task.class);
@@ -277,7 +276,7 @@ public class TrainingMDB extends RunningTaskMDB {
                 taskHandler.edit(task);
 
                 int i_leverage_check = 0;
-                while ((Task.Status.RUNNING == leverageTask.getStatus() || Task.Status.QUEUED == leverageTask.getStatus()) 
+                while ((Task.Status.RUNNING == leverageTask.getStatus() || Task.Status.QUEUED == leverageTask.getStatus())
                         && i_leverage_check < DOA_TASK_MAX_WAITING_TIME) {
                     leverageTask = taskHandler.find(leverageTask.getId());
                     Thread.sleep(1000);

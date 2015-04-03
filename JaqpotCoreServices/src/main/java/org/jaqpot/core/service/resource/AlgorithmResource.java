@@ -34,8 +34,11 @@ import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
 import com.wordnik.swagger.annotations.ApiResponse;
 import com.wordnik.swagger.annotations.ApiResponses;
+import java.security.Principal;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Logger;
+import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.FormParam;
@@ -52,12 +55,18 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
 import org.jaqpot.core.data.AlgorithmHandler;
+import org.jaqpot.core.data.UserHandler;
 import org.jaqpot.core.model.Algorithm;
 import org.jaqpot.core.model.Task;
+import org.jaqpot.core.model.User;
 import org.jaqpot.core.model.builder.AlgorithmBuilder;
+import org.jaqpot.core.model.facades.UserFacade;
+import org.jaqpot.core.model.factory.ErrorReportFactory;
 import org.jaqpot.core.model.util.ROG;
 import org.jaqpot.core.service.annotations.Authorize;
 import org.jaqpot.core.service.data.TrainingService;
+import org.jaqpot.core.service.exceptions.QuotaExceededException;
+import org.jaqpot.core.service.filter.excmappers.QuotaExceededExceptionMapper;
 
 /**
  *
@@ -70,6 +79,8 @@ import org.jaqpot.core.service.data.TrainingService;
 @Produces({"application/json", "text/uri-list"})
 @Authorize
 public class AlgorithmResource {
+
+    private static final Logger LOG = Logger.getLogger(AlgorithmResource.class.getName());
 
     private static final String DEFAULT_ALGORITHM = "{\n"
             + "  \"trainingService\":\"http://z.ch/t/a\",\n"
@@ -88,7 +99,8 @@ public class AlgorithmResource {
             + "  ]\n"
             + "}",
             DEFAULT_DATASET = "http://enanomapper.ntua.gr:8880/jaqpot/services/dataset/ca8da7f6-ee9f-4a61-9ae4-b1d1525cef88",
-            DEFAULT_PRED_FEATURE = "property/TOX/UNKNOWN_TOXICITY_SECTION/Total+surface+area++SAtot+/52D93BC3B68F26C8E787CC7A05E5130A23164405/3ed642f9-1b42-387a-9966-dea5b91e5f8a";
+            DEFAULT_PRED_FEATURE = "property/TOX/UNKNOWN_TOXICITY_SECTION/Total+surface+area++SAtot+/52D93BC3B68F26C8E787CC7A05E5130A23164405/3ed642f9-1b42-387a-9966-dea5b91e5f8a",
+            DEFAULT_DOA = "http://enanomapper.ntua.gr:8880/jaqpot/services/algorithm/l2";
 
     @EJB
     TrainingService trainingService;
@@ -101,6 +113,9 @@ public class AlgorithmResource {
 
     @Context
     UriInfo uriInfo;
+
+    @EJB
+    UserHandler userHandler;
 
     @GET
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
@@ -125,11 +140,25 @@ public class AlgorithmResource {
             @ApiParam(value = "Title of your algorithm") @HeaderParam("title") String title,
             @ApiParam(value = "Short description of your algorithm") @HeaderParam("description") String description,
             @ApiParam(value = "Tags for your algorithm (in a comma separated list) to facilitate look-up") @HeaderParam("tags") String tags
-    ) {
+    ) throws QuotaExceededException {
+
+        User user = userHandler.find(securityContext.getUserPrincipal().getName());
+        long algorithmCount = algorithmHandler.countByUser(user.getId());
+        int maxAllowedAlgorithms = new UserFacade(user).getMaxAlgorithms();
+
+        LOG.info(String.format("Algorithms for %s : %d while maximum is : %d", user.getId(), algorithmCount, maxAllowedAlgorithms));
+        
+        if (algorithmCount > maxAllowedAlgorithms) {
+            throw new QuotaExceededException("Dear " + user.getId()
+                    + ", your quota has been exceeded; you already have " + algorithmCount + " algorithms. "
+                    + "No more than " + maxAllowedAlgorithms + " are allowed with your subscription.");
+        }
+
         if (algorithm.getId() == null) {
             ROG rog = new ROG(true);
             algorithm.setId(rog.nextString(10));
         }
+
         AlgorithmBuilder algorithmBuilder = AlgorithmBuilder.builder(algorithm)
                 .setCreatedBy(securityContext.getUserPrincipal().getName());
         if (title != null) {
@@ -176,6 +205,7 @@ public class AlgorithmResource {
             @ApiParam(name = "prediction_feature", defaultValue = DEFAULT_PRED_FEATURE) @FormParam("prediction_feature") String predictionFeature,
             @FormParam("parameters") String parameters,
             @FormParam("transformations") String transformations,
+            @ApiParam(name = "doa", defaultValue = DEFAULT_DOA) @FormParam("doa") String doa,
             @PathParam("id") String algorithmId,
             @HeaderParam("subjectid") String subjectId) {
         Map<String, Object> options = new HashMap<>();
@@ -186,6 +216,7 @@ public class AlgorithmResource {
         options.put("parameters", parameters);
         options.put("transformations", transformations);
         options.put("base_uri", uriInfo.getBaseUri().toString());
+        options.put("doa", doa);
         Task task = trainingService.initiateTraining(options, securityContext.getUserPrincipal().getName());
         task.setHttpStatus(202);
         task.setStatus(Task.Status.QUEUED);
