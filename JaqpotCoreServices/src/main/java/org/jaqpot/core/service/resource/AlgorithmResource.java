@@ -34,11 +34,9 @@ import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
 import com.wordnik.swagger.annotations.ApiResponse;
 import com.wordnik.swagger.annotations.ApiResponses;
-import java.security.Principal;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
-import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.FormParam;
@@ -61,12 +59,10 @@ import org.jaqpot.core.model.Task;
 import org.jaqpot.core.model.User;
 import org.jaqpot.core.model.builder.AlgorithmBuilder;
 import org.jaqpot.core.model.facades.UserFacade;
-import org.jaqpot.core.model.factory.ErrorReportFactory;
 import org.jaqpot.core.model.util.ROG;
 import org.jaqpot.core.service.annotations.Authorize;
 import org.jaqpot.core.service.data.TrainingService;
 import org.jaqpot.core.service.exceptions.QuotaExceededException;
-import org.jaqpot.core.service.filter.excmappers.QuotaExceededExceptionMapper;
 
 /**
  *
@@ -145,10 +141,10 @@ public class AlgorithmResource {
         User user = userHandler.find(securityContext.getUserPrincipal().getName());
         long algorithmCount = algorithmHandler.countByUser(user.getId());
         int maxAllowedAlgorithms = new UserFacade(user).getMaxAlgorithms();
-
-        LOG.info(String.format("Algorithms for %s : %d while maximum is : %d", user.getId(), algorithmCount, maxAllowedAlgorithms));
-        
+               
         if (algorithmCount > maxAllowedAlgorithms) {
+            LOG.info(String.format("User %s has %d algorithms while maximum is %d", 
+                    user.getId(), algorithmCount, maxAllowedAlgorithms));
             throw new QuotaExceededException("Dear " + user.getId()
                     + ", your quota has been exceeded; you already have " + algorithmCount + " algorithms. "
                     + "No more than " + maxAllowedAlgorithms + " are allowed with your subscription.");
