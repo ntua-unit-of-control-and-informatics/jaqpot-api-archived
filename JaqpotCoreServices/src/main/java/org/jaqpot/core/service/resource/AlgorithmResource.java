@@ -34,8 +34,11 @@ import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
 import com.wordnik.swagger.annotations.ApiResponse;
 import com.wordnik.swagger.annotations.ApiResponses;
+import java.security.Principal;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Logger;
+import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.FormParam;
@@ -52,12 +55,18 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
 import org.jaqpot.core.data.AlgorithmHandler;
+import org.jaqpot.core.data.UserHandler;
 import org.jaqpot.core.model.Algorithm;
 import org.jaqpot.core.model.Task;
+import org.jaqpot.core.model.User;
 import org.jaqpot.core.model.builder.AlgorithmBuilder;
+import org.jaqpot.core.model.facades.UserFacade;
+import org.jaqpot.core.model.factory.ErrorReportFactory;
 import org.jaqpot.core.model.util.ROG;
 import org.jaqpot.core.service.annotations.Authorize;
 import org.jaqpot.core.service.data.TrainingService;
+import org.jaqpot.core.service.exceptions.QuotaExceededException;
+import org.jaqpot.core.service.filter.excmappers.QuotaExceededExceptionMapper;
 
 /**
  *
@@ -70,6 +79,8 @@ import org.jaqpot.core.service.data.TrainingService;
 @Produces({"application/json", "text/uri-list"})
 @Authorize
 public class AlgorithmResource {
+
+    private static final Logger LOG = Logger.getLogger(AlgorithmResource.class.getName());
 
     private static final String DEFAULT_ALGORITHM = "{\n"
             + "  \"trainingService\":\"http://z.ch/t/a\",\n"
@@ -103,6 +114,9 @@ public class AlgorithmResource {
     @Context
     UriInfo uriInfo;
 
+    @EJB
+    UserHandler userHandler;
+
     @GET
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @ApiOperation(value = "Finds all Algorithms",
@@ -126,11 +140,25 @@ public class AlgorithmResource {
             @ApiParam(value = "Title of your algorithm") @HeaderParam("title") String title,
             @ApiParam(value = "Short description of your algorithm") @HeaderParam("description") String description,
             @ApiParam(value = "Tags for your algorithm (in a comma separated list) to facilitate look-up") @HeaderParam("tags") String tags
-    ) {
+    ) throws QuotaExceededException {
+
+        User user = userHandler.find(securityContext.getUserPrincipal().getName());
+        long algorithmCount = algorithmHandler.countByUser(user.getId());
+        int maxAllowedAlgorithms = new UserFacade(user).getMaxAlgorithms();
+
+        LOG.info(String.format("Algorithms for %s : %d while maximum is : %d", user.getId(), algorithmCount, maxAllowedAlgorithms));
+        
+        if (algorithmCount > maxAllowedAlgorithms) {
+            throw new QuotaExceededException("Dear " + user.getId()
+                    + ", your quota has been exceeded; you already have " + algorithmCount + " algorithms. "
+                    + "No more than " + maxAllowedAlgorithms + " are allowed with your subscription.");
+        }
+
         if (algorithm.getId() == null) {
             ROG rog = new ROG(true);
             algorithm.setId(rog.nextString(10));
         }
+
         AlgorithmBuilder algorithmBuilder = AlgorithmBuilder.builder(algorithm)
                 .setCreatedBy(securityContext.getUserPrincipal().getName());
         if (title != null) {

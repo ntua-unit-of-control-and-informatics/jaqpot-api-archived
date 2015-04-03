@@ -107,9 +107,9 @@ public class ErrorReportFactory {
     public static ErrorReport serviceUnavailable(
             String message,
             String details) {
-         ErrorReport error = ErrorReportBuilder.builderRandomId()
+        ErrorReport error = ErrorReportBuilder.builderRandomId()
                 .setActor("server")
-                .setMessage(message != null ? message :"Service overloaded or down.")
+                .setMessage(message != null ? message : "Service overloaded or down.")
                 .setDetails(ERROR503)
                 .setCode("ServiceUnavailable")
                 .setHttpStatus(503)
@@ -121,17 +121,27 @@ public class ErrorReportFactory {
      * Resource not found error. Error report that is generated when a resource
      * is not found.
      *
-     * @param uriNotFound The URI that is not found on the server.
+     * @param details The URI that is not found on the server.
      * @return Error report with HTTP status code 404.
      */
     public static ErrorReport notFoundError(
-            String uriNotFound) {
+            String details) {
         return ErrorReportBuilder.builderRandomId().
                 setActor("client").
                 setCode("NotFound").
                 setMessage("URI was not found on the server").
-                setDetails(ERROR404).
+                setDetails(ERROR404 + "\n Further details:" + details).
                 setHttpStatus(404).
+                build();
+    }
+
+    public static ErrorReport quotaExceeded(
+            String message) {
+        return ErrorReportBuilder.builderRandomId().
+                setActor("client").
+                setCode("quotaExceeded").
+                setMessage(message).
+                setHttpStatus(402).
                 build();
     }
 

@@ -32,40 +32,21 @@
  * All source files of JAQPOT Quattro that are stored on github are licensed
  * with the aforementioned licence. 
  */
-package org.jaqpot.core.data;
-
-import java.util.HashMap;
-import java.util.Map;
-import javax.ejb.Stateless;
-import javax.inject.Inject;
-import org.jaqpot.core.annotations.MongoDB;
-import org.jaqpot.core.db.entitymanager.JaqpotEntityManager;
-import org.jaqpot.core.model.Algorithm;
+package org.jaqpot.core.service.exceptions;
 
 /**
  *
- * @author hampos
+ * @author chung
  */
-@Stateless
-public class AlgorithmHandler extends AbstractHandler<Algorithm> {
+public class QuotaExceededException extends Exception {
 
-    @Inject
-    @MongoDB
-    JaqpotEntityManager em;
-
-    public AlgorithmHandler() {
-        super(Algorithm.class);
+    public QuotaExceededException() {
     }
 
-    @Override
-    protected JaqpotEntityManager getEntityManager() {
-        return em;
+    public QuotaExceededException(String message) {
+        super(message);
     }
-
-    public Long countByUser(String userName) {
-        Map<String, Object> properties = new HashMap<>();
-        properties.put("createdBy", userName);
-        return em.count(Algorithm.class, properties);
-    }
+    
+    
 
 }

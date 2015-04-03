@@ -32,40 +32,41 @@
  * All source files of JAQPOT Quattro that are stored on github are licensed
  * with the aforementioned licence. 
  */
-package org.jaqpot.core.data;
+package org.jaqpot.core.service.filter.excmappers;
 
-import java.util.HashMap;
-import java.util.Map;
-import javax.ejb.Stateless;
-import javax.inject.Inject;
-import org.jaqpot.core.annotations.MongoDB;
-import org.jaqpot.core.db.entitymanager.JaqpotEntityManager;
-import org.jaqpot.core.model.Algorithm;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.ext.ExceptionMapper;
+import javax.ws.rs.ext.Provider;
+import org.jaqpot.core.model.ErrorReport;
+import org.jaqpot.core.model.factory.ErrorReportFactory;
+import org.jaqpot.core.service.exceptions.QuotaExceededException;
 
 /**
  *
- * @author hampos
+ * @author chung
  */
-@Stateless
-public class AlgorithmHandler extends AbstractHandler<Algorithm> {
-
-    @Inject
-    @MongoDB
-    JaqpotEntityManager em;
-
-    public AlgorithmHandler() {
-        super(Algorithm.class);
-    }
+@Provider
+public class QuotaExceededExceptionMapper implements ExceptionMapper<QuotaExceededException> {
+    
+    private static final Logger LOG = Logger.getLogger(QuotaExceededExceptionMapper.class.getName());
 
     @Override
-    protected JaqpotEntityManager getEntityManager() {
-        return em;
-    }
-
-    public Long countByUser(String userName) {
-        Map<String, Object> properties = new HashMap<>();
-        properties.put("createdBy", userName);
-        return em.count(Algorithm.class, properties);
+    public Response toResponse(QuotaExceededException exception) {
+        LOG.log(Level.FINEST, "QuotaExceededExceptionMapper exception caught", exception);
+        StringWriter sw = new StringWriter();
+        exception.printStackTrace(new PrintWriter(sw));
+        String details = sw.toString();
+        ErrorReport error = ErrorReportFactory.quotaExceeded(exception.getMessage());
+        error.setDetails(details);
+        return Response
+                .ok(error, MediaType.APPLICATION_JSON)
+                .status(Response.Status.PAYMENT_REQUIRED)
+                .build();
     }
 
 }

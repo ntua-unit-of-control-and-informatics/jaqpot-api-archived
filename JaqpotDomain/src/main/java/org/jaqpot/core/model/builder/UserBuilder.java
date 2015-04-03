@@ -31,7 +31,6 @@ package org.jaqpot.core.model.builder;
 
 import java.util.HashMap;
 import org.jaqpot.core.model.User;
-import org.jaqpot.core.model.util.ROG;
 import org.jaqpot.core.model.validator.EmailValidator;
 
 /**
@@ -106,10 +105,16 @@ public class UserBuilder implements EntityBuilder<User> {
     public UserBuilder setMaxBibTeX(int maxBibTeX) {
         return setMaxCapability("bibtex", maxBibTeX);
     }
+    
+    public UserBuilder setMaxAlgorithms(int algorithms) {
+        return setMaxCapability("algorithms", algorithms);
+    }
 
     public UserBuilder setMaxWeeklyPublishedSubstances(int maxSubstances) {
         return setMaxWeeklyCapability("substances", maxSubstances);
     }
+    
+    
 
     public UserBuilder setMaxSubstances(int maxSubstances) {
         return setMaxCapability("substances", maxSubstances);
@@ -125,6 +130,10 @@ public class UserBuilder implements EntityBuilder<User> {
 
     public UserBuilder setMaxWeeklyPublishedFeatures(int maxFeatures) {
         return setMaxWeeklyCapability("features", maxFeatures);
+    }
+    
+    public UserBuilder setMaxWeeklyPublishedAlgorithms(int maxAlgorithms) {
+        return setMaxWeeklyCapability("algorithms", maxAlgorithms);
     }
 
     public UserBuilder setMaxFeatures(int maxFeatures) {
