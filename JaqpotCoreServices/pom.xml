@@ -92,13 +92,13 @@
             <classifier>javadoc</classifier>
         </dependency>       
         
-         <!-- javamelody-core -->
+        <!-- javamelody-core -->
         <dependency>
-                <groupId>net.bull.javamelody</groupId>
-                <artifactId>javamelody-core</artifactId>
-                <version>1.55.0</version>
+            <groupId>net.bull.javamelody</groupId>
+            <artifactId>javamelody-core</artifactId>
+            <version>1.55.0</version>
         </dependency>
-
+        
     </dependencies>
 
     <build>
@@ -157,5 +157,5 @@
             </plugin>
         </plugins>
     </build>
-
+    
 </project>
