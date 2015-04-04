@@ -38,6 +38,7 @@ import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -101,7 +102,7 @@ public class PredictionMDB extends RunningTaskMDB {
 
     @EJB
     DatasetHandler datasetHandler;
-    
+
     @EJB
     FeatureHandler featureHandler;
 
@@ -119,9 +120,9 @@ public class PredictionMDB extends RunningTaskMDB {
             if (task == null) {
                 throw new NullPointerException("FATAL: Could not find task with id:" + messageBody.get("taskId"));
             }
-            
+
             init(task.getId());
-            
+
             task.setHttpStatus(202);
             task.setStatus(Task.Status.RUNNING);
             task.setType(Task.Type.PREDICTION);
@@ -150,6 +151,12 @@ public class PredictionMDB extends RunningTaskMDB {
                     .get(Dataset.class);
             dataset.setDatasetURI((String) messageBody.get("dataset_uri"));
             task.getMeta().getComments().add("Dataset has been retrieved.");
+
+            dataset.getDataEntry().parallelStream()
+                    .forEach(dataEntry -> {
+                        dataEntry.getValues().keySet().retainAll(model.getIndependentFeatures());
+                    });
+            task.getMeta().getComments().add("Dataset has been cleaned from unused values.");
 
             task.setPercentageCompleted(15.f);
             task.getMeta().getComments().add("Creating JPDI prediction request...");
@@ -234,7 +241,7 @@ public class PredictionMDB extends RunningTaskMDB {
                 task.setPercentageCompleted(85.f);
                 taskHandler.edit(task);
             }
-                        
+
             task.setStatus(Task.Status.COMPLETED);
             task.setPercentageCompleted(100.f);
             task.setHttpStatus(201);
@@ -251,17 +258,19 @@ public class PredictionMDB extends RunningTaskMDB {
             task.setHttpStatus(500);
             task.setErrorReport(ErrorReportFactory.internalServerError(ex, "", ex.getMessage(), ""));
         } finally {
-            if (task!=null) terminate(task.getId());
+            if (task != null) {
+                terminate(task.getId());
+            }
             taskHandler.edit(task);
         }
     }
 
     private String createStudyJSON(
-            String predictedProperty, 
-            String modelId, 
-            List<Object> predictions, 
-            List<String> substances) 
-        throws UnsupportedEncodingException, JsonProcessingException {
+            String predictedProperty,
+            String modelId,
+            List<Object> predictions,
+            List<String> substances)
+            throws UnsupportedEncodingException, JsonProcessingException {
         Studies studies = new Studies();
         List<Study> studyList = new ArrayList<>();
 
