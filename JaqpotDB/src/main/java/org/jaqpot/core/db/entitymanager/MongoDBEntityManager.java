@@ -130,7 +130,7 @@ public class MongoDBEntityManager implements JaqpotEntityManager {
         MongoDatabase db = mongoClient.getDatabase(database);
         String entityJSON = serializer.write(entity);
         MongoCollection collection = db.getCollection(collectionNames.get(entity.getClass()));
-        Document entityBSON = Document.valueOf(entityJSON);
+        Document entityBSON = Document.parse(entityJSON);
         try {
             collection.insertOne(entityBSON);
         } catch (final MongoWriteException ex) {
@@ -145,7 +145,7 @@ public class MongoDBEntityManager implements JaqpotEntityManager {
         MongoDatabase db = mongoClient.getDatabase(database);
         Class<T> entityClass = (Class<T>) entity.getClass();
         String entityJSON = serializer.write(entity);
-        Document entityBSON = Document.valueOf(entityJSON);
+        Document entityBSON = Document.parse(entityJSON);
         MongoCollection<Document> collection = db.getCollection(collectionNames.get(entity.getClass()));
         Document oldEntity = collection.findOneAndReplace(new Document("_id", entity.getId()), entityBSON);
         return serializer.parse(JSON.serialize(oldEntity), entityClass);

@@ -282,8 +282,8 @@ public class MongoDBEntityManagerTest {
     public void testFindALl() throws JsonProcessingException {
         MongoDatabase db = mongoClient.getDatabase("test");
         MongoCollection<Document> coll = db.getCollection(taskPojo.getClass().getSimpleName());
-        Document taskDBObj = Document.valueOf(mapper.writeValueAsString(taskPojo));
-        Document taskDBObj2 = Document.valueOf(mapper.writeValueAsString(taskPojo2));
+        Document taskDBObj = Document.parse(mapper.writeValueAsString(taskPojo));
+        Document taskDBObj2 = Document.parse(mapper.writeValueAsString(taskPojo2));
         coll.insertOne(taskDBObj);
         coll.insertOne(taskDBObj2);
 
@@ -317,7 +317,7 @@ public class MongoDBEntityManagerTest {
     public void testRemove() throws JsonProcessingException {
         MongoDatabase db = mongoClient.getDatabase("test");
         MongoCollection<Document> coll = db.getCollection(taskPojo.getClass().getSimpleName());
-        Document taskDBObj = Document.valueOf(mapper.writeValueAsString(taskPojo));
+        Document taskDBObj = Document.parse(mapper.writeValueAsString(taskPojo));
         coll.insertOne(taskDBObj);
 
         em.remove(taskPojo);
@@ -333,7 +333,7 @@ public class MongoDBEntityManagerTest {
         System.out.println(taskJSON);
         MongoDatabase db = mongoClient.getDatabase("test");
         MongoCollection<Document> coll = db.getCollection(taskPojo.getClass().getSimpleName());
-        Document taskDBObj = Document.valueOf(taskJSON);
+        Document taskDBObj = Document.parse(taskJSON);
         coll.insertOne(taskDBObj);
 
         Map<String, Object> properties = new HashMap<>();
@@ -380,8 +380,8 @@ public class MongoDBEntityManagerTest {
     public void testFindByIds() throws JsonProcessingException {
         MongoDatabase db = mongoClient.getDatabase("test");
         MongoCollection<Document> coll = db.getCollection(taskPojo.getClass().getSimpleName());
-        Document taskDBObj = Document.valueOf(mapper.writeValueAsString(taskPojo));
-        Document taskDBObj2 = Document.valueOf(mapper.writeValueAsString(taskPojo2));
+        Document taskDBObj = Document.parse(mapper.writeValueAsString(taskPojo));
+        Document taskDBObj2 = Document.parse(mapper.writeValueAsString(taskPojo2));
         coll.insertOne(taskDBObj);
         coll.insertOne(taskDBObj2);
 
@@ -418,8 +418,8 @@ public class MongoDBEntityManagerTest {
     public void testCount() throws JsonProcessingException {
         MongoDatabase db = mongoClient.getDatabase("test");
         MongoCollection<Document> coll = db.getCollection(taskPojo.getClass().getSimpleName());
-        Document taskDBObj = Document.valueOf(mapper.writeValueAsString(taskPojo));
-        Document taskDBObj2 = Document.valueOf(mapper.writeValueAsString(taskPojo2));
+        Document taskDBObj = Document.parse(mapper.writeValueAsString(taskPojo));
+        Document taskDBObj2 = Document.parse(mapper.writeValueAsString(taskPojo2));
         coll.insertOne(taskDBObj);
         coll.insertOne(taskDBObj2);
 
@@ -451,8 +451,8 @@ public class MongoDBEntityManagerTest {
     public void testCountAll() throws JsonProcessingException {
         MongoDatabase db = mongoClient.getDatabase("test");
         MongoCollection<Document> coll = db.getCollection(taskPojo.getClass().getSimpleName());
-        Document taskDBObj = Document.valueOf(mapper.writeValueAsString(taskPojo));
-        Document taskDBObj2 = Document.valueOf(mapper.writeValueAsString(taskPojo2));
+        Document taskDBObj = Document.parse(mapper.writeValueAsString(taskPojo));
+        Document taskDBObj2 = Document.parse(mapper.writeValueAsString(taskPojo2));
         coll.insertOne(taskDBObj);
         coll.insertOne(taskDBObj2);
 
