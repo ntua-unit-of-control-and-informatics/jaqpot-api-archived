@@ -44,6 +44,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -99,6 +100,7 @@ public class MongoDBEntityManager implements JaqpotEntityManager {
 
     public MongoDBEntityManager() {
         LOG.log(Level.INFO, "Initializing MongoDB EntityManager");
+     
         ClassLoader classLoader = this.getClass().getClassLoader();
         InputStream is = classLoader.getResourceAsStream("config/db.properties");
         String dbName = "production"; // Default DB name in case no properties file is found!
@@ -109,12 +111,16 @@ public class MongoDBEntityManager implements JaqpotEntityManager {
             dbName = dbProperties.getProperty("db.name");
             dbHost = dbProperties.getProperty("db.host", dbHost);
             dbPort = Integer.parseInt(dbProperties.getProperty("db.port", Integer.toString(dbPort)));
+            LOG.log(Level.INFO, "Database host : {0}", dbHost);
+            LOG.log(Level.INFO, "Database port : {0}", dbPort);
+            LOG.log(Level.INFO, "Database name : {0}", dbName);            
         } catch (IOException ex) {
             String errorMessage = "No DB properties file found!";
             LOG.log(Level.SEVERE, errorMessage, ex); // Log the event (but use the default properties)
         } finally {
             database = dbName;
-            mongoClient = new MongoClient(dbHost, dbPort); // Connect to the DB            
+            mongoClient = new MongoClient(dbHost, dbPort); // Connect to the DB  
+            LOG.log(Level.INFO, "Database configured and connection established successfully!");
         }
 
     }
