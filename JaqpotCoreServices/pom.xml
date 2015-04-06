@@ -99,6 +99,13 @@
             <version>1.55.0</version>
         </dependency>
         
+        <!-- Mandrill lutung (to send emails via Mandrill) -->
+        <dependency>
+            <groupId>com.mandrillapp.wrapper.lutung</groupId>
+            <artifactId>lutung</artifactId>
+            <version>0.0.5</version>
+        </dependency>       
+        
     </dependencies>
 
     <build>

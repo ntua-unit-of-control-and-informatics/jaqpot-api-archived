@@ -30,10 +30,12 @@
 package org.jaqpot.core.data;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.jaqpot.core.db.entitymanager.JaqpotEntityManager;
 import org.jaqpot.core.model.JaqpotEntity;
+import org.jaqpot.core.model.Task;
 
 /**
  *
@@ -75,11 +77,11 @@ public abstract class AbstractHandler<T extends JaqpotEntity> {
     public List<T> findAll() {
         return getEntityManager().findAll(entityClass, 0, Integer.MAX_VALUE);
     }
-    
-    public List<T> findAll(int start, int max) {        
+
+    public List<T> findAll(int start, int max) {
         return getEntityManager().findAll(entityClass, start, max);
     }
-    
+
     public List<T> listOnlyIDs(int start, int max) {
         List<String> fields = new ArrayList<>();
         fields.add("_id");
@@ -87,4 +89,9 @@ public abstract class AbstractHandler<T extends JaqpotEntity> {
         fields.add("ontologicalClasses");
         return getEntityManager().findAll(entityClass, fields, start, max);
     }
+
+    public Long countAll() {
+        return getEntityManager().countAll(entityClass);
+    }
+
 }
