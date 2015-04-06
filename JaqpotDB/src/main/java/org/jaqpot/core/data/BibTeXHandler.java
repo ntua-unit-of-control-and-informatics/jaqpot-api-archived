@@ -29,6 +29,8 @@
  */
 package org.jaqpot.core.data;
 
+import java.util.ArrayList;
+import java.util.List;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import org.jaqpot.core.annotations.MongoDB;
@@ -40,7 +42,7 @@ import org.jaqpot.core.model.BibTeX;
  * @author chung
  */
 @Stateless
-public class BibTeXHandler extends AbstractHandler<BibTeX>{
+public class BibTeXHandler extends AbstractHandler<BibTeX> {
 
     @Inject
     @MongoDB
@@ -52,6 +54,17 @@ public class BibTeXHandler extends AbstractHandler<BibTeX>{
     @Override
     protected JaqpotEntityManager getEntityManager() {
         return em;
+    }
+    
+    @Override
+    public List<BibTeX> listOnlyIDs(int start, int max) {
+        List<String> fields = new ArrayList<>();
+        fields.add("_id");
+        fields.add("meta");
+        fields.add("ontologicalClasses");
+        fields.add("title");
+        fields.add("author");
+        return getEntityManager().findAll(BibTeX.class, fields, start, max);
     }
     
 }

@@ -169,11 +169,7 @@ public class BibTeXResource {
             @ApiParam(value = "BibTeX in JSON representation compliant with the BibTeX specifications. "
                     + "Malformed BibTeX entries with missing fields will not be accepted.", required = true,
                     defaultValue = DEFAULT_BIBTEX) BibTeX bib
-    ) throws JaqpotNotAuthorizedException {
-        // First check the subjectid:
-        if (subjectId == null || !aaService.validate(subjectId)) {
-            throw new JaqpotNotAuthorizedException("Invalid auth token");
-        }
+    ) throws JaqpotNotAuthorizedException {        
         if (bib == null) {
             ErrorReport report = ErrorReportFactory.badRequest("No bibtex provided; check out the API specs",
                     "Clients MUST provide a BibTeX document in JSON to perform this request");
