@@ -2,16 +2,55 @@
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0
                       http://maven.apache.org/xsd/settings-1.0.0.xsd">
-
-    <profiles>
+    <!--
+        IMPORTANT NOTE:
+        This file is private!
+    -->
+    <profiles>   
+        <!-- 
+            Common Jaqpot Profile  
+            to be used both for local and remote deployment
+        -->
+        <profile>
+            <id>JaqpotQuattro_COMMON</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <!-- List of administrators (comma separated values) -->
+                <jaqpot.administrators>jaqpot,webmaster,john</jaqpot.administrators>
+                <!-- Whether to use A&A (recommended: true) -->
+                <jaqpot.aa>false</jaqpot.aa>
+                <!-- Mongodb host -->
+                <jaqpot.db.host>127.0.0.1</jaqpot.db.host>
+                <!-- Mongodb server port -->
+                <jaqpot.db.port>2345</jaqpot.db.port>
+                <!-- Mongodb DB name -->
+                <jaqpot.db.name>production</jaqpot.db.name>
+            </properties>
+        </profile>       
+              
+        <!-- Profile for local use only  -->
         <profile>
             <id>JaqpotQuattroLocal</id>
             <activation>
                 <activeByDefault>true</activeByDefault>
             </activation>           
+            <properties>   
+                <!-- URL of the services base path -->
+                <server.base>http://localhost:8080/jaqpot/services/</server.base>
+            </properties>
+        </profile> 
+        
+        <!-- Profile for deployment on the server  -->
+        <profile>
+            <id>JaqpotQuattroENM</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
             <properties>
-                <swagger.path>http://localhost:8080/jaqpot/services</swagger.path>
-                <server.base>http://localhost:8080/jaqpot/services</server.base>
+                <!-- URL of the services base path -->
+                <server.base>http://enanomapper.ntua.gr:8880/jaqpot/services/</server.base>
             </properties>
         </profile> 
     </profiles>
