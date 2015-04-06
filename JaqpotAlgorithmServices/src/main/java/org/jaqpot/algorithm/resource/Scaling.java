@@ -152,7 +152,11 @@ public class Scaling {
 
                 request.getDataset().getDataEntry().stream().forEach(dataEntry -> {
                     Double value = Double.parseDouble(dataEntry.getValues().get(feature).toString());
-                    value = (value - min) / (max - min);
+                    if (!max.equals(min)) {
+                        value = (value - min) / (max - min);
+                    } else {
+                        value = 0.5;
+                    }
                     dataEntry.getValues().put(feature, value);
                 });
             });
