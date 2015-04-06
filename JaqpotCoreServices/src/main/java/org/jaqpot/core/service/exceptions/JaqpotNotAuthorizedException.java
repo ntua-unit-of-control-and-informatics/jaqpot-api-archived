@@ -33,7 +33,9 @@ import org.jaqpot.core.model.factory.ErrorReportFactory;
 
 /**
  *
- * @author chung
+ * @author Pantelis Sopasakis
+ * @author Charalampos Chomenidis
+ *
  */
 public class JaqpotNotAuthorizedException extends JaqpotWebException {
 

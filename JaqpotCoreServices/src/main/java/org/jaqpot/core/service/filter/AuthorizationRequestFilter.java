@@ -31,6 +31,8 @@ package org.jaqpot.core.service.filter;
 
 import java.io.IOException;
 import java.security.Principal;
+import java.util.ResourceBundle;
+import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
@@ -38,7 +40,10 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.ext.Provider;
+import org.jaqpot.core.data.UserHandler;
+import org.jaqpot.core.model.User;
 import org.jaqpot.core.model.factory.ErrorReportFactory;
+import org.jaqpot.core.model.factory.UserFactory;
 import org.jaqpot.core.service.annotations.Authorize;
 import org.jaqpot.core.service.data.AAService;
 import org.jaqpot.core.service.security.SecurityContextImpl;
@@ -57,13 +62,41 @@ public class AuthorizationRequestFilter implements ContainerRequestFilter {
     @EJB
     AAService aaService;
 
+    private ResourceBundle configResourceBundle;
+    
+    @EJB
+    UserHandler userHandler;
+
+    @PostConstruct
+    private void init() {
+        configResourceBundle = ResourceBundle.getBundle("config");
+    }
+
     @Override
-    public void filter(ContainerRequestContext requestContext) throws IOException {       
+    public void filter(ContainerRequestContext requestContext) throws IOException {
+        
+        
+        if ("false".equals(configResourceBundle.getString("jaqpot.aa"))) {
+            // When operating without AA, all users are anonymous
+            Principal userPrincipal = new UserPrincipal("anonymous");
+            SecurityContext securityContext = new SecurityContextImpl(userPrincipal);
+            requestContext.setSecurityContext(securityContext);
+            User anonymousUser = userHandler.find("anonymous");
+            if (anonymousUser==null){ // The anonymous user is a DB entry
+                // create an anonymous user if it doesn't exist!
+                anonymousUser = UserFactory.newNormalUser("anonymous", "anonymous");
+                anonymousUser.setName("Anonymous User");
+                anonymousUser.setMail("anonymous@jaqpot.org");
+                userHandler.create(anonymousUser);
+            }
+            return;
+        }
+        
         String token = requestContext.getHeaderString("subjectid");
         if (token == null) {
             requestContext.abortWith(Response
                     .ok(ErrorReportFactory.unauthorized("Please provide an authorization token in a subjectid header."))
-                    .status(Response.Status.UNAUTHORIZED)                    
+                    .status(Response.Status.UNAUTHORIZED)
                     .build());
         }
         String user = aaService.getUserFromToken(token);
@@ -82,7 +115,6 @@ public class AuthorizationRequestFilter implements ContainerRequestFilter {
             SecurityContext securityContext = new SecurityContextImpl(userPrincipal);
             requestContext.setSecurityContext(securityContext);
         } else {
-
             requestContext.abortWith(Response
                     .ok(ErrorReportFactory.unauthorized("Please login first!"), MediaType.APPLICATION_JSON)
                     .status(Response.Status.UNAUTHORIZED)

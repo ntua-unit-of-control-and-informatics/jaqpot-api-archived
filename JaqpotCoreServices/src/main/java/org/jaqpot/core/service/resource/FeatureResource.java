@@ -119,7 +119,7 @@ public class FeatureResource {
     ) {
         //TODO Support querying at GET /feature
         return Response
-                .ok(featureHandler.listOnlyIDs(start, max))
+                .ok(featureHandler.listOnlyIDs(start != null ? start : 0, max != null ? max : Integer.MAX_VALUE))
                 .status(Response.Status.OK)
                 .build();
     }
@@ -158,11 +158,7 @@ public class FeatureResource {
             @ApiParam(value = "BibTeX in JSON representation compliant with the BibTeX specifications. "
                     + "Malformed BibTeX entries with missing fields will not be accepted.", required = true,
                     defaultValue = DEFAULT_FEATURE) Feature feature
-    ) throws JaqpotNotAuthorizedException {
-        // First check the subjectid:
-        if (subjectId == null || !aaService.validate(subjectId)) {
-            throw new JaqpotNotAuthorizedException("Invalid auth token");
-        }
+    ) throws JaqpotNotAuthorizedException {        
         if (feature == null) {
             ErrorReport report = ErrorReportFactory.badRequest("No feature provided; check out the API specs",
                     "Clients MUST provide a Feature document in JSON to perform this request");

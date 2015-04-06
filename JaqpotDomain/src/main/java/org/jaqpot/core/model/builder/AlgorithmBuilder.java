@@ -33,7 +33,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 import org.jaqpot.core.model.Algorithm;
 import org.jaqpot.core.model.BibTeX;
 import org.jaqpot.core.model.MetaInfo;
@@ -42,7 +41,9 @@ import org.jaqpot.core.model.util.ROG;
 
 /**
  *
- * @author chung
+ * @author Pantelis Sopasakis
+ * @author Charalampos Chomenidis
+ *
  */
 public class AlgorithmBuilder implements EntityBuilder<Algorithm> {
 

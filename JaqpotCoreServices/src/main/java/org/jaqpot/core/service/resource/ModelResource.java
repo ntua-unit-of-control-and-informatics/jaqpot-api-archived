@@ -96,7 +96,7 @@ public class ModelResource {
             @ApiParam(value = "start", defaultValue = "0") @QueryParam("start") Integer start,
             @ApiParam(value = "max", defaultValue = "20") @QueryParam("max") Integer max
     ) {
-        return Response.ok(modelHandler.listOnlyIDs(start, max)).build();
+        return Response.ok(modelHandler.listOnlyIDs(start != null ? start : 0, max != null ? max : Integer.MAX_VALUE)).build();
     }
 
     @GET

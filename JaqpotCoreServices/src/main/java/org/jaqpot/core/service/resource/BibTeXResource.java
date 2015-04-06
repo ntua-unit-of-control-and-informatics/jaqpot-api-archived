@@ -118,7 +118,7 @@ public class BibTeXResource {
             @ApiParam(value = "max", defaultValue = "10") @QueryParam("max") Integer max
     ) {
         return Response
-                .ok(handler.listOnlyIDs(start, max))
+                .ok(handler.listOnlyIDs(start != null ? start : 0, max != null ? max : Integer.MAX_VALUE))
                 .status(Response.Status.OK)
                 .build();
     }

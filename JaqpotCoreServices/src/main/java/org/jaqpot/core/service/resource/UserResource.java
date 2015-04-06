@@ -34,7 +34,10 @@ import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
 import com.wordnik.swagger.annotations.ApiResponse;
 import com.wordnik.swagger.annotations.ApiResponses;
+import java.util.Arrays;
 import java.util.List;
+import java.util.ResourceBundle;
+import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
@@ -42,11 +45,14 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.SecurityContext;
 import org.jaqpot.core.data.UserHandler;
 import org.jaqpot.core.model.User;
 import org.jaqpot.core.service.annotations.Authorize;
+import org.jaqpot.core.service.exceptions.JaqpotNotAuthorizedException;
 
 /**
  *
@@ -59,14 +65,24 @@ import org.jaqpot.core.service.annotations.Authorize;
 @Produces({"application/json", "text/uri-list"})
 @Authorize
 public class UserResource {
-    
+
     @EJB
     UserHandler userHandler;
-    
+
+    private ResourceBundle configResourceBundle;
+
+    @Context
+    SecurityContext securityContext;
+
+    @PostConstruct
+    private void init() {
+        configResourceBundle = ResourceBundle.getBundle("config");
+    }
+
     @GET
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
-    @ApiOperation(value = "Finds all Users",
-            notes = "Finds all Users of Jaqpot Quattro",
+    @ApiOperation(value = "Lists all Users",
+            notes = "Lists all Users of Jaqpot Quattro. This operation can only be performed by the system administrators.",
             response = User.class,
             responseContainer = "List")
     @ApiResponses(value = {
@@ -75,17 +91,26 @@ public class UserResource {
         @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)"),
         @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
     })
-    public Response getUsers(
+    public Response listUsers(
             @ApiParam(value = "Clients need to authenticate in order to access models") @HeaderParam("subjectid") String subjectId,
             @ApiParam(value = "start", defaultValue = "0") @QueryParam("start") Integer start,
             @ApiParam(value = "max", defaultValue = "10") @QueryParam("max") Integer max
-    ) {
-        List<User> users = userHandler.listOnlyIDs(start, max);        
+    ) throws JaqpotNotAuthorizedException {
+        // This resource can be accessed only by the system administrators
+        String admins = configResourceBundle.getString("jaqpot.administrators");
+        List<String> adminsList = Arrays.asList(admins.split("\\s*,\\s*"));
+        String currentUserName = securityContext.getUserPrincipal().getName();
+        if (!adminsList.contains(currentUserName)) {
+            throw new JaqpotNotAuthorizedException("User " + currentUserName + " is not a system administrator, "
+                    + "therefore is not authorized to access this resource.", "AdministratorsOnly");
+        }
+
+        List<User> users = userHandler.listOnlyIDs(start, max);
         return Response
                 .ok(users)
                 .build();
     }
-    
+
     @GET
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @Path("/{id}")
@@ -101,8 +126,16 @@ public class UserResource {
     })
     public Response getUser(
             @PathParam("id") String id,
-            @ApiParam(value = "Clients need to authenticate in order to access this resource") @HeaderParam("subjectid") String subjectId) {
-        
+            @ApiParam(value = "Clients need to authenticate in order to access this resource")
+            @HeaderParam("subjectid") String subjectId) throws JaqpotNotAuthorizedException {
+
+        String admins = configResourceBundle.getString("jaqpot.administrators");
+        List<String> adminsList = Arrays.asList(admins.split("\\s*,\\s*"));
+        String currentUserName = securityContext.getUserPrincipal().getName();
+        if (!adminsList.contains(currentUserName) && !id.equals(currentUserName)) {
+            throw new JaqpotNotAuthorizedException("User " + currentUserName + "is not authorized access "
+                    + "this resource (/user/" + id + ")", "Unauthorized");
+        }
         User user = userHandler.find(id);
         if (user == null) {
             return Response.status(Response.Status.NOT_FOUND).entity("Could not find User with id:" + id).build();
@@ -112,5 +145,5 @@ public class UserResource {
         }
         return Response.ok(user).build();
     }
-    
+
 }

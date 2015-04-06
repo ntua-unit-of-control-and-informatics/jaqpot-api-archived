@@ -75,9 +75,9 @@ public class ErrorReportFactory {
         ErrorReport error = ErrorReportBuilder.builderRandomId()
                 .setActor("client")
                 .setMessage(message != null ? message : "You are not authorized to perform this operation.")
-                .setDetails(details != null ? details : ERROR401)
+                .setDetails(details != null ? details : ERROR403)
                 .setCode("Unauthorized" + (code != null ? "::" + code : ""))
-                .setHttpStatus(400)
+                .setHttpStatus(403)
                 .build();
         return error;
     }

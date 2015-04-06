@@ -2,7 +2,12 @@
  *
  * JAQPOT Quattro
  *
- * JAQPOT Quattro and the components shipped with it (web applications and beans)
+ * JAQPOT Quattro and the components shipped with it, in particular:
+ * (i)   JaqpotCoreServices
+ * (ii)  JaqpotAlgorithmServices
+ * (iii) JaqpotDB
+ * (iv)  JaqpotDomain
+ * (v)   JaqpotEAR
  * are licensed by GPL v3 as specified hereafter. Additional components may ship
  * with some other licence as will be specified therein.
  *
@@ -47,6 +52,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -120,8 +126,11 @@ public class AlgorithmResource {
             response = Algorithm.class,
             responseContainer = "List")
 
-    public Response getAlgorithms() {
-        return Response.ok(algorithmHandler.findAll()).build();
+    public Response getAlgorithms(@ApiParam(value = "start", defaultValue = "0") @QueryParam("start") Integer start,
+            @ApiParam(value = "max", defaultValue = "10") @QueryParam("max") Integer max) {
+        return Response
+                .ok(algorithmHandler.findAll(start != null ? start : 0, max != null ? max : Integer.MAX_VALUE))
+                .build();
     }
 
     @POST
@@ -141,9 +150,9 @@ public class AlgorithmResource {
         User user = userHandler.find(securityContext.getUserPrincipal().getName());
         long algorithmCount = algorithmHandler.countByUser(user.getId());
         int maxAllowedAlgorithms = new UserFacade(user).getMaxAlgorithms();
-               
+
         if (algorithmCount > maxAllowedAlgorithms) {
-            LOG.info(String.format("User %s has %d algorithms while maximum is %d", 
+            LOG.info(String.format("User %s has %d algorithms while maximum is %d",
                     user.getId(), algorithmCount, maxAllowedAlgorithms));
             throw new QuotaExceededException("Dear " + user.getId()
                     + ", your quota has been exceeded; you already have " + algorithmCount + " algorithms. "
@@ -235,6 +244,7 @@ public class AlgorithmResource {
     public Response deleteAlgorithm(
             @ApiParam(value = "ID of the task which is to be deleted.", required = true) @PathParam("id") String id,
             @HeaderParam("subjectid") String subjectId) {
+
         algorithmHandler.remove(new Algorithm(id));
         return Response.ok().build();
     }
