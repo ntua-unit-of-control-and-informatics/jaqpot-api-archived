@@ -37,6 +37,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -188,7 +189,17 @@ public class PredictionMDB extends RunningTaskMDB {
             taskHandler.edit(task);
             List<Object> predictions = predictionResponse.getPredictions();
             for (int i = 0; i < dataset.getDataEntry().size(); i++) {
-                dataset.getDataEntry().get(i).getValues().put(model.getPredictedFeatures().stream().findFirst().orElse("property/predicted"), predictions.get(i));
+                String predictedFeature = model.getPredictedFeatures().stream().findFirst().orElse("property/predicted");
+                Object prediction = predictions.get(i);
+                if (prediction instanceof Collection) {
+                    List predictionList = new ArrayList((Collection) prediction);
+                    for (int j = 0; j < predictionList.size(); j++) {
+                        Object value = predictionList.get(j);
+                        dataset.getDataEntry().get(i).getValues().put(predictedFeature + "/" + String.format("%05d", j), value);
+                    }
+                } else {
+                    dataset.getDataEntry().get(i).getValues().put(predictedFeature, prediction);
+                }
             }
             ROG randomStringGenerator = new ROG(true);
             dataset.setId(randomStringGenerator.nextString(14));
