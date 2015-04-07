@@ -40,6 +40,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -52,8 +54,10 @@ import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 public class JacksonJsonProvider extends JacksonJaxbJsonProvider {
 
     private final ObjectMapper mapper;
+    
+    private static final Logger LOG = Logger.getLogger(JacksonJsonProvider.class.getName());
 
-    public JacksonJsonProvider() {
+    public JacksonJsonProvider() {        
         mapper = new ObjectMapper();
         mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         mapper.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
@@ -71,5 +75,6 @@ public class JacksonJsonProvider extends JacksonJaxbJsonProvider {
                 .withSetterVisibility(JsonAutoDetect.Visibility.PUBLIC_ONLY)
                 .withCreatorVisibility(JsonAutoDetect.Visibility.PUBLIC_ONLY));
         super.setMapper(mapper);
+        LOG.log(Level.SEVERE, "JacksonJsonProvider - constructed!");
     }
 }

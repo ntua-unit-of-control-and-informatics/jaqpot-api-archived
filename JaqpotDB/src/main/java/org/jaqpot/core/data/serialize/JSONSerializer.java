@@ -50,5 +50,7 @@ public interface JSONSerializer {
     public <T> T parse(String content, Class<T> valueType);
 
     public <T> T parse(InputStream src, Class<T> valueType);
+    
+    public <T> T patch(Object entity, String patchJson, Class<T> valueType);
 
 }

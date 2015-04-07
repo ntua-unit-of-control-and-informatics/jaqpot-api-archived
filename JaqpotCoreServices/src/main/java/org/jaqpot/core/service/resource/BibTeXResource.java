@@ -32,7 +32,6 @@ package org.jaqpot.core.service.resource;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.POJONode;
 import com.github.fge.jsonpatch.JsonPatch;
 import com.github.fge.jsonpatch.JsonPatchException;
 import com.wordnik.swagger.annotations.Api;
@@ -41,7 +40,6 @@ import com.wordnik.swagger.annotations.ApiParam;
 import com.wordnik.swagger.annotations.ApiResponse;
 import com.wordnik.swagger.annotations.ApiResponses;
 import com.wordnik.swagger.jaxrs.PATCH;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ejb.EJB;
 import javax.inject.Inject;
@@ -61,18 +59,18 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
-import javax.ws.rs.ext.ContextResolver;
+import org.jaqpot.core.annotations.Jackson;
 import org.jaqpot.core.data.BibTeXHandler;
+import org.jaqpot.core.data.serialize.JSONSerializer;
+import org.jaqpot.core.data.serialize.JacksonJSONSerializer;
 import org.jaqpot.core.model.BibTeX;
 import org.jaqpot.core.model.ErrorReport;
 import org.jaqpot.core.model.factory.ErrorReportFactory;
 import org.jaqpot.core.model.util.ROG;
 import org.jaqpot.core.model.validator.BibTeXValidator;
-import org.jaqpot.core.service.filter.ObjectMapperHolder;
 import org.jaqpot.core.service.annotations.Authorize;
 import org.jaqpot.core.service.data.AAService;
 import org.jaqpot.core.service.exceptions.JaqpotNotAuthorizedException;
-import org.jaqpot.core.service.filter.excmappers.JsonMappingExceptionMapper;
 
 /**
  *
@@ -95,7 +93,8 @@ public class BibTeXResource {
     UriInfo uriInfo;
 
     @Inject
-    ObjectMapperHolder omHolder;
+    @Jackson
+    JSONSerializer serializer;
 
     private static final Logger LOG = Logger.getLogger(BibTeXResource.class.getName());
 
@@ -177,8 +176,8 @@ public class BibTeXResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Creates a new BibTeX entry",
             notes = "Creates a new BibTeX entry which is assigned a random unique ID. "
-                    + "Clients are not allowed to specify a custom ID when using this method. "
-                    + "Clients should use PUT instead in such a case.",
+            + "Clients are not allowed to specify a custom ID when using this method. "
+            + "Clients should use PUT instead in such a case.",
             response = BibTeX.class,
             position = 3)
     //TODO add code for user's quota exceeded
@@ -288,10 +287,11 @@ public class BibTeXResource {
     @PATCH
     @Path("/{id}")
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
+    @Consumes("application/json-patch+json")
     @ApiOperation(value = "Modifies a particular BibTeX resource",
             notes = "Modifies (applies a patch on) a BibTeX resource of a given ID. "
-                    + "This implementation of PATCH follows the RFC 6902 proposed standard. "
-                    + "See https://tools.ietf.org/rfc/rfc6902.txt for details.",
+            + "This implementation of PATCH follows the RFC 6902 proposed standard. "
+            + "See https://tools.ietf.org/rfc/rfc6902.txt for details.",
             position = 5)
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "BibTeX entry was modified successfully."),
@@ -303,7 +303,7 @@ public class BibTeXResource {
     public Response modifyBibTeX(
             @ApiParam("Clients need to authenticate in order to create resources on the server") @HeaderParam("subjectid") String subjectId,
             @ApiParam(value = "ID of an existing BibTeX.", required = true) @PathParam("id") String id,
-            @ApiParam(value = "The patch in JSON according to the RFC 6902 specs", required = true, defaultValue = DEFAULT_BIBTEX_PATCH) JsonPatch patch
+            @ApiParam(value = "The patch in JSON according to the RFC 6902 specs", required = true, defaultValue = DEFAULT_BIBTEX_PATCH) String patch
     ) throws JsonPatchException, JsonProcessingException {
 
         BibTeX originalBib = handler.find(id); // find doc in DB
@@ -311,13 +311,10 @@ public class BibTeXResource {
             throw new NotFoundException("BibTeX " + id + " not found.");
         }
 
-        final ObjectMapper mapper = omHolder.getMapper(); // mapper from holder
-        JsonNode original = mapper.valueToTree(originalBib); // original doc as JsonNode
-        JsonNode modified = patch.apply(original); // apply the patch
-        BibTeX modifiedAsBib = mapper.treeToValue(modified, BibTeX.class);
-        
+        BibTeX modifiedAsBib = serializer.patch(originalBib, patch, BibTeX.class);
+
         handler.edit(modifiedAsBib); // update the entry in the DB
-        
+
         return Response
                 .ok(modifiedAsBib)
                 .build();

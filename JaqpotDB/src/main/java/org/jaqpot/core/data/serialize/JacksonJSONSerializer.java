@@ -29,7 +29,10 @@
  */
 package org.jaqpot.core.data.serialize;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.fge.jsonpatch.JsonPatch;
+import com.github.fge.jsonpatch.JsonPatchException;
 import org.jaqpot.core.annotations.Jackson;
 import java.io.IOException;
 import java.io.InputStream;
@@ -100,6 +103,24 @@ public class JacksonJSONSerializer implements JSONSerializer {
         try {
             return mapper.readValue(src, valueType);
         } catch (IOException ex) {
+            LOG.log(Level.SEVERE, null, ex);
+            return null;
+        }
+    }
+
+    public ObjectMapper getMapper() {
+        return mapper;
+    }
+
+    @Override
+    public <T> T patch(Object entity, String patchJson, Class<T> valueType) {
+        try {
+            JsonNode patchAsNode = mapper.readTree(patchJson);
+            JsonPatch patchTool = JsonPatch.fromJson(patchAsNode);
+            JsonNode entityAsNode = mapper.valueToTree(entity);
+            JsonNode modifiedAsNode = patchTool.apply(entityAsNode);
+            return mapper.treeToValue(modifiedAsNode, valueType);
+        } catch (IOException | JsonPatchException ex) {
             LOG.log(Level.SEVERE, null, ex);
             return null;
         }
