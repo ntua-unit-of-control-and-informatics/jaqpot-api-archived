@@ -75,6 +75,6 @@ public class JacksonJsonProvider extends JacksonJaxbJsonProvider {
                 .withSetterVisibility(JsonAutoDetect.Visibility.PUBLIC_ONLY)
                 .withCreatorVisibility(JsonAutoDetect.Visibility.PUBLIC_ONLY));
         super.setMapper(mapper);
-        LOG.log(Level.SEVERE, "JacksonJsonProvider - constructed!");
+        LOG.log(Level.FINEST, "JacksonJsonProvider - constructed!");
     }
 }

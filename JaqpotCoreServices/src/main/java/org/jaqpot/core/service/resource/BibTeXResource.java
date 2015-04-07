@@ -312,7 +312,12 @@ public class BibTeXResource {
         }
 
         BibTeX modifiedAsBib = serializer.patch(originalBib, patch, BibTeX.class);
-
+        if (modifiedAsBib == null) {
+            return Response
+                    .status(400)
+                    .entity(ErrorReportFactory.badRequest("Patch cannot be applied because the request is malformed", "Bad patch"))
+                    .build();
+        }
         handler.edit(modifiedAsBib); // update the entry in the DB
 
         return Response
