@@ -36,7 +36,9 @@ package org.jaqpot.core.service.cron;
 
 /**
  *
- * @author chung
+ * @author Pantelis Sopasakis
+ * @author Charalampos Chomenidis
+ *
  */
 import com.microtripit.mandrillapp.lutung.MandrillApi;
 import com.microtripit.mandrillapp.lutung.model.MandrillApiError;
@@ -53,7 +55,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
-
 import javax.ejb.Schedule;
 import javax.ejb.Stateless;
 import org.jaqpot.core.data.AlgorithmHandler;
@@ -102,7 +103,8 @@ public class SendStatisticsCron {
     @EJB
     FeatureHandler featureHandler;
 
-    @Schedule(dayOfWeek = "Sun", hour = "0", minute = "0", second = "0", info = "Mailer", persistent = false) // Every Sunday midnight a mail will be sent
+    // Every Sunday midnight a mail will be sent
+    @Schedule(dayOfWeek = "Sun", hour = "0", minute = "0", second = "0", info = "Mailer", persistent = false) 
     public void mailStatisticsWeekly() throws MandrillApiError, IOException {
         String doSendMail = configResourceBundle.getString("jaqpot.mail.dosend");
         if (doSendMail == null || !"true".equals(doSendMail)) {

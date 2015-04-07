@@ -29,12 +29,22 @@
  */
 package org.jaqpot.core.service.resource;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.POJONode;
+import com.github.fge.jsonpatch.JsonPatch;
+import com.github.fge.jsonpatch.JsonPatchException;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
 import com.wordnik.swagger.annotations.ApiResponse;
 import com.wordnik.swagger.annotations.ApiResponses;
+import com.wordnik.swagger.jaxrs.PATCH;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.ejb.EJB;
+import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -51,15 +61,18 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
+import javax.ws.rs.ext.ContextResolver;
 import org.jaqpot.core.data.BibTeXHandler;
 import org.jaqpot.core.model.BibTeX;
 import org.jaqpot.core.model.ErrorReport;
 import org.jaqpot.core.model.factory.ErrorReportFactory;
 import org.jaqpot.core.model.util.ROG;
 import org.jaqpot.core.model.validator.BibTeXValidator;
+import org.jaqpot.core.service.filter.ObjectMapperHolder;
 import org.jaqpot.core.service.annotations.Authorize;
 import org.jaqpot.core.service.data.AAService;
 import org.jaqpot.core.service.exceptions.JaqpotNotAuthorizedException;
+import org.jaqpot.core.service.filter.excmappers.JsonMappingExceptionMapper;
 
 /**
  *
@@ -81,6 +94,11 @@ public class BibTeXResource {
     @Context
     UriInfo uriInfo;
 
+    @Inject
+    ObjectMapperHolder omHolder;
+
+    private static final Logger LOG = Logger.getLogger(BibTeXResource.class.getName());
+
     private static final String DEFAULT_BIBTEX
             = "{\n"
             + "  \"bibType\":\"Article\",\n"
@@ -89,7 +107,14 @@ public class BibTeXResource {
             + "  \"journal\":\"Int. J. Biochem.\",\n"
             + "  \"year\":2010,\n"
             + "  \"meta\":{\"comments\":[\"default bibtex\"]}\n"
-            + "}";
+            + "}",
+            DEFAULT_BIBTEX_PATCH = "[\n"
+            + "  {\n"
+            + "    \"op\": \"add\",\n"
+            + "    \"path\": \"/key\",\n"
+            + "    \"value\": \"foo\"\n "
+            + "  }\n"
+            + "]";
 
     @EJB
     BibTeXHandler handler;
@@ -151,7 +176,9 @@ public class BibTeXResource {
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @Consumes(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Creates a new BibTeX entry",
-            notes = "Creates a new BibTeX entry which is assigned a random unique ID",
+            notes = "Creates a new BibTeX entry which is assigned a random unique ID. "
+                    + "Clients are not allowed to specify a custom ID when using this method. "
+                    + "Clients should use PUT instead in such a case.",
             response = BibTeX.class,
             position = 3)
     //TODO add code for user's quota exceeded
@@ -169,7 +196,7 @@ public class BibTeXResource {
             @ApiParam(value = "BibTeX in JSON representation compliant with the BibTeX specifications. "
                     + "Malformed BibTeX entries with missing fields will not be accepted.", required = true,
                     defaultValue = DEFAULT_BIBTEX) BibTeX bib
-    ) throws JaqpotNotAuthorizedException {        
+    ) throws JaqpotNotAuthorizedException {
         if (bib == null) {
             ErrorReport report = ErrorReportFactory.badRequest("No bibtex provided; check out the API specs",
                     "Clients MUST provide a BibTeX document in JSON to perform this request");
@@ -232,7 +259,7 @@ public class BibTeXResource {
         handler.create(bib);
         return Response
                 .ok(bib)
-                .status(Response.Status.OK)
+                .status(Response.Status.CREATED)
                 .header("Location", uriInfo.getBaseUri().toString() + "bibtex/" + bib.getId())
                 .build();
     }
@@ -256,6 +283,44 @@ public class BibTeXResource {
     ) {
         handler.remove(new BibTeX(id));
         return Response.ok().build();
+    }
+
+    @PATCH
+    @Path("/{id}")
+    @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
+    @ApiOperation(value = "Modifies a particular BibTeX resource",
+            notes = "Modifies (applies a patch on) a BibTeX resource of a given ID. "
+                    + "This implementation of PATCH follows the RFC 6902 proposed standard. "
+                    + "See https://tools.ietf.org/rfc/rfc6902.txt for details.",
+            position = 5)
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "BibTeX entry was modified successfully."),
+        @ApiResponse(code = 404, message = "No such BibTeX - the patch will not be applied"),
+        @ApiResponse(code = 401, message = "You are not authorized to modify this resource"),
+        @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)"),
+        @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
+    })
+    public Response modifyBibTeX(
+            @ApiParam("Clients need to authenticate in order to create resources on the server") @HeaderParam("subjectid") String subjectId,
+            @ApiParam(value = "ID of an existing BibTeX.", required = true) @PathParam("id") String id,
+            @ApiParam(value = "The patch in JSON according to the RFC 6902 specs", required = true, defaultValue = DEFAULT_BIBTEX_PATCH) JsonPatch patch
+    ) throws JsonPatchException, JsonProcessingException {
+
+        BibTeX originalBib = handler.find(id); // find doc in DB
+        if (originalBib == null) {
+            throw new NotFoundException("BibTeX " + id + " not found.");
+        }
+
+        final ObjectMapper mapper = omHolder.getMapper(); // mapper from holder
+        JsonNode original = mapper.valueToTree(originalBib); // original doc as JsonNode
+        JsonNode modified = patch.apply(original); // apply the patch
+        BibTeX modifiedAsBib = mapper.treeToValue(modified, BibTeX.class);
+        
+        handler.edit(modifiedAsBib); // update the entry in the DB
+        
+        return Response
+                .ok(modifiedAsBib)
+                .build();
     }
 
 }

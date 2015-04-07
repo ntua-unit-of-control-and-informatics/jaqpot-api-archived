@@ -2,7 +2,12 @@
  *
  * JAQPOT Quattro
  *
- * JAQPOT Quattro and the components shipped with it (web applications and beans)
+ * JAQPOT Quattro and the components shipped with it, in particular:
+ * (i)   JaqpotCoreServices
+ * (ii)  JaqpotAlgorithmServices
+ * (iii) JaqpotDB
+ * (iv)  JaqpotDomain
+ * (v)   JaqpotEAR
  * are licensed by GPL v3 as specified hereafter. Additional components may ship
  * with some other licence as will be specified therein.
  *
@@ -30,46 +35,38 @@
 package org.jaqpot.core.service.filter;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.ext.Provider;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
-import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
+import javax.enterprise.context.ApplicationScoped;
 
 /**
  *
- * @author Pantelis Sopasakis
- * @author Charalampos Chomenidis
- *
+ * @author chung
  */
-@Provider
-@Produces(MediaType.APPLICATION_JSON)
-public class JacksonJsonProvider extends JacksonJaxbJsonProvider {
+@ApplicationScoped
+public class ObjectMapperHolder {
 
     private final ObjectMapper mapper;
 
-    public JacksonJsonProvider() {
+    public ObjectMapperHolder() {
         mapper = new ObjectMapper();
         mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         mapper.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
         mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
-        mapper.enable(SerializationFeature.INDENT_OUTPUT);
-        mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-        /*
-         * The mapper must use only getters and setters and not
-         * private getters/setters and/or fields. 
-         */
+        mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);        
         mapper.setVisibilityChecker(
                 VisibilityChecker.Std.defaultInstance()
                 .withFieldVisibility(JsonAutoDetect.Visibility.NONE)
                 .withGetterVisibility(JsonAutoDetect.Visibility.PUBLIC_ONLY)
                 .withSetterVisibility(JsonAutoDetect.Visibility.PUBLIC_ONLY)
                 .withCreatorVisibility(JsonAutoDetect.Visibility.PUBLIC_ONLY));
-        super.setMapper(mapper);
     }
+
+    public ObjectMapper getMapper() {
+        return mapper;
+    }
+
 }

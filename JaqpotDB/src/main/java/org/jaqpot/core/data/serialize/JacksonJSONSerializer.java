@@ -30,7 +30,6 @@
 package org.jaqpot.core.data.serialize;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import org.jaqpot.core.annotations.Jackson;
 import java.io.IOException;
 import java.io.InputStream;
@@ -39,7 +38,6 @@ import java.io.Writer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.enterprise.context.Dependent;
-import javax.enterprise.inject.Default;
 
 /**
  *
