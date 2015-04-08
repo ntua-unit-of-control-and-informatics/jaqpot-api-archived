@@ -17,7 +17,10 @@
                 <activeByDefault>true</activeByDefault>
             </activation>
             <properties>
-                <!-- List of administrators (comma separated values of usernames) [MODIFY] -->
+                <!-- 
+                    List of administrators (comma separated values of usernames) [MODIFY] 
+                    Users with these usernames have administrative access to jaqpot
+                -->
                 <jaqpot.administrators>jaqpot,webmaster,john</jaqpot.administrators>
                 <!-- Whether to use A&A (recommended: true) -->
                 <jaqpot.aa>false</jaqpot.aa>
@@ -54,10 +57,7 @@
               
         <!-- Profile for local use only  -->
         <profile>
-            <id>JaqpotQuattroLocal</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>           
+            <id>JaqpotQuattroLocal</id>          
             <properties>   
                 <!-- URL of the services base path -->
                 <server.base>http://localhost:8080/jaqpot/services/</server.base>
@@ -67,14 +67,10 @@
         <!-- Profile for deployment on the server  -->
         <profile>
             <id>JaqpotQuattroENM</id>
-            <activation>
-                <activeByDefault>false</activeByDefault>
-            </activation>
             <properties>
                 <!-- URL of the services base path -->
                 <server.base>http://enanomapper.ntua.gr:8880/jaqpot/services/</server.base>
             </properties>
         </profile> 
     </profiles>
-
 </settings>

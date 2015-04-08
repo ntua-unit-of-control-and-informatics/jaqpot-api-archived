@@ -268,7 +268,7 @@ public class TrainingMDB extends RunningTaskMDB {
                 Form form = new Form();
                 form.param("dataset_uri", (String) messageBody.get("dataset_uri"));
                 form.param("prediction_feature", (String) messageBody.get("prediction_feature"));
-                Task leverageTask = client.target((String)messageBody.get("doa"))
+                Task leverageTask = client.target((String) messageBody.get("doa"))
                         .request()
                         .header("subjectid", messageBody.get("subjectid"))
                         .post(Entity.form(form)).readEntity(Task.class);
@@ -288,7 +288,7 @@ public class TrainingMDB extends RunningTaskMDB {
                 }
                 if (Task.Status.COMPLETED == leverageTask.getStatus()) {
                     task.getMeta().getComments().add("DoA model created - ID : " + leverageTask.getResult());
-                    model.setDoaModel(leverageTask.getResultUri());
+                    model.setDoaModel(messageBody.get("base_uri") + leverageTask.getResult());
                 }
                 taskHandler.edit(task);
                 //TODO link model to DoA

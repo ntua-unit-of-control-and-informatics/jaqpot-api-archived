@@ -102,7 +102,7 @@ public class AlgorithmResource {
             + "}",
             DEFAULT_DATASET = "http://enanomapper.ntua.gr:8880/jaqpot/services/dataset/ca8da7f6-ee9f-4a61-9ae4-b1d1525cef88",
             DEFAULT_PRED_FEATURE = "property/TOX/UNKNOWN_TOXICITY_SECTION/Total+surface+area++SAtot+/52D93BC3B68F26C8E787CC7A05E5130A23164405/3ed642f9-1b42-387a-9966-dea5b91e5f8a",
-            DEFAULT_DOA = "http://enanomapper.ntua.gr:8880/jaqpot/services/algorithm/l2";
+            DEFAULT_DOA = "http://enanomapper.ntua.gr:8880/jaqpot/services/algorithm/leverage";
 
     @EJB
     TrainingService trainingService;

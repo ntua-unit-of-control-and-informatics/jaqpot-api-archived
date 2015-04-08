@@ -103,7 +103,8 @@ public class SendStatisticsCron {
     @EJB
     FeatureHandler featureHandler;
 
-    // Every Sunday midnight a mail will be sent
+    // Every Sunday midnight a mail will be sent to the recipients defined in settings.xml
+    // Check out the example settings.xml in JAQPOT_BASE/config
     @Schedule(dayOfWeek = "Sun", hour = "0", minute = "0", second = "0", info = "Mailer", persistent = false) 
     public void mailStatisticsWeekly() throws MandrillApiError, IOException {
         String doSendMail = configResourceBundle.getString("jaqpot.mail.dosend");
