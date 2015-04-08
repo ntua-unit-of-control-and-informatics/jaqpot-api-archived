@@ -51,6 +51,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import org.jaqpot.core.data.UserHandler;
 import org.jaqpot.core.model.User;
+import org.jaqpot.core.model.factory.ErrorReportFactory;
 import org.jaqpot.core.service.annotations.Authorize;
 import org.jaqpot.core.service.exceptions.JaqpotNotAuthorizedException;
 
@@ -144,6 +145,29 @@ public class UserResource {
             user.setHashedPass(null);
         }
         return Response.ok(user).build();
+    }
+    
+    @GET
+    @Produces({MediaType.APPLICATION_JSON})
+    @Path("/{id}/quota")
+    @ApiOperation(value = "Finds User by Id",
+            notes = "Finds specified user",
+            response = User.class)
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "User is found and quota are retrieved"),
+        @ApiResponse(code = 401, message = "You are not authorized to access this user's quota"),
+        @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)"),
+        @ApiResponse(code = 404, message = "This user was not found."),
+        @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
+    })
+    public Response getUserQuota(
+            @PathParam("id") String id,
+            @ApiParam(value = "Clients need to authenticate in order to access this resource")
+              @HeaderParam("subjectid") String subjectId) throws JaqpotNotAuthorizedException {
+        return Response
+                .status(Response.Status.NOT_IMPLEMENTED)
+                .entity(ErrorReportFactory.notImplementedYet())
+                .build();
     }
 
 }
