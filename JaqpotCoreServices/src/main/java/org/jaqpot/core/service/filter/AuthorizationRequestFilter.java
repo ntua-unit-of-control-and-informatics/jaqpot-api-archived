@@ -90,6 +90,12 @@ public class AuthorizationRequestFilter implements ContainerRequestFilter {
         }
     }
 
+    private void _handleSecurityContext(User user, ContainerRequestContext requestContext) {
+        Principal userPrincipal = new UserPrincipal(user.getId());
+        SecurityContext securityContext = new SecurityContextImpl(userPrincipal);
+        requestContext.setSecurityContext(securityContext);
+    }
+
     @Override
     public void filter(ContainerRequestContext requestContext) throws IOException {
 
@@ -114,12 +120,13 @@ public class AuthorizationRequestFilter implements ContainerRequestFilter {
                     ok(ErrorReportFactory.unauthorized("Your authorization token is not valid."))
                     .status(Response.Status.FORBIDDEN)
                     .build());
-            return;
+            return; // invalid token
         }
 
         // who is this user? is the user cached?
         User user = aaService.getUserFromToken(token);
         if (user != null) {
+            _handleSecurityContext(user, requestContext); // update the security context
             return; // user is cached!
         }
 
@@ -128,7 +135,7 @@ public class AuthorizationRequestFilter implements ContainerRequestFilter {
         user = aaService.getUserFromSSO(token);
         aaService.registerUserToken(token, user); // cache the user
 
-        LOG.log(Level.INFO, "New user on Jaqpot with ID {0} and name {1}", 
+        LOG.log(Level.INFO, "New user on Jaqpot with ID {0} and name {1}",
                 new Object[]{user.getId(), user.getName()});
 
         // is the user in the DB?
@@ -137,6 +144,9 @@ public class AuthorizationRequestFilter implements ContainerRequestFilter {
             LOG.log(Level.INFO, "New user registered in DB with ID {0}", user.getId());
             userHandler.create(user);
         }
+        
+        // update the security context
+        _handleSecurityContext(user, requestContext); 
 
     }
 

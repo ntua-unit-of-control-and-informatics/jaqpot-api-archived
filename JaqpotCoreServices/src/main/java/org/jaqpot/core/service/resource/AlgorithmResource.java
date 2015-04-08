@@ -223,7 +223,7 @@ public class AlgorithmResource {
         options.put("transformations", transformations);
         options.put("base_uri", uriInfo.getBaseUri().toString());
         options.put("doa", doa);
-        options.put("createdBy",securityContext.getUserPrincipal().getName());
+        options.put("createdBy", securityContext.getUserPrincipal().getName());
         Task task = trainingService.initiateTraining(options, securityContext.getUserPrincipal().getName());
         task.setCreatedBy(securityContext.getUserPrincipal().getName());
         task.setHttpStatus(202);
