@@ -106,7 +106,7 @@ public class EnanomapperResource {
     @Inject
     @UnSecure
     Client client;
-            
+
     private static final String DEFAULT_BUNDLE = "https://apps.ideaconsult.net/enmtest/bundle/14";
 
     @POST
@@ -197,8 +197,11 @@ public class EnanomapperResource {
     )
     public Response createBundle(
             @FormParam("substanceowner_uri") String substanceOwnerUri,
+            @FormParam("proteomics_only") Boolean proteomicsOnly,
             @HeaderParam("subjectid") String subjectId) {
-
+        if (proteomicsOnly == null) {
+            proteomicsOnly = Boolean.FALSE;
+        }
         String userName = securityContext.getUserPrincipal().getName();
 
         MultivaluedMap<String, String> formParameters = new MultivaluedHashMap<>();
@@ -260,10 +263,10 @@ public class EnanomapperResource {
                     .put(Entity.form(formParameters))
                     .close();
         }
-        for (ProtocolCategory category : ProtocolCategory.values()) {
+        if (proteomicsOnly) {
             formParameters.clear();
-            formParameters.putSingle("topcategory", category.getTopCategory());
-            formParameters.putSingle("endpointcategory", category.name());
+            formParameters.putSingle("topcategory", ProtocolCategory.PROTEOMICS_SECTION.getTopCategory());
+            formParameters.putSingle("endpointcategory", ProtocolCategory.PROTEOMICS_SECTION.name());
             formParameters.putSingle("command", "add");
             client.target(bundleUri + "/property")
                     .request()
@@ -271,6 +274,22 @@ public class EnanomapperResource {
                     .header("subjectid", subjectId)
                     .put(Entity.form(formParameters))
                     .close();
+        } else {
+            for (ProtocolCategory category : ProtocolCategory.values()) {
+                if (category.equals(ProtocolCategory.PROTEOMICS_SECTION)) {
+                    continue;
+                }
+                formParameters.clear();
+                formParameters.putSingle("topcategory", category.getTopCategory());
+                formParameters.putSingle("endpointcategory", category.name());
+                formParameters.putSingle("command", "add");
+                client.target(bundleUri + "/property")
+                        .request()
+                        .accept(MediaType.APPLICATION_JSON)
+                        .header("subjectid", subjectId)
+                        .put(Entity.form(formParameters))
+                        .close();
+            }
         }
         try {
             return Response.created(new URI(bundleUri)).build();
