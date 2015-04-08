@@ -150,8 +150,8 @@ public class UserResource {
     @GET
     @Produces({MediaType.APPLICATION_JSON})
     @Path("/{id}/quota")
-    @ApiOperation(value = "Finds User by Id",
-            notes = "Finds specified user",
+    @ApiOperation(value = "Retrieves user's quota",
+            notes = "Returns user's quota given the user's ID",
             response = User.class)
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "User is found and quota are retrieved"),

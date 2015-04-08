@@ -48,9 +48,9 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import org.jaqpot.core.data.UserHandler;
 import org.jaqpot.core.model.User;
+import org.jaqpot.core.model.dto.aa.AuthToken;
 import org.jaqpot.core.model.factory.UserFactory;
 import org.jaqpot.core.service.annotations.UnSecure;
-import org.jaqpot.core.service.dto.aa.AuthToken;
 import org.jaqpot.core.service.exceptions.JaqpotNotAuthorizedException;
 
 /**
