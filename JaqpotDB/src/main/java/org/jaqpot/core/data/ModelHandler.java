@@ -81,6 +81,7 @@ public class ModelHandler extends AbstractHandler<Model> {
         fields.add("bibtex");
         fields.add("datasetUri");
         fields.add("parameters");
+        fields.add("doaModel");
 
         return em.find(Model.class, keys, fields).stream().findFirst().orElse(null);
     }
