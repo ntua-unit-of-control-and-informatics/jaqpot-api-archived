@@ -86,6 +86,7 @@ public class TrainingService {
                 .build());
         task.setStatus(Task.Status.RUNNING);
         task.setType(Task.Type.TRAINING);
+        task.setCreatedBy((String) options.get("createdBy"));
         options.put("taskId", task.getId());
         taskHandler.create(task);
         jmsContext.createProducer().setDeliveryDelay(1000).send(trainingQueue, options);

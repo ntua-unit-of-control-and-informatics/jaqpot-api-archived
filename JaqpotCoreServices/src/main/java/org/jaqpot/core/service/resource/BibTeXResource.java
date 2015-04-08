@@ -30,9 +30,6 @@
 package org.jaqpot.core.service.resource;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.fge.jsonpatch.JsonPatch;
 import com.github.fge.jsonpatch.JsonPatchException;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
@@ -62,7 +59,6 @@ import javax.ws.rs.core.UriInfo;
 import org.jaqpot.core.annotations.Jackson;
 import org.jaqpot.core.data.BibTeXHandler;
 import org.jaqpot.core.data.serialize.JSONSerializer;
-import org.jaqpot.core.data.serialize.JacksonJSONSerializer;
 import org.jaqpot.core.model.BibTeX;
 import org.jaqpot.core.model.ErrorReport;
 import org.jaqpot.core.model.factory.ErrorReportFactory;
@@ -314,8 +310,15 @@ public class BibTeXResource {
         BibTeX modifiedAsBib = serializer.patch(originalBib, patch, BibTeX.class);
         if (modifiedAsBib == null) {
             return Response
-                    .status(400)
+                    .status(Response.Status.BAD_REQUEST)
                     .entity(ErrorReportFactory.badRequest("Patch cannot be applied because the request is malformed", "Bad patch"))
+                    .build();
+        }
+        ErrorReport validationError = BibTeXValidator.validate(modifiedAsBib);
+        if (validationError != null) {
+            return Response
+                    .ok(validationError)
+                    .status(Response.Status.BAD_REQUEST)
                     .build();
         }
         handler.edit(modifiedAsBib); // update the entry in the DB

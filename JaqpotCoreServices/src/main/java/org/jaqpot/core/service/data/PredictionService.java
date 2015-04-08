@@ -38,6 +38,7 @@ public class PredictionService {
                 "A prediction procedure will return a new Dataset if completed successfully.",
                 "chung");
         task.setType(Task.Type.PREDICTION);
+        task.setCreatedBy((String) options.get("createdBy"));
         options.put("taskId", task.getId());
         taskHandler.create(task);
         jmsContext.createProducer().setDeliveryDelay(1000).send(predictionQueue, options);

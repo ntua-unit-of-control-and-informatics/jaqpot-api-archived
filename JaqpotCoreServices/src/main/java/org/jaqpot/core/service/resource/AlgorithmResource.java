@@ -59,6 +59,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
 import org.jaqpot.core.data.AlgorithmHandler;
+import org.jaqpot.core.data.TaskHandler;
 import org.jaqpot.core.data.UserHandler;
 import org.jaqpot.core.model.Algorithm;
 import org.jaqpot.core.model.Task;
@@ -222,9 +223,11 @@ public class AlgorithmResource {
         options.put("transformations", transformations);
         options.put("base_uri", uriInfo.getBaseUri().toString());
         options.put("doa", doa);
+        options.put("createdBy",securityContext.getUserPrincipal().getName());
         Task task = trainingService.initiateTraining(options, securityContext.getUserPrincipal().getName());
+        task.setCreatedBy(securityContext.getUserPrincipal().getName());
         task.setHttpStatus(202);
-        task.setStatus(Task.Status.QUEUED);
+        task.setStatus(Task.Status.QUEUED);        
         return Response.ok(task).build();
     }
 

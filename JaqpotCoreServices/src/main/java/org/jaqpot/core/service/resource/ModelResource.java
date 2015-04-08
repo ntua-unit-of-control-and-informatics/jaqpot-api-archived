@@ -51,6 +51,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
 import org.jaqpot.core.data.ModelHandler;
 import org.jaqpot.core.model.Model;
@@ -78,6 +79,9 @@ public class ModelResource {
 
     @EJB
     PredictionService predictionService;
+    
+    @Context
+    SecurityContext securityContext;
 
     @GET
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
@@ -185,6 +189,7 @@ public class ModelResource {
         options.put("dataset_uri", datasetURI);
         options.put("subjectid", subjectId);
         options.put("modelId", id);
+        options.put("createdBy", securityContext.getUserPrincipal().getName());
         Task task = predictionService.initiatePrediction(options);
         return Response.ok(task).build();
     }
