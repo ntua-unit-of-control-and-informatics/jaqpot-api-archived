@@ -30,7 +30,9 @@
 package org.jaqpot.core.service.data;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.PostConstruct;
@@ -69,7 +71,7 @@ public class AAService {
     @UnSecure
     Client client;
 
-    Map<String, String> tokenMap;
+    Map<String, User> tokenMap;
 
     @PostConstruct
     private void init() {
@@ -77,7 +79,7 @@ public class AAService {
     }
 
     @Lock(LockType.READ)
-    public String getUserFromToken(String token) {
+    public User getUserFromToken(String token) {
         return tokenMap.get(token);
     }
 
@@ -85,6 +87,9 @@ public class AAService {
         tokenMap.remove(token);
     }
 
+    public void registerUserToken(String token, User user) {
+        tokenMap.putIfAbsent(token, user);
+    }
     public static final String SSO_HOST = "opensso.in-silico.ch",
             SSO_SERVER = "https://" + SSO_HOST,
             SSO_IDENTITY = "https://" + SSO_HOST + "/auth/%s",
@@ -113,7 +118,8 @@ public class AAService {
             /**
              * SSO authorization service
              */
-            SSOauthorization = String.format(SSO_IDENTITY, "authorize");
+            SSOauthorization = String.format(SSO_IDENTITY, "authorize"),
+            SSOattributes = String.format(SSO_IDENTITY, "attributes");
 
     public AuthToken login(String username, String password) throws JaqpotNotAuthorizedException {
 
@@ -134,11 +140,11 @@ public class AAService {
             User user = userHandler.find(username);
             if (user == null) {
                 LOG.log(Level.INFO, "User {0} is valid but doesn''t exist in the database. Creating...", username);
-                user = UserFactory.newNormalUser(username, password);
+                user = getUserFromSSO(aToken.getAuthToken());
                 userHandler.create(user);
                 LOG.log(Level.INFO, "User {0} created.", username);
-            }
-            tokenMap.put(aToken.getAuthToken(), aToken.getUserName());
+            } 
+            registerUserToken(aToken.getAuthToken(), user);
             return aToken;
         }
     }
@@ -162,7 +168,6 @@ public class AAService {
     }
 
     public boolean logout(String token) {
-
         MultivaluedMap<String, String> formData = new MultivaluedHashMap<>();
         formData.putSingle("subjectid", token);
         Response response = client.target(SSOlogout)
@@ -174,6 +179,71 @@ public class AAService {
         int status = response.getStatus();
         response.close();
         return status == 200;
+    }
+    
+
+    /**
+     * Queries the SSO server to get user attributes and returns
+     * a user.
+     * @param token authentication token.
+     * @return user entity with the capabilities of a new user and the retrieved
+     * attributes.
+     */
+    public User getUserFromSSO(String token) {
+        User user = UserFactory.newNormalUser();
+        MultivaluedMap<String, String> formData = new MultivaluedHashMap<>();
+        formData.putSingle("subjectid", token);
+        Response response = client.target(SSOattributes)
+                .request()
+                .post(Entity.form(formData));
+
+        if (200 == response.getStatus()) {
+            String attributesList = response.readEntity(String.class);
+            Scanner scanner = new Scanner(attributesList);
+
+            String template = "userdetails.attribute.name=%s";
+            String line;
+            while (scanner.hasNextLine()) {
+                line = scanner.nextLine();
+                if (String.format(template, "uid").equals(line)) {
+                    if (scanner.hasNextLine()) {
+                        line = scanner.nextLine();
+                        String[] values = line.split("=");
+                        if (values.length >= 2) {
+                            user.setId(values[1]);
+                        }
+                    }
+                } else if (String.format(template, "mail").equals(line)) {
+                    if (scanner.hasNextLine()) {
+                        line = scanner.nextLine();
+                        String[] values = line.split("=");
+                        if (values.length >= 2) {
+                            user.setMail(values[1]);
+                        }
+                    }
+                } else if (String.format(template, "userpassword").equals(line)) {
+                    if (scanner.hasNextLine()) {
+                        line = scanner.nextLine();
+                        String[] values = line.split("=");
+                        if (values.length >= 2) {
+                            user.setHashedPass(values[1]);
+                        }
+                    }
+                } else if (String.format(template, "givenname").equals(line)) {
+                    if (scanner.hasNextLine()) {
+                        line = scanner.nextLine();
+                        String[] values = line.split("=");
+                        if (values.length >= 2) {
+                            user.setName(values[1]);
+                        }
+                    }
+                }
+            }
+        }
+        LOG.log(Level.INFO, "User ID   {0}", user.getId());
+        LOG.log(Level.INFO, "User Name {0}", user.getName());
+        LOG.log(Level.INFO, "User Mail {0}", user.getMail());
+        return user;
     }
 
 }

@@ -54,11 +54,25 @@ public class UserFactory {
         }
     }
 
-    public static User newNormalUser(String userName, String password) {        
-        String hashedPassword = new String(Base64.getEncoder().encode(sha256.digest(password.getBytes())));
+    public static User newNormalUser(String userName, String password) {
+        String hashedPassword = password != null ? new String(Base64.getEncoder().encode(sha256.digest(password.getBytes()))) : null;
         sha256.reset();
         return UserBuilder.builder(userName)
                 .setHashedPassword(hashedPassword)
+                .setMaxBibTeX(100)
+                .setMaxModels(100)
+                .setMaxAlgorithms(5)
+                .setMaxParallelTasks(5)
+                .setMaxSubstances(1000)
+                .setMaxWeeklyPublishedModels(10)
+                .setMaxWeeklyPublishedSubstances(10)
+                .setMaxWeeklyPublishedBibTeX(10)
+                .setMaxWeeklyPublishedAlgorithms(1)
+                .build();
+    }
+
+    public static User newNormalUser() {
+        return UserBuilder.builder((String) null)
                 .setMaxBibTeX(100)
                 .setMaxModels(100)
                 .setMaxAlgorithms(5)

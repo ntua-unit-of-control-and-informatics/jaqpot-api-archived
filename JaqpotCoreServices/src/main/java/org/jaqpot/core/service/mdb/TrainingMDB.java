@@ -58,6 +58,7 @@ import org.jaqpot.core.data.FeatureHandler;
 import org.jaqpot.core.data.ModelHandler;
 import org.jaqpot.core.data.TaskHandler;
 import org.jaqpot.core.model.Algorithm;
+import org.jaqpot.core.model.ErrorReport;
 import org.jaqpot.core.model.Feature;
 import org.jaqpot.core.model.Model;
 import org.jaqpot.core.model.Task;
@@ -106,7 +107,7 @@ public class TrainingMDB extends RunningTaskMDB {
 
     @Override
     public void onMessage(Message msg) {
-        Task task = null;
+        Task task = new Task();
         ROG randomStringGenerator = new ROG(true);
         String modelId = randomStringGenerator.nextString(12);
 
@@ -263,16 +264,30 @@ public class TrainingMDB extends RunningTaskMDB {
                     && (!algorithm.getOntologicalClasses().contains(AlgorithmOntologicalTypes.ApplicabilityDomain.toString()))
                     && (!algorithm.getOntologicalClasses().contains(AlgorithmOntologicalTypes.ApplicabilityDomain.getURI()))) {
                 task.getMeta().getComments().add("Constructing DoA for this model...");
+                task.setPercentageCompleted(86f);
                 taskHandler.edit(task);
 
                 Form form = new Form();
                 form.param("dataset_uri", (String) messageBody.get("dataset_uri"));
                 form.param("prediction_feature", (String) messageBody.get("prediction_feature"));
-                Task leverageTask = client.target((String) messageBody.get("doa"))
+                LOG.log(Level.INFO, "Calling remote DoA service at {0}", messageBody.get("doa"));
+                LOG.log(Level.INFO, "Request on behalf of user with subjectid {0}", messageBody.get("subjectid"));
+                Response doaTaskResponse = client.target((String) messageBody.get("doa"))
                         .request()
                         .header("subjectid", messageBody.get("subjectid"))
-                        .post(Entity.form(form)).readEntity(Task.class);
+                        .post(Entity.form(form));
+                if (201 != doaTaskResponse.getStatus() && 202 != doaTaskResponse.getStatus()
+                        && 200 != doaTaskResponse.getStatus()) {
+                    ErrorReport remoteTaskError = doaTaskResponse.readEntity(ErrorReport.class);
+                    task.setErrorReport(remoteTaskError);
+                    task.setStatus(Task.Status.ERROR);
+                    task.setHttpStatus(remoteTaskError.getHttpStatus());
+                    taskHandler.edit(task);
+                    return;
+                }
+                Task leverageTask = doaTaskResponse.readEntity(Task.class);
                 task.getMeta().getComments().add("DoA to be created by task: " + leverageTask.getId());
+                task.setPercentageCompleted(87f);
                 taskHandler.edit(task);
 
                 int i_leverage_check = 0;
@@ -327,7 +342,7 @@ public class TrainingMDB extends RunningTaskMDB {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             task.setStatus(Task.Status.ERROR);
             task.setErrorReport(ErrorReportFactory.internalServerError(ex, "", ex.getMessage(), ""));
-        } catch (Exception ex) {
+        } catch (NullPointerException | InterruptedException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             task.setStatus(Task.Status.ERROR);
             task.setErrorReport(ErrorReportFactory.internalServerError(ex, "", ex.getMessage(), "")); // rest

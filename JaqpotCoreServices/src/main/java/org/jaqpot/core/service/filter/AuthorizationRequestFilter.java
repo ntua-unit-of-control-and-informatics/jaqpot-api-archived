@@ -32,11 +32,12 @@ package org.jaqpot.core.service.filter;
 import java.io.IOException;
 import java.security.Principal;
 import java.util.ResourceBundle;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.ext.Provider;
@@ -63,35 +64,42 @@ public class AuthorizationRequestFilter implements ContainerRequestFilter {
     AAService aaService;
 
     private ResourceBundle configResourceBundle;
-    
+
     @EJB
     UserHandler userHandler;
+
+    private static final Logger LOG = Logger.getLogger(AuthorizationRequestFilter.class.getName());
 
     @PostConstruct
     private void init() {
         configResourceBundle = ResourceBundle.getBundle("config");
     }
 
+    private void _handleAnonymous(ContainerRequestContext requestContext) {
+        // When operating without AA, all users are anonymous
+        Principal userPrincipal = new UserPrincipal("anonymous");
+        SecurityContext securityContext = new SecurityContextImpl(userPrincipal);
+        requestContext.setSecurityContext(securityContext);
+        User anonymousUser = userHandler.find("anonymous");
+        if (anonymousUser == null) { // The anonymous user is a DB entry
+            // create an anonymous user if it doesn't exist!
+            anonymousUser = UserFactory.newNormalUser("anonymous", "anonymous");
+            anonymousUser.setName("Anonymous User");
+            anonymousUser.setMail("anonymous@jaqpot.org");
+            userHandler.create(anonymousUser);
+        }
+    }
+
     @Override
     public void filter(ContainerRequestContext requestContext) throws IOException {
-        
-        
+
+        // when AA is not enabled...
         if ("false".equals(configResourceBundle.getString("jaqpot.aa"))) {
-            // When operating without AA, all users are anonymous
-            Principal userPrincipal = new UserPrincipal("anonymous");
-            SecurityContext securityContext = new SecurityContextImpl(userPrincipal);
-            requestContext.setSecurityContext(securityContext);
-            User anonymousUser = userHandler.find("anonymous");
-            if (anonymousUser==null){ // The anonymous user is a DB entry
-                // create an anonymous user if it doesn't exist!
-                anonymousUser = UserFactory.newNormalUser("anonymous", "anonymous");
-                anonymousUser.setName("Anonymous User");
-                anonymousUser.setMail("anonymous@jaqpot.org");
-                userHandler.create(anonymousUser);
-            }
+            _handleAnonymous(requestContext);
             return;
         }
-        
+
+        // Check whether there is an AA token...
         String token = requestContext.getHeaderString("subjectid");
         if (token == null) {
             requestContext.abortWith(Response
@@ -99,27 +107,37 @@ public class AuthorizationRequestFilter implements ContainerRequestFilter {
                     .status(Response.Status.UNAUTHORIZED)
                     .build());
         }
-        String user = aaService.getUserFromToken(token);
+
+        // is the token valid? if not: forbidden...
         if (!aaService.validate(token)) {
-            if (user != null) {
-                aaService.removeToken(token);
-            }
             requestContext.abortWith(Response.
                     ok(ErrorReportFactory.unauthorized("Your authorization token is not valid."))
-                    .status(Response.Status.UNAUTHORIZED)
+                    .status(Response.Status.FORBIDDEN)
                     .build());
+            return;
         }
 
+        // who is this user? is the user cached?
+        User user = aaService.getUserFromToken(token);
         if (user != null) {
-            Principal userPrincipal = new UserPrincipal(user);
-            SecurityContext securityContext = new SecurityContextImpl(userPrincipal);
-            requestContext.setSecurityContext(securityContext);
-        } else {
-            requestContext.abortWith(Response
-                    .ok(ErrorReportFactory.unauthorized("Please login first!"), MediaType.APPLICATION_JSON)
-                    .status(Response.Status.UNAUTHORIZED)
-                    .build());
+            return; // user is cached!
         }
+
+        // the token is valid - ask SSO who this user is...
+        // the user is not cached...
+        user = aaService.getUserFromSSO(token);
+        aaService.registerUserToken(token, user); // cache the user
+
+        LOG.log(Level.INFO, "New user on Jaqpot with ID {0} and name {1}", 
+                new Object[]{user.getId(), user.getName()});
+
+        // is the user in the DB?
+        User userInDB = userHandler.find(user.getId());
+        if (userInDB == null) { // user not in DB - create...
+            LOG.log(Level.INFO, "New user registered in DB with ID {0}", user.getId());
+            userHandler.create(user);
+        }
+
     }
 
 }
