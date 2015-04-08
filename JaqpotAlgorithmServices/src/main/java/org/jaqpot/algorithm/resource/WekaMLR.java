@@ -58,6 +58,7 @@ import org.jaqpot.core.model.dto.jpdi.TrainingResponse;
 import org.jaqpot.core.model.factory.ErrorReportFactory;
 import weka.classifiers.Classifier;
 import weka.classifiers.functions.LinearRegression;
+import weka.core.Attribute;
 import weka.core.Instances;
 
 /**
@@ -113,6 +114,7 @@ public class WekaMLR {
                     .collect(Collectors.toList());
             response.setIndependentFeatures(independentFeatures);
             response.setPmmlModel(pmml);
+            response.setAdditionalInfo(request.getPredictionFeature());
 
             return Response.ok(response).build();
         } catch (Exception ex) {
@@ -140,6 +142,8 @@ public class WekaMLR {
 
             Classifier classifier = model.getClassifier();
             Instances data = InstanceUtils.createFromDataset(request.getDataset());
+            String dependentFeature = (String) request.getAdditionalInfo();
+            data.insertAttributeAt(new Attribute(dependentFeature), data.numAttributes());
             List<Object> predictions = new ArrayList<>();
             data.stream().forEach(instance -> {
                 try {

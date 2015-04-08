@@ -65,14 +65,15 @@ public class InstanceUtils {
 
         Instances data = new Instances(dataset.getDatasetURI(), new ArrayList<>(attributes), dataset.getDataEntry().size());
         data.setClass(data.attribute(predictionFeature));
-
-        for (DataEntry dataEntry : dataset.getDataEntry()) {
+        dataset.getDataEntry().stream().map((dataEntry) -> {
             Instance instance = new DenseInstance(dataEntry.getValues().size());
             dataEntry.getValues().entrySet().stream().forEach(entry -> {
                 instance.setValue(data.attribute(entry.getKey()), Double.parseDouble(entry.getValue().toString()));
             });
+            return instance;
+        }).forEach((instance) -> {
             data.add(instance);
-        }
+        });
         return data;
     }
 
