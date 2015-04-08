@@ -5,7 +5,7 @@ System-wide configuration:
 
 Modify the file `standalone-full.xml` which is typically found at 
 `{WILDFLY_BASE_PATH}/standalone/configuration/standalone-full.xml`
-and add the following inside the tag <jms-destinations>:
+and add the following inside the tag `<jms-destinations>`:
 
 ```
 <jms-destinations>
