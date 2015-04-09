@@ -159,7 +159,17 @@ public class FeatureResource {
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @Consumes(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Creates a new Feature",
-            notes = "Creates a new feature which is assigned a random unique ID",
+            notes = "Creates a new feature which is assigned a random unique ID. When creating a new feature, clients must wary not only for "
+            + "its syntactic correctness, but also for its semantic completeness. It is strongly recommended to add a comprehensive and "
+            + "identifying title to your feature using the <code>meta.titles</code> field, to add a description in <code>meta.descriptions</code> "
+            + "and also to add a list of tags in <code>meta.subjects</code> that will facilitate the discoverability of your features later. "
+            + "Additionally, all features should be annotated with appropriate ontological classes (from the OpenTox ontology), such as "
+            + "<code>ot:Feature</code>, <code>ot:NumericFeature</code> and <code>ot:NominalFeature</code>. Features that are created as "
+            + "prediction features for a model or are descriptors that can be calculated using a descriptor calculation web "
+            + "service should be linked to this/these service(s) using <code>meta.hasSources</code>. Finally, nominal features should define their "
+            + "admissible values in <code>admissibleValues</code>. Malformed feature documents will not be accepted by the server and an "
+            + "error report will be generated and returned to the client. Notice also that authentication, authorization and accounting "
+            + "restrictions may apply.",
             response = Feature.class)
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "Feature was created successfully."),
@@ -172,8 +182,8 @@ public class FeatureResource {
     public Response createFeature(
             @ApiParam(value = "Clients need to authenticate in order to create resources on the server")
             @HeaderParam("subjectid") String subjectId,
-            @ApiParam(value = "BibTeX in JSON representation compliant with the BibTeX specifications. "
-                    + "Malformed BibTeX entries with missing fields will not be accepted.", required = true,
+            @ApiParam(value = "Feature in JSON representation compliant with the Feature specifications. "
+                    + "Malformed Feature entries with missing fields will not be accepted.", required = true,
                     defaultValue = DEFAULT_FEATURE) Feature feature
     ) throws JaqpotNotAuthorizedException {
         if (feature == null) {
@@ -199,8 +209,7 @@ public class FeatureResource {
                 .build();
 
     }
-    
-    
+
     @DELETE
     @Path("/{id}")
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
