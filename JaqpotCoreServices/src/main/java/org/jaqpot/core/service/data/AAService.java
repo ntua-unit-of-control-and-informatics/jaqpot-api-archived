@@ -91,10 +91,8 @@ public class AAService {
         tokenMap.putIfAbsent(token, user);
     }
     public static final String SSO_HOST = "opensso.in-silico.ch",
-            SSO_SERVER = "https://" + SSO_HOST,
             SSO_IDENTITY = "https://" + SSO_HOST + "/auth/%s",
             SSO_POLICY = "https://" + SSO_HOST + "/pol",
-            SSO_POLICY_OLD = "https://" + SSO_HOST + "/Pol/opensso-pol",
             /**
              * SSO identity service
              */
@@ -165,17 +163,26 @@ public class AAService {
         return "boolean=true".equals(message) && status == 200;
     }
 
-    public boolean logout(String token) {
+    /**
+     * Logs out a user given their authentication token.
+     *
+     * @param token an authentication token
+     * @return
+     * @throws org.jaqpot.core.service.exceptions.JaqpotNotAuthorizedException
+     */
+    public boolean logout(String token) throws JaqpotNotAuthorizedException {
         MultivaluedMap<String, String> formData = new MultivaluedHashMap<>();
         formData.putSingle("subjectid", token);
         Response response = client.target(SSOlogout)
                 .request()
-                .post(Entity.form(formData));
-        //TODO (IMPT) Take care of remote exceptions
-        // the remote service may return gibberish...
-        tokenMap.remove(token);
-        int status = response.getStatus();
+                .post(Entity.form(formData));        
+        if (200 != response.getStatus()) {
+            response.close();
+            throw new JaqpotNotAuthorizedException("It seems your token is not valid");
+        }
         response.close();
+        tokenMap.remove(token);
+        int status = response.getStatus();        
         return status == 200;
     }
 

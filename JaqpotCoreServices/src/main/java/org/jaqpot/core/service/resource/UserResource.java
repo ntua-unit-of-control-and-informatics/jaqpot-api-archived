@@ -82,7 +82,7 @@ public class UserResource {
 
     @GET
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
-    @ApiOperation(value = "Lists all Users",
+    @ApiOperation(value = "Lists all Users (admins only)",
             notes = "Lists all Users of Jaqpot Quattro. This operation can only be performed by the system administrators.",
             response = User.class,
             responseContainer = "List")

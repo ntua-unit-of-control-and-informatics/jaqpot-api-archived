@@ -27,7 +27,6 @@
  * All source files of JAQPOT Quattro that are stored on github are licensed
  * with the aforementioned licence. 
  */
-
 package org.jaqpot.core.service.writer;
 
 import java.io.IOException;
@@ -54,7 +53,7 @@ import org.jaqpot.core.model.JaqpotEntity;
  */
 @Provider
 @Produces("text/uri-list")
-public class UriListBodyWriter implements MessageBodyWriter<List<JaqpotEntity>> {
+public class UriListBodyWriter implements MessageBodyWriter<List> {
 
     @Context
     UriInfo uriInfo;
@@ -65,15 +64,28 @@ public class UriListBodyWriter implements MessageBodyWriter<List<JaqpotEntity>> 
     }
 
     @Override
-    public long getSize(List<JaqpotEntity> t, Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
+    public long getSize(List t, Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
         return 0;
     }
 
     @Override
-    public void writeTo(List<JaqpotEntity> entityList, Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType, MultivaluedMap<String, Object> httpHeaders, OutputStream entityStream) throws IOException, WebApplicationException {
+    public void writeTo(List entityList, 
+            Class<?> type, 
+            Type genericType, 
+            Annotation[] annotations, 
+            MediaType mediaType, 
+            MultivaluedMap<String, Object> httpHeaders, 
+            OutputStream entityStream) throws IOException, WebApplicationException {
         StringJoiner joiner = new StringJoiner("\n");
-        for (JaqpotEntity entity : entityList) {
-            String uri = uriInfo.getBaseUri() + entity.getClass().getSimpleName().toLowerCase() + "/" + entity.getId();
+        String uri;
+        for (Object entity : entityList) {
+
+            if (entity instanceof JaqpotEntity) {
+
+                uri = uriInfo.getBaseUri() + entity.getClass().getSimpleName().toLowerCase() + "/" + ((JaqpotEntity) entity).getId();
+            } else {
+                uri = entity != null ? entity.toString() : null;
+            }
             joiner.add(uri);
         }
         entityStream.write(joiner.toString().getBytes());

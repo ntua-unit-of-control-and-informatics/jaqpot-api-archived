@@ -35,10 +35,12 @@ import com.wordnik.swagger.annotations.ApiParam;
 import com.wordnik.swagger.annotations.ApiResponse;
 import com.wordnik.swagger.annotations.ApiResponses;
 import java.security.GeneralSecurityException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.ejb.EJB;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
@@ -54,6 +56,8 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
 import org.jaqpot.core.data.ModelHandler;
+import org.jaqpot.core.model.BibTeX;
+import org.jaqpot.core.model.Feature;
 import org.jaqpot.core.model.Model;
 import org.jaqpot.core.model.Task;
 import org.jaqpot.core.model.factory.ErrorReportFactory;
@@ -79,14 +83,17 @@ public class ModelResource {
 
     @EJB
     PredictionService predictionService;
-    
+
     @Context
     SecurityContext securityContext;
 
     @GET
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @ApiOperation(value = "Finds all Models",
-            notes = "Finds all Models from Jaqpot Dataset",
+            notes = "Finds all Models from Jaqpot Dataset. The response will list all models and will return either a URI list "
+            + "of a list of JSON model objects. In the latter case, only the IDs, metadata, ontological classes "
+            + "and reliability of the models will be returned. "
+            + "Use the parameters start and max to get paginated results.",
             response = Model.class,
             responseContainer = "List")
     @ApiResponses(value = {
@@ -95,12 +102,16 @@ public class ModelResource {
                 + "matching your search criteria."),
         @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
     })
-    public Response getModels(
+    public Response listModels(
             @ApiParam(value = "Creator of the model (username)") @QueryParam("creator") String creator,
             @ApiParam(value = "start", defaultValue = "0") @QueryParam("start") Integer start,
-            @ApiParam(value = "max", defaultValue = "20") @QueryParam("max") Integer max
+            @ApiParam(value = "max - the server imposes an upper limit of 500 on this "
+                    + "parameter.", defaultValue = "20") @QueryParam("max") Integer max
     ) {
-        return Response.ok(modelHandler.listOnlyIDs(start != null ? start : 0, max != null ? max : Integer.MAX_VALUE)).build();
+        if (max == null || max > 500) {
+            max = 500;
+        }
+        return Response.ok(modelHandler.listOnlyIDs(start != null ? start : 0, max)).build();
     }
 
     @GET
@@ -147,10 +158,7 @@ public class ModelResource {
             @ApiParam(value = "Clients need to authenticate in order to access models") @HeaderParam("subjectid") String subjectId) {
         Model model = modelHandler.findModelPmml(id);
         if (model == null || model.getPmmlModel() == null) {
-            return Response
-                    .ok(ErrorReportFactory.notFoundError(uriInfo.getPath()))
-                    .status(Response.Status.NOT_FOUND)
-                    .build();
+            throw new NotFoundException("The requested model was not found on the server.");
         }
 
         Object pmmlObj = model.getPmmlModel();
@@ -165,6 +173,80 @@ public class ModelResource {
                     .ok(pmmlObj.toString(), MediaType.APPLICATION_XML)
                     .build();
         }
+
+    }
+
+    @GET
+    @Produces({"text/uri-list"})
+    @Path("/{id}/independent")
+    @ApiOperation(value = "Lists the independent features of a Model",
+            notes = "Lists the independent features of a Model. The result is available as a URI list.",
+            response = String.class,
+            responseContainer = "List")
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "Model is found and its independent features are listed in the response body."),
+        @ApiResponse(code = 401, message = "You are not authorized to access this model"),
+        @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)"),
+        @ApiResponse(code = 404, message = "This model was not found."),
+        @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
+    })
+    public Response listModelIndependentFeatures(
+            @PathParam("id") String id,
+            @ApiParam(value = "Clients need to authenticate in order to access models") @HeaderParam("subjectid") String subjectId) {
+
+        Model foundModel = modelHandler.findModelIndependentFeatures(id);
+        if (foundModel == null) {
+            throw new NotFoundException("The requested model was not found on the server.");
+        }    
+        return Response.ok(foundModel.getIndependentFeatures()).build();
+
+    }
+
+    @GET
+    @Produces({"text/uri-list"})
+    @Path("/{id}/dependent")
+    @ApiOperation(value = "Lists the dependent features of a Model",
+            notes = "Lists the dependent features of a Model identified by its ID. The result is available as a URI list.",
+            response = String.class,
+            responseContainer = "List")
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "Model is found and its independent features are listed in the response body."),
+        @ApiResponse(code = 401, message = "You are not authorized to access this model"),
+        @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)"),
+        @ApiResponse(code = 404, message = "This model was not found."),
+        @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
+    })
+    public Response listModelDependentFeatures(
+            @PathParam("id") String id,
+            @ApiParam(value = "Clients need to authenticate in order to access models") @HeaderParam("subjectid") String subjectId) {
+        return Response.status(Response.Status.NOT_IMPLEMENTED)
+                .entity(ErrorReportFactory.notImplementedYet())
+                .type(MediaType.APPLICATION_JSON_TYPE)
+                .build();
+
+    }
+
+    @GET
+    @Produces({"text/uri-list"})
+    @Path("/{id}/predicted")
+    @ApiOperation(value = "Lists the dependent features of a Model",
+            notes = "Lists the predicted features of a Model identified by its ID. The result is available as a URI list.",
+            response = String.class,
+            responseContainer = "List")
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "Model is found and its independent features are listed in the response body."),
+        @ApiResponse(code = 401, message = "You are not authorized to access this model"),
+        @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)"),
+        @ApiResponse(code = 404, message = "This model was not found."),
+        @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
+    })
+    public Response listModelPredictedFeatures(
+            @PathParam("id") String id,
+            @ApiParam(value = "Clients need to authenticate in order to access models") @HeaderParam("subjectid") String subjectId) {
+        return Response.status(Response.Status.NOT_IMPLEMENTED)
+                .entity(ErrorReportFactory.notImplementedYet())
+                .type(MediaType.APPLICATION_JSON_TYPE)
+                .build();
 
     }
 
@@ -192,5 +274,27 @@ public class ModelResource {
         options.put("createdBy", securityContext.getUserPrincipal().getName());
         Task task = predictionService.initiatePrediction(options);
         return Response.ok(task).build();
+    }
+
+    @DELETE
+    @Path("/{id}")
+    @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
+    @ApiOperation(value = "Deletes a particular Model resource",
+            notes = "Deletes a Model of a given ID. The method is idempondent, that is it can be used more than once without "
+            + "triggering an exception/error. If the Model does not exist, the method will return without errors. "
+            + "Authentication and authorization requirements apply, so clients that are not authenticated with a "
+            + "valid token or do not have sufficient priviledges will not be able to delete Models using this method.")
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "Model entry was deleted successfully (if found)."),
+        @ApiResponse(code = 401, message = "You are not authorized to delete this resource"),
+        @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)"),
+        @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
+    })
+    public Response deleteModel(
+            @ApiParam("Clients need to authenticate in order to create resources on the server") @HeaderParam("subjectid") String subjectId,
+            @ApiParam(value = "ID of the Model.", required = true) @PathParam("id") String id
+    ) {
+        modelHandler.remove(new Model(id));
+        return Response.ok().build();
     }
 }

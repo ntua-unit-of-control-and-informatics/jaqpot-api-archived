@@ -263,11 +263,13 @@ public class BibTeXResource {
     @Path("/{id}")
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @ApiOperation(value = "Deletes a particular BibTeX resource",
-            notes = "Deletes a BibTeX resource of a given ID",
+            notes = "Deletes a BibTeX resource of a given ID. The method is idempondent, that is, it can be used more than once without "
+            + "triggering an exception/error. If the BibTeX does not exist, the method will return without errors. "
+            + "Authentication and authorization requirements apply, so clients that are not authenticated with a "
+            + "valid token or do not have sufficient priviledges will not be able to delete a BibTeX using this method.",
             position = 5)
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "BibTeX entry was deleted successfully."),
-        @ApiResponse(code = 404, message = "No such BibTeX - nothing was deleted"),
         @ApiResponse(code = 401, message = "You are not authorized to delete this resource"),
         @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)"),
         @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")

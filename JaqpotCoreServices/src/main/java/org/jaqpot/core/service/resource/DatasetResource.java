@@ -61,7 +61,12 @@ public class DatasetResource {
     @GET
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @ApiOperation(value = "Finds all Datasets",
-            notes = "Finds all Datasets in the DB of Jaqpot and returns them in a list",
+            notes = "Finds all Datasets in the DB of Jaqpot and returns them in a list. Results can be obtained "
+            + "either in the form of a URI list or as a JSON list as specified by the Accept HTTP header. "
+            + "In the latter case, a list will be returned containing only the IDs of the datasets, their metadata "
+            + "and their ontological classes. The parameter max, which specifies the maximum number of IDs to be "
+            + "listed is limited to 500; if the client specifies a larger value, an HTTP Warning Header will be "
+            + "returned (RFC 2616) with code P670.",
             response = Dataset.class,
             responseContainer = "List",
             position = 1)
@@ -71,16 +76,24 @@ public class DatasetResource {
         @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)"),
         @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
     })
-    public Response getDatasets(
+    public Response listDatasets(
             @ApiParam(value = "start", defaultValue = "0") @QueryParam("start") Integer start,
-            @ApiParam(value = "max", defaultValue = "10") @QueryParam("max") Integer max
+            @ApiParam(value = "max - the server imposes an upper limit of 500 on this "
+                    + "parameter.", defaultValue = "10") @QueryParam("max") Integer max
     ) {
         start = start != null ? start : 0;
-        max = max != null ? max : 100;
-        return Response
+        boolean doWarnMax = false;
+        if (max == null || max > 500) {
+            max = 500;
+            doWarnMax = true;
+        }
+        Response.ResponseBuilder responseBuilder = Response
                 .ok(datasetHandler.listOnlyIDs(start, max))
-                .status(Response.Status.OK)
-                .build();
+                .status(Response.Status.OK);
+        if (doWarnMax) {
+            responseBuilder.header("Warning", "P670 Parameter max has been limited to 500");
+        }
+        return responseBuilder.build();
     }
 
     @GET

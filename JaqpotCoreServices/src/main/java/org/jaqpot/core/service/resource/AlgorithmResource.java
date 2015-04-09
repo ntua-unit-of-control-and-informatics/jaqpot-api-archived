@@ -130,7 +130,7 @@ public class AlgorithmResource {
 
     @EJB
     UserHandler userHandler;
-    
+
     @Inject
     @Jackson
     JSONSerializer serializer;
@@ -152,7 +152,12 @@ public class AlgorithmResource {
     @POST
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @ApiOperation(value = "Creates Algorithm",
-            notes = "Creates a new JPDI compliant Algorithm Service",
+            notes = "Registers a new JPDI-compliant algorithm service. When registering a new JPDI-compliant algorithm web service "
+            + "it is crucial to propertly annotate your algorithm with appropriate ontological classes following the "
+            + "<a href=\"http://opentox.org/dev/apis/api-1.1/Algorithms\">OpenTox algorithms ontology</a>. For instance, a "
+            + "Clustering algorithm must be annotated with <code>ot:Clustering</code>. It is also important for "
+            + "discoverability to add tags to your algorithm using the <code>meta.subjects</code> field. An example is "
+            + "provided below.",
             response = Algorithm.class
     )
     public Response createAlgorithm(
@@ -242,7 +247,7 @@ public class AlgorithmResource {
         Task task = trainingService.initiateTraining(options, securityContext.getUserPrincipal().getName());
         task.setCreatedBy(securityContext.getUserPrincipal().getName());
         task.setHttpStatus(202);
-        task.setStatus(Task.Status.QUEUED);        
+        task.setStatus(Task.Status.QUEUED);
         return Response.ok(task).build();
     }
 
@@ -300,7 +305,7 @@ public class AlgorithmResource {
                     .entity(ErrorReportFactory.badRequest("Patch cannot be applied because the request is malformed", "Bad patch"))
                     .build();
         }
-        
+
         algorithmHandler.edit(modifiedAsAlgorithm); // update the entry in the DB
 
         return Response

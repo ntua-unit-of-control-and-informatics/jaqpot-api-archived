@@ -64,7 +64,7 @@ public class AAResource {
 
     @POST
     @Path("/login")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces({MediaType.APPLICATION_JSON, "text/plain"})
     @ApiOperation(
             value = "Creates Security Token",
             notes = "Uses OpenAM server to get a security token.",
@@ -99,7 +99,7 @@ public class AAResource {
     })
     public Response logout(
             @HeaderParam("subjectid") String subjectId
-    ) {
+    ) throws JaqpotNotAuthorizedException {
         boolean loggedOut = aaService.logout(subjectId);
         return Response
                 .ok(loggedOut ? "true" : "false", MediaType.APPLICATION_JSON)

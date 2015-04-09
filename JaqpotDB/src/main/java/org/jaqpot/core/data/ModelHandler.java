@@ -85,6 +85,36 @@ public class ModelHandler extends AbstractHandler<Model> {
 
         return em.find(Model.class, keys, fields).stream().findFirst().orElse(null);
     }
+    
+     public Model findModelPredictedFeatures(String id) {
+        List<String> keys = new ArrayList<>();
+        keys.add(id);
+
+        List<String> fields = new ArrayList<>();
+        fields.add("_id");
+        fields.add("predictedFeatures");       
+        return em.find(Model.class, keys, fields).stream().findFirst().orElse(null);
+    }
+     
+     public Model findModelIndependentFeatures(String id) {
+        List<String> keys = new ArrayList<>();
+        keys.add(id);
+
+        List<String> fields = new ArrayList<>();
+        fields.add("_id");
+        fields.add("independentFeatures");       
+        return em.find(Model.class, keys, fields).stream().findFirst().orElse(null);
+    }
+     
+      public Model findModelDependentFeatures(String id) {
+        List<String> keys = new ArrayList<>();
+        keys.add(id);
+
+        List<String> fields = new ArrayList<>();
+        fields.add("_id");
+        fields.add("dependentFeatures");       
+        return em.find(Model.class, keys, fields).stream().findFirst().orElse(null);
+    }
 
     public List<Model> findAllMeta() {
         List<String> fields = new ArrayList<>();
@@ -100,5 +130,24 @@ public class ModelHandler extends AbstractHandler<Model> {
 
         return em.findAll(Model.class, fields, 0, Integer.MAX_VALUE);
     }    
+    
+    public Model findModel(String id) {
+        List<String> keys = new ArrayList<>();
+        keys.add(id);
+
+        List<String> fields = new ArrayList<>();
+        fields.add("_id");
+        fields.add("createdBy");
+        fields.add("dependentFeatures");
+        fields.add("independentFeatures");
+        fields.add("predictedFeatures");
+        fields.add("algorithm");
+        fields.add("bibtex");
+        fields.add("datasetUri");
+        fields.add("parameters");
+        fields.add("doaModel");
+
+        return em.find(Model.class, keys, fields).stream().findFirst().orElse(null);
+    }
     
 }

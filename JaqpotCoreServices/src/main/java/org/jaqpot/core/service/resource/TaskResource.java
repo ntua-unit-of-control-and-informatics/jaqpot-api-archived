@@ -85,15 +85,18 @@ public class TaskResource {
         @ApiResponse(code = 200, message = "Success; the list of tasks is found in the response"),
         @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
     })
-    public Response getTasks(
+    public Response listTasks(
             @ApiParam(value = "Creator of the task (username)") @QueryParam("creator") String creator,
             @ApiParam(value = "Status of the task", allowableValues = "RUNNING,QUEUED,COMPLETED,ERROR,CANCELLED,REJECTED") @QueryParam("status") String status,
             @ApiParam(value = "start", defaultValue = "0") @QueryParam("start") Integer start,
-            @ApiParam(value = "max", defaultValue = "10") @QueryParam("max") Integer max
+            @ApiParam(value = "max - the server imposes an upper limit of 500 on this "
+                    + "parameter.", defaultValue = "10") @QueryParam("max") Integer max
     ) {
         start = start != null ? start : 0;
-        max = max != null ? max : Integer.MAX_VALUE;
-        List<Task> foundTasks = null;
+        if (max == null || max > 500) {
+            max = 500;
+        }
+        List<Task> foundTasks;
         if (creator == null && status == null) {
             foundTasks = taskHandler.findAll();
         } else if (creator != null && status == null) {
@@ -149,10 +152,14 @@ public class TaskResource {
     @ApiOperation(value = "Deletes a Task of given ID",
             notes = "Deletes a Task given its ID in the URI. When the DELETE method is applied, the task "
             + "is interrupted and tagged as CANCELLED. Note that this method does not return a response "
-            + "on success and, if the task does not exist, no 404 message is generated."
+            + "on success. If the task does not exist, an error report will be returned to the client "
+            + "accompanied by an HTTP status code 404. Note also that authentication and authorization "
+            + "restrictions apply, so clients need to be authenticated with a valid token and have "
+            + "appropriate rights to be able to successfully apply this method."
     )
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "Task deleted successfully"),
+        @ApiResponse(code = 200, message = "Task not found"),
         @ApiResponse(code = 401, message = "Wrong, missing or insufficient credentials. Error report is produced."),
         @ApiResponse(code = 403, message = "This is a forbidden operation (do not attempt to repeat it)."),
         @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
@@ -168,6 +175,9 @@ public class TaskResource {
         }
 
         Task task = taskHandler.find(id);
+        if (task == null) {
+            throw new NotFoundException("Task with ID " + id + " was not found on the server.");
+        }
         task.setStatus(Task.Status.CANCELLED);
         taskHandler.edit(task);
 

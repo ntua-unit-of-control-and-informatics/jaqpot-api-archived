@@ -37,6 +37,7 @@ import com.wordnik.swagger.annotations.ApiResponses;
 import java.util.Date;
 import javax.ejb.EJB;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.NotFoundException;
@@ -54,6 +55,7 @@ import org.jaqpot.core.data.FeatureHandler;
 import org.jaqpot.core.model.ErrorReport;
 import org.jaqpot.core.model.Feature;
 import org.jaqpot.core.model.MetaInfo;
+import org.jaqpot.core.model.Model;
 import org.jaqpot.core.model.factory.ErrorReportFactory;
 import org.jaqpot.core.model.util.ROG;
 import org.jaqpot.core.service.annotations.Authorize;
@@ -71,25 +73,25 @@ import org.jaqpot.core.service.exceptions.JaqpotNotAuthorizedException;
 @Produces({"application/json", "text/uri-list"})
 public class FeatureResource {
 
-    private static final String DEFAULT_FEATURE = "{\n" +
-            "  \"units\":\"kDa\",\n" +
-            "  \"ontologicalClasses\": [\n" +
-            "    \"ot:Feature\",\n" +
-            "    \"ot:NumericFeature\"\n" +
-            "  ],\n" +
-            "  \"meta\": {\n" +
-            "    \"titles\":        [ \"Molecular Weight\" ],\n" +
-            "    \"descriptions\":  [ \"The molecular weight is the mass of one mole of a substance.\" ],\n" +
-            "    \"subjects\":      [ \"MW\", \"Molecular Weight\"],\n" +
-            "    \"sameAs\":        [ \"ot:MolecularWeight\"],\n" +
-            "    \"seeAlso\":       [ \"http://en.wikipedia.org/wiki/Molecular_mass\" ],\n" +
-            "    \"hasSources\":    [ \"http://enanomapper.ntua.gr:8880/jaqpot/services/algorithm/DescCalcMW\"]\n" +
-            "  }\n" +
-            "}";
+    private static final String DEFAULT_FEATURE = "{\n"
+            + "  \"units\":\"kDa\",\n"
+            + "  \"ontologicalClasses\": [\n"
+            + "    \"ot:Feature\",\n"
+            + "    \"ot:NumericFeature\"\n"
+            + "  ],\n"
+            + "  \"meta\": {\n"
+            + "    \"titles\":        [ \"Molecular Weight\" ],\n"
+            + "    \"descriptions\":  [ \"The molecular weight is the mass of one mole of a substance.\" ],\n"
+            + "    \"subjects\":      [ \"MW\", \"Molecular Weight\"],\n"
+            + "    \"sameAs\":        [ \"ot:MolecularWeight\"],\n"
+            + "    \"seeAlso\":       [ \"http://en.wikipedia.org/wiki/Molecular_mass\" ],\n"
+            + "    \"hasSources\":    [ \"http://enanomapper.ntua.gr:8880/jaqpot/services/algorithm/DescCalcMW\"]\n"
+            + "  }\n"
+            + "}";
 
     @Context
     UriInfo uriInfo;
-    
+
     @EJB
     AAService aaService;
 
@@ -101,8 +103,14 @@ public class FeatureResource {
 
     @GET
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
-    @ApiOperation(value = "Finds all features",
-            notes = "Finds all features entries in the DB of Jaqpot and returns them in a list",
+    @ApiOperation(value = "Lists features",
+            notes = "Lists Feature entries in the DB of Jaqpot and returns them in a list. "
+            + "Results can be obtained "
+            + "either in the form of a URI list or as a JSON list as specified by the Accept HTTP header. "
+            + "In the latter case, a list will be returned containing only the IDs of the features, their metadata "
+            + "and their ontological classes. The parameter max, which specifies the maximum number of IDs to be "
+            + "listed is limited to 500; if the client specifies a larger value, an HTTP Warning Header will be "
+            + "returned (RFC 2616) with code P670.",
             response = Feature.class,
             responseContainer = "List")
     @ApiResponses(value = {
@@ -115,16 +123,25 @@ public class FeatureResource {
             @ApiParam("Creator of the feature") @QueryParam("creator") String creator,
             @ApiParam("Generic query") @QueryParam("query") String query,
             @ApiParam(value = "start", defaultValue = "0") @QueryParam("start") Integer start,
-            @ApiParam(value = "max", defaultValue = "10") @QueryParam("max") Integer max
+            @ApiParam(value = "max - the server imposes an upper limit of 500 on this "
+                    + "parameter.", defaultValue = "10") @QueryParam("max") Integer max
     ) {
         //TODO Support querying at GET /feature
-        return Response
-                .ok(featureHandler.listOnlyIDs(start != null ? start : 0, max != null ? max : Integer.MAX_VALUE))
-                .status(Response.Status.OK)
-                .build();
+        boolean doWarnMax = false;
+        if (max == null || max > 500) {
+            max = 500;
+            doWarnMax = true;
+        }
+        Response.ResponseBuilder responseBuilder = Response
+                .ok(featureHandler.listOnlyIDs(start != null ? start : 0, max))
+                .status(Response.Status.OK);
+        if (doWarnMax) {
+            responseBuilder.header("Warning", "P670 Parameter max has been limited to 500");
+        }
+        return responseBuilder.build();
     }
-    
-     @GET
+
+    @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/{id}")
     @ApiOperation(value = "Finds Feature by ID",
@@ -158,7 +175,7 @@ public class FeatureResource {
             @ApiParam(value = "BibTeX in JSON representation compliant with the BibTeX specifications. "
                     + "Malformed BibTeX entries with missing fields will not be accepted.", required = true,
                     defaultValue = DEFAULT_FEATURE) Feature feature
-    ) throws JaqpotNotAuthorizedException {        
+    ) throws JaqpotNotAuthorizedException {
         if (feature == null) {
             ErrorReport report = ErrorReportFactory.badRequest("No feature provided; check out the API specs",
                     "Clients MUST provide a Feature document in JSON to perform this request");
@@ -182,8 +199,28 @@ public class FeatureResource {
                 .build();
 
     }
-    /**
-     * Feature API: GET /feature/{id} POST /feature/{id} PUT /feature/{id}
-     * DELETE /feature/{id}
-     */
+    
+    
+    @DELETE
+    @Path("/{id}")
+    @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
+    @ApiOperation(value = "Deletes a particular Feature resource.",
+            notes = "Deletes a Feature of a given ID. The method is idempondent, that is, it can be used more than once without "
+            + "triggering an exception/error. If the Feature does not exist, the method will return without errors. "
+            + "Authentication and authorization requirements apply, so clients that are not authenticated with a "
+            + "valid token or do not have sufficient priviledges will not be able to delete a Feature using this method.")
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "Feature entry was deleted successfully."),
+        @ApiResponse(code = 401, message = "You are not authorized to delete this resource"),
+        @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)"),
+        @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
+    })
+    public Response deleteBibTeX(
+            @ApiParam("Clients need to authenticate in order to create resources on the server") @HeaderParam("subjectid") String subjectId,
+            @ApiParam(value = "ID of the Model.", required = true) @PathParam("id") String id
+    ) {
+        featureHandler.remove(new Feature(id));
+        return Response.ok().build();
+    }
+
 }

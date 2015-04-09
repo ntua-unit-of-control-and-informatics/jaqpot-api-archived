@@ -38,4 +38,9 @@ public class AuthToken {
         this.authToken = authToken;
     }
 
+    @Override
+    public String toString() {
+        return authToken;
+    }
+
 }
