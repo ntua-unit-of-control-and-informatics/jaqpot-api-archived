@@ -35,6 +35,8 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.StringJoiner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
@@ -58,6 +60,8 @@ public class UriListBodyWriter implements MessageBodyWriter<List> {
     @Context
     UriInfo uriInfo;
 
+    private static final Logger LOG = Logger.getLogger(UriListBodyWriter.class.getName());
+
     @Override
     public boolean isWriteable(Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
         return true;
@@ -69,26 +73,35 @@ public class UriListBodyWriter implements MessageBodyWriter<List> {
     }
 
     @Override
-    public void writeTo(List entityList, 
-            Class<?> type, 
-            Type genericType, 
-            Annotation[] annotations, 
-            MediaType mediaType, 
-            MultivaluedMap<String, Object> httpHeaders, 
+    public void writeTo(List entityList,
+            Class<?> type,
+            Type genericType,
+            Annotation[] annotations,
+            MediaType mediaType,
+            MultivaluedMap<String, Object> httpHeaders,
             OutputStream entityStream) throws IOException, WebApplicationException {
-        StringJoiner joiner = new StringJoiner("\n");
-        String uri;
-        for (Object entity : entityList) {
+        //StringJoiner joiner = new StringJoiner("\n");
+        //String uri;
+        byte[] newLineBytes = "\n".getBytes();
 
-            if (entity instanceof JaqpotEntity) {
-
-                uri = uriInfo.getBaseUri() + entity.getClass().getSimpleName().toLowerCase() + "/" + ((JaqpotEntity) entity).getId();
-            } else {
-                uri = entity != null ? entity.toString() : null;
+        entityList.stream().forEach((Object entity) -> {
+            try {
+                String uri;
+                if (entity instanceof JaqpotEntity) {
+                    uri = uriInfo.getBaseUri() + entity.getClass().getSimpleName().toLowerCase() + "/" + ((JaqpotEntity) entity).getId();
+                } else {
+                    uri = entity != null ? entity.toString() : null;
+                }
+                //  joiner.add(uri);
+                if (uri != null) {
+                    entityStream.write(uri.getBytes());
+                    entityStream.write(newLineBytes);
+                }
+            } catch (IOException ex) {
+                LOG.log(Level.SEVERE, null, ex);
             }
-            joiner.add(uri);
-        }
-        entityStream.write(joiner.toString().getBytes());
+        });
+
         entityStream.flush();
     }
 
