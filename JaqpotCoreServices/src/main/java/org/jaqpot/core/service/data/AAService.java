@@ -143,7 +143,7 @@ public class AAService {
                 user = getUserFromSSO(aToken.getAuthToken());
                 userHandler.create(user);
                 LOG.log(Level.INFO, "User {0} created.", username);
-            } 
+            }
             registerUserToken(aToken.getAuthToken(), user);
             return aToken;
         }
@@ -159,8 +159,6 @@ public class AAService {
         Response response = client.target(SSOvalidate)
                 .request()
                 .post(Entity.form(formData));
-        //TODO (IMPT) Take care of remote exceptions
-        // the remote service may return gibberish...
         String message = response.readEntity(String.class).trim();
         int status = response.getStatus();
         response.close();
@@ -180,11 +178,10 @@ public class AAService {
         response.close();
         return status == 200;
     }
-    
 
     /**
-     * Queries the SSO server to get user attributes and returns
-     * a user.
+     * Queries the SSO server to get user attributes and returns a user.
+     *
      * @param token authentication token.
      * @return user entity with the capabilities of a new user and the retrieved
      * attributes.
@@ -240,10 +237,24 @@ public class AAService {
                 }
             }
         }
+        response.close();
         LOG.log(Level.INFO, "User ID   {0}", user.getId());
         LOG.log(Level.INFO, "User Name {0}", user.getName());
         LOG.log(Level.INFO, "User Mail {0}", user.getMail());
         return user;
     }
 
+    public boolean authorize(String token, String httpMethod, String uri) {
+        MultivaluedMap<String, String> formData = new MultivaluedHashMap<>();
+        formData.putSingle("subjectid", token);
+        formData.putSingle("uri", uri);
+        formData.putSingle("action", httpMethod);
+        Response response = client.target(SSOauthorization)
+                .request()
+                .post(Entity.form(formData));
+        String message = response.readEntity(String.class).trim();
+        int status = response.getStatus();
+        response.close();
+        return "boolean=true".equals(message) && status == 200;
+    }
 }

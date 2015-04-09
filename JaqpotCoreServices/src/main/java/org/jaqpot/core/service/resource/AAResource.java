@@ -146,9 +146,11 @@ public class AAResource {
             @ApiParam(value = "URI") @FormParam("uri") String uri
     ) {
 
-        return Response.ok(ErrorReportFactory.notImplementedYet())
-                .status(Response.Status.NOT_IMPLEMENTED)
+        boolean valid = aaService.authorize(subjectId, method, uri);
+        return Response.ok(valid ? "true" : "false", MediaType.APPLICATION_JSON)
+                .status(valid ? Response.Status.OK : Response.Status.FORBIDDEN)
                 .build();
+
     }
 
 }

@@ -34,15 +34,20 @@
  */
 package org.jaqpot.core.service.resource;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.github.fge.jsonpatch.JsonPatchException;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
 import com.wordnik.swagger.annotations.ApiResponse;
 import com.wordnik.swagger.annotations.ApiResponses;
+import com.wordnik.swagger.jaxrs.PATCH;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 import javax.ejb.EJB;
+import javax.inject.Inject;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
@@ -58,15 +63,21 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
+import org.jaqpot.core.annotations.Jackson;
 import org.jaqpot.core.data.AlgorithmHandler;
 import org.jaqpot.core.data.TaskHandler;
 import org.jaqpot.core.data.UserHandler;
+import org.jaqpot.core.data.serialize.JSONSerializer;
 import org.jaqpot.core.model.Algorithm;
+import org.jaqpot.core.model.BibTeX;
+import org.jaqpot.core.model.ErrorReport;
 import org.jaqpot.core.model.Task;
 import org.jaqpot.core.model.User;
 import org.jaqpot.core.model.builder.AlgorithmBuilder;
 import org.jaqpot.core.model.facades.UserFacade;
+import org.jaqpot.core.model.factory.ErrorReportFactory;
 import org.jaqpot.core.model.util.ROG;
+import org.jaqpot.core.model.validator.BibTeXValidator;
 import org.jaqpot.core.service.annotations.Authorize;
 import org.jaqpot.core.service.data.TrainingService;
 import org.jaqpot.core.service.exceptions.QuotaExceededException;
@@ -119,6 +130,10 @@ public class AlgorithmResource {
 
     @EJB
     UserHandler userHandler;
+    
+    @Inject
+    @Jackson
+    JSONSerializer serializer;
 
     @GET
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
@@ -252,4 +267,44 @@ public class AlgorithmResource {
         return Response.ok().build();
     }
 
+    @PATCH
+    @Path("/{id}")
+    @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
+    @Consumes("application/json-patch+json")
+    @ApiOperation(value = "Modifies a particular Algorithm resource",
+            notes = "Modifies (applies a patch on) an Algorithm resource of a given ID. "
+            + "This implementation of PATCH follows the RFC 6902 proposed standard. "
+            + "See https://tools.ietf.org/rfc/rfc6902.txt for details.",
+            position = 5)
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "Algorithm deleted successfully"),
+        @ApiResponse(code = 401, message = "Wrong, missing or insufficient credentials. Error report is produced."),
+        @ApiResponse(code = 403, message = "This is a forbidden operation (do not attempt to repeat it)."),
+        @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
+    })
+    public Response modifyAlgorithm(
+            @ApiParam("Clients need to authenticate in order to create resources on the server") @HeaderParam("subjectid") String subjectId,
+            @ApiParam(value = "ID of an existing BibTeX.", required = true) @PathParam("id") String id,
+            @ApiParam(value = "The patch in JSON according to the RFC 6902 specs", required = true) String patch
+    ) throws JsonPatchException, JsonProcessingException {
+
+        Algorithm originalAlgorithm = algorithmHandler.find(id); // find doc in DB
+        if (originalAlgorithm == null) {
+            throw new NotFoundException("Algorithm with ID " + id + " not found.");
+        }
+
+        Algorithm modifiedAsAlgorithm = serializer.patch(originalAlgorithm, patch, Algorithm.class);
+        if (modifiedAsAlgorithm == null) {
+            return Response
+                    .status(Response.Status.BAD_REQUEST)
+                    .entity(ErrorReportFactory.badRequest("Patch cannot be applied because the request is malformed", "Bad patch"))
+                    .build();
+        }
+        
+        algorithmHandler.edit(modifiedAsAlgorithm); // update the entry in the DB
+
+        return Response
+                .ok(modifiedAsAlgorithm)
+                .build();
+    }
 }

@@ -197,8 +197,9 @@ public class TrainingMDB extends RunningTaskMDB {
             task.getMeta().getComments().add("Attempting to parse response...");
             task.setPercentageCompleted(71.f);
             taskHandler.edit(task);
-            TrainingResponse trainingResponse = response.readEntity(TrainingResponse.class);
             response.close();
+            
+            TrainingResponse trainingResponse = response.readEntity(TrainingResponse.class);
             task.getMeta().getComments().add("Response was parsed successfully");
             task.setPercentageCompleted(77.f);
             taskHandler.edit(task);
