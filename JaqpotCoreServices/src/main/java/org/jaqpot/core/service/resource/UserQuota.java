@@ -39,7 +39,9 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  *
- * @author chung
+ * @author Pantelis Sopasakis
+ * @author Charalampos Chomenidis
+ *
  */
 @XmlRootElement
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -47,6 +49,7 @@ public class UserQuota {
 
     private String userId;
     private Long tasks;
+    private Long tasksRunning;
     private Long models;
     private Long algorithms;
     private Long datasets;
@@ -69,6 +72,14 @@ public class UserQuota {
 
     public void setTasks(Long tasks) {
         this.tasks = tasks;
+    }
+
+    public Long getTasksRunning() {
+        return tasksRunning;
+    }
+
+    public void setTasksRunning(Long tasksRunning) {
+        this.tasksRunning = tasksRunning;
     }
 
     public Long getModels() {

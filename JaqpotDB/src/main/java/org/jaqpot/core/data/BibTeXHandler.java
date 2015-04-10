@@ -30,12 +30,15 @@
 package org.jaqpot.core.data;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import org.jaqpot.core.annotations.MongoDB;
 import org.jaqpot.core.db.entitymanager.JaqpotEntityManager;
 import org.jaqpot.core.model.BibTeX;
+import org.jaqpot.core.model.Model;
 
 /**
  *
@@ -65,6 +68,12 @@ public class BibTeXHandler extends AbstractHandler<BibTeX> {
         fields.add("title");
         fields.add("author");
         return getEntityManager().findAll(BibTeX.class, fields, start, max);
+    }
+    
+    public Long countByUser(String userName) {
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("createdBy", userName);
+        return em.count(BibTeX.class, properties);
     }
     
 }

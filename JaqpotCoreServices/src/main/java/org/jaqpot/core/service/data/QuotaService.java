@@ -38,13 +38,17 @@ import java.util.logging.Logger;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import org.jaqpot.core.data.AlgorithmHandler;
+import org.jaqpot.core.data.BibTeXHandler;
 import org.jaqpot.core.data.ModelHandler;
 import org.jaqpot.core.data.TaskHandler;
+import org.jaqpot.core.model.Task;
 import org.jaqpot.core.service.resource.UserQuota;
 
 /**
  *
- * @author chung
+ * @author Pantelis Sopasakis
+ * @author Charalampos Chomenidis
+ *
  */
 @Stateless
 public class QuotaService {
@@ -59,15 +63,18 @@ public class QuotaService {
     
     @EJB
     ModelHandler modelHandler;
-    
-    
+
+    @EJB
+    BibTeXHandler bibtexHandler;    
 
     public UserQuota getUserQuota(String userId) {
         UserQuota userQuota = new UserQuota();
         userQuota.setUserId(userId);
         userQuota.setAlgorithms(algorithmHandler.countByUser(userId));
         userQuota.setTasks(taskHandler.countByUser(userId));
+        userQuota.setTasksRunning(taskHandler.countByUserAndStatus(userId, Task.Status.RUNNING));
         userQuota.setModels(modelHandler.countByUser(userId));        
+        userQuota.setBibtex(bibtexHandler.countByUser(userId));        
         return userQuota;
     }
 

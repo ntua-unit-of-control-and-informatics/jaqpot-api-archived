@@ -112,7 +112,7 @@ public class BibTeXResource {
             + "]";
 
     @EJB
-    BibTeXHandler handler;
+    BibTeXHandler bibtexHandler;
 
     @GET
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
@@ -138,7 +138,7 @@ public class BibTeXResource {
             @ApiParam(value = "max", defaultValue = "10") @QueryParam("max") Integer max
     ) {
         return Response
-                .ok(handler.listOnlyIDs(start != null ? start : 0, max != null ? max : Integer.MAX_VALUE))
+                .ok(bibtexHandler.listOnlyIDs(start != null ? start : 0, max != null ? max : Integer.MAX_VALUE))
                 .status(Response.Status.OK)
                 .build();
     }
@@ -160,7 +160,7 @@ public class BibTeXResource {
     public Response getBibTeX(
             @ApiParam(value = "ID of the BibTeX", required = true) @PathParam("id") String id
     ) {
-        BibTeX b = handler.find(id);
+        BibTeX b = bibtexHandler.find(id);
         if (b == null) {
             throw new NotFoundException("BibTeX " + id + " not found.");
         }
@@ -209,7 +209,7 @@ public class BibTeXResource {
                     .status(Response.Status.BAD_REQUEST)
                     .build();
         }
-        handler.create(bib);
+        bibtexHandler.create(bib);
         return Response
                 .ok(bib)
                 .status(Response.Status.CREATED)
@@ -222,7 +222,10 @@ public class BibTeXResource {
     @Path("/{id}")
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @ApiOperation(value = "Places a new BibTeX entry at a particular URI",
-            notes = "Creates a new BibTeX entry which is assigned a random unique ID",
+            notes = "Creates a new BibTeX entry at the specified URI. If a BibTeX already exists at this URI,"
+            + "it will be replaced. If, instead, no BibTeX is stored under the specified URI, a new "
+            + "BibTeX entry will be created. Notice that authentication, authorization and accounting (quota) "
+            + "restrictions may apply.",
             response = BibTeX.class,
             position = 4)
     @Consumes(MediaType.APPLICATION_JSON)
@@ -251,7 +254,14 @@ public class BibTeXResource {
                     .status(Response.Status.BAD_REQUEST)
                     .build();
         }
-        handler.create(bib);
+
+        BibTeX foundBibTeX = bibtexHandler.find(id);
+        if (foundBibTeX != null) {
+            bibtexHandler.edit(bib);
+        } else {
+            bibtexHandler.create(bib);
+        }
+
         return Response
                 .ok(bib)
                 .status(Response.Status.CREATED)
@@ -278,7 +288,7 @@ public class BibTeXResource {
             @ApiParam("Clients need to authenticate in order to create resources on the server") @HeaderParam("subjectid") String subjectId,
             @ApiParam(value = "ID of the BibTeX.", required = true) @PathParam("id") String id
     ) {
-        handler.remove(new BibTeX(id));
+        bibtexHandler.remove(new BibTeX(id));
         return Response.ok().build();
     }
 
@@ -304,7 +314,7 @@ public class BibTeXResource {
             @ApiParam(value = "The patch in JSON according to the RFC 6902 specs", required = true, defaultValue = DEFAULT_BIBTEX_PATCH) String patch
     ) throws JsonPatchException, JsonProcessingException {
 
-        BibTeX originalBib = handler.find(id); // find doc in DB
+        BibTeX originalBib = bibtexHandler.find(id); // find doc in DB
         if (originalBib == null) {
             throw new NotFoundException("BibTeX " + id + " not found.");
         }
@@ -323,7 +333,7 @@ public class BibTeXResource {
                     .status(Response.Status.BAD_REQUEST)
                     .build();
         }
-        handler.edit(modifiedAsBib); // update the entry in the DB
+        bibtexHandler.edit(modifiedAsBib); // update the entry in the DB
 
         return Response
                 .ok(modifiedAsBib)
