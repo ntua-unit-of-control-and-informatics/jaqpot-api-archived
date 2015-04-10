@@ -30,7 +30,9 @@
 package org.jaqpot.core.data;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import org.jaqpot.core.annotations.MongoDB;
@@ -148,6 +150,12 @@ public class ModelHandler extends AbstractHandler<Model> {
         fields.add("doaModel");
 
         return em.find(Model.class, keys, fields).stream().findFirst().orElse(null);
+    }
+    
+    public Long countByUser(String userName) {
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("createdBy", userName);
+        return em.count(Model.class, properties);
     }
     
 }

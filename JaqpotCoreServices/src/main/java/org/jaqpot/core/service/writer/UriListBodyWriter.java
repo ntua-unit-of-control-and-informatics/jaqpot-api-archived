@@ -83,7 +83,7 @@ public class UriListBodyWriter implements MessageBodyWriter<List> {
         //StringJoiner joiner = new StringJoiner("\n");
         //String uri;
         byte[] newLineBytes = "\n".getBytes();
-
+        
         entityList.stream().forEach((Object entity) -> {
             try {
                 String uri;
@@ -101,7 +101,6 @@ public class UriListBodyWriter implements MessageBodyWriter<List> {
                 LOG.log(Level.SEVERE, null, ex);
             }
         });
-
         entityStream.flush();
     }
 
