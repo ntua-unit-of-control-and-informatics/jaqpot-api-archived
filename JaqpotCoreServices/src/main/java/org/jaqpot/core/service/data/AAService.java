@@ -71,7 +71,7 @@ public class AAService {
     @UnSecure
     Client client;
 
-    @Deprecated //TODO Remove caching of tokens...
+    
     Map<String, User> tokenMap;
 
     @PostConstruct
