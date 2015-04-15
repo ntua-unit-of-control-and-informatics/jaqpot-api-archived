@@ -51,7 +51,6 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.xml.bind.annotation.XmlRootElement;
 import org.bson.Document;
-import org.jaqpot.core.annotations.Jackson;
 import org.jaqpot.core.data.serialize.JSONSerializer;
 import org.jaqpot.core.model.JaqpotEntity;
 import org.reflections.Reflections;
@@ -71,7 +70,7 @@ public class MongoDBEntityManager implements JaqpotEntityManager {
     private static final Integer DEFAULT_PAGE_SIZE = 10;
 
     @Inject
-    @Jackson
+    @MongoDB
     JSONSerializer serializer;
 
     private final MongoClient mongoClient;
