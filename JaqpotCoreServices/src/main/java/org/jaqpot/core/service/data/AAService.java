@@ -71,6 +71,7 @@ public class AAService {
     @UnSecure
     Client client;
 
+    
     Map<String, User> tokenMap;
 
     @PostConstruct

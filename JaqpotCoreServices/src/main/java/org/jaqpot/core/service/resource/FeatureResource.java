@@ -42,6 +42,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -55,7 +56,6 @@ import org.jaqpot.core.data.FeatureHandler;
 import org.jaqpot.core.model.ErrorReport;
 import org.jaqpot.core.model.Feature;
 import org.jaqpot.core.model.MetaInfo;
-import org.jaqpot.core.model.Model;
 import org.jaqpot.core.model.factory.ErrorReportFactory;
 import org.jaqpot.core.model.util.ROG;
 import org.jaqpot.core.service.annotations.Authorize;
@@ -224,7 +224,7 @@ public class FeatureResource {
         @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)"),
         @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
     })
-    public Response deleteBibTeX(
+    public Response deleteFeature(
             @ApiParam("Clients need to authenticate in order to create resources on the server") @HeaderParam("subjectid") String subjectId,
             @ApiParam(value = "ID of the Model.", required = true) @PathParam("id") String id
     ) {
@@ -232,4 +232,48 @@ public class FeatureResource {
         return Response.ok().build();
     }
 
+    @PUT
+    @Path("/{id}")
+    @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
+    @ApiOperation(value = "Places a new Feature at a particular URI",
+            notes = "Creates a new Feature entry at the specified URI. If a Feature already exists at this URI,"
+            + "it will be replaced. If, instead, no Feature is stored under the specified URI, a new "
+            + "Feature entry will be created. Notice that authentication, authorization and accounting (quota) "
+            + "restrictions may apply.",
+            response = Feature.class,
+            position = 4)
+    @Consumes(MediaType.APPLICATION_JSON)
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "Feature entry was created successfully."),
+        @ApiResponse(code = 400, message = "Feature entry was not created because the request was malformed"),
+        @ApiResponse(code = 401, message = "You are not authorized to create a feature on the server"),
+        @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)"),
+        @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
+    })
+    public Response putFeature(
+            @ApiParam(value = "ID of the Feature.", required = true) @PathParam("id") String id,
+            @ApiParam(value = "Feature in JSON", defaultValue = DEFAULT_FEATURE, required = true) Feature feature,
+            @ApiParam("Clients need to authenticate in order to create resources on the server") @HeaderParam("subjectid") String subjectId
+    ) {
+        if (feature == null) {
+            ErrorReport report = ErrorReportFactory.badRequest("No feature provided; check out the API specs",
+                    "Clients MUST provide a Feature document in JSON to perform this request");
+            return Response.ok(report).status(Response.Status.BAD_REQUEST).build();
+        }
+        feature.setId(id);
+        
+
+        Feature foundFeature = featureHandler.find(id);
+        if (foundFeature != null) {
+            featureHandler.edit(feature);
+        } else {
+            featureHandler.create(feature);
+        }
+
+        return Response
+                .ok(feature)
+                .status(Response.Status.CREATED)
+                .header("Location", uriInfo.getBaseUri().toString() + "feature/" + feature.getId())
+                .build();
+    }
 }
