@@ -30,6 +30,7 @@
 package org.jaqpot.core.model.dto.jpdi;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -39,14 +40,14 @@ import java.util.List;
  */
 public class PredictionResponse {
 
-    List<Object> predictions;
+    List<Map<String, Object>> predictions;
 
-    public List<Object> getPredictions() {
+    public List<Map<String, Object>> getPredictions() {
         return predictions;
     }
 
-    public void setPredictions(List<Object> prediction) {
-        this.predictions = prediction;
+    public void setPredictions(List<Map<String, Object>> predictions) {
+        this.predictions = predictions;
     }
 
 }

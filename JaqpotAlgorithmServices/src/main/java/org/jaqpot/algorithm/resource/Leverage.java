@@ -39,8 +39,11 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Base64;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ws.rs.Consumes;
@@ -102,6 +105,7 @@ public class Leverage {
             String base64Model = Base64.getEncoder().encodeToString(baos.toByteArray());
             response.setRawModel(base64Model);
             response.setIndependentFeatures(new ArrayList<>(dataset.getDataEntry().get(0).getValues().keySet()));
+            response.setPredictedFeatures(Arrays.asList("Leverage DoA"));
             return Response.ok(response).build();
         } catch (IOException ex) {
             Logger.getLogger(Leverage.class.getName()).log(Level.SEVERE, null, ex);
@@ -140,7 +144,7 @@ public class Leverage {
             Matrix omega = new Matrix(model.getOmega());
             double gamma = model.getGamma();
             Matrix x = null;
-            List<Object> predictions = new ArrayList<>();
+            List<Map<String, Object>> predictions = new ArrayList<>();
             SingularValueDecomposition svd = omega.svd();
             Matrix S = svd.getS();
             Matrix U = svd.getU();
@@ -156,7 +160,9 @@ public class Leverage {
                 x = dataMatrix.getMatrix(i, i, 0, numOfFeatures - 1);
 
                 double indicator = Math.max(0, (gamma - x.times(pseudoInverse.times(x.transpose())).get(0, 0)) / gamma);
-                predictions.add(indicator);
+                Map<String, Object> predictionMap = new HashMap<>();
+                predictionMap.put("Leverage DoA", indicator);
+                predictions.add(predictionMap);
             }
             PredictionResponse response = new PredictionResponse();
             response.setPredictions(predictions);

@@ -156,8 +156,14 @@ public class TrainingMDB extends RunningTaskMDB {
             task.setPercentageCompleted(34.f);
             taskHandler.edit(task);
 
-            trainingRequest.setPredictionFeature((String) messageBody.get("prediction_feature"));
-            task.getMeta().getComments().add("Inserted prediction feature.");
+            String predictionFeature = (String) messageBody.get("prediction_feature");
+            if (predictionFeature != null && !predictionFeature.isEmpty()) {
+                trainingRequest.setPredictionFeature(predictionFeature);
+                task.getMeta().getComments().add("Inserted prediction feature.");
+            } else {
+                task.getMeta().getComments().add("Prediction feature not present.");
+            }
+
             task.setPercentageCompleted(41.f);
             taskHandler.edit(task);
 
@@ -196,13 +202,14 @@ public class TrainingMDB extends RunningTaskMDB {
 
             task.getMeta().getComments().add("Attempting to parse response...");
             task.setPercentageCompleted(71.f);
-            taskHandler.edit(task);
-            response.close();
-            
+            taskHandler.edit(task);            
+
             TrainingResponse trainingResponse = response.readEntity(TrainingResponse.class);
             task.getMeta().getComments().add("Response was parsed successfully");
             task.setPercentageCompleted(77.f);
             taskHandler.edit(task);
+            
+            response.close();
 
             task.getMeta().getComments().add("Building model...");
             task.setPercentageCompleted(84.f);
@@ -216,38 +223,41 @@ public class TrainingMDB extends RunningTaskMDB {
             model.setDatasetUri((String) messageBody.get("dataset_uri"));
             model.setAdditionalInfo(trainingResponse.getAdditionalInfo());
             ArrayList<String> dependentFeatures = new ArrayList<>();
-            dependentFeatures.add(trainingRequest.getPredictionFeature());
+            if (predictionFeature != null) {
+                dependentFeatures.add(predictionFeature);
+            }
             model.setDependentFeatures(dependentFeatures);
+
+            task.getMeta().getComments().add("Defining the prediction features");
             ArrayList<String> predictedFeatures = new ArrayList<>();
-            String predFeatID = randomStringGenerator.nextString(12);
-            predictedFeatures.add(/* messageBody.get("base_uri") + */"feature/" + predFeatID);
+            for (String featureTitle : trainingResponse.getPredictedFeatures()) {
+                Feature predictionFeatureResource = featureHandler.findByTitleAndSource(featureTitle, "algorithm/" + algorithmId);
+                if (predictionFeatureResource == null) {
+                    // Create the prediction features (POST /feature)
+                    String predFeatID = randomStringGenerator.nextString(12);
+                    predictionFeatureResource = new Feature();
+                    predictionFeatureResource.setId(predFeatID);
+                    predictionFeatureResource
+                            .setPredictorFor(dependentFeatures.stream().findFirst().orElse(null));
+                    predictionFeatureResource.setCreatedBy(task.getCreatedBy());
+                    predictionFeatureResource.setMeta(MetaInfoBuilder
+                            .builder()
+                            .addSources(/*messageBody.get("base_uri") + */"algorithm/" + algorithmId)
+                            .addComments("Feature created to hold predictions by algorithm with ID " + algorithmId)
+                            .addTitles(featureTitle)
+                            .addSeeAlso(dependentFeatures.toArray(new String[dependentFeatures.size()]))
+                            .build());
+                    /* Create feature */
+                    featureHandler.create(predictionFeatureResource);
+                    task.getMeta().getComments().add("Feature created with ID " + predFeatID);
+                    taskHandler.edit(task);
+                }
+                predictedFeatures.add(messageBody.get("base_uri") + "feature/" + predictionFeatureResource.getId());
+            }
             model.setPredictedFeatures(predictedFeatures);
 
             task.getMeta().getComments().add("Model was built successfully");
-            task.getMeta().getComments().add("Defining the prediction feature");
-            task.getMeta().getComments().add("Creating the prediction feature resource with ID "
-                    + predFeatID);
-            task.setPercentageCompleted(85.f);
-            taskHandler.edit(task);
 
-            // Create the prediction features (POST /feature)
-            Feature predictionFeatureResource = new Feature();
-            predictionFeatureResource.setId(predFeatID);
-            predictionFeatureResource
-                    .setPredictorFor(dependentFeatures.stream().findFirst().orElse(null));
-            predictionFeatureResource.setCreatedBy(task.getCreatedBy());
-            predictionFeatureResource.setMeta(MetaInfoBuilder
-                    .builder()
-                    .addSources(messageBody.get("base_uri") + "model/" + model.getId())
-                    .addComments("Feature predicted by model with ID " + model.getId())
-                    .addTitles("Prediction feature for model " + model.getId())
-                    .addSeeAlso(dependentFeatures.toArray(new String[dependentFeatures.size()]))
-                    .build());
-
-            /* Create feature */
-            featureHandler.create(predictionFeatureResource);
-
-            task.getMeta().getComments().add("Feature created with ID " + predFeatID);
             task.setPercentageCompleted(85.f);
             taskHandler.edit(task);
 

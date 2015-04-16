@@ -37,8 +37,11 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Base64;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -115,6 +118,7 @@ public class WekaMLR {
             response.setIndependentFeatures(independentFeatures);
             response.setPmmlModel(pmml);
             response.setAdditionalInfo(request.getPredictionFeature());
+            response.setPredictedFeatures(Arrays.asList("Weka MLR prediction of " + request.getPredictionFeature()));
 
             return Response.ok(response).build();
         } catch (Exception ex) {
@@ -144,11 +148,13 @@ public class WekaMLR {
             Instances data = InstanceUtils.createFromDataset(request.getDataset());
             String dependentFeature = (String) request.getAdditionalInfo();
             data.insertAttributeAt(new Attribute(dependentFeature), data.numAttributes());
-            List<Object> predictions = new ArrayList<>();
+            List<Map<String, Object>> predictions = new ArrayList<>();
             data.stream().forEach(instance -> {
                 try {
                     double prediction = classifier.classifyInstance(instance);
-                    predictions.add(prediction);
+                    Map<String, Object> predictionMap = new HashMap<>();
+                    predictionMap.put("Weka MLR prediction of " + dependentFeature, prediction);
+                    predictions.add(predictionMap);
                 } catch (Exception ex) {
                     Logger.getLogger(WekaMLR.class.getName()).log(Level.SEVERE, null, ex);
                 }

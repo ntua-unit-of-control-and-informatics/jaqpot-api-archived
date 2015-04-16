@@ -197,7 +197,7 @@ public class ModelResource {
         Model foundModel = modelHandler.findModelIndependentFeatures(id);
         if (foundModel == null) {
             throw new NotFoundException("The requested model was not found on the server.");
-        }    
+        }
         return Response.ok(foundModel.getIndependentFeatures()).build();
 
     }
@@ -272,6 +272,7 @@ public class ModelResource {
         options.put("subjectid", subjectId);
         options.put("modelId", id);
         options.put("createdBy", securityContext.getUserPrincipal().getName());
+        options.put("base_uri", uriInfo.getBaseUri().toString());
         Task task = predictionService.initiatePrediction(options);
         return Response.ok(task).build();
     }

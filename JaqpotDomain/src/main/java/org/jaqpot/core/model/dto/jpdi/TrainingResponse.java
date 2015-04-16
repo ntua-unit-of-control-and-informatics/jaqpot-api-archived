@@ -43,6 +43,7 @@ public class TrainingResponse {
     private Object pmmlModel;
     private Object additionalInfo;
     List<String> independentFeatures;
+    List<String> predictedFeatures;
 
     public Object getRawModel() {
         return rawModel;
@@ -74,6 +75,14 @@ public class TrainingResponse {
 
     public void setIndependentFeatures(List<String> independentFeatures) {
         this.independentFeatures = independentFeatures;
+    }
+
+    public List<String> getPredictedFeatures() {
+        return predictedFeatures;
+    }
+
+    public void setPredictedFeatures(List<String> predictedFeatures) {
+        this.predictedFeatures = predictedFeatures;
     }
 
 }
