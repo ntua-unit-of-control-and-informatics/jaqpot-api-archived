@@ -45,6 +45,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ejb.Schedule;
 import javax.ejb.Stateless;
+import org.kinkydesign.jaqpotjanitor.core.AssertionException;
 import org.kinkydesign.jaqpotjanitor.core.TestResult;
 import org.kinkydesign.jaqpotjanitor.core.Testable;
 import org.kinkydesign.jaqpotjanitor.core.TestsBucket;
@@ -64,6 +65,7 @@ public class JanitorScheduledJob {
     private List<TestResult> runTests(Class<?> c) {
         List<TestResult> testResults = new ArrayList<>();
         try {
+            LOG.log(Level.INFO, "Testing {0}", c.getSimpleName());
             Object t = c.newInstance();
             Method[] allMethods = c.getDeclaredMethods();
             for (Method m : allMethods) {
@@ -72,19 +74,21 @@ public class JanitorScheduledJob {
                     if ("##default".equals(testName)) {
                         testName = m.getName();
                     }
-                    TestResult tr;
+                    TestResult tr = new TestResult();
                     long beforeTest = System.currentTimeMillis();
                     try {
-                        tr = (TestResult) m.invoke(t);
+                        m.invoke(t);
                     } catch (InvocationTargetException ex) {
                         Throwable cause = ex.getTargetException();
-                        LOG.log(Level.SEVERE, null, cause);
                         StringWriter sw = new StringWriter();
                         cause.printStackTrace(new PrintWriter(sw));
                         String exceptionAsString = sw.toString();
                         tr = new TestResult();
                         tr.setPass(false);
                         tr.setStackTrace(exceptionAsString);
+                        if (!(cause instanceof AssertionException)) {
+                            LOG.log(Level.SEVERE, null, cause);
+                        }
                     }
                     if (tr != null) {
                         tr.setDuration(System.currentTimeMillis() - beforeTest);
@@ -94,12 +98,12 @@ public class JanitorScheduledJob {
                     }
                     tr.setTestName(testName);
                     testResults.add(tr); // add test result to the list
-                    LOG.log(Level.INFO, "{0}:{1} [{2}]", new Object[]{c.getSimpleName(), testName, tr.isPass() ? "PASS" : "FAIL"});
+                    LOG.log(Level.INFO, "[{0}] {1}", new Object[]{tr.isPass() ? "PASS" : "FAIL", testName});
                 }
             }
         } catch (InstantiationException | IllegalAccessException | IllegalArgumentException ex) {
             LOG.log(Level.SEVERE, "Improper test function.", ex);
-            LOG.log(Level.SEVERE, "Test function prototype is: @Testable public TestResult doTest();", ex);
+            LOG.log(Level.SEVERE, "Test function prototype is: @Testable public void doTest();", ex);
             // this catch is fail-safe (if a test fails to be invoked, move on to the next one)
         }
         return testResults;
