@@ -59,8 +59,6 @@ import static org.kinkydesign.jaqpotjanitor.core.JanitorUtils.*;
 @XmlRootElement
 public class BehaviouralTest {
 
-    Client client = ClientBuilder.newClient();
-
     private static final Logger LOG = Logger.getLogger(BehaviouralTest.class.getName());
 
     private String authToken = null;
@@ -68,40 +66,67 @@ public class BehaviouralTest {
     private static final ResourceBundle resourceBundle = ResourceBundle.getBundle("config");
 
     public BehaviouralTest() {
-        String loginService = resourceBundle.getString("janitor.target") + "aa/login";
-        LOG.log(Level.INFO, "Login service : {0}", loginService);
-        MultivaluedMap<String, String> formData = new MultivaluedHashMap<>();
-        formData.putSingle("username", "guest");
-        formData.putSingle("password", "guest");
-        Response response = client.target(loginService)
-                .request()
-                .accept(MediaType.TEXT_PLAIN)
-                .post(Entity.form(formData));
-        if (200 == response.getStatus()) {
-            authToken = response.readEntity(String.class);
-            LOG.log(Level.INFO, "TOKEN : {0}", authToken);
-        } else {
-            LOG.log(Level.SEVERE, "Authorization status : {0} (cannot log in)", response.getStatus());
+        Client client = ClientBuilder.newClient();
+        try {
+            String loginService = resourceBundle.getString("janitor.target") + "aa/login";
+            LOG.log(Level.FINEST, "Login service : {0}", loginService);
+            MultivaluedMap<String, String> formData = new MultivaluedHashMap<>();
+            formData.putSingle("username", "guest");
+            formData.putSingle("password", "guest");
+            Response response = client.target(loginService)
+                    .request()
+                    .accept(MediaType.TEXT_PLAIN)
+                    .post(Entity.form(formData));
+            if (200 == response.getStatus()) {
+                authToken = response.readEntity(String.class);
+                LOG.log(Level.FINER, "TOKEN : {0}", authToken);
+            } else {
+                LOG.log(Level.SEVERE, "Authorization status : {0} (cannot log in)", response.getStatus());
+            }
+        } finally {
+            client.close();
         }
 
     }
 
+    @Testable(name = "aa validation")
+    public void validateToken() {
+        Client client = ClientBuilder.newClient();
+        try {
+            String validationService = resourceBundle.getString("janitor.target") + "aa/validate";
+            LOG.log(Level.FINEST, "AA validation service : {0}", validationService);
+            Response response = client.target(validationService)
+                    .request()
+                    .header("subjectid", authToken)
+                    .post(Entity.form(new MultivaluedHashMap<String, String>()));
+            assertEquals("Token is not valid!", 200, response.getStatus());
+        } finally {
+            client.close();
+        }
+    }
+
     @Testable(name = "fetch weka-mlr algorithm")
     public void getAlgorithm() {
-        String wekaAlgorithm = resourceBundle.getString("janitor.target") + "algorithm/weka-mlr";
-        LOG.log(Level.INFO, "AA validation service : {0}", wekaAlgorithm);
-        Response response = client.target(wekaAlgorithm)
-                .request()
-                .accept(MediaType.APPLICATION_JSON)
-                .header("subjectid", authToken)
-                .get();
-        assertEquals("Fetching algorithm fails", 200, response.getStatus());
-        Algorithm wekaMlrAlgorithm = response.readEntity(Algorithm.class);
-        assertNotNull("WekaMLR algorithm has no training service", wekaMlrAlgorithm.getTrainingService());
+        Client client = ClientBuilder.newClient();
+        try {
+            String wekaAlgorithm = resourceBundle.getString("janitor.target") + "algorithm/weka-mlr";
+            LOG.log(Level.FINER, "AA validation service : {0}", wekaAlgorithm);
+            Response response = client.target(wekaAlgorithm)
+                    .request()
+                    .accept(MediaType.APPLICATION_JSON)
+                    .header("subjectid", authToken)
+                    .get();
+            LOG.log(Level.FINER, "Response status : {0}", response.getStatus());
+            assertEquals("Fetching algorithm fails", 200, response.getStatus());
+            Algorithm wekaMlrAlgorithm = response.readEntity(Algorithm.class);
+            assertNotNull("WekaMLR algorithm has no training service", wekaMlrAlgorithm.getTrainingService());
+        } finally {
+            client.close();
+        }
     }
-    
+
     @Testable(name = "assertion fails")
-    public void testAssertion() {        
+    public void testAssertion() {
         Object o = null;
         assertNotNull("Opps... assertion failed", o);
     }
