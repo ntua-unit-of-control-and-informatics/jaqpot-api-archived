@@ -46,12 +46,10 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ejb.Schedule;
@@ -63,40 +61,39 @@ import org.kinkydesign.jaqpotjanitor.core.TestsBucket;
 import org.reflections.Reflections;
 
 /**
- * Runs
+ * Runs periodic tests on JAQPOT.
  *
  * @author chung
  */
 @Stateless
 public class JanitorScheduledJob {
-    
+
     private static Set<Class<?>> annotated;
     private static final Logger LOG = Logger.getLogger(JanitorScheduledJob.class.getName());
-    
-    BlockingQueue<Runnable> linkedBlockingDeque = new LinkedBlockingDeque<>(100);
+
+    BlockingQueue<Runnable> linkedBlockingDeque = new LinkedBlockingDeque<>(40);
     ExecutorService executorService = new ThreadPoolExecutor(1, 4,
-            30, TimeUnit.SECONDS,
+            100, TimeUnit.SECONDS,
             linkedBlockingDeque,
-            new ThreadPoolExecutor.CallerRunsPolicy());
-    
+            new ThreadPoolExecutor.AbortPolicy());
+
     private List<TestResult> runTests(Class<?> c) {
-        
+
         List<TestResult> testResults = new ArrayList<>();
-        
+
         List<Future<TestResult>> callableTasks = new ArrayList<>();
-        
         try {
             LOG.log(Level.INFO, "Testing {0}", c.getSimpleName());
             final Object t = c.newInstance();
             Method[] allMethods = c.getDeclaredMethods();
             for (final Method m : allMethods) {
                 if (m.isAnnotationPresent(Testable.class)) {
-                    
+
                     String nameFromAnnotation = m.getAnnotation(Testable.class).name();
                     final String testName = "##default".equals(nameFromAnnotation) ? m.getName() : nameFromAnnotation;
-                    
+
                     Future<TestResult> future = executorService.submit(new Callable<TestResult>() {
-                        
+
                         @Override
                         public TestResult call() throws Exception {
                             TestResult tr = new TestResult();
@@ -119,7 +116,7 @@ public class JanitorScheduledJob {
                             tr.setTimestamp(beforeTest);
                             return tr;
                         }
-                        
+
                     });
                     callableTasks.add(future);
                 }
@@ -133,36 +130,30 @@ public class JanitorScheduledJob {
         /**
          * Now wait for all tasks to finish.
          */
-        int i=0;
-        
-        while (callableTasks.size() > 0) { // while there are more things to do (tests are still running)
-            i++;
-            if (i>=20){
-                break;
-            }
-            LOG.log(Level.INFO, "RUNNING TASKS : {0}", callableTasks.size());
-        
+
+        while (callableTasks.size() > 0) { // while there are more things to do (tests are still running)            
             Iterator<Future<TestResult>> iterator = callableTasks.iterator();
-            while (iterator.hasNext()){ // check out each task...
+            while (iterator.hasNext()) { // check out each task...
                 try {
-                    TestResult testResultObtained = iterator.next().get(3, TimeUnit.SECONDS);
-                    if (testResultObtained != null) {                        
-                        iterator.remove();
-                        testResults.add(testResultObtained); // add test result to the list                        
+                    Future<TestResult> future = iterator.next();
+                    if (future.isDone()) { // task is over!
+                        iterator.remove(); // remove from the list of TODOs
+                        TestResult testResultObtained = future.get(); // obtain result
+                        testResults.add(testResultObtained); // add test result to the list (test is done)
                         LOG.log(Level.INFO, "[{0}] {1} ({2}ms)", new Object[]{
                             testResultObtained.isPass() ? "PASS" : "FAIL", testResultObtained.getTestName(), testResultObtained.getDuration()
-                        });
+                        });                        
                     }
-                } catch (InterruptedException | ExecutionException | TimeoutException ex) {
+                } catch (InterruptedException | ExecutionException ex) {
                     LOG.log(Level.SEVERE, "Incredible exception", ex);
                 }
             }
         }
-        
+
         return testResults;
     }
-    
-    @Schedule(hour = "*", minute = "*", second = "*/12", info = "TestRunner", persistent = false)
+
+    @Schedule(hour = "*", minute = "*/2", second = "0", info = "TestRunner", persistent = false)
     public void doScheduled() {
         LOG.info("RUNNING TESTS!");
         if (annotated == null) {
@@ -173,12 +164,12 @@ public class JanitorScheduledJob {
         for (Class<?> c : annotated) {
             allTestResults.addAll(runTests(c));
         }
-        
+
         TestsBucket bucket = new TestsBucket();
         bucket.setTestResults(allTestResults);
         bucket.setTimestamp(System.currentTimeMillis());
 
         //TODO write bucket in DB!
     }
-    
+
 }

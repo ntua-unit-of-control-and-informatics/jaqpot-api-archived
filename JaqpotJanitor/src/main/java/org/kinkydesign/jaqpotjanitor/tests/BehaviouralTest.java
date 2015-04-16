@@ -34,10 +34,12 @@
  */
 package org.kinkydesign.jaqpotjanitor.tests;
 
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.annotation.PostConstruct;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
@@ -47,7 +49,6 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.xml.bind.annotation.XmlRootElement;
 import org.jaqpot.core.model.Algorithm;
-import org.kinkydesign.jaqpotjanitor.core.TestResult;
 import org.kinkydesign.jaqpotjanitor.core.Testable;
 import static org.kinkydesign.jaqpotjanitor.core.JanitorUtils.*;
 
@@ -125,10 +126,32 @@ public class BehaviouralTest {
         }
     }
 
-    @Testable(name = "assertion fails")
-    public void testAssertion() {
-        Object o = null;
-        assertNotNull("Opps... assertion failed", o);
+    @Testable(name = "connectivity test")
+    public void testConnetivity() throws UnknownHostException, IOException {
+        Client client = ClientBuilder.newClient();
+        try {
+            String testURI = "http://www.ntua.gr";
+            Response response = client.target(testURI)
+                    .request().get();
+            assertEquals("Fetching algorithm fails", 200, response.getStatus());            
+        } finally {
+            client.close();
+        }
+    }
+
+    @Testable(name = "another test")
+    public void test1() {
+        assertTrue("untrue", true);
+    }
+
+    @Testable(name = "more test")
+    public void test2() {
+        assertTrue("untrue", true);
+    }
+
+    @Testable(name = "awesome test")
+    public void test3() {
+        assertTrue("untrue", true);
     }
 
 }

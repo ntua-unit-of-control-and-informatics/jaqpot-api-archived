@@ -40,6 +40,12 @@ package org.kinkydesign.jaqpotjanitor.core;
  */
 public class JanitorUtils {
 
+    public static void assertTrue(String msg, boolean proposition) {
+        if (!proposition) {
+            throw new AssertionException(msg);
+        }
+    }
+    
     public static void assertNotNull(String msg, Object x) {
         if (x == null) {
             throw new AssertionException(msg);

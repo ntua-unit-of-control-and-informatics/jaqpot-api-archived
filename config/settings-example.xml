@@ -52,6 +52,14 @@
                 <!-- List of recipients' emails (comma separated) to be notified by Jaqpot -->
                 <jaqpot.mail.recipients>someone@some.mail.com,other.admin@server.com</jaqpot.mail.recipients>
                 
+                <!-- 
+                    #CORS: Access-Control-Allow-Origin 
+                    Warning: Setting this value to * will allow all origins to 
+                    perform CORS requests on the server. This may expose security
+                    vulnerabilities of the server - see http://stackoverflow.com/a/19323127/613016
+                -->
+                <jaqpot.cors.alloworigin>http://app.jaqpot.org:8080/</jaqpot.cors.alloworigin>
+                
             </properties>
         </profile>       
               
