@@ -66,6 +66,7 @@ import org.jaqpot.core.data.TaskHandler;
 import org.jaqpot.core.model.Feature;
 import org.jaqpot.core.model.Model;
 import org.jaqpot.core.model.Task;
+import org.jaqpot.core.model.dto.dataset.DataEntry;
 import org.jaqpot.core.model.factory.ErrorReportFactory;
 import org.jaqpot.core.model.dto.dataset.Dataset;
 import org.jaqpot.core.model.dto.jpdi.PredictionRequest;
@@ -187,20 +188,32 @@ public class PredictionMDB extends RunningTaskMDB {
             task.getMeta().getComments().add("Creating new Dataset for predictions...");
             task.setPercentageCompleted(22.f);
             taskHandler.edit(task);
-            List<Object> predictions = predictionResponse.getPredictions();
+            List<Map<String, Object>> predictions = predictionResponse.getPredictions();
             for (int i = 0; i < dataset.getDataEntry().size(); i++) {
-                String predictedFeature = model.getPredictedFeatures().stream().findFirst().orElse("property/predicted");
-                Object prediction = predictions.get(i);
-                if (prediction instanceof Collection) {
-                    List predictionList = new ArrayList((Collection) prediction);
-                    for (int j = 0; j < predictionList.size(); j++) {
-                        Object value = predictionList.get(j);
-                        dataset.getDataEntry().get(i).getValues().put(predictedFeature + "/" + String.format("%05d", j), value);
-                    }
-                } else {
-                    dataset.getDataEntry().get(i).getValues().put(predictedFeature, prediction);
+                Map<String, Object> row = predictions.get(i);
+                DataEntry dataEntry = dataset.getDataEntry().get(i);
+                if (model.getAlgorithm().getOntologicalClasses().contains("ot:Scaling")) {
+                    dataEntry.getValues().clear();
                 }
+                row.entrySet().stream().forEach(entry -> {
+                    Feature feature = featureHandler.findByTitleAndSource(entry.getKey(), "algorithm/" + model.getAlgorithm().getId());
+                    dataEntry.getValues().put(messageBody.get("base_uri") + "feature/" + feature.getId(), entry.getValue());
+                });
             }
+
+//            for (int i = 0; i < dataset.getDataEntry().size(); i++) {
+//                String predictedFeature = model.getPredictedFeatures().stream().findFirst().orElse("property/predicted");
+//                Object prediction = predictions.get(i);
+//                if (prediction instanceof Collection) {
+//                    List predictionList = new ArrayList((Collection) prediction);
+//                    for (int j = 0; j < predictionList.size(); j++) {
+//                        Object value = predictionList.get(j);
+//                        dataset.getDataEntry().get(i).getValues().put(predictedFeature + "/" + String.format("%05d", j), value);
+//                    }
+//                } else {
+//                    dataset.getDataEntry().get(i).getValues().put(predictedFeature, prediction);
+//                }
+//            }
             ROG randomStringGenerator = new ROG(true);
             dataset.setId(randomStringGenerator.nextString(14));
             task.getMeta().getComments().add("Dataset ready.");
@@ -279,14 +292,14 @@ public class PredictionMDB extends RunningTaskMDB {
     private String createStudyJSON(
             String predictedProperty,
             String modelId,
-            List<Object> predictions,
+            List<Map<String, Object>> predictions,
             List<String> substances)
             throws UnsupportedEncodingException, JsonProcessingException {
         Studies studies = new Studies();
         List<Study> studyList = new ArrayList<>();
 
         for (int i = 0; i < predictions.size(); i++) {
-            Object value = predictions.get(i);
+            Object value = predictions.get(i).values().stream().findFirst().get();
             Study study = new Study();
             Owner owner = new Owner();
             Substance substance = new Substance();
