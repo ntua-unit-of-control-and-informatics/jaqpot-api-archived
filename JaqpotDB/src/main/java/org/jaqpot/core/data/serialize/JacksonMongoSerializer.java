@@ -31,9 +31,9 @@ package org.jaqpot.core.data.serialize;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.github.fge.jsonpatch.JsonPatch;
 import com.github.fge.jsonpatch.JsonPatchException;
-import org.jaqpot.core.annotations.Jackson;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -41,23 +41,30 @@ import java.io.Writer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.enterprise.context.Dependent;
+import org.jaqpot.core.annotations.MongoDB;
+import org.jaqpot.core.data.serialize.custom.DataEntryDeSerializer;
+import org.jaqpot.core.data.serialize.custom.DataEntrySerializer;
+import org.jaqpot.core.model.dto.dataset.DataEntry;
 
 /**
  *
  * @author Pantelis Sopasakis
  * @author Charalampos Chomenidis
- *
  */
-@Jackson
+@MongoDB
 @Dependent
-public class JacksonJSONSerializer implements JSONSerializer {
+public class JacksonMongoSerializer implements JSONSerializer {
 
     private static final Logger LOG = Logger.getLogger(JacksonJSONSerializer.class.getName());
 
     ObjectMapper mapper;
 
-    public JacksonJSONSerializer() {
+    public JacksonMongoSerializer() {
         this.mapper = new ObjectMapper();
+        SimpleModule module = new SimpleModule();
+        module.addSerializer(DataEntry.class, new DataEntrySerializer());
+        module.addDeserializer(DataEntry.class, new DataEntryDeSerializer());
+        mapper.registerModule(module);
     }
 
     @Override
@@ -121,5 +128,4 @@ public class JacksonJSONSerializer implements JSONSerializer {
             return null;
         }
     }
-
 }

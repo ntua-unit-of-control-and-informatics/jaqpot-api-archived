@@ -133,6 +133,8 @@ public class ConjoinerService {
 
     public Dataset prepareDataset(String bundleURI, String subjectId) {
 
+        String remoteServerBase = bundleURI.split("bundle")[0];
+
         BundleSubstances substances = client.target(bundleURI + "/substance")
                 .request()
                 .accept(MediaType.APPLICATION_JSON)
@@ -153,7 +155,7 @@ public class ConjoinerService {
                     .accept(MediaType.APPLICATION_JSON)
                     .header("subjectid", subjectId)
                     .get(Studies.class);
-            DataEntry dataEntry = createDataEntry(studies, properties.getFeature().keySet());
+            DataEntry dataEntry = createDataEntry(studies, properties.getFeature().keySet(), remoteServerBase);
             dataEntries.add(dataEntry);
         }
 
@@ -173,7 +175,7 @@ public class ConjoinerService {
     }
 
     //TODO: Handle multiple effects that map to the same property
-    public DataEntry createDataEntry(Studies studies, Set<String> propertyCategories) {
+    public DataEntry createDataEntry(Studies studies, Set<String> propertyCategories, String remoteServerBase) {
         DataEntry dataEntry = new DataEntry();
         Substance compound = new Substance();
         TreeMap<String, Object> values = new TreeMap<>();
@@ -188,7 +190,7 @@ public class ConjoinerService {
 
             //Parses Proteomics data if study's protocol category is PROTEOMICS_SECTION
             if (study.getProtocol().getCategory().getCode().equals("PROTEOMICS_SECTION")) {
-                values.putAll(parseProteomics(study));
+                values.putAll(parseProteomics(study, remoteServerBase));
                 continue;
             }
 
@@ -258,7 +260,7 @@ public class ConjoinerService {
                 if (value == null) {
                     continue;
                 }
-                values.put(propertyURIJoiner.toString(), value);
+                values.put(remoteServerBase + propertyURIJoiner.toString(), value);
             }
         }
         dataEntry.setCompound(compound);
@@ -311,7 +313,7 @@ public class ConjoinerService {
         return currentValue;
     }
 
-    public Map<String, Object> parseProteomics(Study study) {
+    public Map<String, Object> parseProteomics(Study study, String remoteServerBase) {
         Map<String, Object> values = new TreeMap<>();
         study.getEffects().stream().findFirst().ifPresent(effect -> {
             String textValue = effect.getResult().getTextValue();
@@ -328,7 +330,7 @@ public class ConjoinerService {
                 StringJoiner propertyURIJoiner = getRelativeURI(name, topcategory, endpointcategory, identifier, guideline);
                 propertyURIJoiner.add(entry.getKey());
                 Object protValue = entry.getValue().getLoValue();
-                values.put(propertyURIJoiner.toString(), protValue);
+                values.put(remoteServerBase + propertyURIJoiner.toString(), protValue);
             });
         });
         return values;
