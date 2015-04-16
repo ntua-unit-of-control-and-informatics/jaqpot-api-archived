@@ -115,6 +115,9 @@ public class Scaling {
             String base64Model = Base64.getEncoder().encodeToString(baos.toByteArray());
             response.setRawModel(base64Model);
             response.setIndependentFeatures(features);
+            response.setPredictedFeatures(features.stream().map(feature -> {
+                return "Leverage Scaled " + feature;
+            }).collect(Collectors.toList()));
             return Response.ok(response).build();
         } catch (IOException ex) {
             Logger.getLogger(Scaling.class.getName()).log(Level.SEVERE, null, ex);
@@ -146,29 +149,46 @@ public class Scaling {
             ObjectInput in = new ObjectInputStream(bais);
             ScalingModel model = (ScalingModel) in.readObject();
 
-            features.parallelStream().forEach(feature -> {
-                Double max = model.getMaxValues().get(feature).doubleValue();
-                Double min = model.getMinValues().get(feature).doubleValue();
+//            features.parallelStream().forEach(feature -> {
+//                Double max = model.getMaxValues().get(feature).doubleValue();
+//                Double min = model.getMinValues().get(feature).doubleValue();
+//
+//                request.getDataset().getDataEntry().stream().forEach(dataEntry -> {
+//                    Double value = Double.parseDouble(dataEntry.getValues().get(feature).toString());
+//                    if (!max.equals(min)) {
+//                        value = (value - min) / (max - min);
+//                    } else {
+//                        value = 0.5;
+//                    }
+//                    dataEntry.getValues().put(feature, value);
+//                });
+//            });
 
-                request.getDataset().getDataEntry().stream().forEach(dataEntry -> {
+            List<Map<String, Object>> predictions = new ArrayList<>();
+
+            request.getDataset().getDataEntry().stream().forEach(dataEntry -> {
+                Map<String,Object> data = new HashMap<>();
+                features.parallelStream().forEach(feature -> {
+                    Double max = model.getMaxValues().get(feature).doubleValue();
+                    Double min = model.getMinValues().get(feature).doubleValue();
                     Double value = Double.parseDouble(dataEntry.getValues().get(feature).toString());
                     if (!max.equals(min)) {
                         value = (value - min) / (max - min);
                     } else {
                         value = 0.5;
                     }
-                    dataEntry.getValues().put(feature, value);
+                    data.put("Leverage Scaled " + feature, value);
                 });
+                predictions.add(data);
             });
-
-            List<Object> predictions = new ArrayList<>(request.getDataset()
-                    .getDataEntry()
-                    .stream()
-                    .map(dataEntry -> {
-                        return dataEntry.getValues().values();
-                    })
-                    .collect(Collectors.toList())
-            );
+//            List<Object> predictions = new ArrayList<>(request.getDataset()
+//                    .getDataEntry()
+//                    .stream()
+//                    .map(dataEntry -> {
+//                        return dataEntry.getValues().values();
+//                    })
+//                    .collect(Collectors.toList())
+//            );
             PredictionResponse response = new PredictionResponse();
             response.setPredictions(predictions);
 
