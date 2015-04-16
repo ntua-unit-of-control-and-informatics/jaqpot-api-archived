@@ -70,6 +70,9 @@ public class AuthorizationRequestFilter implements ContainerRequestFilter {
 
     private static final Logger LOG = Logger.getLogger(AuthorizationRequestFilter.class.getName());
 
+    public AuthorizationRequestFilter() {
+    }
+
     @PostConstruct
     private void init() {
         configResourceBundle = ResourceBundle.getBundle("config");
@@ -144,9 +147,9 @@ public class AuthorizationRequestFilter implements ContainerRequestFilter {
             LOG.log(Level.INFO, "New user registered in DB with ID {0}", user.getId());
             userHandler.create(user);
         }
-        
+
         // update the security context
-        _handleSecurityContext(user, requestContext); 
+        _handleSecurityContext(user, requestContext);
 
     }
 

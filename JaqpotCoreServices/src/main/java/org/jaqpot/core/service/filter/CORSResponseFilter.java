@@ -35,6 +35,10 @@
 package org.jaqpot.core.service.filter;
 
 import java.io.IOException;
+import java.util.Date;
+import java.util.ResourceBundle;
+import java.util.logging.Logger;
+import javax.annotation.PostConstruct;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerResponseContext;
 import javax.ws.rs.container.ContainerResponseFilter;
@@ -47,6 +51,18 @@ import javax.ws.rs.ext.Provider;
 @Provider
 public class CORSResponseFilter implements ContainerResponseFilter {
 
+    private static final Logger LOG = Logger.getLogger(CORSResponseFilter.class.getName());
+    
+    private ResourceBundle configResourceBundle;
+
+    public CORSResponseFilter() {
+    }        
+    
+    @PostConstruct
+    private void init() {
+        configResourceBundle = ResourceBundle.getBundle("config");
+    }
+    
     @Override
     public void filter(ContainerRequestContext requestContext, ContainerResponseContext responseContext) throws IOException {
         
@@ -56,10 +72,16 @@ public class CORSResponseFilter implements ContainerResponseFilter {
             responseContext.setStatus(200);
         }
 
+        
         // Add CORS headers
-        responseContext.getHeaders().add("Access-Control-Allow-Origin", "*");
+        String allowOrigin = configResourceBundle.getString("jaqpot.cors.alloworigin");
+        if (allowOrigin==null){
+            LOG.severe("Property jaqpot.cors.alloworigin is not set!");
+        }
+        responseContext.getHeaders().add("Access-Control-Allow-Origin", allowOrigin);
         responseContext.getHeaders().add("Access-Control-Allow-Methods", "GET, POST, DELETE, PUT, PATCH, OPTIONS");
-        responseContext.getHeaders().add("Access-Control-Allow-Headers", "Content-Type, api_key, Authorization, subjectid");
+        responseContext.getHeaders().add("Access-Control-Allow-Headers", "Content-Type, api_key, Authorization, subjectid, Accept");
+        responseContext.getHeaders().add("Date", new Date().toString());
 
     }
 

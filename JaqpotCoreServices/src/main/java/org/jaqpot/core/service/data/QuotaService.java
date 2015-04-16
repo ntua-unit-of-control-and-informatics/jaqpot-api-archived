@@ -42,7 +42,7 @@ import org.jaqpot.core.data.BibTeXHandler;
 import org.jaqpot.core.data.ModelHandler;
 import org.jaqpot.core.data.TaskHandler;
 import org.jaqpot.core.model.Task;
-import org.jaqpot.core.service.resource.UserQuota;
+import org.jaqpot.core.model.UserQuota;
 
 /**
  *
@@ -74,7 +74,7 @@ public class QuotaService {
         userQuota.setTasks(taskHandler.countByUser(userId));
         userQuota.setTasksRunning(taskHandler.countByUserAndStatus(userId, Task.Status.RUNNING));
         userQuota.setModels(modelHandler.countByUser(userId));        
-        userQuota.setBibtex(bibtexHandler.countByUser(userId));        
+        userQuota.setBibtex(bibtexHandler.countByUser(userId));    
         return userQuota;
     }
 

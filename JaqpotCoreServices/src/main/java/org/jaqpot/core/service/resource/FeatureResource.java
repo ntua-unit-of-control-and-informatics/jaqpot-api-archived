@@ -142,7 +142,7 @@ public class FeatureResource {
     }
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @Path("/{id}")
     @ApiOperation(value = "Finds Feature by ID",
             notes = "Finds specified Feature (by ID)",

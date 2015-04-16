@@ -115,7 +115,7 @@ public class ModelResource {
     }
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @Path("/{id}")
     @ApiOperation(value = "Finds Model by Id",
             notes = "Finds specified Model",

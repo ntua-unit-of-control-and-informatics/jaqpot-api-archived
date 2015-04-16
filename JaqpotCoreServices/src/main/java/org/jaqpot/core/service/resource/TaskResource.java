@@ -115,7 +115,7 @@ public class TaskResource {
     }
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @Path("/{id}")
     @ApiOperation(value = "Finds Task by Id",
             notes = "Finds specified Task",

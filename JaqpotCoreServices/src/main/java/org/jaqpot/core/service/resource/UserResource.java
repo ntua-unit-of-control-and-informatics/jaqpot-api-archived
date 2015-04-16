@@ -29,6 +29,7 @@
  */
 package org.jaqpot.core.service.resource;
 
+import org.jaqpot.core.model.UserQuota;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
@@ -49,7 +50,6 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
-import org.jaqpot.core.data.TaskHandler;
 import org.jaqpot.core.data.UserHandler;
 import org.jaqpot.core.model.User;
 import org.jaqpot.core.service.annotations.Authorize;
