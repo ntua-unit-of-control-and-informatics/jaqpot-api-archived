@@ -108,6 +108,10 @@ public class BehaviouralTest {
 
     @Testable(name = "fetch weka-mlr algorithm")
     public void getAlgorithm() {
+        long now = System.currentTimeMillis();
+        while (System.currentTimeMillis() - now < 8000) {
+            // do nothing and wait!
+        }
         Client client = ClientBuilder.newClient();
         try {
             String wekaAlgorithm = resourceBundle.getString("janitor.target") + "algorithm/weka-mlr";
@@ -133,7 +137,7 @@ public class BehaviouralTest {
             String testURI = "http://www.ntua.gr";
             Response response = client.target(testURI)
                     .request().get();
-            assertEquals("Fetching algorithm fails", 200, response.getStatus());            
+            assertEquals("Fetching algorithm fails", 200, response.getStatus());
         } finally {
             client.close();
         }

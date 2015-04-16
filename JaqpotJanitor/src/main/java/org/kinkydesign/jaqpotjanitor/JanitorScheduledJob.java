@@ -71,8 +71,8 @@ public class JanitorScheduledJob {
     private static Set<Class<?>> annotated;
     private static final Logger LOG = Logger.getLogger(JanitorScheduledJob.class.getName());
 
-    BlockingQueue<Runnable> linkedBlockingDeque = new LinkedBlockingDeque<>(40);
-    ExecutorService executorService = new ThreadPoolExecutor(1, 4,
+    private static final BlockingQueue<Runnable> linkedBlockingDeque = new LinkedBlockingDeque<>(40);
+    private static final ExecutorService executorService = new ThreadPoolExecutor(4, 10,
             100, TimeUnit.SECONDS,
             linkedBlockingDeque,
             new ThreadPoolExecutor.AbortPolicy());
@@ -130,7 +130,6 @@ public class JanitorScheduledJob {
         /**
          * Now wait for all tasks to finish.
          */
-
         while (callableTasks.size() > 0) { // while there are more things to do (tests are still running)            
             Iterator<Future<TestResult>> iterator = callableTasks.iterator();
             while (iterator.hasNext()) { // check out each task...
@@ -142,7 +141,7 @@ public class JanitorScheduledJob {
                         testResults.add(testResultObtained); // add test result to the list (test is done)
                         LOG.log(Level.INFO, "[{0}] {1} ({2}ms)", new Object[]{
                             testResultObtained.isPass() ? "PASS" : "FAIL", testResultObtained.getTestName(), testResultObtained.getDuration()
-                        });                        
+                        });
                     }
                 } catch (InterruptedException | ExecutionException ex) {
                     LOG.log(Level.SEVERE, "Incredible exception", ex);
@@ -153,7 +152,7 @@ public class JanitorScheduledJob {
         return testResults;
     }
 
-    @Schedule(hour = "*", minute = "*/2", second = "0", info = "TestRunner", persistent = false)
+    @Schedule(hour = "*", minute = "*", second = "*/30", info = "TestRunner", persistent = false)
     public void doScheduled() {
         LOG.info("RUNNING TESTS!");
         if (annotated == null) {
