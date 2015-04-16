@@ -31,7 +31,6 @@ package org.jaqpot.core.db.entitymanager;
 
 import com.mongodb.MongoClient;
 import com.mongodb.MongoWriteException;
-import com.mongodb.ReadPreference;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.util.JSON;
