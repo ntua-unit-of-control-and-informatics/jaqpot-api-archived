@@ -35,7 +35,6 @@
 package org.kinkydesign.jaqpotjanitor.tests;
 
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
@@ -72,8 +71,8 @@ public class BehaviouralTest {
             String loginService = resourceBundle.getString("janitor.target") + "aa/login";
             LOG.log(Level.FINEST, "Login service : {0}", loginService);
             MultivaluedMap<String, String> formData = new MultivaluedHashMap<>();
-            formData.putSingle("username", "guest");
-            formData.putSingle("password", "guest");
+            formData.putSingle("username", resourceBundle.getString("janitor.username"));
+            formData.putSingle("password", resourceBundle.getString("janitor.password"));
             Response response = client.target(loginService)
                     .request()
                     .accept(MediaType.TEXT_PLAIN)
@@ -89,8 +88,8 @@ public class BehaviouralTest {
         }
 
     }
-
-    @Testable(name = "aa validation")
+    
+    @Testable(name = "aa validation", description = "validates the AA token")
     public void validateToken() {
         Client client = ClientBuilder.newClient();
         try {
@@ -106,8 +105,8 @@ public class BehaviouralTest {
         }
     }
 
-    @Testable(name = "fetch weka-mlr algorithm")
-    public void getAlgorithm() {
+    @Testable(name = "fetch weka-mlr algorithm", maxDuration = 5000)
+    public void getWekaAlgorithm() {
         long now = System.currentTimeMillis();
         while (System.currentTimeMillis() - now < 8000) {
             // do nothing and wait!
@@ -115,7 +114,7 @@ public class BehaviouralTest {
         Client client = ClientBuilder.newClient();
         try {
             String wekaAlgorithm = resourceBundle.getString("janitor.target") + "algorithm/weka-mlr";
-            LOG.log(Level.FINER, "AA validation service : {0}", wekaAlgorithm);
+            LOG.log(Level.FINER, "Weka algorithm URI : {0}", wekaAlgorithm);
             Response response = client.target(wekaAlgorithm)
                     .request()
                     .accept(MediaType.APPLICATION_JSON)
@@ -143,19 +142,77 @@ public class BehaviouralTest {
         }
     }
 
-    @Testable(name = "another test")
-    public void test1() {
-        assertTrue("untrue", true);
+    @Testable(name = "list BibTeX")
+    public void testListBibTeX() {
+        Client client = ClientBuilder.newClient();
+        try {
+            String uri = resourceBundle.getString("janitor.target") + "bibtex?start=0&max=20";
+            Response response = client.target(uri)
+                    .request()
+                    .accept("text/uri-list")
+                    .header("subjectid", authToken)
+                    .get();
+            assertEquals("List of bibtex failed", 200, response.getStatus());
+        } finally {
+            client.close();
+        }
     }
 
-    @Testable(name = "more test")
-    public void test2() {
-        assertTrue("untrue", true);
+    @Testable(name = "list algorithms")
+    public void testListAlgorithms() {
+        Client client = ClientBuilder.newClient();
+        try {
+            String uri = resourceBundle.getString("janitor.target") + "algorithm?start=0&max=20";
+            Response response = client.target(uri)
+                    .request()
+                    .accept("text/uri-list")
+                    .header("subjectid", authToken)
+                    .get();
+            assertEquals("List of algorithms failed", 200, response.getStatus());
+        } finally {
+            client.close();
+        }
     }
 
-    @Testable(name = "awesome test")
-    public void test3() {
-        assertTrue("untrue", true);
+    @Testable(name = "list models")
+    public void testListModels() {
+        Client client = ClientBuilder.newClient();
+        try {
+            String uri = resourceBundle.getString("janitor.target") + "model?start=0&max=20";
+            Response response = client.target(uri)
+                    .request()
+                    .accept("text/uri-list")
+                    .header("subjectid", authToken)
+                    .get();
+            assertEquals("List of algorithms failed", 200, response.getStatus());
+        } finally {
+            client.close();
+        }
+    }
+
+    @Testable(name = "list datasets")
+    public void testListDatasets() {
+        die("not implemented yet");
+    }
+
+    @Testable(name = "list pmml")
+    public void testListPmml() {
+        die("not implemented yet");
+    }
+
+    @Testable(name = "list features")
+    public void testListFeatures() {
+        die("not implemented yet");
+    }
+
+    @Testable(name = "list tasks")
+    public void testLisTasks() {
+        die("not implemented yet");
+    }
+    
+    @Testable(name = "list users")
+    public void testLisUsers() {
+        die("not implemented yet");
     }
 
 }

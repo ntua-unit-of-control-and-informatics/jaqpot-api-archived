@@ -55,4 +55,6 @@ public @interface Testable {
     public long maxDuration() default -1;
 
     public String name() default "##default";
+    
+    public String description() default "";
 }

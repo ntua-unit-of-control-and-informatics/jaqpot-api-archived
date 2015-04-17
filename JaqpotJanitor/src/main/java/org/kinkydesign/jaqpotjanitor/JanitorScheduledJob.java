@@ -41,9 +41,11 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
@@ -71,17 +73,110 @@ public class JanitorScheduledJob {
     private static Set<Class<?>> annotated;
     private static final Logger LOG = Logger.getLogger(JanitorScheduledJob.class.getName());
 
-    private static final BlockingQueue<Runnable> linkedBlockingDeque = new LinkedBlockingDeque<>(40);
+    private static final BlockingQueue<Runnable> linkedBlockingDeque = new LinkedBlockingDeque<>(200);
     private static final ExecutorService executorService = new ThreadPoolExecutor(4, 10,
             100, TimeUnit.SECONDS,
             linkedBlockingDeque,
             new ThreadPoolExecutor.AbortPolicy());
 
+    private static final long MAX_DURATION = 30000l;
+
+    class JobInfo {
+
+        Long timeout;
+        String name;
+        String description;
+        TestJob testJob;
+
+        public JobInfo(Long timeout, String name, String description, TestJob testJob) {
+            this.timeout = timeout;
+            this.name = name;
+            this.description = description;
+            this.testJob = testJob;
+        }
+
+        public Long getTimeout() {
+            return timeout;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public String getDescription() {
+            return description;
+        }
+
+        public TestJob getTestJob() {
+            return testJob;
+        }
+
+    }
+
+    class TestJob implements Callable<TestResult> {
+
+        final String testName;
+        final String testDescription;
+        final Method m;
+        final Object t;
+        volatile Long started = null;
+
+        public TestJob(String testName, String testDescription, Method m, Object t) {
+            this.testName = testName;
+            this.testDescription = testDescription;
+            this.m = m;
+            this.t = t;
+        }
+
+        /**
+         * Returns the timestamp when the job starts running.
+         * If the job has not started yet, this method returns <code>null</code>.
+         * @return timestamp of start
+         */
+        public Long started() {
+            return this.started;
+        }
+
+        @Override
+        public TestResult call() throws Exception {
+            /* Once the job starts running, record its timestamp */
+            started = System.currentTimeMillis();
+            TestResult tr = new TestResult();
+            tr.setTestName(testName);
+            tr.setTestDescription(testDescription);
+            long beforeTest = System.currentTimeMillis();
+            try {
+                m.invoke(t);
+            } catch (InvocationTargetException ex) {
+                Throwable cause = ex.getTargetException();
+                StringWriter sw = new StringWriter();
+                cause.printStackTrace(new PrintWriter(sw));
+                String exceptionAsString = sw.toString();
+                tr.setPass(false);
+                tr.setStackTrace(exceptionAsString);
+                if (!(cause instanceof AssertionException)) {
+                    LOG.log(Level.SEVERE, null, cause);
+                }
+            }
+            tr.setDuration(System.currentTimeMillis() - beforeTest);
+            tr.setTimestamp(beforeTest);
+            return tr;
+        }
+    }
+
+    /**
+     * Runs all tests of a class c (annotated by {@link Testable}) and returns a
+     * list of test results. A {@link TestResult} is returned by each method
+     * annotated by {@link Testable}
+     *
+     * @param c Testable class
+     * @return list of test results
+     */
     private List<TestResult> runTests(Class<?> c) {
 
         List<TestResult> testResults = new ArrayList<>();
+        Map<Future<TestResult>, JobInfo> callableTasks = new ConcurrentHashMap<>();
 
-        List<Future<TestResult>> callableTasks = new ArrayList<>();
         try {
             LOG.log(Level.INFO, "Testing {0}", c.getSimpleName());
             final Object t = c.newInstance();
@@ -91,34 +186,12 @@ public class JanitorScheduledJob {
 
                     String nameFromAnnotation = m.getAnnotation(Testable.class).name();
                     final String testName = "##default".equals(nameFromAnnotation) ? m.getName() : nameFromAnnotation;
-
-                    Future<TestResult> future = executorService.submit(new Callable<TestResult>() {
-
-                        @Override
-                        public TestResult call() throws Exception {
-                            TestResult tr = new TestResult();
-                            tr.setTestName(testName);
-                            long beforeTest = System.currentTimeMillis();
-                            try {
-                                m.invoke(t);
-                            } catch (InvocationTargetException ex) {
-                                Throwable cause = ex.getTargetException();
-                                StringWriter sw = new StringWriter();
-                                cause.printStackTrace(new PrintWriter(sw));
-                                String exceptionAsString = sw.toString();
-                                tr.setPass(false);
-                                tr.setStackTrace(exceptionAsString);
-                                if (!(cause instanceof AssertionException)) {
-                                    LOG.log(Level.SEVERE, null, cause);
-                                }
-                            }
-                            tr.setDuration(System.currentTimeMillis() - beforeTest);
-                            tr.setTimestamp(beforeTest);
-                            return tr;
-                        }
-
-                    });
-                    callableTasks.add(future);
+                    final String testDescription = m.getAnnotation(Testable.class).description();
+                    long mMaxDuration = m.getAnnotation(Testable.class).maxDuration();
+                    final long maxDuration = mMaxDuration < 0 ? MAX_DURATION : mMaxDuration;
+                    TestJob tj = new TestJob(testName, testDescription, m, t);
+                    Future<TestResult> future = executorService.submit(tj);
+                    callableTasks.put(future, new JobInfo(maxDuration, testName, testDescription, tj));
                 }
             }
         } catch (InstantiationException | IllegalAccessException | IllegalArgumentException ex) {
@@ -127,31 +200,62 @@ public class JanitorScheduledJob {
             // this catch is fail-safe (if a test fails to be invoked, move on to the next one)
         }
 
-        /**
-         * Now wait for all tasks to finish.
-         */
+        /* Now wait for all tasks to finish */
         while (callableTasks.size() > 0) { // while there are more things to do (tests are still running)            
-            Iterator<Future<TestResult>> iterator = callableTasks.iterator();
+            //Iterator<Future<TestResult>> iterator = callableTasks.iterator();
+            Iterator<Map.Entry<Future<TestResult>, JobInfo>> iterator = callableTasks.entrySet().iterator();
             while (iterator.hasNext()) { // check out each task...
                 try {
-                    Future<TestResult> future = iterator.next();
+                    Map.Entry<Future<TestResult>, JobInfo> entry = iterator.next();
+
+                    Future<TestResult> future = entry.getKey();
                     if (future.isDone()) { // task is over!
                         iterator.remove(); // remove from the list of TODOs
                         TestResult testResultObtained = future.get(); // obtain result
                         testResults.add(testResultObtained); // add test result to the list (test is done)
-                        LOG.log(Level.INFO, "[{0}] {1} ({2}ms)", new Object[]{
-                            testResultObtained.isPass() ? "PASS" : "FAIL", testResultObtained.getTestName(), testResultObtained.getDuration()
-                        });
+                        LOG.log(testResultObtained.isPass() ? Level.INFO : Level.SEVERE,
+                                "[{0}] {1} ({2}ms)",
+                                new Object[]{
+                                    testResultObtained.isPass() ? "PASS" : "FAIL",
+                                    testResultObtained.getTestName(),
+                                    testResultObtained.getDuration()
+                                });
+                    }
+                    if (entry.getValue() != null
+                            && entry.getValue().getTestJob().started() != null
+                            && (System.currentTimeMillis() - entry.getValue().getTestJob().started() > entry.getValue().getTimeout())) {
+                        entry.getKey().cancel(true);
+                        LOG.log(Level.SEVERE, "Test [{0}] was cancelled because it took more than {1}ms to complete!",
+                                new Object[]{
+                                    entry.getValue().getName(),
+                                    entry.getValue().getTimeout()});
+
+                        TestResult testResultCancelled = new TestResult();
+                        testResultCancelled.setPass(false);
+                        testResultCancelled.setTestName(entry.getValue().getName());
+                        testResultCancelled.setTestDescription(entry.getValue().getDescription());
+                        testResults.add(testResultCancelled);
+
+                        iterator.remove();
+
                     }
                 } catch (InterruptedException | ExecutionException ex) {
                     LOG.log(Level.SEVERE, "Incredible exception", ex);
                 }
             }
         }
-
         return testResults;
     }
 
+    /**
+     * Scheduled job which executes all tests periodically. All test classes are
+     * annotated with {@link Testable} and are found in the package
+     * {@link org.kinkydesign.jaqpotjanitor.tests}. This scheduled job executes
+     * all tests, gathers their results, packs them in a {@link TestsBucket}
+     * object and stores it in the database. The test bucket can then be
+     * identified by its ID and the {@link TestsBucket#getTimestamp() timestamp}
+     * of its creation.
+     */
     @Schedule(hour = "*", minute = "*", second = "*/30", info = "TestRunner", persistent = false)
     public void doScheduled() {
         LOG.info("RUNNING TESTS!");

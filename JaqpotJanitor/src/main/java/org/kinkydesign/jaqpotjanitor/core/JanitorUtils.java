@@ -40,19 +40,19 @@ package org.kinkydesign.jaqpotjanitor.core;
  */
 public class JanitorUtils {
 
-    public static void assertTrue(String msg, boolean proposition) {
+    public static void assertTrue(String msg, boolean proposition) throws AssertionException {
         if (!proposition) {
             throw new AssertionException(msg);
         }
     }
-    
-    public static void assertNotNull(String msg, Object x) {
+
+    public static void assertNotNull(String msg, Object x) throws AssertionException {
         if (x == null) {
             throw new AssertionException(msg);
         }
     }
 
-    public static void assertEquals(String msg, Object a, Object b) {
+    public static void assertEquals(String msg, Object a, Object b) throws AssertionException {
         if ((a == null && b != null) || (a != null && b == null)) {
             throw new AssertionException(msg);
         }
@@ -61,27 +61,31 @@ public class JanitorUtils {
         }
     }
 
-    public static void assertEquals(String msg, int a, int b) {
+    public static void assertEquals(String msg, int a, int b) throws AssertionException {
         if (a != b) {
             throw new AssertionException(msg);
         }
     }
 
-    public static void assertEquals(String msg, long a, long b) {
+    public static void assertEquals(String msg, long a, long b) throws AssertionException {
         if (a != b) {
             throw new AssertionException(msg);
         }
     }
 
-    public static void assertEquals(String msg, double a, double b, double error) {
-        if (Math.abs(a - b) > error) {
+    public static void assertEquals(String msg, double a, double b, double tolerance) throws AssertionException {
+        if (Math.abs(a - b) > tolerance) {
             throw new AssertionException(msg);
         }
     }
 
-    public static void assertEquals(String msg, float a, float b, float error) {
-        if (Math.abs(a - b) > error) {
+    public static void assertEquals(String msg, float a, float b, float tolerance) throws AssertionException {
+        if (Math.abs(a - b) > tolerance) {
             throw new AssertionException(msg);
         }
+    }
+
+    public static void die(String msg) throws AssertionException {
+        throw new AssertionException(msg);
     }
 }

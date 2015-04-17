@@ -43,6 +43,7 @@ import java.util.Map;
 public class TestResult {
 
     private String testName;
+    private String testDescription;
     private boolean pass = true;
     private Long timestamp;
     private Long duration;
@@ -52,6 +53,14 @@ public class TestResult {
     private String responseBody;
 
     public TestResult() {
+    }
+
+    public String getTestDescription() {
+        return testDescription;
+    }
+
+    public void setTestDescription(String testDescription) {
+        this.testDescription = testDescription;
     }
 
     public String getTestName() {
