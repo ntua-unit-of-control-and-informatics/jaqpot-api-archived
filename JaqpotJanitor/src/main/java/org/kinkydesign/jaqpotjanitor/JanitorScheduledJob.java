@@ -34,9 +34,6 @@
  */
 package org.kinkydesign.jaqpotjanitor;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -44,7 +41,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -56,7 +52,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ejb.Schedule;
 import javax.ejb.Stateless;
-import org.kinkydesign.jaqpotjanitor.core.AssertionException;
 import org.kinkydesign.jaqpotjanitor.core.TestResult;
 import org.kinkydesign.jaqpotjanitor.core.Testable;
 import org.kinkydesign.jaqpotjanitor.core.TestsBucket;
@@ -156,15 +151,13 @@ public class JanitorScheduledJob {
                         testResultCancelled.setTestName(entry.getValue().getName());
                         testResultCancelled.setTestDescription(entry.getValue().getDescription());
                         testResults.add(testResultCancelled);
-
                         iterator.remove();
-
                     }
                 } catch (InterruptedException | ExecutionException ex) {
                     LOG.log(Level.SEVERE, "Incredible exception", ex);
                 }
             }
-        }
+        }        
         return testResults;
     }
 

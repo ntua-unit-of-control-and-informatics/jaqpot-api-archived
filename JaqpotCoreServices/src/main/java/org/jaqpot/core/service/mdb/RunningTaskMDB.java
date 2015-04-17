@@ -41,21 +41,26 @@ public abstract class RunningTaskMDB implements MessageListener {
     @Inject
     ThreadReference threadMap;
 
-    public void init(String taskId) {
+    protected void init(String taskId) {
         // Task started - updated the task reference map
         if (taskId != null) {
             threadMap.getThreadReferenceMap().put(taskId, Thread.currentThread());
         }
     }
 
-    public void terminate(String taskId) {
+    protected void terminate(String taskId) {
         // remove the task from the thread reference map
         if (taskId != null) {
             threadMap.getThreadReferenceMap().remove(taskId);
         }
     }
 
+    protected boolean shouldNowStop() {
+        return Thread.currentThread().isInterrupted();
+    }
+
     public RunningTaskMDB() {
+
     }
 
 }

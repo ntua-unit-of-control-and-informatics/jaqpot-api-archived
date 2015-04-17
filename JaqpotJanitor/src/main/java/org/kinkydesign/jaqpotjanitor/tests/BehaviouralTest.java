@@ -48,6 +48,7 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.xml.bind.annotation.XmlRootElement;
 import org.jaqpot.core.model.Algorithm;
+import org.jaqpot.core.model.Task;
 import org.kinkydesign.jaqpotjanitor.core.Testable;
 import static org.kinkydesign.jaqpotjanitor.core.JanitorUtils.*;
 
@@ -64,6 +65,8 @@ public class BehaviouralTest {
     private String authToken = null;
 
     private static final ResourceBundle resourceBundle = ResourceBundle.getBundle("config");
+
+    private static final long STANDARD_DURATION_LIMIT = 1200l;
 
     public BehaviouralTest() {
         Client client = ClientBuilder.newClient();
@@ -89,7 +92,7 @@ public class BehaviouralTest {
 
     }
 
-    @Testable(name = "aa validation", description = "validates the AA token", maxDuration = 1200l)
+    @Testable(name = "aa validation", description = "validates the AA token", maxDuration = STANDARD_DURATION_LIMIT)
     public void validateToken() {
         Client client = ClientBuilder.newClient();
         try {
@@ -104,7 +107,7 @@ public class BehaviouralTest {
         }
     }
 
-    @Testable(name = "authorize", description = "tests authorization service", maxDuration = 1200l)
+    @Testable(name = "authorize", description = "tests authorization service", maxDuration = STANDARD_DURATION_LIMIT)
     public void testAuthorize() {
         Client client = ClientBuilder.newClient();
         try {
@@ -126,7 +129,7 @@ public class BehaviouralTest {
         }
     }
 
-    @Testable(name = "fetch weka-mlr algorithm", maxDuration = 1200)
+    @Testable(name = "fetch weka-mlr algorithm", maxDuration = STANDARD_DURATION_LIMIT)
     public void getWekaAlgorithm() {
         Client client = ClientBuilder.newClient();
         try {
@@ -146,7 +149,7 @@ public class BehaviouralTest {
         }
     }
 
-    @Testable(name = "connectivity test", maxDuration = 1000l)
+    @Testable(name = "connectivity test", maxDuration = STANDARD_DURATION_LIMIT)
     public void testConnetivity() throws UnknownHostException, IOException {
         Client client = ClientBuilder.newClient();
         try {
@@ -159,7 +162,7 @@ public class BehaviouralTest {
         }
     }
 
-    @Testable(name = "list BibTeX", maxDuration = 1200l)
+    @Testable(name = "list BibTeX", maxDuration = STANDARD_DURATION_LIMIT)
     public void testListBibTeX() {
         Client client = ClientBuilder.newClient();
         try {
@@ -175,7 +178,7 @@ public class BehaviouralTest {
         }
     }
 
-    @Testable(name = "list algorithms", maxDuration = 1200l)
+    @Testable(name = "list algorithms", maxDuration = STANDARD_DURATION_LIMIT)
     public void testListAlgorithms() {
         Client client = ClientBuilder.newClient();
         try {
@@ -191,7 +194,7 @@ public class BehaviouralTest {
         }
     }
 
-    @Testable(name = "list models", maxDuration = 1200l)
+    @Testable(name = "list models", maxDuration = STANDARD_DURATION_LIMIT)
     public void testListModels() {
         Client client = ClientBuilder.newClient();
         try {
@@ -207,7 +210,7 @@ public class BehaviouralTest {
         }
     }
 
-    @Testable(name = "list datasets", maxDuration = 1200l)
+    @Testable(name = "list datasets", maxDuration = STANDARD_DURATION_LIMIT)
     public void testListDatasets() {
         Client client = ClientBuilder.newClient();
         try {
@@ -273,7 +276,7 @@ public class BehaviouralTest {
         }
     }
 
-    @Testable(name = "CORS test", maxDuration = 1200l)
+    @Testable(name = "CORS test", maxDuration = STANDARD_DURATION_LIMIT)
     public void testCORS() {
         Client client = ClientBuilder.newClient();
         try {
@@ -292,7 +295,7 @@ public class BehaviouralTest {
         }
     }
 
-    @Testable(name = "list users")
+    @Testable(name = "list users", maxDuration = STANDARD_DURATION_LIMIT)
     public void testLisUsers() {
         Client client = ClientBuilder.newClient();
         try {
@@ -317,7 +320,34 @@ public class BehaviouralTest {
         long now = System.currentTimeMillis();
         while (System.currentTimeMillis() - now < 20000) {
             // do nothing and wait!
+            if (Thread.currentThread().isInterrupted()) {
+                return;
+            }
         }
         LOG.severe("Test was allowed to continue running after timeout!!!");
+    }
+
+    @Testable(name = "train mlr model",
+            maxDuration = 3000l,
+            description = "train a model")
+    public void trainModel() {
+        Client client = ClientBuilder.newClient();
+        try {
+            String uri = resourceBundle.getString("janitor.target") + "algorithm/weka-mlr";
+            MultivaluedMap<String, String> formData = new MultivaluedHashMap<>();
+            formData.putSingle("dataset_uri", "http://enanomapper.ntua.gr:8880/jaqpot/services/dataset/ca8da7f6-ee9f-4a61-9ae4-b1d1525cef88");
+            formData.putSingle("prediction_feature", "property/TOX/UNKNOWN_TOXICITY_SECTION/Total+surface+area++SAtot+/52D93BC3B68F26C8E787CC7A05E5130A23164405/3ed642f9-1b42-387a-9966-dea5b91e5f8a");
+            formData.putSingle("doa", "http://enanomapper.ntua.gr:8880/jaqpot/services/algorithm/leverage");
+            Response response = client.target(uri)
+                    .request()
+                    .accept("text/uri-list")
+                    .header("subjectid", authToken)
+                    .post(Entity.form(formData));
+            assertEquals("Task OK 202", 202, response.getStatus());
+            Task modellingTask = response.readEntity(Task.class);
+            assertEquals("Task is not QUEUED", Task.Status.QUEUED, modellingTask.getStatus());
+        } finally {
+            client.close();
+        }
     }
 }

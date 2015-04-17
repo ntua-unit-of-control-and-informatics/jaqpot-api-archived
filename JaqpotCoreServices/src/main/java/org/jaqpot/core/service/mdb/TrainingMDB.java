@@ -104,7 +104,7 @@ public class TrainingMDB extends RunningTaskMDB {
     Client client;
 
     long DOA_TASK_MAX_WAITING_TIME = 45; // 45s
-
+  
     @Override
     public void onMessage(Message msg) {
         Task task = new Task();
