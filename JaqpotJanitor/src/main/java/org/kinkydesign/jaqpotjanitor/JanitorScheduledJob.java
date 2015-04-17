@@ -63,7 +63,10 @@ import org.kinkydesign.jaqpotjanitor.core.TestsBucket;
 import org.reflections.Reflections;
 
 /**
- * Runs periodic tests on JAQPOT.
+ * Runs periodic tests on JAQPOT. The main method in this class is
+ * {@link #runTests(java.lang.Class) runTests} which runs all tests. Tests are
+ * found in the package <code>org.kinkydesign.jaqpotjanitor.tests</code> and
+ * must be annotated with {@link Testable}.
  *
  * @author chung
  */
@@ -79,90 +82,8 @@ public class JanitorScheduledJob {
             linkedBlockingDeque,
             new ThreadPoolExecutor.AbortPolicy());
 
-    private static final long MAX_DURATION = 30000l;
-
-    class JobInfo {
-
-        Long timeout;
-        String name;
-        String description;
-        TestJob testJob;
-
-        public JobInfo(Long timeout, String name, String description, TestJob testJob) {
-            this.timeout = timeout;
-            this.name = name;
-            this.description = description;
-            this.testJob = testJob;
-        }
-
-        public Long getTimeout() {
-            return timeout;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public String getDescription() {
-            return description;
-        }
-
-        public TestJob getTestJob() {
-            return testJob;
-        }
-
-    }
-
-    class TestJob implements Callable<TestResult> {
-
-        final String testName;
-        final String testDescription;
-        final Method m;
-        final Object t;
-        volatile Long started = null;
-
-        public TestJob(String testName, String testDescription, Method m, Object t) {
-            this.testName = testName;
-            this.testDescription = testDescription;
-            this.m = m;
-            this.t = t;
-        }
-
-        /**
-         * Returns the timestamp when the job starts running.
-         * If the job has not started yet, this method returns <code>null</code>.
-         * @return timestamp of start
-         */
-        public Long started() {
-            return this.started;
-        }
-
-        @Override
-        public TestResult call() throws Exception {
-            /* Once the job starts running, record its timestamp */
-            started = System.currentTimeMillis();
-            TestResult tr = new TestResult();
-            tr.setTestName(testName);
-            tr.setTestDescription(testDescription);
-            long beforeTest = System.currentTimeMillis();
-            try {
-                m.invoke(t);
-            } catch (InvocationTargetException ex) {
-                Throwable cause = ex.getTargetException();
-                StringWriter sw = new StringWriter();
-                cause.printStackTrace(new PrintWriter(sw));
-                String exceptionAsString = sw.toString();
-                tr.setPass(false);
-                tr.setStackTrace(exceptionAsString);
-                if (!(cause instanceof AssertionException)) {
-                    LOG.log(Level.SEVERE, null, cause);
-                }
-            }
-            tr.setDuration(System.currentTimeMillis() - beforeTest);
-            tr.setTimestamp(beforeTest);
-            return tr;
-        }
-    }
+    private static final long MAX_DURATION = 30000l;    
+    
 
     /**
      * Runs all tests of a class c (annotated by {@link Testable}) and returns a
@@ -207,18 +128,18 @@ public class JanitorScheduledJob {
             while (iterator.hasNext()) { // check out each task...
                 try {
                     Map.Entry<Future<TestResult>, JobInfo> entry = iterator.next();
-
                     Future<TestResult> future = entry.getKey();
                     if (future.isDone()) { // task is over!
                         iterator.remove(); // remove from the list of TODOs
                         TestResult testResultObtained = future.get(); // obtain result
                         testResults.add(testResultObtained); // add test result to the list (test is done)
                         LOG.log(testResultObtained.isPass() ? Level.INFO : Level.SEVERE,
-                                "[{0}] {1} ({2}ms)",
+                                "[{0}] {1} ({2}ms) {3}",
                                 new Object[]{
                                     testResultObtained.isPass() ? "PASS" : "FAIL",
                                     testResultObtained.getTestName(),
-                                    testResultObtained.getDuration()
+                                    testResultObtained.getDuration(),
+                                    testResultObtained.isPass() ? "" : ": " + testResultObtained.getMessage()
                                 });
                     }
                     if (entry.getValue() != null

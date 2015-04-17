@@ -88,13 +88,12 @@ public class BehaviouralTest {
         }
 
     }
-    
-    @Testable(name = "aa validation", description = "validates the AA token")
+
+    @Testable(name = "aa validation", description = "validates the AA token", maxDuration = 1200l)
     public void validateToken() {
         Client client = ClientBuilder.newClient();
         try {
             String validationService = resourceBundle.getString("janitor.target") + "aa/validate";
-            LOG.log(Level.FINEST, "AA validation service : {0}", validationService);
             Response response = client.target(validationService)
                     .request()
                     .header("subjectid", authToken)
@@ -105,12 +104,30 @@ public class BehaviouralTest {
         }
     }
 
-    @Testable(name = "fetch weka-mlr algorithm", maxDuration = 5000)
-    public void getWekaAlgorithm() {
-        long now = System.currentTimeMillis();
-        while (System.currentTimeMillis() - now < 8000) {
-            // do nothing and wait!
+    @Testable(name = "authorize", description = "tests authorization service", maxDuration = 1200l)
+    public void testAuthorize() {
+        Client client = ClientBuilder.newClient();
+        try {
+            String authorizationService = resourceBundle.getString("janitor.target") + "aa/authorize";
+            MultivaluedMap<String, String> formData = new MultivaluedHashMap<>();
+            formData.putSingle("uri", "http://opentox.ntua.gr:8080/bibtex");
+            formData.putSingle("method", "GET");
+            Response response = client.target(authorizationService)
+                    .request()
+                    .header("subjectid", authToken)
+                    .post(Entity.form(formData));
+            String outcome = response.readEntity(String.class);
+            int status = response.getStatus();
+            assertEquals("Status " + status, 200, status);
+            assertNotNull("No response", outcome);
+            assertEquals("Not authorized!", "true", outcome.trim());
+        } finally {
+            client.close();
         }
+    }
+
+    @Testable(name = "fetch weka-mlr algorithm", maxDuration = 1200)
+    public void getWekaAlgorithm() {
         Client client = ClientBuilder.newClient();
         try {
             String wekaAlgorithm = resourceBundle.getString("janitor.target") + "algorithm/weka-mlr";
@@ -129,7 +146,7 @@ public class BehaviouralTest {
         }
     }
 
-    @Testable(name = "connectivity test")
+    @Testable(name = "connectivity test", maxDuration = 1000l)
     public void testConnetivity() throws UnknownHostException, IOException {
         Client client = ClientBuilder.newClient();
         try {
@@ -142,7 +159,7 @@ public class BehaviouralTest {
         }
     }
 
-    @Testable(name = "list BibTeX")
+    @Testable(name = "list BibTeX", maxDuration = 1200l)
     public void testListBibTeX() {
         Client client = ClientBuilder.newClient();
         try {
@@ -158,7 +175,7 @@ public class BehaviouralTest {
         }
     }
 
-    @Testable(name = "list algorithms")
+    @Testable(name = "list algorithms", maxDuration = 1200l)
     public void testListAlgorithms() {
         Client client = ClientBuilder.newClient();
         try {
@@ -174,7 +191,7 @@ public class BehaviouralTest {
         }
     }
 
-    @Testable(name = "list models")
+    @Testable(name = "list models", maxDuration = 1200l)
     public void testListModels() {
         Client client = ClientBuilder.newClient();
         try {
@@ -190,29 +207,117 @@ public class BehaviouralTest {
         }
     }
 
-    @Testable(name = "list datasets")
+    @Testable(name = "list datasets", maxDuration = 1200l)
     public void testListDatasets() {
-        die("not implemented yet");
+        Client client = ClientBuilder.newClient();
+        try {
+            String uri = resourceBundle.getString("janitor.target") + "dataset?start=0&max=20";
+            Response response = client.target(uri)
+                    .request()
+                    .accept("text/uri-list")
+                    .header("subjectid", authToken)
+                    .get();
+            assertEquals("List of algorithms failed", 200, response.getStatus());
+        } finally {
+            client.close();
+        }
     }
 
     @Testable(name = "list pmml")
     public void testListPmml() {
-        die("not implemented yet");
+        Client client = ClientBuilder.newClient();
+        try {
+            String uri = resourceBundle.getString("janitor.target") + "pmml?start=0&max=20";
+            Response response = client.target(uri)
+                    .request()
+                    .accept("text/uri-list")
+                    .header("subjectid", authToken)
+                    .get();
+            assertEquals("List of features failed", 200, response.getStatus());
+        } finally {
+            client.close();
+        }
     }
 
     @Testable(name = "list features")
     public void testListFeatures() {
-        die("not implemented yet");
+        Client client = ClientBuilder.newClient();
+        try {
+            String uri = resourceBundle.getString("janitor.target") + "feature?start=0&max=20";
+            Response response = client.target(uri)
+                    .request()
+                    .accept("text/uri-list")
+                    .header("subjectid", authToken)
+                    .get();
+            int status = response.getStatus();
+            assertEquals("List of features failed with status " + status, 200, status);
+        } finally {
+            client.close();
+        }
     }
 
     @Testable(name = "list tasks")
     public void testLisTasks() {
-        die("not implemented yet");
-    }
-    
-    @Testable(name = "list users")
-    public void testLisUsers() {
-        die("not implemented yet");
+        Client client = ClientBuilder.newClient();
+        try {
+            String uri = resourceBundle.getString("janitor.target") + "task?start=0&max=1";
+            Response response = client.target(uri)
+                    .request()
+                    .accept("text/uri-list")
+                    .header("subjectid", authToken)
+                    .get();
+            int status = response.getStatus();
+            assertEquals("request /task failed with status " + status, 200, status);
+        } finally {
+            client.close();
+        }
     }
 
+    @Testable(name = "CORS test", maxDuration = 1200l)
+    public void testCORS() {
+        Client client = ClientBuilder.newClient();
+        try {
+            String uri = resourceBundle.getString("janitor.target") + "algorithm?start=0&max=1";
+            Response response = client.target(uri)
+                    .request()
+                    .accept("text/uri-list")
+                    .header("subjectid", authToken)
+                    .get();
+            assertNotNull("access-control-allow-origin=null", response.getHeaderString("access-control-allow-origin"));
+            assertNotNull("access-control-allow-methods=null", response.getHeaderString("access-control-allow-methods"));
+            assertNotNull("access-control-allow-headers=null", response.getHeaderString("access-control-allow-headers"));
+            assertEquals("request /algorithm?start=0&max=1 failed", 200, response.getStatus());
+        } finally {
+            client.close();
+        }
+    }
+
+    @Testable(name = "list users")
+    public void testLisUsers() {
+        Client client = ClientBuilder.newClient();
+        try {
+            String uri = resourceBundle.getString("janitor.target") + "user?start=0&max=20";
+            Response response = client.target(uri)
+                    .request()
+                    .accept("text/uri-list")
+                    .header("subjectid", authToken)
+                    .get();
+            assertEquals("List of users failed", 200, response.getStatus());
+        } finally {
+            client.close();
+        }
+    }
+
+    @Testable(name = "long running",
+            maxDuration = 3000l,
+            description = "this test should be interrupted by the runner "
+            + "because it is taking too long to comlete (20s) while its "
+            + "maximum duration is set to 3s.")
+    public void longRunningTask() {
+        long now = System.currentTimeMillis();
+        while (System.currentTimeMillis() - now < 20000) {
+            // do nothing and wait!
+        }
+        LOG.severe("Test was allowed to continue running after timeout!!!");
+    }
 }

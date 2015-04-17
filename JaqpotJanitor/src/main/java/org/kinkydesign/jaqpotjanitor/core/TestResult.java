@@ -34,23 +34,40 @@
  */
 package org.kinkydesign.jaqpotjanitor.core;
 
-import java.util.Map;
-
 /**
  *
  * @author chung
  */
 public class TestResult {
 
+    /**
+     * Simple name of the test.
+     */
     private String testName;
+    /**
+     * Description of what the test is about.
+     */
     private String testDescription;
+    /**
+     * Whether the test has succeeded.
+     */
     private boolean pass = true;
+    /**
+     * Timestamp of the test.
+     */
     private Long timestamp;
+    /**
+     * Total duration of the test.
+     */
     private Long duration;
+    /**
+     * Stacktrace in case the test has failed.
+     */
     private String stackTrace;
-    private Map<String, String> responseHeaders;
-    private int status;
-    private String responseBody;
+    /**
+     * Simple message the accompanies the test's outcome.
+     */
+    private String message;
 
     public TestResult() {
     }
@@ -103,28 +120,12 @@ public class TestResult {
         this.stackTrace = stackTrace;
     }
 
-    public Map<String, String> getResponseHeaders() {
-        return responseHeaders;
+    public String getMessage() {
+        return message;
     }
 
-    public void setResponseHeaders(Map<String, String> responseHeaders) {
-        this.responseHeaders = responseHeaders;
-    }
-
-    public int getStatus() {
-        return status;
-    }
-
-    public void setStatus(int status) {
-        this.status = status;
-    }
-
-    public String getResponseBody() {
-        return responseBody;
-    }
-
-    public void setResponseBody(String responseBody) {
-        this.responseBody = responseBody;
+    public void setMessage(String message) {
+        this.message = message;
     }
 
 }
