@@ -112,6 +112,12 @@ public class JanitorScheduledJob {
                     } finally {
                         tr.setDuration(System.currentTimeMillis() - started);
                     }
+                    LOG.log(tr.isPass() ? Level.INFO : Level.SEVERE, "[{0}] {1} ({2}ms) {3}", new Object[]{
+                        tr.isPass() ? "PASS" : "FAIL",
+                        tr.getTestName(),
+                        tr.getDuration(),
+                        !tr.isPass() ? ":"+tr.getMessage():""
+                    });
 
                 }
             }
@@ -133,7 +139,7 @@ public class JanitorScheduledJob {
      * identified by its ID and the {@link TestsBucket#getTimestamp() timestamp}
      * of its creation. Tests are executed in a serial fashion.
      */
-    @Schedule(hour = "*", minute = "*/5", second = "0", info = "TestRunner", persistent = false)
+    @Schedule(hour = "*", minute = "*/2", second = "0", info = "TestRunner", persistent = false)
     public void doScheduled() {
         LOG.info("RUNNING TESTS!");
         if (annotated == null) {

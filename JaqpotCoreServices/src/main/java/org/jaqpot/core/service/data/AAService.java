@@ -71,7 +71,6 @@ public class AAService {
     @UnSecure
     Client client;
 
-    
     Map<String, User> tokenMap;
 
     @PostConstruct
@@ -176,14 +175,14 @@ public class AAService {
         formData.putSingle("subjectid", token);
         Response response = client.target(SSOlogout)
                 .request()
-                .post(Entity.form(formData));        
+                .post(Entity.form(formData));
         if (200 != response.getStatus()) {
             response.close();
             throw new JaqpotNotAuthorizedException("It seems your token is not valid");
         }
         response.close();
         tokenMap.remove(token);
-        int status = response.getStatus();        
+        int status = response.getStatus();
         return status == 200;
     }
 
@@ -244,6 +243,12 @@ public class AAService {
                     }
                 }
             }
+        } else {
+            LOG.log(Level.SEVERE, "SSO attributes responded with status {0} for token {1}", 
+                    new Object[]{response.getStatus(), token});
+            LOG.log(Level.SEVERE, response.readEntity(String.class));
+            LOG.info("Returning null user!");
+            return null;
         }
         response.close();
         LOG.log(Level.INFO, "User ID   {0}", user.getId());

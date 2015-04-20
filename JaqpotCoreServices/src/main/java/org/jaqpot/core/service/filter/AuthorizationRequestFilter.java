@@ -136,10 +136,13 @@ public class AuthorizationRequestFilter implements ContainerRequestFilter {
         // the token is valid - ask SSO who this user is...
         // the user is not cached...
         user = aaService.getUserFromSSO(token);
-        aaService.registerUserToken(token, user); // cache the user
-
-        LOG.log(Level.INFO, "New user on Jaqpot with ID {0} and name {1}",
-                new Object[]{user.getId(), user.getName()});
+        if (user == null || user.getId() == null) {
+            requestContext.abortWith(Response.
+                    ok(ErrorReportFactory.unauthorized("User attributes could not be retrived!"))
+                    .status(Response.Status.FORBIDDEN)
+                    .build());
+        }
+        aaService.registerUserToken(token, user); // cache the user (by token)
 
         // is the user in the DB?
         User userInDB = userHandler.find(user.getId());
