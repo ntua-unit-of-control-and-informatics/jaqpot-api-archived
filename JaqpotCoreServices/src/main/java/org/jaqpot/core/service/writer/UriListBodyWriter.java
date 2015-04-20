@@ -80,27 +80,21 @@ public class UriListBodyWriter implements MessageBodyWriter<List> {
             MediaType mediaType,
             MultivaluedMap<String, Object> httpHeaders,
             OutputStream entityStream) throws IOException, WebApplicationException {
-        //StringJoiner joiner = new StringJoiner("\n");
-        //String uri;
-        byte[] newLineBytes = "\n".getBytes();
-        
+        StringJoiner joiner = new StringJoiner("\n");
         entityList.stream().forEach((Object entity) -> {
-            try {
-                String uri;
+            String uri;
+            if (entity != null) {
                 if (entity instanceof JaqpotEntity) {
                     uri = uriInfo.getBaseUri() + entity.getClass().getSimpleName().toLowerCase() + "/" + ((JaqpotEntity) entity).getId();
                 } else {
                     uri = entity != null ? entity.toString() : null;
                 }
-                //  joiner.add(uri);
                 if (uri != null) {
-                    entityStream.write(uri.getBytes());
-                    entityStream.write(newLineBytes);
+                    joiner.add(uri);
                 }
-            } catch (IOException ex) {
-                LOG.log(Level.SEVERE, null, ex);
             }
         });
+        entityStream.write(joiner.toString().getBytes());
         entityStream.flush();
     }
 
