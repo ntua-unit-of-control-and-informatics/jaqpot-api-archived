@@ -23,7 +23,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.1</version>
+                <version>3.3</version>
                 <configuration>
                     <source>1.8</source>
                     <target>1.8</target>
@@ -32,9 +32,10 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-ear-plugin</artifactId>                
-                <version>2.8</version>
+                <version>2.10</version>
                 <configuration>
                     <version>6</version>
+                    <skinnyWars>true</skinnyWars>
                     <defaultLibBundleDir>lib</defaultLibBundleDir>
                     <modules>
                         <webModule>
@@ -52,6 +53,14 @@
                             <artifactId>JaqpotJanitor</artifactId>
                             <contextRoot>janitor</contextRoot>
                         </webModule>
+                        <ejbModule>
+                            <groupId>org.kinkydesign</groupId>
+                            <artifactId>JaqpotDB</artifactId>
+                        </ejbModule>
+                        <jarModule>
+                            <groupId>org.kinkydesign</groupId>
+                            <artifactId>JaqpotDomain</artifactId>
+                        </jarModule>
                     </modules>
                 </configuration>
             </plugin>
@@ -62,7 +71,7 @@
             <groupId>org.kinkydesign</groupId>
             <artifactId>JaqpotDomain</artifactId>
             <version>1.0-SNAPSHOT</version>
-            <type>ejb</type>
+            <type>jar</type>
         </dependency>
         <dependency>
             <groupId>org.kinkydesign</groupId>
