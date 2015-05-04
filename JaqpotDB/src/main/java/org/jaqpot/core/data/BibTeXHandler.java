@@ -38,7 +38,6 @@ import javax.inject.Inject;
 import org.jaqpot.core.annotations.MongoDB;
 import org.jaqpot.core.db.entitymanager.JaqpotEntityManager;
 import org.jaqpot.core.model.BibTeX;
-import org.jaqpot.core.model.Model;
 
 /**
  *
@@ -54,13 +53,14 @@ public class BibTeXHandler extends AbstractHandler<BibTeX> {
     public BibTeXHandler() {
         super(BibTeX.class);
     }
+
     @Override
     protected JaqpotEntityManager getEntityManager() {
         return em;
     }
-    
+
     @Override
-    public List<BibTeX> listOnlyIDs(int start, int max) {
+    public List<BibTeX> listOnlyIDs(Integer start, Integer max) {
         List<String> fields = new ArrayList<>();
         fields.add("_id");
         fields.add("meta");
@@ -69,11 +69,11 @@ public class BibTeXHandler extends AbstractHandler<BibTeX> {
         fields.add("author");
         return getEntityManager().findAll(BibTeX.class, fields, start, max);
     }
-    
+
     public Long countByUser(String userName) {
         Map<String, Object> properties = new HashMap<>();
         properties.put("createdBy", userName);
         return em.count(BibTeX.class, properties);
     }
-    
+
 }

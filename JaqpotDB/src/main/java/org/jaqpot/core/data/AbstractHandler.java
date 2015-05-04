@@ -35,7 +35,6 @@ import java.util.List;
 import java.util.Map;
 import org.jaqpot.core.db.entitymanager.JaqpotEntityManager;
 import org.jaqpot.core.model.JaqpotEntity;
-import org.jaqpot.core.model.Task;
 
 /**
  *
@@ -78,16 +77,28 @@ public abstract class AbstractHandler<T extends JaqpotEntity> {
         return getEntityManager().findAll(entityClass, 0, Integer.MAX_VALUE);
     }
 
-    public List<T> findAll(int start, int max) {
+    public List<T> findAll(Integer start, Integer max) {
         return getEntityManager().findAll(entityClass, start, max);
     }
 
-    public List<T> listOnlyIDs(int start, int max) {
+    public List<T> listOnlyIDs(Integer start, Integer max) {
         List<String> fields = new ArrayList<>();
         fields.add("_id");
         fields.add("meta");
         fields.add("ontologicalClasses");
         return getEntityManager().findAll(entityClass, fields, start, max);
+    }
+
+    public List<T> listOnlyIDsOfCreator(String createdBy, Integer start, Integer max) {
+        List<String> fields = new ArrayList<>();
+        fields.add("_id");
+        fields.add("meta");
+        fields.add("ontologicalClasses");
+
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("createdBy", createdBy);
+
+        return getEntityManager().find(entityClass, properties, fields, start, max);
     }
 
     public Long countAll() {
