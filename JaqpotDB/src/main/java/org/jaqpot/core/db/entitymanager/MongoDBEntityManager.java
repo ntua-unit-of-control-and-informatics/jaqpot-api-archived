@@ -98,7 +98,7 @@ public class MongoDBEntityManager implements JaqpotEntityManager {
 
     public MongoDBEntityManager() {
         LOG.log(Level.INFO, "Initializing MongoDB EntityManager");
-     
+
         ClassLoader classLoader = this.getClass().getClassLoader();
         InputStream is = classLoader.getResourceAsStream("config/db.properties");
         String dbName = "production"; // Default DB name in case no properties file is found!
@@ -111,7 +111,7 @@ public class MongoDBEntityManager implements JaqpotEntityManager {
             dbPort = Integer.parseInt(dbProperties.getProperty("db.port", Integer.toString(dbPort)));
             LOG.log(Level.INFO, "Database host : {0}", dbHost);
             LOG.log(Level.INFO, "Database port : {0}", dbPort);
-            LOG.log(Level.INFO, "Database name : {0}", dbName);            
+            LOG.log(Level.INFO, "Database name : {0}", dbName);
         } catch (IOException ex) {
             String errorMessage = "No DB properties file found!";
             LOG.log(Level.SEVERE, errorMessage, ex); // Log the event (but use the default properties)
@@ -219,6 +219,33 @@ public class MongoDBEntityManager implements JaqpotEntityManager {
         Document filter = new Document();
         fields.stream().forEach(f -> filter.put(f, 1));
         collection.find(query).projection(filter)
+                .map(document -> serializer.parse(JSON.serialize(document), entityClass))
+                .into(result);
+        return result;
+    }
+
+    @Override
+    public <T extends JaqpotEntity> List<T> find(Class<T> entityClass, Map<String, Object> properties, List<String> fields, Integer start, Integer max) {
+        MongoDatabase db = mongoClient.getDatabase(database);
+        MongoCollection<Document> collection = db.getCollection(collectionNames.get(entityClass));
+        properties.entrySet()
+                .stream()
+                .filter(e -> {
+                    return e.getValue() instanceof List;
+                })
+                .forEach(e -> {
+                    Map<String, Object> all = new HashMap<>();
+                    all.put("$all", e.getValue());
+                    properties.put(e.getKey(), all);
+                });
+
+        Document filter = new Document();
+        fields.stream().forEach(f -> filter.put(f, 1));
+        List<T> result = new ArrayList<>();
+        collection.find(new Document(properties))
+                .projection(filter)
+                .skip(start != null ? start : 0)
+                .limit(max != null ? max : DEFAULT_PAGE_SIZE)
                 .map(document -> serializer.parse(JSON.serialize(document), entityClass))
                 .into(result);
         return result;

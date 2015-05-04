@@ -129,6 +129,23 @@ public interface JaqpotEntityManager extends Closeable {
     public <T extends JaqpotEntity> List<T> find(Class<T> entityClass, List<String> keys, List<String> fields);
 
     /**
+     * Find by properties, return specific fields. Searches for entities of the
+     * specified class that match the given properties but returns only fields
+     * that are present in the fields parameter.
+     *
+     * This method has paging capability.
+     *
+     * @param <T>
+     * @param entityClass entity class
+     * @param properties a properties map matching field names with values
+     * @param fields a list of fields to be returned
+     * @param start the position of the first result to retrieve
+     * @param max the maximum number of results to retrieve
+     * @return the total of entity instances that match the given properties
+     */
+    public <T extends JaqpotEntity> List<T> find(Class<T> entityClass, Map<String, Object> properties, List<String> fields, Integer start, Integer max);
+
+    /**
      * Find all entities. Searches for all entities of the specified class.
      *
      * This method has paging capability.
@@ -141,6 +158,21 @@ public interface JaqpotEntityManager extends Closeable {
      */
     public <T extends JaqpotEntity> List<T> findAll(Class<T> entityClass, Integer start, Integer max);
 
+    /**
+     * Find all entities, return specific fields. Searches for all entities of
+     * the specified class but returns only fields that are present in the
+     * fields parameter.
+     *
+     * This method has paging capability.
+     *
+     * @param <T>
+     * @param entityClass entity class
+     * @param fields a list of fields to be returned
+     * @param start the position of the first result to retrieve
+     * @param max the maximum number of results to retrieve
+     * @return a list with all entity instances of given class, each instance
+     * containing only specified fields
+     */
     public <T extends JaqpotEntity> List<T> findAll(Class<T> entityClass, List<String> fields, Integer start, Integer max);
 
     /**
