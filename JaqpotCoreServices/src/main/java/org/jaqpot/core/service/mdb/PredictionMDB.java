@@ -56,10 +56,12 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
+import org.jaqpot.core.annotations.Jackson;
 import org.jaqpot.core.data.DatasetHandler;
 import org.jaqpot.core.data.FeatureHandler;
 import org.jaqpot.core.data.ModelHandler;
 import org.jaqpot.core.data.TaskHandler;
+import org.jaqpot.core.data.serialize.JSONSerializer;
 import org.jaqpot.core.model.Feature;
 import org.jaqpot.core.model.Model;
 import org.jaqpot.core.model.Task;
@@ -108,6 +110,10 @@ public class PredictionMDB extends RunningTaskMDB {
     @Inject
     @UnSecure
     Client client;
+    
+    @Inject
+    @Jackson
+    JSONSerializer jsonSerializer;
 
     @Override
     public void onMessage(Message msg) {
@@ -175,10 +181,13 @@ public class PredictionMDB extends RunningTaskMDB {
             task.getMeta().getComments().add("Algorithm service responded with status:" + response.getStatus());
             taskHandler.edit(task);
 
+            String responseString = response.readEntity(String.class);
+            System.out.println(responseString);
+            
             task.getMeta().getComments().add("Attempting to parse response...");
             task.setPercentageCompleted(18.f);
             taskHandler.edit(task);
-            PredictionResponse predictionResponse = response.readEntity(PredictionResponse.class);
+            PredictionResponse predictionResponse = jsonSerializer.parse(responseString, PredictionResponse.class);
             response.close();
             task.getMeta().getComments().add("Response was parsed successfully.");
 
@@ -189,7 +198,8 @@ public class PredictionMDB extends RunningTaskMDB {
             for (int i = 0; i < dataset.getDataEntry().size(); i++) {
                 Map<String, Object> row = predictions.get(i);
                 DataEntry dataEntry = dataset.getDataEntry().get(i);
-                if (model.getAlgorithm().getOntologicalClasses().contains("ot:Scaling")) {
+                if (model.getAlgorithm().getOntologicalClasses().contains("ot:Scaling")
+                        || model.getAlgorithm().getOntologicalClasses().contains("ot:Clustering")) {
                     dataEntry.getValues().clear();
                 }
                 row.entrySet().stream().forEach(entry -> {
@@ -197,20 +207,7 @@ public class PredictionMDB extends RunningTaskMDB {
                     dataEntry.getValues().put(messageBody.get("base_uri") + "feature/" + feature.getId(), entry.getValue());
                 });
             }
-
-//            for (int i = 0; i < dataset.getDataEntry().size(); i++) {
-//                String predictedFeature = model.getPredictedFeatures().stream().findFirst().orElse("property/predicted");
-//                Object prediction = predictions.get(i);
-//                if (prediction instanceof Collection) {
-//                    List predictionList = new ArrayList((Collection) prediction);
-//                    for (int j = 0; j < predictionList.size(); j++) {
-//                        Object value = predictionList.get(j);
-//                        dataset.getDataEntry().get(i).getValues().put(predictedFeature + "/" + String.format("%05d", j), value);
-//                    }
-//                } else {
-//                    dataset.getDataEntry().get(i).getValues().put(predictedFeature, prediction);
-//                }
-//            }
+            
             ROG randomStringGenerator = new ROG(true);
             dataset.setId(randomStringGenerator.nextString(14));
             task.getMeta().getComments().add("Dataset ready.");

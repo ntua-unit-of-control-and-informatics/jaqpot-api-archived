@@ -53,10 +53,12 @@ import javax.ws.rs.client.ResponseProcessingException;
 import javax.ws.rs.core.Form;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import org.jaqpot.core.annotations.Jackson;
 import org.jaqpot.core.data.AlgorithmHandler;
 import org.jaqpot.core.data.FeatureHandler;
 import org.jaqpot.core.data.ModelHandler;
 import org.jaqpot.core.data.TaskHandler;
+import org.jaqpot.core.data.serialize.JSONSerializer;
 import org.jaqpot.core.model.Algorithm;
 import org.jaqpot.core.model.ErrorReport;
 import org.jaqpot.core.model.Feature;
@@ -103,8 +105,12 @@ public class TrainingMDB extends RunningTaskMDB {
     @UnSecure
     Client client;
 
+    @Inject
+    @Jackson
+    JSONSerializer jsonSerializer;
+
     long DOA_TASK_MAX_WAITING_TIME = 45; // 45s
-  
+
     @Override
     public void onMessage(Message msg) {
         Task task = new Task();
@@ -168,15 +174,10 @@ public class TrainingMDB extends RunningTaskMDB {
             taskHandler.edit(task);
 
             String parameters = (String) messageBody.get("parameters");
-            Map<String, Object> parameterMap = new HashMap<>();
-            if (parameters != null) {
-                String[] parameterArray = parameters.split(",");
-                for (String parameter : parameterArray) {
-                    String[] keyValuePair = parameter.split("=");
-                    parameterMap.put(keyValuePair[0].trim(), keyValuePair[1].trim());
-                }
+            if (parameters != null && !parameters.isEmpty()) {
+                HashMap<String, Object> parameterMap = jsonSerializer.parse(parameters, new HashMap<String, Object>().getClass());
+                trainingRequest.setParameters(parameterMap);
             }
-            trainingRequest.setParameters(parameterMap);
 
             task.getMeta().getComments().add("Inserted parameters.");
             task.setPercentageCompleted(53.f);
@@ -202,13 +203,12 @@ public class TrainingMDB extends RunningTaskMDB {
 
             task.getMeta().getComments().add("Attempting to parse response...");
             task.setPercentageCompleted(71.f);
-            taskHandler.edit(task);            
-
+            taskHandler.edit(task);
             TrainingResponse trainingResponse = response.readEntity(TrainingResponse.class);
             task.getMeta().getComments().add("Response was parsed successfully");
             task.setPercentageCompleted(77.f);
             taskHandler.edit(task);
-            
+
             response.close();
 
             task.getMeta().getComments().add("Building model...");
