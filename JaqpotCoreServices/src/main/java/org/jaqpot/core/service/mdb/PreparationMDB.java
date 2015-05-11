@@ -61,6 +61,7 @@ import org.jaqpot.core.model.builder.MetaInfoBuilder;
 import org.jaqpot.core.model.dto.dataset.Dataset;
 import org.jaqpot.core.model.factory.ErrorReportFactory;
 import org.jaqpot.core.service.annotations.UnSecure;
+import org.jaqpot.core.service.data.AAService;
 import org.jaqpot.core.service.data.ConjoinerService;
 import org.jpmml.evaluator.ExpressionUtil;
 import org.jpmml.evaluator.FieldValue;
@@ -102,6 +103,9 @@ public class PreparationMDB extends RunningTaskMDB {
 
     @EJB
     DatasetHandler datasetHandler;
+    
+    @EJB
+    AAService aaService;
 
     @Inject
     @UnSecure
@@ -196,8 +200,11 @@ public class PreparationMDB extends RunningTaskMDB {
             task.getMeta().getComments().add("Saving to database...");
             task.setPercentageCompleted(55.0f);
             taskHandler.edit(task);
-            MetaInfo datasetMeta = MetaInfoBuilder.builder().addSources(bundleUri)
-                    .addComments("Created by task " + task.getId()).build();
+            MetaInfo datasetMeta = MetaInfoBuilder.builder()
+                    .addSources(bundleUri)
+                    .addComments("Created by task " + task.getId())
+                    .addCreators(aaService.getUserFromSSO(subjectId).getId())
+                    .build();
             dataset.setMeta(datasetMeta);
 
             datasetHandler.create(dataset);
