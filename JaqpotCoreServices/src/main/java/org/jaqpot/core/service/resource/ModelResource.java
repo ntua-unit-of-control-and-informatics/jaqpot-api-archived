@@ -75,6 +75,8 @@ import org.jaqpot.core.service.data.PredictionService;
 @Authorize
 public class ModelResource {
 
+    private static final String DEFAULT_DATASET = "http://enanomapper.ntua.gr:8880/jaqpot/services/dataset/H3nfrN5ZwFHt";
+
     @Context
     UriInfo uriInfo;
 
@@ -258,7 +260,7 @@ public class ModelResource {
             response = Task.class
     )
     public Response makePrediction(
-            @FormParam("dataset_uri") String datasetURI,
+            @ApiParam(name = "dataset_uri", defaultValue = DEFAULT_DATASET) @FormParam("dataset_uri") String datasetURI,
             @PathParam("id") String id,
             @HeaderParam("subjectid") String subjectId) throws GeneralSecurityException {
 

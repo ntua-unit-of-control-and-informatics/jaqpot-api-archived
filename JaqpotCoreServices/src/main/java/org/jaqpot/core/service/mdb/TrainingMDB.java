@@ -201,10 +201,13 @@ public class TrainingMDB extends RunningTaskMDB {
             task.setPercentageCompleted(69.f);
             taskHandler.edit(task);
 
+            String responseString = response.readEntity(String.class);
+            System.out.println(responseString);
+
             task.getMeta().getComments().add("Attempting to parse response...");
             task.setPercentageCompleted(71.f);
             taskHandler.edit(task);
-            TrainingResponse trainingResponse = response.readEntity(TrainingResponse.class);
+            TrainingResponse trainingResponse = jsonSerializer.parse(responseString, TrainingResponse.class);
             task.getMeta().getComments().add("Response was parsed successfully");
             task.setPercentageCompleted(77.f);
             taskHandler.edit(task);
