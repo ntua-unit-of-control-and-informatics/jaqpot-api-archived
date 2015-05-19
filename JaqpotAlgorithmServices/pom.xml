@@ -50,17 +50,46 @@
         </dependency>
         
         <!-- Weka (Machine Learning)- Developement Version (bin and javadoc) -->
+        <!--        <dependency>
+            <groupId>nz.ac.waikato.cms.weka</groupId>
+            <artifactId>LibSVM</artifactId>
+            <version>1.0.6</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>nz.ac.waikato.cms.weka</artifactId>
+                    <groupId>weka-dev</groupId>     
+                </exclusion>
+            </exclusions>
+        </dependency>-->
+        <!--        <dependency>
+            <groupId>nz.ac.waikato.cms.weka</groupId>
+            <artifactId>LibSVM</artifactId>
+            <version>1.0.6</version>
+            <classifier>javadoc</classifier>
+            <exclusions>
+                <exclusion>
+                    <artifactId>nz.ac.waikato.cms.weka</artifactId>
+                    <groupId>weka-dev</groupId>     
+                </exclusion>
+            </exclusions>
+        </dependency>-->
         <dependency>
             <groupId>nz.ac.waikato.cms.weka</groupId>
-            <artifactId>weka-dev</artifactId>
-            <version>3.7.12</version>
-        </dependency>
-        <dependency>
-            <groupId>nz.ac.waikato.cms.weka</groupId>
-            <artifactId>weka-dev</artifactId>
-            <version>3.7.12</version>
+            <artifactId>weka-stable</artifactId>
+            <version>3.6.12</version>
             <classifier>javadoc</classifier>
         </dependency>
+        <dependency>
+            <groupId>nz.ac.waikato.cms.weka</groupId>
+            <artifactId>weka-stable</artifactId>
+            <version>3.6.12</version>
+        </dependency>
+        <dependency>
+            <groupId>tw.edu.ntu.csie</groupId>
+            <artifactId>libsvm</artifactId>
+            <version>3.17</version>
+        </dependency>
+        
         
         <!-- JPMML - Reference implementation of the PMML specification for Java (bin and javadoc) -->
         <dependency>

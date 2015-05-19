@@ -50,7 +50,6 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -65,14 +64,11 @@ import org.jaqpot.core.model.dto.jpdi.TrainingRequest;
 import org.jaqpot.core.model.dto.jpdi.TrainingResponse;
 import org.jaqpot.core.model.factory.ErrorReportFactory;
 import weka.classifiers.Classifier;
-import weka.classifiers.functions.SMO;
-import weka.classifiers.functions.SMOreg;
-import weka.classifiers.functions.supportVector.Kernel;
-import weka.classifiers.functions.supportVector.PolyKernel;
-import weka.classifiers.functions.supportVector.RBFKernel;
-import weka.classifiers.functions.supportVector.RegOptimizer;
+import weka.classifiers.functions.LibSVM;
 import weka.core.Attribute;
+import weka.core.Instance;
 import weka.core.Instances;
+import weka.core.SelectedTag;
 
 /**
  *
@@ -83,16 +79,6 @@ import weka.core.Instances;
 @Produces(MediaType.APPLICATION_JSON)
 public class WekaSVM {
 
-    private enum SvmParameter {
-
-        gamma,
-        cost,
-        epsilon,
-        tolerance,
-        cacheSize,
-        degree,
-        kernel;
-    }
     private final Double gamma = 1.50,
             cost = 100.0,
             epsilon = 0.100,
@@ -123,47 +109,30 @@ public class WekaSVM {
             Instances data = InstanceUtils.createFromDataset(request.getDataset(), request.getPredictionFeature());
             Map<String, Object> parameters = request.getParameters() != null ? request.getParameters() : new HashMap<>();
 
-            SMOreg regressor = new SMOreg();
+            LibSVM regressor = new LibSVM();
             Double e = Double.parseDouble(parameters.getOrDefault("epsilon", epsilon).toString());
             Double t = Double.parseDouble(parameters.getOrDefault("tolerance", tolerance).toString());
-            final String[] regressorOptions = {
-//                "-L", e.toString(),
-//                "-T", t.toString()
-            };
-            RegOptimizer optimizer = new RegOptimizer();
-            optimizer.setEpsilonParameter(e);
-            
-            regressor.setRegOptimizer(optimizer);
-            Kernel svm_kernel = null;
+            Double c = Double.parseDouble(parameters.getOrDefault("cacheSize", cacheSize).toString());
+            Double g = Double.parseDouble(parameters.getOrDefault("gamma", gamma).toString());
+            Integer d = Integer.parseInt(parameters.getOrDefault("degree", degree).toString());
+
+            regressor.setEps(e);
+            regressor.setCacheSize(c);
+            regressor.setDegree(d);
+            regressor.setCost(cost);
+            regressor.setGamma(g);
+            regressor.setSVMType(new SelectedTag(LibSVM.SVMTYPE_NU_SVR, LibSVM.TAGS_SVMTYPE));
+
+            Integer svm_kernel = null;
             String kernelName = parameters.getOrDefault("kernel", kernel).toString();
             if (kernelName.equalsIgnoreCase("rbf")) {
-                RBFKernel rbf_kernel = new RBFKernel();
-                rbf_kernel.setGamma(Double.parseDouble(parameters.getOrDefault("gamma", gamma).toString()));
-                rbf_kernel.setCacheSize(Integer.parseInt(parameters.getOrDefault("cacheSize", cacheSize).toString()));
-                svm_kernel = rbf_kernel;
+                svm_kernel = LibSVM.KERNELTYPE_RBF;
             } else if (kernelName.equalsIgnoreCase("polynomial")) {
-                PolyKernel poly_kernel = new PolyKernel();
-                poly_kernel.setExponent(Double.parseDouble(parameters.getOrDefault("degree", degree).toString()));
-                poly_kernel.setCacheSize(Integer.parseInt(parameters.getOrDefault("cacheSize", cacheSize).toString()));
-                poly_kernel.setUseLowerOrder(true);
-                svm_kernel = poly_kernel;
+                svm_kernel = LibSVM.KERNELTYPE_POLYNOMIAL;
             } else if (kernelName.equalsIgnoreCase("linear")) {
-                PolyKernel poly_kernel = new PolyKernel();
-                poly_kernel.setExponent((double) 1.0);
-                poly_kernel.setCacheSize(Integer.parseInt(parameters.getOrDefault("cacheSize", cacheSize).toString()));
-                poly_kernel.setUseLowerOrder(true);
-                svm_kernel = poly_kernel;
+                svm_kernel = LibSVM.KERNELTYPE_LINEAR;
             }
-            try {
-                regressor.setOptions(regressorOptions);
-            } catch (final Exception ex) {
-                Logger.getLogger(WekaSVM.class.getName()).log(Level.SEVERE, null, ex);
-                return Response
-                        .status(Response.Status.BAD_REQUEST)
-                        .entity(ErrorReportFactory.badRequest("Bad options in SVM trainer for epsilon = {" + epsilon + "} or "
-                                        + "tolerance = {" + tolerance + "}.", ex.getMessage())).build();
-            }
-            regressor.setKernel(svm_kernel);
+            regressor.setKernelType(new SelectedTag(svm_kernel, LibSVM.TAGS_KERNELTYPE));
             regressor.buildClassifier(data);
 
             WekaModel model = new WekaModel();
@@ -211,18 +180,32 @@ public class WekaSVM {
             Instances data = InstanceUtils.createFromDataset(request.getDataset());
             String dependentFeature = (String) request.getAdditionalInfo();
             data.insertAttributeAt(new Attribute(dependentFeature), data.numAttributes());
+            data.setClass(data.attribute(dependentFeature));
             List<Map<String, Object>> predictions = new ArrayList<>();
-            data.stream().forEach(instance -> {
+//            data.stream().forEach(instance -> {
+//                try {
+//                    double prediction = classifier.classifyInstance(instance);
+//                    Map<String, Object> predictionMap = new HashMap<>();
+//                    predictionMap.put("Weka SVM prediction of " + dependentFeature, prediction);
+//                    predictions.add(predictionMap);
+//                } catch (Exception ex) {
+//                    Logger.getLogger(WekaSVM.class.getName()).log(Level.SEVERE, null, ex);
+//                }
+//            });
+
+            for (int i = 0; i < data.numInstances(); i++) {
+                Instance instance = data.instance(i);
                 try {
                     double prediction = classifier.classifyInstance(instance);
                     Map<String, Object> predictionMap = new HashMap<>();
                     predictionMap.put("Weka SVM prediction of " + dependentFeature, prediction);
                     predictions.add(predictionMap);
                 } catch (Exception ex) {
-                    Logger.getLogger(WekaSVM.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(WekaMLR.class.getName()).log(Level.SEVERE, null, ex);
+                    return Response.status(Response.Status.BAD_REQUEST).entity(ErrorReportFactory.badRequest("Error while gettting predictions.", ex.getMessage())).build();
                 }
-            });
-
+            }
+            
             PredictionResponse response = new PredictionResponse();
             response.setPredictions(predictions);
             return Response.ok(response).build();

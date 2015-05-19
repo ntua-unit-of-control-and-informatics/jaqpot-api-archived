@@ -40,7 +40,8 @@ import java.util.stream.Collectors;
 import org.jaqpot.core.model.dto.dataset.DataEntry;
 import org.jaqpot.core.model.dto.dataset.Dataset;
 import weka.core.Attribute;
-import weka.core.DenseInstance;
+//import weka.core.DenseInstance;
+import weka.core.FastVector;
 import weka.core.Instance;
 import weka.core.Instances;
 
@@ -52,7 +53,8 @@ public class InstanceUtils {
 
     public static Instances createFromDataset(Dataset dataset, String predictionFeature) {
 
-        List<Attribute> attributes = dataset.getDataEntry()
+        FastVector attrInfo = new FastVector();
+        dataset.getDataEntry()
                 .stream()
                 .findFirst()
                 .get()
@@ -61,12 +63,16 @@ public class InstanceUtils {
                 .stream()
                 .map(feature -> {
                     return new Attribute(feature);
-                }).collect(Collectors.toList());
+                }).forEach(a -> {
+                    attrInfo.addElement(a);
+                });
 
-        Instances data = new Instances(dataset.getDatasetURI(), new ArrayList<>(attributes), dataset.getDataEntry().size());
+//        Instances data = new Instances(dataset.getDatasetURI(), new ArrayList<>(attributes), dataset.getDataEntry().size());
+        Instances data = new Instances(dataset.getDatasetURI(), attrInfo, dataset.getDataEntry().size());
+
         data.setClass(data.attribute(predictionFeature));
         dataset.getDataEntry().stream().map((dataEntry) -> {
-            Instance instance = new DenseInstance(dataEntry.getValues().size());
+            Instance instance = new Instance(dataEntry.getValues().size());
             dataEntry.getValues().entrySet().stream().forEach(entry -> {
                 instance.setValue(data.attribute(entry.getKey()), Double.parseDouble(entry.getValue().toString()));
             });
@@ -79,7 +85,8 @@ public class InstanceUtils {
 
     public static Instances createFromDataset(Dataset dataset) {
 
-        List<Attribute> attributes = dataset.getDataEntry()
+        FastVector attrInfo = new FastVector();
+        dataset.getDataEntry()
                 .stream()
                 .findFirst()
                 .get()
@@ -88,17 +95,22 @@ public class InstanceUtils {
                 .stream()
                 .map(feature -> {
                     return new Attribute(feature);
-                }).collect(Collectors.toList());
+                }).forEach(a -> {
+                    attrInfo.addElement(a);
+                });
 
-        Instances data = new Instances(dataset.getDatasetURI(), new ArrayList<>(attributes), dataset.getDataEntry().size());
+//        Instances data = new Instances(dataset.getDatasetURI(), new ArrayList<>(attributes), dataset.getDataEntry().size());
+        Instances data = new Instances(dataset.getDatasetURI(), attrInfo, dataset.getDataEntry().size());
 
-        for (DataEntry dataEntry : dataset.getDataEntry()) {
-            Instance instance = new DenseInstance(dataEntry.getValues().size());
+        dataset.getDataEntry().stream().map((dataEntry) -> {
+            Instance instance = new Instance(dataEntry.getValues().size());
             dataEntry.getValues().entrySet().stream().forEach(entry -> {
                 instance.setValue(data.attribute(entry.getKey()), Double.parseDouble(entry.getValue().toString()));
             });
+            return instance;
+        }).forEach((instance) -> {
             data.add(instance);
-        }
+        });
         return data;
     }
 

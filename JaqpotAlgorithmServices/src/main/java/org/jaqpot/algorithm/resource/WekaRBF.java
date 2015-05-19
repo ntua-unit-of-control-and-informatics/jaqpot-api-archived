@@ -2,7 +2,12 @@
  *
  * JAQPOT Quattro
  *
- * JAQPOT Quattro and the components shipped with it (web applications and beans)
+ * JAQPOT Quattro and the components shipped with it, in particular:
+ * (i)   JaqpotCoreServices
+ * (ii)  JaqpotAlgorithmServices
+ * (iii) JaqpotDB
+ * (iv)  JaqpotDomain
+ * (v)   JaqpotEAR
  * are licensed by GPL v3 as specified hereafter. Additional components may ship
  * with some other licence as will be specified therein.
  *
@@ -61,6 +66,7 @@ import org.jaqpot.core.model.dto.jpdi.TrainingResponse;
 import org.jaqpot.core.model.factory.ErrorReportFactory;
 import weka.classifiers.Classifier;
 import weka.classifiers.functions.LinearRegression;
+import weka.classifiers.functions.RBFNetwork;
 import weka.core.Attribute;
 import weka.core.Instance;
 import weka.core.Instances;
@@ -69,10 +75,10 @@ import weka.core.Instances;
  *
  * @author hampos
  */
-@Path("mlr")
+@Path("rbf")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
-public class WekaMLR {
+public class WekaRBF {
 
     @POST
     @Path("training")
@@ -96,15 +102,12 @@ public class WekaMLR {
 
             Instances data = InstanceUtils.createFromDataset(request.getDataset(), request.getPredictionFeature());
 
-            LinearRegression linreg = new LinearRegression();
-            String[] linRegOptions = {"-S", "1", "-C"};
-            linreg.setOptions(linRegOptions);
-            linreg.buildClassifier(data);
+            RBFNetwork rbf = new RBFNetwork();
+
+            rbf.buildClassifier(data);
 
             WekaModel model = new WekaModel();
-            model.setClassifier(linreg);
-
-            String pmml = PmmlUtils.createRegressionModel(features, request.getPredictionFeature(), linreg.coefficients(), "MLR");
+            model.setClassifier(rbf);
 
             TrainingResponse response = new TrainingResponse();
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -117,9 +120,9 @@ public class WekaMLR {
                     .filter(feature -> !feature.equals(request.getPredictionFeature()))
                     .collect(Collectors.toList());
             response.setIndependentFeatures(independentFeatures);
-            response.setPmmlModel(pmml);
+//            response.setPmmlModel(pmml);
             response.setAdditionalInfo(request.getPredictionFeature());
-            response.setPredictedFeatures(Arrays.asList("Weka MLR prediction of " + request.getPredictionFeature()));
+            response.setPredictedFeatures(Arrays.asList("Weka RBF prediction of " + request.getPredictionFeature()));
 
             return Response.ok(response).build();
         } catch (Exception ex) {
@@ -149,6 +152,8 @@ public class WekaMLR {
             Instances data = InstanceUtils.createFromDataset(request.getDataset());
             String dependentFeature = (String) request.getAdditionalInfo();
             data.insertAttributeAt(new Attribute(dependentFeature), data.numAttributes());
+            data.setClass(data.attribute(dependentFeature));
+
             List<Map<String, Object>> predictions = new ArrayList<>();
 //            data.stream().forEach(instance -> {
 //                try {
@@ -166,7 +171,7 @@ public class WekaMLR {
                 try {
                     double prediction = classifier.classifyInstance(instance);
                     Map<String, Object> predictionMap = new HashMap<>();
-                    predictionMap.put("Weka MLR prediction of " + dependentFeature, prediction);
+                    predictionMap.put("Weka RBF prediction of " + dependentFeature, prediction);
                     predictions.add(predictionMap);
                 } catch (Exception ex) {
                     Logger.getLogger(WekaMLR.class.getName()).log(Level.SEVERE, null, ex);
@@ -184,5 +189,4 @@ public class WekaMLR {
                     .build();
         }
     }
-
 }
