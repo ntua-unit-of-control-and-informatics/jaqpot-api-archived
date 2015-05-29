@@ -110,7 +110,7 @@ public class PredictionMDB extends RunningTaskMDB {
     @Inject
     @UnSecure
     Client client;
-    
+
     @Inject
     @Jackson
     JSONSerializer jsonSerializer;
@@ -183,7 +183,7 @@ public class PredictionMDB extends RunningTaskMDB {
 
             String responseString = response.readEntity(String.class);
             System.out.println(responseString);
-            
+
             task.getMeta().getComments().add("Attempting to parse response...");
             task.setPercentageCompleted(18.f);
             taskHandler.edit(task);
@@ -199,7 +199,7 @@ public class PredictionMDB extends RunningTaskMDB {
                 Map<String, Object> row = predictions.get(i);
                 DataEntry dataEntry = dataset.getDataEntry().get(i);
                 if (model.getAlgorithm().getOntologicalClasses().contains("ot:Scaling")
-                        || model.getAlgorithm().getOntologicalClasses().contains("ot:Clustering")) {
+                        || model.getAlgorithm().getOntologicalClasses().contains("ot:Transformation")) {
                     dataEntry.getValues().clear();
                 }
                 row.entrySet().stream().forEach(entry -> {
@@ -207,7 +207,7 @@ public class PredictionMDB extends RunningTaskMDB {
                     dataEntry.getValues().put(messageBody.get("base_uri") + "feature/" + feature.getId(), entry.getValue());
                 });
             }
-            
+
             ROG randomStringGenerator = new ROG(true);
             dataset.setId(randomStringGenerator.nextString(14));
             task.getMeta().getComments().add("Dataset ready.");
