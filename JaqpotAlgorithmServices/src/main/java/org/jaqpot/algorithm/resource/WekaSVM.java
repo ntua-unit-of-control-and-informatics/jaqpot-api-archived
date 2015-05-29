@@ -79,13 +79,16 @@ import weka.core.SelectedTag;
 @Produces(MediaType.APPLICATION_JSON)
 public class WekaSVM {
 
-    private final Double gamma = 1.50,
-            cost = 100.0,
-            epsilon = 0.100,
-            tolerance = 0.0001;
-    private final Integer cacheSize = 250007,
-            degree = 3;
-    private final String kernel = "RBF";
+    private final Double _gamma = 1.50,
+            _cost = 100.0,
+            _epsilon = 0.100,
+            _coeff0 = 0.0,
+            _nu = 0.5,
+            _loss = 0.1;
+    private final Integer _cacheSize = 250007,
+            _degree = 3;
+    private final String _kernel = "RBF";
+    private final String _type = "NU_SVR";
 
     @POST
     @Path("training")
@@ -110,29 +113,52 @@ public class WekaSVM {
             Map<String, Object> parameters = request.getParameters() != null ? request.getParameters() : new HashMap<>();
 
             LibSVM regressor = new LibSVM();
-            Double e = Double.parseDouble(parameters.getOrDefault("epsilon", epsilon).toString());
-            Double t = Double.parseDouble(parameters.getOrDefault("tolerance", tolerance).toString());
-            Double c = Double.parseDouble(parameters.getOrDefault("cacheSize", cacheSize).toString());
-            Double g = Double.parseDouble(parameters.getOrDefault("gamma", gamma).toString());
-            Integer d = Integer.parseInt(parameters.getOrDefault("degree", degree).toString());
+            Double epsilon = Double.parseDouble(parameters.getOrDefault("epsilon", _epsilon).toString());
+            Double cacheSize = Double.parseDouble(parameters.getOrDefault("cacheSize", _cacheSize).toString());
+            Double gamma = Double.parseDouble(parameters.getOrDefault("gamma", _gamma).toString());
+            Double coeff0 = Double.parseDouble(parameters.getOrDefault("coeff0", _coeff0).toString());
+            Double cost = Double.parseDouble(parameters.getOrDefault("cost", _cost).toString());
+            Double nu = Double.parseDouble(parameters.getOrDefault("nu", _nu).toString());
+            Double loss = Double.parseDouble(parameters.getOrDefault("loss", _loss).toString());
+            Integer degree = Integer.parseInt(parameters.getOrDefault("degree", _degree).toString());
 
-            regressor.setEps(e);
-            regressor.setCacheSize(c);
-            regressor.setDegree(d);
+            regressor.setEps(epsilon);
+            regressor.setCacheSize(cacheSize);
+            regressor.setDegree(degree);
             regressor.setCost(cost);
-            regressor.setGamma(g);
-            regressor.setSVMType(new SelectedTag(LibSVM.SVMTYPE_NU_SVR, LibSVM.TAGS_SVMTYPE));
+            regressor.setGamma(gamma);
+            regressor.setCoef0(coeff0);
+            regressor.setNu(nu);
+            regressor.setLoss(loss);
 
             Integer svm_kernel = null;
-            String kernelName = parameters.getOrDefault("kernel", kernel).toString();
-            if (kernelName.equalsIgnoreCase("rbf")) {
+            String kernel = parameters.getOrDefault("kernel", _kernel).toString();
+            if (kernel.equalsIgnoreCase("rbf")) {
                 svm_kernel = LibSVM.KERNELTYPE_RBF;
-            } else if (kernelName.equalsIgnoreCase("polynomial")) {
+            } else if (kernel.equalsIgnoreCase("polynomial")) {
                 svm_kernel = LibSVM.KERNELTYPE_POLYNOMIAL;
-            } else if (kernelName.equalsIgnoreCase("linear")) {
+            } else if (kernel.equalsIgnoreCase("linear")) {
                 svm_kernel = LibSVM.KERNELTYPE_LINEAR;
+            } else if (kernel.equalsIgnoreCase("sigmoid")) {
+                svm_kernel = LibSVM.KERNELTYPE_SIGMOID;
             }
             regressor.setKernelType(new SelectedTag(svm_kernel, LibSVM.TAGS_KERNELTYPE));
+
+            Integer svm_type = null;
+            String type = parameters.getOrDefault("type", _type).toString();
+            if (type.equalsIgnoreCase("NU_SVR")) {
+                svm_type = LibSVM.SVMTYPE_NU_SVR;
+            } else if (type.equalsIgnoreCase("NU_SVC")) {
+                svm_type = LibSVM.SVMTYPE_NU_SVC;
+            } else if (type.equalsIgnoreCase("C_SVC")) {
+                svm_type = LibSVM.SVMTYPE_C_SVC;
+            } else if (type.equalsIgnoreCase("EPSILON_SVR")) {
+                svm_type = LibSVM.SVMTYPE_EPSILON_SVR;
+            } else if (type.equalsIgnoreCase("ONE_CLASS_SVM")) {
+                svm_type = LibSVM.SVMTYPE_ONE_CLASS_SVM;
+            }
+            regressor.setSVMType(new SelectedTag(svm_type, LibSVM.TAGS_SVMTYPE));
+
             regressor.buildClassifier(data);
 
             WekaModel model = new WekaModel();
@@ -205,7 +231,7 @@ public class WekaSVM {
                     return Response.status(Response.Status.BAD_REQUEST).entity(ErrorReportFactory.badRequest("Error while gettting predictions.", ex.getMessage())).build();
                 }
             }
-            
+
             PredictionResponse response = new PredictionResponse();
             response.setPredictions(predictions);
             return Response.ok(response).build();

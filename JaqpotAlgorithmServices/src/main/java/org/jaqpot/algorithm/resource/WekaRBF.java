@@ -57,7 +57,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.jaqpot.algorithm.model.WekaModel;
-import org.jaqpot.algorithm.pmml.PmmlUtils;
 import org.jaqpot.algorithm.weka.InstanceUtils;
 import org.jaqpot.core.model.dto.jpdi.PredictionRequest;
 import org.jaqpot.core.model.dto.jpdi.PredictionResponse;
@@ -65,7 +64,6 @@ import org.jaqpot.core.model.dto.jpdi.TrainingRequest;
 import org.jaqpot.core.model.dto.jpdi.TrainingResponse;
 import org.jaqpot.core.model.factory.ErrorReportFactory;
 import weka.classifiers.Classifier;
-import weka.classifiers.functions.LinearRegression;
 import weka.classifiers.functions.RBFNetwork;
 import weka.core.Attribute;
 import weka.core.Instance;
@@ -79,6 +77,11 @@ import weka.core.Instances;
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class WekaRBF {
+
+    private final Integer _seed = 1,
+            _maxIts = -1,
+            _numClusters = 2;
+    private final Double _minStdDev = 0.1, _ridge = 1.0e-8;
 
     @POST
     @Path("training")
@@ -102,7 +105,21 @@ public class WekaRBF {
 
             Instances data = InstanceUtils.createFromDataset(request.getDataset(), request.getPredictionFeature());
 
+            Map<String, Object> parameters = request.getParameters() != null ? request.getParameters() : new HashMap<>();
+
+            Double minStdDev = Double.parseDouble(parameters.getOrDefault("minStdDev", _minStdDev).toString());
+            Double ridge = Double.parseDouble(parameters.getOrDefault("ridge", _ridge).toString());
+            Integer seed = Integer.parseInt(parameters.getOrDefault("seed", _seed).toString());
+            Integer maxIts = Integer.parseInt(parameters.getOrDefault("maxIts", _maxIts).toString());
+            Integer numClusters = Integer.parseInt(parameters.getOrDefault("numClusters", _numClusters).toString());
+
             RBFNetwork rbf = new RBFNetwork();
+
+            rbf.setMinStdDev(minStdDev);
+            rbf.setRidge(ridge);
+            rbf.setClusteringSeed(seed);
+            rbf.setMaxIts(maxIts);
+            rbf.setNumClusters(numClusters);
 
             rbf.buildClassifier(data);
 

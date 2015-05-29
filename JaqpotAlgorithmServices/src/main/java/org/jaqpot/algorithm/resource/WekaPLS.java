@@ -81,6 +81,9 @@ public class WekaPLS {
 
     private static final Logger LOG = Logger.getLogger(WekaPLS.class.getName());
 
+    private final int _components = 20;
+    private final String _algorithm = "PLS1";
+
     @POST
     @Path("training")
     public Response training(TrainingRequest request) {
@@ -103,11 +106,11 @@ public class WekaPLS {
             Instances data = InstanceUtils.createFromDataset(request.getDataset(), request.getPredictionFeature());
             Map<String, Object> parameters = request.getParameters() != null ? request.getParameters() : new HashMap<>();
 
-//            PLSFilter plsFilter = new PLSFilter();
-            PLSClassifier classifier = new PLSClassifier();
+            Integer components = Integer.parseInt(parameters.getOrDefault("components", _components).toString());
+            String algorithm = parameters.getOrDefault("algorithm", _algorithm).toString();
 
-//            PLSFilter.useFilter(data, plsFilter);
-//            classifier.setFilter(plsFilter);
+            PLSClassifier classifier = new PLSClassifier();
+            classifier.setOptions(new String[]{"-C", components.toString(), "-A", algorithm});
             classifier.buildClassifier(data);
 
             WekaModel model = new WekaModel();
