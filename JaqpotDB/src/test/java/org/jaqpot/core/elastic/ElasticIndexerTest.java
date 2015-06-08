@@ -64,7 +64,7 @@ public class ElasticIndexerTest {
     public void tearDown() {
     }
 
-    @Test
+    //@Test
     public void testIndexBibTeX() {
         ROG rog = new ROG(false);
         BibTeX bib = rog.nextBibTeX();

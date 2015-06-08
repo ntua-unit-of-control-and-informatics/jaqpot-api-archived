@@ -83,7 +83,7 @@ public class JacksonJSONSerializerTest {
         System.out.println(taskJSON);
         MetaInfoBuilder metaBuilder = MetaInfoBuilder.builder();
         MetaInfo meta = metaBuilder.
-                addComments("task started", "this task does training", "dataset downloaded").
+                addComments("dataset downloaded","task started", "this task does training").
                 addDescriptions("this is a very nice task", "oh, and it's very useful too").
                 addSources("http://jaqpot.org/algorithm/wonk").build();
         taskPojo = new Task(uuid);
