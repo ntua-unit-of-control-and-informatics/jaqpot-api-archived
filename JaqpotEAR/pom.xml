@@ -19,6 +19,13 @@
     </properties>
   
     <build>
+        <extensions>
+            <extension>
+                <groupId>org.apache.maven.wagon</groupId>
+                <artifactId>wagon-ssh</artifactId>
+                <version>2.8</version>
+            </extension>
+        </extensions>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -34,6 +41,7 @@
                 <artifactId>maven-ear-plugin</artifactId>                
                 <version>2.10</version>
                 <configuration>
+                    <finalName>Jaqpot</finalName>
                     <version>6</version>
                     <skinnyWars>true</skinnyWars>
                     <defaultLibBundleDir>lib</defaultLibBundleDir>
@@ -63,6 +71,27 @@
                         </jarModule>
                     </modules>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>wagon-maven-plugin</artifactId>
+                <version>1.0</version>
+                <executions>
+                    <execution>
+                        <id>upload-enm</id>
+                        <phase>deploy</phase>
+                        <goals>
+                            <goal>upload</goal>
+                        </goals>
+                        <configuration>
+                            <serverId>enm</serverId>
+                            <fromDir>target</fromDir>
+                            <includes>Jaqpot.ear</includes>
+                            <url>scp://enanomapper.ntua.gr/</url>
+                            <toDir>/opt/wildfly/standalone/deployments</toDir>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
@@ -98,4 +127,10 @@
             <type>war</type>
         </dependency>
     </dependencies>
+    <distributionManagement>
+        <snapshotRepository>
+          <id>snapshots</id>
+          <url>http://enanomapper.ntua.gr:8083/nexus/content/repositories/snapshots</url>
+        </snapshotRepository>
+    </distributionManagement>
 </project>
