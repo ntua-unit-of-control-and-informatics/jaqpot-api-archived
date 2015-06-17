@@ -55,6 +55,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import org.apache.commons.math3.stat.StatUtils;
 import org.jaqpot.algorithm.model.ScalingModel;
 import org.jaqpot.algorithm.model.WekaModel;
 import org.jaqpot.core.model.dto.jpdi.PredictionRequest;
@@ -67,10 +68,10 @@ import org.jaqpot.core.model.factory.ErrorReportFactory;
  *
  * @author hampos
  */
-@Path("scaling")
+@Path("std")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
-public class Scaling {
+public class Standarization {
 
     @POST
     @Path("training")
@@ -95,14 +96,16 @@ public class Scaling {
             Map<String, Number> minValues = new HashMap<>();
 
             features.parallelStream().forEach(feature -> {
-                Double max = request.getDataset().getDataEntry().stream().map(dataEntry -> {
+                List<Double> values = request.getDataset().getDataEntry().stream().map(dataEntry -> {
                     return Double.parseDouble(dataEntry.getValues().get(feature).toString());
-                }).max(Double::compare).get();
-                Double min = request.getDataset().getDataEntry().stream().map(dataEntry -> {
-                    return Double.parseDouble(dataEntry.getValues().get(feature).toString());
-                }).min(Double::compare).get();
-                maxValues.put(feature, max);
-                minValues.put(feature, min);
+                }).collect(Collectors.toList());
+                double[] doubleValues = values.stream().mapToDouble(Double::doubleValue).toArray();
+                
+                Double mean = StatUtils.mean(doubleValues);
+                Double stddev = Math.sqrt(StatUtils.variance(doubleValues));                
+                
+                maxValues.put(feature, stddev);
+                minValues.put(feature, mean);
             });
             ScalingModel model = new ScalingModel();
             model.setMaxValues(maxValues);
@@ -116,7 +119,7 @@ public class Scaling {
             response.setRawModel(base64Model);
             response.setIndependentFeatures(features);
             response.setPredictedFeatures(features.stream().map(feature -> {
-                return "Leverage Scaled " + feature;
+                return "Standarized " + feature;
             }).collect(Collectors.toList()));
             return Response.ok(response).build();
         } catch (IOException ex) {
@@ -154,18 +157,19 @@ public class Scaling {
             request.getDataset().getDataEntry().stream().forEach(dataEntry -> {
                 Map<String,Object> data = new HashMap<>();
                 features.parallelStream().forEach(feature -> {
-                    Double max = model.getMaxValues().get(feature).doubleValue();
-                    Double min = model.getMinValues().get(feature).doubleValue();
+                    Double stdev = model.getMaxValues().get(feature).doubleValue();
+                    Double mean = model.getMinValues().get(feature).doubleValue();
                     Double value = Double.parseDouble(dataEntry.getValues().get(feature).toString());
-                    if (!max.equals(min)) {
-                        value = (value - min) / (max - min);
+                    if (!stdev.equals(mean)) {
+                        value = (value - mean) / stdev;
                     } else {
                         value = 1.0;
                     }
-                    data.put("Leverage Scaled " + feature, value);
+                    data.put("Standarized " + feature, value);
                 });
                 predictions.add(data);
             });
+
             PredictionResponse response = new PredictionResponse();
             response.setPredictions(predictions);
 
