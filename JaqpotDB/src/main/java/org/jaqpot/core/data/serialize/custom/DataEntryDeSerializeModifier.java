@@ -34,30 +34,25 @@
  */
 package org.jaqpot.core.data.serialize.custom;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import java.io.IOException;
-import java.util.Map.Entry;
+import com.fasterxml.jackson.databind.BeanDescription;
+import com.fasterxml.jackson.databind.DeserializationConfig;
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.deser.BeanDeserializerModifier;
 import org.jaqpot.core.model.dto.dataset.DataEntry;
 
 /**
  *
  * @author hampos
  */
-public class DataEntrySerializer extends JsonSerializer<DataEntry> {
+public class DataEntryDeSerializeModifier extends BeanDeserializerModifier {
 
     @Override
-    public void serialize(DataEntry value, JsonGenerator gen, SerializerProvider serializers) throws IOException, JsonProcessingException {
-        gen.writeStartObject();
-        gen.writeObjectField("compound", value.getCompound());
-        gen.writeObjectFieldStart("values");
-        for (Entry<String, Object> entry : value.getValues().entrySet()) {
-            gen.writeObjectField(entry.getKey().replaceAll("\\.", "\\(DOT\\)"), entry.getValue());
+    public JsonDeserializer<?> modifyDeserializer(DeserializationConfig config, BeanDescription beanDesc, JsonDeserializer<?> deserializer) {
+        if (beanDesc.getBeanClass().equals(DataEntry.class)) {
+            return new DataEntryDeSerializer(deserializer);
+        } else {
+            return deserializer;
         }
-        gen.writeEndObject();
-        gen.writeEndObject();
     }
 
 }

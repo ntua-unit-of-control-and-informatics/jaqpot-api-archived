@@ -39,10 +39,18 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.TreeNode;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.deser.BeanDeserializer;
+import com.fasterxml.jackson.databind.deser.BeanDeserializerFactory;
+import com.fasterxml.jackson.databind.deser.ResolvableDeserializer;
+import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
+import javax.inject.Inject;
+import org.jaqpot.core.annotations.MongoDB;
+import org.jaqpot.core.data.serialize.JSONSerializer;
 import org.jaqpot.core.model.dto.dataset.DataEntry;
 import org.jaqpot.core.model.dto.dataset.Substance;
 
@@ -50,30 +58,31 @@ import org.jaqpot.core.model.dto.dataset.Substance;
  *
  * @author hampos
  */
-public class DataEntryDeSerializer extends JsonDeserializer<DataEntry> {
+public class DataEntryDeSerializer extends StdDeserializer<DataEntry> implements ResolvableDeserializer {
+
+    JsonDeserializer parent;
+
+    public DataEntryDeSerializer(JsonDeserializer parent) {
+        super(DataEntry.class);
+        this.parent = parent;
+    }
 
     @Override
     public DataEntry deserialize(JsonParser p, DeserializationContext ctxt) throws IOException, JsonProcessingException {
-
-        TreeNode tree = p.readValueAsTree();
-
-        Substance compound = new Substance();
-        compound.setURI(tree.get("compound").get("URI").traverse().nextTextValue());
-
+        DataEntry dataEntry = (DataEntry) parent.deserialize(p, ctxt);
         TreeMap<String, Object> valuesMap = new TreeMap<>();
-
-        TreeNode values = tree.get("values");
-        Iterator<String> it = values.fieldNames();
-        while (it.hasNext()) {
-            String key = it.next();
-            Double value = values.get(key).traverse().getDoubleValue();
-            valuesMap.put(key.replaceAll("\\(DOT\\)", "\\."), value);
-        }
-
-        DataEntry dataEntry = new DataEntry();
-        dataEntry.setCompound(compound);
+        
+        for (Map.Entry<String, Object> entry : dataEntry.getValues().entrySet()) {
+            valuesMap.put(entry.getKey().replaceAll("\\(DOT\\)", "\\."), entry.getValue());
+        }              
         dataEntry.setValues(valuesMap);
+        
         return dataEntry;
+    }
+
+    @Override
+    public void resolve(DeserializationContext ctxt) throws JsonMappingException {
+        ((ResolvableDeserializer) parent).resolve(ctxt);
     }
 
 }

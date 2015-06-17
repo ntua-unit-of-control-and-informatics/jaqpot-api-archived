@@ -42,6 +42,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.enterprise.context.Dependent;
 import org.jaqpot.core.annotations.MongoDB;
+import org.jaqpot.core.data.serialize.custom.DataEntryDeSerializeModifier;
 import org.jaqpot.core.data.serialize.custom.DataEntryDeSerializer;
 import org.jaqpot.core.data.serialize.custom.DataEntrySerializer;
 import org.jaqpot.core.model.dto.dataset.DataEntry;
@@ -62,9 +63,8 @@ public class JacksonMongoSerializer implements JSONSerializer {
     public JacksonMongoSerializer() {
         this.mapper = new ObjectMapper();
         SimpleModule module = new SimpleModule();
-        module.addSerializer(DataEntry.class, new DataEntrySerializer());
-        module.addDeserializer(DataEntry.class, new DataEntryDeSerializer());
-        mapper.registerModule(module);
+        module.addSerializer(DataEntry.class, new DataEntrySerializer());        
+        mapper.registerModule(module.setDeserializerModifier(new DataEntryDeSerializeModifier()));
     }
 
     @Override
