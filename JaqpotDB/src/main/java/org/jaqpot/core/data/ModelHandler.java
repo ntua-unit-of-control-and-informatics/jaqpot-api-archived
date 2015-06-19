@@ -84,7 +84,9 @@ public class ModelHandler extends AbstractHandler<Model> {
         fields.add("datasetUri");
         fields.add("parameters");
         fields.add("doaModel");
-
+        fields.add("transformationModels");
+        fields.add("linkedModels");
+        
         return em.find(Model.class, keys, fields).stream().findFirst().orElse(null);
     }
     
@@ -148,6 +150,8 @@ public class ModelHandler extends AbstractHandler<Model> {
         fields.add("datasetUri");
         fields.add("parameters");
         fields.add("doaModel");
+        fields.add("transformationModels");
+        fields.add("linkedModels");
 
         return em.find(Model.class, keys, fields).stream().findFirst().orElse(null);
     }
