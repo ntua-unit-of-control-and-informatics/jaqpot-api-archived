@@ -37,7 +37,10 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -50,6 +53,7 @@ import javax.ejb.MessageDriven;
 import javax.inject.Inject;
 import javax.jms.JMSException;
 import javax.jms.Message;
+import javax.transaction.Transactional;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
@@ -78,8 +82,10 @@ import org.jaqpot.core.model.dto.study.Result;
 import org.jaqpot.core.model.dto.study.Studies;
 import org.jaqpot.core.model.dto.study.Study;
 import org.jaqpot.core.model.dto.study.Substance;
+import org.jaqpot.core.model.factory.DatasetFactory;
 import org.jaqpot.core.model.util.ROG;
 import org.jaqpot.core.service.annotations.UnSecure;
+import org.jaqpot.core.service.exceptions.JaqpotWebException;
 
 /**
  *
@@ -147,15 +153,57 @@ public class PredictionMDB extends RunningTaskMDB {
             }
             task.getMeta().getComments().add("Model retrieved successfully.");
             task.setPercentageCompleted(5.f);
+            taskHandler.edit(task);
+
+            String dataset_uri = (String) messageBody.get("dataset_uri");
+            if (model.getTransformationModels() != null && !model.getTransformationModels().isEmpty()) {
+                for (String transformationModel : model.getTransformationModels()) {
+                    MultivaluedMap<String, String> formMap = new MultivaluedHashMap<>();
+                    formMap.put("dataset_uri", Arrays.asList(dataset_uri));
+                    Task predictionTask = client.target(transformationModel)
+                            .request()
+                            .header("subjectid", messageBody.get("subjectid"))
+                            .accept(MediaType.APPLICATION_JSON)
+                            .post(Entity.form(formMap), Task.class);
+                    String predictionTaskURI = transformationModel.split("model")[0] + "task/" + predictionTask.getId();
+                    task.getMeta().getComments().add("Transformation task created:" + predictionTaskURI);
+                    taskHandler.edit(task);
+                    while (predictionTask.getStatus().equals(Task.Status.RUNNING)
+                            || predictionTask.getStatus().equals(Task.Status.QUEUED)) {
+                        try {
+                            Thread.sleep(500);
+                        } catch (InterruptedException ex) {
+
+                        }
+                        predictionTask = client.target(predictionTaskURI)
+                                .request()
+                                .header("subjectid", messageBody.get("subjectid"))
+                                .accept(MediaType.APPLICATION_JSON)
+                                .get(Task.class);
+                    }
+                    if (predictionTask.getStatus().equals(Task.Status.COMPLETED)) {
+                        dataset_uri = predictionTask.getResultUri();
+                        task.getMeta().getComments().add("Transformed dataset created successfully:" + predictionTask.getResultUri());
+                        taskHandler.edit(task);
+                    } else {
+                        task.getMeta().getComments().add("Transformation task failed.");
+                        throw new JaqpotWebException(predictionTask.getErrorReport());
+                    }
+                }
+
+            }
+
             task.getMeta().getComments().add("Attempting to download dataset...");
             taskHandler.edit(task);
-            Dataset dataset = client.target((String) messageBody.get("dataset_uri"))
+            Dataset dataset = client.target(dataset_uri)
                     .request()
                     .header("subjectid", messageBody.get("subjectid"))
                     .accept(MediaType.APPLICATION_JSON)
                     .get(Dataset.class);
-            dataset.setDatasetURI((String) messageBody.get("dataset_uri"));
+            dataset.setDatasetURI(dataset_uri);
             task.getMeta().getComments().add("Dataset has been retrieved.");
+
+            Dataset predFeatureDataset = DatasetFactory.copy(dataset, new HashSet<>(model.getDependentFeatures()));
 
             dataset.getDataEntry().parallelStream()
                     .forEach(dataEntry -> {
@@ -182,6 +230,13 @@ public class PredictionMDB extends RunningTaskMDB {
             taskHandler.edit(task);
 
             String responseString = response.readEntity(String.class);
+            if (response.getStatus() != 200 && response.getStatus() != 201 && response.getStatus() != 202) {
+                if (response.getStatus() == 400) {
+                    throw new JaqpotWebException(ErrorReportFactory.badRequest(responseString, responseString));
+                } else {
+                    throw new JaqpotWebException(ErrorReportFactory.internalServerError("500", responseString, responseString));
+                }
+            }
             System.out.println(responseString);
 
             task.getMeta().getComments().add("Attempting to parse response...");
@@ -207,7 +262,8 @@ public class PredictionMDB extends RunningTaskMDB {
                     dataEntry.getValues().put(messageBody.get("base_uri") + "feature/" + feature.getId(), entry.getValue());
                 });
             }
-
+//            System.out.println(jsonSerializer.write(dataset));
+            dataset = DatasetFactory.merge(dataset, predFeatureDataset);
             ROG randomStringGenerator = new ROG(true);
             dataset.setId(randomStringGenerator.nextString(14));
             task.getMeta().getComments().add("Dataset ready.");
@@ -217,7 +273,7 @@ public class PredictionMDB extends RunningTaskMDB {
             datasetHandler.create(dataset);
             task.getMeta().getComments().add("Dataset saved...");
             taskHandler.edit(task);
-
+//            System.out.println(jsonSerializer.write(dataset));
             if (messageBody.containsKey("bundle_uri") && messageBody.get("bundle_uri") != null) {
                 task.getMeta().getComments().add("A bundle associated with these predictions was found.");
                 task.getMeta().getComments().add("We will attempt to upload results into the bundle.");
@@ -270,6 +326,11 @@ public class PredictionMDB extends RunningTaskMDB {
             task.setStatus(Task.Status.ERROR);
             task.setHttpStatus(500);
             task.setErrorReport(ErrorReportFactory.internalServerError(ex, "", ex.getMessage(), ""));
+        } catch (JaqpotWebException ex) {
+            LOG.log(Level.SEVERE, null, ex);
+            task.setStatus(Task.Status.ERROR);
+            task.setHttpStatus(ex.getError().getHttpStatus());
+            task.setErrorReport(ex.getError());
         } catch (Exception ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             task.setStatus(Task.Status.ERROR);

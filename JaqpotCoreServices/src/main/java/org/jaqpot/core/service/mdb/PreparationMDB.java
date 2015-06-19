@@ -139,63 +139,63 @@ public class PreparationMDB extends RunningTaskMDB {
             taskHandler.edit(task);
             Dataset dataset = conjoinerService.prepareDataset(bundleUri, subjectId);
 
-            if (messageBody.containsKey("transformations") && messageBody.get("transformations") != null) {
-                task.getMeta().getComments().add("Attempting to download transformations file...");
-                task.setPercentageCompleted(8.0f);
-                taskHandler.edit(task);
-
-                String transformations = (String) messageBody.get("transformations");
-
-                //Open InputStream from transformations URL and parse it as PMML object
-                String pmmlString = client.target(transformations)
-                        .request()
-                        .accept(MediaType.APPLICATION_XML)
-                        .get(String.class);
-                InputStream in = new ByteArrayInputStream(pmmlString.getBytes());
-                InputSource source = new InputSource(in);
-                SAXSource transformedSource = ImportFilter.apply(source);
-                PMML pmml = JAXBUtil.unmarshalPMML(transformedSource);
-
-                //Wrapper for the PMML object with management functionality
-                PMMLManager pmmlManager = new PMMLManager(pmml);
-
-                //The list of derived fields from the pmml file, each derived fields uses various datafields
-                List<DerivedField> derivedFields = pmmlManager.getTransformationDictionary().getDerivedFields();
-                //The list of data fields from the pmml file
-                List<DataField> dataFields = pmmlManager.getDataDictionary().getDataFields();
-
-                task.getMeta().getComments().add("Transformations file is downloaded and parsed. Applying transformations...");
-                task.setPercentageCompleted(20.0f);
-                taskHandler.edit(task);
-
-                dataset.getDataEntry().stream().forEach((dataEntry) -> {
-                    //For each data entry a PMMLEvaluationContext is saturated with values for each data field
-                    PMMLEvaluationContext context = new PMMLEvaluationContext(pmmlManager);
-                    Map<String, Object> values = dataEntry.getValues();
-                    dataFields.stream().forEach(dataField -> {
-                        if (!values.containsKey(dataField.getName().getValue())) {
-                            throw new BadRequestException("DataField " + dataField.getName().getValue()
-                                    + "specified in transformations PMML does not exist in dataset.");
-                        }
-                        context.declare(dataField.getName(), values.get(dataField.getName().getValue()));
-                    });
-                    TreeMap<String, Object> result = new TreeMap<>();
-                    //Each derived field is evaluated by the context and a value is produced
-                    derivedFields.stream().forEach((derivedField) -> {
-                        FieldValue value = ExpressionUtil.evaluate(derivedField, context);
-                        result.put(derivedField.getName().getValue(), value.asNumber());
-                    });
-                    String predictionFeature = (String) messageBody.get("prediction_feature");
-                    if (predictionFeature != null) {
-                        result.put(predictionFeature, values.get(predictionFeature));
-                    }
-                    //A newly created map of transformed property names and values is placed in the data entry
-                    dataEntry.setValues(result);
-                });
-                task.getMeta().getComments().add("Transformations have been applied.");
-                task.setPercentageCompleted(46.0f);
-                taskHandler.edit(task);
-            }
+//            if (messageBody.containsKey("transformations") && messageBody.get("transformations") != null) {
+//                task.getMeta().getComments().add("Attempting to download transformations file...");
+//                task.setPercentageCompleted(8.0f);
+//                taskHandler.edit(task);
+//
+//                String transformations = (String) messageBody.get("transformations");
+//
+//                //Open InputStream from transformations URL and parse it as PMML object
+//                String pmmlString = client.target(transformations)
+//                        .request()
+//                        .accept(MediaType.APPLICATION_XML)
+//                        .get(String.class);
+//                InputStream in = new ByteArrayInputStream(pmmlString.getBytes());
+//                InputSource source = new InputSource(in);
+//                SAXSource transformedSource = ImportFilter.apply(source);
+//                PMML pmml = JAXBUtil.unmarshalPMML(transformedSource);
+//
+//                //Wrapper for the PMML object with management functionality
+//                PMMLManager pmmlManager = new PMMLManager(pmml);
+//
+//                //The list of derived fields from the pmml file, each derived fields uses various datafields
+//                List<DerivedField> derivedFields = pmmlManager.getTransformationDictionary().getDerivedFields();
+//                //The list of data fields from the pmml file
+//                List<DataField> dataFields = pmmlManager.getDataDictionary().getDataFields();
+//
+//                task.getMeta().getComments().add("Transformations file is downloaded and parsed. Applying transformations...");
+//                task.setPercentageCompleted(20.0f);
+//                taskHandler.edit(task);
+//
+//                dataset.getDataEntry().stream().forEach((dataEntry) -> {
+//                    //For each data entry a PMMLEvaluationContext is saturated with values for each data field
+//                    PMMLEvaluationContext context = new PMMLEvaluationContext(pmmlManager);
+//                    Map<String, Object> values = dataEntry.getValues();
+//                    dataFields.stream().forEach(dataField -> {
+//                        if (!values.containsKey(dataField.getName().getValue())) {
+//                            throw new BadRequestException("DataField " + dataField.getName().getValue()
+//                                    + "specified in transformations PMML does not exist in dataset.");
+//                        }
+//                        context.declare(dataField.getName(), values.get(dataField.getName().getValue()));
+//                    });
+//                    TreeMap<String, Object> result = new TreeMap<>();
+//                    //Each derived field is evaluated by the context and a value is produced
+//                    derivedFields.stream().forEach((derivedField) -> {
+//                        FieldValue value = ExpressionUtil.evaluate(derivedField, context);
+//                        result.put(derivedField.getName().getValue(), value.asNumber());
+//                    });
+//                    String predictionFeature = (String) messageBody.get("prediction_feature");
+//                    if (predictionFeature != null) {
+//                        result.put(predictionFeature, values.get(predictionFeature));
+//                    }
+//                    //A newly created map of transformed property names and values is placed in the data entry
+//                    dataEntry.setValues(result);
+//                });
+//                task.getMeta().getComments().add("Transformations have been applied.");
+//                task.setPercentageCompleted(46.0f);
+//                taskHandler.edit(task);
+//            }
             task.getMeta().getComments().add("Dataset ready.");
             task.getMeta().getComments().add("Saving to database...");
             task.setPercentageCompleted(55.0f);
@@ -250,15 +250,17 @@ public class PreparationMDB extends RunningTaskMDB {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             task.setStatus(Task.Status.ERROR);
             task.setErrorReport(ErrorReportFactory.internalServerError(ex, "JMS", "Error Accessing JMS asynchronous queues.", ex.getMessage()));
-        } catch (SAXException ex) {
-            LOG.log(Level.SEVERE, null, ex);
-            task.setStatus(Task.Status.ERROR);
-            task.setErrorReport(ErrorReportFactory.badRequest("Error while parsing transformations xml.", ex.getMessage()));
-        } catch (JAXBException ex) {
-            LOG.log(Level.SEVERE, null, ex);
-            task.setStatus(Task.Status.ERROR);
-            task.setErrorReport(ErrorReportFactory.internalServerError(ex, "JMS", "Error Accessing JMS asynchronous queues.", ex.getMessage()));
-        } catch (BadRequestException ex) {
+        } 
+//        catch (SAXException ex) {
+//            LOG.log(Level.SEVERE, null, ex);
+//            task.setStatus(Task.Status.ERROR);
+//            task.setErrorReport(ErrorReportFactory.badRequest("Error while parsing transformations xml.", ex.getMessage()));
+//        } catch (JAXBException ex) {
+//            LOG.log(Level.SEVERE, null, ex);
+//            task.setStatus(Task.Status.ERROR);
+//            task.setErrorReport(ErrorReportFactory.internalServerError(ex, "JMS", "Error Accessing JMS asynchronous queues.", ex.getMessage()));
+//        } 
+        catch (BadRequestException ex) {
             LOG.log(Level.SEVERE, null, ex);
             task.setStatus(Task.Status.ERROR);
             task.setErrorReport(ErrorReportFactory.badRequest("Error while processing input.", ex.getMessage()));
