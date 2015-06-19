@@ -34,6 +34,7 @@
  */
 package org.jaqpot.algorithm.resource;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -56,7 +57,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.jaqpot.algorithm.model.ScalingModel;
-import org.jaqpot.algorithm.model.WekaModel;
 import org.jaqpot.core.model.dto.jpdi.PredictionRequest;
 import org.jaqpot.core.model.dto.jpdi.PredictionResponse;
 import org.jaqpot.core.model.dto.jpdi.TrainingRequest;
@@ -89,6 +89,7 @@ public class Scaling {
                     .getValues()
                     .keySet()
                     .stream()
+                    .filter(feature -> !feature.equals(request.getPredictionFeature()))
                     .collect(Collectors.toList());
 
             Map<String, Number> maxValues = new HashMap<>();
@@ -116,7 +117,7 @@ public class Scaling {
             response.setRawModel(base64Model);
             response.setIndependentFeatures(features);
             response.setPredictedFeatures(features.stream().map(feature -> {
-                return "Leverage Scaled " + feature;
+                return "Scaled " + feature;
             }).collect(Collectors.toList()));
             return Response.ok(response).build();
         } catch (IOException ex) {
@@ -131,7 +132,7 @@ public class Scaling {
         try {
             if (request.getDataset().getDataEntry().isEmpty() || request.getDataset().getDataEntry().get(0).getValues().isEmpty()) {
                 return Response.status(Response.Status.BAD_REQUEST)
-                        .entity(ErrorReportFactory.badRequest("Dataset is empty", "Cannot train model on empty dataset"))
+                        .entity(ErrorReportFactory.badRequest("Dataset is empty", "Cannot make predictions on empty dataset"))
                         .build();
             }
             List<String> features = request.getDataset()
@@ -152,8 +153,8 @@ public class Scaling {
             List<Map<String, Object>> predictions = new ArrayList<>();
 
             request.getDataset().getDataEntry().stream().forEach(dataEntry -> {
-                Map<String,Object> data = new HashMap<>();
-                features.parallelStream().forEach(feature -> {
+                Map<String, Object> data = new HashMap<>();
+                features.stream().forEach(feature -> {
                     Double max = model.getMaxValues().get(feature).doubleValue();
                     Double min = model.getMinValues().get(feature).doubleValue();
                     Double value = Double.parseDouble(dataEntry.getValues().get(feature).toString());
@@ -162,7 +163,7 @@ public class Scaling {
                     } else {
                         value = 1.0;
                     }
-                    data.put("Leverage Scaled " + feature, value);
+                    data.put("Scaled " + feature, value);
                 });
                 predictions.add(data);
             });

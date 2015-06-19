@@ -90,6 +90,7 @@ public class Standarization {
                     .getValues()
                     .keySet()
                     .stream()
+                    .filter(feature -> !feature.equals(request.getPredictionFeature()))
                     .collect(Collectors.toList());
 
             Map<String, Number> maxValues = new HashMap<>();
@@ -156,7 +157,7 @@ public class Standarization {
 
             request.getDataset().getDataEntry().stream().forEach(dataEntry -> {
                 Map<String,Object> data = new HashMap<>();
-                features.parallelStream().forEach(feature -> {
+                features.stream().forEach(feature -> {
                     Double stdev = model.getMaxValues().get(feature).doubleValue();
                     Double mean = model.getMinValues().get(feature).doubleValue();
                     Double value = Double.parseDouble(dataEntry.getValues().get(feature).toString());
