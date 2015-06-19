@@ -84,9 +84,10 @@ public class TrainingService {
                 .addComments("Training task created")
                 .addDescriptions("Training task using algorithm " + algorithmId)
                 .build());
-        task.setStatus(Task.Status.RUNNING);
         task.setType(Task.Type.TRAINING);
         task.setCreatedBy((String) options.get("createdBy"));
+        task.setHttpStatus(202);
+        task.setStatus(Task.Status.QUEUED);
         options.put("taskId", task.getId());
         taskHandler.create(task);
         jmsContext.createProducer().setDeliveryDelay(1000).send(trainingQueue, options);
