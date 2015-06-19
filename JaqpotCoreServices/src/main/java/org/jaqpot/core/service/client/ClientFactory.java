@@ -9,6 +9,7 @@ import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.enterprise.context.Dependent;
@@ -21,6 +22,8 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import org.jaqpot.core.service.annotations.Secure;
 import org.jaqpot.core.service.annotations.UnSecure;
+import org.jboss.resteasy.client.jaxrs.ResteasyClient;
+import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 
 /**
  *
@@ -36,34 +39,41 @@ public class ClientFactory {
     @Produces
     @UnSecure
     public Client getUnsecureRestClient() {
-        try {
-            SSLContext context = SSLContext.getInstance("TLSv1");
-            TrustManager[] trustManagerArray = {
-                new X509TrustManager() {
-
-                    @Override
-                    public void checkClientTrusted(X509Certificate[] xcs, String string) throws CertificateException {
-                    }
-
-                    @Override
-                    public void checkServerTrusted(X509Certificate[] xcs, String string) throws CertificateException {
-                    }
-
-                    @Override
-                    public X509Certificate[] getAcceptedIssuers() {
-                        return new X509Certificate[0];
-                    }
-                }
-            };
-            context.init(null, trustManagerArray, null);
-            return ClientBuilder.newBuilder()
-                    .hostnameVerifier((String string, SSLSession ssls) -> true)
-                    .sslContext(context)
+//        try {
+//            SSLContext context = SSLContext.getInstance("TLSv1");
+//            TrustManager[] trustManagerArray = {
+//                new X509TrustManager() {
+//
+//                    @Override
+//                    public void checkClientTrusted(X509Certificate[] xcs, String string) throws CertificateException {
+//                    }
+//
+//                    @Override
+//                    public void checkServerTrusted(X509Certificate[] xcs, String string) throws CertificateException {
+//                    }
+//
+//                    @Override
+//                    public X509Certificate[] getAcceptedIssuers() {
+//                        return new X509Certificate[0];
+//                    }
+//                }
+//            };
+//            context.init(null, trustManagerArray, null);
+//            Client client = ClientBuilder.newBuilder()
+//                    .hostnameVerifier((String string, SSLSession ssls) -> true)
+//                    .sslContext(context)
+//                    .build();
+//            client.property("jersey.config.client.connectTimeout", 100);
+//            client.property("jersey.config.client.readTimeout", 10);
+            ResteasyClient client = new ResteasyClientBuilder()
+                    .disableTrustManager()
+                    .socketTimeout(30, TimeUnit.MINUTES)
                     .build();
-        } catch (NoSuchAlgorithmException | KeyManagementException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage());
-            return null;
-        }
+            return client;
+//        } catch (NoSuchAlgorithmException | KeyManagementException ex) {
+//            LOG.log(Level.SEVERE, ex.getMessage());
+//            return null;
+//        }
     }
 
     @Produces
