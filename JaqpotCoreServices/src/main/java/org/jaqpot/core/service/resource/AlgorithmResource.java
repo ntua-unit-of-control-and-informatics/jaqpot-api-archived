@@ -43,7 +43,9 @@ import com.wordnik.swagger.annotations.ApiResponse;
 import com.wordnik.swagger.annotations.ApiResponses;
 import com.wordnik.swagger.jaxrs.PATCH;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ejb.EJB;
 import javax.inject.Inject;
@@ -108,9 +110,12 @@ public class AlgorithmResource {
             + "    }\n"
             + "  ]\n"
             + "}",
-            DEFAULT_DATASET = "http://enanomapper.ntua.gr:8880/jaqpot/services/dataset/H3nfrN5ZwFHt",
+            DEFAULT_DATASET = "http://app.jaqpot.org:8880/jaqpot/services/dataset/corona",
             DEFAULT_PRED_FEATURE = "https://apps.ideaconsult.net/enmtest/property/TOX/UNKNOWN_TOXICITY_SECTION/Log2+transformed/94D664CFE4929A0F400A5AD8CA733B52E049A688/3ed642f9-1b42-387a-9966-dea5b91e5f8a",
-            DEFAULT_DOA = "http://enanomapper.ntua.gr:8880/jaqpot/services/algorithm/leverage";
+            DEFAULT_DOA = "http://app.jaqpot.org:8880/jaqpot/services/algorithm/leverage",
+            SCALING = "http://app.jaqpot.org:8880/jaqpot/services/algorithm/scaling",
+            DEFAULT_TRANSFORMATIONS = "http://app.jaqpot.org:8880/jaqpot/services/pmml/corona-standard-transformations",
+            STANDARIZATION = "http://app.jaqpot.org:8880/jaqpot/services/algorithm/standarization";
 
     @EJB
     TrainingService trainingService;
@@ -226,7 +231,8 @@ public class AlgorithmResource {
             @ApiParam(name = "dataset_uri", defaultValue = DEFAULT_DATASET) @FormParam("dataset_uri") String datasetURI,
             @ApiParam(name = "prediction_feature", defaultValue = DEFAULT_PRED_FEATURE) @FormParam("prediction_feature") String predictionFeature,
             @FormParam("parameters") String parameters,
-            @FormParam("transformations") String transformations,
+            @ApiParam(name = "transformations", defaultValue = DEFAULT_TRANSFORMATIONS) @FormParam("transformations") String transformations,
+            @ApiParam(name = "scaling", allowableValues = SCALING + "," + STANDARIZATION) @FormParam("scaling") String scaling,
             @ApiParam(name = "doa", defaultValue = DEFAULT_DOA) @FormParam("doa") String doa,
             @PathParam("id") String algorithmId,
             @HeaderParam("subjectid") String subjectId) {
@@ -236,14 +242,29 @@ public class AlgorithmResource {
         options.put("subjectid", subjectId);
         options.put("algorithmId", algorithmId);
         options.put("parameters", parameters);
-        options.put("transformations", transformations);
+//        options.put("transformations", transformations);
         options.put("base_uri", uriInfo.getBaseUri().toString());
-        options.put("doa", doa);
+//        options.put("doa", doa);
         options.put("createdBy", securityContext.getUserPrincipal().getName());
+
+        Map<String, String> transformationAlgorithms = new LinkedHashMap<>();
+        if (transformations != null && !transformations.isEmpty()) {
+            transformationAlgorithms.put("http://app.jaqpot.org:8880/jaqpot/services/algorithm/pmml",
+                    "{\"transformations\" : \"" + transformations + "\"}");
+        }
+        if (scaling != null && !scaling.isEmpty()) {
+            transformationAlgorithms.put(scaling, "");
+        }
+        if (doa != null && !doa.isEmpty()) {
+            transformationAlgorithms.put(doa, "");
+        }
+        if (!transformationAlgorithms.isEmpty()) {
+            String transformationAlgorithmsString = serializer.write(transformationAlgorithms);
+            LOG.log(Level.INFO, "Transformations:{0}", transformationAlgorithmsString);
+            options.put("transformations", transformationAlgorithmsString);
+        }
         Task task = trainingService.initiateTraining(options, securityContext.getUserPrincipal().getName());
-        task.setCreatedBy(securityContext.getUserPrincipal().getName());
-        task.setHttpStatus(202);
-        task.setStatus(Task.Status.QUEUED);
+
         return Response.ok(task).build();
     }
 
