@@ -86,24 +86,24 @@ import org.xml.sax.InputSource;
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class PmmlTransformer {
-    
+
     private static final Logger LOG = Logger.getLogger(PmmlTransformer.class.getName());
-    
+
     @POST
     @Path("training")
     public Response training(TrainingRequest request) {
-        
+
         try {
             Map<String, Object> parameters = request.getParameters() != null ? request.getParameters() : new HashMap<>();
             String transformations = (String) parameters.get("transformations");
-            
+
             ResteasyClient client = new ResteasyClientBuilder().disableTrustManager().build();
-            
+
             String pmmlString = client.target(transformations)
                     .request()
                     .accept(MediaType.APPLICATION_XML)
                     .get(String.class);
-            
+
             InputStream in = new ByteArrayInputStream(pmmlString.getBytes());
             InputSource source = new InputSource(in);
             SAXSource transformedSource = ImportFilter.apply(source);
@@ -111,10 +111,10 @@ public class PmmlTransformer {
 
             //Wrapper for the PMML object with management functionality
             PMMLManager pmmlManager = new PMMLManager(pmml);
-            
+
             PmmlModel model = new PmmlModel();
             model.setPmmlString(pmmlString);
-            
+
             TrainingResponse response = new TrainingResponse();
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             ObjectOutput out = new ObjectOutputStream(baos);
@@ -127,6 +127,7 @@ public class PmmlTransformer {
                     .map(field -> {
                         return field.getName().getValue();
                     })
+                    .filter(field -> !field.equals(request.getPredictionFeature()))
                     .collect(Collectors.toList());
             response.setIndependentFeatures(independentFeatures);
             response.setAdditionalInfo(request.getPredictionFeature());
@@ -136,28 +137,29 @@ public class PmmlTransformer {
                     .map(field -> {
                         return field.getName().getValue();
                     })
+                    .filter(field -> !field.equals(request.getPredictionFeature()))
                     .collect((Collectors.toList()));
             response.setPredictedFeatures(predictedFeatures);
             response.setPmmlModel(pmmlString);
-            
+
             return Response.ok(response).build();
         } catch (Exception ex) {
             LOG.log(Level.SEVERE, null, ex);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ErrorReportFactory.internalServerError()).build();
         }
     }
-    
+
     @POST
     @Path("prediction")
     public Response prediction(PredictionRequest request) {
-        
+
         try {
             String base64Model = (String) request.getRawModel();
             byte[] modelBytes = Base64.getDecoder().decode(base64Model);
             ByteArrayInputStream bais = new ByteArrayInputStream(modelBytes);
             ObjectInput in = new ObjectInputStream(bais);
             PmmlModel model = (PmmlModel) in.readObject();
-            
+
             String pmmlString = model.getPmmlString();
             InputStream inStr = new ByteArrayInputStream(pmmlString.getBytes());
             InputSource source = new InputSource(inStr);
@@ -168,14 +170,22 @@ public class PmmlTransformer {
             PMMLManager pmmlManager = new PMMLManager(pmml);
 
             //The list of derived fields from the pmml file, each derived fields uses various datafields
-            List<DerivedField> derivedFields = pmmlManager.getTransformationDictionary().getDerivedFields();
+            List<DerivedField> derivedFields = pmmlManager.getTransformationDictionary()
+                    .getDerivedFields()
+                    .stream()
+                    .filter(field -> !field.getName().getValue().equals((String) request.getAdditionalInfo()))
+                    .collect(Collectors.toList());
             //The list of data fields from the pmml file
-            List<DataField> dataFields = pmmlManager.getDataDictionary().getDataFields();
-            
+            List<DataField> dataFields = pmmlManager.getDataDictionary()
+                    .getDataFields()
+                    .stream()
+                    .filter(field -> !field.getName().getValue().equals((String) request.getAdditionalInfo()))
+                    .collect(Collectors.toList());
+
             Dataset dataset = request.getDataset();
-            
+
             List<Map<String, Object>> predictions = new ArrayList<>();
-            
+
             dataset.getDataEntry().stream().forEach((dataEntry) -> {
                 //For each data entry a PMMLEvaluationContext is saturated with values for each data field
                 PMMLEvaluationContext context = new PMMLEvaluationContext(pmmlManager);
@@ -206,5 +216,5 @@ public class PmmlTransformer {
                     .build();
         }
     }
-    
+
 }
