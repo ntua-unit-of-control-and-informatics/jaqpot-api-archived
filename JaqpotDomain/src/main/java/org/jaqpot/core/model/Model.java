@@ -100,6 +100,10 @@ public class Model extends JaqpotEntity {
     private String pmmlTransformations;
 
     private String doaModel;
+    
+    private List<String> transformationModels;
+    
+    private List<String> linkedModels;
 
     public Model() {
     }
@@ -247,6 +251,22 @@ public class Model extends JaqpotEntity {
 
     public void setDoaModel(String doaModel) {
         this.doaModel = doaModel;
+    }
+
+    public List<String> getTransformationModels() {
+        return transformationModels;
+    }
+
+    public void setTransformationModels(List<String> transformationModels) {
+        this.transformationModels = transformationModels;
+    }
+
+    public List<String> getLinkedModels() {
+        return linkedModels;
+    }
+
+    public void setLinkedModels(List<String> linkedModels) {
+        this.linkedModels = linkedModels;
     }
 
 }
