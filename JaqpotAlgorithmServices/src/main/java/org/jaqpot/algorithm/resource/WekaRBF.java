@@ -144,7 +144,7 @@ public class WekaRBF {
             return Response.ok(response).build();
         } catch (Exception ex) {
             Logger.getLogger(WekaMLR.class.getName()).log(Level.SEVERE, null, ex);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ErrorReportFactory.internalServerError()).build();
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).build();
         }
     }
 
@@ -202,7 +202,7 @@ public class WekaRBF {
         } catch (IOException | ClassNotFoundException ex) {
             Logger.getLogger(WekaMLR.class.getName()).log(Level.SEVERE, null, ex);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity(ErrorReportFactory.internalServerError())
+                    .entity(ex.getMessage())
                     .build();
         }
     }

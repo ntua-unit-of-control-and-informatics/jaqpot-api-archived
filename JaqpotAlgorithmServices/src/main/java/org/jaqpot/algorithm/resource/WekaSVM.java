@@ -182,7 +182,7 @@ public class WekaSVM {
             return Response.ok(response).build();
         } catch (Exception ex) {
             Logger.getLogger(WekaSVM.class.getName()).log(Level.SEVERE, null, ex);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ErrorReportFactory.internalServerError()).build();
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).build();
         }
     }
 
@@ -235,10 +235,10 @@ public class WekaSVM {
             PredictionResponse response = new PredictionResponse();
             response.setPredictions(predictions);
             return Response.ok(response).build();
-        } catch (IOException | ClassNotFoundException ex) {
+        } catch (Exception ex) {
             Logger.getLogger(WekaSVM.class.getName()).log(Level.SEVERE, null, ex);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity(ErrorReportFactory.internalServerError())
+                    .entity(ex.getMessage())
                     .build();
         }
     }
