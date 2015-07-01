@@ -34,13 +34,19 @@ import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import javax.ejb.EJB;
 import javax.inject.Inject;
+import javax.ws.rs.BadRequestException;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
+import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.POST;
@@ -77,8 +83,8 @@ import org.jaqpot.core.service.data.PredictionService;
  * @author Charalampos Chomenidis
  *
  */
-@Path("enanomapper")
-@Api(value = "/enanomapper", description = "eNM API")
+@Path("enm")
+@Api(value = "/enm", description = "eNM API")
 @Authorize
 public class EnanomapperResource {
 
@@ -107,64 +113,64 @@ public class EnanomapperResource {
     @UnSecure
     Client client;
 
-    private static final String DEFAULT_BUNDLE = "https://apps.ideaconsult.net/enmtest/bundle/14";
+    private static final String DEFAULT_BUNDLE = "https://apps.ideaconsult.net/enmtest/bundle/14",
+            DEFAULT_BUNDLE_DATA = "{\"description\":\"a bundle with protein corona data\","
+            + "\"substanceOwner\":\"https://apps.ideaconsult.net/enmtest/substanceowner/FCSV-B8A9C515-7A79-32A9-83D2-8FF2FEC8ADCB\"}";
 
-    @POST
-    @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
-    @Path("/training")
-    @ApiOperation(value = "Creates Model",
-            notes = "Reads Studies from Bundle's Substances, creates Dateaset,"
-            + "calculates Descriptors, applies Dataset and Parameters on "
-            + "Algorithm and creates Model.",
-            response = Task.class
-    )
-    public Response trainEnmModel(
-            @FormParam("bundle_uri") String bundleURI,
-            @FormParam("algorithm_uri") String algorithmURI,
-            @FormParam("prediction_feature") String predictionFeature,
-            @FormParam("parameters") String parameters,
-            @HeaderParam("subjectid") String subjectId) {
-
-        Map<String, Object> options = new HashMap<>();
-        options.put("bundle_uri", bundleURI);
-        options.put("prediction_feature", predictionFeature);
-        options.put("subjectid", subjectId);
-        options.put("algorithmId", algorithmURI);
-        options.put("parameters", parameters);
-        options.put("base_uri", uriInfo.getBaseUri().toString());
-        options.put("mode", "TRAINING");
-        Task task = conjoinerService.initiatePreparation(options, securityContext.getUserPrincipal().getName());
-        return Response.ok(task).build();
-    }
-
-    @POST
-    @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
-    @Path("/prediction")
-    @ApiOperation(value = "Creates Prediction",
-            notes = "Reads Studies from Bundle's Substances, creates Dateaset,"
-            + "calculates Descriptors, applies Dataset and Parameters on "
-            + "Algorithm and creates Model.",
-            response = Task.class
-    )
-    public Response makeEnmPrediction(
-            @FormParam("bundle_uri") String bundleURI,
-            @FormParam("model_uri") String modelURI,
-            @HeaderParam("subjectid") String subjectId) {
-
-        Model model = modelHandler.find(modelURI);
-        if (model == null) {
-            throw new NotFoundException("Model not found.");
-        }
-        Map<String, Object> options = new HashMap<>();
-        options.put("bundle_uri", bundleURI);
-        options.put("subjectid", subjectId);
-        options.put("modelId", modelURI);
-        options.put("base_uri", uriInfo.getBaseUri().toString());
-        options.put("mode", "PREDICTION");
-        Task task = conjoinerService.initiatePreparation(options, securityContext.getUserPrincipal().getName());
-        return Response.ok(task).build();
-    }
-
+//    @POST
+//    @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
+//    @Path("/training")
+//    @ApiOperation(value = "Creates Model",
+//            notes = "Reads Studies from Bundle's Substances, creates Dateaset,"
+//            + "calculates Descriptors, applies Dataset and Parameters on "
+//            + "Algorithm and creates Model.",
+//            response = Task.class
+//    )
+//    public Response trainEnmModel(
+//            @FormParam("bundle_uri") String bundleURI,
+//            @FormParam("algorithm_uri") String algorithmURI,
+//            @FormParam("prediction_feature") String predictionFeature,
+//            @FormParam("parameters") String parameters,
+//            @HeaderParam("subjectid") String subjectId) {
+//
+//        Map<String, Object> options = new HashMap<>();
+//        options.put("bundle_uri", bundleURI);
+//        options.put("prediction_feature", predictionFeature);
+//        options.put("subjectid", subjectId);
+//        options.put("algorithmId", algorithmURI);
+//        options.put("parameters", parameters);
+//        options.put("base_uri", uriInfo.getBaseUri().toString());
+//        options.put("mode", "TRAINING");
+//        Task task = conjoinerService.initiatePreparation(options, securityContext.getUserPrincipal().getName());
+//        return Response.ok(task).build();
+//    }
+//    @POST
+//    @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
+//    @Path("/prediction")
+//    @ApiOperation(value = "Creates Prediction",
+//            notes = "Reads Studies from Bundle's Substances, creates Dateaset,"
+//            + "calculates Descriptors, applies Dataset and Parameters on "
+//            + "Algorithm and creates Model.",
+//            response = Task.class
+//    )
+//    public Response makeEnmPrediction(
+//            @FormParam("bundle_uri") String bundleURI,
+//            @FormParam("model_uri") String modelURI,
+//            @HeaderParam("subjectid") String subjectId) {
+//
+//        Model model = modelHandler.find(modelURI);
+//        if (model == null) {
+//            throw new NotFoundException("Model not found.");
+//        }
+//        Map<String, Object> options = new HashMap<>();
+//        options.put("bundle_uri", bundleURI);
+//        options.put("subjectid", subjectId);
+//        options.put("modelId", modelURI);
+//        options.put("base_uri", uriInfo.getBaseUri().toString());
+//        options.put("mode", "PREDICTION");
+//        Task task = conjoinerService.initiatePreparation(options, securityContext.getUserPrincipal().getName());
+//        return Response.ok(task).build();
+//    }
     @POST
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @Path("/dataset")
@@ -190,31 +196,40 @@ public class EnanomapperResource {
 
     @POST
     @Produces("text/uri-list")
+    @Consumes(MediaType.APPLICATION_JSON)
     @Path("/bundle")
     @ApiOperation(value = "Creates Bundle",
             notes = "Reads Substances from SubstanceOwner and creates Bundle.",
             response = String.class
     )
     public Response createBundle(
-            @FormParam("substanceowner_uri") String substanceOwnerUri,
-            @FormParam("proteomics_only") Boolean proteomicsOnly,
+            @ApiParam(value = "Data for bundle creation", defaultValue = DEFAULT_BUNDLE_DATA, required = true) BundleData bundleData,
+            //            @FormParam("substanceowner_uri") String substanceOwnerUri,
+            //            @FormParam("proteomics_only") Boolean proteomicsOnly,
             @HeaderParam("subjectid") String subjectId) {
-        if (proteomicsOnly == null) {
-            proteomicsOnly = Boolean.FALSE;
+
+        if (bundleData == null) {
+            throw new BadRequestException("Post data cannot be empty");
         }
+
+        String substanceOwner = bundleData.getSubstanceOwner();
+        if (substanceOwner == null || substanceOwner.isEmpty()) {
+            throw new BadRequestException("Field substanceOwner cannot be empty.");
+        }
+
         String userName = securityContext.getUserPrincipal().getName();
 
         MultivaluedMap<String, String> formParameters = new MultivaluedHashMap<>();
         formParameters.add("title", "owner-bundle");
-        formParameters.add("description", "A bundle created from substance owner:" + substanceOwnerUri);
+        formParameters.add("description", bundleData.getDescription());
         formParameters.add("source", userName);
-        formParameters.add("url", substanceOwnerUri);
+        formParameters.add("url", "");
         formParameters.add("license", "Copyright of " + userName);
         formParameters.add("rightsHolder", userName);
         formParameters.add("maintainer", userName);
         formParameters.add("stars", "1");
 
-        String[] parts = substanceOwnerUri.split("substanceowner");
+        String[] parts = substanceOwner.split("substanceowner");
         String bundleBaseUri = parts[0] + "bundle";
         AmbitTaskArray ambitTaskArray = client.target(bundleBaseUri)
                 .request()
@@ -246,15 +261,25 @@ public class EnanomapperResource {
                     .entity(ErrorReportFactory.remoteError(ambitTaskUri, ErrorReportFactory.internalServerError()))
                     .build();
         }
-        BundleSubstances substances = client.target(substanceOwnerUri + "/substance")
-                .request()
-                .accept(MediaType.APPLICATION_JSON)
-                .header("subjectid", subjectId)
-                .get(BundleSubstances.class);
+        List<String> substances = bundleData.getSubstances();
 
-        for (Substance substance : substances.getSubstance()) {
+        if (substances == null || substances.isEmpty()) {
+            BundleSubstances ownerSubstances = client.target(substanceOwner + "/substance")
+                    .request()
+                    .accept(MediaType.APPLICATION_JSON)
+                    .header("subjectid", subjectId)
+                    .get(BundleSubstances.class);
+            substances = ownerSubstances.getSubstance()
+                    .stream()
+                    .map((s) -> {
+                        return s.getURI();
+                    })
+                    .collect(Collectors.toList());
+        }
+
+        for (String substance : substances) {
             formParameters.clear();
-            formParameters.putSingle("substance_uri", substance.getURI());
+            formParameters.putSingle("substance_uri", substance);
             formParameters.putSingle("command", "add");
             client.target(bundleUri + "/substance")
                     .request()
@@ -263,25 +288,33 @@ public class EnanomapperResource {
                     .put(Entity.form(formParameters))
                     .close();
         }
-        if (proteomicsOnly) {
-            formParameters.clear();
-            formParameters.putSingle("topcategory", ProtocolCategory.PROTEOMICS_SECTION.getTopCategory());
-            formParameters.putSingle("endpointcategory", ProtocolCategory.PROTEOMICS_SECTION.name());
-            formParameters.putSingle("command", "add");
-            client.target(bundleUri + "/property")
-                    .request()
-                    .accept(MediaType.APPLICATION_JSON)
-                    .header("subjectid", subjectId)
-                    .put(Entity.form(formParameters))
-                    .close();
-        } else {
+
+        Map<String, List<String>> properties = bundleData.getProperties();
+
+        if (properties == null || properties.isEmpty()) {
+            properties = new HashMap<>();
             for (ProtocolCategory category : ProtocolCategory.values()) {
-                if (category.equals(ProtocolCategory.PROTEOMICS_SECTION)) {
-                    continue;
+                String topCategoryName = category.getTopCategory();
+                String categoryName = category.name();
+
+                if (properties.containsKey(topCategoryName)) {
+                    List<String> categoryValues = properties.get(topCategoryName);
+                    categoryValues.add(categoryName);
+                    properties.put(topCategoryName, categoryValues);
+                } else {
+                    List<String> categoryValues = new ArrayList<>();
+                    categoryValues.add(categoryName);
+                    properties.put(topCategoryName, categoryValues);
                 }
+            }
+        }
+
+        for (String topCategory : properties.keySet()) {
+            List<String> subCategories = properties.get(topCategory);
+            for (String subCategory : subCategories) {
                 formParameters.clear();
-                formParameters.putSingle("topcategory", category.getTopCategory());
-                formParameters.putSingle("endpointcategory", category.name());
+                formParameters.putSingle("topcategory", topCategory);
+                formParameters.putSingle("endpointcategory", subCategory);
                 formParameters.putSingle("command", "add");
                 client.target(bundleUri + "/property")
                         .request()
@@ -291,13 +324,82 @@ public class EnanomapperResource {
                         .close();
             }
         }
+
         try {
-            return Response.created(new URI(bundleUri)).build();
+            return Response.created(new URI(bundleUri)).entity(bundleUri).build();
         } catch (URISyntaxException ex) {
             return Response.status(Response.Status.BAD_GATEWAY)
                     .entity(ErrorReportFactory.remoteError(bundleUri, ErrorReportFactory.internalServerError()))
                     .build();
         }
+    }
+
+    @GET
+    @Path("/property/categories")
+    @ApiOperation(value = "Retrieves property categories",
+            response = Map.class
+    )
+    public Response getPropertyCategories() {
+
+        Map<String, List<String>> categories = new HashMap<>();
+
+        for (ProtocolCategory category : ProtocolCategory.values()) {
+            String topCategoryName = category.getTopCategory();
+            String categoryName = category.name();
+
+            if (categories.containsKey(topCategoryName)) {
+                List<String> categoryValues = categories.get(topCategoryName);
+                categoryValues.add(categoryName);
+                categories.put(topCategoryName, categoryValues);
+            } else {
+                List<String> categoryValues = new ArrayList<>();
+                categoryValues.add(categoryName);
+                categories.put(topCategoryName, categoryValues);
+            }
+        }
+
+        return Response.ok(categories).build();
+    }
+
+    public static class BundleData {
+
+        private String description;
+        private String substanceOwner;
+        private List<String> substances;
+        private Map<String, List<String>> properties;
+
+        public String getDescription() {
+            return description;
+        }
+
+        public void setDescription(String description) {
+            this.description = description;
+        }
+
+        public String getSubstanceOwner() {
+            return substanceOwner;
+        }
+
+        public void setSubstanceOwner(String substanceOwner) {
+            this.substanceOwner = substanceOwner;
+        }
+
+        public List<String> getSubstances() {
+            return substances;
+        }
+
+        public void setSubstances(List<String> substances) {
+            this.substances = substances;
+        }
+
+        public Map<String, List<String>> getProperties() {
+            return properties;
+        }
+
+        public void setProperties(Map<String, List<String>> properties) {
+            this.properties = properties;
+        }
+
     }
 
 }
