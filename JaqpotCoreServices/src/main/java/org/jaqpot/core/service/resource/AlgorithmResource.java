@@ -110,12 +110,12 @@ public class AlgorithmResource {
             + "    }\n"
             + "  ]\n"
             + "}",
-            DEFAULT_DATASET = "http://app.jaqpot.org:8880/jaqpot/services/dataset/corona",
+            DEFAULT_DATASET = "http://app.jaqpot.org:8080/jaqpot/services/dataset/corona",
             DEFAULT_PRED_FEATURE = "https://apps.ideaconsult.net/enmtest/property/TOX/UNKNOWN_TOXICITY_SECTION/Log2+transformed/94D664CFE4929A0F400A5AD8CA733B52E049A688/3ed642f9-1b42-387a-9966-dea5b91e5f8a",
-            DEFAULT_DOA = "http://app.jaqpot.org:8880/jaqpot/services/algorithm/leverage",
-            SCALING = "http://app.jaqpot.org:8880/jaqpot/services/algorithm/scaling",
-            DEFAULT_TRANSFORMATIONS = "http://app.jaqpot.org:8880/jaqpot/services/pmml/corona-standard-transformations",
-            STANDARIZATION = "http://app.jaqpot.org:8880/jaqpot/services/algorithm/standarization";
+            DEFAULT_DOA = "http://app.jaqpot.org:8080/jaqpot/services/algorithm/leverage",
+            SCALING = "http://app.jaqpot.org:8080/jaqpot/services/algorithm/scaling",
+            DEFAULT_TRANSFORMATIONS = "http://app.jaqpot.org:8080/jaqpot/services/pmml/corona-standard-transformations",
+            STANDARIZATION = "http://app.jaqpot.org:8080/jaqpot/services/algorithm/standarization";
 
     @EJB
     TrainingService trainingService;
@@ -249,7 +249,7 @@ public class AlgorithmResource {
 
         Map<String, String> transformationAlgorithms = new LinkedHashMap<>();
         if (transformations != null && !transformations.isEmpty()) {
-            transformationAlgorithms.put("http://app.jaqpot.org:8880/jaqpot/services/algorithm/pmml",
+            transformationAlgorithms.put(uriInfo.getBaseUri().toString()+"algorithm/pmml",
                     "{\"transformations\" : \"" + transformations + "\"}");
         }
         if (scaling != null && !scaling.isEmpty()) {

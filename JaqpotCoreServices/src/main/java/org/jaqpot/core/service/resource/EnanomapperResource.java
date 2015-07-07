@@ -36,8 +36,10 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -113,9 +115,26 @@ public class EnanomapperResource {
     @UnSecure
     Client client;
 
-    private static final String DEFAULT_BUNDLE = "https://apps.ideaconsult.net/enmtest/bundle/14",
-            DEFAULT_BUNDLE_DATA = "{\"description\":\"a bundle with protein corona data\","
-            + "\"substanceOwner\":\"https://apps.ideaconsult.net/enmtest/substanceowner/FCSV-B8A9C515-7A79-32A9-83D2-8FF2FEC8ADCB\"}";
+    private static final String DEFAULT_DATASET_DATA = "{\n"
+            + "	\"bundle\": \"https://apps.ideaconsult.net/enmtest/bundle/14\",\n"
+            + "	\"descriptors\":[\n"
+            + "		\"IMAGE\",\n"
+            + "		\"MOPAC\"\n"
+            + "	]\n"
+            + "}",
+            DEFAULT_BUNDLE_DATA = "{\n"
+            + "	\"description\":\"a bundle with protein corona data\",\n"
+            + "	\"substanceOwner\":\"https://apps.ideaconsult.net/enmtest/substanceowner/FCSV-B8A9C515-7A79-32A9-83D2-8FF2FEC8ADCB\",\n"
+            + "	\"substances\":[\n"
+            + "		\"https://apps.ideaconsult.net/enmtest/substance/FCSV-8b479138-4775-3aba-b9cc-f01cc967d42b\",\n"
+            + "		\"https://apps.ideaconsult.net/enmtest/substance/FCSV-0e1a05ec-6045-3419-89e5-6e48e1c62e3c\"\n"
+            + "	],\n"
+            + "	\"properties\":{\n"
+            + "		\"P-CHEM\" : [\n"
+            + "			\"PC_GRANULOMETRY_SECTION\"	\n"
+            + "		]\n"
+            + "	}\n"
+            + "}";
 
 //    @POST
 //    @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
@@ -173,20 +192,28 @@ public class EnanomapperResource {
 //    }
     @POST
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
+    @Consumes(MediaType.APPLICATION_JSON)
     @Path("/dataset")
     @ApiOperation(value = "Creates Dataset",
             notes = "Reads Studies from Bundle's Substances, creates Dateaset,"
             + "calculates Descriptors, returns Dataset",
             response = Task.class
     )
-    public Response prepareDataset(
-            @ApiParam(name = "bundle_uri", defaultValue = DEFAULT_BUNDLE) @FormParam("bundle_uri") String bundleURI,
-            @FormParam("transformations") String transformations,
+    public Response createDataset(
+            @ApiParam(name = "data", defaultValue = DEFAULT_DATASET_DATA) DatasetData datasetData,
             @HeaderParam("subjectid") String subjectId) {
+
+        String bundleURI = datasetData.getBundle();
+        if (bundleURI == null || bundleURI.isEmpty()) {
+            throw new BadRequestException("Bundle URI cannot be empty.");
+        }
+
+        List<String> descriptors = datasetData.getDescriptors();
+//        if(descriptors == null || descriptors.i)
 
         Map<String, Object> options = new HashMap<>();
         options.put("bundle_uri", bundleURI);
-        options.put("transformations", transformations);
+
         options.put("subjectid", subjectId);
         options.put("base_uri", uriInfo.getBaseUri().toString());
         options.put("mode", "PREPARATION");
@@ -398,6 +425,91 @@ public class EnanomapperResource {
 
         public void setProperties(Map<String, List<String>> properties) {
             this.properties = properties;
+        }
+
+    }
+
+    @GET
+    @Path("/descriptor/categories")
+    @ApiOperation(value = "Retrieves descriptor calculation categories",
+            response = List.class
+    )
+    public Response getDescriptorCategories() {
+        List<DescriptorCategory> descriptorCategories = new ArrayList<>();
+
+        DescriptorCategory image = new DescriptorCategory();
+        image.setId("IMAGE");
+        image.setName("ImageAnalysis descriptors");
+        image.setDescription("Descriptors derived from analyzing substance images by the ImageAnalysis software.");
+
+        DescriptorCategory go = new DescriptorCategory();
+        go.setId("GO");
+        go.setName("GO descriptors");
+        go.setDescription("Descriptors derived by proteomics data.");
+
+        DescriptorCategory mopac = new DescriptorCategory();
+        mopac.setId("MOPAC");
+        mopac.setName("Mopac descriptors");
+        mopac.setDescription("Descriptors derived by crystallographic data.");
+
+        descriptorCategories.add(image);
+        descriptorCategories.add(go);
+        descriptorCategories.add(mopac);
+
+        return Response.ok(descriptorCategories).build();
+    }
+
+    public static class DescriptorCategory {
+
+        private String id;
+        private String name;
+        private String description;
+
+        public String getId() {
+            return id;
+        }
+
+        public void setId(String id) {
+            this.id = id;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public String getDescription() {
+            return description;
+        }
+
+        public void setDescription(String description) {
+            this.description = description;
+        }
+
+    }
+
+    public static class DatasetData {
+
+        private String bundle;
+        private List<String> descriptors;
+
+        public String getBundle() {
+            return bundle;
+        }
+
+        public void setBundle(String bundle) {
+            this.bundle = bundle;
+        }
+
+        public List<String> getDescriptors() {
+            return descriptors;
+        }
+
+        public void setDescriptors(List<String> descriptors) {
+            this.descriptors = descriptors;
         }
 
     }
