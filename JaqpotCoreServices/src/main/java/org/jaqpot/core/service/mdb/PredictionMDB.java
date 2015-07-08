@@ -157,6 +157,9 @@ public class PredictionMDB extends RunningTaskMDB {
 
             String dataset_uri = (String) messageBody.get("dataset_uri");
             if (model.getTransformationModels() != null && !model.getTransformationModels().isEmpty()) {
+                task.getMeta().getComments().add("--");
+                task.getMeta().getComments().add("Processing transformations...");
+                taskHandler.edit(task);
                 for (String transformationModel : model.getTransformationModels()) {
                     MultivaluedMap<String, String> formMap = new MultivaluedHashMap<>();
                     formMap.put("dataset_uri", Arrays.asList(dataset_uri));
@@ -191,6 +194,52 @@ public class PredictionMDB extends RunningTaskMDB {
                     }
                 }
 
+                task.getMeta().getComments().add("--");
+                taskHandler.edit(task);
+            }
+
+            List<String> predictionDatasets = new ArrayList<>();
+            if (model.getLinkedModels() != null && !model.getLinkedModels().isEmpty()) {
+                task.getMeta().getComments().add("--");
+                task.getMeta().getComments().add("Processing linked models...");
+                taskHandler.edit(task);
+                final String transformedDataset = dataset_uri;
+                for (String linkedModel : model.getLinkedModels()) {
+                    MultivaluedMap<String, String> formMap = new MultivaluedHashMap<>();
+                    formMap.put("dataset_uri", Arrays.asList(transformedDataset));
+                    Task predictionTask = client.target(linkedModel)
+                            .request()
+                            .header("subjectid", messageBody.get("subjectid"))
+                            .accept(MediaType.APPLICATION_JSON)
+                            .post(Entity.form(formMap), Task.class);
+                    String predictionTaskURI = linkedModel.split("model")[0] + "task/" + predictionTask.getId();
+                    task.getMeta().getComments().add("Prediction task created:" + predictionTaskURI);
+                    taskHandler.edit(task);
+                    while (predictionTask.getStatus().equals(Task.Status.RUNNING)
+                            || predictionTask.getStatus().equals(Task.Status.QUEUED)) {
+                        try {
+                            Thread.sleep(500);
+                        } catch (InterruptedException ex) {
+
+                        }
+                        predictionTask = client.target(predictionTaskURI)
+                                .request()
+                                .header("subjectid", messageBody.get("subjectid"))
+                                .accept(MediaType.APPLICATION_JSON)
+                                .get(Task.class);
+                    }
+                    if (predictionTask.getStatus().equals(Task.Status.COMPLETED)) {
+                        String predictionDataset = predictionTask.getResultUri();
+                        predictionDatasets.add(predictionDataset);
+                        task.getMeta().getComments().add("Prediction dataset created successfully:" + predictionTask.getResultUri());
+                        taskHandler.edit(task);
+                    } else {
+                        task.getMeta().getComments().add("Prediction task failed.");
+                    }
+                }
+
+                task.getMeta().getComments().add("--");
+                taskHandler.edit(task);
             }
 
             task.getMeta().getComments().add("Attempting to download dataset...");
@@ -264,6 +313,14 @@ public class PredictionMDB extends RunningTaskMDB {
             }
 //            System.out.println(jsonSerializer.write(dataset));
             dataset = DatasetFactory.merge(dataset, predFeatureDataset);
+            for (String predictionDatasetURI : predictionDatasets) {
+                Dataset predictionDataset = client.target(predictionDatasetURI)
+                        .request()
+                        .header("subjectid", messageBody.get("subjectid"))
+                        .accept(MediaType.APPLICATION_JSON)
+                        .get(Dataset.class);
+                dataset = DatasetFactory.merge(dataset, predictionDataset);
+            }
             ROG randomStringGenerator = new ROG(true);
             dataset.setId(randomStringGenerator.nextString(14));
             task.getMeta().getComments().add("Dataset ready.");
