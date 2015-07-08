@@ -197,7 +197,7 @@ public class ConjoinerService {
             //Parses each effect of the study as a different property
             for (Effect effect : study.getEffects()) {
                 if (effect.getEndpoint().equals("IMAGE")) {
-                    Response response = client.target("http://enanomapper.ntua.gr:8880/imageAnalysis/service/analyze")
+                    Response response = client.target(configResourceBundle.getString("ImageBasePath")+"analyze")
                             .request()
                             .accept(MediaType.APPLICATION_JSON)
                             .post(Entity.entity(new Form("image", effect.getResult().getTextValue()), "application/x-www-form-urlencoded"));
@@ -230,7 +230,7 @@ public class ConjoinerService {
                     }
                     continue;
                 } else if (effect.getEndpoint().equals("PDB_CRYSTAL_STRUCTURE")) {
-                    Response response = client.target("http://enanomapper.ntua.gr:8880/algorithms/service/mopac/calculate")
+                    Response response = client.target(configResourceBundle.getString("AlgorithmsBasePath")+"calculate")
                             .request()
                             .accept(MediaType.APPLICATION_JSON)
                             .header("subjectid", subjectId)
