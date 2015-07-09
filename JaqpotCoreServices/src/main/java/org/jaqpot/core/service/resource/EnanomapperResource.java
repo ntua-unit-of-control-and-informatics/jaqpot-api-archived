@@ -63,6 +63,7 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
+import org.jaqpot.core.annotations.Jackson;
 import org.jaqpot.core.data.DatasetHandler;
 import org.jaqpot.core.data.ModelHandler;
 import org.jaqpot.core.data.serialize.JSONSerializer;
@@ -117,6 +118,7 @@ public class EnanomapperResource {
     Client client;
 
     @Inject
+    @Jackson
     JSONSerializer serializer;
 
     private static final String DEFAULT_DATASET_DATA = "{\n"
