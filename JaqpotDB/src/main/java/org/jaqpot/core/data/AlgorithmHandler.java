@@ -34,8 +34,12 @@
  */
 package org.jaqpot.core.data;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import org.jaqpot.core.annotations.MongoDB;
@@ -66,6 +70,20 @@ public class AlgorithmHandler extends AbstractHandler<Algorithm> {
         Map<String, Object> properties = new HashMap<>();
         properties.put("createdBy", userName);
         return em.count(Algorithm.class, properties);
+    }
+
+    public List<Algorithm> findByOntologicalClass(String className, Integer start, Integer max) {
+        Map<String, Object> properties = new HashMap<>();
+        List<String> classes = new ArrayList<>();
+        classes.add(className);
+        properties.put("ontologicalClasses", classes);
+
+        List<String> fields = new ArrayList<>();
+        fields.add("_id");
+        fields.add("meta");
+        fields.add("ontologicalClasses");
+
+        return em.find(Algorithm.class, properties, fields, start, max);
     }
 
 }
