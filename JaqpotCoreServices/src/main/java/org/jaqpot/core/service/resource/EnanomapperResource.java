@@ -65,6 +65,7 @@ import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
 import org.jaqpot.core.data.DatasetHandler;
 import org.jaqpot.core.data.ModelHandler;
+import org.jaqpot.core.data.serialize.JSONSerializer;
 import org.jaqpot.core.model.Model;
 import org.jaqpot.core.model.Task;
 import org.jaqpot.core.model.dto.ambit.AmbitTask;
@@ -115,7 +116,12 @@ public class EnanomapperResource {
     @UnSecure
     Client client;
 
+    @Inject
+    JSONSerializer serializer;
+
     private static final String DEFAULT_DATASET_DATA = "{\n"
+            + "	\"title\" : \"another corona dataset\",\n"
+            + "	\"description\" : \"This dataset contains corona data\",\n"
             + "	\"bundle\": \"https://apps.ideaconsult.net/enmtest/bundle/14\",\n"
             + "	\"descriptors\":[\n"
             + "		\"IMAGE\",\n"
@@ -209,11 +215,18 @@ public class EnanomapperResource {
         }
 
         List<String> descriptors = datasetData.getDescriptors();
-//        if(descriptors == null || descriptors.i)
+        String descriptorsString;
+        if (descriptors != null) {
+            descriptorsString = serializer.write(descriptors);
+        } else {
+            descriptorsString = serializer.write(new ArrayList<>());
+        }
 
         Map<String, Object> options = new HashMap<>();
         options.put("bundle_uri", bundleURI);
-
+        options.put("title", datasetData.getTitle());
+        options.put("description", datasetData.getDescription());
+        options.put("descriptors", descriptorsString);
         options.put("subjectid", subjectId);
         options.put("base_uri", uriInfo.getBaseUri().toString());
         options.put("mode", "PREPARATION");
@@ -452,9 +465,15 @@ public class EnanomapperResource {
         mopac.setName("Mopac descriptors");
         mopac.setDescription("Descriptors derived by crystallographic data.");
 
+        DescriptorCategory cdk = new DescriptorCategory();
+        cdk.setId("CDK");
+        cdk.setName("CDK descriptors");
+        cdk.setDescription("Descriptors derived from cdk software.");
+
         descriptorCategories.add(image);
         descriptorCategories.add(go);
         descriptorCategories.add(mopac);
+        descriptorCategories.add(cdk);
 
         return Response.ok(descriptorCategories).build();
     }
@@ -493,8 +512,26 @@ public class EnanomapperResource {
 
     public static class DatasetData {
 
+        private String title;
+        private String description;
         private String bundle;
         private List<String> descriptors;
+
+        public String getTitle() {
+            return title;
+        }
+
+        public void setTitle(String title) {
+            this.title = title;
+        }
+
+        public String getDescription() {
+            return description;
+        }
+
+        public void setDescription(String description) {
+            this.description = description;
+        }
 
         public String getBundle() {
             return bundle;

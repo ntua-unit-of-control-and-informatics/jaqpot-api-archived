@@ -143,8 +143,15 @@ public class AlgorithmResource {
             response = Algorithm.class,
             responseContainer = "List")
 
-    public Response getAlgorithms(@ApiParam(value = "start", defaultValue = "0") @QueryParam("start") Integer start,
+    public Response getAlgorithms(
+            @ApiParam(value = "class") @QueryParam("class") String ontologicalClass,
+            @ApiParam(value = "start", defaultValue = "0") @QueryParam("start") Integer start,
             @ApiParam(value = "max", defaultValue = "10") @QueryParam("max") Integer max) {
+        if (ontologicalClass != null && !ontologicalClass.isEmpty()) {
+            return Response
+                    .ok(algorithmHandler.findByOntologicalClass(ontologicalClass, start != null ? start : 0, max != null ? max : Integer.MAX_VALUE))
+                    .build();
+        }
         return Response
                 .ok(algorithmHandler.findAll(start != null ? start : 0, max != null ? max : Integer.MAX_VALUE))
                 .build();
@@ -249,7 +256,7 @@ public class AlgorithmResource {
 
         Map<String, String> transformationAlgorithms = new LinkedHashMap<>();
         if (transformations != null && !transformations.isEmpty()) {
-            transformationAlgorithms.put(uriInfo.getBaseUri().toString()+"algorithm/pmml",
+            transformationAlgorithms.put(uriInfo.getBaseUri().toString() + "algorithm/pmml",
                     "{\"transformations\" : \"" + transformations + "\"}");
         }
         if (scaling != null && !scaling.isEmpty()) {
