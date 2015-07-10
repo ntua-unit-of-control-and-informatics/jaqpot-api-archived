@@ -202,6 +202,8 @@ public class PreparationMDB extends RunningTaskMDB {
             taskHandler.edit(task);
             MetaInfo datasetMeta = MetaInfoBuilder.builder()
                     .addSources(bundleUri)
+                    .addTitles((String) messageBody.get("title"))
+                    .addDescriptions((String) messageBody.get("description"))
                     .addComments("Created by task " + task.getId())
                     .addCreators(aaService.getUserFromSSO(subjectId).getId())
                     .build();
