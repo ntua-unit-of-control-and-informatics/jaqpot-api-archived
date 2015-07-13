@@ -142,8 +142,7 @@ public class AlgorithmResource {
     @Jackson
     JSONSerializer serializer;
 
-    @PostConstruct
-    private void init() {
+    static {
         changeDefaultValues();
     }
 
@@ -348,7 +347,7 @@ public class AlgorithmResource {
                 .build();
     }
 
-    public void changeDefaultValues() {
+    public static void changeDefaultValues() {
         try {
             Method method = AlgorithmResource.class.getDeclaredMethod("trainModel", String.class, String.class, String.class, String.class, String.class, String.class, String.class, String.class);
             Annotation[][] annotations = method.getParameterAnnotations();
@@ -356,12 +355,11 @@ public class AlgorithmResource {
             Annotation scaling = annotations[4][0];
             Annotation doa = annotations[5][0];
 
-            String baseUri = uriInfo.getBaseUri().toString();
             ResourceBundle config = ResourceBundle.getBundle("config");
 
 //            changeAnnotationValue(transformations, "defaultValue", baseUri+config.getString("default.transformations"));
-            changeAnnotationValue(scaling, "allowableValues", baseUri + config.getString("default.scaling") + "," + baseUri + config.getString("default.standarization"));
-            changeAnnotationValue(doa, "defaultValue", baseUri + config.getString("default.doa"));
+            changeAnnotationValue(scaling, "allowableValues", config.getString("default.scaling") + "," + config.getString("default.standarization"));
+            changeAnnotationValue(doa, "defaultValue", config.getString("default.doa"));
         } catch (NoSuchMethodException | SecurityException ex) {
             Logger.getLogger(AlgorithmResource.class.getName()).log(Level.SEVERE, null, ex);
         }
