@@ -343,45 +343,4 @@ public class AlgorithmResource {
                 .build();
     }
 
-    public static void changeDefaultValues() {
-        try {
-            Method method = AlgorithmResource.class.getDeclaredMethod("trainModel", String.class, String.class, String.class, String.class, String.class, String.class, String.class, String.class);
-            Annotation[][] annotations = method.getParameterAnnotations();
-            Annotation transformations = annotations[3][0];
-            Annotation scaling = annotations[4][0];
-            Annotation doa = annotations[5][0];
-
-            ResourceBundle config = ResourceBundle.getBundle("config");
-
-//            changeAnnotationValue(transformations, "defaultValue", baseUri+config.getString("default.transformations"));
-            changeAnnotationValue(scaling, "allowableValues", config.getString("default.scaling") + "," + config.getString("default.standarization"));
-            changeAnnotationValue(doa, "defaultValue", config.getString("default.doa"));
-        } catch (NoSuchMethodException | SecurityException ex) {
-            Logger.getLogger(AlgorithmResource.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    public static Object changeAnnotationValue(Annotation annotation, String key, Object newValue) {
-        Object handler = Proxy.getInvocationHandler(annotation);
-        Field f;
-        try {
-            f = handler.getClass().getDeclaredField("memberValues");
-        } catch (NoSuchFieldException | SecurityException e) {
-            throw new IllegalStateException(e);
-        }
-        f.setAccessible(true);
-        Map<String, Object> memberValues;
-        try {
-            memberValues = (Map<String, Object>) f.get(handler);
-        } catch (IllegalArgumentException | IllegalAccessException e) {
-            throw new IllegalStateException(e);
-        }
-        Object oldValue = memberValues.get(key);
-        if (oldValue == null || oldValue.getClass() != newValue.getClass()) {
-            throw new IllegalArgumentException();
-        }
-        memberValues.put(key, newValue);
-        return oldValue;
-    }
 }

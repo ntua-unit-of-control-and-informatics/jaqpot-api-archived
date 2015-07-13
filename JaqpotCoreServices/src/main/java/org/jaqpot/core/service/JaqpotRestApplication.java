@@ -49,7 +49,6 @@ import org.reflections.Reflections;
 public class JaqpotRestApplication extends Application {
 
     public JaqpotRestApplication() {
-        AlgorithmResource.changeDefaultValues();
 
         ResourceBundle config = ResourceBundle.getBundle("config");
         BeanConfig beanConfig = new BeanConfig();
