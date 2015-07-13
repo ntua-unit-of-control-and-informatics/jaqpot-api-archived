@@ -142,10 +142,6 @@ public class AlgorithmResource {
     @Jackson
     JSONSerializer serializer;
 
-    static {
-        changeDefaultValues();
-    }
-
     @GET
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @ApiOperation(value = "Finds all Algorithms",
