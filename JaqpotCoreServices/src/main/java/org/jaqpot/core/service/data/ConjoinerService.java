@@ -230,7 +230,7 @@ public class ConjoinerService {
                     }
                     continue;
                 } else if (effect.getEndpoint().equals("PDB_CRYSTAL_STRUCTURE")) {
-                    Response response = client.target(configResourceBundle.getString("AlgorithmsBasePath")+"calculate")
+                    Response response = client.target(configResourceBundle.getString("AlgorithmsBasePath")+"mopac/calculate")
                             .request()
                             .accept(MediaType.APPLICATION_JSON)
                             .header("subjectid", subjectId)
