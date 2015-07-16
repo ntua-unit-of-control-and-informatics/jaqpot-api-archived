@@ -75,7 +75,7 @@ import org.jaqpot.core.service.data.PredictionService;
 @Authorize
 public class ModelResource {
 
-    private static final String DEFAULT_DATASET = "http://enanomapper.ntua.gr:8880/jaqpot/services/dataset/H3nfrN5ZwFHt";
+    private static final String DEFAULT_DATASET = "http://app.jaqpot.org:8080/jaqpot/services/dataset/corona";
 
     @Context
     UriInfo uriInfo;

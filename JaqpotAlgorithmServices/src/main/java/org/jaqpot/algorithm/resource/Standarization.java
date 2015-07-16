@@ -73,6 +73,8 @@ import org.jaqpot.core.model.factory.ErrorReportFactory;
 @Produces(MediaType.APPLICATION_JSON)
 public class Standarization {
 
+    private static final Logger LOG = Logger.getLogger(Standarization.class.getName());
+
     @POST
     @Path("training")
     public Response training(TrainingRequest request) {
@@ -93,18 +95,18 @@ public class Standarization {
                     .filter(feature -> !feature.equals(request.getPredictionFeature()))
                     .collect(Collectors.toList());
 
-            Map<String, Number> maxValues = new HashMap<>();
-            Map<String, Number> minValues = new HashMap<>();
+            Map<String, Double> maxValues = new HashMap<>();
+            Map<String, Double> minValues = new HashMap<>();
 
             features.parallelStream().forEach(feature -> {
                 List<Double> values = request.getDataset().getDataEntry().stream().map(dataEntry -> {
                     return Double.parseDouble(dataEntry.getValues().get(feature).toString());
                 }).collect(Collectors.toList());
                 double[] doubleValues = values.stream().mapToDouble(Double::doubleValue).toArray();
-                
+
                 Double mean = StatUtils.mean(doubleValues);
-                Double stddev = Math.sqrt(StatUtils.variance(doubleValues));                
-                
+                Double stddev = Math.sqrt(StatUtils.variance(doubleValues));
+
                 maxValues.put(feature, stddev);
                 minValues.put(feature, mean);
             });
@@ -123,9 +125,9 @@ public class Standarization {
                 return "Standarized " + feature;
             }).collect(Collectors.toList()));
             return Response.ok(response).build();
-        } catch (IOException ex) {
-            Logger.getLogger(Scaling.class.getName()).log(Level.SEVERE, null, ex);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ErrorReportFactory.internalServerError()).build();
+        } catch (Exception ex) {
+            LOG.log(Level.SEVERE, null, ex);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).build();
         }
     }
 
@@ -152,16 +154,18 @@ public class Standarization {
             ByteArrayInputStream bais = new ByteArrayInputStream(modelBytes);
             ObjectInput in = new ObjectInputStream(bais);
             ScalingModel model = (ScalingModel) in.readObject();
+            in.close();
+            bais.close();
 
             List<Map<String, Object>> predictions = new ArrayList<>();
 
             request.getDataset().getDataEntry().stream().forEach(dataEntry -> {
-                Map<String,Object> data = new HashMap<>();
+                Map<String, Object> data = new HashMap<>();
                 features.stream().forEach(feature -> {
-                    Double stdev = model.getMaxValues().get(feature).doubleValue();
-                    Double mean = model.getMinValues().get(feature).doubleValue();
+                    Double stdev = model.getMaxValues().get(feature);
+                    Double mean = model.getMinValues().get(feature);
                     Double value = Double.parseDouble(dataEntry.getValues().get(feature).toString());
-                    if (!stdev.equals(mean)) {
+                    if (stdev != null && stdev != 0.0) {
                         value = (value - mean) / stdev;
                     } else {
                         value = 1.0;
@@ -175,9 +179,9 @@ public class Standarization {
             response.setPredictions(predictions);
 
             return Response.ok(response).build();
-        } catch (IOException | ClassNotFoundException ex) {
-            Logger.getLogger(Scaling.class.getName()).log(Level.SEVERE, null, ex);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ErrorReportFactory.internalServerError()).build();
+        } catch (Exception ex) {
+            LOG.log(Level.SEVERE, null, ex);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).build();
         }
     }
 }

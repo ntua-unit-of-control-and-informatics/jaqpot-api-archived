@@ -134,7 +134,7 @@ public class WekaPLS {
             return Response.ok(response).build();
         } catch (Exception ex) {
             LOG.log(Level.SEVERE, null, ex);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ErrorReportFactory.internalServerError()).build();
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).build();
         }
     }
 
@@ -190,7 +190,7 @@ public class WekaPLS {
         } catch (IOException | ClassNotFoundException ex) {
             Logger.getLogger(WekaSVM.class.getName()).log(Level.SEVERE, null, ex);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity(ErrorReportFactory.internalServerError())
+                    .entity(ex.getMessage())
                     .build();
         }
     }

@@ -145,7 +145,7 @@ public class PmmlTransformer {
             return Response.ok(response).build();
         } catch (Exception ex) {
             LOG.log(Level.SEVERE, null, ex);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ErrorReportFactory.internalServerError()).build();
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).build();
         }
     }
 
@@ -212,7 +212,7 @@ public class PmmlTransformer {
         } catch (Exception ex) {
             LOG.log(Level.SEVERE, null, ex);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity(ErrorReportFactory.internalServerError())
+                    .entity(ex.getMessage())
                     .build();
         }
     }

@@ -50,6 +50,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -72,6 +73,8 @@ import org.jaqpot.core.model.factory.ErrorReportFactory;
 @Produces(MediaType.APPLICATION_JSON)
 public class Scaling {
 
+    private static final Logger LOG = Logger.getLogger(Scaling.class.getName());
+
     @POST
     @Path("training")
     public Response training(TrainingRequest request) {
@@ -92,16 +95,16 @@ public class Scaling {
                     .filter(feature -> !feature.equals(request.getPredictionFeature()))
                     .collect(Collectors.toList());
 
-            Map<String, Number> maxValues = new HashMap<>();
-            Map<String, Number> minValues = new HashMap<>();
+            Map<String, Double> maxValues = new HashMap<>();
+            Map<String, Double> minValues = new HashMap<>();
 
             features.parallelStream().forEach(feature -> {
                 Double max = request.getDataset().getDataEntry().stream().map(dataEntry -> {
                     return Double.parseDouble(dataEntry.getValues().get(feature).toString());
-                }).max(Double::compare).get();
+                }).max(Double::compare).orElse(0.0);
                 Double min = request.getDataset().getDataEntry().stream().map(dataEntry -> {
                     return Double.parseDouble(dataEntry.getValues().get(feature).toString());
-                }).min(Double::compare).get();
+                }).min(Double::compare).orElse(0.0);
                 maxValues.put(feature, max);
                 minValues.put(feature, min);
             });
@@ -120,9 +123,9 @@ public class Scaling {
                 return "Scaled " + feature;
             }).collect(Collectors.toList()));
             return Response.ok(response).build();
-        } catch (IOException ex) {
-            Logger.getLogger(Scaling.class.getName()).log(Level.SEVERE, null, ex);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ErrorReportFactory.internalServerError()).build();
+        } catch (Exception ex) {
+            LOG.log(Level.SEVERE, null, ex);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).build();
         }
     }
 
@@ -155,8 +158,8 @@ public class Scaling {
             request.getDataset().getDataEntry().stream().forEach(dataEntry -> {
                 Map<String, Object> data = new HashMap<>();
                 features.stream().forEach(feature -> {
-                    Double max = model.getMaxValues().get(feature).doubleValue();
-                    Double min = model.getMinValues().get(feature).doubleValue();
+                    Double max = model.getMaxValues().get(feature);
+                    Double min = model.getMinValues().get(feature);
                     Double value = Double.parseDouble(dataEntry.getValues().get(feature).toString());
                     if (!max.equals(min)) {
                         value = (value - min) / (max - min);
@@ -171,9 +174,9 @@ public class Scaling {
             response.setPredictions(predictions);
 
             return Response.ok(response).build();
-        } catch (IOException | ClassNotFoundException ex) {
-            Logger.getLogger(Scaling.class.getName()).log(Level.SEVERE, null, ex);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ErrorReportFactory.internalServerError()).build();
+        } catch (Exception ex) {
+            LOG.log(Level.SEVERE, null, ex);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).build();
         }
     }
 }

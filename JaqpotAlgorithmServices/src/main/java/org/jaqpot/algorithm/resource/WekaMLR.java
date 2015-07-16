@@ -124,7 +124,7 @@ public class WekaMLR {
             return Response.ok(response).build();
         } catch (Exception ex) {
             Logger.getLogger(WekaMLR.class.getName()).log(Level.SEVERE, null, ex);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ErrorReportFactory.internalServerError()).build();
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).build();
         }
     }
 
@@ -177,10 +177,10 @@ public class WekaMLR {
             PredictionResponse response = new PredictionResponse();
             response.setPredictions(predictions);
             return Response.ok(response).build();
-        } catch (IOException | ClassNotFoundException ex) {
+        } catch (Exception ex) {
             Logger.getLogger(WekaMLR.class.getName()).log(Level.SEVERE, null, ex);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity(ErrorReportFactory.internalServerError())
+                    .entity(ex.getMessage())
                     .build();
         }
     }

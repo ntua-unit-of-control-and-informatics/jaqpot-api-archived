@@ -36,6 +36,7 @@ import java.util.Set;
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.ext.Provider;
+import org.jaqpot.core.service.resource.AlgorithmResource;
 import org.reflections.Reflections;
 
 /**
@@ -48,6 +49,7 @@ import org.reflections.Reflections;
 public class JaqpotRestApplication extends Application {
 
     public JaqpotRestApplication() {
+
         ResourceBundle config = ResourceBundle.getBundle("config");
         BeanConfig beanConfig = new BeanConfig();
         beanConfig.setVersion("1.0.0");
@@ -88,7 +90,6 @@ public class JaqpotRestApplication extends Application {
         resources.add(com.wordnik.swagger.jaxrs.listing.ApiDeclarationProvider.class);
         resources.add(com.wordnik.swagger.jaxrs.listing.ApiListingResourceJSON.class);
         resources.add(com.wordnik.swagger.jaxrs.listing.ResourceListingProvider.class);
-                
 
         return resources;
     }

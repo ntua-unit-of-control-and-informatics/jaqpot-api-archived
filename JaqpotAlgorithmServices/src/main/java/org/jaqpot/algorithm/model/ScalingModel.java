@@ -43,25 +43,25 @@ import java.util.Map;
  */
 public class ScalingModel implements Serializable{
 
-    private Map<String, Number> maxValues;
-    private Map<String, Number> minValues;
+    private Map<String, Double> maxValues;
+    private Map<String, Double> minValues;
 
     public ScalingModel() {
     }
 
-    public Map<String, Number> getMaxValues() {
+    public Map<String, Double> getMaxValues() {
         return maxValues;
     }
 
-    public void setMaxValues(Map<String, Number> maxValues) {
+    public void setMaxValues(Map<String, Double> maxValues) {
         this.maxValues = maxValues;
     }
 
-    public Map<String, Number> getMinValues() {
+    public Map<String, Double> getMinValues() {
         return minValues;
     }
 
-    public void setMinValues(Map<String, Number> minValues) {
+    public void setMinValues(Map<String, Double> minValues) {
         this.minValues = minValues;
     }
 

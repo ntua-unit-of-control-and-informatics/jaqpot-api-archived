@@ -42,11 +42,17 @@ import com.wordnik.swagger.annotations.ApiParam;
 import com.wordnik.swagger.annotations.ApiResponse;
 import com.wordnik.swagger.annotations.ApiResponses;
 import com.wordnik.swagger.jaxrs.PATCH;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
@@ -110,12 +116,12 @@ public class AlgorithmResource {
             + "    }\n"
             + "  ]\n"
             + "}",
-            DEFAULT_DATASET = "http://app.jaqpot.org:8880/jaqpot/services/dataset/corona",
+            DEFAULT_DATASET = "http://app.jaqpot.org:8080/jaqpot/services/dataset/corona",
             DEFAULT_PRED_FEATURE = "https://apps.ideaconsult.net/enmtest/property/TOX/UNKNOWN_TOXICITY_SECTION/Log2+transformed/94D664CFE4929A0F400A5AD8CA733B52E049A688/3ed642f9-1b42-387a-9966-dea5b91e5f8a",
-            DEFAULT_DOA = "http://app.jaqpot.org:8880/jaqpot/services/algorithm/leverage",
-            SCALING = "http://app.jaqpot.org:8880/jaqpot/services/algorithm/scaling",
-            DEFAULT_TRANSFORMATIONS = "http://app.jaqpot.org:8880/jaqpot/services/pmml/corona-standard-transformations",
-            STANDARIZATION = "http://app.jaqpot.org:8880/jaqpot/services/algorithm/standarization";
+            DEFAULT_DOA = "http://app.jaqpot.org:8080/jaqpot/services/algorithm/leverage",
+            SCALING = "http://app.jaqpot.org:8080/jaqpot/services/algorithm/scaling",
+            DEFAULT_TRANSFORMATIONS = "http://app.jaqpot.org:8080/jaqpot/services/pmml/corona-standard-transformations",
+            STANDARIZATION = "http://app.jaqpot.org:8080/jaqpot/services/algorithm/standarization";
 
     @EJB
     TrainingService trainingService;
@@ -143,8 +149,15 @@ public class AlgorithmResource {
             response = Algorithm.class,
             responseContainer = "List")
 
-    public Response getAlgorithms(@ApiParam(value = "start", defaultValue = "0") @QueryParam("start") Integer start,
+    public Response getAlgorithms(
+            @ApiParam(value = "class") @QueryParam("class") String ontologicalClass,
+            @ApiParam(value = "start", defaultValue = "0") @QueryParam("start") Integer start,
             @ApiParam(value = "max", defaultValue = "10") @QueryParam("max") Integer max) {
+        if (ontologicalClass != null && !ontologicalClass.isEmpty()) {
+            return Response
+                    .ok(algorithmHandler.findByOntologicalClass(ontologicalClass, start != null ? start : 0, max != null ? max : Integer.MAX_VALUE))
+                    .build();
+        }
         return Response
                 .ok(algorithmHandler.findAll(start != null ? start : 0, max != null ? max : Integer.MAX_VALUE))
                 .build();
@@ -249,7 +262,7 @@ public class AlgorithmResource {
 
         Map<String, String> transformationAlgorithms = new LinkedHashMap<>();
         if (transformations != null && !transformations.isEmpty()) {
-            transformationAlgorithms.put("http://app.jaqpot.org:8880/jaqpot/services/algorithm/pmml",
+            transformationAlgorithms.put(uriInfo.getBaseUri().toString() + "algorithm/pmml",
                     "{\"transformations\" : \"" + transformations + "\"}");
         }
         if (scaling != null && !scaling.isEmpty()) {
@@ -329,4 +342,5 @@ public class AlgorithmResource {
                 .ok(modifiedAsAlgorithm)
                 .build();
     }
+
 }
