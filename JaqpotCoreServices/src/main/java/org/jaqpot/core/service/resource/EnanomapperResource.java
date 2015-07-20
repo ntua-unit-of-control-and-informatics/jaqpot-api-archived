@@ -36,21 +36,15 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import javax.ejb.EJB;
 import javax.inject.Inject;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Consumes;
-import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
-import javax.ws.rs.NotFoundException;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -67,13 +61,11 @@ import org.jaqpot.core.annotations.Jackson;
 import org.jaqpot.core.data.DatasetHandler;
 import org.jaqpot.core.data.ModelHandler;
 import org.jaqpot.core.data.serialize.JSONSerializer;
-import org.jaqpot.core.model.Model;
 import org.jaqpot.core.model.Task;
 import org.jaqpot.core.model.dto.ambit.AmbitTask;
 import org.jaqpot.core.model.dto.ambit.AmbitTaskArray;
 import org.jaqpot.core.model.dto.ambit.ProtocolCategory;
 import org.jaqpot.core.model.dto.bundle.BundleSubstances;
-import org.jaqpot.core.model.dto.dataset.Substance;
 import org.jaqpot.core.model.factory.ErrorReportFactory;
 import org.jaqpot.core.service.data.ConjoinerService;
 import org.jaqpot.core.service.data.TrainingService;
@@ -246,8 +238,6 @@ public class EnanomapperResource {
     )
     public Response createBundle(
             @ApiParam(value = "Data for bundle creation", defaultValue = DEFAULT_BUNDLE_DATA, required = true) BundleData bundleData,
-            //            @FormParam("substanceowner_uri") String substanceOwnerUri,
-            //            @FormParam("proteomics_only") Boolean proteomicsOnly,
             @HeaderParam("subjectid") String subjectId) {
 
         if (bundleData == null) {

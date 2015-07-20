@@ -425,10 +425,11 @@ public class TrainingMDB extends RunningTaskMDB {
 
             model.setMeta(MetaInfoBuilder
                     .builder()
+                    .addTitles((String) messageBody.get("title"))
                     .addCreators(task.getCreatedBy())
                     .addSources(dataset.getDatasetURI())
                     .addComments("Created by task " + task.getId())
-                    .addDescriptions("QSAR model by algorithm " + algorithmId)
+                    .addDescriptions((String) messageBody.get("description"))
                     .build());
 
 

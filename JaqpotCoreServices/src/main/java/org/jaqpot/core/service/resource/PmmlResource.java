@@ -53,7 +53,9 @@ import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
 import org.jaqpot.core.data.PmmlHandler;
 import org.jaqpot.core.model.ErrorReport;
+import org.jaqpot.core.model.MetaInfo;
 import org.jaqpot.core.model.Pmml;
+import org.jaqpot.core.model.builder.MetaInfoBuilder;
 import org.jaqpot.core.model.factory.ErrorReportFactory;
 import org.jaqpot.core.model.util.ROG;
 import org.jaqpot.core.service.annotations.Authorize;
@@ -82,7 +84,6 @@ public class PmmlResource {
 
     @Context
     HttpHeaders httpHeaders;
-    
 
     @POST
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
@@ -103,7 +104,9 @@ public class PmmlResource {
     public Response createPMML(
             @ApiParam(value = "Clients need to authenticate in order to create resources on the server")
             @HeaderParam("subjectid") String subjectId,
-            @ApiParam(value = "PMML in JSON representation.", required = true) String pmmlString
+            @ApiParam(value = "PMML in JSON representation.", required = true) String pmmlString,
+            @ApiParam(value = "title") @FormParam("title") String title,
+            @ApiParam(value = "description") @FormParam("description") String description
     ) throws JaqpotNotAuthorizedException {
         // First check the subjectid:
         if (subjectId == null || !aaService.validate(subjectId)) {
@@ -121,7 +124,13 @@ public class PmmlResource {
             pmml.setId(rog.nextString(10));
         }
         pmml.setCreatedBy(securityContext.getUserPrincipal().getName());
-
+        
+        MetaInfo info = MetaInfoBuilder.builder()
+                .addTitles(title)
+                .addDescriptions(description)
+                .build();
+        pmml.setMeta(info);
+        
         pmmlHandler.create(pmml);
         return Response
                 .ok(pmml)
@@ -152,8 +161,8 @@ public class PmmlResource {
             throw new NotFoundException("PMML with ID " + id + " not found.");
         }
         // get the Accept header to judge how to format the PMML (JSON or XML)
-        String accept = httpHeaders.getRequestHeader("Accept").stream().findFirst().orElse(null);        
-        if (accept!=null && ("application/xml".equals(accept) || "text/xml".equals(accept))) {
+        String accept = httpHeaders.getRequestHeader("Accept").stream().findFirst().orElse(null);
+        if (accept != null && ("application/xml".equals(accept) || "text/xml".equals(accept))) {
             return Response.ok(retrievedPmml.getPmml(), accept).build();
         } else {
             return Response.ok(retrievedPmml).build();
