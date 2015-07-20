@@ -65,10 +65,10 @@ public class ModelHandler extends AbstractHandler<Model> {
 
         List<String> fields = new ArrayList<>();
         fields.add("_id");
-        fields.add("pmmlModel");        
+        fields.add("pmmlModel");
         return em.find(Model.class, keys, fields).stream().findFirst().orElse(null);
     }
-    
+
     public Model findModelMeta(String id) {
         List<String> keys = new ArrayList<>();
         keys.add(id);
@@ -86,37 +86,37 @@ public class ModelHandler extends AbstractHandler<Model> {
         fields.add("doaModel");
         fields.add("transformationModels");
         fields.add("linkedModels");
-        
+
         return em.find(Model.class, keys, fields).stream().findFirst().orElse(null);
     }
-    
-     public Model findModelPredictedFeatures(String id) {
+
+    public Model findModelPredictedFeatures(String id) {
         List<String> keys = new ArrayList<>();
         keys.add(id);
 
         List<String> fields = new ArrayList<>();
         fields.add("_id");
-        fields.add("predictedFeatures");       
+        fields.add("predictedFeatures");
         return em.find(Model.class, keys, fields).stream().findFirst().orElse(null);
     }
-     
-     public Model findModelIndependentFeatures(String id) {
+
+    public Model findModelIndependentFeatures(String id) {
         List<String> keys = new ArrayList<>();
         keys.add(id);
 
         List<String> fields = new ArrayList<>();
         fields.add("_id");
-        fields.add("independentFeatures");       
+        fields.add("independentFeatures");
         return em.find(Model.class, keys, fields).stream().findFirst().orElse(null);
     }
-     
-      public Model findModelDependentFeatures(String id) {
+
+    public Model findModelDependentFeatures(String id) {
         List<String> keys = new ArrayList<>();
         keys.add(id);
 
         List<String> fields = new ArrayList<>();
         fields.add("_id");
-        fields.add("dependentFeatures");       
+        fields.add("dependentFeatures");
         return em.find(Model.class, keys, fields).stream().findFirst().orElse(null);
     }
 
@@ -133,14 +133,15 @@ public class ModelHandler extends AbstractHandler<Model> {
         fields.add("parameters");
 
         return em.findAll(Model.class, fields, 0, Integer.MAX_VALUE);
-    }    
-    
+    }
+
     public Model findModel(String id) {
         List<String> keys = new ArrayList<>();
         keys.add(id);
 
         List<String> fields = new ArrayList<>();
         fields.add("_id");
+        fields.add("meta");
         fields.add("createdBy");
         fields.add("dependentFeatures");
         fields.add("independentFeatures");
@@ -155,11 +156,11 @@ public class ModelHandler extends AbstractHandler<Model> {
 
         return em.find(Model.class, keys, fields).stream().findFirst().orElse(null);
     }
-    
+
     public Long countByUser(String userName) {
         Map<String, Object> properties = new HashMap<>();
         properties.put("createdBy", userName);
         return em.count(Model.class, properties);
     }
-    
+
 }
