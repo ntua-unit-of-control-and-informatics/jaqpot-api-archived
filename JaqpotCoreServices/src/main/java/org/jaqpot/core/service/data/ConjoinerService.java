@@ -153,13 +153,13 @@ public class ConjoinerService {
         Dataset dataset = new Dataset();
         List<DataEntry> dataEntries = new ArrayList<>();
 
-        for (Substance s : substances.getSubstance()) {
-            Studies studies = client.target(s.getURI() + "/study")
+        for (Substance substance : substances.getSubstance()) {
+            Studies studies = client.target(substance.getURI() + "/study")
                     .request()
                     .accept(MediaType.APPLICATION_JSON)
                     .header("subjectid", subjectId)
                     .get(Studies.class);
-            DataEntry dataEntry = createDataEntry(studies, properties.getFeature().keySet(), remoteServerBase, subjectId, descriptors);
+            DataEntry dataEntry = createDataEntry(substance, studies, properties.getFeature().keySet(), remoteServerBase, subjectId, descriptors);
             dataEntries.add(dataEntry);
         }
 
@@ -179,13 +179,10 @@ public class ConjoinerService {
     }
 
     //TODO: Handle multiple effects that map to the same property
-    public DataEntry createDataEntry(Studies studies, Set<String> propertyCategories, String remoteServerBase, String subjectId, Set<String> descriptors) {
+    public DataEntry createDataEntry(Substance substance, Studies studies, Set<String> propertyCategories, String remoteServerBase, String subjectId, Set<String> descriptors) {
         DataEntry dataEntry = new DataEntry();
-        Substance compound = new Substance();
         TreeMap<String, Object> values = new TreeMap<>();
         for (Study study : studies.getStudy()) {
-            compound.setURI(study.getOwner().getSubstance().getUuid());
-
             //Checks if the protocol category is present in the selection Set
             String code = study.getProtocol().getCategory().getCode();
             if (!propertyCategories.stream().filter(c -> c.contains(code)).findAny().isPresent()) {
@@ -273,7 +270,7 @@ public class ConjoinerService {
                 values.put(remoteServerBase + propertyURIJoiner.toString(), value);
             }
         }
-        dataEntry.setCompound(compound);
+        dataEntry.setCompound(substance);
         dataEntry.setValues(values);
 
         return dataEntry;
