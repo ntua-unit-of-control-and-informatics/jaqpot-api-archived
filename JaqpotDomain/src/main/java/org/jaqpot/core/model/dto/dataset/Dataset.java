@@ -31,6 +31,7 @@ package org.jaqpot.core.model.dto.dataset;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.List;
+import java.util.Map;
 import javax.xml.bind.annotation.XmlRootElement;
 import org.jaqpot.core.model.JaqpotEntity;
 
@@ -48,6 +49,8 @@ public class Dataset extends JaqpotEntity {
 
     List<DataEntry> dataEntry;
 
+    Map<String, String> features;
+
     public String getDatasetURI() {
         return datasetURI;
     }
@@ -62,6 +65,14 @@ public class Dataset extends JaqpotEntity {
 
     public void setDataEntry(List<DataEntry> dataEntry) {
         this.dataEntry = dataEntry;
+    }
+
+    public Map<String, String> getFeatures() {
+        return features;
+    }
+
+    public void setFeatures(Map<String, String> features) {
+        this.features = features;
     }
 
     @Override

@@ -44,6 +44,7 @@ import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -117,6 +118,8 @@ public class ConjoinerService {
 
     private ResourceBundle configResourceBundle;
 
+    private Map<String, String> featureMap;
+
     @PostConstruct
     private void init() {
         configResourceBundle = ResourceBundle.getBundle("config");
@@ -153,6 +156,8 @@ public class ConjoinerService {
         Dataset dataset = new Dataset();
         List<DataEntry> dataEntries = new ArrayList<>();
 
+        featureMap = new HashMap<>();
+
         for (Substance substance : substances.getSubstance()) {
             Studies studies = client.target(substance.getURI() + "/study")
                     .request()
@@ -162,6 +167,8 @@ public class ConjoinerService {
             DataEntry dataEntry = createDataEntry(substance, studies, properties.getFeature().keySet(), remoteServerBase, subjectId, descriptors);
             dataEntries.add(dataEntry);
         }
+
+        dataset.setFeatures(featureMap);
 
         ROG rog = new ROG(true);
         dataset.setId(rog.nextString(12));
@@ -268,6 +275,7 @@ public class ConjoinerService {
                     continue;
                 }
                 values.put(remoteServerBase + propertyURIJoiner.toString(), value);
+                featureMap.put(propertyURIJoiner.toString(), name);
             }
         }
         dataEntry.setCompound(substance);
@@ -338,6 +346,7 @@ public class ConjoinerService {
                 propertyURIJoiner.add(entry.getKey());
                 Object protValue = entry.getValue().getLoValue();
                 values.put(remoteServerBase + propertyURIJoiner.toString(), protValue);
+                featureMap.put(propertyURIJoiner.toString(), entry.getKey());
             });
         });
         return values;
