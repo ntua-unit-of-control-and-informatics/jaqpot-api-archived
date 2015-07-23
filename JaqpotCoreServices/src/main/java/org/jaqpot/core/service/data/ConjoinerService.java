@@ -231,6 +231,8 @@ public class ConjoinerService {
                                     Number value = Double.parseDouble((String) entry.getValue());
                                     values.put(configResourceBundle.getString("ServerBasePath")
                                             + "feature/" + f.getId(), value);
+                                    featureMap.put(configResourceBundle.getString("ServerBasePath")
+                                            + "feature/" + f.getId(), entry.getKey());
                                 } catch (NumberFormatException ex) {
                                     continue;
                                 }
