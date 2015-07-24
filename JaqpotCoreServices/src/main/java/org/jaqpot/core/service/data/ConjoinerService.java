@@ -156,7 +156,7 @@ public class ConjoinerService {
         Dataset dataset = new Dataset();
         List<DataEntry> dataEntries = new ArrayList<>();
 
-        featureMap = new HashMap<>();
+        featureMap = new TreeMap<>();
 
         for (Substance substance : substances.getSubstance()) {
             Studies studies = client.target(substance.getURI() + "/study")
