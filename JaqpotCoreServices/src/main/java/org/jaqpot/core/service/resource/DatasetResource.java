@@ -104,10 +104,10 @@ public class DatasetResource {
             notes = "Finds specified Dataset",
             response = Dataset.class)
     public Response getPartialDataset(@PathParam("id") String id,
-            @FormParam("rowStart") Integer rowStart,
-            @FormParam("rowMax") Integer rowMax,
-            @FormParam("colStart") Integer colStart,
-            @FormParam("colMax") Integer colMax) {
+            @QueryParam("rowStart") Integer rowStart,
+            @QueryParam("rowMax") Integer rowMax,
+            @QueryParam("colStart") Integer colStart,
+            @QueryParam("colMax") Integer colMax) {
         Dataset dataset = datasetHandler.find(id, rowStart, rowMax, colStart, colMax);
         if (dataset == null) {
             throw new NotFoundException("Could not find Dataset with id:" + id);
