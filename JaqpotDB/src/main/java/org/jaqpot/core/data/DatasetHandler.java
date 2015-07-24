@@ -14,6 +14,7 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 import org.jaqpot.core.annotations.MongoDB;
 import org.jaqpot.core.db.entitymanager.JaqpotEntityManager;
+import org.jaqpot.core.model.dto.dataset.DataEntry;
 import org.jaqpot.core.model.dto.dataset.Dataset;
 
 /**
@@ -59,6 +60,10 @@ public class DatasetHandler extends AbstractHandler<Dataset> {
             }
 
         });
+
+        DataEntry blank = new DataEntry();
+        blank.setValues(new TreeMap<>());
+        dataset.getFeatures().keySet().retainAll(dataset.getDataEntry().stream().findFirst().orElse(blank).getValues().keySet());
 
         return dataset;
     }
