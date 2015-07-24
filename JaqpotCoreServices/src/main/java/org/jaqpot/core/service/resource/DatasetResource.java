@@ -35,6 +35,7 @@ import com.wordnik.swagger.annotations.ApiParam;
 import com.wordnik.swagger.annotations.ApiResponse;
 import com.wordnik.swagger.annotations.ApiResponses;
 import javax.ejb.EJB;
+import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.Path;
@@ -94,6 +95,24 @@ public class DatasetResource {
             responseBuilder.header("Warning", "P670 Parameter max has been limited to 500");
         }
         return responseBuilder.build();
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/{id}/partial")
+    @ApiOperation(value = "Finds Dataset by Id",
+            notes = "Finds specified Dataset",
+            response = Dataset.class)
+    public Response getPartialDataset(@PathParam("id") String id,
+            @FormParam("rowStart") Integer rowStart,
+            @FormParam("rowMax") Integer rowMax,
+            @FormParam("colStart") Integer colStart,
+            @FormParam("colMax") Integer colMax) {
+        Dataset dataset = datasetHandler.find(id, rowStart, rowMax, colStart, colMax);
+        if (dataset == null) {
+            throw new NotFoundException("Could not find Dataset with id:" + id);
+        }
+        return Response.ok(dataset).build();
     }
 
     @GET
