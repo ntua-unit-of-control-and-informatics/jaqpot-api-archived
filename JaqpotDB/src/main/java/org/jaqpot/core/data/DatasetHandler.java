@@ -37,14 +37,9 @@ public class DatasetHandler extends AbstractHandler<Dataset> {
     }
 
     public Dataset find(Object id, Integer rowStart, Integer rowMax, Integer colStart, Integer colMax) {
+        Dataset dataset = em.find(Dataset.class, id);
 
-        Map<String, Object> properties = new HashMap<>();
-
-        Map<String, Object> rows = new HashMap<>();
-        rows.put("$slice", new int[]{rowStart, rowMax});
-        properties.put("dataEntry", rows);
-
-        Dataset dataset = em.find(Dataset.class, id, properties);
+        dataset.setDataEntry(dataset.getDataEntry().subList(rowStart, rowStart + rowMax));
 
         dataset.getDataEntry().forEach(de -> {
             TreeMap<String, Object> values = (TreeMap) de.getValues();
