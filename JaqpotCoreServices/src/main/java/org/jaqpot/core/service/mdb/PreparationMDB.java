@@ -124,7 +124,7 @@ public class PreparationMDB extends RunningTaskMDB {
             String bundleUri = (String) messageBody.get("bundle_uri");
             String subjectId = (String) messageBody.get("subjectid");
             String descriptors = (String) messageBody.get("descriptors");
-            Set descriptorSet = serializer.parse(subjectId, Set.class);
+            Set descriptorSet = serializer.parse(descriptors, Set.class);
 
             task.getMeta().getComments().add("Starting Dataset preparation...");
             task.setPercentageCompleted(6.0f);

@@ -61,10 +61,11 @@ public class DatasetHandler extends AbstractHandler<Dataset> {
 
         });
 
-        DataEntry blank = new DataEntry();
-        blank.setValues(new TreeMap<>());
-        dataset.getFeatures().keySet().retainAll(dataset.getDataEntry().stream().findFirst().orElse(blank).getValues().keySet());
-
+//        DataEntry blank = new DataEntry();
+//        blank.setValues(new TreeMap<>());
+//        DataEntry firstEntry = dataset.getDataEntry().stream().findFirst().orElse(blank);
+//        dataset.getFeatures().keySet().retainAll(firstEntry.getValues().keySet());                
+        
         return dataset;
     }
 
