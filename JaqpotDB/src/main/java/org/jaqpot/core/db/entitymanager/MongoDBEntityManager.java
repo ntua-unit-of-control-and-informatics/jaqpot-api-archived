@@ -170,6 +170,16 @@ public class MongoDBEntityManager implements JaqpotEntityManager {
     }
 
     @Override
+    public <T extends JaqpotEntity> T find(Class<T> entityClass, Object primaryKey, Map<String, Object> properties) {
+        MongoDatabase db = mongoClient.getDatabase(database);
+        MongoCollection<Document> collection = db.getCollection(collectionNames.get(entityClass));
+        properties.put("_id", primaryKey);
+        Document document = new Document(properties);
+        Document retrieved = collection.find(document).first();
+        return serializer.parse(JSON.serialize(retrieved), entityClass);
+    }
+
+    @Override
     public <T extends JaqpotEntity> List<T> find(Class<T> entityClass, Map<String, Object> properties, Integer start, Integer max) {
         MongoDatabase db = mongoClient.getDatabase(database);
         MongoCollection<Document> collection = db.getCollection(collectionNames.get(entityClass));

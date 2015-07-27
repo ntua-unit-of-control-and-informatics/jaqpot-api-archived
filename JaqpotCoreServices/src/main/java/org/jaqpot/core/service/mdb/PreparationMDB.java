@@ -29,7 +29,9 @@
  */
 package org.jaqpot.core.service.mdb;
 
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Resource;
@@ -43,8 +45,10 @@ import javax.jms.Message;
 import javax.jms.Topic;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.client.Client;
+import org.jaqpot.core.annotations.Jackson;
 import org.jaqpot.core.data.DatasetHandler;
 import org.jaqpot.core.data.TaskHandler;
+import org.jaqpot.core.data.serialize.JSONSerializer;
 import org.jaqpot.core.model.MetaInfo;
 import org.jaqpot.core.model.Task;
 import org.jaqpot.core.model.builder.MetaInfoBuilder;
@@ -93,6 +97,10 @@ public class PreparationMDB extends RunningTaskMDB {
     @UnSecure
     Client client;
 
+    @Inject
+    @Jackson
+    JSONSerializer serializer;
+
     @Override
     public void onMessage(Message msg) {
 
@@ -115,11 +123,13 @@ public class PreparationMDB extends RunningTaskMDB {
 
             String bundleUri = (String) messageBody.get("bundle_uri");
             String subjectId = (String) messageBody.get("subjectid");
+            String descriptors = (String) messageBody.get("descriptors");
+            Set descriptorSet = serializer.parse(descriptors, Set.class);
 
             task.getMeta().getComments().add("Starting Dataset preparation...");
             task.setPercentageCompleted(6.0f);
             taskHandler.edit(task);
-            Dataset dataset = conjoinerService.prepareDataset(bundleUri, subjectId);
+            Dataset dataset = conjoinerService.prepareDataset(bundleUri, subjectId, descriptorSet);
 
             task.getMeta().getComments().add("Dataset ready.");
             task.getMeta().getComments().add("Saving to database...");

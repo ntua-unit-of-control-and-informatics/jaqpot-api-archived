@@ -44,6 +44,7 @@ import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -117,6 +118,8 @@ public class ConjoinerService {
 
     private ResourceBundle configResourceBundle;
 
+    private Map<String, String> featureMap;
+
     @PostConstruct
     private void init() {
         configResourceBundle = ResourceBundle.getBundle("config");
@@ -135,7 +138,7 @@ public class ConjoinerService {
         return task;
     }
 
-    public Dataset prepareDataset(String bundleURI, String subjectId) {
+    public Dataset prepareDataset(String bundleURI, String subjectId, Set<String> descriptors) {
 
         String remoteServerBase = bundleURI.split("bundle")[0];
 
@@ -153,15 +156,19 @@ public class ConjoinerService {
         Dataset dataset = new Dataset();
         List<DataEntry> dataEntries = new ArrayList<>();
 
-        for (Substance s : substances.getSubstance()) {
-            Studies studies = client.target(s.getURI() + "/study")
+        featureMap = new TreeMap<>();
+
+        for (Substance substance : substances.getSubstance()) {
+            Studies studies = client.target(substance.getURI() + "/study")
                     .request()
                     .accept(MediaType.APPLICATION_JSON)
                     .header("subjectid", subjectId)
                     .get(Studies.class);
-            DataEntry dataEntry = createDataEntry(studies, properties.getFeature().keySet(), remoteServerBase, subjectId);
+            DataEntry dataEntry = createDataEntry(substance, studies, properties.getFeature().keySet(), remoteServerBase, subjectId, descriptors);
             dataEntries.add(dataEntry);
         }
+
+        dataset.setFeatures(featureMap);
 
         ROG rog = new ROG(true);
         dataset.setId(rog.nextString(12));
@@ -179,13 +186,10 @@ public class ConjoinerService {
     }
 
     //TODO: Handle multiple effects that map to the same property
-    public DataEntry createDataEntry(Studies studies, Set<String> propertyCategories, String remoteServerBase, String subjectId) {
+    public DataEntry createDataEntry(Substance substance, Studies studies, Set<String> propertyCategories, String remoteServerBase, String subjectId, Set<String> descriptors) {
         DataEntry dataEntry = new DataEntry();
-        Substance compound = new Substance();
         TreeMap<String, Object> values = new TreeMap<>();
         for (Study study : studies.getStudy()) {
-            compound.setURI(study.getOwner().getSubstance().getUuid());
-
             //Checks if the protocol category is present in the selection Set
             String code = study.getProtocol().getCategory().getCode();
             if (!propertyCategories.stream().filter(c -> c.contains(code)).findAny().isPresent()) {
@@ -201,6 +205,9 @@ public class ConjoinerService {
             //Parses each effect of the study as a different property
             for (Effect effect : study.getEffects()) {
                 if (effect.getEndpoint().equals("IMAGE")) {
+                    if (!descriptors.contains("IMAGE")) {
+                        continue;
+                    }
                     Response response = client.target(configResourceBundle.getString("ImageBasePath") + "analyze")
                             .request()
                             .accept(MediaType.APPLICATION_JSON)
@@ -224,6 +231,7 @@ public class ConjoinerService {
                                     Number value = Double.parseDouble((String) entry.getValue());
                                     values.put(configResourceBundle.getString("ServerBasePath")
                                             + "feature/" + f.getId(), value);
+                                    featureMap.put("feature/" + f.getId(), entry.getKey());
                                 } catch (NumberFormatException ex) {
                                     continue;
                                 }
@@ -234,6 +242,9 @@ public class ConjoinerService {
                     }
                     continue;
                 } else if (effect.getEndpoint().equals("PDB_CRYSTAL_STRUCTURE")) {
+                    if (!descriptors.contains("MOPAC")) {
+                        continue;
+                    }
                     try {
                         URI pdbUri = new URI(effect.getResult().getTextValue());
                     } catch (URISyntaxException ex) {
@@ -249,6 +260,7 @@ public class ConjoinerService {
                     Map<String, Object> mopacDescriptors = response.readEntity(type);
                     response.close();
                     values.putAll(mopacDescriptors);
+                    continue;
                 }
                 String name = effect.getEndpoint();
                 String units = effect.getResult().getUnit();
@@ -264,9 +276,10 @@ public class ConjoinerService {
                     continue;
                 }
                 values.put(remoteServerBase + propertyURIJoiner.toString(), value);
+                featureMap.put(propertyURIJoiner.toString(), name);
             }
         }
-        dataEntry.setCompound(compound);
+        dataEntry.setCompound(substance);
         dataEntry.setValues(values);
 
         return dataEntry;
@@ -334,6 +347,7 @@ public class ConjoinerService {
                 propertyURIJoiner.add(entry.getKey());
                 Object protValue = entry.getValue().getLoValue();
                 values.put(remoteServerBase + propertyURIJoiner.toString(), protValue);
+                featureMap.put(propertyURIJoiner.toString(), entry.getKey());
             });
         });
         return values;

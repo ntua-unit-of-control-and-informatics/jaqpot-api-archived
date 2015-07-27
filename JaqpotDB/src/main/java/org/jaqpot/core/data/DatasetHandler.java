@@ -5,10 +5,16 @@
  */
 package org.jaqpot.core.data;
 
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.NavigableSet;
+import java.util.TreeMap;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import org.jaqpot.core.annotations.MongoDB;
 import org.jaqpot.core.db.entitymanager.JaqpotEntityManager;
+import org.jaqpot.core.model.dto.dataset.DataEntry;
 import org.jaqpot.core.model.dto.dataset.Dataset;
 
 /**
@@ -29,6 +35,38 @@ public class DatasetHandler extends AbstractHandler<Dataset> {
     @Override
     protected JaqpotEntityManager getEntityManager() {
         return em;
+    }
+
+    public Dataset find(Object id, Integer rowStart, Integer rowMax, Integer colStart, Integer colMax) {
+        Dataset dataset = em.find(Dataset.class, id);
+
+        dataset.setDataEntry(dataset.getDataEntry().subList(rowStart, rowStart + rowMax));
+
+        dataset.getDataEntry().forEach(de -> {
+            TreeMap<String, Object> values = (TreeMap) de.getValues();
+            NavigableSet<String> valuesSet = values.navigableKeySet();
+
+            Iterator<String> it = valuesSet.iterator();
+            for (int i = 0; i < colStart; i++) {
+                it.next();
+                it.remove();
+            }
+            for (int i = 0; i < colMax; i++) {
+                it.next();
+            }
+            while (it.hasNext()) {
+                it.next();
+                it.remove();
+            }
+
+        });
+
+//        DataEntry blank = new DataEntry();
+//        blank.setValues(new TreeMap<>());
+//        DataEntry firstEntry = dataset.getDataEntry().stream().findFirst().orElse(blank);
+//        dataset.getFeatures().keySet().retainAll(firstEntry.getValues().keySet());                
+        
+        return dataset;
     }
 
 }

@@ -55,17 +55,17 @@ public class ConjoinerServiceTest {
      */
     //@Test
     public void testPrepareDataset() throws Exception {
-        System.out.println("prepareDataset");
-        String bundleURI = "";
-        String subjectId = "";
-        EJBContainer container = javax.ejb.embeddable.EJBContainer.createEJBContainer();
-        ConjoinerService instance = (ConjoinerService)container.getContext().lookup("java:global/classes/ConjoinerService");
-        Dataset expResult = null;
-        Dataset result = instance.prepareDataset(bundleURI, subjectId);
-        assertEquals(expResult, result);
-        container.close();
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+//        System.out.println("prepareDataset");
+//        String bundleURI = "";
+//        String subjectId = "";
+//        EJBContainer container = javax.ejb.embeddable.EJBContainer.createEJBContainer();
+//        ConjoinerService instance = (ConjoinerService)container.getContext().lookup("java:global/classes/ConjoinerService");
+//        Dataset expResult = null;
+//        Dataset result = instance.prepareDataset(bundleURI, subjectId);
+//        assertEquals(expResult, result);
+//        container.close();
+//        // TODO review the generated test code and remove the default call to fail.
+//        fail("The test case is a prototype.");
     }
 
     /**

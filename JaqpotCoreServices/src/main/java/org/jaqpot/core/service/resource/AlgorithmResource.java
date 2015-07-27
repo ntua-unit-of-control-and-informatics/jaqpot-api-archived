@@ -42,17 +42,11 @@ import com.wordnik.swagger.annotations.ApiParam;
 import com.wordnik.swagger.annotations.ApiResponse;
 import com.wordnik.swagger.annotations.ApiResponses;
 import com.wordnik.swagger.jaxrs.PATCH;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
@@ -241,6 +235,8 @@ public class AlgorithmResource {
             response = Task.class
     )
     public Response trainModel(
+            @ApiParam(name = "title") @FormParam("title") String title,
+            @ApiParam(name = "description") @FormParam("description") String description,
             @ApiParam(name = "dataset_uri", defaultValue = DEFAULT_DATASET) @FormParam("dataset_uri") String datasetURI,
             @ApiParam(name = "prediction_feature", defaultValue = DEFAULT_PRED_FEATURE) @FormParam("prediction_feature") String predictionFeature,
             @FormParam("parameters") String parameters,
@@ -250,14 +246,14 @@ public class AlgorithmResource {
             @PathParam("id") String algorithmId,
             @HeaderParam("subjectid") String subjectId) {
         Map<String, Object> options = new HashMap<>();
+        options.put("title", title);
+        options.put("description", description);
         options.put("dataset_uri", datasetURI);
         options.put("prediction_feature", predictionFeature);
         options.put("subjectid", subjectId);
         options.put("algorithmId", algorithmId);
         options.put("parameters", parameters);
-//        options.put("transformations", transformations);
         options.put("base_uri", uriInfo.getBaseUri().toString());
-//        options.put("doa", doa);
         options.put("createdBy", securityContext.getUserPrincipal().getName());
 
         Map<String, String> transformationAlgorithms = new LinkedHashMap<>();

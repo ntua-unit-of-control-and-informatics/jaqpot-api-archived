@@ -42,6 +42,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class Substance {
 
     String URI;
+    String name;
 
     @JsonProperty("URI")
     public String getURI() {
@@ -51,6 +52,14 @@ public class Substance {
     @JsonProperty("URI")
     public void setURI(String URI) {
         this.URI = URI;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     @Override

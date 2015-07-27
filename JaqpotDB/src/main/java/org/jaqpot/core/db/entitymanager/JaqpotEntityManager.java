@@ -185,4 +185,5 @@ public interface JaqpotEntityManager extends Closeable {
      */
     public <T extends JaqpotEntity> Long countAll(Class<T> entityClass);
 
+    public <T extends JaqpotEntity> T find(Class<T> entityClass, Object primaryKey, Map<String, Object> properties);
 }
