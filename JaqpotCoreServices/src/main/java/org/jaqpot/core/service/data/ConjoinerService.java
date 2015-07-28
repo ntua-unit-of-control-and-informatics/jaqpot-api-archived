@@ -44,7 +44,6 @@ import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -53,8 +52,6 @@ import java.util.Set;
 import java.util.StringJoiner;
 import java.util.TreeMap;
 import java.util.UUID;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.ejb.EJB;
@@ -180,6 +177,9 @@ public class ConjoinerService {
                 de.getValues().keySet().retainAll(e.getValues().keySet());
             });
         });
+
+        dataset.setTotalRows(dataset.getDataEntry().size());
+        dataset.setTotalColumns(dataset.getDataEntry().stream().findFirst().get().getValues().size());
 
         return dataset;
 
