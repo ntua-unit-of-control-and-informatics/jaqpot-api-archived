@@ -80,7 +80,8 @@ public class DatasetResource {
     public Response listDatasets(
             @ApiParam(value = "start", defaultValue = "0") @QueryParam("start") Integer start,
             @ApiParam(value = "max - the server imposes an upper limit of 500 on this "
-                    + "parameter.", defaultValue = "10") @QueryParam("max") Integer max
+                    + "parameter.", defaultValue = "10") @QueryParam("max") Integer max,
+            @ApiParam(value = "creator") @QueryParam("creator") String creator
     ) {
         start = start != null ? start : 0;
         boolean doWarnMax = false;
@@ -89,12 +90,20 @@ public class DatasetResource {
             doWarnMax = true;
         }
         Response.ResponseBuilder responseBuilder = Response
-                .ok(datasetHandler.listOnlyIDs(start, max))
+                .ok(datasetHandler.listOnlyIDsOfCreator(creator, start, max))
                 .status(Response.Status.OK);
         if (doWarnMax) {
             responseBuilder.header("Warning", "P670 Parameter max has been limited to 500");
         }
         return responseBuilder.build();
+    }
+
+    @GET
+    @Path("/count")
+    @Produces(MediaType.TEXT_PLAIN)
+    @ApiOperation("Counts all datasets")
+    public Response countDatasets(@QueryParam("createdBy") String createdBy) {
+        return Response.ok(datasetHandler.countAllOfCreator(createdBy)).build();
     }
 
     @GET

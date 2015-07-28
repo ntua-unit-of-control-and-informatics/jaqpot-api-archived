@@ -105,4 +105,11 @@ public abstract class AbstractHandler<T extends JaqpotEntity> {
         return getEntityManager().countAll(entityClass);
     }
 
+    public Long countAllOfCreator(String createdBy) {
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("createdBt", createdBy);
+
+        return getEntityManager().count(entityClass, properties);
+    }
+
 }
