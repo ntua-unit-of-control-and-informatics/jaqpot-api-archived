@@ -69,27 +69,6 @@ public class ModelHandler extends AbstractHandler<Model> {
         return em.find(Model.class, keys, fields).stream().findFirst().orElse(null);
     }
 
-    public Model findModelMeta(String id) {
-        List<String> keys = new ArrayList<>();
-        keys.add(id);
-
-        List<String> fields = new ArrayList<>();
-        fields.add("_id");
-        fields.add("createdBy");
-        fields.add("dependentFeatures");
-        fields.add("independentFeatures");
-        fields.add("predictedFeatures");
-        fields.add("algorithm");
-        fields.add("bibtex");
-        fields.add("datasetUri");
-        fields.add("parameters");
-        fields.add("doaModel");
-        fields.add("transformationModels");
-        fields.add("linkedModels");
-
-        return em.find(Model.class, keys, fields).stream().findFirst().orElse(null);
-    }
-
     public Model findModelPredictedFeatures(String id) {
         List<String> keys = new ArrayList<>();
         keys.add(id);
@@ -155,12 +134,6 @@ public class ModelHandler extends AbstractHandler<Model> {
         fields.add("linkedModels");
 
         return em.find(Model.class, keys, fields).stream().findFirst().orElse(null);
-    }
-
-    public Long countByUser(String userName) {
-        Map<String, Object> properties = new HashMap<>();
-        properties.put("createdBy", userName);
-        return em.count(Model.class, properties);
     }
 
 }

@@ -96,7 +96,7 @@ public abstract class AbstractHandler<T extends JaqpotEntity> {
         fields.add("ontologicalClasses");
 
         Map<String, Object> properties = new HashMap<>();
-        properties.put("createdBy", createdBy);
+        properties.put("creators", createdBy);
 
         return getEntityManager().find(entityClass, properties, fields, start, max);
     }
@@ -107,7 +107,7 @@ public abstract class AbstractHandler<T extends JaqpotEntity> {
 
     public Long countAllOfCreator(String createdBy) {
         Map<String, Object> properties = new HashMap<>();
-        properties.put("createdBt", createdBy);
+        properties.put("creators", createdBy);
 
         return getEntityManager().count(entityClass, properties);
     }

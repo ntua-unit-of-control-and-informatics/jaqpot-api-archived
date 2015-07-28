@@ -60,12 +60,12 @@ public class QuotaService {
 
     @EJB
     AlgorithmHandler algorithmHandler;
-    
+
     @EJB
     ModelHandler modelHandler;
 
     @EJB
-    BibTeXHandler bibtexHandler;    
+    BibTeXHandler bibtexHandler;
 
     public UserQuota getUserQuota(String userId) {
         UserQuota userQuota = new UserQuota();
@@ -73,8 +73,8 @@ public class QuotaService {
         userQuota.setAlgorithms(algorithmHandler.countByUser(userId));
         userQuota.setTasks(taskHandler.countByUser(userId));
         userQuota.setTasksRunning(taskHandler.countByUserAndStatus(userId, Task.Status.RUNNING));
-        userQuota.setModels(modelHandler.countByUser(userId));        
-        userQuota.setBibtex(bibtexHandler.countByUser(userId));    
+        userQuota.setModels(modelHandler.countAllOfCreator(userId));
+        userQuota.setBibtex(bibtexHandler.countAllOfCreator(userId));
         return userQuota;
     }
 
