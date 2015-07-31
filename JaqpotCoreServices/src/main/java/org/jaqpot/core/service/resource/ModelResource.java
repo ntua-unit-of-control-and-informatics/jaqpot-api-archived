@@ -113,7 +113,15 @@ public class ModelResource {
         if (max == null || max > 500) {
             max = 500;
         }
-        return Response.ok(modelHandler.listOnlyIDs(start != null ? start : 0, max)).build();
+        return Response.ok(modelHandler.listOnlyIDsOfCreator(creator, start != null ? start : 0, max)).build();
+    }
+
+    @GET
+    @Path("/count")
+    @Produces(MediaType.TEXT_PLAIN)
+    @ApiOperation(value = "Count all Models", response = Long.class)
+    public Response countModels(@QueryParam("creator") String creator) {
+        return Response.ok(modelHandler.countAllOfCreator(creator)).build();
     }
 
     @GET

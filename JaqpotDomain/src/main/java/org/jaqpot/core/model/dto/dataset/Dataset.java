@@ -51,6 +51,9 @@ public class Dataset extends JaqpotEntity {
 
     Map<String, String> features;
 
+    Integer totalRows;
+    Integer totalColumns;
+
     public String getDatasetURI() {
         return datasetURI;
     }
@@ -73,6 +76,22 @@ public class Dataset extends JaqpotEntity {
 
     public void setFeatures(Map<String, String> features) {
         this.features = features;
+    }
+
+    public Integer getTotalRows() {
+        return totalRows;
+    }
+
+    public void setTotalRows(Integer totalRows) {
+        this.totalRows = totalRows;
+    }
+
+    public Integer getTotalColumns() {
+        return totalColumns;
+    }
+
+    public void setTotalColumns(Integer totalColumns) {
+        this.totalColumns = totalColumns;
     }
 
     @Override
