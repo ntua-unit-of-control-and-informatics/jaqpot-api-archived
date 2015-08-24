@@ -38,6 +38,7 @@ import com.google.common.base.Charsets;
 import com.google.common.hash.HashCode;
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -59,6 +60,9 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.jms.JMSContext;
 import javax.jms.Topic;
+import javax.json.Json;
+import javax.json.JsonObject;
+import javax.json.JsonReader;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Form;
@@ -260,6 +264,19 @@ public class ConjoinerService {
                     Map<String, Object> mopacDescriptors = response.readEntity(type);
                     response.close();
                     values.putAll(mopacDescriptors);
+                    mopacDescriptors.keySet().forEach((key) -> {
+                        Response featureResponse = client.target(key)
+                                .request()
+                                .accept(MediaType.APPLICATION_JSON)
+                                .header("subjectid", subjectId)
+                                .get();
+                        String featureTitle = Json.createReader(featureResponse.readEntity(InputStream.class))
+                                .readObject()
+                                .getJsonObject("feature")
+                                .getJsonObject(key)
+                                .getString("title");
+                        featureMap.put(key.split("feature")[1], featureTitle);
+                    });
                     continue;
                 }
                 String name = effect.getEndpoint();
