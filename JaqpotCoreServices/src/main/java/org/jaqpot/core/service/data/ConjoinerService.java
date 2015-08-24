@@ -275,7 +275,7 @@ public class ConjoinerService {
                                 .getJsonObject("feature")
                                 .getJsonObject(key)
                                 .getString("title");
-                        featureMap.put(key.split("feature")[1], featureTitle);
+                        featureMap.put("feature" + key.split("feature")[1], featureTitle);
                     });
                     continue;
                 }
