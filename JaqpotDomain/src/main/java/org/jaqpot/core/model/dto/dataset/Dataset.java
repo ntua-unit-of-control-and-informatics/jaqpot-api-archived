@@ -32,6 +32,7 @@ package org.jaqpot.core.model.dto.dataset;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import javax.xml.bind.annotation.XmlRootElement;
 import org.jaqpot.core.model.JaqpotEntity;
 
@@ -45,14 +46,42 @@ import org.jaqpot.core.model.JaqpotEntity;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Dataset extends JaqpotEntity {
 
-    String datasetURI;
+    public enum DescriptorCategory {
 
-    List<DataEntry> dataEntry;
+        EXPERIMENTAL("Experimental data", "Nanomaterial properties derived from experiments"),
+        IMAGE("ImageAnalysis descriptors", "Descriptors derived from analyzing substance images by the ImageAnalysis software."),
+        GO("GO descriptors", "Descriptors derived by proteomics data."),
+        MOPAC("Mopac descriptors", "Descriptors derived by crystallographic data."),
+        CDK("CDK descriptors", "Descriptors derived from cdk software.");
 
-    Map<String, String> features;
+        private final String name;
+        private final String description;
 
-    Integer totalRows;
-    Integer totalColumns;
+        private DescriptorCategory(String name, String description) {
+            this.name = name;
+            this.description = description;
+        }
+
+        public String getName() {
+            return this.name;
+        }
+
+        public String getDescription() {
+            return this.description;
+        }
+
+    }
+
+    private String datasetURI;
+
+    private List<DataEntry> dataEntry;
+
+    private Map<String, String> features;
+
+    private Integer totalRows;
+    private Integer totalColumns;
+
+    private Set<DescriptorCategory> descriptors;
 
     public String getDatasetURI() {
         return datasetURI;
@@ -92,6 +121,14 @@ public class Dataset extends JaqpotEntity {
 
     public void setTotalColumns(Integer totalColumns) {
         this.totalColumns = totalColumns;
+    }
+
+    public Set<DescriptorCategory> getDescriptors() {
+        return descriptors;
+    }
+
+    public void setDescriptors(Set<DescriptorCategory> descriptors) {
+        this.descriptors = descriptors;
     }
 
     @Override

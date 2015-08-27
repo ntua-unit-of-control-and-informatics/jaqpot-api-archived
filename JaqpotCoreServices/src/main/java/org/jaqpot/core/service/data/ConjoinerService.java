@@ -45,6 +45,7 @@ import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -121,6 +122,8 @@ public class ConjoinerService {
 
     private Map<String, String> featureMap;
 
+    private Set<Dataset.DescriptorCategory> usedDescriptors;
+
     @PostConstruct
     private void init() {
         configResourceBundle = ResourceBundle.getBundle("config");
@@ -158,6 +161,7 @@ public class ConjoinerService {
         List<DataEntry> dataEntries = new ArrayList<>();
 
         featureMap = new TreeMap<>();
+        usedDescriptors = new HashSet<>();
 
         for (Substance substance : substances.getSubstance()) {
             Studies studies = client.target(substance.getURI() + "/study")
@@ -184,7 +188,7 @@ public class ConjoinerService {
 
         dataset.setTotalRows(dataset.getDataEntry().size());
         dataset.setTotalColumns(dataset.getDataEntry().stream().findFirst().get().getValues().size());
-
+        dataset.setDescriptors(usedDescriptors);
         return dataset;
 
     }
@@ -202,14 +206,18 @@ public class ConjoinerService {
 
             //Parses Proteomics data if study's protocol category is PROTEOMICS_SECTION
             if (study.getProtocol().getCategory().getCode().equals("PROTEOMICS_SECTION")) {
+                if (!descriptors.contains(Dataset.DescriptorCategory.EXPERIMENTAL.name())) {
+                    continue;
+                }
                 values.putAll(parseProteomics(study, remoteServerBase));
+                usedDescriptors.add(Dataset.DescriptorCategory.EXPERIMENTAL);
                 continue;
             }
 
             //Parses each effect of the study as a different property
             for (Effect effect : study.getEffects()) {
                 if (effect.getEndpoint().equals("IMAGE")) {
-                    if (!descriptors.contains("IMAGE")) {
+                    if (!descriptors.contains(Dataset.DescriptorCategory.IMAGE.name())) {
                         continue;
                     }
                     Response response = client.target(configResourceBundle.getString("ImageBasePath") + "analyze")
@@ -225,10 +233,8 @@ public class ConjoinerService {
                             continue;
                         }
                         try {
-
                             for (Entry<String, Object> entry : particle.entrySet()) {
                                 try {
-
                                     String descriptorID = URLEncoder.encode("image average particle " + entry.getKey(), "UTF-8");
                                     Feature f = new Feature();
                                     f.setId(descriptorID);
@@ -243,10 +249,11 @@ public class ConjoinerService {
                         } catch (UnsupportedEncodingException ex) {
                             continue;
                         }
+                        usedDescriptors.add(Dataset.DescriptorCategory.IMAGE);
                     }
                     continue;
                 } else if (effect.getEndpoint().equals("PDB_CRYSTAL_STRUCTURE")) {
-                    if (!descriptors.contains("MOPAC")) {
+                    if (!descriptors.contains(Dataset.DescriptorCategory.MOPAC.name())) {
                         continue;
                     }
                     try {
@@ -277,23 +284,29 @@ public class ConjoinerService {
                                 .getString("title");
                         featureMap.put("feature" + key.split("feature")[1], featureTitle);
                     });
+                    usedDescriptors.add(Dataset.DescriptorCategory.MOPAC);
                     continue;
+                } else {
+                    if (!descriptors.contains(Dataset.DescriptorCategory.EXPERIMENTAL.name())) {
+                        continue;
+                    }
+                    String name = effect.getEndpoint();
+                    String units = effect.getResult().getUnit();
+                    String conditions = serializer.write(effect.getConditions());
+                    String identifier = createHashedIdentifier(name, units, conditions);
+                    String topcategory = study.getProtocol().getTopcategory();
+                    String endpointcategory = study.getProtocol().getCategory().getCode();
+                    List<String> guidelines = study.getProtocol().getGuideline();
+                    String guideline = guidelines == null || guidelines.isEmpty() ? "" : guidelines.get(0);
+                    StringJoiner propertyURIJoiner = getRelativeURI(name, topcategory, endpointcategory, identifier, guideline);
+                    Object value = calculateValue(effect);
+                    if (value == null) {
+                        continue;
+                    }
+                    values.put(remoteServerBase + propertyURIJoiner.toString(), value);
+                    featureMap.put(propertyURIJoiner.toString(), name);
+                    usedDescriptors.add(Dataset.DescriptorCategory.EXPERIMENTAL);
                 }
-                String name = effect.getEndpoint();
-                String units = effect.getResult().getUnit();
-                String conditions = serializer.write(effect.getConditions());
-                String identifier = createHashedIdentifier(name, units, conditions);
-                String topcategory = study.getProtocol().getTopcategory();
-                String endpointcategory = study.getProtocol().getCategory().getCode();
-                List<String> guidelines = study.getProtocol().getGuideline();
-                String guideline = guidelines == null || guidelines.isEmpty() ? "" : guidelines.get(0);
-                StringJoiner propertyURIJoiner = getRelativeURI(name, topcategory, endpointcategory, identifier, guideline);
-                Object value = calculateValue(effect);
-                if (value == null) {
-                    continue;
-                }
-                values.put(remoteServerBase + propertyURIJoiner.toString(), value);
-                featureMap.put(propertyURIJoiner.toString(), name);
             }
         }
         dataEntry.setCompound(substance);

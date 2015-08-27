@@ -66,6 +66,7 @@ import org.jaqpot.core.model.dto.ambit.AmbitTask;
 import org.jaqpot.core.model.dto.ambit.AmbitTaskArray;
 import org.jaqpot.core.model.dto.ambit.ProtocolCategory;
 import org.jaqpot.core.model.dto.bundle.BundleSubstances;
+import org.jaqpot.core.model.dto.dataset.Dataset;
 import org.jaqpot.core.model.factory.ErrorReportFactory;
 import org.jaqpot.core.service.data.ConjoinerService;
 import org.jaqpot.core.service.data.TrainingService;
@@ -442,31 +443,38 @@ public class EnanomapperResource {
     public Response getDescriptorCategories() {
         List<DescriptorCategory> descriptorCategories = new ArrayList<>();
 
-        DescriptorCategory image = new DescriptorCategory();
-        image.setId("IMAGE");
-        image.setName("ImageAnalysis descriptors");
-        image.setDescription("Descriptors derived from analyzing substance images by the ImageAnalysis software.");
+        for (Dataset.DescriptorCategory category : Dataset.DescriptorCategory.values()) {
+            DescriptorCategory cat = new DescriptorCategory();
+            cat.setId(category.name());
+            cat.setName(category.getName());
+            cat.setDescription(category.getDescription());
+            descriptorCategories.add(cat);
+        }
 
-        DescriptorCategory go = new DescriptorCategory();
-        go.setId("GO");
-        go.setName("GO descriptors");
-        go.setDescription("Descriptors derived by proteomics data.");
-
-        DescriptorCategory mopac = new DescriptorCategory();
-        mopac.setId("MOPAC");
-        mopac.setName("Mopac descriptors");
-        mopac.setDescription("Descriptors derived by crystallographic data.");
-
-        DescriptorCategory cdk = new DescriptorCategory();
-        cdk.setId("CDK");
-        cdk.setName("CDK descriptors");
-        cdk.setDescription("Descriptors derived from cdk software.");
-
-        descriptorCategories.add(image);
-        descriptorCategories.add(go);
-        descriptorCategories.add(mopac);
-        descriptorCategories.add(cdk);
-
+//        DescriptorCategory image = new DescriptorCategory();
+//        image.setId("IMAGE");
+//        image.setName("ImageAnalysis descriptors");
+//        image.setDescription("Descriptors derived from analyzing substance images by the ImageAnalysis software.");
+//
+//        DescriptorCategory go = new DescriptorCategory();
+//        go.setId("GO");
+//        go.setName("GO descriptors");
+//        go.setDescription("Descriptors derived by proteomics data.");
+//
+//        DescriptorCategory mopac = new DescriptorCategory();
+//        mopac.setId("MOPAC");
+//        mopac.setName("Mopac descriptors");
+//        mopac.setDescription("Descriptors derived by crystallographic data.");
+//
+//        DescriptorCategory cdk = new DescriptorCategory();
+//        cdk.setId("CDK");
+//        cdk.setName("CDK descriptors");
+//        cdk.setDescription("Descriptors derived from cdk software.");
+//
+//        descriptorCategories.add(image);
+//        descriptorCategories.add(go);
+//        descriptorCategories.add(mopac);
+//        descriptorCategories.add(cdk);
         return Response.ok(descriptorCategories).build();
     }
 
