@@ -72,7 +72,7 @@ import org.jaqpot.core.service.data.PredictionService;
  */
 @Path("model")
 @Api(value = "/model", description = "Models API")
-//@Authorize
+@Authorize
 public class ModelResource {
 
     private static final String DEFAULT_DATASET = "http://app.jaqpot.org:8080/jaqpot/services/dataset/corona";
