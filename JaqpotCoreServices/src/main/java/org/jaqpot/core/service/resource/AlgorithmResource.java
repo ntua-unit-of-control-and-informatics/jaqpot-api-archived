@@ -89,7 +89,7 @@ import org.jaqpot.core.service.exceptions.QuotaExceededException;
 @Path("algorithm")
 @Api(value = "/algorithm", description = "Algorithms API")
 @Produces({"application/json", "text/uri-list"})
-@Authorize
+//@Authorize
 public class AlgorithmResource {
 
     private static final Logger LOG = Logger.getLogger(AlgorithmResource.class.getName());
