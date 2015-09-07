@@ -35,6 +35,7 @@ import com.wordnik.swagger.annotations.ApiParam;
 import com.wordnik.swagger.annotations.ApiResponse;
 import com.wordnik.swagger.annotations.ApiResponses;
 import java.io.ByteArrayOutputStream;
+import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -161,7 +162,7 @@ public class PmmlResource {
     @ApiOperation(value = "Creates a new PMML entry",
             notes = "Creates a new PMML entry which is assigned a random unique ID",
             response = Pmml.class)
-    public Response createPMML(@FormParam("features") List<String> features) {
+    public Response createPMML(@FormParam("features") String[] features) {
 
         try {
             PMML pmml = new PMML();
@@ -173,7 +174,7 @@ public class PmmlResource {
             header.setApplication(new Application("Jaqpot Quattro"));
             pmml.setHeader(header);
 
-            List<DataField> dataFields = features
+            List<DataField> dataFields = Arrays.asList(features)
                     .stream()
                     .map(feature -> {
                         DataField dataField = new DataField();
