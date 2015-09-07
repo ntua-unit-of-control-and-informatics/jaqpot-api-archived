@@ -34,6 +34,11 @@ import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
 import com.wordnik.swagger.annotations.ApiResponse;
 import com.wordnik.swagger.annotations.ApiResponses;
+import java.io.ByteArrayOutputStream;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import javax.ejb.EJB;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
@@ -51,6 +56,17 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
+import javax.xml.bind.JAXBException;
+import javax.xml.transform.stream.StreamResult;
+import org.dmg.pmml.Application;
+import org.dmg.pmml.DataDictionary;
+import org.dmg.pmml.DataField;
+import org.dmg.pmml.DataType;
+import org.dmg.pmml.FieldName;
+import org.dmg.pmml.Header;
+import org.dmg.pmml.OpType;
+import org.dmg.pmml.PMML;
+import org.dmg.pmml.Timestamp;
 import org.jaqpot.core.data.PmmlHandler;
 import org.jaqpot.core.model.ErrorReport;
 import org.jaqpot.core.model.MetaInfo;
@@ -61,6 +77,7 @@ import org.jaqpot.core.model.util.ROG;
 import org.jaqpot.core.service.annotations.Authorize;
 import org.jaqpot.core.service.data.AAService;
 import org.jaqpot.core.service.exceptions.JaqpotNotAuthorizedException;
+import org.jpmml.model.JAXBUtil;
 
 /**
  *
@@ -100,7 +117,6 @@ public class PmmlResource {
         @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
     })
     @Authorize
-
     public Response createPMML(
             @ApiParam(value = "Clients need to authenticate in order to create resources on the server")
             @HeaderParam("subjectid") String subjectId,
@@ -124,19 +140,73 @@ public class PmmlResource {
             pmml.setId(rog.nextString(10));
         }
         pmml.setCreatedBy(securityContext.getUserPrincipal().getName());
-        
+
         MetaInfo info = MetaInfoBuilder.builder()
                 .addTitles(title)
                 .addDescriptions(description)
                 .build();
         pmml.setMeta(info);
-        
+
         pmmlHandler.create(pmml);
         return Response
                 .ok(pmml)
                 .status(Response.Status.CREATED)
                 .header("Location", uriInfo.getBaseUri().toString() + "pmml/" + pmml.getId())
                 .build();
+    }
+
+    @POST
+    @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
+    public Response createPMML(@FormParam("features") List<String> features) {
+
+        try {
+            PMML pmml = new PMML();
+            pmml.setVersion("4.2");
+            Header header = new Header();
+            header.setCopyright("NTUA Chemical Engineering Control Lab 2015");
+            header.setDescription("PMML created for feature selection");
+            header.setTimestamp(new Timestamp());
+            header.setApplication(new Application("Jaqpot Quattro"));
+            pmml.setHeader(header);
+
+            List<DataField> dataFields = features
+                    .stream()
+                    .map(feature -> {
+                        DataField dataField = new DataField();
+                        dataField.setName(new FieldName(feature));
+                        dataField.setOpType(OpType.CONTINUOUS);
+                        dataField.setDataType(DataType.DOUBLE);
+                        return dataField;
+                    })
+                    .collect(Collectors.toList());
+            DataDictionary dataDictionary = new DataDictionary(dataFields);
+            pmml.setDataDictionary(dataDictionary);
+
+            ByteArrayOutputStream pmmlBaos = new ByteArrayOutputStream();
+            JAXBUtil.marshalPMML(pmml, new StreamResult(pmmlBaos));
+
+            Pmml pmmlResource = new Pmml();
+            pmmlResource.setPmml(pmmlBaos.toString());
+            ROG rog = new ROG(true);
+            pmmlResource.setId(rog.nextString(10));
+
+            MetaInfo info = MetaInfoBuilder.builder()
+                    .addTitles("PMML")
+                    .addDescriptions("PMML created for feature selection")
+                    .build();
+            pmmlResource.setMeta(info);
+
+            pmmlHandler.create(pmmlResource);
+            return Response
+                    .ok(pmmlResource)
+                    .status(Response.Status.CREATED)
+                    .header("Location", uriInfo.getBaseUri().toString() + "pmml/" + pmmlResource.getId())
+                    .build();
+        } catch (JAXBException ex) {
+            Logger.getLogger(PmmlResource.class.getName()).log(Level.SEVERE, null, ex);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).build();
+        }
+
     }
 
     @GET
