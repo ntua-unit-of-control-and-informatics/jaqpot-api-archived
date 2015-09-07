@@ -105,13 +105,13 @@ public class PmmlResource {
     @POST
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @Consumes({MediaType.APPLICATION_XML, MediaType.TEXT_XML})
-    @ApiOperation(value = "Creates a new BibTeX entry",
-            notes = "Creates a new BibTeX entry which is assigned a random unique ID",
+    @ApiOperation(value = "Creates a new PMML entry",
+            notes = "Creates a new PMML entry which is assigned a random unique ID",
             response = Pmml.class)
     //TODO add code for user's quota exceeded
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "BibTeX entry was created successfully."),
-        @ApiResponse(code = 400, message = "Bad request: malformed bibtex (e.g., mandatory fields are missing)"),
+        @ApiResponse(code = 200, message = "PMML entry was created successfully."),
+        @ApiResponse(code = 400, message = "Bad request: malformed PMML (e.g., mandatory fields are missing)"),
         @ApiResponse(code = 401, message = "You are not authorized to access this resource"),
         @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)"),
         @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
@@ -156,7 +156,11 @@ public class PmmlResource {
     }
 
     @POST
+    @Path("/selection")
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
+    @ApiOperation(value = "Creates a new PMML entry",
+            notes = "Creates a new PMML entry which is assigned a random unique ID",
+            response = Pmml.class)
     public Response createPMML(@FormParam("features") List<String> features) {
 
         try {
