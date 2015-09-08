@@ -63,11 +63,13 @@ import org.dmg.pmml.Application;
 import org.dmg.pmml.DataDictionary;
 import org.dmg.pmml.DataField;
 import org.dmg.pmml.DataType;
+import org.dmg.pmml.DerivedField;
 import org.dmg.pmml.FieldName;
 import org.dmg.pmml.Header;
 import org.dmg.pmml.OpType;
 import org.dmg.pmml.PMML;
 import org.dmg.pmml.Timestamp;
+import org.dmg.pmml.TransformationDictionary;
 import org.jaqpot.core.data.PmmlHandler;
 import org.jaqpot.core.model.ErrorReport;
 import org.jaqpot.core.model.MetaInfo;
@@ -187,6 +189,21 @@ public class PmmlResource {
                     .collect(Collectors.toList());
             DataDictionary dataDictionary = new DataDictionary(dataFields);
             pmml.setDataDictionary(dataDictionary);
+
+            TransformationDictionary transformationDictionary = new TransformationDictionary();
+            List<DerivedField> derivedFields = features
+                    .stream()
+                    .map(feature -> {
+                        DerivedField derivedField = new DerivedField();
+                        derivedField.setOpType(OpType.CONTINUOUS);
+                        derivedField.setDataType(DataType.DOUBLE);
+                        derivedField.setName(new FieldName(feature));
+                        return derivedField;
+                    })
+                    .collect(Collectors.toList());
+            transformationDictionary.withDerivedFields(derivedFields);
+            
+            pmml.setTransformationDictionary(transformationDictionary);
 
             ByteArrayOutputStream pmmlBaos = new ByteArrayOutputStream();
             JAXBUtil.marshalPMML(pmml, new StreamResult(pmmlBaos));
