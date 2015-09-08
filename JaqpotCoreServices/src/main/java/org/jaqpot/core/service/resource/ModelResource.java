@@ -274,7 +274,9 @@ public class ModelResource {
             notes = "Lists the required features of a Model identified by its ID. The result is available as a URI list.",
             response = String.class,
             responseContainer = "List")
-    public Response listModelRequiredFeatures(@PathParam("id") String id) {
+    public Response listModelRequiredFeatures(
+            @PathParam("id") String id,
+            @HeaderParam("subjectId") String subjectId) {
         Model model = modelHandler.find(id);
         if (model == null) {
             return Response.status(Response.Status.NOT_FOUND).build();
@@ -284,6 +286,7 @@ public class ModelResource {
             requiredFeatures = client.target(model.getTransformationModels().get(0) + "/independent")
                     .request()
                     .accept("text/uri-list")
+                    .header("subjectId", subjectId)
                     .get(List.class);
 
         } else {
