@@ -246,8 +246,8 @@ public class AlgorithmResource {
             @PathParam("id") String algorithmId,
             @HeaderParam("subjectid") String subjectId) {
         Map<String, Object> options = new HashMap<>();
-        options.put("title", title);
-        options.put("description", description);
+        options.put("title", title != null ? title : "");
+        options.put("description", description != null ? description : "");
         options.put("dataset_uri", datasetURI);
         options.put("prediction_feature", predictionFeature);
         options.put("subjectid", subjectId);
