@@ -283,12 +283,12 @@ public class ModelResource {
         }
         List<String> requiredFeatures;
         if (model.getTransformationModels() != null && !model.getTransformationModels().isEmpty()) {
-            requiredFeatures = client.target(model.getTransformationModels().get(0) + "/independent")
+            Model firstTransformation = client.target(model.getTransformationModels().get(0))
                     .request()
-                    .accept("text/uri-list")
+                    .accept(MediaType.APPLICATION_JSON)
                     .header("subjectId", subjectId)
-                    .get(List.class);
-
+                    .get(Model.class);
+            requiredFeatures = firstTransformation.getIndependentFeatures();
         } else {
             requiredFeatures = model.getIndependentFeatures();
         }
