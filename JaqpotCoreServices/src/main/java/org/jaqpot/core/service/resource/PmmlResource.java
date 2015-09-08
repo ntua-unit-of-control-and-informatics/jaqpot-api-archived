@@ -162,8 +162,9 @@ public class PmmlResource {
     @ApiOperation(value = "Creates a new PMML entry",
             notes = "Creates a new PMML entry which is assigned a random unique ID",
             response = Pmml.class)
-    public Response createPMML(@FormParam("features") String[] features) {
+    public Response createPMML(@FormParam("features") String featuresString) {
 
+        List<String> features = Arrays.asList(featuresString.split(","));
         try {
             PMML pmml = new PMML();
             pmml.setVersion("4.2");
@@ -174,7 +175,7 @@ public class PmmlResource {
             header.setApplication(new Application("Jaqpot Quattro"));
             pmml.setHeader(header);
 
-            List<DataField> dataFields = Arrays.asList(features)
+            List<DataField> dataFields = features
                     .stream()
                     .map(feature -> {
                         DataField dataField = new DataField();
