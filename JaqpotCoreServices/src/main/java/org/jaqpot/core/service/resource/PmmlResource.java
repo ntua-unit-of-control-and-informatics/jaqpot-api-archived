@@ -64,7 +64,9 @@ import org.dmg.pmml.DataDictionary;
 import org.dmg.pmml.DataField;
 import org.dmg.pmml.DataType;
 import org.dmg.pmml.DerivedField;
+import org.dmg.pmml.Expression;
 import org.dmg.pmml.FieldName;
+import org.dmg.pmml.FieldRef;
 import org.dmg.pmml.Header;
 import org.dmg.pmml.OpType;
 import org.dmg.pmml.PMML;
@@ -198,6 +200,7 @@ public class PmmlResource {
                         derivedField.setOpType(OpType.CONTINUOUS);
                         derivedField.setDataType(DataType.DOUBLE);
                         derivedField.setName(new FieldName(feature));
+                        derivedField.setExpression(new FieldRef(new FieldName(feature)));
                         return derivedField;
                     })
                     .collect(Collectors.toList());
