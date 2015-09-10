@@ -322,7 +322,7 @@ public class PredictionMDB extends RunningTaskMDB {
                 dataset = DatasetFactory.merge(dataset, predictionDataset);
             }
             ROG randomStringGenerator = new ROG(true);
-            dataset.setId(randomStringGenerator.nextString(14));
+            dataset.setId(randomStringGenerator.nextString(14));           
             task.getMeta().getComments().add("Dataset ready.");
             task.getMeta().getComments().add("Saving to database...");
             task.setPercentageCompleted(30.f);

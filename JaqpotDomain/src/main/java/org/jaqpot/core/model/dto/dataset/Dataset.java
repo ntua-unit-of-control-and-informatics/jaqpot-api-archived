@@ -76,7 +76,7 @@ public class Dataset extends JaqpotEntity {
 
     private List<DataEntry> dataEntry;
 
-    private Map<String, String> features;
+    private Set<Feature> features;
 
     private Integer totalRows;
     private Integer totalColumns;
@@ -99,11 +99,11 @@ public class Dataset extends JaqpotEntity {
         this.dataEntry = dataEntry;
     }
 
-    public Map<String, String> getFeatures() {
+    public Set<Feature> getFeatures() {
         return features;
     }
 
-    public void setFeatures(Map<String, String> features) {
+    public void setFeatures(Set<Feature> features) {
         this.features = features;
     }
 
