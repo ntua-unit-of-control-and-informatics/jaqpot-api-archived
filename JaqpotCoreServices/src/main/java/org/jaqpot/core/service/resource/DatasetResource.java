@@ -108,11 +108,11 @@ public class DatasetResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/{id}/partial")
+    @Path("/{id}")
     @ApiOperation(value = "Finds Dataset by Id",
             notes = "Finds specified Dataset",
             response = Dataset.class)
-    public Response getPartialDataset(@PathParam("id") String id,
+    public Response getDataset(@PathParam("id") String id,
             @QueryParam("rowStart") Integer rowStart,
             @QueryParam("rowMax") Integer rowMax,
             @QueryParam("colStart") Integer colStart,
@@ -124,18 +124,17 @@ public class DatasetResource {
         return Response.ok(dataset).build();
     }
 
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    @Path("/{id}")
-    @ApiOperation(value = "Finds Dataset by Id",
-            notes = "Finds specified Dataset",
-            response = Dataset.class)
-    public Response getDataset(@PathParam("id") String id) {
-        Dataset dataset = datasetHandler.find(id);
-        if (dataset == null) {
-            throw new NotFoundException("Could not find Dataset with id:" + id);
-        }
-        return Response.ok(dataset).build();
-    }
-
+//    @GET
+//    @Produces(MediaType.APPLICATION_JSON)
+//    @Path("/{id}")
+//    @ApiOperation(value = "Finds Dataset by Id",
+//            notes = "Finds specified Dataset",
+//            response = Dataset.class)
+//    public Response getDataset(@PathParam("id") String id) {
+//        Dataset dataset = datasetHandler.find(id);
+//        if (dataset == null) {
+//            throw new NotFoundException("Could not find Dataset with id:" + id);
+//        }
+//        return Response.ok(dataset).build();
+//    }
 }
