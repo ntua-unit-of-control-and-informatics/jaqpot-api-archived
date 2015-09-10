@@ -5,6 +5,7 @@
  */
 package org.jaqpot.core.model.factory;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -12,6 +13,7 @@ import java.util.TreeMap;
 import java.util.stream.Collectors;
 import org.jaqpot.core.model.dto.dataset.DataEntry;
 import org.jaqpot.core.model.dto.dataset.Dataset;
+import org.jaqpot.core.model.dto.dataset.Feature;
 
 /**
  *
@@ -60,6 +62,9 @@ public class DatasetFactory {
                 })
                 .collect(Collectors.toList());
         result.setDataEntry(dataEntries);
+        Set<Feature> featureInfo = new HashSet<>();
+        dataset.getFeatures().stream().filter(f -> features.contains(f.getURI())).forEach(f -> featureInfo.add(f));
+        result.setFeatures(featureInfo);
         return result;
     }
 
@@ -69,6 +74,7 @@ public class DatasetFactory {
             DataEntry otherEntry = other.getDataEntry().get(i);
             dataEntry.getValues().putAll(otherEntry.getValues());
         }
+        dataset.getFeatures().addAll(other.getFeatures());
         return dataset;
     }
 }
