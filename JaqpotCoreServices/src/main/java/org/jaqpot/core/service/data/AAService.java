@@ -90,7 +90,7 @@ public class AAService {
     public void registerUserToken(String token, User user) {
         tokenMap.putIfAbsent(token, user);
     }
-    public static final String SSO_HOST = "opensso.in-silico.ch",
+    public static final String SSO_HOST = "openam.in-silico.ch",
             SSO_IDENTITY = "https://" + SSO_HOST + "/auth/%s",
             SSO_POLICY = "https://" + SSO_HOST + "/pol",
             /**

@@ -40,6 +40,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.ejb.EJB;
+import javax.inject.Inject;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
@@ -50,6 +51,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.client.Client;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -62,6 +64,7 @@ import org.jaqpot.core.model.Model;
 import org.jaqpot.core.model.Task;
 import org.jaqpot.core.model.factory.ErrorReportFactory;
 import org.jaqpot.core.service.annotations.Authorize;
+import org.jaqpot.core.service.annotations.UnSecure;
 import org.jaqpot.core.service.data.PredictionService;
 
 /**
@@ -88,6 +91,10 @@ public class ModelResource {
 
     @Context
     SecurityContext securityContext;
+
+    @Inject
+    @UnSecure
+    Client client;
 
     @GET
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
@@ -258,6 +265,34 @@ public class ModelResource {
                 .type(MediaType.APPLICATION_JSON_TYPE)
                 .build();
 
+    }
+
+    @GET
+    @Produces({"text/uri-list"})
+    @Path("/{id}/required")
+    @ApiOperation(value = "Lists the required features of a Model",
+            notes = "Lists the required features of a Model identified by its ID. The result is available as a URI list.",
+            response = String.class,
+            responseContainer = "List")
+    public Response listModelRequiredFeatures(
+            @PathParam("id") String id,
+            @HeaderParam("subjectId") String subjectId) {
+        Model model = modelHandler.find(id);
+        if (model == null) {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+        List<String> requiredFeatures;
+        if (model.getTransformationModels() != null && !model.getTransformationModels().isEmpty()) {
+            Model firstTransformation = client.target(model.getTransformationModels().get(0))
+                    .request()
+                    .accept(MediaType.APPLICATION_JSON)
+                    .header("subjectId", subjectId)
+                    .get(Model.class);
+            requiredFeatures = firstTransformation.getIndependentFeatures();
+        } else {
+            requiredFeatures = model.getIndependentFeatures();
+        }
+        return Response.status(Response.Status.OK).entity(requiredFeatures).build();
     }
 
     @POST

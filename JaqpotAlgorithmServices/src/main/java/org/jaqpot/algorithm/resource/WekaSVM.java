@@ -41,6 +41,7 @@ import java.io.ObjectInput;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
@@ -56,7 +57,9 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import libsvm.svm_model;
 import org.jaqpot.algorithm.model.WekaModel;
+import org.jaqpot.algorithm.pmml.PmmlUtils;
 import org.jaqpot.algorithm.weka.InstanceUtils;
 import org.jaqpot.core.model.dto.jpdi.PredictionRequest;
 import org.jaqpot.core.model.dto.jpdi.PredictionResponse;
@@ -164,6 +167,17 @@ public class WekaSVM {
             WekaModel model = new WekaModel();
             model.setClassifier(regressor);
 
+//            Map<String, Double> options = new HashMap<>();
+//            options.put("gamma", gamma);
+//            options.put("coeff0", coeff0);
+//            options.put("degree", new Double(degree.toString()));
+//
+//            Field modelField = LibSVM.class.getDeclaredField("m_Model");
+//            modelField.setAccessible(true);
+//            svm_model svmModel = (svm_model) modelField.get(regressor);
+////            svmModel.
+//
+//            String pmml = PmmlUtils.createSVMModel(features, request.getPredictionFeature(), "SVM", kernel, svm_type, options, null);
             TrainingResponse response = new TrainingResponse();
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             ObjectOutput out = new ObjectOutputStream(baos);

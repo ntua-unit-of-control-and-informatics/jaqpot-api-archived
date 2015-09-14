@@ -43,6 +43,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -305,11 +306,14 @@ public class PredictionMDB extends RunningTaskMDB {
                 if (model.getAlgorithm().getOntologicalClasses().contains("ot:Scaling")
                         || model.getAlgorithm().getOntologicalClasses().contains("ot:Transformation")) {
                     dataEntry.getValues().clear();
+                    dataset.getFeatures().clear();
                 }
-                row.entrySet().stream().forEach(entry -> {
+                for (Entry<String, Object> entry : row.entrySet()) {
+//                row.entrySet().stream().forEach(entry -> {
                     Feature feature = featureHandler.findByTitleAndSource(entry.getKey(), "algorithm/" + model.getAlgorithm().getId());
                     dataEntry.getValues().put(messageBody.get("base_uri") + "feature/" + feature.getId(), entry.getValue());
-                });
+                    dataset.getFeatures().add(new org.jaqpot.core.model.dto.dataset.Feature(messageBody.get("base_uri") + "feature/" + feature.getId(), feature.getMeta().getTitles().stream().findFirst().get()));
+                }
             }
 //            System.out.println(jsonSerializer.write(dataset));
             dataset = DatasetFactory.merge(dataset, predFeatureDataset);

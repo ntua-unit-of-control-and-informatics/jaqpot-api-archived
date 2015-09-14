@@ -39,10 +39,29 @@ public class DatasetHandler extends AbstractHandler<Dataset> {
 
     public Dataset find(Object id, Integer rowStart, Integer rowMax, Integer colStart, Integer colMax) {
         Dataset dataset = em.find(Dataset.class, id);
+        if (dataset == null) {
+            return null;
+        }
+
+        if (rowStart == null) {
+            rowStart = 0;
+        }
+        if (colStart == null) {
+            colStart = 0;
+        }
+        dataset.setTotalRows(dataset.getDataEntry().size());
+        dataset.setTotalColumns(dataset.getDataEntry().stream().findFirst().get().getValues().size());
+
+        if (rowMax == null || rowMax > dataset.getTotalRows()) {
+            rowMax = dataset.getTotalRows();
+        }
+        if (colMax == null || colMax > dataset.getTotalColumns()) {
+            colMax = dataset.getTotalColumns();
+        }
 
         dataset.setDataEntry(dataset.getDataEntry().subList(rowStart, rowStart + rowMax));
 
-        dataset.getDataEntry().forEach(de -> {
+        for (DataEntry de : dataset.getDataEntry()) {
             TreeMap<String, Object> values = (TreeMap) de.getValues();
             NavigableSet<String> valuesSet = values.navigableKeySet();
 
@@ -59,13 +78,12 @@ public class DatasetHandler extends AbstractHandler<Dataset> {
                 it.remove();
             }
 
-        });
+        }
 
 //        DataEntry blank = new DataEntry();
 //        blank.setValues(new TreeMap<>());
 //        DataEntry firstEntry = dataset.getDataEntry().stream().findFirst().orElse(blank);
 //        dataset.getFeatures().keySet().retainAll(firstEntry.getValues().keySet());                
-        
         return dataset;
     }
 
