@@ -273,7 +273,7 @@ public class ModelResource {
     }
 
     @GET
-    @Produces({"text/uri-list"})
+    @Produces(MediaType.APPLICATION_JSON)
     @Path("/{id}/required")
     @ApiOperation(value = "Lists the required features of a Model",
             notes = "Lists the required features of a Model identified by its ID. The result is available as a URI list.",
