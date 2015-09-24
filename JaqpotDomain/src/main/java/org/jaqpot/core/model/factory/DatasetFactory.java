@@ -13,7 +13,7 @@ import java.util.TreeMap;
 import java.util.stream.Collectors;
 import org.jaqpot.core.model.dto.dataset.DataEntry;
 import org.jaqpot.core.model.dto.dataset.Dataset;
-import org.jaqpot.core.model.dto.dataset.Feature;
+import org.jaqpot.core.model.dto.dataset.FeatureInfo;
 
 /**
  *
@@ -62,7 +62,7 @@ public class DatasetFactory {
                 })
                 .collect(Collectors.toList());
         result.setDataEntry(dataEntries);
-        Set<Feature> featureInfo = new HashSet<>();
+        Set<FeatureInfo> featureInfo = new HashSet<>();
         dataset.getFeatures().stream().filter(f -> features.contains(f.getURI())).forEach(f -> featureInfo.add(f));
         result.setFeatures(featureInfo);
         return result;

@@ -37,8 +37,11 @@ import com.wordnik.swagger.annotations.ApiResponses;
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 import javax.ejb.EJB;
 import javax.inject.Inject;
 import javax.ws.rs.DELETE;
@@ -53,6 +56,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
@@ -62,6 +66,7 @@ import org.jaqpot.core.model.BibTeX;
 import org.jaqpot.core.model.Feature;
 import org.jaqpot.core.model.Model;
 import org.jaqpot.core.model.Task;
+import org.jaqpot.core.model.dto.dataset.FeatureInfo;
 import org.jaqpot.core.model.factory.ErrorReportFactory;
 import org.jaqpot.core.service.annotations.Authorize;
 import org.jaqpot.core.service.annotations.UnSecure;
@@ -282,6 +287,7 @@ public class ModelResource {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
         List<String> requiredFeatures;
+        String datasetURI;
         if (model.getTransformationModels() != null && !model.getTransformationModels().isEmpty()) {
             Model firstTransformation = client.target(model.getTransformationModels().get(0))
                     .request()
@@ -289,10 +295,23 @@ public class ModelResource {
                     .header("subjectId", subjectId)
                     .get(Model.class);
             requiredFeatures = firstTransformation.getIndependentFeatures();
+            datasetURI = firstTransformation.getDatasetUri();
         } else {
             requiredFeatures = model.getIndependentFeatures();
+            datasetURI = model.getDatasetUri();
         }
-        return Response.status(Response.Status.OK).entity(requiredFeatures).build();
+        Set<FeatureInfo> featureSet = client.target(datasetURI + "/features")
+                .request()
+                .accept(MediaType.APPLICATION_JSON)
+                .header("subjectId", subjectId)
+                .get(new GenericType<Set<FeatureInfo>>() {
+                });
+
+        Set<String> requiredFeatureSet = new HashSet<>(requiredFeatures);
+        List<FeatureInfo> selectedFeatures = featureSet.stream()
+                .filter(f -> requiredFeatureSet.contains(f.getURI()))
+                .collect(Collectors.toList());
+        return Response.status(Response.Status.OK).entity(selectedFeatures).build();
     }
 
     @POST

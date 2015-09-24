@@ -124,6 +124,20 @@ public class DatasetResource {
         return Response.ok(dataset).build();
     }
 
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/{id}/features")
+    @ApiOperation(value = "Finds Dataset by Id",
+            notes = "Finds specified Dataset",
+            response = Dataset.class)
+    public Response getDataset(@PathParam("id") String id) {
+        Dataset dataset = datasetHandler.find(id);
+        if (dataset == null) {
+            throw new NotFoundException("Could not find Dataset with id:" + id);
+        }
+        return Response.ok(dataset.getFeatures()).build();
+    }
+
 //    @GET
 //    @Produces(MediaType.APPLICATION_JSON)
 //    @Path("/{id}")

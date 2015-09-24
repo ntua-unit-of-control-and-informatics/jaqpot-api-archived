@@ -312,7 +312,7 @@ public class PredictionMDB extends RunningTaskMDB {
 //                row.entrySet().stream().forEach(entry -> {
                     Feature feature = featureHandler.findByTitleAndSource(entry.getKey(), "algorithm/" + model.getAlgorithm().getId());
                     dataEntry.getValues().put(messageBody.get("base_uri") + "feature/" + feature.getId(), entry.getValue());
-                    dataset.getFeatures().add(new org.jaqpot.core.model.dto.dataset.Feature(messageBody.get("base_uri") + "feature/" + feature.getId(), feature.getMeta().getTitles().stream().findFirst().get()));
+                    dataset.getFeatures().add(new org.jaqpot.core.model.dto.dataset.FeatureInfo(messageBody.get("base_uri") + "feature/" + feature.getId(), feature.getMeta().getTitles().stream().findFirst().get()));
                 }
             }
 //            System.out.println(jsonSerializer.write(dataset));

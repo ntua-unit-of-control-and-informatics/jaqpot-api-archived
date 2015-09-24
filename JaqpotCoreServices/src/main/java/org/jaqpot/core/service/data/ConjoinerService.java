@@ -80,6 +80,7 @@ import org.jaqpot.core.model.dto.bundle.BundleProperties;
 import org.jaqpot.core.model.dto.bundle.BundleSubstances;
 import org.jaqpot.core.model.dto.dataset.DataEntry;
 import org.jaqpot.core.model.dto.dataset.Dataset;
+import org.jaqpot.core.model.dto.dataset.FeatureInfo;
 import org.jaqpot.core.model.dto.dataset.Substance;
 import org.jaqpot.core.model.dto.study.Effect;
 import org.jaqpot.core.model.dto.study.Studies;
@@ -120,7 +121,7 @@ public class ConjoinerService {
 
     private ResourceBundle configResourceBundle;
 
-    private Set<org.jaqpot.core.model.dto.dataset.Feature> featureMap;
+    private Set<org.jaqpot.core.model.dto.dataset.FeatureInfo> featureMap;
 
     private Set<Dataset.DescriptorCategory> usedDescriptors;
 
@@ -242,7 +243,10 @@ public class ConjoinerService {
                                     String URI = configResourceBundle.getString("ServerBasePath")
                                             + "feature/" + f.getId();
                                     values.put(URI, value);
-                                    featureMap.add(new org.jaqpot.core.model.dto.dataset.Feature(URI, entry.getKey()));
+                                    FeatureInfo featureInfo = new FeatureInfo();
+                                    featureInfo.setURI(URI);
+                                    featureInfo.setName(entry.getKey());
+                                    featureMap.add(featureInfo);
                                 } catch (NumberFormatException ex) {
                                     continue;
                                 }
@@ -283,7 +287,7 @@ public class ConjoinerService {
                                 .getJsonObject("feature")
                                 .getJsonObject(key)
                                 .getString("title");
-                        featureMap.add(new org.jaqpot.core.model.dto.dataset.Feature(key, featureTitle));
+                        featureMap.add(new org.jaqpot.core.model.dto.dataset.FeatureInfo(key, featureTitle));
                     });
                     usedDescriptors.add(Dataset.DescriptorCategory.MOPAC);
                     continue;
@@ -305,7 +309,12 @@ public class ConjoinerService {
                         continue;
                     }
                     values.put(remoteServerBase + propertyURIJoiner.toString(), value);
-                    featureMap.add(new org.jaqpot.core.model.dto.dataset.Feature(remoteServerBase + propertyURIJoiner.toString(), name));
+                    FeatureInfo featureInfo = new FeatureInfo();
+                    featureInfo.setURI(remoteServerBase + propertyURIJoiner.toString());
+                    featureInfo.setName(name);
+                    featureInfo.setUnits(units);
+                    featureInfo.setConditions(effect.getConditions());
+                    featureMap.add(featureInfo);
                     usedDescriptors.add(Dataset.DescriptorCategory.EXPERIMENTAL);
                 }
             }
@@ -378,7 +387,7 @@ public class ConjoinerService {
                 propertyURIJoiner.add(entry.getKey());
                 Object protValue = entry.getValue().getLoValue();
                 values.put(remoteServerBase + propertyURIJoiner.toString(), protValue);
-                featureMap.add(new org.jaqpot.core.model.dto.dataset.Feature(remoteServerBase + propertyURIJoiner.toString(), entry.getKey()));
+                featureMap.add(new org.jaqpot.core.model.dto.dataset.FeatureInfo(remoteServerBase + propertyURIJoiner.toString(), entry.getKey()));
             });
         });
         return values;

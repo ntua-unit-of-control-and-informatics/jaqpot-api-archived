@@ -5,21 +5,24 @@
  */
 package org.jaqpot.core.model.dto.dataset;
 
+import java.util.Map;
 import java.util.Objects;
 
 /**
  *
  * @author hampos
  */
-public class Feature {
+public class FeatureInfo {
 
     private String URI;
     private String name;
+    private String units;
+    private Map<String, Object> conditions;
 
-    public Feature() {
+    public FeatureInfo() {
     }
 
-    public Feature(String URI, String name) {
+    public FeatureInfo(String URI, String name) {
         this.URI = URI;
         this.name = name;
     }
@@ -40,6 +43,22 @@ public class Feature {
         this.name = name;
     }
 
+    public String getUnits() {
+        return units;
+    }
+
+    public void setUnits(String units) {
+        this.units = units;
+    }
+
+    public Map<String, Object> getConditions() {
+        return conditions;
+    }
+
+    public void setConditions(Map<String, Object> conditions) {
+        this.conditions = conditions;
+    }
+
     @Override
     public int hashCode() {
         int hash = 7;
@@ -55,7 +74,7 @@ public class Feature {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final Feature other = (Feature) obj;
+        final FeatureInfo other = (FeatureInfo) obj;
         if (!Objects.equals(this.URI, other.URI)) {
             return false;
         }
