@@ -34,10 +34,14 @@ import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
 import com.wordnik.swagger.annotations.ApiResponse;
 import com.wordnik.swagger.annotations.ApiResponses;
+import java.net.URI;
+import java.net.URISyntaxException;
 import javax.ejb.EJB;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.NotFoundException;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -46,6 +50,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.jaqpot.core.data.DatasetHandler;
 import org.jaqpot.core.model.dto.dataset.Dataset;
+import org.jaqpot.core.model.util.ROG;
 
 /**
  *
@@ -138,17 +143,18 @@ public class DatasetResource {
         return Response.ok(dataset.getFeatures()).build();
     }
 
-//    @GET
-//    @Produces(MediaType.APPLICATION_JSON)
-//    @Path("/{id}")
-//    @ApiOperation(value = "Finds Dataset by Id",
-//            notes = "Finds specified Dataset",
-//            response = Dataset.class)
-//    public Response getDataset(@PathParam("id") String id) {
-//        Dataset dataset = datasetHandler.find(id);
-//        if (dataset == null) {
-//            throw new NotFoundException("Could not find Dataset with id:" + id);
-//        }
-//        return Response.ok(dataset).build();
-//    }
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces("text/uri-list")
+    @ApiOperation(value = "Creates a new Dataset",
+            notes = "The new Dataset created will be assigned on a random generated Id",
+            response = Dataset.class)
+    public Response createDataset(Dataset dataset) throws URISyntaxException {
+        ROG randomStringGenerator = new ROG(true);
+        dataset.setId(randomStringGenerator.nextString(14));
+        datasetHandler.create(dataset);
+
+        return Response.created(new URI(dataset.getId())).entity(dataset).build();
+
+    }
 }
