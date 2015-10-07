@@ -37,20 +37,25 @@ import com.wordnik.swagger.annotations.ApiResponses;
 import java.net.URI;
 import java.net.URISyntaxException;
 import javax.ejb.EJB;
+import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.client.Client;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.jaqpot.core.data.DatasetHandler;
 import org.jaqpot.core.model.dto.dataset.Dataset;
+import org.jaqpot.core.model.factory.DatasetFactory;
 import org.jaqpot.core.model.util.ROG;
+import org.jaqpot.core.service.annotations.UnSecure;
 
 /**
  *
@@ -63,6 +68,10 @@ public class DatasetResource {
 
     @EJB
     DatasetHandler datasetHandler;
+
+    @Inject
+    @UnSecure
+    Client client;
 
     @GET
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
@@ -150,6 +159,31 @@ public class DatasetResource {
             notes = "The new Dataset created will be assigned on a random generated Id",
             response = Dataset.class)
     public Response createDataset(Dataset dataset) throws URISyntaxException {
+        ROG randomStringGenerator = new ROG(true);
+        dataset.setId(randomStringGenerator.nextString(14));
+        datasetHandler.create(dataset);
+
+        return Response.created(new URI(dataset.getId())).entity(dataset).build();
+
+    }
+
+    @POST
+    @Path("/merge")
+    @Produces("text/uri-list")
+    @ApiOperation(value = "Merges Datasets")
+    public Response mergeDatasets(@FormParam("dataset_uris") String datasetURIs,
+            @HeaderParam("subjectid") String subjectId) throws URISyntaxException {
+
+        String[] datasets = datasetURIs.split(",");
+        Dataset dataset = null;
+        for (String datasetURI : datasets) {
+            Dataset d = client.target(datasetURI)
+                    .request()
+                    .accept(MediaType.APPLICATION_JSON)
+                    .header("subjectid", subjectId)
+                    .get(Dataset.class);
+            dataset = DatasetFactory.merge(dataset, d);
+        }
         ROG randomStringGenerator = new ROG(true);
         dataset.setId(randomStringGenerator.nextString(14));
         datasetHandler.create(dataset);

@@ -69,12 +69,20 @@ public class DatasetFactory {
     }
 
     public static Dataset merge(Dataset dataset, Dataset other) {
-        for (int i = 0; i < dataset.getDataEntry().size(); i++) {
-            DataEntry dataEntry = dataset.getDataEntry().get(i);
-            DataEntry otherEntry = other.getDataEntry().get(i);
-            dataEntry.getValues().putAll(otherEntry.getValues());
+        if (dataset != null && other == null) {
+            return dataset;
+        } else if (dataset == null && other != null) {
+            return other;
+        } else if (dataset == null && other == null) {
+            return null;
+        } else {
+            for (int i = 0; i < dataset.getDataEntry().size(); i++) {
+                DataEntry dataEntry = dataset.getDataEntry().get(i);
+                DataEntry otherEntry = other.getDataEntry().get(i);
+                dataEntry.getValues().putAll(otherEntry.getValues());
+            }
+            dataset.getFeatures().addAll(other.getFeatures());
+            return dataset;
         }
-        dataset.getFeatures().addAll(other.getFeatures());
-        return dataset;
     }
 }
