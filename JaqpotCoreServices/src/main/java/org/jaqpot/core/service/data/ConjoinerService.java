@@ -246,6 +246,7 @@ public class ConjoinerService {
                                     FeatureInfo featureInfo = new FeatureInfo();
                                     featureInfo.setURI(URI);
                                     featureInfo.setName(entry.getKey());
+                                    featureInfo.setCategory(Dataset.DescriptorCategory.IMAGE);
                                     featureMap.add(featureInfo);
                                 } catch (NumberFormatException ex) {
                                     continue;
@@ -287,7 +288,9 @@ public class ConjoinerService {
                                 .getJsonObject("feature")
                                 .getJsonObject(key)
                                 .getString("title");
-                        featureMap.add(new org.jaqpot.core.model.dto.dataset.FeatureInfo(key, featureTitle));
+                        FeatureInfo featureInfo = new org.jaqpot.core.model.dto.dataset.FeatureInfo(key, featureTitle);
+                        featureInfo.setCategory(Dataset.DescriptorCategory.MOPAC);
+                        featureMap.add(featureInfo);
                     });
                     usedDescriptors.add(Dataset.DescriptorCategory.MOPAC);
                     continue;
@@ -314,6 +317,7 @@ public class ConjoinerService {
                     featureInfo.setName(name);
                     featureInfo.setUnits(units);
                     featureInfo.setConditions(effect.getConditions());
+                    featureInfo.setCategory(Dataset.DescriptorCategory.EXPERIMENTAL);
                     featureMap.add(featureInfo);
                     usedDescriptors.add(Dataset.DescriptorCategory.EXPERIMENTAL);
                 }
@@ -387,7 +391,9 @@ public class ConjoinerService {
                 propertyURIJoiner.add(entry.getKey());
                 Object protValue = entry.getValue().getLoValue();
                 values.put(remoteServerBase + propertyURIJoiner.toString(), protValue);
-                featureMap.add(new org.jaqpot.core.model.dto.dataset.FeatureInfo(remoteServerBase + propertyURIJoiner.toString(), entry.getKey()));
+                FeatureInfo featureInfo = new org.jaqpot.core.model.dto.dataset.FeatureInfo(remoteServerBase + propertyURIJoiner.toString(), entry.getKey());
+                featureInfo.setCategory(Dataset.DescriptorCategory.EXPERIMENTAL);
+                featureMap.add(featureInfo);
             });
         });
         return values;
