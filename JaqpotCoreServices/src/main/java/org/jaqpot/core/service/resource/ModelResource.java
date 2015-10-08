@@ -300,7 +300,7 @@ public class ModelResource {
             requiredFeatures = model.getIndependentFeatures();
             datasetURI = model.getDatasetUri();
         }
-        Set<FeatureInfo> featureSet = client.target(datasetURI + "/features")
+        Set<FeatureInfo> featureSet = client.target(datasetURI.split("?")[0] + "/features")
                 .request()
                 .accept(MediaType.APPLICATION_JSON)
                 .header("subjectId", subjectId)
