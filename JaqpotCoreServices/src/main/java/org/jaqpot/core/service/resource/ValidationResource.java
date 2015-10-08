@@ -161,7 +161,7 @@ public class ValidationResource {
         Map<String, Object> options = new HashMap<>();
         options.put("taskId", task.getId());
         options.put("algorithm_uri", algorithmURI);
-        options.put("training_dataset_uri", datasetURI);
+        options.put("dataset_uri", datasetURI);
         options.put("algorithm_params", algorithmParameters);
         options.put("prediction_feature", predictionFeature);
         options.put("split_ratio", splitRatio);
