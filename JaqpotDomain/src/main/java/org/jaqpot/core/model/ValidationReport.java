@@ -29,12 +29,17 @@
  */
 package org.jaqpot.core.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import javax.xml.bind.annotation.XmlRootElement;
+
 /**
  *
  * @author Pantelis Sopasakis
  * @author Charalampos Chomenidis
  *
  */
+@XmlRootElement
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ValidationReport extends JaqpotEntity {
 
     public enum Type {
