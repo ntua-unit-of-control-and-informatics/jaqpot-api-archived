@@ -36,6 +36,7 @@ import com.wordnik.swagger.annotations.ApiResponse;
 import com.wordnik.swagger.annotations.ApiResponses;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import javax.ejb.EJB;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
@@ -150,6 +151,21 @@ public class DatasetResource {
             throw new NotFoundException("Could not find Dataset with id:" + id);
         }
         return Response.ok(dataset.getFeatures()).build();
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/{id}/meta")
+    @ApiOperation(value = "Finds Dataset by Id",
+            notes = "Finds specified Dataset",
+            response = Dataset.class)
+    public Response getDatasetMeta(@PathParam("id") String id) {
+        Dataset dataset = datasetHandler.find(id);
+        dataset.setDataEntry(new ArrayList<>());
+        if (dataset == null) {
+            throw new NotFoundException("Could not find Dataset with id:" + id);
+        }
+        return Response.ok(dataset).build();
     }
 
     @POST

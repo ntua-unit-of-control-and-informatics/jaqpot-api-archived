@@ -92,7 +92,8 @@ public class Task extends JaqpotEntity {
 
         TRAINING,
         PREDICTION,
-        PREPARATION
+        PREPARATION,
+        VALIDATION
     }
 
     /**
