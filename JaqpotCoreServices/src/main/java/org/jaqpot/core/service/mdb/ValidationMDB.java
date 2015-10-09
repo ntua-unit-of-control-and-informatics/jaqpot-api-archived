@@ -159,18 +159,18 @@ public class ValidationMDB extends RunningTaskMDB {
                     task.getMeta().getComments().add("Validation mode is CROSS.");
                     taskHandler.edit(task);
 
-                    Double folds = (Double) messageBody.get("folds");
+                    Integer folds = (Integer) messageBody.get("folds");
                     dataset = client.target(datasetURI)
                             .request()
                             .accept(MediaType.APPLICATION_JSON)
                             .header("subjectId", subjectId)
                             .get(Dataset.class);
                     rows = dataset.getTotalRows();
-                    Long foldSize = Math.round(rows / folds);
+                    Integer foldSize = Math.round(rows / folds);
                     List<String> partialDatasets = new ArrayList<>();
                     for (int i = 0; i < folds; i++) {
-                        Long rowStart = i * foldSize;
-                        Long rowMax = foldSize;
+                        Integer rowStart = i * foldSize;
+                        Integer rowMax = foldSize;
                         if (rowStart + rowMax > rows) {
                             rowMax = rows - rowStart;
                             String partialDatasetURI = datasetURI + "?rowStart=" + rowStart + "&rowMax=" + rowMax;
