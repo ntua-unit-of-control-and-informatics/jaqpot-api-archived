@@ -35,9 +35,11 @@
 package org.jaqpot.core.service.mdb;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import javax.ejb.ActivationConfigProperty;
 import javax.ejb.EJB;
 import javax.ejb.MessageDriven;
@@ -153,6 +155,59 @@ public class ValidationMDB extends RunningTaskMDB {
 
                     break;
                 case "CROSS":
+
+                    task.getMeta().getComments().add("Validation mode is CROSS.");
+                    taskHandler.edit(task);
+
+                    Double folds = (Double) messageBody.get("folds");
+                    dataset = client.target(datasetURI)
+                            .request()
+                            .accept(MediaType.APPLICATION_JSON)
+                            .header("subjectId", subjectId)
+                            .get(Dataset.class);
+                    rows = dataset.getTotalRows();
+                    Long foldSize = Math.round(rows / folds);
+                    List<String> partialDatasets = new ArrayList<>();
+                    for (int i = 0; i < folds; i++) {
+                        Long rowStart = i * foldSize;
+                        Long rowMax = foldSize;
+                        if (rowStart + rowMax > rows) {
+                            rowMax = rows - rowStart;
+                            String partialDatasetURI = datasetURI + "?rowStart=" + rowStart + "&rowMax=" + rowMax;
+                            partialDatasets.add(partialDatasetURI);
+                            break;
+                        }
+                        String partialDatasetURI = datasetURI + "?rowStart=" + rowStart + "&rowMax=" + rowMax;
+                        partialDatasets.add(partialDatasetURI);
+                    }
+                    List<String> finalDatasets = new ArrayList<>();
+                    for (String testDataset : partialDatasets) {
+                        String trainDatasets = partialDatasets.stream()
+                                .filter(d -> !d.equals(testDataset))
+                                .collect(Collectors.joining(","));
+                        params = new MultivaluedHashMap<>();
+                        params.add("dataset_uris", trainDatasets);
+                        String trainDataset = client.target(datasetURI.split("dataset")[0] + "dataset/merge")
+                                .request()
+                                .accept("text/uri-list")
+                                .header("subjectId", subjectId)
+                                .post(Entity.form(params), String.class);
+
+                        String finalSubDataset = validationService.trainAndTest(algorithmURI, trainDataset, testDataset, predictionFeature, algorithmParams, subjectId);
+                        finalDatasets.add(finalSubDataset);
+                    }
+
+                    params = new MultivaluedHashMap<>();
+                    params.add("dataset_uris", finalDatasets.stream().collect(Collectors.joining(",")));
+                    String finalDataset = client.target(datasetURI.split("dataset")[0] + "dataset/merge")
+                            .request()
+                            .accept("text/uri-list")
+                            .header("subjectId", subjectId)
+                            .post(Entity.form(params), String.class);
+
+                    task.getMeta().getComments().add("Final dataset is:" + finalDataset);
+                    taskHandler.edit(task);
+
                     break;
 
                 default:
