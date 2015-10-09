@@ -68,7 +68,7 @@ public class DatasetFactory {
         return result;
     }
 
-    public static Dataset merge(Dataset dataset, Dataset other) {
+    public static Dataset mergeColumns(Dataset dataset, Dataset other) {
         if (dataset != null && other == null) {
             return dataset;
         } else if (dataset == null && other != null) {
@@ -81,6 +81,20 @@ public class DatasetFactory {
                 DataEntry otherEntry = other.getDataEntry().get(i);
                 dataEntry.getValues().putAll(otherEntry.getValues());
             }
+            dataset.getFeatures().addAll(other.getFeatures());
+            return dataset;
+        }
+    }
+
+    public static Dataset mergeRows(Dataset dataset, Dataset other) {
+        if (dataset != null && other == null) {
+            return dataset;
+        } else if (dataset == null && other != null) {
+            return other;
+        } else if (dataset == null && other == null) {
+            return null;
+        } else {
+            dataset.getDataEntry().addAll(other.getDataEntry());
             dataset.getFeatures().addAll(other.getFeatures());
             return dataset;
         }

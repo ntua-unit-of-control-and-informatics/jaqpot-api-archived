@@ -198,7 +198,7 @@ public class DatasetResource {
                     .accept(MediaType.APPLICATION_JSON)
                     .header("subjectid", subjectId)
                     .get(Dataset.class);
-            dataset = DatasetFactory.merge(dataset, d);
+            dataset = DatasetFactory.mergeRows(dataset, d);
         }
         ROG randomStringGenerator = new ROG(true);
         dataset.setId(randomStringGenerator.nextString(14));

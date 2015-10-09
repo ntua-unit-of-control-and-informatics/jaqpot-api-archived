@@ -316,14 +316,14 @@ public class PredictionMDB extends RunningTaskMDB {
                 }
             }
 //            System.out.println(jsonSerializer.write(dataset));
-            dataset = DatasetFactory.merge(dataset, predFeatureDataset);
+            dataset = DatasetFactory.mergeColumns(dataset, predFeatureDataset);
             for (String predictionDatasetURI : predictionDatasets) {
                 Dataset predictionDataset = client.target(predictionDatasetURI)
                         .request()
                         .header("subjectid", messageBody.get("subjectid"))
                         .accept(MediaType.APPLICATION_JSON)
                         .get(Dataset.class);
-                dataset = DatasetFactory.merge(dataset, predictionDataset);
+                dataset = DatasetFactory.mergeColumns(dataset, predictionDataset);
             }
             ROG randomStringGenerator = new ROG(true);
             dataset.setId(randomStringGenerator.nextString(14));

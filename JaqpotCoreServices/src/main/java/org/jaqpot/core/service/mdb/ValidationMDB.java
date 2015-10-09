@@ -134,7 +134,7 @@ public class ValidationMDB extends RunningTaskMDB {
                     Integer rows = dataset.getTotalRows();
 
                     Long split = Math.round(rows * splitRatio);
-                    String trainDatasetURI = datasetURI + "?rowStart=0&rowMax=" + (split - 1);
+                    String trainDatasetURI = datasetURI + "?rowStart=0&rowMax=" + split;
                     String testDatasetURI = datasetURI + "?rowStart=" + split + "&rowMax=" + (rows - split);
 
                     String finalDatasetURI1 = validationService.trainAndTest(algorithmURI, trainDatasetURI, testDatasetURI, predictionFeature, algorithmParams, subjectId);
