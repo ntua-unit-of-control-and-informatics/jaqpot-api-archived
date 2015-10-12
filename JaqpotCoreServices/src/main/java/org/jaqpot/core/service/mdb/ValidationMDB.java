@@ -166,7 +166,7 @@ public class ValidationMDB extends RunningTaskMDB {
                             .header("subjectId", subjectId)
                             .get(Dataset.class);
                     rows = dataset.getTotalRows();
-                    Integer foldSize = (int) Math.ceil(rows / folds);
+                    Integer foldSize = Math.round((rows + folds - 1) / folds);
                     List<String> partialDatasets = new ArrayList<>();
                     for (int i = 0; i < folds; i++) {
                         Integer rowStart = i * foldSize;
