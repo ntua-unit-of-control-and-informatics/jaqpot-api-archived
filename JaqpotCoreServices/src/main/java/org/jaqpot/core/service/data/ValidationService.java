@@ -102,7 +102,7 @@ public class ValidationService {
         }
         String modelURI = trainTask.getResultUri();
         params.clear();
-        params.add("dataset_uri", trainingDataset);
+        params.add("dataset_uri", testingDataset);
         Task predictionTask = client.target(trainTask.getResultUri())
                 .request()
                 .header("subjectid", subjectId)
