@@ -118,12 +118,13 @@ public class WekaMLR {
                     .collect(Collectors.toList());
             response.setIndependentFeatures(independentFeatures);
             response.setPmmlModel(pmml);
-            response.setAdditionalInfo(request.getPredictionFeature());
             String predictionFeatureName = request.getDataset().getFeatures().stream()
                     .filter(f -> f.getURI().equals(request.getPredictionFeature()))
                     .findFirst()
                     .get()
                     .getName();
+            response.setAdditionalInfo(Arrays.asList(request.getPredictionFeature(), predictionFeatureName));
+
             response.setPredictedFeatures(Arrays.asList("Weka MLR prediction of " + predictionFeatureName));
 
             return Response.ok(response).build();
@@ -152,7 +153,9 @@ public class WekaMLR {
 
             Classifier classifier = model.getClassifier();
             Instances data = InstanceUtils.createFromDataset(request.getDataset());
-            String dependentFeature = (String) request.getAdditionalInfo();
+            List<String> additionalInfo = (List) request.getAdditionalInfo();
+            String dependentFeature = additionalInfo.get(0);
+            String dependentFeatureName = additionalInfo.get(1);
             data.insertAttributeAt(new Attribute(dependentFeature), data.numAttributes());
             List<Map<String, Object>> predictions = new ArrayList<>();
 //            data.stream().forEach(instance -> {
@@ -171,7 +174,7 @@ public class WekaMLR {
                 try {
                     double prediction = classifier.classifyInstance(instance);
                     Map<String, Object> predictionMap = new HashMap<>();
-                    predictionMap.put("Weka MLR prediction of " + dependentFeature, prediction);
+                    predictionMap.put("Weka MLR prediction of " + dependentFeatureName, prediction);
                     predictions.add(predictionMap);
                 } catch (Exception ex) {
                     Logger.getLogger(WekaMLR.class.getName()).log(Level.SEVERE, null, ex);
