@@ -119,7 +119,12 @@ public class WekaMLR {
             response.setIndependentFeatures(independentFeatures);
             response.setPmmlModel(pmml);
             response.setAdditionalInfo(request.getPredictionFeature());
-            response.setPredictedFeatures(Arrays.asList("Weka MLR prediction of " + request.getPredictionFeature()));
+            String predictionFeatureName = request.getDataset().getFeatures().stream()
+                    .filter(f -> f.getURI().equals(request.getPredictionFeature()))
+                    .findFirst()
+                    .get()
+                    .getName();
+            response.setPredictedFeatures(Arrays.asList("Weka MLR prediction of " + predictionFeatureName));
 
             return Response.ok(response).build();
         } catch (Exception ex) {

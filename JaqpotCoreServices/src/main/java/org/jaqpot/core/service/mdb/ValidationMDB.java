@@ -139,16 +139,7 @@ public class ValidationMDB extends RunningTaskMDB {
                     String trainDatasetURI = datasetURI + "?rowStart=0&rowMax=" + split;
                     String testDatasetURI = datasetURI + "?rowStart=" + split + "&rowMax=" + (rows - split);
 
-                    String finalDatasetURI1 = validationService.trainAndTest(algorithmURI, trainDatasetURI, testDatasetURI, predictionFeature, algorithmParams, subjectId);
-                    String finalDatasetURI2 = validationService.trainAndTest(algorithmURI, testDatasetURI, trainDatasetURI, predictionFeature, algorithmParams, subjectId);
-
-                    MultivaluedMap<String, String> params = new MultivaluedHashMap<>();
-                    params.add("dataset_uris", finalDatasetURI1 + "," + finalDatasetURI2);
-                    String finalDatasetURI = client.target(datasetURI.split("dataset")[0] + "dataset/merge")
-                            .request()
-                            .accept("text/uri-list")
-                            .header("subjectId", subjectId)
-                            .post(Entity.form(params), String.class);
+                    String finalDatasetURI = validationService.trainAndTest(algorithmURI, trainDatasetURI, testDatasetURI, predictionFeature, algorithmParams, subjectId);
 
                     task.getMeta().getComments().add("Final dataset is:" + finalDatasetURI);
                     taskHandler.edit(task);
@@ -185,7 +176,7 @@ public class ValidationMDB extends RunningTaskMDB {
                         String trainDatasets = partialDatasets.stream()
                                 .filter(d -> !d.equals(testDataset))
                                 .collect(Collectors.joining(","));
-                        params = new MultivaluedHashMap<>();
+                        MultivaluedMap<String, String> params = new MultivaluedHashMap<>();
                         params.add("dataset_uris", trainDatasets);
                         String trainDataset = client.target(datasetURI.split("dataset")[0] + "dataset/merge")
                                 .request()
@@ -197,7 +188,7 @@ public class ValidationMDB extends RunningTaskMDB {
                         finalDatasets.add(finalSubDataset);
                     }
 
-                    params = new MultivaluedHashMap<>();
+                    MultivaluedMap<String, String> params = new MultivaluedHashMap<>();
                     params.add("dataset_uris", finalDatasets.stream().collect(Collectors.joining(",")));
                     String finalDataset = client.target(datasetURI.split("dataset")[0] + "dataset/merge")
                             .request()
