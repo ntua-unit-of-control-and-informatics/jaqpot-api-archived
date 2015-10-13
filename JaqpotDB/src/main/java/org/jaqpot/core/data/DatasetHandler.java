@@ -43,17 +43,18 @@ public class DatasetHandler extends AbstractHandler<Dataset> {
         if (dataset == null) {
             return null;
         }
+        if (stratify != null) {
+            switch (stratify) {
+                case "random":
+                    dataset = DatasetFactory.randomize(dataset, seed);
+                    break;
+                case "normal":
+                    dataset = DatasetFactory.stratify(dataset, folds, targetFeature);
+                    break;
 
-        switch (stratify) {
-            case "random":
-                dataset = DatasetFactory.randomize(dataset, seed);
-                break;
-            case "normal":
-                dataset = DatasetFactory.stratify(dataset, folds, targetFeature);
-                break;
-
-            case "default":
-                break;
+                case "default":
+                    break;
+            }
         }
 
         if (rowStart == null) {
