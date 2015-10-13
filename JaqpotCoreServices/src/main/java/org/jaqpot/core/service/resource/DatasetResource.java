@@ -134,9 +134,9 @@ public class DatasetResource {
             @QueryParam("colMax") Integer colMax,
             @QueryParam("stratify") String stratify,
             @QueryParam("seed") Long seed,
-            @QueryParam("groupSize") Integer groupSize,
+            @QueryParam("folds") Integer folds,
             @QueryParam("target_feature") String targetFeature) {
-        Dataset dataset = datasetHandler.find(id, rowStart, rowMax, colStart, colMax, stratify, seed, groupSize, targetFeature);
+        Dataset dataset = datasetHandler.find(id, rowStart, rowMax, colStart, colMax, stratify, seed, folds, targetFeature);
         if (dataset == null) {
             throw new NotFoundException("Could not find Dataset with id:" + id);
         }

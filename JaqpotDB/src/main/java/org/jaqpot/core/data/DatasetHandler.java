@@ -38,7 +38,7 @@ public class DatasetHandler extends AbstractHandler<Dataset> {
         return em;
     }
 
-    public Dataset find(Object id, Integer rowStart, Integer rowMax, Integer colStart, Integer colMax, String stratify, Long seed, Integer groupSize, String targetFeature) {
+    public Dataset find(Object id, Integer rowStart, Integer rowMax, Integer colStart, Integer colMax, String stratify, Long seed, Integer folds, String targetFeature) {
         Dataset dataset = em.find(Dataset.class, id);
         if (dataset == null) {
             return null;
@@ -49,7 +49,7 @@ public class DatasetHandler extends AbstractHandler<Dataset> {
                 dataset = DatasetFactory.randomize(dataset, seed);
                 break;
             case "normal":
-                dataset = DatasetFactory.stratify(dataset, groupSize, targetFeature);
+                dataset = DatasetFactory.stratify(dataset, folds, targetFeature);
                 break;
 
             case "default":

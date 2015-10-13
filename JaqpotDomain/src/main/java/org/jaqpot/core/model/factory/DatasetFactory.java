@@ -113,7 +113,7 @@ public class DatasetFactory {
         return dataset;
     }
 
-    public static Dataset stratify(Dataset dataset, Integer groupSize, String targetFeature) {
+    public static Dataset stratify(Dataset dataset, Integer folds, String targetFeature) {
         Object value = dataset.getDataEntry().get(0).getValues().get(targetFeature);
         if (value instanceof Number) {
             List<DataEntry> sortedEntries = dataset.getDataEntry().stream()
@@ -127,13 +127,15 @@ public class DatasetFactory {
             List<DataEntry> finalEntries = new ArrayList<>();
             int i = 0;
             while (finalEntries.size() < sortedEntries.size()) {
-                for (int j = 0; j < groupSize; j++) {
-                    int k = i + j * groupSize;
+                int k = 0, j = 0;
+                while (k < sortedEntries.size()) {
+                    k = i + j * folds;
                     if (k >= sortedEntries.size()) {
                         break;
                     }
                     DataEntry de = sortedEntries.get(k);
                     finalEntries.add(de);
+                    j++;
                 }
                 i++;
             }
