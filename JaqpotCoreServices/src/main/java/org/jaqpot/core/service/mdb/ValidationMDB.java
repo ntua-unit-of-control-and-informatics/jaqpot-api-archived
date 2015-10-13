@@ -34,6 +34,8 @@
  */
 package org.jaqpot.core.service.mdb;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -164,11 +166,11 @@ public class ValidationMDB extends RunningTaskMDB {
                         Integer rowMax = foldSize;
                         if (rowStart + rowMax > rows) {
                             rowMax = rows - rowStart;
-                            String partialDatasetURI = datasetURI + "?rowStart=" + rowStart + "&rowMax=" + rowMax + "&stratify=normal" + "&folds=" + folds + "&target_feature=" + predictionFeature;
+                            String partialDatasetURI = datasetURI + "?rowStart=" + rowStart + "&rowMax=" + rowMax + "&stratify=normal" + "&folds=" + folds + "&target_feature=" + URLEncoder.encode(predictionFeature, "UTF-8");
                             partialDatasets.add(partialDatasetURI);
                             break;
                         }
-                        String partialDatasetURI = datasetURI + "?rowStart=" + rowStart + "&rowMax=" + rowMax + "&stratify=normal" + "&folds=" + folds + "&target_feature=" + predictionFeature;
+                        String partialDatasetURI = datasetURI + "?rowStart=" + rowStart + "&rowMax=" + rowMax + "&stratify=normal" + "&folds=" + folds + "&target_feature=" + URLEncoder.encode(predictionFeature, "UTF-8");
                         partialDatasets.add(partialDatasetURI);
                     }
                     List<String> finalDatasets = new ArrayList<>();
@@ -239,6 +241,10 @@ public class ValidationMDB extends RunningTaskMDB {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             task.setStatus(Task.Status.ERROR);
             task.setErrorReport(ex.getError());
+        } catch (UnsupportedEncodingException ex) {
+            Logger.getLogger(ValidationMDB.class.getName()).log(Level.SEVERE, null, ex);
+            task.setStatus(Task.Status.ERROR);
+            task.setErrorReport(ErrorReportFactory.internalServerError("", ex.getMessage(), ""));
         } finally {
             if (task != null) {
                 terminate(task.getId());
