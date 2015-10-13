@@ -135,7 +135,7 @@ public class DatasetFactory {
                     DataEntry de = sortedEntries.get(k);
                     finalEntries.add(de);
                 }
-
+                i++;
             }
             dataset.setDataEntry(finalEntries);
             return dataset;
