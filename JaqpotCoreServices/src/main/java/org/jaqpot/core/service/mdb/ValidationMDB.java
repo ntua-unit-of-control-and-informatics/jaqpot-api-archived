@@ -164,11 +164,11 @@ public class ValidationMDB extends RunningTaskMDB {
                         Integer rowMax = foldSize;
                         if (rowStart + rowMax > rows) {
                             rowMax = rows - rowStart;
-                            String partialDatasetURI = datasetURI + "?rowStart=" + rowStart + "&rowMax=" + rowMax;
+                            String partialDatasetURI = datasetURI + "?rowStart=" + rowStart + "&rowMax=" + rowMax + "&stratify=normal" + "&folds=" + folds + "target_feature=" + predictionFeature;
                             partialDatasets.add(partialDatasetURI);
                             break;
                         }
-                        String partialDatasetURI = datasetURI + "?rowStart=" + rowStart + "&rowMax=" + rowMax;
+                        String partialDatasetURI = datasetURI + "?rowStart=" + rowStart + "&rowMax=" + rowMax + "&stratify=normal" + "&folds=" + folds + "target_feature=" + predictionFeature;
                         partialDatasets.add(partialDatasetURI);
                     }
                     List<String> finalDatasets = new ArrayList<>();
