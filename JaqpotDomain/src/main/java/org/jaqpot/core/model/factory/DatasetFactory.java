@@ -5,12 +5,15 @@
  */
 package org.jaqpot.core.model.factory;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import org.jaqpot.core.model.dto.dataset.DataEntry;
 import org.jaqpot.core.model.dto.dataset.Dataset;
 import org.jaqpot.core.model.dto.dataset.FeatureInfo;
@@ -98,5 +101,47 @@ public class DatasetFactory {
             dataset.getFeatures().addAll(other.getFeatures());
             return dataset;
         }
+    }
+
+    public static Dataset randomize(Dataset dataset, Long seed) {
+        Random generator = new Random(seed);
+        dataset.setDataEntry(generator.ints(dataset.getDataEntry().size(), 0, dataset.getDataEntry().size())
+                .mapToObj(i -> {
+                    return dataset.getDataEntry().get(i);
+                })
+                .collect(Collectors.toList()));
+        return dataset;
+    }
+
+    public static Dataset stratify(Dataset dataset, Integer groupSize, String targetFeature) {
+        Object value = dataset.getDataEntry().get(0).getValues().get(targetFeature);
+        if (value instanceof Number) {
+            List<DataEntry> sortedEntries = dataset.getDataEntry().stream()
+                    .sorted((e1, e2) -> {
+                        Double a = Double.parseDouble(e1.getValues().get(targetFeature).toString());
+                        Double b = Double.parseDouble(e2.getValues().get(targetFeature).toString());
+                        return a.compareTo(b);
+                    })
+                    .collect(Collectors.toList());
+
+            List<DataEntry> finalEntries = new ArrayList<>();
+            int i = 0;
+            while (finalEntries.size() < sortedEntries.size()) {
+                for (int j = 0; j < groupSize; j++) {
+                    int k = i + j * groupSize;
+                    if (k >= sortedEntries.size()) {
+                        break;
+                    }
+                    DataEntry de = sortedEntries.get(k);
+                    finalEntries.add(de);
+                }
+
+            }
+            dataset.setDataEntry(finalEntries);
+            return dataset;
+        } else {
+            return null;
+        }
+
     }
 }

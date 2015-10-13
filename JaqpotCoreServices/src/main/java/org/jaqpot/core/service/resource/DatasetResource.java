@@ -131,8 +131,12 @@ public class DatasetResource {
             @QueryParam("rowStart") Integer rowStart,
             @QueryParam("rowMax") Integer rowMax,
             @QueryParam("colStart") Integer colStart,
-            @QueryParam("colMax") Integer colMax) {
-        Dataset dataset = datasetHandler.find(id, rowStart, rowMax, colStart, colMax);
+            @QueryParam("colMax") Integer colMax,
+            @QueryParam("stratify") String stratify,
+            @QueryParam("seed") Long seed,
+            @QueryParam("groupSize") Integer groupSize,
+            @QueryParam("target_feature") String targetFeature) {
+        Dataset dataset = datasetHandler.find(id, rowStart, rowMax, colStart, colMax, stratify, seed, groupSize, targetFeature);
         if (dataset == null) {
             throw new NotFoundException("Could not find Dataset with id:" + id);
         }
@@ -145,7 +149,7 @@ public class DatasetResource {
     @ApiOperation(value = "Finds Dataset by Id",
             notes = "Finds specified Dataset",
             response = Dataset.class)
-    public Response getDataset(@PathParam("id") String id) {
+    public Response getDatasetFeatures(@PathParam("id") String id) {
         Dataset dataset = datasetHandler.find(id);
         if (dataset == null) {
             throw new NotFoundException("Could not find Dataset with id:" + id);

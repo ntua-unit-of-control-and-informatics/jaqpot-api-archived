@@ -16,6 +16,7 @@ import org.jaqpot.core.annotations.MongoDB;
 import org.jaqpot.core.db.entitymanager.JaqpotEntityManager;
 import org.jaqpot.core.model.dto.dataset.DataEntry;
 import org.jaqpot.core.model.dto.dataset.Dataset;
+import org.jaqpot.core.model.factory.DatasetFactory;
 
 /**
  *
@@ -37,10 +38,22 @@ public class DatasetHandler extends AbstractHandler<Dataset> {
         return em;
     }
 
-    public Dataset find(Object id, Integer rowStart, Integer rowMax, Integer colStart, Integer colMax) {
+    public Dataset find(Object id, Integer rowStart, Integer rowMax, Integer colStart, Integer colMax, String stratify, Long seed, Integer groupSize, String targetFeature) {
         Dataset dataset = em.find(Dataset.class, id);
         if (dataset == null) {
             return null;
+        }
+
+        switch (stratify) {
+            case "random":
+                dataset = DatasetFactory.randomize(dataset, seed);
+                break;
+            case "normal":
+                dataset = DatasetFactory.stratify(dataset, groupSize, targetFeature);
+                break;
+
+            case "default":
+                break;
         }
 
         if (rowStart == null) {
