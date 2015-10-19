@@ -168,11 +168,11 @@ public class ValidationMDB extends RunningTaskMDB {
                         Integer rowMax = foldSize;
                         if (rowStart + rowMax > rows) {
                             rowMax = rows - rowStart;
-                            String partialDatasetURI = datasetURI + "?rowStart=" + rowStart + "&rowMax=" + rowMax + "&stratify=" + stratify + "&folds=" + folds + "&seed=" + seed + "&target_feature=" + URLEncoder.encode(predictionFeature, "UTF-8");
+                            String partialDatasetURI = datasetURI + "?rowStart=" + rowStart + "&rowMax=" + rowMax + "&stratify=" + stratify + "&folds=" + folds != null ? folds.toString() : "" + "&seed=" + seed != null ? seed.toString() : "" + "&target_feature=" + URLEncoder.encode(predictionFeature, "UTF-8");
                             partialDatasets.add(partialDatasetURI);
                             break;
                         }
-                        String partialDatasetURI = datasetURI + "?rowStart=" + rowStart + "&rowMax=" + rowMax + "&stratify=" + stratify + "&folds=" + folds + "&seed=" + seed + "&target_feature=" + URLEncoder.encode(predictionFeature, "UTF-8");
+                        String partialDatasetURI = datasetURI + "?rowStart=" + rowStart + "&rowMax=" + rowMax + "&stratify=" + stratify + "&folds=" + folds != null ? folds.toString() : "" + "&seed=" + seed != null ? seed.toString() : "" + "&target_feature=" + URLEncoder.encode(predictionFeature, "UTF-8");
                         partialDatasets.add(partialDatasetURI);
                     }
                     List<String> finalDatasets = new ArrayList<>();
