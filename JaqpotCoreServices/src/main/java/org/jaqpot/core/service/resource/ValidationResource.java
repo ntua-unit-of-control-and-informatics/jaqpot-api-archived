@@ -101,6 +101,8 @@ public class ValidationResource {
             @FormParam("algorithm_params") String algorithmParameters,
             @FormParam("prediction_feature") String predictionFeature,
             @FormParam("folds") Integer folds,
+            @FormParam("stratify") String stratify,
+            @FormParam("seed") Integer seed,
             @HeaderParam("subjectId") String subjectId
     ) {
 
@@ -124,6 +126,8 @@ public class ValidationResource {
         options.put("prediction_feature", predictionFeature);
         options.put("folds", folds);
         options.put("type", "CROSS");
+        options.put("stratify", stratify);
+        options.put("seed", seed);
         options.put("subjectId", subjectId);
         taskHandler.create(task);
         jmsContext.createProducer().setDeliveryDelay(1000).send(validationQueue, options);

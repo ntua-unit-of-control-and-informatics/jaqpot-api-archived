@@ -153,6 +153,8 @@ public class ValidationMDB extends RunningTaskMDB {
                     taskHandler.edit(task);
 
                     Integer folds = (Integer) messageBody.get("folds");
+                    String stratify = (String) messageBody.get("stratify");
+                    Integer seed = (Integer) messageBody.get("seed");
                     dataset = client.target(datasetURI)
                             .request()
                             .accept(MediaType.APPLICATION_JSON)
@@ -166,11 +168,11 @@ public class ValidationMDB extends RunningTaskMDB {
                         Integer rowMax = foldSize;
                         if (rowStart + rowMax > rows) {
                             rowMax = rows - rowStart;
-                            String partialDatasetURI = datasetURI + "?rowStart=" + rowStart + "&rowMax=" + rowMax + "&stratify=normal" + "&folds=" + folds + "&target_feature=" + URLEncoder.encode(predictionFeature, "UTF-8");
+                            String partialDatasetURI = datasetURI + "?rowStart=" + rowStart + "&rowMax=" + rowMax + "&stratify=" + stratify + "&folds=" + folds + "&seed=" + seed + "&target_feature=" + URLEncoder.encode(predictionFeature, "UTF-8");
                             partialDatasets.add(partialDatasetURI);
                             break;
                         }
-                        String partialDatasetURI = datasetURI + "?rowStart=" + rowStart + "&rowMax=" + rowMax + "&stratify=normal" + "&folds=" + folds + "&target_feature=" + URLEncoder.encode(predictionFeature, "UTF-8");
+                        String partialDatasetURI = datasetURI + "?rowStart=" + rowStart + "&rowMax=" + rowMax + "&stratify=" + stratify + "&folds=" + folds + "&seed=" + seed + "&target_feature=" + URLEncoder.encode(predictionFeature, "UTF-8");
                         partialDatasets.add(partialDatasetURI);
                     }
                     List<String> finalDatasets = new ArrayList<>();
