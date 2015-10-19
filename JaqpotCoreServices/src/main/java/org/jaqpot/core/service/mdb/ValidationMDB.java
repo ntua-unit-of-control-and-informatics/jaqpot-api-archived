@@ -176,21 +176,26 @@ public class ValidationMDB extends RunningTaskMDB {
                         partialDatasets.add(partialDatasetURI);
                     }
                     List<String> finalDatasets = new ArrayList<>();
-                    for (String testDataset : partialDatasets) {
-                        String trainDatasets = partialDatasets.stream()
-                                .filter(d -> !d.equals(testDataset))
-                                .collect(Collectors.joining(","));
-                        MultivaluedMap<String, String> params = new MultivaluedHashMap<>();
-                        params.add("dataset_uris", trainDatasets);
-                        String trainDataset = client.target(datasetURI.split("dataset")[0] + "dataset/merge")
-                                .request()
-                                .accept("text/uri-list")
-                                .header("subjectId", subjectId)
-                                .post(Entity.form(params), String.class);
+//                    for (String testDataset : partialDatasets) {
+                    partialDatasets.parallelStream().forEach(testDataset -> {
+                        try {
+                            String trainDatasets = partialDatasets.stream()
+                                    .filter(d -> !d.equals(testDataset))
+                                    .collect(Collectors.joining(","));
+                            MultivaluedMap<String, String> params = new MultivaluedHashMap<>();
+                            params.add("dataset_uris", trainDatasets);
+                            String trainDataset = client.target(datasetURI.split("dataset")[0] + "dataset/merge")
+                                    .request()
+                                    .accept("text/uri-list")
+                                    .header("subjectId", subjectId)
+                                    .post(Entity.form(params), String.class);
 
-                        String finalSubDataset = validationService.trainAndTest(algorithmURI, trainDataset, testDataset, predictionFeature, algorithmParams, subjectId);
-                        finalDatasets.add(finalSubDataset);
-                    }
+                            String finalSubDataset = validationService.trainAndTest(algorithmURI, trainDataset, testDataset, predictionFeature, algorithmParams, subjectId);
+                            finalDatasets.add(finalSubDataset);
+                        } catch (JaqpotWebException ex) {
+                            Logger.getLogger(ValidationMDB.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                    });
 
                     MultivaluedMap<String, String> params = new MultivaluedHashMap<>();
                     params.add("dataset_uris", finalDatasets.stream().collect(Collectors.joining(",")));
