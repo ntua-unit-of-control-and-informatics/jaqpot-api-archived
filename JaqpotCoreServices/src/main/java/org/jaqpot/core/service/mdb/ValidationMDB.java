@@ -45,6 +45,7 @@ import java.util.stream.Collectors;
 import javax.ejb.ActivationConfigProperty;
 import javax.ejb.EJB;
 import javax.ejb.MessageDriven;
+import javax.enterprise.inject.spi.CDI;
 import javax.inject.Inject;
 import javax.jms.JMSException;
 import javax.jms.Message;
@@ -62,6 +63,7 @@ import org.jaqpot.core.model.builder.MetaInfoBuilder;
 import org.jaqpot.core.model.dto.dataset.Dataset;
 import org.jaqpot.core.model.factory.ErrorReportFactory;
 import org.jaqpot.core.service.annotations.UnSecure;
+import org.jaqpot.core.service.client.ClientFactory;
 import org.jaqpot.core.service.data.ValidationService;
 import org.jaqpot.core.service.exceptions.JaqpotWebException;
 
@@ -184,12 +186,14 @@ public class ValidationMDB extends RunningTaskMDB {
                                     .collect(Collectors.joining(","));
                             MultivaluedMap<String, String> params = new MultivaluedHashMap<>();
                             params.add("dataset_uris", trainDatasets);
-                            String trainDataset = client.target(datasetURI.split("dataset")[0] + "dataset/merge")
+                            Client c = new ClientFactory().getUnsecureRestClient();
+                            String trainDataset = c.target(datasetURI.split("dataset")[0] + "dataset/merge")
                                     .request()
                                     .accept("text/uri-list")
                                     .header("subjectId", subjectId)
                                     .post(Entity.form(params), String.class);
-
+                            c.close();
+                            
                             String finalSubDataset = validationService.trainAndTest(algorithmURI, trainDataset, testDataset, predictionFeature, algorithmParams, subjectId);
                             finalDatasets.add(finalSubDataset);
                         } catch (JaqpotWebException ex) {
