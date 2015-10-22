@@ -287,7 +287,7 @@ public class PredictionMDB extends RunningTaskMDB {
                     throw new JaqpotWebException(ErrorReportFactory.internalServerError("500", responseString, responseString));
                 }
             }
-            System.out.println(responseString);
+//            System.out.println(responseString);
 
             task.getMeta().getComments().add("Attempting to parse response...");
             task.setPercentageCompleted(18.f);

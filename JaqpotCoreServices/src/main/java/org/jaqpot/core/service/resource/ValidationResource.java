@@ -43,10 +43,14 @@ import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import org.jaqpot.core.data.TaskHandler;
+import org.jaqpot.core.data.ValidationHandler;
 import org.jaqpot.core.model.Task;
 import org.jaqpot.core.model.builder.MetaInfoBuilder;
 import org.jaqpot.core.model.util.ROG;
@@ -60,11 +64,15 @@ import org.jaqpot.core.service.annotations.Authorize;
  */
 @Path("validation")
 @Api(value = "/validation", description = "Validation API")
+@Produces(MediaType.APPLICATION_JSON)
 @Authorize
 public class ValidationResource {
 
     @EJB
     TaskHandler taskHandler;
+
+    @EJB
+    ValidationHandler validationHandler;
 
     @Context
     SecurityContext securityContext;
@@ -181,9 +189,9 @@ public class ValidationResource {
     @GET
     @Path("/{id}")
     @ApiOperation(value = "Retrieves Validation Report")
-    public Response getValidationReport() {
+    public Response getValidationReport(@PathParam("id") String id) {
 
-        return null;
+        return Response.ok(validationHandler.find(id)).build();
     }
 
 }

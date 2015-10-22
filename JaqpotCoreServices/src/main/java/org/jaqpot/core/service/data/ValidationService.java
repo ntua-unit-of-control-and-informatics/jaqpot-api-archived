@@ -29,7 +29,11 @@
  */
 package org.jaqpot.core.service.data;
 
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import javax.annotation.Resource;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
@@ -73,7 +77,7 @@ public class ValidationService {
     @UnSecure
     Client client;
 
-    public String trainAndTest(String algorithmURI, String trainingDataset, String testingDataset, String predictionFeature, String algorithmParameters, String subjectId) throws JaqpotWebException {
+    public Object[] trainAndTest(String algorithmURI, String trainingDataset, String testingDataset, String predictionFeature, String algorithmParameters, String subjectId) throws JaqpotWebException {
         MultivaluedMap<String, String> params = new MultivaluedHashMap<>();
         params.add("dataset_uri", trainingDataset);
         params.add("prediction_feature", predictionFeature);
@@ -126,11 +130,67 @@ public class ValidationService {
             throw new JaqpotWebException(predictionTask.getErrorReport());
 
         }
-        return predictionTask.getResultUri();
+        Model model = client.target(modelURI)
+                .request()
+                .header("subjectid", subjectId)
+                .accept(MediaType.APPLICATION_JSON)
+                .get(Model.class);
+        Object[] result = new Object[5];
+        result[0] = predictionTask.getResultUri();
+        result[1] = predictionFeature;
+        result[2] = model.getPredictedFeatures().get(0);
+        result[3] = model.getIndependentFeatures().size();
+        return result;
     }
 
-    public ValidationReport createValidationReport(String datasetURI, String predictionFeature, String predictedFeature) {
+    public ValidationReport createValidationReport(String datasetURI, String predictionFeature, String predictedFeature, Integer indepFeaturesSize, ValidationReport.Type type, String subjectId) {
+        Dataset dataset = client.target(datasetURI)
+                .request()
+                .header("subjectid", subjectId)
+                .accept(MediaType.APPLICATION_JSON)
+                .get(Dataset.class);
 
-        return null;
+        List<Double> original = dataset.getDataEntry().stream().map(de -> Double.parseDouble(de.getValues().get(predictionFeature).toString())).collect(Collectors.toList());
+        List<Double> predictions = dataset.getDataEntry().stream().map(de -> Double.parseDouble(de.getValues().get(predictedFeature).toString())).collect(Collectors.toList());
+
+        Double mean = original.stream().collect(Collectors.averagingDouble(Double::doubleValue));
+        Integer n = dataset.getDataEntry().size();
+        Integer p = indepFeaturesSize;
+
+        Double SSt = original.stream().map(y -> {
+            return Math.pow(y - mean, 2);
+        }).collect(Collectors.summingDouble(Double::doubleValue));
+
+        Double SSreg = predictions.stream().map(y -> {
+            return Math.pow(y - mean, 2);
+        }).collect(Collectors.summingDouble(Double::doubleValue));
+
+        Double SSres = IntStream.range(0, original.size())
+                .mapToObj(i -> {
+                    Double yObs = original.get(i);
+                    Double yCalc = predictions.get(i);
+                    return Math.pow(yObs - yCalc, 2);
+                }).collect(Collectors.summingDouble(Double::doubleValue));
+
+        Double R2 = SSreg / SSt;
+
+        Double R2Adj = 1 - (1 - R2) * (n - 1) / (n - p - 1);
+
+        Double stdErrorEstimate = Math.sqrt(SSres / (n - p - 1));
+
+        Double EMS = SSreg / p;
+        Double RMS = SSres / (n - p - 1);
+        Double fValue = EMS / RMS;
+
+        ValidationReport report = new ValidationReport();
+        Map<String, Object> calculations = new HashMap<>();
+        calculations.put("R^2", R2);
+        calculations.put("Adjusted R^2", R2Adj);
+        calculations.put("Standard error of estimate", stdErrorEstimate);
+        calculations.put("F-value", fValue);
+
+        report.setCalculations(calculations);
+        report.setType(type);
+        return report;
     }
 }

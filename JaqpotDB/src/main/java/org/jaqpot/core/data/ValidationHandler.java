@@ -27,45 +27,32 @@
  * All source files of JAQPOT Quattro that are stored on github are licensed
  * with the aforementioned licence. 
  */
-package org.jaqpot.core.model;
+package org.jaqpot.core.data;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import java.util.Map;
-import javax.xml.bind.annotation.XmlRootElement;
+import javax.ejb.Stateless;
+import javax.inject.Inject;
+import org.jaqpot.core.annotations.MongoDB;
+import org.jaqpot.core.db.entitymanager.JaqpotEntityManager;
+import org.jaqpot.core.model.BibTeX;
+import org.jaqpot.core.model.ValidationReport;
 
 /**
  *
- * @author Pantelis Sopasakis
- * @author Charalampos Chomenidis
- *
+ * @author hampos
  */
-@XmlRootElement
-@JsonInclude(JsonInclude.Include.NON_NULL)
-public class ValidationReport extends JaqpotEntity {
+@Stateless
+public class ValidationHandler extends AbstractHandler<ValidationReport> {
 
-    public enum Type {
+    @Inject
+    @MongoDB
+    JaqpotEntityManager em;
 
-        REGRESSION,
-        CLASSIFICATION
+    public ValidationHandler() {
+        super(ValidationReport.class);
     }
 
-    private Type type;
-    private Map<String, Object> calculations;
-
-    public Type getType() {
-        return type;
+    @Override
+    protected JaqpotEntityManager getEntityManager() {
+        return em;
     }
-
-    public void setType(Type type) {
-        this.type = type;
-    }
-
-    public Map<String, Object> getCalculations() {
-        return calculations;
-    }
-
-    public void setCalculations(Map<String, Object> calculations) {
-        this.calculations = calculations;
-    }
-
 }
