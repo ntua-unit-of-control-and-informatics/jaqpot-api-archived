@@ -288,6 +288,7 @@ public class ConjoinerService {
                                 .getJsonObject("feature")
                                 .getJsonObject(key)
                                 .getString("title");
+                        featureResponse.close();
                         FeatureInfo featureInfo = new org.jaqpot.core.model.dto.dataset.FeatureInfo(key, featureTitle);
                         featureInfo.setCategory(Dataset.DescriptorCategory.MOPAC);
                         featureMap.add(featureInfo);
