@@ -178,7 +178,7 @@ public class ValidationService {
         if (SSx == 0 || SSy == 0) {
             R2 = 0.0;
         } else {
-            R2 = SSxy / (SSx * SSy);
+            R2 = Math.pow(SSxy, 2) / (SSx * SSy);
         }
 
 //        Double SSt = original.stream().mapToDouble(y -> {
