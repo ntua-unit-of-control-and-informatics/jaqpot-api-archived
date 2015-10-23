@@ -155,8 +155,8 @@ public class ValidationService {
 
         Double mean = original.stream().collect(Collectors.averagingDouble(Double::doubleValue));
         Double predictedMean = predictions.stream().collect(Collectors.averagingDouble(Double::doubleValue));
-        Integer n = dataset.getDataEntry().size();
-        Integer p = indepFeaturesSize;
+        Double n = ((Integer) dataset.getDataEntry().size()).doubleValue();
+        Double p = indepFeaturesSize.doubleValue();
 
         Double SSx = original.stream().mapToDouble(y -> {
             return Math.pow(y - mean, 2);
