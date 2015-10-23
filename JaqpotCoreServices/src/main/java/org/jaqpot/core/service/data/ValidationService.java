@@ -162,7 +162,7 @@ public class ValidationService {
             return Math.pow(y - mean, 2);
         }).sum(); //collect(Collectors.summingDouble(Double::doubleValue));
 
-        Double SSy = original.stream().mapToDouble(y -> {
+        Double SSy = predictions.stream().mapToDouble(y -> {
             return Math.pow(y - predictedMean, 2);
         }).sum(); //collect(Collectors.summingDouble(Double::doubleValue));
 
