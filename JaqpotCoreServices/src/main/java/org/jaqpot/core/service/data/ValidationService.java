@@ -157,20 +157,20 @@ public class ValidationService {
         Integer n = dataset.getDataEntry().size();
         Integer p = indepFeaturesSize;
 
-        Double SSt = original.stream().map(y -> {
+        Double SSt = original.stream().mapToDouble(y -> {
             return Math.pow(y - mean, 2);
-        }).collect(Collectors.summingDouble(Double::doubleValue));
+        }).sum(); //collect(Collectors.summingDouble(Double::doubleValue));
 
-        Double SSreg = predictions.stream().map(y -> {
+        Double SSreg = predictions.stream().mapToDouble(y -> {
             return Math.pow(y - mean, 2);
-        }).collect(Collectors.summingDouble(Double::doubleValue));
+        }).sum();//.collect(Collectors.summingDouble(Double::doubleValue));
 
         Double SSres = IntStream.range(0, original.size())
-                .mapToObj(i -> {
+                .mapToDouble(i -> {
                     Double yObs = original.get(i);
                     Double yCalc = predictions.get(i);
                     return Math.pow(yObs - yCalc, 2);
-                }).collect(Collectors.summingDouble(Double::doubleValue));
+                }).sum();//.collect(Collectors.summingDouble(Double::doubleValue));
 
         Double R2 = 1 - (SSres / SSt);
 
