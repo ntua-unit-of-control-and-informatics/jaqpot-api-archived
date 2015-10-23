@@ -172,9 +172,9 @@ public class ValidationService {
                     return Math.pow(yObs - yCalc, 2);
                 }).collect(Collectors.summingDouble(Double::doubleValue));
 
-        Double R2 = SSreg / SSt;
+        Double R2 = 1 - (SSres / SSt);
 
-        Double R2Adj = 1 - (1 - R2) * (n - 1) / (n - p - 1);
+        Double R2Adj = 1 - ((1 - R2) * ((n - 1) / (n - p - 1)));
 
         Double stdErrorEstimate = Math.sqrt(SSres / (n - p - 1));
 
