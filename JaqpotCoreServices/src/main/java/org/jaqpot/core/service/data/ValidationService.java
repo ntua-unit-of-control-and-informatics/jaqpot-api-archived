@@ -154,40 +154,63 @@ public class ValidationService {
         List<Double> predictions = dataset.getDataEntry().stream().map(de -> Double.parseDouble(de.getValues().get(predictedFeature).toString())).collect(Collectors.toList());
 
         Double mean = original.stream().collect(Collectors.averagingDouble(Double::doubleValue));
+        Double predictedMean = predictions.stream().collect(Collectors.averagingDouble(Double::doubleValue));
         Integer n = dataset.getDataEntry().size();
         Integer p = indepFeaturesSize;
 
-        Double SSt = original.stream().mapToDouble(y -> {
+        Double SSx = original.stream().mapToDouble(y -> {
             return Math.pow(y - mean, 2);
         }).sum(); //collect(Collectors.summingDouble(Double::doubleValue));
 
-        Double SSreg = predictions.stream().mapToDouble(y -> {
-            return Math.pow(y - mean, 2);
-        }).sum();//.collect(Collectors.summingDouble(Double::doubleValue));
+        Double SSy = original.stream().mapToDouble(y -> {
+            return Math.pow(y - predictedMean, 2);
+        }).sum(); //collect(Collectors.summingDouble(Double::doubleValue));
 
-        Double SSres = IntStream.range(0, original.size())
+        Double SSxy = IntStream.range(0, original.size())
                 .mapToDouble(i -> {
                     Double yObs = original.get(i);
                     Double yCalc = predictions.get(i);
-                    return Math.pow(yObs - yCalc, 2);
+                    return (yObs - mean) * (yCalc - predictedMean);
                 }).sum();//.collect(Collectors.summingDouble(Double::doubleValue));
 
-        Double R2 = 1 - (SSres / SSt);
+        Double R2;
 
+        if (SSx == 0 || SSy == 0) {
+            R2 = 0.0;
+        } else {
+            R2 = SSxy / (SSx * SSy);
+        }
+
+//        Double SSt = original.stream().mapToDouble(y -> {
+//            return Math.pow(y - mean, 2);
+//        }).sum(); //collect(Collectors.summingDouble(Double::doubleValue));
+//
+//        Double SSreg = predictions.stream().mapToDouble(y -> {
+//            return Math.pow(y - mean, 2);
+//        }).sum();//.collect(Collectors.summingDouble(Double::doubleValue));
+//
+//        Double SSres = IntStream.range(0, original.size())
+//                .mapToDouble(i -> {
+//                    Double yObs = original.get(i);
+//                    Double yCalc = predictions.get(i);
+//                    return Math.pow(yObs - yCalc, 2);
+//                }).sum();//.collect(Collectors.summingDouble(Double::doubleValue));
+//
+//        Double R2 = 1 - (SSres / SSt);
+//
         Double R2Adj = 1 - ((1 - R2) * ((n - 1) / (n - p - 1)));
-
-        Double stdErrorEstimate = Math.sqrt(SSres / (n - p - 1));
-
-        Double EMS = SSreg / p;
-        Double RMS = SSres / (n - p - 1);
-        Double fValue = EMS / RMS;
-
+//
+//        Double stdErrorEstimate = Math.sqrt(SSres / (n - p - 1));
+//
+//        Double EMS = SSreg / p;
+//        Double RMS = SSres / (n - p - 1);
+//        Double fValue = EMS / RMS;
         ValidationReport report = new ValidationReport();
         Map<String, Object> calculations = new HashMap<>();
         calculations.put("R^2", R2);
         calculations.put("Adjusted R^2", R2Adj);
-        calculations.put("Standard error of estimate", stdErrorEstimate);
-        calculations.put("F-value", fValue);
+//        calculations.put("Standard error of estimate", stdErrorEstimate);
+//        calculations.put("F-value", fValue);
 
         report.setCalculations(calculations);
         report.setType(type);
