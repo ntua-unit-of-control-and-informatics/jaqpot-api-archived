@@ -68,24 +68,25 @@ import org.jaqpot.core.model.factory.ErrorReportFactory;
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class Leverage {
-
+    
     @POST
     @Path("training")
     public Response training(TrainingRequest request) {
         try {
             Dataset dataset = request.getDataset();
-
+            
             int numOfSubstances = dataset.getDataEntry().size();
             int numOfFeatures = dataset.getDataEntry().stream().findFirst().get().getValues().size();
-
+            
             double[][] dataArray = new double[numOfSubstances][numOfFeatures];
-
+            
             for (int i = 0; i < numOfSubstances; i++) {
                 dataArray[i] = dataset.getDataEntry()
                         .get(i)
                         .getValues()
                         .entrySet()
                         .stream()
+                        .filter(e -> !e.getKey().equals(request.getPredictionFeature()))
                         .mapToDouble(entry -> {
                             return Double.parseDouble(entry.getValue().toString());
                         }).toArray();
@@ -93,11 +94,11 @@ public class Leverage {
             Matrix dataMatrix = new Matrix(dataArray);
             double[][] omega = (dataMatrix.transpose().times(dataMatrix)).getArray();
             double gamma = (3.0 * numOfFeatures) / numOfSubstances;
-
+            
             LeverageModel model = new LeverageModel();
             model.setOmega(omega);
             model.setGamma(gamma);
-
+            
             TrainingResponse response = new TrainingResponse();
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             ObjectOutput out = new ObjectOutputStream(baos);
@@ -112,7 +113,7 @@ public class Leverage {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ErrorReportFactory.internalServerError()).build();
         }
     }
-
+    
     @POST
     @Path("prediction")
     public Response prediction(PredictionRequest request) {
@@ -122,14 +123,14 @@ public class Leverage {
             ByteArrayInputStream bais = new ByteArrayInputStream(modelBytes);
             ObjectInput in = new ObjectInputStream(bais);
             LeverageModel model = (LeverageModel) in.readObject();
-
+            
             Dataset dataset = request.getDataset();
-
+            
             int numOfSubstances = dataset.getDataEntry().size();
             int numOfFeatures = dataset.getDataEntry().stream().findFirst().get().getValues().size();
-
+            
             double[][] dataArray = new double[numOfSubstances][numOfFeatures];
-
+            
             for (int i = 0; i < numOfSubstances; i++) {
                 dataArray[i] = dataset.getDataEntry()
                         .get(i)
@@ -149,7 +150,7 @@ public class Leverage {
             Matrix S = svd.getS();
             Matrix U = svd.getU();
             Matrix V = svd.getV();
-
+            
             for (int i = 0; i < S.getRowDimension(); i++) {
                 if (Math.abs(S.get(i, i)) > 1e-6) {
                     S.set(i, i, 1 / S.get(i, i));
@@ -158,7 +159,7 @@ public class Leverage {
             Matrix pseudoInverse = U.times(S).times(V.transpose());
             for (int i = 0; i < numOfSubstances; i++) {
                 x = dataMatrix.getMatrix(i, i, 0, numOfFeatures - 1);
-
+                
                 double indicator = Math.max(0, (gamma - x.times(pseudoInverse.times(x.transpose())).get(0, 0)) / gamma);
                 Map<String, Object> predictionMap = new HashMap<>();
                 predictionMap.put("Leverage DoA", indicator);
@@ -174,5 +175,5 @@ public class Leverage {
                     .build();
         }
     }
-
+    
 }
