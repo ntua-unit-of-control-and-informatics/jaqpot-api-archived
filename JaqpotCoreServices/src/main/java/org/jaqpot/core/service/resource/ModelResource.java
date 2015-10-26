@@ -241,10 +241,11 @@ public class ModelResource {
     public Response listModelDependentFeatures(
             @PathParam("id") String id,
             @ApiParam(value = "Clients need to authenticate in order to access models") @HeaderParam("subjectid") String subjectId) {
-        return Response.status(Response.Status.NOT_IMPLEMENTED)
-                .entity(ErrorReportFactory.notImplementedYet())
-                .type(MediaType.APPLICATION_JSON_TYPE)
-                .build();
+        Model foundModel = modelHandler.findModelIndependentFeatures(id);
+        if (foundModel == null) {
+            throw new NotFoundException("The requested model was not found on the server.");
+        }
+        return Response.ok(foundModel.getDependentFeatures()).build();
 
     }
 
@@ -265,10 +266,20 @@ public class ModelResource {
     public Response listModelPredictedFeatures(
             @PathParam("id") String id,
             @ApiParam(value = "Clients need to authenticate in order to access models") @HeaderParam("subjectid") String subjectId) {
-        return Response.status(Response.Status.NOT_IMPLEMENTED)
-                .entity(ErrorReportFactory.notImplementedYet())
-                .type(MediaType.APPLICATION_JSON_TYPE)
-                .build();
+
+        Model foundModel = modelHandler.findModel(id);
+        if (foundModel == null) {
+            throw new NotFoundException("The requested model was not found on the server.");
+        }
+        List<String> predictedFeatures = new ArrayList<>();
+        predictedFeatures.addAll(foundModel.getPredictedFeatures());
+        foundModel.getLinkedModels().stream()
+                .map(m -> m.split("model/")[1])
+                .forEach(mid -> {
+                    Model linkedModel = modelHandler.findModel(mid);
+                    predictedFeatures.addAll(linkedModel.getPredictedFeatures());
+                });
+        return Response.ok(predictedFeatures).build();
 
     }
 
