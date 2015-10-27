@@ -143,6 +143,7 @@ public class PreparationMDB extends RunningTaskMDB {
                     .addCreators(aaService.getUserFromSSO(subjectId).getId())
                     .build();
             dataset.setMeta(datasetMeta);
+            dataset.setVisible(Boolean.TRUE);
 
             datasetHandler.create(dataset);
 

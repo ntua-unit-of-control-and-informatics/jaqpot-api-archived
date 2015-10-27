@@ -336,6 +336,9 @@ public class PredictionMDB extends RunningTaskMDB {
             task.getMeta().getComments().add("Saving to database...");
             task.setPercentageCompleted(30.f);
             taskHandler.edit(task);
+            if ((Boolean) messageBody.get("visible")) {
+                mergedDataset.setVisible(Boolean.TRUE);
+            }
             datasetHandler.create(mergedDataset);
             task.getMeta().getComments().add("Dataset saved...");
             taskHandler.edit(task);

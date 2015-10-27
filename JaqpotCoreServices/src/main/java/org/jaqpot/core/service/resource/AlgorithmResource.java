@@ -243,6 +243,7 @@ public class AlgorithmResource {
             @ApiParam(name = "transformations", defaultValue = DEFAULT_TRANSFORMATIONS) @FormParam("transformations") String transformations,
             @ApiParam(name = "scaling", defaultValue = STANDARIZATION) @FormParam("scaling") String scaling, //, allowableValues = SCALING + "," + STANDARIZATION
             @ApiParam(name = "doa", defaultValue = DEFAULT_DOA) @FormParam("doa") String doa,
+            @FormParam("visible") Boolean visible,
             @PathParam("id") String algorithmId,
             @HeaderParam("subjectid") String subjectId) {
         Map<String, Object> options = new HashMap<>();
@@ -255,6 +256,7 @@ public class AlgorithmResource {
         options.put("parameters", parameters);
         options.put("base_uri", uriInfo.getBaseUri().toString());
         options.put("createdBy", securityContext.getUserPrincipal().getName());
+        options.put("visible", visible != null ? visible : false);
 
         Map<String, String> transformationAlgorithms = new LinkedHashMap<>();
         if (transformations != null && !transformations.isEmpty()) {

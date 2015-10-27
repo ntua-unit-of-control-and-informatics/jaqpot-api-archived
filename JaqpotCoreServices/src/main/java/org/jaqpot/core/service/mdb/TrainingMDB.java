@@ -485,6 +485,9 @@ public class TrainingMDB extends RunningTaskMDB {
 //            }
             task.getMeta().getComments().add("Model was built successfully. Now saving to database...");
             taskHandler.edit(task);
+            if((Boolean)messageBody.get("visible")){
+                model.setVisible(Boolean.TRUE);
+            }
             modelHandler.create(model);
 
             task.setResult("model/" + model.getId());
