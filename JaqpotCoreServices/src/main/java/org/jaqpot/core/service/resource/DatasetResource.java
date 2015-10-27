@@ -40,6 +40,7 @@ import java.util.ArrayList;
 import javax.ejb.EJB;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
@@ -210,5 +211,14 @@ public class DatasetResource {
 
         return Response.created(new URI(dataset.getId())).entity(dataset).build();
 
+    }
+
+    @DELETE
+    @ApiOperation("Deletes dataset")
+    public Response deleteDataset(@PathParam("id") String id) {
+        Dataset ds = new Dataset();
+        ds.setId(id);
+        datasetHandler.remove(ds);
+        return Response.ok().build();
     }
 }
