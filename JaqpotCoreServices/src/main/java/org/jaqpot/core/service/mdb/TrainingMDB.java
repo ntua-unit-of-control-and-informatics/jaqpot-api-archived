@@ -177,9 +177,11 @@ public class TrainingMDB extends RunningTaskMDB {
                     taskHandler.edit(task);
 
                     MultivaluedMap<String, String> formMap = new MultivaluedHashMap<>();
-                    messageBody.entrySet().forEach(entry -> {
-                        formMap.put(entry.getKey(), Arrays.asList((String) entry.getValue()));
-                    });
+                    messageBody.entrySet().stream()
+                            .filter(e -> !e.getKey().equals("visible"))
+                            .forEach(entry -> {
+                                formMap.put(entry.getKey(), Arrays.asList(entry.getValue().toString()));
+                            });
                     formMap.remove("transformations");
                     formMap.put("parameters", Arrays.asList(transformations.get(algorithm.getId())));
                     formMap.put("dataset_uri", Arrays.asList(dataset_uri));
@@ -485,7 +487,7 @@ public class TrainingMDB extends RunningTaskMDB {
 //            }
             task.getMeta().getComments().add("Model was built successfully. Now saving to database...");
             taskHandler.edit(task);
-            if((Boolean)messageBody.get("visible")){
+            if ((Boolean) messageBody.get("visible")) {
                 model.setVisible(Boolean.TRUE);
             }
             modelHandler.create(model);
