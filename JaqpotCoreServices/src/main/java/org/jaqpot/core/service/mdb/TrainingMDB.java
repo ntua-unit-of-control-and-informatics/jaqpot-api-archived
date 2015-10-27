@@ -179,6 +179,7 @@ public class TrainingMDB extends RunningTaskMDB {
                     MultivaluedMap<String, String> formMap = new MultivaluedHashMap<>();
                     messageBody.entrySet().stream()
                             .filter(e -> !e.getKey().equals("visible"))
+                            .filter(e -> e.getValue() != null)
                             .forEach(entry -> {
                                 formMap.put(entry.getKey(), Arrays.asList(entry.getValue().toString()));
                             });
