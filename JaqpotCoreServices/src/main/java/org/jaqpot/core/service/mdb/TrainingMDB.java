@@ -255,9 +255,12 @@ public class TrainingMDB extends RunningTaskMDB {
                     taskHandler.edit(task);
 
                     MultivaluedMap<String, String> formMap = new MultivaluedHashMap<>();
-                    messageBody.entrySet().forEach(entry -> {
-                        formMap.put(entry.getKey(), Arrays.asList((String) entry.getValue()));
-                    });
+                    messageBody.entrySet().stream()
+                            .filter(e -> !e.getKey().equals("visible"))
+                            .filter(e -> e.getValue() != null)
+                            .forEach(entry -> {
+                                formMap.put(entry.getKey(), Arrays.asList(entry.getValue().toString()));
+                            });
                     formMap.remove("transformations");
                     formMap.put("parameters", Arrays.asList(transformations.get(algorithm.getId())));
                     formMap.put("dataset_uri", Arrays.asList(dataset_uri));
