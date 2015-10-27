@@ -48,6 +48,7 @@ import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import javax.ejb.ActivationConfigProperty;
 import javax.ejb.EJB;
 import javax.ejb.MessageDriven;
@@ -73,6 +74,7 @@ import org.jaqpot.core.model.Task;
 import org.jaqpot.core.model.dto.dataset.DataEntry;
 import org.jaqpot.core.model.factory.ErrorReportFactory;
 import org.jaqpot.core.model.dto.dataset.Dataset;
+import org.jaqpot.core.model.dto.dataset.FeatureInfo;
 import org.jaqpot.core.model.dto.jpdi.PredictionRequest;
 import org.jaqpot.core.model.dto.jpdi.PredictionResponse;
 import org.jaqpot.core.model.dto.study.Category;
@@ -300,7 +302,9 @@ public class PredictionMDB extends RunningTaskMDB {
             task.setPercentageCompleted(22.f);
             taskHandler.edit(task);
             List<Map<String, Object>> predictions = predictionResponse.getPredictions();
-            for (int i = 0; i < dataset.getDataEntry().size(); i++) {
+//            for (int i = 0; i < dataset.getDataEntry().size(); i++) {
+
+            IntStream.range(0, dataset.getDataEntry().size()).parallel().forEach(i -> {
                 Map<String, Object> row = predictions.get(i);
                 DataEntry dataEntry = dataset.getDataEntry().get(i);
                 if (model.getAlgorithm().getOntologicalClasses().contains("ot:Scaling")
@@ -308,30 +312,31 @@ public class PredictionMDB extends RunningTaskMDB {
                     dataEntry.getValues().clear();
                     dataset.getFeatures().clear();
                 }
-                for (Entry<String, Object> entry : row.entrySet()) {
-//                row.entrySet().stream().forEach(entry -> {
+//                for (Entry<String, Object> entry : row.entrySet()) {
+                row.entrySet().parallelStream().forEach(entry -> {
                     Feature feature = featureHandler.findByTitleAndSource(entry.getKey(), "algorithm/" + model.getAlgorithm().getId());
                     dataEntry.getValues().put(messageBody.get("base_uri") + "feature/" + feature.getId(), entry.getValue());
-                    dataset.getFeatures().add(new org.jaqpot.core.model.dto.dataset.FeatureInfo(messageBody.get("base_uri") + "feature/" + feature.getId(), feature.getMeta().getTitles().stream().findFirst().get()));
-                }
-            }
+                    FeatureInfo featInfo = new FeatureInfo(messageBody.get("base_uri") + "feature/" + feature.getId(), feature.getMeta().getTitles().stream().findFirst().get());
+                    dataset.getFeatures().add(featInfo);
+                });
+            });
 //            System.out.println(jsonSerializer.write(dataset));
-            dataset = DatasetFactory.mergeColumns(dataset, predFeatureDataset);
+            Dataset mergedDataset = DatasetFactory.mergeColumns(dataset, predFeatureDataset);
             for (String predictionDatasetURI : predictionDatasets) {
                 Dataset predictionDataset = client.target(predictionDatasetURI)
                         .request()
                         .header("subjectid", messageBody.get("subjectid"))
                         .accept(MediaType.APPLICATION_JSON)
                         .get(Dataset.class);
-                dataset = DatasetFactory.mergeColumns(dataset, predictionDataset);
+                mergedDataset = DatasetFactory.mergeColumns(mergedDataset, predictionDataset);
             }
             ROG randomStringGenerator = new ROG(true);
-            dataset.setId(randomStringGenerator.nextString(14));
+            mergedDataset.setId(randomStringGenerator.nextString(14));
             task.getMeta().getComments().add("Dataset ready.");
             task.getMeta().getComments().add("Saving to database...");
             task.setPercentageCompleted(30.f);
             taskHandler.edit(task);
-            datasetHandler.create(dataset);
+            datasetHandler.create(mergedDataset);
             task.getMeta().getComments().add("Dataset saved...");
             taskHandler.edit(task);
 //            System.out.println(jsonSerializer.write(dataset));
@@ -343,7 +348,7 @@ public class PredictionMDB extends RunningTaskMDB {
 
                 String bundleUri = (String) messageBody.get("bundle_uri");
 
-                List<String> substances = dataset.getDataEntry().stream().map(de -> {
+                List<String> substances = mergedDataset.getDataEntry().stream().map(de -> {
                     return de.getCompound().getURI();
                 }).collect(Collectors.toList());
                 String predictionFeature = model.getPredictedFeatures().stream().findFirst().get();
@@ -380,7 +385,7 @@ public class PredictionMDB extends RunningTaskMDB {
             task.setStatus(Task.Status.COMPLETED);
             task.setPercentageCompleted(100.f);
             task.setHttpStatus(201);
-            task.setResult("dataset/" + dataset.getId());
+            task.setResult("dataset/" + mergedDataset.getId());
             task.getMeta().getComments().add("Task Completed Successfully.");
         } catch (JMSException ex) {
             LOG.log(Level.SEVERE, null, ex);
