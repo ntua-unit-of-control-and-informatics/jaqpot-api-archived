@@ -31,6 +31,7 @@ package org.jaqpot.core.model;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import java.util.List;
 
 /**
  *
@@ -66,9 +67,8 @@ public class Parameter extends JaqpotEntity {
      */
     private String name;
     /**
-     * Parameter's value.
-     * Default value if it is a parameter of an algorithm, or actual value
-     * if it is the parameter of a model.
+     * Parameter's value. Default value if it is a parameter of an algorithm, or
+     * actual value if it is the parameter of a model.
      */
     private Object value;
     /**
@@ -76,20 +76,25 @@ public class Parameter extends JaqpotEntity {
      */
     private Scope scope;
 
+    private List<Object> allowedValues;
+
+    private Object minValue;
+
+    private Object maxValue;
+
     public Parameter() {
     }
 
     public Parameter(String id) {
         super(id);
     }
-    
+
     public Parameter(Parameter other) {
         super(other);
         this.name = other.name;
         this.scope = other.scope;
         this.value = other.value;
     }
-        
 
     public String getName() {
         return name;
@@ -113,6 +118,30 @@ public class Parameter extends JaqpotEntity {
 
     public void setScope(Scope scope) {
         this.scope = scope;
+    }
+
+    public List<Object> getAllowedValues() {
+        return allowedValues;
+    }
+
+    public void setAllowedValues(List<Object> allowedValues) {
+        this.allowedValues = allowedValues;
+    }
+
+    public Object getMinValue() {
+        return minValue;
+    }
+
+    public void setMinValue(Object minValue) {
+        this.minValue = minValue;
+    }
+
+    public Object getMaxValue() {
+        return maxValue;
+    }
+
+    public void setMaxValue(Object maxValue) {
+        this.maxValue = maxValue;
     }
 
 }
