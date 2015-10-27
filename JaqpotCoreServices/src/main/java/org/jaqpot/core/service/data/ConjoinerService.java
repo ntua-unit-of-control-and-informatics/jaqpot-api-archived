@@ -138,6 +138,7 @@ public class ConjoinerService {
                 userName);
         task.setType(Task.Type.PREPARATION);
         options.put("taskId", task.getId());
+        task.setVisible(Boolean.TRUE);
         taskHandler.create(task);
         jmsContext.createProducer().setDeliveryDelay(1000).send(preparationQueue, options);
         return task;

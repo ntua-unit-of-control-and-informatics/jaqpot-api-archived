@@ -89,6 +89,9 @@ public class TrainingService {
         task.setHttpStatus(202);
         task.setStatus(Task.Status.QUEUED);
         options.put("taskId", task.getId());
+        if((Boolean)options.get("visible")){
+            task.setVisible(Boolean.TRUE);
+        }
         taskHandler.create(task);
         jmsContext.createProducer().setDeliveryDelay(1000).send(trainingQueue, options);
         return task;
