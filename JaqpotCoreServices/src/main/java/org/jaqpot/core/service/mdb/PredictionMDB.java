@@ -101,49 +101,49 @@ import org.jaqpot.core.service.exceptions.JaqpotWebException;
             propertyValue = "javax.jms.Topic")
 })
 public class PredictionMDB extends RunningTaskMDB {
-
+    
     private static final Logger LOG = Logger.getLogger(PredictionMDB.class.getName());
-
+    
     @EJB
     TaskHandler taskHandler;
-
+    
     @EJB
     ModelHandler modelHandler;
-
+    
     @EJB
     DatasetHandler datasetHandler;
-
+    
     @EJB
     FeatureHandler featureHandler;
-
+    
     @Inject
     @UnSecure
     Client client;
-
+    
     @Inject
     @Jackson
     JSONSerializer jsonSerializer;
-
+    
     @Override
     public void onMessage(Message msg) {
         Task task = null;
         try {
             Map<String, Object> messageBody = msg.getBody(Map.class);
             task = taskHandler.find(messageBody.get("taskId"));
-
+            
             if (task == null) {
                 throw new NullPointerException("FATAL: Could not find task with id:" + messageBody.get("taskId"));
             }
-
+            
             init(task.getId());
-
+            
             task.setHttpStatus(202);
             task.setStatus(Task.Status.RUNNING);
             task.setType(Task.Type.PREDICTION);
             task.getMeta().getComments().add("Prediction Task is now running.");
             task.setPercentageCompleted(1.0f);
             taskHandler.edit(task);
-
+            
             task.getMeta().getComments().add("Attempting to find model in database...");
             task.setPercentageCompleted(1.5f);
             taskHandler.edit(task);
@@ -157,7 +157,7 @@ public class PredictionMDB extends RunningTaskMDB {
             task.getMeta().getComments().add("Model retrieved successfully.");
             task.setPercentageCompleted(5.f);
             taskHandler.edit(task);
-
+            
             String dataset_uri = (String) messageBody.get("dataset_uri");
             if (model.getTransformationModels() != null && !model.getTransformationModels().isEmpty()) {
                 task.getMeta().getComments().add("--");
@@ -179,7 +179,7 @@ public class PredictionMDB extends RunningTaskMDB {
                         try {
                             Thread.sleep(500);
                         } catch (InterruptedException ex) {
-
+                            
                         }
                         predictionTask = client.target(predictionTaskURI)
                                 .request()
@@ -196,11 +196,11 @@ public class PredictionMDB extends RunningTaskMDB {
                         throw new JaqpotWebException(predictionTask.getErrorReport());
                     }
                 }
-
+                
                 task.getMeta().getComments().add("--");
                 taskHandler.edit(task);
             }
-
+            
             List<String> predictionDatasets = new ArrayList<>();
             if (model.getLinkedModels() != null && !model.getLinkedModels().isEmpty()) {
                 task.getMeta().getComments().add("--");
@@ -223,7 +223,7 @@ public class PredictionMDB extends RunningTaskMDB {
                         try {
                             Thread.sleep(500);
                         } catch (InterruptedException ex) {
-
+                            
                         }
                         predictionTask = client.target(predictionTaskURI)
                                 .request()
@@ -240,11 +240,11 @@ public class PredictionMDB extends RunningTaskMDB {
                         task.getMeta().getComments().add("Prediction task failed.");
                     }
                 }
-
+                
                 task.getMeta().getComments().add("--");
                 taskHandler.edit(task);
             }
-
+            
             task.getMeta().getComments().add("Attempting to download dataset...");
             taskHandler.edit(task);
             Dataset dataset = client.target(dataset_uri)
@@ -254,15 +254,15 @@ public class PredictionMDB extends RunningTaskMDB {
                     .get(Dataset.class);
             dataset.setDatasetURI(dataset_uri);
             task.getMeta().getComments().add("Dataset has been retrieved.");
-
+            
             Dataset predFeatureDataset = DatasetFactory.copy(dataset, new HashSet<>(model.getDependentFeatures()));
-
+            
             dataset.getDataEntry().parallelStream()
                     .forEach(dataEntry -> {
                         dataEntry.getValues().keySet().retainAll(model.getIndependentFeatures());
                     });
             task.getMeta().getComments().add("Dataset has been cleaned from unused values.");
-
+            
             task.setPercentageCompleted(15.f);
             task.getMeta().getComments().add("Creating JPDI prediction request...");
             taskHandler.edit(task);
@@ -270,7 +270,7 @@ public class PredictionMDB extends RunningTaskMDB {
             predictionRequest.setDataset(dataset);
             predictionRequest.setRawModel(model.getActualModel());
             predictionRequest.setAdditionalInfo(model.getAdditionalInfo());
-
+            
             task.getMeta().getComments().add("Sending request to algorithm service:" + model.getAlgorithm().getPredictionService());
             task.setPercentageCompleted(17.f);
             taskHandler.edit(task);
@@ -280,7 +280,7 @@ public class PredictionMDB extends RunningTaskMDB {
                     .post(Entity.json(predictionRequest));
             task.getMeta().getComments().add("Algorithm service responded with status:" + response.getStatus());
             taskHandler.edit(task);
-
+            
             String responseString = response.readEntity(String.class);
             if (response.getStatus() != 200 && response.getStatus() != 201 && response.getStatus() != 202) {
                 if (response.getStatus() == 400) {
@@ -297,7 +297,7 @@ public class PredictionMDB extends RunningTaskMDB {
             PredictionResponse predictionResponse = jsonSerializer.parse(responseString, PredictionResponse.class);
             response.close();
             task.getMeta().getComments().add("Response was parsed successfully.");
-
+            
             task.getMeta().getComments().add("Creating new Dataset for predictions...");
             task.setPercentageCompleted(22.f);
             taskHandler.edit(task);
@@ -338,6 +338,8 @@ public class PredictionMDB extends RunningTaskMDB {
             taskHandler.edit(task);
             if ((Boolean) messageBody.get("visible")) {
                 mergedDataset.setVisible(Boolean.TRUE);
+            } else {
+                mergedDataset.setVisible(Boolean.FALSE);
             }
             datasetHandler.create(mergedDataset);
             task.getMeta().getComments().add("Dataset saved...");
@@ -348,9 +350,9 @@ public class PredictionMDB extends RunningTaskMDB {
                 task.getMeta().getComments().add("We will attempt to upload results into the bundle.");
                 task.setPercentageCompleted(35.f);
                 taskHandler.edit(task);
-
+                
                 String bundleUri = (String) messageBody.get("bundle_uri");
-
+                
                 List<String> substances = mergedDataset.getDataEntry().stream().map(de -> {
                     return de.getCompound().getURI();
                 }).collect(Collectors.toList());
@@ -358,7 +360,7 @@ public class PredictionMDB extends RunningTaskMDB {
                 Feature feature = featureHandler.find(predictionFeature.split("/")[1]);
                 String predictedProperty = feature.getMeta().getSeeAlso().stream().findFirst().get();
                 String studyJSON = createStudyJSON(predictedProperty, model.getId(), predictions, substances);
-
+                
                 task.getMeta().getComments().add("Creating a working matrix in the bundle...");
                 task.setPercentageCompleted(45.f);
                 taskHandler.edit(task);
@@ -367,7 +369,7 @@ public class PredictionMDB extends RunningTaskMDB {
                 client.target(bundleUri + "/matrix/working")
                         .request()
                         .post(Entity.form(formData)).close();
-
+                
                 task.getMeta().getComments().add("Now putting results in the bundle...");
                 task.setPercentageCompleted(50.f);
                 taskHandler.edit(task);
@@ -376,15 +378,15 @@ public class PredictionMDB extends RunningTaskMDB {
                         .header("Content-type", MediaType.APPLICATION_JSON)
                         .accept("text/uri-list")
                         .put(Entity.entity(studyJSON, MediaType.APPLICATION_JSON));
-
+                
                 String taskUri = taskResponse.readEntity(String.class);
                 taskResponse.close();
-
+                
                 task.getMeta().getComments().add("An upload task has been started with URI:" + taskUri.trim());
                 task.setPercentageCompleted(85.f);
                 taskHandler.edit(task);
             }
-
+            
             task.setStatus(Task.Status.COMPLETED);
             task.setPercentageCompleted(100.f);
             task.setHttpStatus(201);
@@ -412,7 +414,7 @@ public class PredictionMDB extends RunningTaskMDB {
             taskHandler.edit(task);
         }
     }
-
+    
     private String createStudyJSON(
             String predictedProperty,
             String modelId,
@@ -421,7 +423,7 @@ public class PredictionMDB extends RunningTaskMDB {
             throws UnsupportedEncodingException, JsonProcessingException {
         Studies studies = new Studies();
         List<Study> studyList = new ArrayList<>();
-
+        
         for (int i = 0; i < predictions.size(); i++) {
             Object value = predictions.get(i).values().stream().findFirst().get();
             Study study = new Study();
@@ -430,15 +432,15 @@ public class PredictionMDB extends RunningTaskMDB {
             substance.setUuid(substances.get(i));
             owner.setSubstance(substance);
             study.setOwner(owner);
-
+            
             String[] parts = predictedProperty.split("/");
-
+            
             Protocol protocol = new Protocol();
             protocol.setTopcategory(parts[1]);
             Category category = new Category();
             category.setCode(parts[2]);
             protocol.setCategory(category);
-
+            
             String endpoint = URLDecoder.decode(parts[3], "UTF-8");
             protocol.setEndpoint(endpoint);
             protocol.setGuideline(Arrays.asList("Predicted Property by Model " + modelId));
@@ -446,20 +448,20 @@ public class PredictionMDB extends RunningTaskMDB {
             Map<String, Object> reliability = new HashMap<>();
             reliability.put("r_studyResultType", "(Q)SAR");
             study.setReliability(reliability);
-
+            
             Effect effect = new Effect();
             effect.setEndpoint(endpoint);
             Result result = new Result();
             result.setLoValue((Number) value);
             result.setLoQualifier("mean");
             effect.setResult(result);
-
+            
             TreeMap<String, Object> conditions = new TreeMap<>();
             conditions.put("Model", modelId);
             effect.setConditions(conditions);
             study.setEffects(Arrays.asList(effect));
             study.setParameters(new HashMap<>());
-
+            
             studyList.add(study);
         }
         studies.setStudy(studyList);
@@ -469,5 +471,5 @@ public class PredictionMDB extends RunningTaskMDB {
                 .writeValueAsString(studies);
         return studyJSON;
     }
-
+    
 }
