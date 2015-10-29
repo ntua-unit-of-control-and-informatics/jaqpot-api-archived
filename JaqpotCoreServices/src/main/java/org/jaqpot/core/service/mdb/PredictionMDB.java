@@ -304,23 +304,26 @@ public class PredictionMDB extends RunningTaskMDB {
             List<Map<String, Object>> predictions = predictionResponse.getPredictions();
 //            for (int i = 0; i < dataset.getDataEntry().size(); i++) {
 
-            IntStream.range(0, dataset.getDataEntry().size()).parallel().forEach(i -> {
-                Map<String, Object> row = predictions.get(i);
-                DataEntry dataEntry = dataset.getDataEntry().get(i);
-                if (model.getAlgorithm().getOntologicalClasses().contains("ot:Scaling")
+            IntStream.range(0, dataset.getDataEntry().size())
+                    .parallel()
+                    .forEach(i -> {
+                        Map<String, Object> row = predictions.get(i);
+                        DataEntry dataEntry = dataset.getDataEntry().get(i);
+                        if (model.getAlgorithm().getOntologicalClasses().contains("ot:Scaling")
                         || model.getAlgorithm().getOntologicalClasses().contains("ot:Transformation")) {
-                    dataEntry.getValues().clear();
-                    dataset.getFeatures().clear();
-                }
-//                for (Entry<String, Object> entry : row.entrySet()) {
-                row.entrySet().parallelStream().forEach(entry -> {
-                    Feature feature = featureHandler.findByTitleAndSource(entry.getKey(), "algorithm/" + model.getAlgorithm().getId());
-                    dataEntry.getValues().put(messageBody.get("base_uri") + "feature/" + feature.getId(), entry.getValue());
-                    FeatureInfo featInfo = new FeatureInfo(messageBody.get("base_uri") + "feature/" + feature.getId(), feature.getMeta().getTitles().stream().findFirst().get());
-                    dataset.getFeatures().add(featInfo);
-                });
-            });
-//            System.out.println(jsonSerializer.write(dataset));
+                            dataEntry.getValues().clear();
+                            dataset.getFeatures().clear();
+                        }
+                        row.entrySet()
+                        .parallelStream()
+                        .forEach(entry -> {
+                            Feature feature = featureHandler.findByTitleAndSource(entry.getKey(), "algorithm/" + model.getAlgorithm().getId());
+                            dataEntry.getValues().put(messageBody.get("base_uri") + "feature/" + feature.getId(), entry.getValue());
+                            FeatureInfo featInfo = new FeatureInfo(messageBody.get("base_uri") + "feature/" + feature.getId(), feature.getMeta().getTitles().stream().findFirst().get());
+                            featInfo.setCategory(Dataset.DescriptorCategory.PREDICTED);
+                            dataset.getFeatures().add(featInfo);
+                        });
+                    });
             Dataset mergedDataset = DatasetFactory.mergeColumns(dataset, predFeatureDataset);
             for (String predictionDatasetURI : predictionDatasets) {
                 Dataset predictionDataset = client.target(predictionDatasetURI)

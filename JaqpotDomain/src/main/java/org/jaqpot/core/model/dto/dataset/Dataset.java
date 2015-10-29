@@ -52,7 +52,8 @@ public class Dataset extends JaqpotEntity {
         IMAGE("ImageAnalysis descriptors", "Descriptors derived from analyzing substance images by the ImageAnalysis software."),
         GO("GO descriptors", "Descriptors derived by proteomics data."),
         MOPAC("Mopac descriptors", "Descriptors derived by crystallographic data."),
-        CDK("CDK descriptors", "Descriptors derived from cdk software.");
+        CDK("CDK descriptors", "Descriptors derived from cdk software."),
+        PREDICTED("Predicted descriptors", "Descriptors derived from algorithm predictions.");
 
         private final String name;
         private final String description;

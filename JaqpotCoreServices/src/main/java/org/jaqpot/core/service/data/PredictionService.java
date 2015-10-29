@@ -22,18 +22,18 @@ import org.jaqpot.core.model.factory.TaskFactory;
  */
 @Stateless
 public class PredictionService {
-
+    
     @Resource(lookup = "java:jboss/exported/jms/topic/prediction")
     private Topic predictionQueue;
-
+    
     @Inject
     private JMSContext jmsContext;
-
+    
     @EJB
     TaskHandler taskHandler;
-
+    
     public Task initiatePrediction(Map<String, Object> options) {
-
+        
         Task task = TaskFactory.queuedTask("Prediction by model " + options.get("modelId"),
                 "A prediction procedure will return a new Dataset if completed successfully.",
                 "chung");
@@ -42,6 +42,8 @@ public class PredictionService {
         options.put("taskId", task.getId());
         if ((Boolean) options.get("visible")) {
             task.setVisible(Boolean.TRUE);
+        } else {
+            task.setVisible(Boolean.FALSE);
         }
         taskHandler.create(task);
         jmsContext.createProducer().setDeliveryDelay(1000).send(predictionQueue, options);

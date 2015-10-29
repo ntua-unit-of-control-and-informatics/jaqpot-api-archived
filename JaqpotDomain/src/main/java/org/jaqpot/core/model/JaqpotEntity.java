@@ -59,9 +59,9 @@ public abstract class JaqpotEntity {
      */
     private Set<String> ontologicalClasses;
 
-    private Boolean visible = false;
+    private Boolean visible;
 
-    private Boolean temporary = true;
+    private Boolean temporary;
 
     public JaqpotEntity() {
     }

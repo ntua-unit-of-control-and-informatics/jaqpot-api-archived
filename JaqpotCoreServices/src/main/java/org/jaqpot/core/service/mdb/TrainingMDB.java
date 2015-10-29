@@ -438,61 +438,12 @@ public class TrainingMDB extends RunningTaskMDB {
                     .addDescriptions((String) messageBody.get("description"))
                     .build());
 
-
-            /* Create DoA model by POSTing to the leverages algorithm */
-//            if (messageBody.containsKey("doa") && messageBody.get("doa") != null
-//                    && (!algorithm.getOntologicalClasses().contains(AlgorithmOntologicalTypes.ApplicabilityDomain.toString()))
-//                    && (!algorithm.getOntologicalClasses().contains(AlgorithmOntologicalTypes.ApplicabilityDomain.getURI()))) {
-//                task.getMeta().getComments().add("Constructing DoA for this model...");
-//                task.setPercentageCompleted(86f);
-//                taskHandler.edit(task);
-//
-//                Form form = new Form();
-//                form.param("dataset_uri", (String) messageBody.get("dataset_uri"));
-//                form.param("prediction_feature", (String) messageBody.get("prediction_feature"));
-//                LOG.log(Level.INFO, "Calling remote DoA service at {0}", messageBody.get("doa"));
-//                LOG.log(Level.INFO, "Request on behalf of user with subjectid {0}", messageBody.get("subjectid"));
-//                Response doaTaskResponse = client.target((String) messageBody.get("doa"))
-//                        .request()
-//                        .header("subjectid", messageBody.get("subjectid"))
-//                        .post(Entity.form(form));
-//                if (201 != doaTaskResponse.getStatus() && 202 != doaTaskResponse.getStatus()
-//                        && 200 != doaTaskResponse.getStatus()) {
-//                    ErrorReport remoteTaskError = doaTaskResponse.readEntity(ErrorReport.class);
-//                    task.setErrorReport(remoteTaskError);
-//                    task.setStatus(Task.Status.ERROR);
-//                    task.setHttpStatus(remoteTaskError.getHttpStatus());
-//                    taskHandler.edit(task);
-//                    return;
-//                }
-//                Task leverageTask = doaTaskResponse.readEntity(Task.class);
-//                task.getMeta().getComments().add("DoA to be created by task: " + leverageTask.getId());
-//                task.setPercentageCompleted(87f);
-//                taskHandler.edit(task);
-//
-//                int i_leverage_check = 0;
-//                while ((Task.Status.RUNNING == leverageTask.getStatus() || Task.Status.QUEUED == leverageTask.getStatus())
-//                        && i_leverage_check < DOA_TASK_MAX_WAITING_TIME) {
-//                    leverageTask = taskHandler.find(leverageTask.getId());
-//                    Thread.sleep(1000);
-//                    i_leverage_check++;
-//                }
-//                if (Task.Status.RUNNING == leverageTask.getStatus()) {
-//                    task.getMeta().getComments().add("DoA task is still running - check out its progress at "
-//                            + messageBody.get("base_uri") + "task/" + leverageTask.getId());
-//                }
-//                if (Task.Status.COMPLETED == leverageTask.getStatus()) {
-//                    task.getMeta().getComments().add("DoA model created - ID : " + leverageTask.getResult());
-//                    model.setDoaModel(messageBody.get("base_uri") + leverageTask.getResult());
-//                }
-//                taskHandler.edit(task);
-//                //TODO link model to DoA
-//
-//            }
             task.getMeta().getComments().add("Model was built successfully. Now saving to database...");
             taskHandler.edit(task);
             if ((Boolean) messageBody.get("visible")) {
                 model.setVisible(Boolean.TRUE);
+            } else {
+                model.setVisible(Boolean.FALSE);
             }
             modelHandler.create(model);
 
