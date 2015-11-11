@@ -214,6 +214,7 @@ public class DatasetResource {
     }
 
     @DELETE
+    @Path("/{id}")
     @ApiOperation("Deletes dataset")
     public Response deleteDataset(@PathParam("id") String id) {
         Dataset ds = new Dataset();
