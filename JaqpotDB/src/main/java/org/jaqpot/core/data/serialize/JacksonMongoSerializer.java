@@ -88,7 +88,7 @@ public class JacksonMongoSerializer implements JSONSerializer {
     @Override
     public String write(Object entity) {
         try {
-            return mapper.writeValueAsString(entity);
+            return mapper.writeValueAsString(entity).replaceAll("\\.", "\\(DOT\\)");
         } catch (IOException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return null;
@@ -98,7 +98,7 @@ public class JacksonMongoSerializer implements JSONSerializer {
     @Override
     public <T> T parse(String content, Class<T> valueType) {
         try {
-            return mapper.readValue(content, valueType);
+            return mapper.readValue(content.replaceAll("\\(DOT\\)", "\\."), valueType);
         } catch (IOException ex) {
             LOG.log(Level.SEVERE, null, ex);
             return null;
