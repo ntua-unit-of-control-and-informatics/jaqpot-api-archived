@@ -88,7 +88,11 @@ public class JacksonMongoSerializer implements JSONSerializer {
     @Override
     public String write(Object entity) {
         try {
-            return mapper.writeValueAsString(entity).replaceAll("\\\".*(\\.).*\\\"", "\\(DOT\\)");
+            String result =  mapper.writeValueAsString(entity);
+            //for(int i=0; i<20 ; i++){
+                result = result.replaceAll("(\"[^\"]*)(\\.)([^\"]*\":)", "$1\\(DOT\\)$3");
+            //}
+            return result;
         } catch (IOException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             return null;
@@ -127,5 +131,90 @@ public class JacksonMongoSerializer implements JSONSerializer {
             LOG.log(Level.SEVERE, null, ex);
             return null;
         }
+    }
+    
+    public static void main(String[] args){
+        JacksonMongoSerializer s = new JacksonMongoSerializer();
+        Object o = s.parse("{\n" +
+"		\"design\": [\n" +
+"			{\n" +
+"				\"Comp.1\": -101.3422,\n" +
+"				\"Comp.2\": -9.9767\n" +
+"			},\n" +
+"			{\n" +
+"				\"Comp.1\": -83.4677,\n" +
+"				\"Comp.2\": 50.4427\n" +
+"			},\n" +
+"			{\n" +
+"				\"Comp.1\": 456.1221,\n" +
+"				\"Comp.2\": -24.0812\n" +
+"			},\n" +
+"			{\n" +
+"				\"Comp.1\": 311.1677,\n" +
+"				\"Comp.2\": 38.0699\n" +
+"			},\n" +
+"			{\n" +
+"				\"Comp.1\": 341.8513,\n" +
+"				\"Comp.2\": 48.2868\n" +
+"			},\n" +
+"			{\n" +
+"				\"Comp.1\": 494.8896,\n" +
+"				\"Comp.2\": -39.8123\n" +
+"			},\n" +
+"			{\n" +
+"				\"Comp.1\": 455.0816,\n" +
+"				\"Comp.2\": 26.5578\n" +
+"			},\n" +
+"			{\n" +
+"				\"Comp.1\": 489.5801,\n" +
+"				\"Comp.2\": -23.6909\n" +
+"			},\n" +
+"			{\n" +
+"				\"Comp.1\": 399.3027,\n" +
+"				\"Comp.2\": 13.9503\n" +
+"			},\n" +
+"			{\n" +
+"				\"Comp.1\": 447.113,\n" +
+"				\"Comp.2\": -27.4991\n" +
+"			},\n" +
+"			{\n" +
+"				\"Comp.1\": 391.9597,\n" +
+"				\"Comp.2\": -12.6911\n" +
+"			}\n" +
+"		],\n" +
+"		\"selected.rows\": [\n" +
+"			1,\n" +
+"			2,\n" +
+"			3,\n" +
+"			4,\n" +
+"			5,\n" +
+"			6,\n" +
+"			7,\n" +
+"			8,\n" +
+"			9,\n" +
+"			10,\n" +
+"			11\n" +
+"		],\n" +
+"		\"norm.var\": [\n" +
+"			0.404\n" +
+"		],\n" +
+"		\"confounding.effect\": [\n" +
+"			0.992\n" +
+"		],\n" +
+"		\"r.squared\": [\n" +
+"			null\n" +
+"		],\n" +
+"		\"adj.r.squared\": [\n" +
+"			null\n" +
+"		],\n" +
+"		\"verbal.notes\": [\n" +
+"			\"Ge value is:0.404. Ge for optimal design is 1.\",\n" +
+"			\"Diagonality value is:0.992. Diagonality for minimal confounding is 1.\"\n" +
+"		],\n" +
+"		\"predictedFeatures\": [\n" +
+"			\"suggestedTrials\"\n" +
+"		]\n" +
+"	}", Object.class);
+        System.out.println(s.write(o));
     }
 }
