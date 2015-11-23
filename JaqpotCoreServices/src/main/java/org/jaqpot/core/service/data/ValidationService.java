@@ -183,7 +183,7 @@ public class ValidationService {
 
         Double SSt = original.stream().mapToDouble(y -> {
             return Math.pow(y - mean, 2);
-        }).sum(); 
+        }).sum();
 
         Double SSreg = predictions.stream().mapToDouble(y -> {
             return Math.pow(y - mean, 2);
@@ -196,8 +196,8 @@ public class ValidationService {
                     return Math.pow(yObs - yCalc, 2);
                 }).sum();
 
-//        Double R2 = 1 - (SSres / SSt);
-//
+        Double _R2 = 1 - (SSres / SSt);
+
         Double R2Adj = 1 - ((1 - R2) * ((n - 1) / (n - p - 1)));
 
         Double stdErrorEstimate = Math.sqrt(SSres / (n - p - 1));
@@ -208,6 +208,7 @@ public class ValidationService {
         ValidationReport report = new ValidationReport();
         Map<String, Object> calculations = new HashMap<>();
         calculations.put("R^2", R2);
+        calculations.put("_R^2", _R2);
         calculations.put("Adjusted R^2", R2Adj);
         calculations.put("Standard error of estimate", stdErrorEstimate);
         calculations.put("F-value", fValue);
