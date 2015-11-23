@@ -181,36 +181,36 @@ public class ValidationService {
             R2 = Math.pow(SSxy, 2) / (SSx * SSy);
         }
 
-//        Double SSt = original.stream().mapToDouble(y -> {
-//            return Math.pow(y - mean, 2);
-//        }).sum(); //collect(Collectors.summingDouble(Double::doubleValue));
-//
-//        Double SSreg = predictions.stream().mapToDouble(y -> {
-//            return Math.pow(y - mean, 2);
-//        }).sum();//.collect(Collectors.summingDouble(Double::doubleValue));
-//
-//        Double SSres = IntStream.range(0, original.size())
-//                .mapToDouble(i -> {
-//                    Double yObs = original.get(i);
-//                    Double yCalc = predictions.get(i);
-//                    return Math.pow(yObs - yCalc, 2);
-//                }).sum();//.collect(Collectors.summingDouble(Double::doubleValue));
-//
+        Double SSt = original.stream().mapToDouble(y -> {
+            return Math.pow(y - mean, 2);
+        }).sum(); 
+
+        Double SSreg = predictions.stream().mapToDouble(y -> {
+            return Math.pow(y - mean, 2);
+        }).sum();
+
+        Double SSres = IntStream.range(0, original.size())
+                .mapToDouble(i -> {
+                    Double yObs = original.get(i);
+                    Double yCalc = predictions.get(i);
+                    return Math.pow(yObs - yCalc, 2);
+                }).sum();
+
 //        Double R2 = 1 - (SSres / SSt);
 //
         Double R2Adj = 1 - ((1 - R2) * ((n - 1) / (n - p - 1)));
-//
-//        Double stdErrorEstimate = Math.sqrt(SSres / (n - p - 1));
-//
-//        Double EMS = SSreg / p;
-//        Double RMS = SSres / (n - p - 1);
-//        Double fValue = EMS / RMS;
+
+        Double stdErrorEstimate = Math.sqrt(SSres / (n - p - 1));
+
+        Double EMS = SSreg / p;
+        Double RMS = SSres / (n - p - 1);
+        Double fValue = EMS / RMS;
         ValidationReport report = new ValidationReport();
         Map<String, Object> calculations = new HashMap<>();
         calculations.put("R^2", R2);
         calculations.put("Adjusted R^2", R2Adj);
-//        calculations.put("Standard error of estimate", stdErrorEstimate);
-//        calculations.put("F-value", fValue);
+        calculations.put("Standard error of estimate", stdErrorEstimate);
+        calculations.put("F-value", fValue);
 
         report.setCalculations(calculations);
         report.setType(type);
