@@ -120,8 +120,9 @@ public class EnanomapperResource {
             + "	\"bundle\": \"https://apps.ideaconsult.net/enmtest/bundle/14\",\n"
             + "	\"descriptors\":[\n"
             + "		\"IMAGE\",\n"
-            + "		\"MOPAC\"\n"
-            + "	]\n"
+            + "		\"EXPERIMENTAL\"\n"
+            + "	],\n"
+            + " \"intersectColumns\": true\n"
             + "}",
             DEFAULT_BUNDLE_DATA = "{\n"
             + "	\"description\":\"a bundle with protein corona data\",\n"
@@ -222,6 +223,7 @@ public class EnanomapperResource {
         options.put("title", datasetData.getTitle());
         options.put("description", datasetData.getDescription());
         options.put("descriptors", descriptorsString);
+        options.put("intersect_columns", datasetData.getIntersectColumns() != null ? datasetData.getIntersectColumns() : true);
         options.put("subjectid", subjectId);
         options.put("base_uri", uriInfo.getBaseUri().toString());
         options.put("mode", "PREPARATION");
@@ -516,6 +518,7 @@ public class EnanomapperResource {
         private String description;
         private String bundle;
         private List<String> descriptors;
+        private Boolean intersectColumns;
 
         public String getTitle() {
             return title;
@@ -547,6 +550,14 @@ public class EnanomapperResource {
 
         public void setDescriptors(List<String> descriptors) {
             this.descriptors = descriptors;
+        }
+
+        public Boolean getIntersectColumns() {
+            return intersectColumns;
+        }
+
+        public void setIntersectColumns(Boolean intersectColumns) {
+            this.intersectColumns = intersectColumns;
         }
 
     }

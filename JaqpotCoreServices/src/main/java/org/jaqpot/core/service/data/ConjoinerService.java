@@ -144,7 +144,7 @@ public class ConjoinerService {
         return task;
     }
 
-    public Dataset prepareDataset(String bundleURI, String subjectId, Set<String> descriptors) {
+    public Dataset prepareDataset(String bundleURI, String subjectId, Set<String> descriptors, Boolean intersectColumns) {
 
         String remoteServerBase = bundleURI.split("bundle")[0];
 
@@ -181,12 +181,14 @@ public class ConjoinerService {
         dataset.setId(rog.nextString(12));
         dataset.setDataEntry(dataEntries);
 
-        //Takes the intersection of properties of all substances
-        dataset.getDataEntry().parallelStream().forEach(de -> {
-            dataset.getDataEntry().parallelStream().forEach(e -> {
-                de.getValues().keySet().retainAll(e.getValues().keySet());
+        if (intersectColumns) {
+            //Takes the intersection of properties of all substances
+            dataset.getDataEntry().parallelStream().forEach(de -> {
+                dataset.getDataEntry().parallelStream().forEach(e -> {
+                    de.getValues().keySet().retainAll(e.getValues().keySet());
+                });
             });
-        });
+        }
 
         dataset.setTotalRows(dataset.getDataEntry().size());
         dataset.setTotalColumns(dataset.getDataEntry().stream().findFirst().get().getValues().size());
