@@ -43,6 +43,7 @@ public class Substance {
 
     String URI;
     String name;
+    String ownerUUID;
 
     @JsonProperty("URI")
     public String getURI() {
@@ -60,6 +61,14 @@ public class Substance {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getOwnerUUID() {
+        return ownerUUID;
+    }
+
+    public void setOwnerUUID(String ownerUUID) {
+        this.ownerUUID = ownerUUID;
     }
 
     @Override
