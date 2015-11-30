@@ -46,7 +46,6 @@ import java.util.stream.Collectors;
 import javax.ejb.ActivationConfigProperty;
 import javax.ejb.EJB;
 import javax.ejb.MessageDriven;
-import javax.enterprise.inject.spi.CDI;
 import javax.inject.Inject;
 import javax.jms.JMSException;
 import javax.jms.Message;

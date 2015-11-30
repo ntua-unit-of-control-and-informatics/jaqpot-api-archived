@@ -310,12 +310,25 @@ public class ConjoinerService {
                     String guideline = guidelines == null || guidelines.isEmpty() ? "" : guidelines.get(0);
                     StringJoiner propertyURIJoiner = getRelativeURI(name, topcategory, endpointcategory, identifier, guideline);
                     Object value = calculateValue(effect);
-                    if (value == null) {
-                        continue;
+//                    if (value == null) {
+//                        continue;
+//                    }
+                    String propertyKey = remoteServerBase + propertyURIJoiner.toString();
+                    if (values.containsKey(propertyKey)) {
+                        Object old = values.get(propertyKey);
+                        if (old instanceof List) {
+                            ((List) old).add(value);
+                        } else {
+                            List list = new ArrayList();
+                            list.add(old);
+                            list.add(value);
+                            values.put(propertyKey, list);
+                        }
+                    } else {
+                        values.put(propertyKey, value);
                     }
-                    values.put(remoteServerBase + propertyURIJoiner.toString(), value);
                     FeatureInfo featureInfo = new FeatureInfo();
-                    featureInfo.setURI(remoteServerBase + propertyURIJoiner.toString());
+                    featureInfo.setURI(propertyKey);
                     featureInfo.setName(name);
                     featureInfo.setUnits(units);
                     featureInfo.setConditions(effect.getConditions());
@@ -366,10 +379,8 @@ public class ConjoinerService {
             } else {
                 currentValue = effect.getResult().getLoValue().doubleValue();
             }
-        } else {
-            if ((effect.getResult().getUpValue() != null) && (!(upNotAllowed.contains(effect.getResult().getUpQualifier())))) {
-                currentValue = effect.getResult().getUpValue().doubleValue();
-            }
+        } else if ((effect.getResult().getUpValue() != null) && (!(upNotAllowed.contains(effect.getResult().getUpQualifier())))) {
+            currentValue = effect.getResult().getUpValue().doubleValue();
         }
 
         return currentValue;
