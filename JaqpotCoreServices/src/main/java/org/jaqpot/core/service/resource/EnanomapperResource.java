@@ -258,7 +258,7 @@ public class EnanomapperResource {
         formParameters.add("title", "owner-bundle");
         formParameters.add("description", bundleData.getDescription());
         formParameters.add("source", userName);
-        formParameters.add("seeAlso", "");
+        formParameters.add("seeAlso", substanceOwner);
         formParameters.add("license", "Copyright of " + userName);
         formParameters.add("rightsHolder", userName);
         formParameters.add("maintainer", userName);
