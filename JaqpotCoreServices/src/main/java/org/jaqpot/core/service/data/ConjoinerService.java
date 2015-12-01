@@ -352,8 +352,8 @@ public class ConjoinerService {
         Object currentValue = null; // return null if conditions not satisfied
 
         // values not allowed for loQualifier & upQualifier --> this can be switched to "allowed values" if necessary
-        List<String> loNotAllowed = Arrays.asList(null, "", " ", "~", "!=", ">", ">=");
-        List<String> upNotAllowed = Arrays.asList(null, "", " ", "~", "!=", "<", "<=");
+        List<String> loNotAllowed = Arrays.asList("~", "!=", ">", ">=");
+        List<String> upNotAllowed = Arrays.asList("~", "!=", "<", "<=");
 
         if ((effect.getResult().getLoValue() != null) && (!(loNotAllowed.contains(effect.getResult().getLoQualifier())))) {
 
