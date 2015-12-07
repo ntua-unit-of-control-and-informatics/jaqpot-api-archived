@@ -83,29 +83,29 @@ import org.jaqpot.core.service.exceptions.JaqpotWebException;
             propertyValue = "javax.jms.Topic")
 })
 public class ValidationMDB extends RunningTaskMDB {
-    
+
     private static final Logger LOG = Logger.getLogger(ValidationMDB.class.getName());
-    
+
     @EJB
     TaskHandler taskHandler;
-    
+
     @EJB
     ValidationService validationService;
-    
+
     @EJB
     ValidationHandler validationHandler;
-    
+
     @Inject
     @UnSecure
     Client client;
-    
+
     @Override
     public void onMessage(Message msg) {
         Task task = new Task();
         try {
             Map<String, Object> messageBody = msg.getBody(Map.class);
             task = taskHandler.find(messageBody.get("taskId"));
-            
+
             if (task == null) {
                 throw new NullPointerException("FATAL: Could not find task with id:" + messageBody.get("taskId"));
             }
@@ -115,30 +115,32 @@ public class ValidationMDB extends RunningTaskMDB {
             if (task.getMeta().getComments() == null) {
                 task.getMeta().setComments(new ArrayList<>());
             }
-            
+
             init(task.getId());
-            
+
             task.setHttpStatus(202);
             task.setStatus(Task.Status.RUNNING);
             task.setType(Task.Type.TRAINING);
             task.getMeta().getComments().add("Validation Task is now running.");
             task.setPercentageCompleted(10.f);
             taskHandler.edit(task);
-            
+
             String type = (String) messageBody.get("type");
             String subjectId = (String) messageBody.get("subjectId");
             String algorithmURI = (String) messageBody.get("algorithm_uri");
             String datasetURI = (String) messageBody.get("dataset_uri");
             String predictionFeature = (String) messageBody.get("prediction_feature");
             String algorithmParams = (String) messageBody.get("algorithm_params");
-            
+            String transformations = (String) messageBody.get("transformations");
+            String scaling = (String) messageBody.get("scaling");
+
             ValidationReport report = null;
-            
+
             switch (type) {
                 case "SPLIT":
                     task.getMeta().getComments().add("Validation mode is SPLIT.");
                     taskHandler.edit(task);
-                    
+
                     Double splitRatio = (Double) messageBody.get("split_ratio");
                     Dataset dataset = client.target(datasetURI)
                             .request()
@@ -146,23 +148,23 @@ public class ValidationMDB extends RunningTaskMDB {
                             .header("subjectId", subjectId)
                             .get(Dataset.class);
                     Integer rows = dataset.getTotalRows();
-                    
+
                     Long split = Math.round(rows * splitRatio);
                     String trainDatasetURI = datasetURI + "?rowStart=0&rowMax=" + split;
                     String testDatasetURI = datasetURI + "?rowStart=" + split + "&rowMax=" + (rows - split);
-                    
-                    Object[] results = validationService.trainAndTest(algorithmURI, trainDatasetURI, testDatasetURI, predictionFeature, algorithmParams, subjectId);
+
+                    Object[] results = validationService.trainAndTest(algorithmURI, trainDatasetURI, testDatasetURI, predictionFeature, algorithmParams, transformations, scaling, subjectId);
                     String finalDatasetURI = (String) results[0];
-                    
+
                     task.getMeta().getComments().add("Final dataset is:" + finalDatasetURI);
                     taskHandler.edit(task);
-                    
+
                     break;
                 case "CROSS":
-                    
+
                     task.getMeta().getComments().add("Validation mode is CROSS.");
                     taskHandler.edit(task);
-                    
+
                     Integer folds = (Integer) messageBody.get("folds");
                     String stratify = (String) messageBody.get("stratify");
                     Integer seed = (Integer) messageBody.get("seed");
@@ -187,7 +189,7 @@ public class ValidationMDB extends RunningTaskMDB {
                         partialDatasets.add(partialDatasetURI);
                     }
                     List<String> finalDatasets = new ArrayList<>();
-                    
+
                     Map<String, Object[]> resultMap = new HashMap<>();
                     partialDatasets.parallelStream().forEach(testDataset -> {
                         try {
@@ -203,8 +205,8 @@ public class ValidationMDB extends RunningTaskMDB {
                                     .header("subjectId", subjectId)
                                     .post(Entity.form(params), String.class);
                             c.close();
-                            
-                            Object[] crossResults = validationService.trainAndTest(algorithmURI, trainDataset, testDataset, predictionFeature, algorithmParams, subjectId);
+
+                            Object[] crossResults = validationService.trainAndTest(algorithmURI, trainDataset, testDataset, predictionFeature, algorithmParams, transformations, scaling, subjectId);
                             String finalSubDataset = (String) crossResults[0];
                             resultMap.put(finalSubDataset, crossResults);
                             finalDatasets.add(finalSubDataset);
@@ -212,7 +214,7 @@ public class ValidationMDB extends RunningTaskMDB {
                             Logger.getLogger(ValidationMDB.class.getName()).log(Level.SEVERE, null, ex);
                         }
                     });
-                    
+
                     MultivaluedMap<String, String> params = new MultivaluedHashMap<>();
                     params.add("dataset_uris", finalDatasets.stream().collect(Collectors.joining(",")));
                     String finalDataset = client.target(datasetURI.split("dataset")[0] + "dataset/merge")
@@ -220,21 +222,21 @@ public class ValidationMDB extends RunningTaskMDB {
                             .accept("text/uri-list")
                             .header("subjectId", subjectId)
                             .post(Entity.form(params), String.class);
-                    
+
                     task.getMeta().getComments().add("Final dataset is:" + finalDataset);
                     taskHandler.edit(task);
-                    
+
                     Object[] firstResult = resultMap.values().stream().findFirst().get();
                     String predictedFeature = (String) firstResult[2];
                     Integer indepFeatureSize = (Integer) firstResult[3];
                     report = validationService.createValidationReport(finalDataset, predictionFeature, predictedFeature, indepFeatureSize, ValidationReport.Type.REGRESSION, subjectId);
-                    
+
                     break;
-                
+
                 default:
                     break;
             }
-            
+
             ROG randomStringGenerator = new ROG(true);
             String reportId = randomStringGenerator.nextString(12);
             report.setId(reportId);
@@ -244,16 +246,16 @@ public class ValidationMDB extends RunningTaskMDB {
                     .addCreators(task.getCreatedBy())
                     .addSources(datasetURI, algorithmURI)
                     .addComments("Created by task " + task.getId())
-//                    .addDescriptions((String) messageBody.get("description"))
+                    //                    .addDescriptions((String) messageBody.get("description"))
                     .build());
             validationHandler.create(report);
-            task.setResult("validation/"+report.getId());
+            task.setResult("validation/" + report.getId());
             task.setPercentageCompleted(100.f);
             task.setDuration(System.currentTimeMillis() - task.getMeta().getDate().getTime()); // in ms
             task.setStatus(Task.Status.COMPLETED);
             task.getMeta().getComments().add("Task Completed Successfully.");
             taskHandler.edit(task);
-            
+
         } catch (UnsupportedOperationException | IllegalStateException | IllegalArgumentException | ArrayIndexOutOfBoundsException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             task.setStatus(Task.Status.ERROR);
@@ -292,7 +294,7 @@ public class ValidationMDB extends RunningTaskMDB {
             }
             taskHandler.edit(task);
         }
-        
+
     }
-    
+
 }

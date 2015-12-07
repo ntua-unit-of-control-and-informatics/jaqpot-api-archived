@@ -66,22 +66,24 @@ import org.jaqpot.core.service.exceptions.JaqpotWebException;
  */
 @Stateless
 public class ValidationService {
-
+    
     @EJB
     TaskHandler taskHandler;
-
+    
     @EJB
     ModelHandler modelHandler;
-
+    
     @Inject
     @UnSecure
     Client client;
-
-    public Object[] trainAndTest(String algorithmURI, String trainingDataset, String testingDataset, String predictionFeature, String algorithmParameters, String subjectId) throws JaqpotWebException {
+    
+    public Object[] trainAndTest(String algorithmURI, String trainingDataset, String testingDataset, String predictionFeature, String algorithmParameters, String transformations, String scaling, String subjectId) throws JaqpotWebException {
         MultivaluedMap<String, String> params = new MultivaluedHashMap<>();
         params.add("dataset_uri", trainingDataset);
         params.add("prediction_feature", predictionFeature);
         params.add("parameters", algorithmParameters);
+        params.add("transformations", transformations);
+        params.add("scaling", scaling);
         Task trainTask = client.target(algorithmURI)
                 .request()
                 .accept(MediaType.APPLICATION_JSON)
@@ -93,7 +95,7 @@ public class ValidationService {
             try {
                 Thread.sleep(500);
             } catch (InterruptedException ex) {
-
+                
             }
             trainTask = client.target(trainTaskURI)
                     .request()
@@ -118,7 +120,7 @@ public class ValidationService {
             try {
                 Thread.sleep(500);
             } catch (InterruptedException ex) {
-
+                
             }
             predictionTask = client.target(predictionTaskURI)
                     .request()
@@ -128,7 +130,7 @@ public class ValidationService {
         }
         if (!predictionTask.getStatus().equals(Task.Status.COMPLETED)) {
             throw new JaqpotWebException(predictionTask.getErrorReport());
-
+            
         }
         Model model = client.target(modelURI)
                 .request()
@@ -142,22 +144,22 @@ public class ValidationService {
         result[3] = model.getIndependentFeatures().size();
         return result;
     }
-
+    
     public ValidationReport createValidationReport(String datasetURI, String predictionFeature, String predictedFeature, Integer indepFeaturesSize, ValidationReport.Type type, String subjectId) {
         Dataset dataset = client.target(datasetURI)
                 .request()
                 .header("subjectid", subjectId)
                 .accept(MediaType.APPLICATION_JSON)
                 .get(Dataset.class);
-
+        
         List<Double> original = dataset.getDataEntry().stream().map(de -> Double.parseDouble(de.getValues().get(predictionFeature).toString())).collect(Collectors.toList());
         List<Double> predictions = dataset.getDataEntry().stream().map(de -> Double.parseDouble(de.getValues().get(predictedFeature).toString())).collect(Collectors.toList());
-
+        
         Double mean = original.stream().collect(Collectors.averagingDouble(Double::doubleValue));
         Double predictedMean = predictions.stream().collect(Collectors.averagingDouble(Double::doubleValue));
         Double n = ((Integer) dataset.getDataEntry().size()).doubleValue();
         Double p = indepFeaturesSize.doubleValue();
-
+        
         Double SSx = original.stream().mapToDouble(y -> {
             return Math.pow(y - mean, 2);
         }).sum(); //collect(Collectors.summingDouble(Double::doubleValue));
@@ -174,34 +176,34 @@ public class ValidationService {
                 }).sum();//.collect(Collectors.summingDouble(Double::doubleValue));
 
         Double R2;
-
+        
         if (SSx == 0 || SSy == 0) {
             R2 = 0.0;
         } else {
             R2 = Math.pow(SSxy, 2) / (SSx * SSy);
         }
-
+        
         Double SSt = original.stream().mapToDouble(y -> {
             return Math.pow(y - mean, 2);
         }).sum();
-
+        
         Double SSreg = predictions.stream().mapToDouble(y -> {
             return Math.pow(y - mean, 2);
         }).sum();
-
+        
         Double SSres = IntStream.range(0, original.size())
                 .mapToDouble(i -> {
                     Double yObs = original.get(i);
                     Double yCalc = predictions.get(i);
                     return Math.pow(yObs - yCalc, 2);
                 }).sum();
-
+        
         Double _R2 = 1 - (SSres / SSt);
-
+        
         Double R2Adj = 1 - ((1 - R2) * ((n - 1) / (n - p - 1)));
-
+        
         Double stdErrorEstimate = Math.sqrt(SSres / (n - p - 1));
-
+        
         Double EMS = SSreg / p;
         Double RMS = SSres / (n - p - 1);
         Double fValue = EMS / RMS;
@@ -212,7 +214,7 @@ public class ValidationService {
         calculations.put("Adjusted R^2", R2Adj);
         calculations.put("Standard error of estimate", stdErrorEstimate);
         calculations.put("F-value", fValue);
-
+        
         report.setCalculations(calculations);
         report.setType(type);
         return report;

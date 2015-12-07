@@ -31,6 +31,7 @@ package org.jaqpot.core.service.resource;
 
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
+import com.wordnik.swagger.annotations.ApiParam;
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.Resource;
@@ -67,6 +68,29 @@ import org.jaqpot.core.service.annotations.Authorize;
 @Produces(MediaType.APPLICATION_JSON)
 @Authorize
 public class ValidationResource {
+
+    private static final String DEFAULT_ALGORITHM = "{\n"
+            + "  \"trainingService\":\"http://z.ch/t/a\",\n"
+            + "  \"predictionService\":\"http://z.ch/p/b\",\n"
+            + "  \"ontologicalClasses\":[\n"
+            + "        \"ot:Algorithm\",\n"
+            + "        \"ot:Regression\",\n"
+            + "        \"ot:SupervisedLearning\"\n"
+            + "       ],\n"
+            + "  \"parameters\": [\n"
+            + "    {\n"
+            + "       \"name\":\"alpha\",\n"
+            + "       \"scope\":\"OPTIONAL\",\n"
+            + "       \"value\":101.635\n"
+            + "    }\n"
+            + "  ]\n"
+            + "}",
+            DEFAULT_DATASET = "http://app.jaqpot.org:8080/jaqpot/services/dataset/corona",
+            DEFAULT_PRED_FEATURE = "https://apps.ideaconsult.net/enmtest/property/TOX/UNKNOWN_TOXICITY_SECTION/Log2+transformed/94D664CFE4929A0F400A5AD8CA733B52E049A688/3ed642f9-1b42-387a-9966-dea5b91e5f8a",
+            DEFAULT_DOA = "http://app.jaqpot.org:8080/jaqpot/services/algorithm/leverage",
+            SCALING = "http://app.jaqpot.org:8080/jaqpot/services/algorithm/scaling",
+            DEFAULT_TRANSFORMATIONS = "http://app.jaqpot.org:8080/jaqpot/services/pmml/corona-standard-transformations",
+            STANDARIZATION = "http://app.jaqpot.org:8080/jaqpot/services/algorithm/standarization";
 
     @EJB
     TaskHandler taskHandler;
@@ -108,6 +132,8 @@ public class ValidationResource {
             @FormParam("training_dataset_uri") String datasetURI,
             @FormParam("algorithm_params") String algorithmParameters,
             @FormParam("prediction_feature") String predictionFeature,
+            @ApiParam(name = "transformations", defaultValue = DEFAULT_TRANSFORMATIONS) @FormParam("transformations") String transformations,
+            @ApiParam(name = "scaling", defaultValue = STANDARIZATION) @FormParam("scaling") String scaling, //, allowableValues = SCALING + "," + STANDARIZATION
             @FormParam("folds") Integer folds,
             @FormParam("stratify") String stratify,
             @FormParam("seed") Integer seed,
@@ -132,6 +158,8 @@ public class ValidationResource {
         options.put("dataset_uri", datasetURI);
         options.put("algorithm_params", algorithmParameters);
         options.put("prediction_feature", predictionFeature);
+        options.put("transformations", transformations);
+        options.put("scaling", scaling);
         options.put("folds", folds);
         options.put("type", "CROSS");
         options.put("stratify", stratify);
@@ -154,6 +182,8 @@ public class ValidationResource {
             @FormParam("training_dataset_uri") String datasetURI,
             @FormParam("algorithm_params") String algorithmParameters,
             @FormParam("prediction_feature") String predictionFeature,
+            @ApiParam(name = "transformations", defaultValue = DEFAULT_TRANSFORMATIONS) @FormParam("transformations") String transformations,
+            @ApiParam(name = "scaling", defaultValue = STANDARIZATION) @FormParam("scaling") String scaling, //, allowableValues = SCALING + "," + STANDARIZATION          
             @FormParam("split_ratio") Double splitRatio,
             @HeaderParam("subjectId") String subjectId
     ) {
@@ -176,6 +206,8 @@ public class ValidationResource {
         options.put("dataset_uri", datasetURI);
         options.put("algorithm_params", algorithmParameters);
         options.put("prediction_feature", predictionFeature);
+        options.put("transformations", transformations);
+        options.put("scaling", scaling);
         options.put("split_ratio", splitRatio);
         options.put("type", "SPLIT");
         options.put("subjectId", subjectId);
