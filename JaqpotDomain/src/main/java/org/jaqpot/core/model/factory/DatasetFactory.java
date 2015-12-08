@@ -25,7 +25,7 @@ import org.jaqpot.core.model.util.ROG;
  * @author hampos
  */
 public class DatasetFactory {
-
+    
     public static Dataset createEmpty(Integer rows) {
         Dataset dataset = new Dataset();
         List<DataEntry> dataEntries = IntStream.range(1, rows + 1)
@@ -42,10 +42,11 @@ public class DatasetFactory {
         dataset.setVisible(Boolean.TRUE);
         ROG randomStringGenerator = new ROG(true);
         dataset.setId(randomStringGenerator.nextString(14));
-
+        dataset.setFeatures(new HashSet<>());
+        
         return dataset;
     }
-
+    
     public static void addEmptyRows(Dataset dataset, Integer rows) {
         List<DataEntry> dataEntries = IntStream.range(1, rows + 1)
                 .mapToObj(i -> {
@@ -58,12 +59,12 @@ public class DatasetFactory {
                 }).collect(Collectors.toList());
         dataset.setDataEntry(dataEntries);
     }
-
+    
     public static Dataset copy(Dataset dataset) {
         Dataset result = new Dataset();
         result.setId(dataset.getId());
         result.setMeta(dataset.getMeta());
-
+        
         List<DataEntry> dataEntries = dataset.getDataEntry()
                 .parallelStream()
                 .map(dataEntry -> {
@@ -76,12 +77,12 @@ public class DatasetFactory {
         result.setDataEntry(dataEntries);
         return result;
     }
-
+    
     public static Dataset copy(Dataset dataset, Set<String> features) {
         Dataset result = new Dataset();
         result.setId(dataset.getId());
         result.setMeta(dataset.getMeta());
-
+        
         List<DataEntry> dataEntries = dataset.getDataEntry()
                 .parallelStream()
                 .map(dataEntry -> {
@@ -105,7 +106,7 @@ public class DatasetFactory {
         result.setFeatures(featureInfo);
         return result;
     }
-
+    
     public static Dataset mergeColumns(Dataset dataset, Dataset other) {
         if (dataset != null && other == null) {
             return dataset;
@@ -123,7 +124,7 @@ public class DatasetFactory {
             return dataset;
         }
     }
-
+    
     public static Dataset mergeRows(Dataset dataset, Dataset other) {
         if (dataset != null && other == null) {
             return dataset;
@@ -137,7 +138,7 @@ public class DatasetFactory {
             return dataset;
         }
     }
-
+    
     public static Dataset randomize(Dataset dataset, Long seed) {
         Random generator = new Random(seed);
         dataset.setDataEntry(generator.ints(dataset.getDataEntry().size(), 0, dataset.getDataEntry().size())
@@ -147,7 +148,7 @@ public class DatasetFactory {
                 .collect(Collectors.toList()));
         return dataset;
     }
-
+    
     public static Dataset stratify(Dataset dataset, Integer folds, String targetFeature) {
         Object value = dataset.getDataEntry().get(0).getValues().get(targetFeature);
         if (value instanceof Number) {
@@ -158,7 +159,7 @@ public class DatasetFactory {
                         return a.compareTo(b);
                     })
                     .collect(Collectors.toList());
-
+            
             List<DataEntry> finalEntries = new ArrayList<>();
             int i = 0;
             while (finalEntries.size() < sortedEntries.size()) {
@@ -179,6 +180,6 @@ public class DatasetFactory {
         } else {
             return null;
         }
-
+        
     }
 }
