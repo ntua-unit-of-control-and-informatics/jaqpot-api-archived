@@ -45,7 +45,8 @@ public class DatasetFactory {
         dataset.setId(randomStringGenerator.nextString(14));
         dataset.setFeatures(new HashSet<>());
         dataset.setMeta(MetaInfoBuilder.builder()
-        .addTitles("Empty dataset")                
+        .addTitles("Empty dataset")     
+        .addDescriptions("Empty dataset")
         .build());
         
         return dataset;
