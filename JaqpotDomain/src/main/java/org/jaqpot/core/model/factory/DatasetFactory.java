@@ -14,6 +14,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import org.jaqpot.core.model.builder.MetaInfoBuilder;
 import org.jaqpot.core.model.dto.dataset.DataEntry;
 import org.jaqpot.core.model.dto.dataset.Dataset;
 import org.jaqpot.core.model.dto.dataset.FeatureInfo;
@@ -43,6 +44,9 @@ public class DatasetFactory {
         ROG randomStringGenerator = new ROG(true);
         dataset.setId(randomStringGenerator.nextString(14));
         dataset.setFeatures(new HashSet<>());
+        dataset.setMeta(MetaInfoBuilder.builder()
+        .addTitles("Empty dataset")                
+        .build());
         
         return dataset;
     }
