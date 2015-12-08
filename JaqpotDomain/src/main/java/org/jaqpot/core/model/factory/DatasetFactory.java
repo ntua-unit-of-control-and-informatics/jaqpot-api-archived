@@ -17,12 +17,47 @@ import java.util.stream.IntStream;
 import org.jaqpot.core.model.dto.dataset.DataEntry;
 import org.jaqpot.core.model.dto.dataset.Dataset;
 import org.jaqpot.core.model.dto.dataset.FeatureInfo;
+import org.jaqpot.core.model.dto.dataset.Substance;
+import org.jaqpot.core.model.util.ROG;
 
 /**
  *
  * @author hampos
  */
 public class DatasetFactory {
+
+    public static Dataset createEmpty(Integer rows) {
+        Dataset dataset = new Dataset();
+        List<DataEntry> dataEntries = IntStream.range(1, rows + 1)
+                .mapToObj(i -> {
+                    DataEntry de = new DataEntry();
+                    de.setValues(new TreeMap<>());
+                    Substance s = new Substance();
+                    s.setName(Integer.toString(i));
+                    de.setCompound(s);
+                    return de;
+                }).collect(Collectors.toList());
+        dataset.setDataEntry(dataEntries);
+        dataset.setId("");
+        dataset.setVisible(Boolean.TRUE);
+        ROG randomStringGenerator = new ROG(true);
+        dataset.setId(randomStringGenerator.nextString(14));
+
+        return dataset;
+    }
+
+    public static void addEmptyRows(Dataset dataset, Integer rows) {
+        List<DataEntry> dataEntries = IntStream.range(1, rows + 1)
+                .mapToObj(i -> {
+                    DataEntry de = new DataEntry();
+                    de.setValues(new TreeMap<>());
+                    Substance s = new Substance();
+                    s.setName(Integer.toString(i));
+                    de.setCompound(s);
+                    return de;
+                }).collect(Collectors.toList());
+        dataset.setDataEntry(dataEntries);
+    }
 
     public static Dataset copy(Dataset dataset) {
         Dataset result = new Dataset();
@@ -54,12 +89,12 @@ public class DatasetFactory {
                     newEntry.setCompound(dataEntry.getCompound());
                     TreeMap<String, Object> values = new TreeMap<>();
                     dataEntry.getValues()
-                    .keySet()
-                    .stream()
-                    .filter(feature -> features.contains(feature))
-                    .forEach(feature -> {
-                        values.put(feature, dataEntry.getValues().get(feature));
-                    });
+                            .keySet()
+                            .stream()
+                            .filter(feature -> features.contains(feature))
+                            .forEach(feature -> {
+                                values.put(feature, dataEntry.getValues().get(feature));
+                            });
                     newEntry.setValues(values);
                     return newEntry;
                 })

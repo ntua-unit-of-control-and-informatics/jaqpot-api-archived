@@ -29,6 +29,8 @@
  */
 package org.jaqpot.core.model.factory;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import org.jaqpot.core.model.ErrorReport;
 import org.jaqpot.core.model.builder.ErrorReportBuilder;
 
@@ -196,8 +198,13 @@ public class ErrorReportFactory {
             String code,
             String additionalMessage,
             String addittionalDetails) {
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        ex.printStackTrace(pw);
         return ErrorReportBuilder.builderRandomId().
                 setHttpStatus(500).
+                setMessage(ex.getMessage()).
+                setDetails(sw.toString()).
                 build();
     }
 

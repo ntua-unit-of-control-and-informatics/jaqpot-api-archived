@@ -244,25 +244,30 @@ public class PredictionMDB extends RunningTaskMDB {
                 task.getMeta().getComments().add("--");
                 taskHandler.edit(task);
             }
+            Dataset dataset;
+            Dataset predFeatureDataset;
+            if (dataset_uri != null && !dataset_uri.isEmpty()) {
+                task.getMeta().getComments().add("Attempting to download dataset...");
+                taskHandler.edit(task);
+                dataset = client.target(dataset_uri)
+                        .request()
+                        .header("subjectid", messageBody.get("subjectid"))
+                        .accept(MediaType.APPLICATION_JSON)
+                        .get(Dataset.class);
+                dataset.setDatasetURI(dataset_uri);
+                task.getMeta().getComments().add("Dataset has been retrieved.");
 
-            task.getMeta().getComments().add("Attempting to download dataset...");
-            taskHandler.edit(task);
-            Dataset dataset = client.target(dataset_uri)
-                    .request()
-                    .header("subjectid", messageBody.get("subjectid"))
-                    .accept(MediaType.APPLICATION_JSON)
-                    .get(Dataset.class);
-            dataset.setDatasetURI(dataset_uri);
-            task.getMeta().getComments().add("Dataset has been retrieved.");
+                predFeatureDataset = DatasetFactory.copy(dataset, new HashSet<>(model.getDependentFeatures()));
 
-            Dataset predFeatureDataset = DatasetFactory.copy(dataset, new HashSet<>(model.getDependentFeatures()));
-
-            dataset.getDataEntry().parallelStream()
-                    .forEach(dataEntry -> {
-                        dataEntry.getValues().keySet().retainAll(model.getIndependentFeatures());
-                    });
-            task.getMeta().getComments().add("Dataset has been cleaned from unused values.");
-
+                dataset.getDataEntry().parallelStream()
+                        .forEach(dataEntry -> {
+                            dataEntry.getValues().keySet().retainAll(model.getIndependentFeatures());
+                        });
+                task.getMeta().getComments().add("Dataset has been cleaned from unused values.");
+            } else {
+                dataset = DatasetFactory.createEmpty(0);
+                predFeatureDataset = null;
+            }
             task.setPercentageCompleted(15.f);
             task.getMeta().getComments().add("Creating JPDI prediction request...");
             taskHandler.edit(task);
@@ -303,26 +308,28 @@ public class PredictionMDB extends RunningTaskMDB {
             taskHandler.edit(task);
             List<Map<String, Object>> predictions = predictionResponse.getPredictions();
 //            for (int i = 0; i < dataset.getDataEntry().size(); i++) {
-
+            if (dataset.getDataEntry().isEmpty()) {
+                DatasetFactory.addEmptyRows(dataset, predictions.size());
+            }
             IntStream.range(0, dataset.getDataEntry().size())
                     .parallel()
                     .forEach(i -> {
                         Map<String, Object> row = predictions.get(i);
                         DataEntry dataEntry = dataset.getDataEntry().get(i);
                         if (model.getAlgorithm().getOntologicalClasses().contains("ot:Scaling")
-                        || model.getAlgorithm().getOntologicalClasses().contains("ot:Transformation")) {
+                                || model.getAlgorithm().getOntologicalClasses().contains("ot:Transformation")) {
                             dataEntry.getValues().clear();
                             dataset.getFeatures().clear();
                         }
                         row.entrySet()
-                        .parallelStream()
-                        .forEach(entry -> {
-                            Feature feature = featureHandler.findByTitleAndSource(entry.getKey(), "algorithm/" + model.getAlgorithm().getId());
-                            dataEntry.getValues().put(messageBody.get("base_uri") + "feature/" + feature.getId(), entry.getValue());
-                            FeatureInfo featInfo = new FeatureInfo(messageBody.get("base_uri") + "feature/" + feature.getId(), feature.getMeta().getTitles().stream().findFirst().get());
-                            featInfo.setCategory(Dataset.DescriptorCategory.PREDICTED);
-                            dataset.getFeatures().add(featInfo);
-                        });
+                                .parallelStream()
+                                .forEach(entry -> {
+                                    Feature feature = featureHandler.findByTitleAndSource(entry.getKey(), "algorithm/" + model.getAlgorithm().getId());
+                                    dataEntry.getValues().put(messageBody.get("base_uri") + "feature/" + feature.getId(), entry.getValue());
+                                    FeatureInfo featInfo = new FeatureInfo(messageBody.get("base_uri") + "feature/" + feature.getId(), feature.getMeta().getTitles().stream().findFirst().get());
+                                    featInfo.setCategory(Dataset.DescriptorCategory.PREDICTED);
+                                    dataset.getFeatures().add(featInfo);
+                                });
                     });
             Dataset mergedDataset = DatasetFactory.mergeColumns(dataset, predFeatureDataset);
             for (String predictionDatasetURI : predictionDatasets) {

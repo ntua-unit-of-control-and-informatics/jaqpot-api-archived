@@ -296,19 +296,21 @@ public class TrainingMDB extends RunningTaskMDB {
                 }
             }
             task.getMeta().getComments().add("--");
-            task.getMeta().getComments().add("Training dataset URI is:" + dataset_uri);
-            task.getMeta().getComments().add("Attempting to download dataset...");
-            task.setPercentageCompleted(12.f);
-            taskHandler.edit(task);
-            Dataset dataset = client.target(dataset_uri)
-                    .request()
-                    .header("subjectid", messageBody.get("subjectid"))
-                    .accept(MediaType.APPLICATION_JSON)
-                    .get(Dataset.class);
-            dataset.setDatasetURI(dataset_uri);
+            Dataset dataset = null;
+            if (dataset_uri != null && !dataset_uri.isEmpty()) {
+                task.getMeta().getComments().add("Training dataset URI is:" + dataset_uri);
+                task.getMeta().getComments().add("Attempting to download dataset...");
+                task.setPercentageCompleted(12.f);
+                taskHandler.edit(task);
+                dataset = client.target(dataset_uri)
+                        .request()
+                        .header("subjectid", messageBody.get("subjectid"))
+                        .accept(MediaType.APPLICATION_JSON)
+                        .get(Dataset.class);
+                dataset.setDatasetURI(dataset_uri);
 
-            task.getMeta().getComments().add("Dataset has been retrieved.");
-
+                task.getMeta().getComments().add("Dataset has been retrieved.");
+            }
             task.getMeta().getComments().add("Creating JPDI training request...");
             task.setPercentageCompleted(20.f);
             taskHandler.edit(task);
@@ -433,7 +435,7 @@ public class TrainingMDB extends RunningTaskMDB {
                     .builder()
                     .addTitles((String) messageBody.get("title"))
                     .addCreators(task.getCreatedBy())
-                    .addSources(dataset.getDatasetURI())
+                    .addSources(dataset != null ? dataset.getDatasetURI() : "")
                     .addComments("Created by task " + task.getId())
                     .addDescriptions((String) messageBody.get("description"))
                     .build());
