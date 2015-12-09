@@ -35,6 +35,7 @@ public class DatasetFactory {
                     de.setValues(new TreeMap<>());
                     Substance s = new Substance();
                     s.setName(Integer.toString(i));
+                    s.setURI("/substance/" + i);
                     de.setCompound(s);
                     return de;
                 }).collect(Collectors.toList());
@@ -45,9 +46,10 @@ public class DatasetFactory {
         dataset.setId(randomStringGenerator.nextString(14));
         dataset.setFeatures(new HashSet<>());
         dataset.setMeta(MetaInfoBuilder.builder()
-        .addTitles("Empty dataset")     
-        .addDescriptions("Empty dataset")
-        .build());
+                .addTitles("Empty dataset")
+                .addDescriptions("Empty dataset")
+                .addCreators(new String[0])
+                .build());
         
         return dataset;
     }
@@ -59,6 +61,7 @@ public class DatasetFactory {
                     de.setValues(new TreeMap<>());
                     Substance s = new Substance();
                     s.setName(Integer.toString(i));
+                    s.setURI("/substance/" + i);
                     de.setCompound(s);
                     return de;
                 }).collect(Collectors.toList());

@@ -158,6 +158,7 @@ public class PredictionMDB extends RunningTaskMDB {
             task.setPercentageCompleted(5.f);
             taskHandler.edit(task);
 
+            String creator = (String) messageBody.get("createdBy");
             String dataset_uri = (String) messageBody.get("dataset_uri");
             if (model.getTransformationModels() != null && !model.getTransformationModels().isEmpty()) {
                 task.getMeta().getComments().add("--");
@@ -268,6 +269,7 @@ public class PredictionMDB extends RunningTaskMDB {
                 dataset = DatasetFactory.createEmpty(0);
                 predFeatureDataset = null;
             }
+            dataset.getMeta().getCreators().add(creator);
             task.setPercentageCompleted(15.f);
             task.getMeta().getComments().add("Creating JPDI prediction request...");
             taskHandler.edit(task);
