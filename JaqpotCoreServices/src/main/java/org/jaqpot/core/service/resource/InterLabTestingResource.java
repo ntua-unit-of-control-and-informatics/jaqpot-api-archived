@@ -105,6 +105,7 @@ public class InterLabTestingResource {
 
         Report report = client.target(algorithmURI)
                 .request()
+                .header("Content-Type", MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .post(Entity.json(trainingRequest), Report.class);
 
