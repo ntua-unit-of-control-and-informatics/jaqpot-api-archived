@@ -5,17 +5,21 @@
  */
 package org.jaqpot.core.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  *
  * @author hampos
  */
+@XmlRootElement(name = "Model")
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Report extends JaqpotEntity {
 
     private Map<String, Object> singleCalculations;
