@@ -24,7 +24,6 @@ import org.jaqpot.core.service.annotations.Authorize;
 @Path("report")
 @Api(value = "/report", description = "Report API")
 @Produces(MediaType.APPLICATION_JSON)
-@Authorize
 public class ReportResource {
 
     @EJB
