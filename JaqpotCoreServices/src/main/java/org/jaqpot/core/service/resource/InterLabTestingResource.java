@@ -80,6 +80,7 @@ public class InterLabTestingResource {
             response = Report.class
     )
     public Response interLabTest(
+            @FormParam("algorithm_uri") String algorithmURI,
             @FormParam("dataset_uri") String datasetURI,
             @FormParam("prediction_feature") String predictionFeature,
             @FormParam("parameters") String parameters,
@@ -102,7 +103,7 @@ public class InterLabTestingResource {
             trainingRequest.setParameters(parameterMap);
         }
 
-        Report report = client.target("http://test.jaqpot.org:8090/pws/interlabtest")
+        Report report = client.target(algorithmURI)
                 .request()
                 .accept(MediaType.APPLICATION_JSON)
                 .post(Entity.json(trainingRequest), Report.class);
