@@ -41,14 +41,18 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.SecurityContext;
 import org.jaqpot.core.annotations.Jackson;
 import org.jaqpot.core.data.ReportHandler;
 import org.jaqpot.core.data.serialize.JSONSerializer;
 import org.jaqpot.core.model.Report;
+import org.jaqpot.core.model.builder.MetaInfoBuilder;
 import org.jaqpot.core.model.dto.dataset.Dataset;
 import org.jaqpot.core.model.dto.jpdi.TrainingRequest;
+import org.jaqpot.core.model.util.ROG;
 import org.jaqpot.core.service.annotations.Authorize;
 import org.jaqpot.core.service.annotations.UnSecure;
 
@@ -72,6 +76,9 @@ public class InterLabTestingResource {
 
     @EJB
     ReportHandler reportHandler;
+
+    @Context
+    SecurityContext securityContext;
 
     @POST
     @Path("/test")
@@ -109,6 +116,13 @@ public class InterLabTestingResource {
                 .accept(MediaType.APPLICATION_JSON)
                 .post(Entity.json(trainingRequest), Report.class);
 
+        report.setMeta(MetaInfoBuilder.builder()
+                .addTitles("interlab testing report")
+                .addDescriptions("interlab testing report")
+                .addCreators(securityContext.getUserPrincipal().getName())
+                .build()
+        );
+        report.setId(new ROG(true).nextString(10));
         reportHandler.create(report);
 
         return Response.ok(report).build();
