@@ -119,7 +119,6 @@ public class AAService {
             SSOauthorization = String.format(SSO_IDENTITY, "authorize"),
             SSOattributes = String.format(SSO_IDENTITY, "attributes");
 
-    @Lock(LockType.READ)
     public AuthToken login(String username, String password) throws JaqpotNotAuthorizedException {
 
         MultivaluedMap<String, String> formData = new MultivaluedHashMap<>();
@@ -152,7 +151,6 @@ public class AAService {
      CURL example:
      curl  -XPOST -d "tokenid=..." https://opensso.in-silico.ch/auth/isTokenValid -k
      */
-    @Lock(LockType.READ)
     public boolean validate(String token) {
         MultivaluedMap<String, String> formData = new MultivaluedHashMap<>();
         formData.putSingle("tokenid", token);
@@ -172,7 +170,6 @@ public class AAService {
      * @return
      * @throws org.jaqpot.core.service.exceptions.JaqpotNotAuthorizedException
      */
-    @Lock(LockType.READ)
     public boolean logout(String token) throws JaqpotNotAuthorizedException {
         MultivaluedMap<String, String> formData = new MultivaluedHashMap<>();
         formData.putSingle("subjectid", token);
@@ -196,7 +193,6 @@ public class AAService {
      * @return user entity with the capabilities of a new user and the retrieved
      * attributes.
      */
-    @Lock(LockType.READ)
     public User getUserFromSSO(String token) {
         User user = UserFactory.newNormalUser();
         MultivaluedMap<String, String> formData = new MultivaluedHashMap<>();
@@ -261,7 +257,6 @@ public class AAService {
         return user;
     }
 
-    @Lock(LockType.READ)
     public boolean authorize(String token, String httpMethod, String uri) {
         MultivaluedMap<String, String> formData = new MultivaluedHashMap<>();
         formData.putSingle("subjectid", token);
