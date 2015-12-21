@@ -244,6 +244,7 @@ public class ValidationMDB extends RunningTaskMDB {
                     reportRequest.setDataset(finalDS);
                     reportRequest.setPredictionFeature(predictionFeature);
                     Map<String, Object> validationParameters = new HashMap<>();
+                    validationParameters.put("predictionFeature", predictionFeature);
                     validationParameters.put("predictedFeature", predictedFeature);
                     validationParameters.put("variables", indepFeatureSize);
                     validationParameters.put("type", ValidationReport.Type.REGRESSION);
