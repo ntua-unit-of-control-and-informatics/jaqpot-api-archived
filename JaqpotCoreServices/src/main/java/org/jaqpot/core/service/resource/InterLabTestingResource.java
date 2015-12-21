@@ -86,7 +86,10 @@ public class InterLabTestingResource {
             notes = "Creates Interlab Testing Report",
             response = Report.class
     )
+    @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     public Response interLabTest(
+            @FormParam("title") String title,
+            @FormParam("descriptions") String description,
             @FormParam("algorithm_uri") String algorithmURI,
             @FormParam("dataset_uri") String datasetURI,
             @FormParam("prediction_feature") String predictionFeature,
@@ -117,12 +120,12 @@ public class InterLabTestingResource {
                 .post(Entity.json(trainingRequest), Report.class);
 
         report.setMeta(MetaInfoBuilder.builder()
-                .addTitles("interlab testing report")
-                .addDescriptions("interlab testing report")
+                .addTitles(title)
+                .addDescriptions(description)
                 .addCreators(securityContext.getUserPrincipal().getName())
                 .build()
         );
-        report.setId(new ROG(true).nextString(10));
+        report.setId(new ROG(true).nextString(15));
         reportHandler.create(report);
 
         return Response.ok(report).build();

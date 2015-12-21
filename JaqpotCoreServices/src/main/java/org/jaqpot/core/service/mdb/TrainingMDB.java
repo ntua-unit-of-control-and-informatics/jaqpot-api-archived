@@ -89,29 +89,29 @@ import org.jaqpot.core.service.exceptions.JaqpotWebException;
             propertyValue = "javax.jms.Topic")
 })
 public class TrainingMDB extends RunningTaskMDB {
-
+    
     private static final Logger LOG = Logger.getLogger(TrainingMDB.class.getName());
-
+    
     @EJB
     TaskHandler taskHandler;
-
+    
     @EJB
     FeatureHandler featureHandler;
-
+    
     @EJB
     AlgorithmHandler algorithmHandler;
-
+    
     @EJB
     ModelHandler modelHandler;
-
+    
     @Inject
     @UnSecure
     Client client;
-
+    
     @Inject
     @Jackson
     JSONSerializer jsonSerializer;
-
+    
     long DOA_TASK_MAX_WAITING_TIME = 45; // 45s
 
     @Override
@@ -119,11 +119,11 @@ public class TrainingMDB extends RunningTaskMDB {
         Task task = new Task();
         ROG randomStringGenerator = new ROG(true);
         String modelId = randomStringGenerator.nextString(12);
-
+        
         try {
             Map<String, Object> messageBody = msg.getBody(Map.class);
             task = taskHandler.find(messageBody.get("taskId"));
-
+            
             if (task == null) {
                 throw new NullPointerException("FATAL: Could not find task with id:" + messageBody.get("taskId"));
             }
@@ -133,30 +133,30 @@ public class TrainingMDB extends RunningTaskMDB {
             if (task.getMeta().getComments() == null) {
                 task.getMeta().setComments(new ArrayList<>());
             }
-
+            
             init(task.getId());
-
+            
             task.setHttpStatus(202);
             task.setStatus(Task.Status.RUNNING);
             task.setType(Task.Type.TRAINING);
             task.getMeta().getComments().add("Training Task is now running.");
             task.setPercentageCompleted(10.f);
             taskHandler.edit(task);
-
+            
             String dataset_uri = (String) messageBody.get("dataset_uri");
             List<String> transformationModels = new ArrayList<>();
             List<String> linkedModels = new ArrayList<>();
-
+            
             if (messageBody.containsKey("transformations")) {
                 task.getMeta().getComments().add("--");
                 task.getMeta().getComments().add("Processing transformations...");
                 taskHandler.edit(task);
-
+                
                 String transformationsString = (String) messageBody.get("transformations");
                 LinkedHashMap<String, String> transformations = jsonSerializer.parse(transformationsString, LinkedHashMap.class);
                 List<Algorithm> transformationAlgorithms = new ArrayList<>();
                 List<Algorithm> linkedAlgorithms = new ArrayList<>();
-
+                
                 for (String transformationAlgorithmURI : transformations.keySet()) {
                     Algorithm algorithm = client.target(transformationAlgorithmURI)
                             .request()
@@ -170,12 +170,12 @@ public class TrainingMDB extends RunningTaskMDB {
                         linkedAlgorithms.add(algorithm);
                     }
                 }
-
+                
                 for (Algorithm algorithm : transformationAlgorithms) {
                     task.getMeta().getComments().add("-");
                     task.getMeta().getComments().add("Starting training on transformation algorithm:" + algorithm.getId());
                     taskHandler.edit(task);
-
+                    
                     MultivaluedMap<String, String> formMap = new MultivaluedHashMap<>();
                     messageBody.entrySet().stream()
                             .filter(e -> !e.getKey().equals("visible"))
@@ -199,7 +199,7 @@ public class TrainingMDB extends RunningTaskMDB {
                         try {
                             Thread.sleep(500);
                         } catch (InterruptedException ex) {
-
+                            
                         }
                         trainTask = client.target(trainTaskURI)
                                 .request()
@@ -230,7 +230,7 @@ public class TrainingMDB extends RunningTaskMDB {
                         try {
                             Thread.sleep(500);
                         } catch (InterruptedException ex) {
-
+                            
                         }
                         predictionTask = client.target(predictionTaskURI)
                                 .request()
@@ -246,14 +246,14 @@ public class TrainingMDB extends RunningTaskMDB {
                         task.getMeta().getComments().add("Transformation task failed.");
                         throw new JaqpotWebException(predictionTask.getErrorReport());
                     }
-
+                    
                 }
-
+                
                 for (Algorithm algorithm : linkedAlgorithms) {
                     task.getMeta().getComments().add("-");
                     task.getMeta().getComments().add("Starting training on linked algorithm:" + algorithm.getId());
                     taskHandler.edit(task);
-
+                    
                     MultivaluedMap<String, String> formMap = new MultivaluedHashMap<>();
                     messageBody.entrySet().stream()
                             .filter(e -> !e.getKey().equals("visible"))
@@ -277,7 +277,7 @@ public class TrainingMDB extends RunningTaskMDB {
                         try {
                             Thread.sleep(500);
                         } catch (InterruptedException ex) {
-
+                            
                         }
                         trainTask = client.target(trainTaskURI)
                                 .request()
@@ -308,19 +308,19 @@ public class TrainingMDB extends RunningTaskMDB {
                         .accept(MediaType.APPLICATION_JSON)
                         .get(Dataset.class);
                 dataset.setDatasetURI(dataset_uri);
-
+                
                 task.getMeta().getComments().add("Dataset has been retrieved.");
             }
             task.getMeta().getComments().add("Creating JPDI training request...");
             task.setPercentageCompleted(20.f);
             taskHandler.edit(task);
-
+            
             TrainingRequest trainingRequest = new TrainingRequest();
             trainingRequest.setDataset(dataset);
             task.getMeta().getComments().add("Inserted dataset.");
             task.setPercentageCompleted(34.f);
             taskHandler.edit(task);
-
+            
             String predictionFeature = (String) messageBody.get("prediction_feature");
             if (predictionFeature != null && !predictionFeature.isEmpty()) {
                 trainingRequest.setPredictionFeature(predictionFeature);
@@ -328,27 +328,27 @@ public class TrainingMDB extends RunningTaskMDB {
             } else {
                 task.getMeta().getComments().add("Prediction feature not present.");
             }
-
+            
             task.setPercentageCompleted(41.f);
             taskHandler.edit(task);
-
+            
             String parameters = (String) messageBody.get("parameters");
             if (parameters != null && !parameters.isEmpty()) {
                 HashMap<String, Object> parameterMap = jsonSerializer.parse(parameters, new HashMap<String, Object>().getClass());
                 trainingRequest.setParameters(parameterMap);
             }
-
+            
             task.getMeta().getComments().add("Inserted parameters.");
             task.setPercentageCompleted(53.f);
             taskHandler.edit(task);
-
+            
             String algorithmId = (String) messageBody.get("algorithmId");
             Algorithm algorithm = algorithmHandler.find(algorithmId);
-
+            
             task.getMeta().getComments().add("Inserted algorithm id.");
             task.setPercentageCompleted(55.f);
             taskHandler.edit(task);
-
+            
             task.getMeta().getComments().add("Sending request to  algorithm service:" + algorithm.getTrainingService());
             task.setPercentageCompleted(64.f);
             taskHandler.edit(task);
@@ -359,7 +359,7 @@ public class TrainingMDB extends RunningTaskMDB {
             task.getMeta().getComments().add("Algorithm service responded with status:" + response.getStatus());
             task.setPercentageCompleted(69.f);
             taskHandler.edit(task);
-
+            
             String responseString = response.readEntity(String.class);
             if (response.getStatus() != 200 && response.getStatus() != 201 && response.getStatus() != 202) {
                 if (response.getStatus() == 400) {
@@ -377,13 +377,13 @@ public class TrainingMDB extends RunningTaskMDB {
             task.getMeta().getComments().add("Response was parsed successfully");
             task.setPercentageCompleted(77.f);
             taskHandler.edit(task);
-
+            
             response.close();
-
+            
             task.getMeta().getComments().add("Building model...");
             task.setPercentageCompleted(84.f);
             taskHandler.edit(task);
-
+            
             Model model = new Model(modelId);
             model.setActualModel(trainingResponse.getRawModel());
             model.setPmmlModel(trainingResponse.getPmmlModel());
@@ -391,6 +391,7 @@ public class TrainingMDB extends RunningTaskMDB {
             model.setIndependentFeatures(trainingResponse.getIndependentFeatures());
             model.setDatasetUri((String) messageBody.get("dataset_uri"));
             model.setAdditionalInfo(trainingResponse.getAdditionalInfo());
+            model.setParameters(trainingRequest.getParameters());
             ArrayList<String> dependentFeatures = new ArrayList<>();
             if (predictionFeature != null) {
                 dependentFeatures.add(predictionFeature);
@@ -425,12 +426,12 @@ public class TrainingMDB extends RunningTaskMDB {
                 predictedFeatures.add(messageBody.get("base_uri") + "feature/" + predictionFeatureResource.getId());
             }
             model.setPredictedFeatures(predictedFeatures);
-
+            
             task.getMeta().getComments().add("Model was built successfully");
-
+            
             task.setPercentageCompleted(85.f);
             taskHandler.edit(task);
-
+            
             model.setMeta(MetaInfoBuilder
                     .builder()
                     .addTitles((String) messageBody.get("title"))
@@ -439,7 +440,7 @@ public class TrainingMDB extends RunningTaskMDB {
                     .addComments("Created by task " + task.getId())
                     .addDescriptions((String) messageBody.get("description"))
                     .build());
-
+            
             task.getMeta().getComments().add("Model was built successfully. Now saving to database...");
             taskHandler.edit(task);
             if ((Boolean) messageBody.get("visible")) {
@@ -448,7 +449,7 @@ public class TrainingMDB extends RunningTaskMDB {
                 model.setVisible(Boolean.FALSE);
             }
             modelHandler.create(model);
-
+            
             task.setResult("model/" + model.getId());
             task.setHttpStatus(201);
             task.setPercentageCompleted(100.f);
@@ -456,7 +457,7 @@ public class TrainingMDB extends RunningTaskMDB {
             task.setStatus(Task.Status.COMPLETED);
             task.getMeta().getComments().add("Task Completed Successfully.");
             taskHandler.edit(task);
-
+            
         } catch (UnsupportedOperationException | IllegalStateException | IllegalArgumentException | ArrayIndexOutOfBoundsException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             task.setStatus(Task.Status.ERROR);
@@ -492,5 +493,5 @@ public class TrainingMDB extends RunningTaskMDB {
             taskHandler.edit(task);
         }
     }
-
+    
 }

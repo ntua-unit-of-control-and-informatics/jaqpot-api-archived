@@ -178,9 +178,9 @@ public class ROG {
         m.setReliability(1);
         m.setMeta(nextMeta());
         m.setOntologicalClasses(nextSetString(5, 20));
-        m.setParameters(new HashSet<>());
+        m.setParameters(new HashMap<>());
         for (int i = 0; i < 5; i++) {
-            m.getParameters().add(nextParameter());
+            m.getParameters().put(nextParameter().getName(),nextParameter().getValue());
         }
         m.setPmmlModel(nextString(5000));
         m.setPmmlTransformations(nextString(10000));
