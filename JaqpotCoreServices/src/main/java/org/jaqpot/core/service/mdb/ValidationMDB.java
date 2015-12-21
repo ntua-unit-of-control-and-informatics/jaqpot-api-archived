@@ -34,6 +34,8 @@
  */
 package org.jaqpot.core.service.mdb;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -57,12 +59,15 @@ import javax.ws.rs.client.ResponseProcessingException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
+import org.jaqpot.core.data.ReportHandler;
 import org.jaqpot.core.data.TaskHandler;
 import org.jaqpot.core.data.ValidationHandler;
+import org.jaqpot.core.model.Report;
 import org.jaqpot.core.model.Task;
 import org.jaqpot.core.model.ValidationReport;
 import org.jaqpot.core.model.builder.MetaInfoBuilder;
 import org.jaqpot.core.model.dto.dataset.Dataset;
+import org.jaqpot.core.model.dto.jpdi.TrainingRequest;
 import org.jaqpot.core.model.factory.ErrorReportFactory;
 import org.jaqpot.core.model.util.ROG;
 import org.jaqpot.core.service.annotations.UnSecure;
@@ -93,7 +98,7 @@ public class ValidationMDB extends RunningTaskMDB {
     ValidationService validationService;
 
     @EJB
-    ValidationHandler validationHandler;
+    ReportHandler reportHandler;
 
     @Inject
     @UnSecure
@@ -134,7 +139,7 @@ public class ValidationMDB extends RunningTaskMDB {
             String transformations = (String) messageBody.get("transformations");
             String scaling = (String) messageBody.get("scaling");
 
-            ValidationReport report = null;
+            Report report = null;
 
             switch (type) {
                 case "SPLIT":
@@ -229,8 +234,34 @@ public class ValidationMDB extends RunningTaskMDB {
                     Object[] firstResult = resultMap.values().stream().findFirst().get();
                     String predictedFeature = (String) firstResult[2];
                     Integer indepFeatureSize = (Integer) firstResult[3];
-                    report = validationService.createValidationReport(finalDataset, predictionFeature, predictedFeature, indepFeatureSize, ValidationReport.Type.REGRESSION, subjectId);
 
+                    TrainingRequest reportRequest = new TrainingRequest();
+                    Dataset finalDS = client.target(finalDataset)
+                            .request()
+                            .header("subjectid", subjectId)
+                            .accept(MediaType.APPLICATION_JSON)
+                            .get(Dataset.class);
+                    reportRequest.setDataset(finalDS);
+                    reportRequest.setPredictionFeature(predictionFeature);
+                    Map<String, Object> validationParameters = new HashMap<>();
+                    validationParameters.put("predictedFeature", predictedFeature);
+                    validationParameters.put("variables", indepFeatureSize);
+                    validationParameters.put("type", ValidationReport.Type.REGRESSION);
+                    reportRequest.setParameters(validationParameters);
+
+                    try {
+                        System.out.println(new ObjectMapper().writeValueAsString(reportRequest));
+                    } catch (JsonProcessingException ex) {
+                        throw new UnsupportedOperationException(ex);
+                    }
+
+                    report = client.target("http://147.102.82.32:8092/pws/validation")
+                            .request()
+                            .header("Content-Type", MediaType.APPLICATION_JSON)
+                            .accept(MediaType.APPLICATION_JSON)
+                            .post(Entity.json(reportRequest), Report.class);
+
+//                    report = validationService.createValidationReport(finalDataset, predictionFeature, predictedFeature, indepFeatureSize, ValidationReport.Type.REGRESSION, subjectId);
                     break;
 
                 default:
@@ -238,7 +269,7 @@ public class ValidationMDB extends RunningTaskMDB {
             }
 
             ROG randomStringGenerator = new ROG(true);
-            String reportId = randomStringGenerator.nextString(12);
+            String reportId = randomStringGenerator.nextString(15);
             report.setId(reportId);
             report.setMeta(MetaInfoBuilder
                     .builder()
@@ -248,8 +279,8 @@ public class ValidationMDB extends RunningTaskMDB {
                     .addComments("Created by task " + task.getId())
                     //                    .addDescriptions((String) messageBody.get("description"))
                     .build());
-            validationHandler.create(report);
-            task.setResult("validation/" + report.getId());
+            reportHandler.create(report);
+            task.setResult("report/" + report.getId());
             task.setPercentageCompleted(100.f);
             task.setDuration(System.currentTimeMillis() - task.getMeta().getDate().getTime()); // in ms
             task.setStatus(Task.Status.COMPLETED);
