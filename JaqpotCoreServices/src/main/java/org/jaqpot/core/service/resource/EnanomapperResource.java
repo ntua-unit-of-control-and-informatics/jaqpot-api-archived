@@ -227,6 +227,7 @@ public class EnanomapperResource {
         options.put("subjectid", subjectId);
         options.put("base_uri", uriInfo.getBaseUri().toString());
         options.put("mode", "PREPARATION");
+        options.put("retain_null_values", datasetData.getRetainNullValues() != null ? datasetData.getRetainNullValues() : false);
         Task task = conjoinerService.initiatePreparation(options, securityContext.getUserPrincipal().getName());
         return Response.ok(task).build();
     }
@@ -519,6 +520,7 @@ public class EnanomapperResource {
         private String bundle;
         private List<String> descriptors;
         private Boolean intersectColumns;
+        private Boolean retainNullValues;
 
         public String getTitle() {
             return title;
@@ -558,6 +560,14 @@ public class EnanomapperResource {
 
         public void setIntersectColumns(Boolean intersectColumns) {
             this.intersectColumns = intersectColumns;
+        }
+
+        public Boolean getRetainNullValues() {
+            return retainNullValues;
+        }
+
+        public void setRetainNullValues(Boolean retainNullValues) {
+            this.retainNullValues = retainNullValues;
         }
 
     }

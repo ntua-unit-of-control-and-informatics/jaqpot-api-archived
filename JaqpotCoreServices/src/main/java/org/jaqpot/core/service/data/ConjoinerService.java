@@ -144,7 +144,7 @@ public class ConjoinerService {
         return task;
     }
 
-    public Dataset prepareDataset(String bundleURI, String subjectId, Set<String> descriptors, Boolean intersectColumns) {
+    public Dataset prepareDataset(String bundleURI, String subjectId, Set<String> descriptors, Boolean intersectColumns, Boolean retainNullValues) {
 
         String remoteServerBase = bundleURI.split("bundle")[0];
 
@@ -171,7 +171,7 @@ public class ConjoinerService {
                     .accept(MediaType.APPLICATION_JSON)
                     .header("subjectid", subjectId)
                     .get(Studies.class);
-            DataEntry dataEntry = createDataEntry(substance, studies, properties.getFeature().keySet(), remoteServerBase, subjectId, descriptors);
+            DataEntry dataEntry = createDataEntry(substance, studies, properties.getFeature().keySet(), remoteServerBase, subjectId, descriptors, retainNullValues);
             dataEntries.add(dataEntry);
         }
 
@@ -198,7 +198,7 @@ public class ConjoinerService {
     }
 
     //TODO: Handle multiple effects that map to the same property
-    public DataEntry createDataEntry(Substance substance, Studies studies, Set<String> propertyCategories, String remoteServerBase, String subjectId, Set<String> descriptors) {
+    public DataEntry createDataEntry(Substance substance, Studies studies, Set<String> propertyCategories, String remoteServerBase, String subjectId, Set<String> descriptors, Boolean retainNullValues) {
         DataEntry dataEntry = new DataEntry();
         TreeMap<String, Object> values = new TreeMap<>();
         for (Study study : studies.getStudy()) {
@@ -312,9 +312,9 @@ public class ConjoinerService {
                     String guideline = guidelines == null || guidelines.isEmpty() ? "" : guidelines.get(0);
                     StringJoiner propertyURIJoiner = getRelativeURI(name, topcategory, endpointcategory, identifier, guideline);
                     Object value = calculateValue(effect);
-//                    if (value == null) {
-//                        continue;
-//                    }
+                    if (value == null && !retainNullValues) {
+                        continue;
+                    }
                     String propertyKey = remoteServerBase + propertyURIJoiner.toString();
                     if (values.containsKey(propertyKey)) {
                         Object old = values.get(propertyKey);

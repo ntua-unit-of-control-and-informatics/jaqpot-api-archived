@@ -125,13 +125,14 @@ public class PreparationMDB extends RunningTaskMDB {
             String subjectId = (String) messageBody.get("subjectid");
             String descriptors = (String) messageBody.get("descriptors");
             Boolean intersectColumns = (Boolean) messageBody.get("intersect_columns");
+            Boolean retainNullValues = (Boolean) messageBody.get("retain_null_values");
 
             Set descriptorSet = serializer.parse(descriptors, Set.class);
 
             task.getMeta().getComments().add("Starting Dataset preparation...");
             task.setPercentageCompleted(6.0f);
             taskHandler.edit(task);
-            Dataset dataset = conjoinerService.prepareDataset(bundleUri, subjectId, descriptorSet, intersectColumns);
+            Dataset dataset = conjoinerService.prepareDataset(bundleUri, subjectId, descriptorSet, intersectColumns, retainNullValues);
 
             task.getMeta().getComments().add("Dataset ready.");
             task.getMeta().getComments().add("Saving to database...");
