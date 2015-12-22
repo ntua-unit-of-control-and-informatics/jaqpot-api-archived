@@ -247,7 +247,7 @@ public class ValidationMDB extends RunningTaskMDB {
                     validationParameters.put("predictionFeature", predictionFeature);
                     validationParameters.put("predictedFeature", predictedFeature);
                     validationParameters.put("variables", indepFeatureSize);
-                    validationParameters.put("type", ValidationReport.Type.REGRESSION);
+                    validationParameters.put("type", ValidationReport.Type.CLASSIFICATION);
                     reportRequest.setParameters(validationParameters);
 
                     try {
