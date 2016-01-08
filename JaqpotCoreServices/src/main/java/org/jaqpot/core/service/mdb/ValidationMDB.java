@@ -335,11 +335,11 @@ public class ValidationMDB extends RunningTaskMDB {
         } catch (ResponseProcessingException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             task.setStatus(Task.Status.ERROR);
-            task.setErrorReport(ErrorReportFactory.remoteError("", null)); //  Process response failed
+            task.setErrorReport(ErrorReportFactory.remoteError("", null,ex)); //  Process response failed
         } catch (ProcessingException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             task.setStatus(Task.Status.ERROR);
-            task.setErrorReport(ErrorReportFactory.remoteError("", null)); // Process response runtime error
+            task.setErrorReport(ErrorReportFactory.remoteError("", null,ex)); // Process response runtime error
         } catch (WebApplicationException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             task.setStatus(Task.Status.ERROR);

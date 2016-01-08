@@ -96,7 +96,7 @@ public class Mopac {
             mdo.addFormData("file", file, MediaType.APPLICATION_OCTET_STREAM_TYPE, fileName);
             GenericEntity<MultipartFormDataOutput> entity = new GenericEntity<MultipartFormDataOutput>(
                     mdo) {
-                    };
+            };
 
             Response response = target
                     .request()
@@ -128,7 +128,7 @@ public class Mopac {
             } else {
                 return Response
                         .status(Response.Status.BAD_GATEWAY)
-                        .entity(ErrorReportFactory.remoteError(ambitTaskUri, ErrorReportFactory.internalServerError()))
+                        .entity(ErrorReportFactory.remoteError(ambitTaskUri, ErrorReportFactory.internalServerError(), null))
                         .build();
             }
 
@@ -167,7 +167,7 @@ public class Mopac {
             } else {
                 return Response
                         .status(Response.Status.BAD_GATEWAY)
-                        .entity(ErrorReportFactory.remoteError(ambitTaskUri, ErrorReportFactory.internalServerError()))
+                        .entity(ErrorReportFactory.remoteError(ambitTaskUri, ErrorReportFactory.internalServerError(), null))
                         .build();
             }
 
@@ -189,7 +189,7 @@ public class Mopac {
         } catch (IOException ex) {
             return Response
                     .status(Response.Status.BAD_GATEWAY)
-                    .entity(ErrorReportFactory.remoteError(ex.getMessage(), ErrorReportFactory.internalServerError()))
+                    .entity(ErrorReportFactory.remoteError(ex.getMessage(), ErrorReportFactory.internalServerError(), ex))
                     .build();
         }
     }

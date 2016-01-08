@@ -90,7 +90,7 @@ public class ErrorReportFactoryTest {
         System.out.println("remoteError");
         String remoteUri = "http://remote.org/service/model/44541392";
         ErrorReport remoteException = ErrorReportFactory.notImplementedYet();
-        ErrorReport result = ErrorReportFactory.remoteError(remoteUri, remoteException);
+        ErrorReport result = ErrorReportFactory.remoteError(remoteUri, remoteException,null);
         assertEquals(remoteUri, result.getActor());
         assertEquals("RemoteInvocationError", result.getCode());
         assertEquals(502, (int) result.getHttpStatus());

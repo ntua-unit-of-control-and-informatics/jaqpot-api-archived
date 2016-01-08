@@ -294,7 +294,7 @@ public class EnanomapperResource {
         } else {
             return Response
                     .status(Response.Status.BAD_GATEWAY)
-                    .entity(ErrorReportFactory.remoteError(ambitTaskUri, ErrorReportFactory.internalServerError()))
+                    .entity(ErrorReportFactory.remoteError(ambitTaskUri, ErrorReportFactory.internalServerError(), null))
                     .build();
         }
         List<String> substances = bundleData.getSubstances();
@@ -365,7 +365,7 @@ public class EnanomapperResource {
             return Response.created(new URI(bundleUri)).entity(bundleUri).build();
         } catch (URISyntaxException ex) {
             return Response.status(Response.Status.BAD_GATEWAY)
-                    .entity(ErrorReportFactory.remoteError(bundleUri, ErrorReportFactory.internalServerError()))
+                    .entity(ErrorReportFactory.remoteError(bundleUri, ErrorReportFactory.internalServerError(), ex))
                     .build();
         }
     }
