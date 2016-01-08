@@ -27,32 +27,17 @@
  * All source files of JAQPOT Quattro that are stored on github are licensed
  * with the aforementioned licence. 
  */
-package org.jaqpot.core.data;
-
-import javax.ejb.Stateless;
-import javax.inject.Inject;
-import org.jaqpot.core.annotations.MongoDB;
-import org.jaqpot.core.db.entitymanager.JaqpotEntityManager;
-import org.jaqpot.core.model.BibTeX;
-import org.jaqpot.core.model.ValidationReport;
+package org.jaqpot.core.model;
 
 /**
  *
- * @author hampos
+ * @author Pantelis Sopasakis
+ * @author Charalampos Chomenidis
+ *
  */
-@Stateless
-public class ValidationHandler extends AbstractHandler<ValidationReport> {
-
-    @Inject
-    @MongoDB
-    JaqpotEntityManager em;
-
-    public ValidationHandler() {
-        super(ValidationReport.class);
-    }
-
-    @Override
-    protected JaqpotEntityManager getEntityManager() {
-        return em;
-    }
+public enum ValidationType {
+    
+    REGRESSION,
+    CLASSIFICATION
+    
 }

@@ -90,7 +90,6 @@ public class InterLabTestingResource {
     public Response interLabTest(
             @FormParam("title") String title,
             @FormParam("descriptions") String description,
-            @FormParam("algorithm_uri") String algorithmURI,
             @FormParam("dataset_uri") String datasetURI,
             @FormParam("prediction_feature") String predictionFeature,
             @FormParam("parameters") String parameters,
@@ -113,7 +112,7 @@ public class InterLabTestingResource {
             trainingRequest.setParameters(parameterMap);
         }
 
-        Report report = client.target(algorithmURI)
+        Report report = client.target("http://147.102.82.32:8091/pws/interlabtest")
                 .request()
                 .header("Content-Type", MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)

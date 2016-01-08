@@ -51,7 +51,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import org.jaqpot.core.data.TaskHandler;
-import org.jaqpot.core.data.ValidationHandler;
 import org.jaqpot.core.model.Task;
 import org.jaqpot.core.model.builder.MetaInfoBuilder;
 import org.jaqpot.core.model.util.ROG;
@@ -94,9 +93,6 @@ public class ValidationResource {
 
     @EJB
     TaskHandler taskHandler;
-
-    @EJB
-    ValidationHandler validationHandler;
 
     @Context
     SecurityContext securityContext;
@@ -216,14 +212,6 @@ public class ValidationResource {
         jmsContext.createProducer().setDeliveryDelay(1000).send(validationQueue, options);
 
         return Response.ok(task).build();
-    }
-
-    @GET
-    @Path("/{id}")
-    @ApiOperation(value = "Retrieves Validation Report")
-    public Response getValidationReport(@PathParam("id") String id) {
-
-        return Response.ok(validationHandler.find(id)).build();
     }
 
 }

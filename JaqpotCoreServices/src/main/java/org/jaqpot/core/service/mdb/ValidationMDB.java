@@ -61,10 +61,10 @@ import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 import org.jaqpot.core.data.ReportHandler;
 import org.jaqpot.core.data.TaskHandler;
-import org.jaqpot.core.data.ValidationHandler;
+import org.jaqpot.core.model.Algorithm;
 import org.jaqpot.core.model.Report;
 import org.jaqpot.core.model.Task;
-import org.jaqpot.core.model.ValidationReport;
+import org.jaqpot.core.model.ValidationType;
 import org.jaqpot.core.model.builder.MetaInfoBuilder;
 import org.jaqpot.core.model.dto.dataset.Dataset;
 import org.jaqpot.core.model.dto.jpdi.TrainingRequest;
@@ -139,134 +139,174 @@ public class ValidationMDB extends RunningTaskMDB {
             String transformations = (String) messageBody.get("transformations");
             String scaling = (String) messageBody.get("scaling");
 
+            Algorithm algorithm = client.target(algorithmURI)
+                    .request()
+                    .accept(MediaType.APPLICATION_JSON)
+                    .header("subjectId", subjectId)
+                    .get(Algorithm.class);
+
+            ValidationType validationType;
+            if (algorithm.getOntologicalClasses().contains("ot:Regression")) {
+                validationType = ValidationType.REGRESSION;
+            } else if (algorithm.getOntologicalClasses().contains("ot:Classification")) {
+                validationType = ValidationType.CLASSIFICATION;
+            } else {
+                throw new IllegalArgumentException("Selected Algorithm is neither Regression nor Classification.");
+            }
+
             Report report = null;
 
-            switch (type) {
-                case "SPLIT":
-                    task.getMeta().getComments().add("Validation mode is SPLIT.");
-                    taskHandler.edit(task);
+            if (type.equals("SPLIT")) {
 
-                    Double splitRatio = (Double) messageBody.get("split_ratio");
-                    Dataset dataset = client.target(datasetURI)
-                            .request()
-                            .accept(MediaType.APPLICATION_JSON)
-                            .header("subjectId", subjectId)
-                            .get(Dataset.class);
-                    Integer rows = dataset.getTotalRows();
+                task.getMeta().getComments().add("Validation mode is SPLIT.");
+                taskHandler.edit(task);
 
-                    Long split = Math.round(rows * splitRatio);
-                    String trainDatasetURI = datasetURI + "?rowStart=0&rowMax=" + split;
-                    String testDatasetURI = datasetURI + "?rowStart=" + split + "&rowMax=" + (rows - split);
+                Double splitRatio = (Double) messageBody.get("split_ratio");
+                Dataset dataset = client.target(datasetURI)
+                        .request()
+                        .accept(MediaType.APPLICATION_JSON)
+                        .header("subjectId", subjectId)
+                        .get(Dataset.class);
+                Integer rows = dataset.getTotalRows();
 
-                    Object[] results = validationService.trainAndTest(algorithmURI, trainDatasetURI, testDatasetURI, predictionFeature, algorithmParams, transformations, scaling, subjectId);
-                    String finalDatasetURI = (String) results[0];
+                Long split = Math.round(rows * splitRatio);
+                String trainDatasetURI = datasetURI + "?rowStart=0&rowMax=" + split;
+                String testDatasetURI = datasetURI + "?rowStart=" + split + "&rowMax=" + (rows - split);
 
-                    task.getMeta().getComments().add("Final dataset is:" + finalDatasetURI);
-                    taskHandler.edit(task);
+                Object[] results = validationService.trainAndTest(algorithmURI, trainDatasetURI, testDatasetURI, predictionFeature, algorithmParams, transformations, scaling, subjectId);
+                String finalDatasetURI = (String) results[0];
+                String predictedFeature = (String) results[2];
+                Integer indepFeatureSize = (Integer) results[3];
 
-                    break;
-                case "CROSS":
+                task.getMeta().getComments().add("Final dataset is:" + finalDatasetURI);
+                taskHandler.edit(task);
 
-                    task.getMeta().getComments().add("Validation mode is CROSS.");
-                    taskHandler.edit(task);
+                TrainingRequest reportRequest = new TrainingRequest();
+                Dataset finalDS = client.target(finalDatasetURI)
+                        .request()
+                        .header("subjectid", subjectId)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .get(Dataset.class);
+                reportRequest.setDataset(finalDS);
+                reportRequest.setPredictionFeature(predictionFeature);
+                Map<String, Object> validationParameters = new HashMap<>();
+                validationParameters.put("predictionFeature", predictionFeature);
+                validationParameters.put("predictedFeature", predictedFeature);
+                validationParameters.put("variables", indepFeatureSize);
+                validationParameters.put("type", validationType);
+                reportRequest.setParameters(validationParameters);
 
-                    Integer folds = (Integer) messageBody.get("folds");
-                    String stratify = (String) messageBody.get("stratify");
-                    Integer seed = (Integer) messageBody.get("seed");
-                    dataset = client.target(datasetURI)
-                            .request()
-                            .accept(MediaType.APPLICATION_JSON)
-                            .header("subjectId", subjectId)
-                            .get(Dataset.class);
-                    rows = dataset.getTotalRows();
-                    Integer foldSize = Math.round((rows + folds - 1) / folds);
-                    List<String> partialDatasets = new ArrayList<>();
-                    for (int i = 0; i < folds; i++) {
-                        Integer rowStart = i * foldSize;
-                        Integer rowMax = foldSize;
-                        if (rowStart + rowMax > rows) {
-                            rowMax = rows - rowStart;
-                            String partialDatasetURI = datasetURI + "?rowStart=" + rowStart + "&rowMax=" + rowMax + (stratify != null ? "&stratify=" + stratify : "") + (folds != null ? "&folds=" + folds.toString() : "") + (seed != null ? "&seed=" + seed.toString() : "") + "&target_feature=" + URLEncoder.encode(predictionFeature, "UTF-8");
-                            partialDatasets.add(partialDatasetURI);
-                            break;
-                        }
+                try {
+                    System.out.println(new ObjectMapper().writeValueAsString(reportRequest));
+                } catch (JsonProcessingException ex) {
+                    throw new UnsupportedOperationException(ex);
+                }
+
+                report = client.target("http://147.102.82.32:8092/pws/validation")
+                        .request()
+                        .header("Content-Type", MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .post(Entity.json(reportRequest), Report.class);
+
+            } else if (type.equals("CROSS")) {
+
+                task.getMeta().getComments().add("Validation mode is CROSS.");
+                taskHandler.edit(task);
+
+                Integer folds = (Integer) messageBody.get("folds");
+                String stratify = (String) messageBody.get("stratify");
+                Integer seed = (Integer) messageBody.get("seed");
+                Dataset dataset = client.target(datasetURI)
+                        .request()
+                        .accept(MediaType.APPLICATION_JSON)
+                        .header("subjectId", subjectId)
+                        .get(Dataset.class);
+                Integer rows = dataset.getTotalRows();
+                Integer foldSize = Math.round((rows + folds - 1) / folds);
+                List<String> partialDatasets = new ArrayList<>();
+                for (int i = 0; i < folds; i++) {
+                    Integer rowStart = i * foldSize;
+                    Integer rowMax = foldSize;
+                    if (rowStart + rowMax > rows) {
+                        rowMax = rows - rowStart;
                         String partialDatasetURI = datasetURI + "?rowStart=" + rowStart + "&rowMax=" + rowMax + (stratify != null ? "&stratify=" + stratify : "") + (folds != null ? "&folds=" + folds.toString() : "") + (seed != null ? "&seed=" + seed.toString() : "") + "&target_feature=" + URLEncoder.encode(predictionFeature, "UTF-8");
                         partialDatasets.add(partialDatasetURI);
+                        break;
                     }
-                    List<String> finalDatasets = new ArrayList<>();
+                    String partialDatasetURI = datasetURI + "?rowStart=" + rowStart + "&rowMax=" + rowMax + (stratify != null ? "&stratify=" + stratify : "") + (folds != null ? "&folds=" + folds.toString() : "") + (seed != null ? "&seed=" + seed.toString() : "") + "&target_feature=" + URLEncoder.encode(predictionFeature, "UTF-8");
+                    partialDatasets.add(partialDatasetURI);
+                }
+                List<String> finalDatasets = new ArrayList<>();
 
-                    Map<String, Object[]> resultMap = new HashMap<>();
-                    partialDatasets.parallelStream().forEach(testDataset -> {
-                        try {
-                            String trainDatasets = partialDatasets.stream()
-                                    .filter(d -> !d.equals(testDataset))
-                                    .collect(Collectors.joining(","));
-                            MultivaluedMap<String, String> params = new MultivaluedHashMap<>();
-                            params.add("dataset_uris", trainDatasets);
-                            Client c = new ClientFactory().getUnsecureRestClient();
-                            String trainDataset = c.target(datasetURI.split("dataset")[0] + "dataset/merge")
-                                    .request()
-                                    .accept("text/uri-list")
-                                    .header("subjectId", subjectId)
-                                    .post(Entity.form(params), String.class);
-                            c.close();
-
-                            Object[] crossResults = validationService.trainAndTest(algorithmURI, trainDataset, testDataset, predictionFeature, algorithmParams, transformations, scaling, subjectId);
-                            String finalSubDataset = (String) crossResults[0];
-                            resultMap.put(finalSubDataset, crossResults);
-                            finalDatasets.add(finalSubDataset);
-                        } catch (JaqpotWebException ex) {
-                            Logger.getLogger(ValidationMDB.class.getName()).log(Level.SEVERE, null, ex);
-                        }
-                    });
-
-                    MultivaluedMap<String, String> params = new MultivaluedHashMap<>();
-                    params.add("dataset_uris", finalDatasets.stream().collect(Collectors.joining(",")));
-                    String finalDataset = client.target(datasetURI.split("dataset")[0] + "dataset/merge")
-                            .request()
-                            .accept("text/uri-list")
-                            .header("subjectId", subjectId)
-                            .post(Entity.form(params), String.class);
-
-                    task.getMeta().getComments().add("Final dataset is:" + finalDataset);
-                    taskHandler.edit(task);
-
-                    Object[] firstResult = resultMap.values().stream().findFirst().get();
-                    String predictedFeature = (String) firstResult[2];
-                    Integer indepFeatureSize = (Integer) firstResult[3];
-
-                    TrainingRequest reportRequest = new TrainingRequest();
-                    Dataset finalDS = client.target(finalDataset)
-                            .request()
-                            .header("subjectid", subjectId)
-                            .accept(MediaType.APPLICATION_JSON)
-                            .get(Dataset.class);
-                    reportRequest.setDataset(finalDS);
-                    reportRequest.setPredictionFeature(predictionFeature);
-                    Map<String, Object> validationParameters = new HashMap<>();
-                    validationParameters.put("predictionFeature", predictionFeature);
-                    validationParameters.put("predictedFeature", predictedFeature);
-                    validationParameters.put("variables", indepFeatureSize);
-                    validationParameters.put("type", ValidationReport.Type.CLASSIFICATION);
-                    reportRequest.setParameters(validationParameters);
-
+                Map<String, Object[]> resultMap = new HashMap<>();
+                partialDatasets.parallelStream().forEach(testDataset -> {
                     try {
-                        System.out.println(new ObjectMapper().writeValueAsString(reportRequest));
-                    } catch (JsonProcessingException ex) {
-                        throw new UnsupportedOperationException(ex);
+                        String trainDatasets = partialDatasets.stream()
+                                .filter(d -> !d.equals(testDataset))
+                                .collect(Collectors.joining(","));
+                        MultivaluedMap<String, String> params = new MultivaluedHashMap<>();
+                        params.add("dataset_uris", trainDatasets);
+                        Client c = new ClientFactory().getUnsecureRestClient();
+                        String trainDataset = c.target(datasetURI.split("dataset")[0] + "dataset/merge")
+                                .request()
+                                .accept("text/uri-list")
+                                .header("subjectId", subjectId)
+                                .post(Entity.form(params), String.class);
+                        c.close();
+
+                        Object[] crossResults = validationService.trainAndTest(algorithmURI, trainDataset, testDataset, predictionFeature, algorithmParams, transformations, scaling, subjectId);
+                        String finalSubDataset = (String) crossResults[0];
+                        resultMap.put(finalSubDataset, crossResults);
+                        finalDatasets.add(finalSubDataset);
+                    } catch (JaqpotWebException ex) {
+                        Logger.getLogger(ValidationMDB.class.getName()).log(Level.SEVERE, null, ex);
                     }
+                });
 
-                    report = client.target("http://147.102.82.32:8092/pws/validation")
-                            .request()
-                            .header("Content-Type", MediaType.APPLICATION_JSON)
-                            .accept(MediaType.APPLICATION_JSON)
-                            .post(Entity.json(reportRequest), Report.class);
+                MultivaluedMap<String, String> params = new MultivaluedHashMap<>();
+                params.add("dataset_uris", finalDatasets.stream().collect(Collectors.joining(",")));
+                String finalDataset = client.target(datasetURI.split("dataset")[0] + "dataset/merge")
+                        .request()
+                        .accept("text/uri-list")
+                        .header("subjectId", subjectId)
+                        .post(Entity.form(params), String.class);
 
-//                    report = validationService.createValidationReport(finalDataset, predictionFeature, predictedFeature, indepFeatureSize, ValidationReport.Type.REGRESSION, subjectId);
-                    break;
+                task.getMeta().getComments().add("Final dataset is:" + finalDataset);
+                taskHandler.edit(task);
 
-                default:
-                    break;
+                Object[] firstResult = resultMap.values().stream().findFirst().get();
+                String predictedFeature = (String) firstResult[2];
+                Integer indepFeatureSize = (Integer) firstResult[3];
+
+                TrainingRequest reportRequest = new TrainingRequest();
+                Dataset finalDS = client.target(finalDataset)
+                        .request()
+                        .header("subjectid", subjectId)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .get(Dataset.class);
+                reportRequest.setDataset(finalDS);
+                reportRequest.setPredictionFeature(predictionFeature);
+                Map<String, Object> validationParameters = new HashMap<>();
+                validationParameters.put("predictionFeature", predictionFeature);
+                validationParameters.put("predictedFeature", predictedFeature);
+                validationParameters.put("variables", indepFeatureSize);
+                validationParameters.put("type", validationType);
+                reportRequest.setParameters(validationParameters);
+
+                try {
+                    System.out.println(new ObjectMapper().writeValueAsString(reportRequest));
+                } catch (JsonProcessingException ex) {
+                    throw new UnsupportedOperationException(ex);
+                }
+
+                report = client.target("http://147.102.82.32:8092/pws/validation")
+                        .request()
+                        .header("Content-Type", MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .post(Entity.json(reportRequest), Report.class);
+
+            } else {
+                throw new UnsupportedOperationException("Operation " + type + " not supported");
             }
 
             ROG randomStringGenerator = new ROG(true);
