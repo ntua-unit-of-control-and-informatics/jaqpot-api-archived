@@ -148,6 +148,7 @@ public class ValidationResource {
         task.setCreatedBy(securityContext.getUserPrincipal().getName());
         task.setHttpStatus(202);
         task.setStatus(Task.Status.QUEUED);
+        task.setVisible(Boolean.TRUE);
         Map<String, Object> options = new HashMap<>();
         options.put("taskId", task.getId());
         options.put("algorithm_uri", algorithmURI);
@@ -196,6 +197,7 @@ public class ValidationResource {
         task.setCreatedBy(securityContext.getUserPrincipal().getName());
         task.setHttpStatus(202);
         task.setStatus(Task.Status.QUEUED);
+        task.setVisible(Boolean.TRUE);
         Map<String, Object> options = new HashMap<>();
         options.put("taskId", task.getId());
         options.put("algorithm_uri", algorithmURI);
