@@ -132,6 +132,7 @@ public class ModelHandler extends AbstractHandler<Model> {
         fields.add("doaModel");
         fields.add("transformationModels");
         fields.add("linkedModels");
+        fields.add("additionalInfo");
 
         return em.find(Model.class, keys, fields).stream().findFirst().orElse(null);
     }
