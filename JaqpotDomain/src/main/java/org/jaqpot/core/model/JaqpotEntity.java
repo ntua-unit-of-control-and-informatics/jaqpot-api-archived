@@ -63,6 +63,8 @@ public abstract class JaqpotEntity {
 
     private Boolean temporary;
 
+    private Boolean featured;
+
     public JaqpotEntity() {
     }
 
@@ -119,6 +121,14 @@ public abstract class JaqpotEntity {
 
     public void setTemporary(Boolean temporary) {
         this.temporary = temporary;
+    }
+
+    public Boolean getFeatured() {
+        return featured;
+    }
+
+    public void setFeatured(Boolean featured) {
+        this.featured = featured;
     }
 
     @Override

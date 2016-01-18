@@ -129,6 +129,33 @@ public class ModelResource {
     }
 
     @GET
+    @Path("/featured")
+    @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
+    @ApiOperation(value = "Finds all Models",
+            notes = "Finds featured Models from Jaqpot database. The response will list all models and will return either a URI list "
+            + "of a list of JSON model objects. In the latter case, only the IDs, metadata, ontological classes "
+            + "and reliability of the models will be returned. "
+            + "Use the parameters start and max to get paginated results.",
+            response = Model.class,
+            responseContainer = "List")
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "Models found and are listed in the response body"),
+        @ApiResponse(code = 204, message = "No content: The request succeeded, but there are no models "
+                + "matching your search criteria."),
+        @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
+    })
+    public Response listFeaturedModels(
+            @ApiParam(value = "start", defaultValue = "0") @QueryParam("start") Integer start,
+            @ApiParam(value = "max - the server imposes an upper limit of 500 on this "
+                    + "parameter.", defaultValue = "20") @QueryParam("max") Integer max
+    ) {
+        if (max == null || max > 500) {
+            max = 500;
+        }
+        return Response.ok(modelHandler.findFeatured(start != null ? start : 0, max)).build();
+    }
+
+    @GET
     @Path("/count")
     @Produces(MediaType.TEXT_PLAIN)
     @ApiOperation(value = "Count all Models", response = Long.class)
