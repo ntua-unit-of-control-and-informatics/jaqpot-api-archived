@@ -18,7 +18,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  *
  * @author hampos
  */
-@XmlRootElement(name = "Model")
+@XmlRootElement(name = "Report")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Report extends JaqpotEntity {
 
