@@ -74,6 +74,8 @@ public class Dataset extends JaqpotEntity {
     }
 
     private String datasetURI;
+    
+    private String byModel;
 
     private List<DataEntry> dataEntry;
 
@@ -90,6 +92,14 @@ public class Dataset extends JaqpotEntity {
 
     public void setDatasetURI(String datasetURI) {
         this.datasetURI = datasetURI;
+    }
+
+    public String getByModel() {
+        return byModel;
+    }
+
+    public void setByModel(String byModel) {
+        this.byModel = byModel;
     }
 
     public List<DataEntry> getDataEntry() {
