@@ -62,6 +62,7 @@ import javax.ws.rs.core.MultivaluedMap;
 import org.jaqpot.core.data.ReportHandler;
 import org.jaqpot.core.data.TaskHandler;
 import org.jaqpot.core.model.Algorithm;
+import org.jaqpot.core.model.Model;
 import org.jaqpot.core.model.Report;
 import org.jaqpot.core.model.Task;
 import org.jaqpot.core.model.ValidationType;
@@ -88,29 +89,29 @@ import org.jaqpot.core.service.exceptions.JaqpotWebException;
             propertyValue = "javax.jms.Topic")
 })
 public class ValidationMDB extends RunningTaskMDB {
-
+    
     private static final Logger LOG = Logger.getLogger(ValidationMDB.class.getName());
-
+    
     @EJB
     TaskHandler taskHandler;
-
+    
     @EJB
     ValidationService validationService;
-
+    
     @EJB
     ReportHandler reportHandler;
-
+    
     @Inject
     @UnSecure
     Client client;
-
+    
     @Override
     public void onMessage(Message msg) {
         Task task = new Task();
         try {
             Map<String, Object> messageBody = msg.getBody(Map.class);
             task = taskHandler.find(messageBody.get("taskId"));
-
+            
             if (task == null) {
                 throw new NullPointerException("FATAL: Could not find task with id:" + messageBody.get("taskId"));
             }
@@ -120,47 +121,71 @@ public class ValidationMDB extends RunningTaskMDB {
             if (task.getMeta().getComments() == null) {
                 task.getMeta().setComments(new ArrayList<>());
             }
-
+            
             init(task.getId());
-
+            
             task.setHttpStatus(202);
             task.setStatus(Task.Status.RUNNING);
             task.setType(Task.Type.TRAINING);
             task.getMeta().getComments().add("Validation Task is now running.");
             task.setPercentageCompleted(10.f);
             taskHandler.edit(task);
-
+            
             String type = (String) messageBody.get("type");
             String subjectId = (String) messageBody.get("subjectId");
+            String modelURI = (String) messageBody.get("model_uri");
             String algorithmURI = (String) messageBody.get("algorithm_uri");
             String datasetURI = (String) messageBody.get("dataset_uri");
             String predictionFeature = (String) messageBody.get("prediction_feature");
             String algorithmParams = (String) messageBody.get("algorithm_params");
             String transformations = (String) messageBody.get("transformations");
             String scaling = (String) messageBody.get("scaling");
-
-            Algorithm algorithm = client.target(algorithmURI)
-                    .request()
-                    .accept(MediaType.APPLICATION_JSON)
-                    .header("subjectId", subjectId)
-                    .get(Algorithm.class);
-
+            String baseUri = (String) messageBody.get("base_uri");
+            
             ValidationType validationType;
-            if (algorithm.getOntologicalClasses().contains("ot:Regression")) {
-                validationType = ValidationType.REGRESSION;
-            } else if (algorithm.getOntologicalClasses().contains("ot:Classification")) {
-                validationType = ValidationType.CLASSIFICATION;
+            if (algorithmURI != null && !algorithmURI.isEmpty()) {
+                Algorithm algorithm = client.target(algorithmURI)
+                        .request()
+                        .accept(MediaType.APPLICATION_JSON)
+                        .header("subjectId", subjectId)
+                        .get(Algorithm.class);
+                
+                if (algorithm.getOntologicalClasses().contains("ot:Regression")) {
+                    validationType = ValidationType.REGRESSION;
+                } else if (algorithm.getOntologicalClasses().contains("ot:Classification")) {
+                    validationType = ValidationType.CLASSIFICATION;
+                } else {
+                    throw new IllegalArgumentException("Selected Algorithm is neither Regression nor Classification.");
+                }
+            } else if (modelURI != null && !modelURI.isEmpty()) {
+                Model model = client.target(modelURI)
+                        .request()
+                        .accept(MediaType.APPLICATION_JSON)
+                        .header("subjectId", subjectId)
+                        .get(Model.class);
+                Algorithm algorithm = client.target(baseUri + model.getAlgorithm().getId())
+                        .request()
+                        .accept(MediaType.APPLICATION_JSON)
+                        .header("subjectId", subjectId)
+                        .get(Algorithm.class);
+                if (algorithm.getOntologicalClasses().contains("ot:Regression")) {
+                    validationType = ValidationType.REGRESSION;
+                } else if (algorithm.getOntologicalClasses().contains("ot:Classification")) {
+                    validationType = ValidationType.CLASSIFICATION;
+                } else {
+                    throw new IllegalArgumentException("Selected Algorithm is neither Regression nor Classification.");
+                }
             } else {
-                throw new IllegalArgumentException("Selected Algorithm is neither Regression nor Classification.");
+                throw new IllegalArgumentException("Bad Algorithm provided.");
             }
-
+            
             Report report = null;
-
+            
             if (type.equals("SPLIT")) {
-
+                
                 task.getMeta().getComments().add("Validation mode is SPLIT.");
                 taskHandler.edit(task);
-
+                
                 Double splitRatio = (Double) messageBody.get("split_ratio");
                 Dataset dataset = client.target(datasetURI)
                         .request()
@@ -168,19 +193,19 @@ public class ValidationMDB extends RunningTaskMDB {
                         .header("subjectId", subjectId)
                         .get(Dataset.class);
                 Integer rows = dataset.getTotalRows();
-
+                
                 Long split = Math.round(rows * splitRatio);
                 String trainDatasetURI = datasetURI + "?rowStart=0&rowMax=" + split;
                 String testDatasetURI = datasetURI + "?rowStart=" + split + "&rowMax=" + (rows - split);
-
+                
                 Object[] results = validationService.trainAndTest(algorithmURI, trainDatasetURI, testDatasetURI, predictionFeature, algorithmParams, transformations, scaling, subjectId);
                 String finalDatasetURI = (String) results[0];
                 String predictedFeature = (String) results[2];
                 Integer indepFeatureSize = (Integer) results[3];
-
+                
                 task.getMeta().getComments().add("Final dataset is:" + finalDatasetURI);
                 taskHandler.edit(task);
-
+                
                 TrainingRequest reportRequest = new TrainingRequest();
                 Dataset finalDS = client.target(finalDatasetURI)
                         .request()
@@ -195,24 +220,24 @@ public class ValidationMDB extends RunningTaskMDB {
                 validationParameters.put("variables", indepFeatureSize);
                 validationParameters.put("type", validationType);
                 reportRequest.setParameters(validationParameters);
-
+                
                 try {
                     System.out.println(new ObjectMapper().writeValueAsString(reportRequest));
                 } catch (JsonProcessingException ex) {
                     throw new UnsupportedOperationException(ex);
                 }
-
+                
                 report = client.target("http://147.102.82.32:8092/pws/validation")
                         .request()
                         .header("Content-Type", MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
                         .post(Entity.json(reportRequest), Report.class);
-
+                
             } else if (type.equals("CROSS")) {
-
+                
                 task.getMeta().getComments().add("Validation mode is CROSS.");
                 taskHandler.edit(task);
-
+                
                 Integer folds = (Integer) messageBody.get("folds");
                 String stratify = (String) messageBody.get("stratify");
                 Integer seed = (Integer) messageBody.get("seed");
@@ -237,7 +262,7 @@ public class ValidationMDB extends RunningTaskMDB {
                     partialDatasets.add(partialDatasetURI);
                 }
                 List<String> finalDatasets = new ArrayList<>();
-
+                
                 Map<String, Object[]> resultMap = new HashMap<>();
                 partialDatasets.parallelStream().forEach(testDataset -> {
                     try {
@@ -253,7 +278,7 @@ public class ValidationMDB extends RunningTaskMDB {
                                 .header("subjectId", subjectId)
                                 .post(Entity.form(params), String.class);
                         c.close();
-
+                        
                         Object[] crossResults = validationService.trainAndTest(algorithmURI, trainDataset, testDataset, predictionFeature, algorithmParams, transformations, scaling, subjectId);
                         String finalSubDataset = (String) crossResults[0];
                         resultMap.put(finalSubDataset, crossResults);
@@ -262,7 +287,7 @@ public class ValidationMDB extends RunningTaskMDB {
                         Logger.getLogger(ValidationMDB.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 });
-
+                
                 MultivaluedMap<String, String> params = new MultivaluedHashMap<>();
                 params.add("dataset_uris", finalDatasets.stream().collect(Collectors.joining(",")));
                 String finalDataset = client.target(datasetURI.split("dataset")[0] + "dataset/merge")
@@ -270,14 +295,14 @@ public class ValidationMDB extends RunningTaskMDB {
                         .accept("text/uri-list")
                         .header("subjectId", subjectId)
                         .post(Entity.form(params), String.class);
-
+                
                 task.getMeta().getComments().add("Final dataset is:" + finalDataset);
                 taskHandler.edit(task);
-
+                
                 Object[] firstResult = resultMap.values().stream().findFirst().get();
                 String predictedFeature = (String) firstResult[2];
                 Integer indepFeatureSize = (Integer) firstResult[3];
-
+                
                 TrainingRequest reportRequest = new TrainingRequest();
                 Dataset finalDS = client.target(finalDataset)
                         .request()
@@ -293,22 +318,75 @@ public class ValidationMDB extends RunningTaskMDB {
                 validationParameters.put("type", validationType);
                 reportRequest.setParameters(validationParameters);
 
-                try {
-                    System.out.println(new ObjectMapper().writeValueAsString(reportRequest));
-                } catch (JsonProcessingException ex) {
-                    throw new UnsupportedOperationException(ex);
-                }
-
+//                try {
+//                    System.out.println(new ObjectMapper().writeValueAsString(reportRequest));
+//                } catch (JsonProcessingException ex) {
+//                    throw new UnsupportedOperationException(ex);
+//                }
                 report = client.target("http://147.102.82.32:8092/pws/validation")
                         .request()
                         .header("Content-Type", MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
                         .post(Entity.json(reportRequest), Report.class);
-
+                
+            } else if (type.equals("EXTERNAL")) {
+                task.getMeta().getComments().add("Validation mode is EXTERNAL.");
+                taskHandler.edit(task);
+                MultivaluedMap<String, String> params = new MultivaluedHashMap<>();
+                params.add("dataset_uri", datasetURI);
+                Task predictionTask = client.target(modelURI)
+                        .request()
+                        .header("subjectid", subjectId)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .post(Entity.form(params), Task.class);
+                String predictionTaskURI = modelURI.split("model")[0] + "task/" + predictionTask.getId();
+                while (predictionTask.getStatus().equals(Task.Status.RUNNING)
+                        || predictionTask.getStatus().equals(Task.Status.QUEUED)) {
+                    try {
+                        Thread.sleep(500);
+                    } catch (InterruptedException ex) {
+                        
+                    }
+                    predictionTask = client.target(predictionTaskURI)
+                            .request()
+                            .header("subjectid", subjectId)
+                            .accept(MediaType.APPLICATION_JSON)
+                            .get(Task.class);
+                }
+                if (!predictionTask.getStatus().equals(Task.Status.COMPLETED)) {
+                    throw new JaqpotWebException(predictionTask.getErrorReport());
+                }
+                Model model = client.target(modelURI)
+                        .request()
+                        .accept(MediaType.APPLICATION_JSON)
+                        .header("subjectId", subjectId)
+                        .get(Model.class);
+                
+                TrainingRequest reportRequest = new TrainingRequest();
+                Dataset finalDS = client.target(predictionTask.getResultUri())
+                        .request()
+                        .header("subjectid", subjectId)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .get(Dataset.class);
+                reportRequest.setDataset(finalDS);
+                reportRequest.setPredictionFeature(model.getDependentFeatures().get(0));
+                Map<String, Object> validationParameters = new HashMap<>();
+                validationParameters.put("predictionFeature", model.getDependentFeatures().get(0));
+                validationParameters.put("predictedFeature", model.getPredictedFeatures().get(0));
+                validationParameters.put("variables", model.getIndependentFeatures().size());
+                validationParameters.put("type", validationType);
+                reportRequest.setParameters(validationParameters);
+                
+                report = client.target("http://147.102.82.32:8092/pws/validation")
+                        .request()
+                        .header("Content-Type", MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .post(Entity.json(reportRequest), Report.class);
+                
             } else {
                 throw new UnsupportedOperationException("Operation " + type + " not supported");
             }
-
+            
             ROG randomStringGenerator = new ROG(true);
             String reportId = randomStringGenerator.nextString(15);
             report.setId(reportId);
@@ -316,7 +394,7 @@ public class ValidationMDB extends RunningTaskMDB {
                     .builder()
                     // .addTitles((String) messageBody.get("title"))
                     .addCreators(task.getCreatedBy())
-                    .addSources(datasetURI, algorithmURI)
+                    .addSources(datasetURI, algorithmURI, modelURI)
                     .addComments("Created by task " + task.getId())
                     //                    .addDescriptions((String) messageBody.get("description"))
                     .build());
@@ -327,7 +405,7 @@ public class ValidationMDB extends RunningTaskMDB {
             task.setStatus(Task.Status.COMPLETED);
             task.getMeta().getComments().add("Task Completed Successfully.");
             taskHandler.edit(task);
-
+            
         } catch (UnsupportedOperationException | IllegalStateException | IllegalArgumentException | ArrayIndexOutOfBoundsException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             task.setStatus(Task.Status.ERROR);
@@ -335,11 +413,11 @@ public class ValidationMDB extends RunningTaskMDB {
         } catch (ResponseProcessingException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             task.setStatus(Task.Status.ERROR);
-            task.setErrorReport(ErrorReportFactory.remoteError("", null,ex)); //  Process response failed
+            task.setErrorReport(ErrorReportFactory.remoteError("", null, ex)); //  Process response failed
         } catch (ProcessingException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             task.setStatus(Task.Status.ERROR);
-            task.setErrorReport(ErrorReportFactory.remoteError("", null,ex)); // Process response runtime error
+            task.setErrorReport(ErrorReportFactory.remoteError("", null, ex)); // Process response runtime error
         } catch (WebApplicationException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             task.setStatus(Task.Status.ERROR);
@@ -366,7 +444,7 @@ public class ValidationMDB extends RunningTaskMDB {
             }
             taskHandler.edit(task);
         }
-
+        
     }
-
+    
 }

@@ -50,6 +50,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
+import javax.ws.rs.core.UriInfo;
 import org.jaqpot.core.data.TaskHandler;
 import org.jaqpot.core.model.Task;
 import org.jaqpot.core.model.builder.MetaInfoBuilder;
@@ -97,6 +98,9 @@ public class ValidationResource {
     @Context
     SecurityContext securityContext;
 
+    @Context
+    UriInfo uriInfo;
+
     @Resource(lookup = "java:jboss/exported/jms/topic/validation")
     private Topic validationQueue;
 
@@ -111,10 +115,36 @@ public class ValidationResource {
     )
     public Response validateModel(
             @FormParam("model_uri") String modelURI,
-            @FormParam("test_dataset_uri") String datasetURI
+            @FormParam("test_dataset_uri") String datasetURI,
+            @HeaderParam("subjectId") String subjectId
     ) {
 
-        return null;
+        Task task = new Task(new ROG(true).nextString(12));
+        task.setMeta(
+                MetaInfoBuilder.builder()
+                .setCurrentDate()
+                .addTitles("Validation on model: " + modelURI)
+                .addComments("Validation task created")
+                .addDescriptions("Validation task using model " + modelURI + " and dataset " + datasetURI)
+                .build());
+        task.setType(Task.Type.VALIDATION);
+        task.setCreatedBy(securityContext.getUserPrincipal().getName());
+        task.setHttpStatus(202);
+        task.setStatus(Task.Status.QUEUED);
+        task.setVisible(Boolean.TRUE);
+        Map<String, Object> options = new HashMap<>();
+        options.put("taskId", task.getId());
+        options.put("model_uri", modelURI);
+        options.put("dataset_uri", datasetURI);
+        options.put("base_uri", uriInfo.getBaseUri().toString());
+        options.put("type", "EXTERNAL");
+
+        options.put("subjectId", subjectId);
+        taskHandler.create(task);
+        jmsContext.createProducer().setDeliveryDelay(1000).send(validationQueue, options);
+
+        return Response.ok(task).build();
+
     }
 
     @POST
