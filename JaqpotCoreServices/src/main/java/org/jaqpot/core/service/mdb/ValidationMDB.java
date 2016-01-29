@@ -163,7 +163,7 @@ public class ValidationMDB extends RunningTaskMDB {
                         .accept(MediaType.APPLICATION_JSON)
                         .header("subjectId", subjectId)
                         .get(Model.class);
-                Algorithm algorithm = client.target(baseUri + "/algorithm/" + model.getAlgorithm().getId())
+                Algorithm algorithm = client.target(baseUri + "algorithm/" + model.getAlgorithm().getId())
                         .request()
                         .accept(MediaType.APPLICATION_JSON)
                         .header("subjectId", subjectId)
