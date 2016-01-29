@@ -327,6 +327,9 @@ public class PredictionMDB extends RunningTaskMDB {
                                 .parallelStream()
                                 .forEach(entry -> {
                                     Feature feature = featureHandler.findByTitleAndSource(entry.getKey(), "algorithm/" + model.getAlgorithm().getId());
+                                    if(feature == null){
+                                        return;
+                                    }
                                     dataEntry.getValues().put(messageBody.get("base_uri") + "feature/" + feature.getId(), entry.getValue());
                                     FeatureInfo featInfo = new FeatureInfo(messageBody.get("base_uri") + "feature/" + feature.getId(), feature.getMeta().getTitles().stream().findFirst().get());
                                     featInfo.setCategory(Dataset.DescriptorCategory.PREDICTED);
