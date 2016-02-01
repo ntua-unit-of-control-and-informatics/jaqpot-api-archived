@@ -363,6 +363,7 @@ public class ModelResource {
             @ApiParam(name = "dataset_uri", defaultValue = DEFAULT_DATASET) @FormParam("dataset_uri") String datasetURI,
             @FormParam("visible") Boolean visible,
             @PathParam("id") String id,
+            @PathParam("intersectFeatures") Boolean intersectFeatures,
             @HeaderParam("subjectid") String subjectId) throws GeneralSecurityException {
 
         Model model = modelHandler.find(id);
@@ -377,6 +378,7 @@ public class ModelResource {
         options.put("createdBy", securityContext.getUserPrincipal().getName());
         options.put("base_uri", uriInfo.getBaseUri().toString());
         options.put("visible", visible != null ? visible : false);
+        options.put("intersectFeatures", intersectFeatures != null ? intersectFeatures : true);
         Task task = predictionService.initiatePrediction(options);
         return Response.ok(task).build();
     }
