@@ -260,12 +260,11 @@ public class PredictionMDB extends RunningTaskMDB {
 
                 predFeatureDataset = DatasetFactory.copy(dataset, new HashSet<>(model.getDependentFeatures()));
 
-                if ((Boolean) messageBody.get("intersectFeatures")) {
-                    dataset.getDataEntry().parallelStream()
-                            .forEach(dataEntry -> {
-                                dataEntry.getValues().keySet().retainAll(model.getIndependentFeatures());
-                            });
-                }
+                dataset.getDataEntry().parallelStream()
+                        .forEach(dataEntry -> {
+                            dataEntry.getValues().keySet().retainAll(model.getIndependentFeatures());
+                        });
+
                 task.getMeta().getComments().add("Dataset has been cleaned from unused values.");
             } else {
                 dataset = DatasetFactory.createEmpty(0);
