@@ -247,6 +247,7 @@ public class DatasetResource {
         }
         ROG randomStringGenerator = new ROG(true);
         dataset.setId(randomStringGenerator.nextString(14));
+        dataset.setFeatured(Boolean.FALSE);
         datasetHandler.create(dataset);
 
         return Response.created(new URI(dataset.getId())).entity(dataset).build();

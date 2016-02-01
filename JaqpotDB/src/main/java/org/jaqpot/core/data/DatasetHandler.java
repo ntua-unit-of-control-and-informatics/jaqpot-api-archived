@@ -64,7 +64,11 @@ public class DatasetHandler extends AbstractHandler<Dataset> {
             colStart = 0;
         }
         dataset.setTotalRows(dataset.getDataEntry().size());
-        dataset.setTotalColumns(dataset.getDataEntry().stream().findFirst().get().getValues().size());
+        dataset.setTotalColumns(dataset.getDataEntry()
+                .stream()
+                .max((e1, e2) -> Integer.compare(e1.getValues().size(), e2.getValues().size()))
+                .get()
+                .getValues().size());
 
         if (rowMax == null || rowMax > dataset.getTotalRows()) {
             rowMax = dataset.getTotalRows();
@@ -76,6 +80,7 @@ public class DatasetHandler extends AbstractHandler<Dataset> {
         dataset.setDataEntry(dataset.getDataEntry().subList(rowStart, rowStart + rowMax));
 
         for (DataEntry de : dataset.getDataEntry()) {
+            Integer entryColMax = de.getValues().size() < colMax ? de.getValues().size() : colMax;
             TreeMap<String, Object> values = (TreeMap) de.getValues();
             NavigableSet<String> valuesSet = values.navigableKeySet();
 
@@ -84,7 +89,7 @@ public class DatasetHandler extends AbstractHandler<Dataset> {
                 it.next();
                 it.remove();
             }
-            for (int i = 0; i < colMax; i++) {
+            for (int i = 0; i < entryColMax; i++) {
                 it.next();
             }
             while (it.hasNext()) {
