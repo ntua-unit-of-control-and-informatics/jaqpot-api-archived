@@ -42,6 +42,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -130,7 +131,7 @@ public class ValidationMDB extends RunningTaskMDB {
             task.getMeta().getComments().add("Validation Task is now running.");
             task.setPercentageCompleted(10.f);
             taskHandler.edit(task);
-
+            
             String type = (String) messageBody.get("type");
             String subjectId = (String) messageBody.get("subjectId");
             String modelURI = (String) messageBody.get("model_uri");
@@ -227,7 +228,7 @@ public class ValidationMDB extends RunningTaskMDB {
                     throw new UnsupportedOperationException(ex);
                 }
 
-                report = client.target("http://147.102.82.32:8092/pws/validation")
+                report = client.target(ResourceBundle.getBundle("config").getString("ValidationBasePath"))
                         .request()
                         .header("Content-Type", MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)

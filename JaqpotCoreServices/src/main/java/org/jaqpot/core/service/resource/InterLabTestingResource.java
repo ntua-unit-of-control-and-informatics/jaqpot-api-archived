@@ -32,6 +32,7 @@ package org.jaqpot.core.service.resource;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import java.util.HashMap;
+import java.util.ResourceBundle;
 import javax.ejb.EJB;
 import javax.inject.Inject;
 import javax.ws.rs.FormParam;
@@ -112,7 +113,7 @@ public class InterLabTestingResource {
             trainingRequest.setParameters(parameterMap);
         }
 
-        Report report = client.target("http://147.102.82.32:8091/pws/interlabtest")
+        Report report = client.target(ResourceBundle.getBundle("config").getString("InterlabBasePath"))
                 .request()
                 .header("Content-Type", MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)

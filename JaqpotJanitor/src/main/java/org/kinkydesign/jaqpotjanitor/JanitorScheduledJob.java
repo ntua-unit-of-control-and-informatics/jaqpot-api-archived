@@ -62,7 +62,7 @@ import org.reflections.Reflections;
  *
  * @author chung
  */
-@Stateless
+//@Stateless
 public class JanitorScheduledJob {
 
     private static Set<Class<?>> annotated;
@@ -139,7 +139,7 @@ public class JanitorScheduledJob {
      * identified by its ID and the {@link TestsBucket#getTimestamp() timestamp}
      * of its creation. Tests are executed in a serial fashion.
      */
-    @Schedule(hour = "*", minute = "*/5", second = "0", info = "TestRunner", persistent = false)
+//    @Schedule(hour = "*", minute = "*/5", second = "0", info = "TestRunner", persistent = false)
     public void doScheduled() {
         LOG.info("RUNNING TESTS!");
         if (annotated == null) {
