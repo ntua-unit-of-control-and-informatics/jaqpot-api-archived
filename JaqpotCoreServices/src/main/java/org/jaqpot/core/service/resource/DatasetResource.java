@@ -51,8 +51,10 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.client.Client;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.SecurityContext;
 import org.jaqpot.core.data.DatasetHandler;
 import org.jaqpot.core.model.dto.dataset.Dataset;
 import org.jaqpot.core.model.factory.DatasetFactory;
@@ -74,6 +76,9 @@ public class DatasetResource {
     @Inject
     @UnSecure
     Client client;
+    
+    @Context
+    SecurityContext securityContext;
 
     @GET
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
@@ -257,8 +262,12 @@ public class DatasetResource {
     @DELETE
     @Path("/{id}")
     @ApiOperation("Deletes dataset")
-    public Response deleteDataset(@PathParam("id") String id) {
-        Dataset ds = new Dataset();
+    public Response deleteDataset(@PathParam("id") String id) {        
+        Dataset ds = datasetHandler.find(id, 0, 0, null, null, null, null, null, null);
+        String userName = securityContext.getUserPrincipal().getName();
+        if(!ds.getMeta().getCreators().contains(userName)){
+            return Response.status(Response.Status.FORBIDDEN).entity("You cannot delete a Dataset that was not created by you.").build();
+        }
         ds.setId(id);
         datasetHandler.remove(ds);
         return Response.ok().build();

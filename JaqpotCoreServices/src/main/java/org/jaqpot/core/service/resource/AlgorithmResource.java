@@ -293,8 +293,15 @@ public class AlgorithmResource {
         @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
     })
     public Response deleteAlgorithm(
-            @ApiParam(value = "ID of the task which is to be deleted.", required = true) @PathParam("id") String id,
+            @ApiParam(value = "ID of the algorithm which is to be deleted.", required = true) @PathParam("id") String id,
             @HeaderParam("subjectid") String subjectId) {
+        Algorithm algorithm = algorithmHandler.find(id);
+
+        String userName = securityContext.getUserPrincipal().getName();
+
+        if (!algorithm.getMeta().getCreators().contains(userName)) {
+            return Response.status(Response.Status.FORBIDDEN).entity("You cannot delete an Algorithm that was not created by you.").build();
+        }
 
         algorithmHandler.remove(new Algorithm(id));
         return Response.ok().build();

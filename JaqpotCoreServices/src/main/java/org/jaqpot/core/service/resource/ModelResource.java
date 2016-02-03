@@ -399,6 +399,11 @@ public class ModelResource {
             @ApiParam("Clients need to authenticate in order to create resources on the server") @HeaderParam("subjectid") String subjectId,
             @ApiParam(value = "ID of the Model.", required = true) @PathParam("id") String id
     ) {
+        Model model = modelHandler.find(id);
+        String userName = securityContext.getUserPrincipal().getName();
+        if (!model.getCreatedBy().contains(userName)) {
+            return Response.status(Response.Status.FORBIDDEN).entity("You cannot delete a Model that was not created by you.").build();
+        }
         modelHandler.remove(new Model(id));
         return Response.ok().build();
     }
