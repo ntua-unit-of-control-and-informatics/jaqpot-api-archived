@@ -69,7 +69,6 @@ import org.jaqpot.core.service.annotations.UnSecure;
 @Path("dataset")
 @Api(value = "/dataset", description = "Dataset API")
 @Produces({"application/json", "text/uri-list"})
-@Authorize
 public class DatasetResource {
 
     @EJB
@@ -264,6 +263,7 @@ public class DatasetResource {
     @DELETE
     @Path("/{id}")
     @ApiOperation("Deletes dataset")
+    @Authorize
     public Response deleteDataset(@PathParam("id") String id) {        
         Dataset ds = datasetHandler.find(id);
         String userName = securityContext.getUserPrincipal().getName();
