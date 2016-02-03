@@ -131,7 +131,7 @@ public class ValidationMDB extends RunningTaskMDB {
             task.getMeta().getComments().add("Validation Task is now running.");
             task.setPercentageCompleted(10.f);
             taskHandler.edit(task);
-            
+
             String type = (String) messageBody.get("type");
             String subjectId = (String) messageBody.get("subjectId");
             String modelURI = (String) messageBody.get("model_uri");
@@ -248,20 +248,42 @@ public class ValidationMDB extends RunningTaskMDB {
                         .header("subjectId", subjectId)
                         .get(Dataset.class);
                 Integer rows = dataset.getTotalRows();
-                Integer foldSize = Math.round((rows + folds - 1) / folds);
                 List<String> partialDatasets = new ArrayList<>();
-                for (int i = 0; i < folds; i++) {
-                    Integer rowStart = i * foldSize;
-                    Integer rowMax = foldSize;
-                    if (rowStart + rowMax > rows) {
-                        rowMax = rows - rowStart;
-                        String partialDatasetURI = datasetURI + "?rowStart=" + rowStart + "&rowMax=" + rowMax + (stratify != null ? "&stratify=" + stratify : "") + (folds != null ? "&folds=" + folds.toString() : "") + (seed != null ? "&seed=" + seed.toString() : "") + "&target_feature=" + URLEncoder.encode(predictionFeature, "UTF-8");
-                        partialDatasets.add(partialDatasetURI);
-                        break;
+
+                Integer minRows = rows / folds;
+                Integer extras = rows % folds;
+
+                Integer i = 0, j = 0;
+                while (i < rows) {
+                    Integer rowStart;
+                    Integer rowMax;
+                    if (j < extras) {
+                        rowStart = i;
+                        rowMax = i + minRows + 1;
+                        i += rowMax;
+                        j++;
+                    } else {
+                        rowStart = i;
+                        rowMax = i + minRows;
+                        i += rowMax;
                     }
                     String partialDatasetURI = datasetURI + "?rowStart=" + rowStart + "&rowMax=" + rowMax + (stratify != null ? "&stratify=" + stratify : "") + (folds != null ? "&folds=" + folds.toString() : "") + (seed != null ? "&seed=" + seed.toString() : "") + "&target_feature=" + URLEncoder.encode(predictionFeature, "UTF-8");
                     partialDatasets.add(partialDatasetURI);
                 }
+//                Integer foldSize = Math.round((rows + folds - 1) / folds);
+//                List<String> partialDatasets = new ArrayList<>();
+//                for (int i = 0; i < folds; i++) {
+//                    Integer rowStart = i * foldSize;
+//                    Integer rowMax = foldSize;
+//                    if (rowStart + rowMax > rows) {
+//                        rowMax = rows - rowStart;
+//                        String partialDatasetURI = datasetURI + "?rowStart=" + rowStart + "&rowMax=" + rowMax + (stratify != null ? "&stratify=" + stratify : "") + (folds != null ? "&folds=" + folds.toString() : "") + (seed != null ? "&seed=" + seed.toString() : "") + "&target_feature=" + URLEncoder.encode(predictionFeature, "UTF-8");
+//                        partialDatasets.add(partialDatasetURI);
+//                        break;
+//                    }
+//                    String partialDatasetURI = datasetURI + "?rowStart=" + rowStart + "&rowMax=" + rowMax + (stratify != null ? "&stratify=" + stratify : "") + (folds != null ? "&folds=" + folds.toString() : "") + (seed != null ? "&seed=" + seed.toString() : "") + "&target_feature=" + URLEncoder.encode(predictionFeature, "UTF-8");
+//                    partialDatasets.add(partialDatasetURI);
+//                }
                 List<String> finalDatasets = new ArrayList<>();
 
                 Map<String, Object[]> resultMap = new HashMap<>();
