@@ -59,6 +59,7 @@ import org.jaqpot.core.data.DatasetHandler;
 import org.jaqpot.core.model.dto.dataset.Dataset;
 import org.jaqpot.core.model.factory.DatasetFactory;
 import org.jaqpot.core.model.util.ROG;
+import org.jaqpot.core.service.annotations.Authorize;
 import org.jaqpot.core.service.annotations.UnSecure;
 
 /**
@@ -68,6 +69,7 @@ import org.jaqpot.core.service.annotations.UnSecure;
 @Path("dataset")
 @Api(value = "/dataset", description = "Dataset API")
 @Produces({"application/json", "text/uri-list"})
+@Authorize
 public class DatasetResource {
 
     @EJB
@@ -263,12 +265,11 @@ public class DatasetResource {
     @Path("/{id}")
     @ApiOperation("Deletes dataset")
     public Response deleteDataset(@PathParam("id") String id) {        
-        Dataset ds = datasetHandler.find(id, 0, 0, null, null, null, null, null, null);
+        Dataset ds = datasetHandler.find(id);
         String userName = securityContext.getUserPrincipal().getName();
         if(!ds.getMeta().getCreators().contains(userName)){
             return Response.status(Response.Status.FORBIDDEN).entity("You cannot delete a Dataset that was not created by you.").build();
         }
-        ds.setId(id);
         datasetHandler.remove(ds);
         return Response.ok().build();
     }
