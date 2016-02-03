@@ -259,12 +259,12 @@ public class ValidationMDB extends RunningTaskMDB {
                     Integer rowMax;
                     if (j < extras) {
                         rowStart = i;
-                        rowMax = i + minRows + 1;
+                        rowMax = minRows + 1;
                         i += rowMax;
                         j++;
                     } else {
                         rowStart = i;
-                        rowMax = i + minRows;
+                        rowMax = minRows;
                         i += rowMax;
                     }
                     String partialDatasetURI = datasetURI + "?rowStart=" + rowStart + "&rowMax=" + rowMax + (stratify != null ? "&stratify=" + stratify : "") + (folds != null ? "&folds=" + folds.toString() : "") + (seed != null ? "&seed=" + seed.toString() : "") + "&target_feature=" + URLEncoder.encode(predictionFeature, "UTF-8");
