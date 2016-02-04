@@ -190,8 +190,8 @@ public class ConjoinerService {
             });
         }
 
-        dataset.setTotalRows(dataset.getDataEntry().size());
-        dataset.setTotalColumns(dataset.getDataEntry().stream().findFirst().get().getValues().size());
+//        dataset.setTotalRows(dataset.getDataEntry().size());
+//        dataset.setTotalColumns(dataset.getDataEntry().stream().findFirst().get().getValues().size());
         dataset.setDescriptors(usedDescriptors);
         return dataset;
 
