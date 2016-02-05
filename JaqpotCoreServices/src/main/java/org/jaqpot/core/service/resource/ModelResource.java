@@ -211,6 +211,9 @@ public class ModelResource {
         }
 
         Object pmmlObj = model.getPmmlModel();
+        if (pmmlObj == null) {
+            return Response.status(Response.Status.NOT_FOUND).entity("This model does not have a PMML representation.").build();
+        }
         if (pmmlObj instanceof List) {
             List pmmlObjList = (List) pmmlObj;
             Object pmml = pmmlObjList.stream().findFirst().orElse(null);
