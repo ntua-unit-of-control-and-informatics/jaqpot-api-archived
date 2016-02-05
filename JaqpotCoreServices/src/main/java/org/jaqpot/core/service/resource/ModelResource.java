@@ -204,7 +204,7 @@ public class ModelResource {
     })
     public Response getModelPmml(
             @PathParam("id") String id,
-            @ApiParam(value = "Clients need to authenticate in order to access models") @HeaderParam("subjectid") String subjectId) {
+            @ApiParam(value = "Clients need to authenticate in order to access models") @HeaderParam("subjectid") String subjectId) throws Throwable {
         Model model = modelHandler.findModelPmml(id);
         if (model == null || model.getPmmlModel() == null) {
             throw new NotFoundException("The requested model was not found on the server.");
@@ -216,7 +216,7 @@ public class ModelResource {
         }
         if (pmmlObj instanceof List) {
             List pmmlObjList = (List) pmmlObj;
-            Object pmml = pmmlObjList.stream().findFirst().orElse(null);
+            Object pmml = pmmlObjList.stream().findFirst().orElseThrow(() -> new NotFoundException("This model does not have a PMML representation."));
             return Response
                     .ok(pmml.toString(), MediaType.APPLICATION_XML)
                     .build();
