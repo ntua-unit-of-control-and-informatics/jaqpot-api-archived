@@ -82,6 +82,8 @@ public class Parameter extends JaqpotEntity {
 
     private Object maxValue;
 
+    private String description;
+
     public Parameter() {
     }
 
@@ -142,6 +144,14 @@ public class Parameter extends JaqpotEntity {
 
     public void setMaxValue(Object maxValue) {
         this.maxValue = maxValue;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
 }
