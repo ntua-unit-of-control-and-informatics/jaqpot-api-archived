@@ -299,7 +299,7 @@ public class AlgorithmResource {
 
         String userName = securityContext.getUserPrincipal().getName();
 
-        if (!algorithm.getMeta().getCreators().contains(userName)) {
+        if (!algorithm.getCreatedBy().equals(userName)) {
             return Response.status(Response.Status.FORBIDDEN).entity("You cannot delete an Algorithm that was not created by you.").build();
         }
 
