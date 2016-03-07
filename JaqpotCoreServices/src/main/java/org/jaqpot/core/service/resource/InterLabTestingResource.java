@@ -126,6 +126,7 @@ public class InterLabTestingResource {
                 .build()
         );
         report.setId(new ROG(true).nextString(15));
+        report.setVisible(Boolean.TRUE);
         reportHandler.create(report);
 
         return Response.ok(report).build();

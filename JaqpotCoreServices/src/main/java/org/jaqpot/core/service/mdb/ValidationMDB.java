@@ -423,6 +423,7 @@ public class ValidationMDB extends RunningTaskMDB {
                     .addComments("Created by task " + task.getId())
                     //                    .addDescriptions((String) messageBody.get("description"))
                     .build());
+            report.setVisible(Boolean.TRUE);
             reportHandler.create(report);
             task.setResult("report/" + report.getId());
             task.setPercentageCompleted(100.f);
