@@ -69,6 +69,7 @@ import org.jaqpot.core.service.annotations.UnSecure;
 @Path("dataset")
 @Api(value = "/dataset", description = "Dataset API")
 @Produces({"application/json", "text/uri-list"})
+@Authorize
 public class DatasetResource {
 
     @EJB

@@ -90,6 +90,7 @@ import org.jpmml.model.JAXBUtil;
  */
 @Path("pmml")
 @Api(value = "/pmml", description = "PMML API")
+@Authorize
 public class PmmlResource {
 
     @EJB

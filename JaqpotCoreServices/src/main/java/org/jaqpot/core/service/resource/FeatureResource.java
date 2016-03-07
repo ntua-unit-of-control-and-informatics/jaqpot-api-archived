@@ -71,6 +71,7 @@ import org.jaqpot.core.service.exceptions.JaqpotNotAuthorizedException;
 @Path("feature")
 @Api(value = "/feature", description = "Feature API")
 @Produces({"application/json", "text/uri-list"})
+@Authorize
 public class FeatureResource {
 
     private static final String DEFAULT_FEATURE = "{\n"
