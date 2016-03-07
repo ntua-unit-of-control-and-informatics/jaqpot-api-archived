@@ -37,9 +37,11 @@ package org.jaqpot.core.service.mdb;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ejb.ActivationConfigProperty;
@@ -113,6 +115,10 @@ public class TrainingMDB extends RunningTaskMDB {
     JSONSerializer jsonSerializer;
 
     long DOA_TASK_MAX_WAITING_TIME = 45; // 45s
+    
+    private final Set<String> intermediateDatasets = new HashSet<>();
+    
+    String subjectId;
 
     @Override
     public void onMessage(Message msg) {
@@ -144,13 +150,15 @@ public class TrainingMDB extends RunningTaskMDB {
             taskHandler.edit(task);
 
             String dataset_uri = (String) messageBody.get("dataset_uri");
+            subjectId = (String) messageBody.get("subjectid");
+
             List<String> transformationModels = new ArrayList<>();
             List<String> linkedModels = new ArrayList<>();
-
+            
             if (messageBody.containsKey("transformations")) {
                 task.getMeta().getComments().add("--");
                 task.getMeta().getComments().add("Processing transformations...");
-                taskHandler.edit(task);
+                taskHandler.edit(task);                
 
                 String transformationsString = (String) messageBody.get("transformations");
                 LinkedHashMap<String, String> transformations = jsonSerializer.parse(transformationsString, LinkedHashMap.class);
@@ -160,7 +168,7 @@ public class TrainingMDB extends RunningTaskMDB {
                 for (String transformationAlgorithmURI : transformations.keySet()) {
                     Algorithm algorithm = client.target(transformationAlgorithmURI)
                             .request()
-                            .header("subjectid", messageBody.get("subjectid"))
+                            .header("subjectid", subjectId)
                             .accept(MediaType.APPLICATION_JSON)
                             .get(Algorithm.class);
                     algorithm.setId(transformationAlgorithmURI);
@@ -188,7 +196,7 @@ public class TrainingMDB extends RunningTaskMDB {
                     formMap.put("dataset_uri", Arrays.asList(dataset_uri));
                     Task trainTask = client.target(algorithm.getId())
                             .request()
-                            .header("subjectid", messageBody.get("subjectid"))
+                            .header("subjectid", subjectId)
                             .accept(MediaType.APPLICATION_JSON)
                             .post(Entity.form(formMap), Task.class);
                     String trainTaskURI = algorithm.getId().split("algorithm")[0] + "task/" + trainTask.getId();
@@ -203,7 +211,7 @@ public class TrainingMDB extends RunningTaskMDB {
                         }
                         trainTask = client.target(trainTaskURI)
                                 .request()
-                                .header("subjectid", messageBody.get("subjectid"))
+                                .header("subjectid", subjectId)
                                 .accept(MediaType.APPLICATION_JSON)
                                 .get(Task.class);
                     }
@@ -219,7 +227,7 @@ public class TrainingMDB extends RunningTaskMDB {
                     formMap.put("dataset_uri", Arrays.asList(dataset_uri));
                     Task predictionTask = client.target(trainTask.getResultUri())
                             .request()
-                            .header("subjectid", messageBody.get("subjectid"))
+                            .header("subjectid", subjectId)
                             .accept(MediaType.APPLICATION_JSON)
                             .post(Entity.form(formMap), Task.class);
                     String predictionTaskURI = trainTask.getResultUri().split("model")[0] + "task/" + predictionTask.getId();
@@ -234,7 +242,7 @@ public class TrainingMDB extends RunningTaskMDB {
                         }
                         predictionTask = client.target(predictionTaskURI)
                                 .request()
-                                .header("subjectid", messageBody.get("subjectid"))
+                                .header("subjectid", subjectId)
                                 .accept(MediaType.APPLICATION_JSON)
                                 .get(Task.class);
                     }
@@ -242,6 +250,7 @@ public class TrainingMDB extends RunningTaskMDB {
                         dataset_uri = predictionTask.getResultUri();
                         task.getMeta().getComments().add("Transformed dataset created successfully:" + predictionTask.getResultUri());
                         taskHandler.edit(task);
+                        intermediateDatasets.add(dataset_uri);
                     } else {
                         task.getMeta().getComments().add("Transformation task failed.");
                         throw new JaqpotWebException(predictionTask.getErrorReport());
@@ -266,7 +275,7 @@ public class TrainingMDB extends RunningTaskMDB {
                     formMap.put("dataset_uri", Arrays.asList(dataset_uri));
                     Task trainTask = client.target(algorithm.getId())
                             .request()
-                            .header("subjectid", messageBody.get("subjectid"))
+                            .header("subjectid", subjectId)
                             .accept(MediaType.APPLICATION_JSON)
                             .post(Entity.form(formMap), Task.class);
                     String trainTaskURI = algorithm.getId().split("algorithm")[0] + "task/" + trainTask.getId();
@@ -281,7 +290,7 @@ public class TrainingMDB extends RunningTaskMDB {
                         }
                         trainTask = client.target(trainTaskURI)
                                 .request()
-                                .header("subjectid", messageBody.get("subjectid"))
+                                .header("subjectid", subjectId)
                                 .accept(MediaType.APPLICATION_JSON)
                                 .get(Task.class);
                     }
@@ -293,7 +302,7 @@ public class TrainingMDB extends RunningTaskMDB {
                         task.getMeta().getComments().add("Linked Training task failed.");
                         throw new JaqpotWebException(trainTask.getErrorReport());
                     }
-                }
+                }                
             }
             task.getMeta().getComments().add("--");
             Dataset dataset = null;
@@ -304,7 +313,7 @@ public class TrainingMDB extends RunningTaskMDB {
                 taskHandler.edit(task);
                 dataset = client.target(dataset_uri)
                         .request()
-                        .header("subjectid", messageBody.get("subjectid"))
+                        .header("subjectid", subjectId)
                         .accept(MediaType.APPLICATION_JSON)
                         .get(Dataset.class);
                 dataset.setDatasetURI(dataset_uri);
@@ -487,6 +496,14 @@ public class TrainingMDB extends RunningTaskMDB {
             task.setStatus(Task.Status.ERROR);
             task.setErrorReport(ex.getError());
         } finally {
+            task.getMeta().getComments().add("Performing cleanup.");
+            for (String intermediateDataset : intermediateDatasets) {
+                client.target(intermediateDataset)
+                        .request()
+                        .header("subjectid", subjectId)
+                        .delete()
+                        .close();
+            }
             if (task != null) {
                 terminate(task.getId());
             }
