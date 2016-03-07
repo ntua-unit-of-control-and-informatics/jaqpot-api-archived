@@ -40,9 +40,11 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -106,6 +108,10 @@ public class ValidationMDB extends RunningTaskMDB {
     @UnSecure
     Client client;
 
+    private final Set<String> intermediateResources = new HashSet<>();
+
+    private String subjectId;
+
     @Override
     public void onMessage(Message msg) {
         Task task = new Task();
@@ -133,7 +139,7 @@ public class ValidationMDB extends RunningTaskMDB {
             taskHandler.edit(task);
 
             String type = (String) messageBody.get("type");
-            String subjectId = (String) messageBody.get("subjectId");
+            subjectId = (String) messageBody.get("subjectId");
             String modelURI = (String) messageBody.get("model_uri");
             String algorithmURI = (String) messageBody.get("algorithm_uri");
             String datasetURI = (String) messageBody.get("dataset_uri");
@@ -204,6 +210,9 @@ public class ValidationMDB extends RunningTaskMDB {
                 String predictedFeature = (String) results[2];
                 Integer indepFeatureSize = (Integer) results[3];
 
+                intermediateResources.add((String) results[0]);
+                intermediateResources.add((String) results[4]);
+
                 task.getMeta().getComments().add("Final dataset is:" + finalDatasetURI);
                 taskHandler.edit(task);
 
@@ -270,20 +279,7 @@ public class ValidationMDB extends RunningTaskMDB {
                     String partialDatasetURI = datasetURI + "?rowStart=" + rowStart + "&rowMax=" + rowMax + (stratify != null ? "&stratify=" + stratify : "") + (folds != null ? "&folds=" + folds.toString() : "") + (seed != null ? "&seed=" + seed.toString() : "") + "&target_feature=" + URLEncoder.encode(predictionFeature, "UTF-8");
                     partialDatasets.add(partialDatasetURI);
                 }
-//                Integer foldSize = Math.round((rows + folds - 1) / folds);
-//                List<String> partialDatasets = new ArrayList<>();
-//                for (int i = 0; i < folds; i++) {
-//                    Integer rowStart = i * foldSize;
-//                    Integer rowMax = foldSize;
-//                    if (rowStart + rowMax > rows) {
-//                        rowMax = rows - rowStart;
-//                        String partialDatasetURI = datasetURI + "?rowStart=" + rowStart + "&rowMax=" + rowMax + (stratify != null ? "&stratify=" + stratify : "") + (folds != null ? "&folds=" + folds.toString() : "") + (seed != null ? "&seed=" + seed.toString() : "") + "&target_feature=" + URLEncoder.encode(predictionFeature, "UTF-8");
-//                        partialDatasets.add(partialDatasetURI);
-//                        break;
-//                    }
-//                    String partialDatasetURI = datasetURI + "?rowStart=" + rowStart + "&rowMax=" + rowMax + (stratify != null ? "&stratify=" + stratify : "") + (folds != null ? "&folds=" + folds.toString() : "") + (seed != null ? "&seed=" + seed.toString() : "") + "&target_feature=" + URLEncoder.encode(predictionFeature, "UTF-8");
-//                    partialDatasets.add(partialDatasetURI);
-//                }
+
                 List<String> finalDatasets = new ArrayList<>();
 
                 Map<String, Object[]> resultMap = new HashMap<>();
@@ -306,6 +302,10 @@ public class ValidationMDB extends RunningTaskMDB {
                         String finalSubDataset = (String) crossResults[0];
                         resultMap.put(finalSubDataset, crossResults);
                         finalDatasets.add(finalSubDataset);
+
+                        intermediateResources.add(trainDataset);
+                        intermediateResources.add((String) crossResults[0]);
+                        intermediateResources.add((String) crossResults[4]);
                     } catch (JaqpotWebException ex) {
                         Logger.getLogger(ValidationMDB.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -321,6 +321,7 @@ public class ValidationMDB extends RunningTaskMDB {
 
                 task.getMeta().getComments().add("Final dataset is:" + finalDataset);
                 taskHandler.edit(task);
+                intermediateResources.add(finalDataset);
 
                 Object[] firstResult = resultMap.values().stream().findFirst().get();
                 String predictedFeature = (String) firstResult[2];
@@ -391,6 +392,7 @@ public class ValidationMDB extends RunningTaskMDB {
                         .header("subjectid", subjectId)
                         .accept(MediaType.APPLICATION_JSON)
                         .get(Dataset.class);
+                intermediateResources.add(predictionTask.getResultUri());
                 reportRequest.setDataset(finalDS);
                 reportRequest.setPredictionFeature(model.getDependentFeatures().get(0));
                 Map<String, Object> validationParameters = new HashMap<>();
@@ -462,6 +464,14 @@ public class ValidationMDB extends RunningTaskMDB {
             task.setStatus(Task.Status.ERROR);
             task.setErrorReport(ErrorReportFactory.internalServerError("", ex.getMessage(), ""));
         } finally {
+            task.getMeta().getComments().add("Performing cleanup.");
+            for (String intermediateResource : intermediateResources) {
+                client.target(intermediateResource)
+                        .request()
+                        .header("subjectid", subjectId)
+                        .delete()
+                        .close();
+            }
             if (task != null) {
                 terminate(task.getId());
             }

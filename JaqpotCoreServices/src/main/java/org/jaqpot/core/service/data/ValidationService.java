@@ -29,6 +29,8 @@
  */
 package org.jaqpot.core.service.data;
 
+import java.util.HashSet;
+import java.util.Set;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -70,6 +72,7 @@ public class ValidationService {
         params.add("parameters", algorithmParameters);
         params.add("transformations", transformations);
         params.add("scaling", scaling);
+                
         Task trainTask = client.target(algorithmURI)
                 .request()
                 .accept(MediaType.APPLICATION_JSON)
@@ -93,6 +96,7 @@ public class ValidationService {
             throw new JaqpotWebException(trainTask.getErrorReport());
         }
         String modelURI = trainTask.getResultUri();
+        
         params.clear();
         params.add("dataset_uri", testingDataset);
         Task predictionTask = client.target(trainTask.getResultUri())
@@ -128,6 +132,7 @@ public class ValidationService {
         result[1] = predictionFeature;
         result[2] = model.getPredictedFeatures().get(0);
         result[3] = model.getIndependentFeatures().size();
+        result[4] = modelURI;
         return result;
     }
 

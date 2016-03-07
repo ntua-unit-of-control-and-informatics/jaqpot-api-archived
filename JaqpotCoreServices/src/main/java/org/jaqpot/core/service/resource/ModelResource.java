@@ -82,25 +82,25 @@ import org.jaqpot.core.service.data.PredictionService;
 @Api(value = "/model", description = "Models API")
 @Authorize
 public class ModelResource {
-
+    
     private static final String DEFAULT_DATASET = "http://app.jaqpot.org:8080/jaqpot/services/dataset/corona";
-
+    
     @Context
     UriInfo uriInfo;
-
+    
     @EJB
     ModelHandler modelHandler;
-
+    
     @EJB
     PredictionService predictionService;
-
+    
     @Context
     SecurityContext securityContext;
-
+    
     @Inject
     @UnSecure
     Client client;
-
+    
     @GET
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @ApiOperation(value = "Finds all Models",
@@ -127,7 +127,7 @@ public class ModelResource {
         }
         return Response.ok(modelHandler.listOnlyIDsOfCreator(creator, start != null ? start : 0, max)).build();
     }
-
+    
     @GET
     @Path("/featured")
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
@@ -154,7 +154,7 @@ public class ModelResource {
         }
         return Response.ok(modelHandler.findFeatured(start != null ? start : 0, max)).build();
     }
-
+    
     @GET
     @Path("/count")
     @Produces(MediaType.TEXT_PLAIN)
@@ -162,7 +162,7 @@ public class ModelResource {
     public Response countModels(@QueryParam("creator") String creator) {
         return Response.ok(modelHandler.countAllOfCreator(creator)).build();
     }
-
+    
     @GET
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @Path("/{id}")
@@ -188,7 +188,7 @@ public class ModelResource {
         }
         return Response.ok(model).build();
     }
-
+    
     @GET
     @Produces(MediaType.APPLICATION_XML)
     @Path("/{id}/pmml")
@@ -209,7 +209,7 @@ public class ModelResource {
         if (model == null || model.getPmmlModel() == null) {
             throw new NotFoundException("The requested model was not found on the server.");
         }
-
+        
         Object pmmlObj = model.getPmmlModel();
         if (pmmlObj == null || pmmlObj.toString().isEmpty()) {
             return Response.status(Response.Status.NOT_FOUND).entity("This model does not have a PMML representation.").build();
@@ -225,9 +225,9 @@ public class ModelResource {
                     .ok(pmmlObj.toString(), MediaType.APPLICATION_XML)
                     .build();
         }
-
+        
     }
-
+    
     @GET
     @Produces({"text/uri-list"})
     @Path("/{id}/independent")
@@ -245,15 +245,15 @@ public class ModelResource {
     public Response listModelIndependentFeatures(
             @PathParam("id") String id,
             @ApiParam(value = "Clients need to authenticate in order to access models") @HeaderParam("subjectid") String subjectId) {
-
+        
         Model foundModel = modelHandler.findModelIndependentFeatures(id);
         if (foundModel == null) {
             throw new NotFoundException("The requested model was not found on the server.");
         }
         return Response.ok(foundModel.getIndependentFeatures()).build();
-
+        
     }
-
+    
     @GET
     @Produces({"text/uri-list"})
     @Path("/{id}/dependent")
@@ -276,9 +276,9 @@ public class ModelResource {
             throw new NotFoundException("The requested model was not found on the server.");
         }
         return Response.ok(foundModel.getDependentFeatures()).build();
-
+        
     }
-
+    
     @GET
     @Produces({"text/uri-list"})
     @Path("/{id}/predicted")
@@ -296,7 +296,7 @@ public class ModelResource {
     public Response listModelPredictedFeatures(
             @PathParam("id") String id,
             @ApiParam(value = "Clients need to authenticate in order to access models") @HeaderParam("subjectid") String subjectId) {
-
+        
         Model foundModel = modelHandler.findModel(id);
         if (foundModel == null) {
             throw new NotFoundException("The requested model was not found on the server.");
@@ -310,9 +310,9 @@ public class ModelResource {
                     predictedFeatures.addAll(linkedModel.getPredictedFeatures());
                 });
         return Response.ok(predictedFeatures).build();
-
+        
     }
-
+    
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/{id}/required")
@@ -347,14 +347,14 @@ public class ModelResource {
                 .header("subjectId", subjectId)
                 .get(new GenericType<Set<FeatureInfo>>() {
                 });
-
+        
         Set<String> requiredFeatureSet = new HashSet<>(requiredFeatures);
         List<FeatureInfo> selectedFeatures = featureSet.stream()
                 .filter(f -> requiredFeatureSet.contains(f.getURI()))
                 .collect(Collectors.toList());
         return Response.status(Response.Status.OK).entity(selectedFeatures).build();
     }
-
+    
     @POST
     @Produces({MediaType.APPLICATION_JSON})
     @Path("/{id}")
@@ -367,12 +367,12 @@ public class ModelResource {
             @FormParam("visible") Boolean visible,
             @PathParam("id") String id,
             @HeaderParam("subjectid") String subjectId) throws GeneralSecurityException {
-
+        
         Model model = modelHandler.find(id);
         if (model == null) {
             throw new NotFoundException("Model not found.");
         }
-
+        
         Map<String, Object> options = new HashMap<>();
         options.put("dataset_uri", datasetURI);
         options.put("subjectid", subjectId);
@@ -383,7 +383,7 @@ public class ModelResource {
         Task task = predictionService.initiatePrediction(options);
         return Response.ok(task).build();
     }
-
+    
     @DELETE
     @Path("/{id}")
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
@@ -404,8 +404,14 @@ public class ModelResource {
     ) {
         Model model = modelHandler.find(id);
         String userName = securityContext.getUserPrincipal().getName();
-        if (!model.getCreatedBy().contains(userName)) {
+        if (!model.getMeta().getCreators().contains(userName)) {
             return Response.status(Response.Status.FORBIDDEN).entity("You cannot delete a Model that was not created by you.").build();
+        }
+        for (String transformationModel : model.getTransformationModels()) {
+            modelHandler.remove(new Model(transformationModel));
+        }
+        for (String linkedModel : model.getLinkedModels()) {
+            modelHandler.remove(new Model(linkedModel));
         }
         modelHandler.remove(new Model(id));
         return Response.ok().build();
