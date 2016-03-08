@@ -29,6 +29,7 @@
  */
 package org.jaqpot.core.data.serialize;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
@@ -65,6 +66,7 @@ public class JacksonMongoSerializer implements JSONSerializer {
         SimpleModule module = new SimpleModule();
         module.addSerializer(DataEntry.class, new DataEntrySerializer());
         mapper.registerModule(module.setDeserializerModifier(new DataEntryDeSerializeModifier()));
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
 
     @Override
