@@ -121,25 +121,21 @@ public class FeatureResource {
         @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
     })
     public Response listFeatures(
-            @ApiParam("Creator of the feature") @QueryParam("creator") String creator,
+            @ApiParam(value = "Authorization token") @HeaderParam("subjectid") String subjectId,
             @ApiParam("Generic query") @QueryParam("query") String query,
             @ApiParam(value = "start", defaultValue = "0") @QueryParam("start") Integer start,
             @ApiParam(value = "max - the server imposes an upper limit of 500 on this "
                     + "parameter.", defaultValue = "10") @QueryParam("max") Integer max
     ) {
         //TODO Support querying at GET /feature
-        boolean doWarnMax = false;
         if (max == null || max > 500) {
             max = 500;
-            doWarnMax = true;
         }
-        Response.ResponseBuilder responseBuilder = Response
-                .ok(featureHandler.listOnlyIDs(start != null ? start : 0, max))
-                .status(Response.Status.OK);
-        if (doWarnMax) {
-            responseBuilder.header("Warning", "P670 Parameter max has been limited to 500");
-        }
-        return responseBuilder.build();
+        String creator = securityContext.getUserPrincipal().getName();
+        return Response.ok(featureHandler.listOnlyIDsOfCreator(creator, start != null ? start : 0, max))
+                .status(Response.Status.OK)
+                .header("total",featureHandler.countAllOfCreator(creator))
+                .build();
     }
 
     @GET
@@ -148,7 +144,9 @@ public class FeatureResource {
     @ApiOperation(value = "Finds Feature by ID",
             notes = "Finds specified Feature (by ID)",
             response = Feature.class)
-    public Response getFeature(@PathParam("id") String id) {
+    public Response getFeature(
+            @ApiParam(value = "Authorization token") @HeaderParam("subjectid") String subjectId,
+            @PathParam("id") String id) {
         Feature feature = featureHandler.find(id);
         if (feature == null) {
             throw new NotFoundException("Could not find Dataset with id:" + id);
@@ -262,7 +260,6 @@ public class FeatureResource {
             return Response.ok(report).status(Response.Status.BAD_REQUEST).build();
         }
         feature.setId(id);
-        
 
         Feature foundFeature = featureHandler.find(id);
         if (foundFeature != null) {

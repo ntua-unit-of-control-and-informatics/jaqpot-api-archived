@@ -144,6 +144,7 @@ public class AlgorithmResource {
             responseContainer = "List")
 
     public Response getAlgorithms(
+            @ApiParam(value = "Authorization token") @HeaderParam("subjectid") String subjectId,
             @ApiParam(value = "class") @QueryParam("class") String ontologicalClass,
             @ApiParam(value = "start", defaultValue = "0") @QueryParam("start") Integer start,
             @ApiParam(value = "max", defaultValue = "10") @QueryParam("max") Integer max) {
@@ -219,7 +220,9 @@ public class AlgorithmResource {
             notes = "Finds Algorithm with provided name",
             response = Algorithm.class
     )
-    public Response getAlgorithm(@PathParam("id") String algorithmId) {
+    public Response getAlgorithm(
+            @ApiParam(value = "Authorization token") @HeaderParam("subjectid") String subjectId,
+            @PathParam("id") String algorithmId) {
         Algorithm algorithm = algorithmHandler.find(algorithmId);
         if (algorithm == null) {
             throw new NotFoundException("Could not find Algorithm with id:" + algorithmId);

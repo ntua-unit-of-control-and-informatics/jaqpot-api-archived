@@ -94,6 +94,13 @@ public abstract class AbstractHandler<T extends JaqpotEntity> {
         return getEntityManager().find(entityClass, properties, fields, start, max);
     }
 
+    public Long countFeatured() {
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("featured", true);
+
+        return getEntityManager().count(entityClass, properties);
+    }
+
     public List<T> listOnlyIDs(Integer start, Integer max) {
         List<String> fields = new ArrayList<>();
         fields.add("_id");

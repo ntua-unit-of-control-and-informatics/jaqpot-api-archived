@@ -34,6 +34,7 @@ import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
 import javax.ejb.EJB;
 import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -64,6 +65,7 @@ public class ReportResource {
     @GET
     @ApiOperation(value = "Retrieves Reports of User")
     public Response getReports(
+            @ApiParam(value = "Authorization token") @HeaderParam("subjectid") String subjectId,
             @ApiParam(value = "start", defaultValue = "0") @QueryParam("start") Integer start,
             @ApiParam(value = "max - the server imposes an upper limit of 500 on this "
                     + "parameter.", defaultValue = "20") @QueryParam("max") Integer max
@@ -81,7 +83,9 @@ public class ReportResource {
     @GET
     @Path("/{id}")
     @ApiOperation(value = "Retrieves Report by id")
-    public Response getReport(@PathParam("id") String id) {
+    public Response getReport(
+            @ApiParam(value = "Authorization token") @HeaderParam("subjectid") String subjectId,
+            @PathParam("id") String id) {
 
         return Response.ok(reportHandler.find(id)).build();
     }

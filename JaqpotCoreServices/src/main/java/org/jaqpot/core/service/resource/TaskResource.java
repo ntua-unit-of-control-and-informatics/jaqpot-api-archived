@@ -48,6 +48,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
 import org.jaqpot.core.data.TaskHandler;
 import org.jaqpot.core.model.Task;
@@ -74,6 +75,9 @@ public class TaskResource {
     @Inject
     ThreadReference threadMap;
 
+    @Context
+    SecurityContext securityContext;
+
     @GET
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @ApiOperation(value = "Finds all Tasks",
@@ -86,7 +90,7 @@ public class TaskResource {
         @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
     })
     public Response listTasks(
-            @ApiParam(value = "Creator of the task (username)") @QueryParam("creator") String creator,
+            @ApiParam(value = "Authorization token") @HeaderParam("subjectid") String subjectId,
             @ApiParam(value = "Status of the task", allowableValues = "RUNNING,QUEUED,COMPLETED,ERROR,CANCELLED,REJECTED") @QueryParam("status") String status,
             @ApiParam(value = "start", defaultValue = "0") @QueryParam("start") Integer start,
             @ApiParam(value = "max - the server imposes an upper limit of 500 on this "
@@ -97,21 +101,23 @@ public class TaskResource {
             max = 500;
         }
         List<Task> foundTasks;
-        if (creator == null && status == null) {
-            foundTasks = taskHandler.findAll();
-        } else if (creator != null && status == null) {
+        Long totalTasks;
+        String creator = securityContext.getUserPrincipal().getName();
+        if (status == null) {
             foundTasks = taskHandler.findByUser(creator, start, max);
-        } else if (creator == null && status != null) {
-            foundTasks = taskHandler.findByStatus(Task.Status.valueOf(status), start, max);
+            totalTasks = taskHandler.countAllOfCreator(creator);
         } else {
             foundTasks = taskHandler.findByUserAndStatus(creator, Task.Status.valueOf(status), start, max);
+            totalTasks = taskHandler.countByUserAndStatus(creator, Task.Status.valueOf(status));
         }
         foundTasks.stream().forEach(task -> {
             if (task.getResult() != null) {
                 task.setResultUri(uriInfo.getBaseUri() + task.getResult());
             }
         });
-        return Response.ok(foundTasks).build();
+        return Response.ok(foundTasks)
+                .header("total", totalTasks)
+                .build();
     }
 
     @GET
@@ -128,6 +134,7 @@ public class TaskResource {
         @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
     })
     public Response getTask(
+            @ApiParam(value = "Authorization token") @HeaderParam("subjectid") String subjectId,
             @ApiParam(value = "ID of the task to be retrieved") @PathParam("id") String id) {
         Task task = taskHandler.find(id);
         if (task == null) {

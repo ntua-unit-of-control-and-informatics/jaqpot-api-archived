@@ -37,6 +37,8 @@ import com.wordnik.swagger.annotations.ApiResponses;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import javax.ejb.EJB;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
@@ -56,6 +58,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import org.jaqpot.core.data.DatasetHandler;
+import org.jaqpot.core.model.MetaInfo;
+import org.jaqpot.core.model.builder.MetaInfoBuilder;
 import org.jaqpot.core.model.dto.dataset.Dataset;
 import org.jaqpot.core.model.factory.DatasetFactory;
 import org.jaqpot.core.model.util.ROG;
@@ -71,17 +75,17 @@ import org.jaqpot.core.service.annotations.UnSecure;
 @Produces({"application/json", "text/uri-list"})
 @Authorize
 public class DatasetResource {
-
+    
     @EJB
     DatasetHandler datasetHandler;
-
+    
     @Inject
     @UnSecure
     Client client;
     
     @Context
     SecurityContext securityContext;
-
+    
     @GET
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @ApiOperation(value = "Finds all Datasets",
@@ -101,41 +105,39 @@ public class DatasetResource {
         @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
     })
     public Response listDatasets(
+            @ApiParam(value = "Authorization token") @HeaderParam("subjectid") String subjectId,
             @ApiParam(value = "start", defaultValue = "0") @QueryParam("start") Integer start,
             @ApiParam(value = "max - the server imposes an upper limit of 500 on this "
                     + "parameter.", defaultValue = "10") @QueryParam("max") Integer max,
             @ApiParam(value = "createdBy") @QueryParam("creator") String creator
     ) {
         start = start != null ? start : 0;
-        boolean doWarnMax = false;
         if (max == null || max > 500) {
             max = 500;
-            doWarnMax = true;
         }
-        Response.ResponseBuilder responseBuilder = Response
-                .ok(datasetHandler.listOnlyIDsOfCreator(creator, start, max))
-                .status(Response.Status.OK);
-        if (doWarnMax) {
-            responseBuilder.header("Warning", "P670 Parameter max has been limited to 500");
-        }
-        return responseBuilder.build();
+        return Response.ok(datasetHandler.listOnlyIDsOfCreator(creator, start, max))
+                .status(Response.Status.OK)
+                .header("total", datasetHandler.countAllOfCreator(creator))
+                .build();
+        
     }
 
-    @GET
-    @Path("/count")
-    @Produces(MediaType.TEXT_PLAIN)
-    @ApiOperation(value = "Counts all datasets", response = Long.class)
-    public Response countDatasets(@QueryParam("creator") String creator) {
-        return Response.ok(datasetHandler.countAllOfCreator(creator)).build();
-    }
-
+//    @GET
+//    @Path("/count")
+//    @Produces(MediaType.TEXT_PLAIN)
+//    @ApiOperation(value = "Counts all datasets", response = Long.class)
+//    public Response countDatasets(@QueryParam("creator") String creator) {
+//        return Response.ok(datasetHandler.countAllOfCreator(creator)).build();
+//    }
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/{id}")
     @ApiOperation(value = "Finds Dataset by Id",
             notes = "Finds specified Dataset",
             response = Dataset.class)
-    public Response getDataset(@PathParam("id") String id,
+    public Response getDataset(
+            @ApiParam(value = "Authorization token") @HeaderParam("subjectid") String subjectId,
+            @PathParam("id") String id,
             @QueryParam("rowStart") Integer rowStart,
             @QueryParam("rowMax") Integer rowMax,
             @QueryParam("colStart") Integer colStart,
@@ -150,7 +152,7 @@ public class DatasetResource {
         }
         return Response.ok(dataset).build();
     }
-
+    
     @GET
     @Path("/featured")
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
@@ -171,6 +173,7 @@ public class DatasetResource {
         @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
     })
     public Response listFeaturedDatasets(
+            @ApiParam(value = "Authorization token") @HeaderParam("subjectid") String subjectId,
             @ApiParam(value = "start", defaultValue = "0") @QueryParam("start") Integer start,
             @ApiParam(value = "max - the server imposes an upper limit of 500 on this "
                     + "parameter.", defaultValue = "10") @QueryParam("max") Integer max
@@ -179,38 +182,40 @@ public class DatasetResource {
         boolean doWarnMax = false;
         if (max == null || max > 500) {
             max = 500;
-            doWarnMax = true;
         }
-        Response.ResponseBuilder responseBuilder = Response
-                .ok(datasetHandler.findFeatured(start, max))
-                .status(Response.Status.OK);
-        if (doWarnMax) {
-            responseBuilder.header("Warning", "P670 Parameter max has been limited to 500");
-        }
-        return responseBuilder.build();
+        return Response.ok(datasetHandler.findFeatured(start, max))
+                .status(Response.Status.OK)
+                .header("total", datasetHandler.countFeatured())
+                .build();
+        
     }
-
+    
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/{id}/features")
     @ApiOperation(value = "Finds Dataset by Id",
             notes = "Finds specified Dataset",
             response = Dataset.class)
-    public Response getDatasetFeatures(@PathParam("id") String id) {
+    public Response getDatasetFeatures(
+            @ApiParam(value = "Authorization token") @HeaderParam("subjectid") String subjectId,
+            @PathParam("id") String id
+    ) {
         Dataset dataset = datasetHandler.find(id);
         if (dataset == null) {
             throw new NotFoundException("Could not find Dataset with id:" + id);
         }
         return Response.ok(dataset.getFeatures()).build();
     }
-
+    
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/{id}/meta")
     @ApiOperation(value = "Finds Dataset by Id",
             notes = "Finds specified Dataset",
             response = Dataset.class)
-    public Response getDatasetMeta(@PathParam("id") String id) {
+    public Response getDatasetMeta(
+            @ApiParam(value = "Authorization token") @HeaderParam("subjectid") String subjectId,
+            @PathParam("id") String id) {
         Dataset dataset = datasetHandler.find(id);
         dataset.setDataEntry(new ArrayList<>());
         if (dataset == null) {
@@ -218,30 +223,36 @@ public class DatasetResource {
         }
         return Response.ok(dataset).build();
     }
-
+    
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces("text/uri-list")
     @ApiOperation(value = "Creates a new Dataset",
             notes = "The new Dataset created will be assigned on a random generated Id",
             response = Dataset.class)
-    public Response createDataset(Dataset dataset) throws URISyntaxException {
+    public Response createDataset(
+            @ApiParam(value = "Authorization token") @HeaderParam("subjectid") String subjectId,
+            Dataset dataset) throws URISyntaxException {
         ROG randomStringGenerator = new ROG(true);
         dataset.setId(randomStringGenerator.nextString(14));
         dataset.setFeatured(Boolean.FALSE);
+        if (dataset.getMeta() == null) {
+            dataset.setMeta(new MetaInfo());
+        }
+        dataset.getMeta().setCreators(new HashSet<>(Arrays.asList(securityContext.getUserPrincipal().getName())));
         datasetHandler.create(dataset);
-
+        
         return Response.created(new URI(dataset.getId())).entity(dataset).build();
-
+        
     }
-
+    
     @POST
     @Path("/merge")
     @Produces("text/uri-list")
     @ApiOperation(value = "Merges Datasets")
     public Response mergeDatasets(@FormParam("dataset_uris") String datasetURIs,
             @HeaderParam("subjectid") String subjectId) throws URISyntaxException {
-
+        
         String[] datasets = datasetURIs.split(",");
         Dataset dataset = null;
         for (String datasetURI : datasets) {
@@ -256,19 +267,21 @@ public class DatasetResource {
         dataset.setId(randomStringGenerator.nextString(14));
         dataset.setFeatured(Boolean.FALSE);
         datasetHandler.create(dataset);
-
+        
         return Response.created(new URI(dataset.getId())).entity(dataset).build();
-
+        
     }
-
+    
     @DELETE
     @Path("/{id}")
     @ApiOperation("Deletes dataset")
     @Authorize
-    public Response deleteDataset(@PathParam("id") String id) {        
+    public Response deleteDataset(
+            @ApiParam(value = "Authorization token") @HeaderParam("subjectid") String subjectId,
+            @PathParam("id") String id) {
         Dataset ds = datasetHandler.find(id);
         String userName = securityContext.getUserPrincipal().getName();
-        if(!ds.getMeta().getCreators().contains(userName)){
+        if (!ds.getMeta().getCreators().contains(userName)) {
             return Response.status(Response.Status.FORBIDDEN).entity("You cannot delete a Dataset that was not created by you.").build();
         }
         datasetHandler.remove(ds);
