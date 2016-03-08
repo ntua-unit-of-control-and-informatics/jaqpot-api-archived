@@ -52,21 +52,21 @@ import org.jaqpot.core.model.util.ROG;
  */
 @Stateless
 public class TrainingService {
-    
+
     @EJB
     AlgorithmHandler algorithmHandler;
-    
+
     @EJB
     TaskHandler taskHandler;
-    
+
     @Resource(lookup = "java:jboss/exported/jms/topic/training")
     private Topic trainingQueue;
-    
+
     @Inject
     private JMSContext jmsContext;
-    
+
     public Task initiateTraining(Map<String, Object> options, String userName) {
-        
+
         String algorithmId = (String) options.get("algorithmId");
         Algorithm algorithm = algorithmHandler.find(algorithmId);
         if (algorithm == null) {
@@ -83,9 +83,10 @@ public class TrainingService {
                 .addSources("algorithm/" + options.get("algorithmId").toString())
                 .addComments("Training task created")
                 .addDescriptions("Training task using algorithm " + algorithmId)
+                .addCreators(userName)
                 .build());
         task.setType(Task.Type.TRAINING);
-        task.setCreatedBy((String) options.get("createdBy"));
+
         task.setHttpStatus(202);
         task.setStatus(Task.Status.QUEUED);
         options.put("taskId", task.getId());
@@ -98,5 +99,5 @@ public class TrainingService {
         jmsContext.createProducer().setDeliveryDelay(1000).send(trainingQueue, options);
         return task;
     }
-    
+
 }

@@ -75,17 +75,17 @@ import org.jaqpot.core.service.annotations.UnSecure;
 @Produces({"application/json", "text/uri-list"})
 @Authorize
 public class DatasetResource {
-    
+
     @EJB
     DatasetHandler datasetHandler;
-    
+
     @Inject
     @UnSecure
     Client client;
-    
+
     @Context
     SecurityContext securityContext;
-    
+
     @GET
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @ApiOperation(value = "Finds all Datasets",
@@ -108,18 +108,18 @@ public class DatasetResource {
             @ApiParam(value = "Authorization token") @HeaderParam("subjectid") String subjectId,
             @ApiParam(value = "start", defaultValue = "0") @QueryParam("start") Integer start,
             @ApiParam(value = "max - the server imposes an upper limit of 500 on this "
-                    + "parameter.", defaultValue = "10") @QueryParam("max") Integer max,
-            @ApiParam(value = "createdBy") @QueryParam("creator") String creator
+                    + "parameter.", defaultValue = "10") @QueryParam("max") Integer max
     ) {
         start = start != null ? start : 0;
         if (max == null || max > 500) {
             max = 500;
         }
+        String creator = securityContext.getUserPrincipal().getName();
         return Response.ok(datasetHandler.listOnlyIDsOfCreator(creator, start, max))
                 .status(Response.Status.OK)
                 .header("total", datasetHandler.countAllOfCreator(creator))
                 .build();
-        
+
     }
 
 //    @GET
@@ -152,7 +152,7 @@ public class DatasetResource {
         }
         return Response.ok(dataset).build();
     }
-    
+
     @GET
     @Path("/featured")
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
@@ -187,9 +187,9 @@ public class DatasetResource {
                 .status(Response.Status.OK)
                 .header("total", datasetHandler.countFeatured())
                 .build();
-        
+
     }
-    
+
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/{id}/features")
@@ -206,7 +206,7 @@ public class DatasetResource {
         }
         return Response.ok(dataset.getFeatures()).build();
     }
-    
+
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/{id}/meta")
@@ -223,7 +223,7 @@ public class DatasetResource {
         }
         return Response.ok(dataset).build();
     }
-    
+
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces("text/uri-list")
@@ -241,18 +241,18 @@ public class DatasetResource {
         }
         dataset.getMeta().setCreators(new HashSet<>(Arrays.asList(securityContext.getUserPrincipal().getName())));
         datasetHandler.create(dataset);
-        
+
         return Response.created(new URI(dataset.getId())).entity(dataset).build();
-        
+
     }
-    
+
     @POST
     @Path("/merge")
     @Produces("text/uri-list")
     @ApiOperation(value = "Merges Datasets")
     public Response mergeDatasets(@FormParam("dataset_uris") String datasetURIs,
             @HeaderParam("subjectid") String subjectId) throws URISyntaxException {
-        
+
         String[] datasets = datasetURIs.split(",");
         Dataset dataset = null;
         for (String datasetURI : datasets) {
@@ -267,11 +267,11 @@ public class DatasetResource {
         dataset.setId(randomStringGenerator.nextString(14));
         dataset.setFeatured(Boolean.FALSE);
         datasetHandler.create(dataset);
-        
+
         return Response.created(new URI(dataset.getId())).entity(dataset).build();
-        
+
     }
-    
+
     @DELETE
     @Path("/{id}")
     @ApiOperation("Deletes dataset")

@@ -97,7 +97,6 @@ public class ROG {
                 .setBookTitle(nextString(50))                
                 .setChapter(nextString(50))
                 .setCopyright(nextString(50))
-                .setCreatedBy(nextString(50))
                 .setCrossref(nextString(50))
                 .setEdition(nextString(50))
                 .setEditor(nextString(50))
@@ -152,7 +151,6 @@ public class ROG {
         a.setBibtex(new HashSet<>());
         a.getBibtex().add(nextBibTeX());
         a.getBibtex().add(nextBibTeX());
-        a.setCreatedBy(nextString(25));
         a.setMeta(nextMeta());
         a.setOntologicalClasses(nextSetString(10, 20));
 
@@ -170,7 +168,6 @@ public class ROG {
         m.setActualModel(nextString(10000));
         m.setAlgorithm(nextAlgorithm());
         m.setBibtex(nextBibTeX());
-        m.setCreatedBy(nextString(20));
         m.setDatasetUri(nextString(50));
         m.setDependentFeatures(nextListString(20, 5));
         m.setIndependentFeatures(nextListString(2, 5));
@@ -189,7 +186,6 @@ public class ROG {
 
     public Feature nextFeature() {
         Feature f = new Feature("/feature/" + nextString(5));
-        f.setCreatedBy(nextString(10));
         f.setMeta(nextMeta());
         f.setOntologicalClasses(new HashSet<>());
         f.getOntologicalClasses().add("Feature");

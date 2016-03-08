@@ -34,7 +34,9 @@ import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
 import com.wordnik.swagger.annotations.ApiResponse;
 import com.wordnik.swagger.annotations.ApiResponses;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.HashSet;
 import javax.ejb.EJB;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -134,7 +136,7 @@ public class FeatureResource {
         String creator = securityContext.getUserPrincipal().getName();
         return Response.ok(featureHandler.listOnlyIDsOfCreator(creator, start != null ? start : 0, max))
                 .status(Response.Status.OK)
-                .header("total",featureHandler.countAllOfCreator(creator))
+                .header("total", featureHandler.countAllOfCreator(creator))
                 .build();
     }
 
@@ -194,11 +196,11 @@ public class FeatureResource {
             feature.setMeta(new MetaInfo());
         }
         feature.getMeta().setDate(new Date());
+        feature.getMeta().setCreators(new HashSet<>(Arrays.asList(securityContext.getUserPrincipal().getName())));
         ROG rog = new ROG(true);
         if (feature.getId() == null) {
             feature.setId(rog.nextString(10));
         }
-        feature.setCreatedBy(securityContext.getUserPrincipal().getName());
 
         featureHandler.create(feature);
         return Response

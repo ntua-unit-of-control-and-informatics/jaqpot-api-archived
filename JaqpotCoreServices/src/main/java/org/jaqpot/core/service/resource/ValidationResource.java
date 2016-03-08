@@ -126,9 +126,9 @@ public class ValidationResource {
                 .addTitles("Validation on model: " + modelURI)
                 .addComments("Validation task created")
                 .addDescriptions("Validation task using model " + modelURI + " and dataset " + datasetURI)
+                .addCreators(securityContext.getUserPrincipal().getName())
                 .build());
         task.setType(Task.Type.VALIDATION);
-        task.setCreatedBy(securityContext.getUserPrincipal().getName());
         task.setHttpStatus(202);
         task.setStatus(Task.Status.QUEUED);
         task.setVisible(Boolean.TRUE);
@@ -173,9 +173,9 @@ public class ValidationResource {
                 .addTitles("Validation on algorithm: " + algorithmURI)
                 .addComments("Validation task created")
                 .addDescriptions("Validation task using algorithm " + algorithmURI + " and dataset " + datasetURI)
+                .addCreators(securityContext.getUserPrincipal().getName())
                 .build());
         task.setType(Task.Type.VALIDATION);
-        task.setCreatedBy(securityContext.getUserPrincipal().getName());
         task.setHttpStatus(202);
         task.setStatus(Task.Status.QUEUED);
         task.setVisible(Boolean.TRUE);
@@ -222,9 +222,9 @@ public class ValidationResource {
                 .addTitles("Validation on algorithm: " + algorithmURI)
                 .addComments("Validation task created")
                 .addDescriptions("Validation task using algorithm " + algorithmURI + " and dataset " + datasetURI)
+                .addCreators(securityContext.getUserPrincipal().getName())
                 .build());
         task.setType(Task.Type.VALIDATION);
-        task.setCreatedBy(securityContext.getUserPrincipal().getName());
         task.setHttpStatus(202);
         task.setStatus(Task.Status.QUEUED);
         task.setVisible(Boolean.TRUE);

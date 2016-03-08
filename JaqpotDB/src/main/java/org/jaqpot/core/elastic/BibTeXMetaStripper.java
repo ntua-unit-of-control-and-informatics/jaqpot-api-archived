@@ -61,7 +61,6 @@ public class BibTeXMetaStripper extends AbstractMetaStripper<BibTeX> {
         BibTeX bibtex = new BibTeX(entity);
         bibtex.setBibTeXAbstract(null);
         bibtex.setCopyright(null);
-        bibtex.setCreatedBy(null);
         bibtex.setCrossref(null);
         bibtex.setMeta(null);
         bibtex.setPages(null);

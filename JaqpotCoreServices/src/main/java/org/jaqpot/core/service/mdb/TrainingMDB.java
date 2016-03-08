@@ -115,9 +115,9 @@ public class TrainingMDB extends RunningTaskMDB {
     JSONSerializer jsonSerializer;
 
     long DOA_TASK_MAX_WAITING_TIME = 45; // 45s
-    
+
     private final Set<String> intermediateDatasets = new HashSet<>();
-    
+
     String subjectId;
 
     @Override
@@ -154,11 +154,11 @@ public class TrainingMDB extends RunningTaskMDB {
 
             List<String> transformationModels = new ArrayList<>();
             List<String> linkedModels = new ArrayList<>();
-            
+
             if (messageBody.containsKey("transformations")) {
                 task.getMeta().getComments().add("--");
                 task.getMeta().getComments().add("Processing transformations...");
-                taskHandler.edit(task);                
+                taskHandler.edit(task);
 
                 String transformationsString = (String) messageBody.get("transformations");
                 LinkedHashMap<String, String> transformations = jsonSerializer.parse(transformationsString, LinkedHashMap.class);
@@ -302,7 +302,7 @@ public class TrainingMDB extends RunningTaskMDB {
                         task.getMeta().getComments().add("Linked Training task failed.");
                         throw new JaqpotWebException(trainTask.getErrorReport());
                     }
-                }                
+                }
             }
             task.getMeta().getComments().add("--");
             Dataset dataset = null;
@@ -419,13 +419,13 @@ public class TrainingMDB extends RunningTaskMDB {
                     predictionFeatureResource.setId(predFeatID);
                     predictionFeatureResource
                             .setPredictorFor(dependentFeatures.stream().findFirst().orElse(null));
-                    predictionFeatureResource.setCreatedBy(task.getCreatedBy());
                     predictionFeatureResource.setMeta(MetaInfoBuilder
                             .builder()
                             .addSources(/*messageBody.get("base_uri") + */"algorithm/" + algorithmId)
                             .addComments("Feature created to hold predictions by algorithm with ID " + algorithmId)
                             .addTitles(featureTitle)
                             .addSeeAlso(dependentFeatures.toArray(new String[dependentFeatures.size()]))
+                            .addCreators(task.getMeta().getCreators())
                             .build());
                     /* Create feature */
                     featureHandler.create(predictionFeatureResource);
@@ -444,7 +444,7 @@ public class TrainingMDB extends RunningTaskMDB {
             model.setMeta(MetaInfoBuilder
                     .builder()
                     .addTitles((String) messageBody.get("title"))
-                    .addCreators(task.getCreatedBy())
+                    .addCreators(task.getMeta().getCreators())
                     .addSources(dataset != null ? dataset.getDatasetURI() : "")
                     .addComments("Created by task " + task.getId())
                     .addDescriptions((String) messageBody.get("description"))

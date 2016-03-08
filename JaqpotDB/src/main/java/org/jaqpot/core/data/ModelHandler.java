@@ -101,8 +101,7 @@ public class ModelHandler extends AbstractHandler<Model> {
 
     public List<Model> findAllMeta() {
         List<String> fields = new ArrayList<>();
-        fields.add("_id");
-        fields.add("createdBy");
+        fields.add("_id");        
         fields.add("dependentFeatures");
         fields.add("independentFeatures");
         fields.add("predictedFeatures");
@@ -120,8 +119,7 @@ public class ModelHandler extends AbstractHandler<Model> {
 
         List<String> fields = new ArrayList<>();
         fields.add("_id");
-        fields.add("meta");
-        fields.add("createdBy");
+        fields.add("meta");        
         fields.add("dependentFeatures");
         fields.add("independentFeatures");
         fields.add("predictedFeatures");

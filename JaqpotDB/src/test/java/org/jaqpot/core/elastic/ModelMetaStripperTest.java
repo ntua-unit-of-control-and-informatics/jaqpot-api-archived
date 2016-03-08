@@ -95,7 +95,6 @@ public class ModelMetaStripperTest {
         
         /* Make sure certain info are still there in the stripped model */
         assertNotNull(strippedModel.getBibtex());
-        assertNotNull(strippedModel.getCreatedBy());
         assertNotNull(strippedModel.getDatasetUri());
         assertNotNull(strippedModel.getDependentFeatures());
         assertNotNull(strippedModel.getId());

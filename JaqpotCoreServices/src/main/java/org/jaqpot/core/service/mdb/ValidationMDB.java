@@ -418,7 +418,7 @@ public class ValidationMDB extends RunningTaskMDB {
             report.setMeta(MetaInfoBuilder
                     .builder()
                     // .addTitles((String) messageBody.get("title"))
-                    .addCreators(task.getCreatedBy())
+                    .addCreators(task.getMeta().getCreators())
                     .addSources(datasetURI, algorithmURI, modelURI)
                     .addComments("Created by task " + task.getId())
                     //                    .addDescriptions((String) messageBody.get("description"))

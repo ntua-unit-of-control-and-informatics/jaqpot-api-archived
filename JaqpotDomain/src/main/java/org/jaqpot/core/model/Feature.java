@@ -56,10 +56,7 @@ public class Feature extends JaqpotEntity {
      * URI.
      */
     private String predictorFor;
-    /**
-     * Username of the creator of the feature.
-     */
-    private String createdBy;
+
     /**
      * In case the feature is nominal, this field stores it admissible values.
      * Whether the field is Nominal or Numeric or String is determined by its
@@ -78,16 +75,7 @@ public class Feature extends JaqpotEntity {
     public Feature(Feature other) {
         super(other);
         this.admissibleValues = other.admissibleValues != null ? new HashSet<>(other.admissibleValues) : null;
-        this.createdBy = other.createdBy;
         this.units = other.units;
-    }
-
-    public String getCreatedBy() {
-        return createdBy;
-    }
-
-    public void setCreatedBy(String createdBy) {
-        this.createdBy = createdBy;
     }
 
     public String getUnits() {

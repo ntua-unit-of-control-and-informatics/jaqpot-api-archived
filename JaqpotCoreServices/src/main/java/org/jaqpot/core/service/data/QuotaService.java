@@ -70,7 +70,7 @@ public class QuotaService {
     public UserQuota getUserQuota(String userId) {
         UserQuota userQuota = new UserQuota();
         userQuota.setUserId(userId);
-        userQuota.setAlgorithms(algorithmHandler.countByUser(userId));
+        userQuota.setAlgorithms(algorithmHandler.countAllOfCreator(userId));
         userQuota.setTasks(taskHandler.countByUser(userId));
         userQuota.setTasksRunning(taskHandler.countByUserAndStatus(userId, Task.Status.RUNNING));
         userQuota.setModels(modelHandler.countAllOfCreator(userId));

@@ -138,7 +138,6 @@ public class ElasticSearchWriter<T extends JaqpotEntity> {
                 .setBookTitle("t6hdth")
                 .setChapter("uthjsdfbkjs")
                 .setCopyright("sdfsdf")
-                .setCreatedBy("4ygetrhdfg")
                 .setCrossref("other")
                 .setEdition("234234")
                 .setEditor("me")
@@ -172,7 +171,6 @@ public class ElasticSearchWriter<T extends JaqpotEntity> {
                 .addTitles("My first feature", "a nice feature")
                 .addSubjects("feature of the day")
                 .build());
-        f.setCreatedBy("somebody");
         f.setUnits("mJ");                
                         
         

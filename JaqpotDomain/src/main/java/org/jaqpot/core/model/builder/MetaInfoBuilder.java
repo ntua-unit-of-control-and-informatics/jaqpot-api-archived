@@ -33,6 +33,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Set;
 import org.jaqpot.core.model.MetaInfo;
 
 /**
@@ -42,31 +43,31 @@ import org.jaqpot.core.model.MetaInfo;
  *
  */
 public class MetaInfoBuilder implements EntityBuilder<MetaInfo> {
-    
+
     private final MetaInfo meta;
-    
+
     @Override
     public MetaInfo build() {
         return this.meta;
     }
-    
+
     public static MetaInfoBuilder builder() {
         return new MetaInfoBuilder();
     }
-    
+
     public static MetaInfoBuilder builder(MetaInfo other) {
         return new MetaInfoBuilder(other);
     }
-    
+
     private MetaInfoBuilder() {
         meta = new MetaInfo();
-        meta.setDate(new Date());        
+        meta.setDate(new Date());
     }
-    
+
     private MetaInfoBuilder(MetaInfo meta) {
         this.meta = meta;
     }
-    
+
     public MetaInfoBuilder addTitles(String... titles) {
         if (titles == null) {
             return this;
@@ -77,7 +78,7 @@ public class MetaInfoBuilder implements EntityBuilder<MetaInfo> {
         meta.getTitles().addAll(Arrays.asList(titles));
         return this;
     }
-    
+
     public MetaInfoBuilder addAudiences(String... audiences) {
         if (audiences == null) {
             return this;
@@ -88,7 +89,7 @@ public class MetaInfoBuilder implements EntityBuilder<MetaInfo> {
         meta.getAudiences().addAll(Arrays.asList(audiences));
         return this;
     }
-    
+
     public MetaInfoBuilder addComments(String... comments) {
         if (comments == null) {
             return this;
@@ -99,7 +100,7 @@ public class MetaInfoBuilder implements EntityBuilder<MetaInfo> {
         meta.getComments().addAll(Arrays.asList(comments));
         return this;
     }
-    
+
     public MetaInfoBuilder addContributors(String... contributors) {
         if (contributors == null) {
             return this;
@@ -110,7 +111,7 @@ public class MetaInfoBuilder implements EntityBuilder<MetaInfo> {
         meta.getContributors().addAll(Arrays.asList(contributors));
         return this;
     }
-    
+
     public MetaInfoBuilder addCreators(String... creators) {
         if (creators == null) {
             return this;
@@ -121,7 +122,18 @@ public class MetaInfoBuilder implements EntityBuilder<MetaInfo> {
         meta.getCreators().addAll(Arrays.asList(creators));
         return this;
     }
-    
+
+    public MetaInfoBuilder addCreators(Set<String> creators) {
+        if (creators == null) {
+            return this;
+        }
+        if (meta.getCreators() == null) {
+            meta.setCreators(new HashSet<>());
+        }
+        meta.getCreators().addAll(creators);
+        return this;
+    }
+
     public MetaInfoBuilder addDescriptions(String... descriptions) {
         if (descriptions == null) {
             return this;
@@ -132,7 +144,7 @@ public class MetaInfoBuilder implements EntityBuilder<MetaInfo> {
         meta.getDescriptions().addAll(Arrays.asList(descriptions));
         return this;
     }
-    
+
     public MetaInfoBuilder addSources(String... sources) {
         if (sources == null) {
             return this;
@@ -143,7 +155,7 @@ public class MetaInfoBuilder implements EntityBuilder<MetaInfo> {
         meta.getHasSources().addAll(Arrays.asList(sources));
         return this;
     }
-    
+
     public MetaInfoBuilder addIdentifiers(String... ids) {
         if (ids == null) {
             return this;
@@ -154,7 +166,7 @@ public class MetaInfoBuilder implements EntityBuilder<MetaInfo> {
         meta.getIdentifiers().addAll(Arrays.asList(ids));
         return this;
     }
-    
+
     public MetaInfoBuilder addPublishers(String... publishers) {
         if (publishers == null) {
             return this;
@@ -165,7 +177,7 @@ public class MetaInfoBuilder implements EntityBuilder<MetaInfo> {
         meta.getPublishers().addAll(Arrays.asList(publishers));
         return this;
     }
-    
+
     public MetaInfoBuilder addRights(String... rights) {
         if (rights == null) {
             return this;
@@ -176,7 +188,7 @@ public class MetaInfoBuilder implements EntityBuilder<MetaInfo> {
         meta.getRights().addAll(Arrays.asList(rights));
         return this;
     }
-    
+
     public MetaInfoBuilder addSameAs(String... sameAs) {
         if (sameAs == null) {
             return this;
@@ -187,7 +199,7 @@ public class MetaInfoBuilder implements EntityBuilder<MetaInfo> {
         meta.getSameAs().addAll(Arrays.asList(sameAs));
         return this;
     }
-    
+
     public MetaInfoBuilder addSeeAlso(String... seeAlso) {
         if (seeAlso == null) {
             return this;
@@ -198,7 +210,7 @@ public class MetaInfoBuilder implements EntityBuilder<MetaInfo> {
         meta.getSeeAlso().addAll(Arrays.asList(seeAlso));
         return this;
     }
-    
+
     public MetaInfoBuilder addSubjects(String... subjects) {
         if (subjects == null) {
             return this;
@@ -209,15 +221,15 @@ public class MetaInfoBuilder implements EntityBuilder<MetaInfo> {
         meta.getSubjects().addAll(Arrays.asList(subjects));
         return this;
     }
-    
+
     public MetaInfoBuilder setDate(Date date) {
         meta.setDate(date);
         return this;
     }
-    
+
     public MetaInfoBuilder setCurrentDate() {
         meta.setDate(new Date());
         return this;
     }
-    
+
 }

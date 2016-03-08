@@ -129,11 +129,6 @@ public class BibTeXBuilder implements EntityBuilder<BibTeX> {
         return this;
     }
 
-    public BibTeXBuilder setCreatedBy(String title) {
-        bibtex.setCreatedBy(title);
-        return this;
-    }
-
     public BibTeXBuilder setCrossref(String title) {
         bibtex.setCrossref(title);
         return this;

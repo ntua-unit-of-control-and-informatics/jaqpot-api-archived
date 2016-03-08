@@ -29,6 +29,7 @@
  */
 package org.jaqpot.core.data;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -62,7 +63,7 @@ public class TaskHandler extends AbstractHandler<Task> {
 
     public List<Task> findByUser(String userName, Integer start, Integer max) {
         Map<String, Object> properties = new HashMap<>();
-        properties.put("createdBy", userName);
+        properties.put("meta.creators", Arrays.asList(userName));
         properties.put("visible",true);
 
         return em.find(Task.class, properties, start, max);
@@ -70,7 +71,7 @@ public class TaskHandler extends AbstractHandler<Task> {
 
     public Long countByUser(String userName) {
         Map<String, Object> properties = new HashMap<>();
-        properties.put("createdBy", userName);
+        properties.put("meta.creators", Arrays.asList(userName));
         properties.put("visible",true);
 
         return em.count(Task.class, properties);
@@ -94,7 +95,7 @@ public class TaskHandler extends AbstractHandler<Task> {
 
     public List<Task> findByUserAndStatus(String userName, Task.Status status, Integer start, Integer max) {
         Map<String, Object> properties = new HashMap<>();
-        properties.put("createdBy", userName);
+        properties.put("meta.creators", Arrays.asList(userName));
         properties.put("status", status.name());
         properties.put("visible",true);
 
@@ -103,7 +104,7 @@ public class TaskHandler extends AbstractHandler<Task> {
 
     public Long countByUserAndStatus(String userName, Task.Status status) {
         Map<String, Object> properties = new HashMap<>();
-        properties.put("createdBy", userName);
+        properties.put("meta.creators", Arrays.asList(userName));
         properties.put("status", status.name());
         properties.put("visible",true);
 

@@ -42,7 +42,9 @@ import com.wordnik.swagger.annotations.ApiParam;
 import com.wordnik.swagger.annotations.ApiResponse;
 import com.wordnik.swagger.annotations.ApiResponses;
 import com.wordnik.swagger.jaxrs.PATCH;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -70,6 +72,7 @@ import org.jaqpot.core.data.AlgorithmHandler;
 import org.jaqpot.core.data.UserHandler;
 import org.jaqpot.core.data.serialize.JSONSerializer;
 import org.jaqpot.core.model.Algorithm;
+import org.jaqpot.core.model.MetaInfo;
 import org.jaqpot.core.model.Task;
 import org.jaqpot.core.model.User;
 import org.jaqpot.core.model.builder.AlgorithmBuilder;
@@ -178,7 +181,7 @@ public class AlgorithmResource {
     ) throws QuotaExceededException {
 
         User user = userHandler.find(securityContext.getUserPrincipal().getName());
-        long algorithmCount = algorithmHandler.countByUser(user.getId());
+        long algorithmCount = algorithmHandler.countAllOfCreator(user.getId());
         int maxAllowedAlgorithms = new UserFacade(user).getMaxAlgorithms();
 
         if (algorithmCount > maxAllowedAlgorithms) {
@@ -194,8 +197,8 @@ public class AlgorithmResource {
             algorithm.setId(rog.nextString(10));
         }
 
-        AlgorithmBuilder algorithmBuilder = AlgorithmBuilder.builder(algorithm)
-                .setCreatedBy(securityContext.getUserPrincipal().getName());
+        AlgorithmBuilder algorithmBuilder = AlgorithmBuilder.builder(algorithm);
+
         if (title != null) {
             algorithmBuilder.addTitles(title);
         }
@@ -206,6 +209,10 @@ public class AlgorithmResource {
             algorithmBuilder.addTagsCSV(tags);
         }
         algorithm = algorithmBuilder.build();
+        if (algorithm.getMeta() == null) {
+            algorithm.setMeta(new MetaInfo());
+        }
+        algorithm.getMeta().setCreators(new HashSet<>(Arrays.asList(securityContext.getUserPrincipal().getName())));
         algorithmHandler.create(algorithm);
         return Response
                 .status(Response.Status.OK)
@@ -302,7 +309,7 @@ public class AlgorithmResource {
 
         String userName = securityContext.getUserPrincipal().getName();
 
-        if (!algorithm.getCreatedBy().equals(userName)) {
+        if (!algorithm.getMeta().getCreators().contains(userName)) {
             return Response.status(Response.Status.FORBIDDEN).entity("You cannot delete an Algorithm that was not created by you.").build();
         }
 

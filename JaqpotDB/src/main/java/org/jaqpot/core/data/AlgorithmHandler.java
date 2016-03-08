@@ -66,12 +66,6 @@ public class AlgorithmHandler extends AbstractHandler<Algorithm> {
         return em;
     }
 
-    public Long countByUser(String userName) {
-        Map<String, Object> properties = new HashMap<>();
-        properties.put("createdBy", userName);
-        return em.count(Algorithm.class, properties);
-    }
-
     public List<Algorithm> findByOntologicalClass(String className, Integer start, Integer max) {
         Map<String, Object> properties = new HashMap<>();
         List<String> classes = new ArrayList<>();

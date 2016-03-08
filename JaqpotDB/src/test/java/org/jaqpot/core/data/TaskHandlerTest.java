@@ -51,7 +51,6 @@ public class TaskHandlerTest {
                 addSources("http://jaqpot.org/algorithm/wonk").build();
 
         taskPojo = new Task("115a0da8-92cc-4ec4-845f-df643ad607ee");
-        taskPojo.setCreatedBy("random-user@jaqpot.org");
         taskPojo.setPercentageCompleted(0.95f);
         taskPojo.setDuration(1534l);
         taskPojo.setMeta(meta);
@@ -59,7 +58,6 @@ public class TaskHandlerTest {
         taskPojo.setStatus(Task.Status.RUNNING);
 
         taskPojo2 = new Task("215a0da8-92cc-4ec4-845f-df643ad607ee");
-        taskPojo2.setCreatedBy("random-user@jaqpot.org");
         taskPojo2.setPercentageCompleted(0.95f);
         taskPojo2.setDuration(1534l);
         taskPojo2.setMeta(meta);
@@ -103,7 +101,6 @@ public class TaskHandlerTest {
 
         assertEquals(foundTask, taskPojo);
         assertEquals("not the same ID", taskPojo.getId(), foundTask.getId());
-        assertEquals("not the same createdBy", taskPojo.getCreatedBy(), foundTask.getCreatedBy());
         assertEquals("not the same percentageComplete", taskPojo.getPercentageCompleted(), foundTask.getPercentageCompleted());
         assertEquals("not the same duration", taskPojo.getDuration(), foundTask.getDuration());
         assertEquals("not the same HTTP status", taskPojo.getHttpStatus(), foundTask.getHttpStatus());
@@ -113,7 +110,6 @@ public class TaskHandlerTest {
 
         assertEquals(foundTask2, taskPojo2);
         assertEquals("not the same ID", taskPojo2.getId(), foundTask2.getId());
-        assertEquals("not the same createdBy", taskPojo2.getCreatedBy(), foundTask2.getCreatedBy());
         assertEquals("not the same percentageComplete", taskPojo2.getPercentageCompleted(), foundTask2.getPercentageCompleted());
         assertEquals("not the same duration", taskPojo2.getDuration(), foundTask2.getDuration());
         assertEquals("not the same HTTP status", taskPojo2.getHttpStatus(), foundTask2.getHttpStatus());
@@ -146,7 +142,6 @@ public class TaskHandlerTest {
 
         assertEquals(foundTask, taskPojo);
         assertEquals("not the same ID", taskPojo.getId(), foundTask.getId());
-        assertEquals("not the same createdBy", taskPojo.getCreatedBy(), foundTask.getCreatedBy());
         assertEquals("not the same percentageComplete", taskPojo.getPercentageCompleted(), foundTask.getPercentageCompleted());
         assertEquals("not the same duration", taskPojo.getDuration(), foundTask.getDuration());
         assertEquals("not the same HTTP status", taskPojo.getHttpStatus(), foundTask.getHttpStatus());
@@ -156,7 +151,6 @@ public class TaskHandlerTest {
 
         assertEquals(foundTask2, taskPojo2);
         assertEquals("not the same ID", taskPojo2.getId(), foundTask2.getId());
-        assertEquals("not the same createdBy", taskPojo2.getCreatedBy(), foundTask2.getCreatedBy());
         assertEquals("not the same percentageComplete", taskPojo2.getPercentageCompleted(), foundTask2.getPercentageCompleted());
         assertEquals("not the same duration", taskPojo2.getDuration(), foundTask2.getDuration());
         assertEquals("not the same HTTP status", taskPojo2.getHttpStatus(), foundTask2.getHttpStatus());

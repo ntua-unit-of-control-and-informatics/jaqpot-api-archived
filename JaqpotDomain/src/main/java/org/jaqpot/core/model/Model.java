@@ -60,10 +60,7 @@ public class Model extends JaqpotEntity {
      * List of predicted features.
      */
     private List<String> predictedFeatures;
-    /**
-     * ID of the user who created the model.
-     */
-    private String createdBy;
+
     /**
      * Reliability of the model (ranking).
      */
@@ -127,7 +124,6 @@ public class Model extends JaqpotEntity {
         super(other);
         this.algorithm = other.algorithm != null ? new Algorithm(other.algorithm) : null;
         this.bibtex = other.bibtex != null ? new BibTeX(other.bibtex) : null;
-        this.createdBy = other.createdBy;
         this.datasetUri = other.datasetUri;
         this.dependentFeatures = other.dependentFeatures != null
                 ? new ArrayList<>(other.dependentFeatures) : null;
@@ -165,14 +161,6 @@ public class Model extends JaqpotEntity {
 
     public void setPredictedFeatures(List<String> predictedFeatures) {
         this.predictedFeatures = predictedFeatures;
-    }
-
-    public String getCreatedBy() {
-        return createdBy;
-    }
-
-    public void setCreatedBy(String createdBy) {
-        this.createdBy = createdBy;
     }
 
     public Integer getReliability() {
