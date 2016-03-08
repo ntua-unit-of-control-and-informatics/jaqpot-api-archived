@@ -80,4 +80,13 @@ public class AlgorithmHandler extends AbstractHandler<Algorithm> {
         return em.find(Algorithm.class, properties, fields, start, max);
     }
 
+    public Long countByOntologicalClass(String className) {
+        Map<String, Object> properties = new HashMap<>();
+        List<String> classes = new ArrayList<>();
+        classes.add(className);
+        properties.put("ontologicalClasses", classes);
+
+        return em.count(Algorithm.class, properties);
+    }
+
 }
