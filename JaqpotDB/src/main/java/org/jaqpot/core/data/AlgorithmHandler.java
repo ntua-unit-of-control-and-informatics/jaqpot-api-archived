@@ -36,10 +36,8 @@ package org.jaqpot.core.data;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import org.jaqpot.core.annotations.MongoDB;
@@ -48,7 +46,8 @@ import org.jaqpot.core.model.Algorithm;
 
 /**
  *
- * @author hampos
+ * @author Charalampos Chomenidis
+ * @author Pantelis Sopasakis
  */
 @Stateless
 public class AlgorithmHandler extends AbstractHandler<Algorithm> {

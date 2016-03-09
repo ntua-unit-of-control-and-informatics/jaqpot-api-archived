@@ -40,7 +40,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  *
- * @author hampos
+ * @author Charalampos Chomenidis
+ * @author Pantelis Sopasakis
  */
 @XmlRootElement(name = "Report")
 @JsonInclude(JsonInclude.Include.NON_NULL)

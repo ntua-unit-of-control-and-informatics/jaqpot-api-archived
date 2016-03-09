@@ -35,11 +35,11 @@
 package org.jaqpot.algorithm.model;
 
 import java.io.Serializable;
-import org.jpmml.manager.PMMLManager;
 
 /**
  *
- * @author hampos
+ * @author Charalampos Chomenidis
+ * @author Pantelis Sopasakis
  */
 public class PmmlModel implements Serializable {
 

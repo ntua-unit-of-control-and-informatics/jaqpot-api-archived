@@ -33,7 +33,8 @@ import java.io.Serializable;
 
 /**
  *
- * @author hampos
+ * @author Charalampos Chomenidis
+ * @author Pantelis Sopasakis
  */
 public class LeverageModel implements Serializable {
 

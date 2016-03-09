@@ -71,7 +71,8 @@ import weka.core.Instances;
 
 /**
  *
- * @author hampos
+ * @author Charalampos Chomenidis
+ * @author Pantelis Sopasakis
  */
 @Path("rbf")
 @Consumes(MediaType.APPLICATION_JSON)

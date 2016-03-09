@@ -29,7 +29,6 @@
  */
 package org.jaqpot.core.service.mdb;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
@@ -60,7 +59,8 @@ import org.jaqpot.core.service.data.ConjoinerService;
 
 /**
  *
- * @author hampos
+ * @author Charalampos Chomenidis
+ * @author Pantelis Sopasakis
  */
 @MessageDriven(activationConfig = {
     @ActivationConfigProperty(propertyName = "destinationLookup",

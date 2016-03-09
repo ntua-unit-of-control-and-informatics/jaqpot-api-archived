@@ -38,7 +38,6 @@ import java.io.ByteArrayOutputStream;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -55,7 +54,6 @@ import org.dmg.pmml.FieldName;
 import org.dmg.pmml.FieldRef;
 import org.dmg.pmml.FieldUsageType;
 import org.dmg.pmml.Header;
-import org.dmg.pmml.KernelType;
 import org.dmg.pmml.LinearKernelType;
 import org.dmg.pmml.MiningField;
 import org.dmg.pmml.MiningFunctionType;
@@ -78,12 +76,12 @@ import org.dmg.pmml.Timestamp;
 import org.dmg.pmml.VectorDictionary;
 import org.dmg.pmml.VectorFields;
 import org.dmg.pmml.VectorInstance;
-import org.jaqpot.core.model.dto.dataset.Dataset;
 import org.jpmml.model.JAXBUtil;
 
 /**
  *
- * @author hampos
+ * @author Charalampos Chomenidis
+ * @author Pantelis Sopasakis
  */
 public class PmmlUtils {
 

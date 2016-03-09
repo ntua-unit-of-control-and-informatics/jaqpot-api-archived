@@ -34,20 +34,16 @@
  */
 package org.jaqpot.algorithm.weka;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-import org.jaqpot.core.model.dto.dataset.DataEntry;
 import org.jaqpot.core.model.dto.dataset.Dataset;
 import weka.core.Attribute;
-//import weka.core.DenseInstance;
 import weka.core.FastVector;
 import weka.core.Instance;
 import weka.core.Instances;
 
 /**
  *
- * @author hampos
+ * @author Charalampos Chomenidis
+ * @author Pantelis Sopasakis
  */
 public class InstanceUtils {
 
@@ -67,7 +63,6 @@ public class InstanceUtils {
                     attrInfo.addElement(a);
                 });
 
-//        Instances data = new Instances(dataset.getDatasetURI(), new ArrayList<>(attributes), dataset.getDataEntry().size());
         Instances data = new Instances(dataset.getDatasetURI(), attrInfo, dataset.getDataEntry().size());
 
         data.setClass(data.attribute(predictionFeature));
@@ -99,7 +94,6 @@ public class InstanceUtils {
                     attrInfo.addElement(a);
                 });
 
-//        Instances data = new Instances(dataset.getDatasetURI(), new ArrayList<>(attributes), dataset.getDataEntry().size());
         Instances data = new Instances(dataset.getDatasetURI(), attrInfo, dataset.getDataEntry().size());
 
         dataset.getDataEntry().stream().map((dataEntry) -> {

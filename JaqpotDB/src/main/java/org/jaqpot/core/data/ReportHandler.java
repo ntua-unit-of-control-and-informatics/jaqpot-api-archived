@@ -37,7 +37,8 @@ import org.jaqpot.core.model.Report;
 
 /**
  *
- * @author hampos
+ * @author Charalampos Chomenidis
+ * @author Pantelis Sopasakis
  */
 @Stateless
 public class ReportHandler extends AbstractHandler<Report> {

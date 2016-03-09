@@ -39,7 +39,8 @@ import java.util.Map;
 
 /**
  *
- * @author hampos
+ * @author Charalampos Chomenidis
+ * @author Pantelis Sopasakis
  */
 public class ScalingModel implements Serializable{
 

@@ -63,7 +63,8 @@ import org.jaqpot.core.model.factory.ErrorReportFactory;
 
 /**
  *
- * @author hampos
+ * @author Charalampos Chomenidis
+ * @author Pantelis Sopasakis
  */
 @Path("leverage")
 @Consumes(MediaType.APPLICATION_JSON)

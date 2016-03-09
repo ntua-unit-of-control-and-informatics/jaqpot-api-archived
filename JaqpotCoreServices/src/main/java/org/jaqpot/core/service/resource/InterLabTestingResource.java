@@ -59,7 +59,8 @@ import org.jaqpot.core.service.annotations.UnSecure;
 
 /**
  *
- * @author hampos
+ * @author Charalampos Chomenidis
+ * @author Pantelis Sopasakis
  */
 @Path("interlab")
 @Api(value = "/interlab", description = "Interlab Testing API")

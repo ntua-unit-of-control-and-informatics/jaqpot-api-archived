@@ -59,7 +59,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import org.jaqpot.core.data.DatasetHandler;
 import org.jaqpot.core.model.MetaInfo;
-import org.jaqpot.core.model.builder.MetaInfoBuilder;
 import org.jaqpot.core.model.dto.dataset.Dataset;
 import org.jaqpot.core.model.factory.DatasetFactory;
 import org.jaqpot.core.model.util.ROG;
@@ -68,7 +67,8 @@ import org.jaqpot.core.service.annotations.UnSecure;
 
 /**
  *
- * @author hampos
+ * @author Charalampos Chomenidis
+ * @author Pantelis Sopasakis
  */
 @Path("dataset")
 @Api(value = "/dataset", description = "Dataset API")

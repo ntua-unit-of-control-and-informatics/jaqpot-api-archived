@@ -36,7 +36,6 @@ package org.jaqpot.algorithm.resource;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutput;
@@ -57,7 +56,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.commons.math3.stat.StatUtils;
 import org.jaqpot.algorithm.model.ScalingModel;
-import org.jaqpot.algorithm.model.WekaModel;
 import org.jaqpot.core.model.dto.jpdi.PredictionRequest;
 import org.jaqpot.core.model.dto.jpdi.PredictionResponse;
 import org.jaqpot.core.model.dto.jpdi.TrainingRequest;
@@ -66,7 +64,8 @@ import org.jaqpot.core.model.factory.ErrorReportFactory;
 
 /**
  *
- * @author hampos
+ * @author Charalampos Chomenidis
+ * @author Pantelis Sopasakis
  */
 @Path("std")
 @Consumes(MediaType.APPLICATION_JSON)

@@ -41,7 +41,8 @@ import org.jaqpot.core.model.Model;
 
 /**
  *
- * @author hampos
+ * @author Charalampos Chomenidis
+ * @author Pantelis Sopasakis
  */
 @Stateless
 public class ModelHandler extends AbstractHandler<Model> {

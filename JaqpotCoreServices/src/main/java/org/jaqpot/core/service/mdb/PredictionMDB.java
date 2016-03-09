@@ -93,7 +93,8 @@ import org.jaqpot.core.service.exceptions.JaqpotWebException;
 
 /**
  *
- * @author hampos
+ * @author Charalampos Chomenidis
+ * @author Pantelis Sopasakis
  */
 @MessageDriven(activationConfig = {
     @ActivationConfigProperty(propertyName = "destinationLookup",

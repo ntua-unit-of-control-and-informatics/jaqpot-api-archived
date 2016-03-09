@@ -48,7 +48,8 @@ import org.jaqpot.core.service.annotations.Authorize;
 
 /**
  *
- * @author hampos
+ * @author Charalampos Chomenidis
+ * @author Pantelis Sopasakis
  */
 @Path("report")
 @Api(value = "/report", description = "Report API")
