@@ -263,16 +263,18 @@ public class AlgorithmResource {
             @PathParam("id") String algorithmId,
             @HeaderParam("subjectid") String subjectId) throws QuotaExceededException {
 
-        User user = userHandler.find(securityContext.getUserPrincipal().getName());
-        long modelCount = modelHandler.countAllOfCreator(user.getId());
-        int maxAllowedModels = new UserFacade(user).getMaxModels();
+        if (visible != null && visible == true) {
+            User user = userHandler.find(securityContext.getUserPrincipal().getName());
+            long modelCount = modelHandler.countAllOfCreator(user.getId());
+            int maxAllowedModels = new UserFacade(user).getMaxModels();
 
-        if (modelCount > maxAllowedModels) {
-            LOG.info(String.format("User %s has %d algorithms while maximum is %d",
-                    user.getId(), modelCount, maxAllowedModels));
-            throw new QuotaExceededException("Dear " + user.getId()
-                    + ", your quota has been exceeded; you already have " + modelCount + " models. "
-                    + "No more than " + maxAllowedModels + " are allowed with your subscription.");
+            if (modelCount > maxAllowedModels) {
+                LOG.info(String.format("User %s has %d models while maximum is %d",
+                        user.getId(), modelCount, maxAllowedModels));
+                throw new QuotaExceededException("Dear " + user.getId()
+                        + ", your quota has been exceeded; you already have " + modelCount + " models. "
+                        + "No more than " + maxAllowedModels + " are allowed with your subscription.");
+            }
         }
 
         Map<String, Object> options = new HashMap<>();

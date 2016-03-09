@@ -80,22 +80,22 @@ import org.jaqpot.core.service.exceptions.QuotaExceededException;
 @Produces({"application/json", "text/uri-list"})
 @Authorize
 public class DatasetResource {
-
+    
     private static final Logger LOG = Logger.getLogger(DatasetResource.class.getName());
-
+    
     @EJB
     DatasetHandler datasetHandler;
-
+    
     @EJB
     UserHandler userHandler;
     
     @Inject
     @UnSecure
     Client client;
-
+    
     @Context
     SecurityContext securityContext;
-
+    
     @GET
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @ApiOperation(value = "Finds all Datasets",
@@ -129,16 +129,9 @@ public class DatasetResource {
                 .status(Response.Status.OK)
                 .header("total", datasetHandler.countAllOfCreator(creator))
                 .build();
-
+        
     }
-
-//    @GET
-//    @Path("/count")
-//    @Produces(MediaType.TEXT_PLAIN)
-//    @ApiOperation(value = "Counts all datasets", response = Long.class)
-//    public Response countDatasets(@QueryParam("creator") String creator) {
-//        return Response.ok(datasetHandler.countAllOfCreator(creator)).build();
-//    }
+    
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/{id}")
@@ -162,7 +155,7 @@ public class DatasetResource {
         }
         return Response.ok(dataset).build();
     }
-
+    
     @GET
     @Path("/featured")
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
@@ -197,9 +190,9 @@ public class DatasetResource {
                 .status(Response.Status.OK)
                 .header("total", datasetHandler.countFeatured())
                 .build();
-
+        
     }
-
+    
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/{id}/features")
@@ -216,7 +209,7 @@ public class DatasetResource {
         }
         return Response.ok(dataset.getFeatures()).build();
     }
-
+    
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/{id}/meta")
@@ -233,7 +226,7 @@ public class DatasetResource {
         }
         return Response.ok(dataset).build();
     }
-
+    
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces("text/uri-list")
@@ -244,16 +237,18 @@ public class DatasetResource {
             @ApiParam(value = "Authorization token") @HeaderParam("subjectid") String subjectId,
             Dataset dataset) throws URISyntaxException, QuotaExceededException {
         
-        User user = userHandler.find(securityContext.getUserPrincipal().getName());
-        long datasetCount = datasetHandler.countAllOfCreator(user.getId());
-        int maxAllowedDatasets = new UserFacade(user).getMaxDatasets();
-
-        if (datasetCount > maxAllowedDatasets) {
-            LOG.info(String.format("User %s has %d algorithms while maximum is %d",
-                    user.getId(), datasetCount, maxAllowedDatasets));
-            throw new QuotaExceededException("Dear " + user.getId()
-                    + ", your quota has been exceeded; you already have " + datasetCount + " datasets. "
-                    + "No more than " + maxAllowedDatasets + " are allowed with your subscription.");
+        if (dataset.getVisible() != null && dataset.getVisible() == true) {
+            User user = userHandler.find(securityContext.getUserPrincipal().getName());
+            long datasetCount = datasetHandler.countAllOfCreator(user.getId());
+            int maxAllowedDatasets = new UserFacade(user).getMaxDatasets();
+            
+            if (datasetCount > maxAllowedDatasets) {
+                LOG.info(String.format("User %s has %d datasets while maximum is %d",
+                        user.getId(), datasetCount, maxAllowedDatasets));
+                throw new QuotaExceededException("Dear " + user.getId()
+                        + ", your quota has been exceeded; you already have " + datasetCount + " datasets. "
+                        + "No more than " + maxAllowedDatasets + " are allowed with your subscription.");
+            }
         }
         
         ROG randomStringGenerator = new ROG(true);
@@ -264,18 +259,20 @@ public class DatasetResource {
         }
         dataset.getMeta().setCreators(new HashSet<>(Arrays.asList(securityContext.getUserPrincipal().getName())));
         datasetHandler.create(dataset);
-
+        
         return Response.created(new URI(dataset.getId())).entity(dataset).build();
-
+        
     }
-
+    
     @POST
     @Path("/merge")
     @Produces("text/uri-list")
     @ApiOperation(value = "Merges Datasets")
-    public Response mergeDatasets(@FormParam("dataset_uris") String datasetURIs,
+    public Response mergeDatasets(
+            @FormParam("dataset_uris") String datasetURIs,
+            @FormParam("visible") Boolean visible,
             @HeaderParam("subjectid") String subjectId) throws URISyntaxException {
-
+        
         String[] datasets = datasetURIs.split(",");
         Dataset dataset = null;
         for (String datasetURI : datasets) {
@@ -289,12 +286,13 @@ public class DatasetResource {
         ROG randomStringGenerator = new ROG(true);
         dataset.setId(randomStringGenerator.nextString(14));
         dataset.setFeatured(Boolean.FALSE);
+        dataset.setVisible(visible != null ? visible : false);
         datasetHandler.create(dataset);
-
+        
         return Response.created(new URI(dataset.getId())).entity(dataset).build();
-
+        
     }
-
+    
     @DELETE
     @Path("/{id}")
     @ApiOperation("Deletes dataset")

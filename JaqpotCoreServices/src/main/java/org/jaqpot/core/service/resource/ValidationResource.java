@@ -256,7 +256,7 @@ public class ValidationResource {
         int maxAllowedReports = new UserFacade(user).getMaxReports();
 
         if (reportCount > maxAllowedReports) {
-            LOG.info(String.format("User %s has %d algorithms while maximum is %d",
+            LOG.info(String.format("User %s has %d reports while maximum is %d",
                     user.getId(), reportCount, maxAllowedReports));
             throw new QuotaExceededException("Dear " + user.getId()
                     + ", your quota has been exceeded; you already have " + reportCount + " reports. "

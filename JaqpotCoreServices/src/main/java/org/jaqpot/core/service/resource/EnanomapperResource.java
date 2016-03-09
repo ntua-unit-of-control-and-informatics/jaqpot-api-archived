@@ -220,7 +220,7 @@ public class EnanomapperResource {
         int maxAllowedDatasets = new UserFacade(user).getMaxDatasets();
 
         if (datasetCount > maxAllowedDatasets) {
-            LOG.info(String.format("User %s has %d algorithms while maximum is %d",
+            LOG.info(String.format("User %s has %d datasets while maximum is %d",
                     user.getId(), datasetCount, maxAllowedDatasets));
             throw new QuotaExceededException("Dear " + user.getId()
                     + ", your quota has been exceeded; you already have " + datasetCount + " datasets. "

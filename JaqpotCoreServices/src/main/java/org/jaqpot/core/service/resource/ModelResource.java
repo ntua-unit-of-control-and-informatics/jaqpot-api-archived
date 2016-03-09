@@ -378,18 +378,20 @@ public class ModelResource {
             @PathParam("id") String id,
             @HeaderParam("subjectid") String subjectId) throws GeneralSecurityException, QuotaExceededException {
 
-        User user = userHandler.find(securityContext.getUserPrincipal().getName());
-        long datasetCount = datasetHandler.countAllOfCreator(user.getId());
-        int maxAllowedDatasets = new UserFacade(user).getMaxDatasets();
+        if (visible != null && visible == true) {
+            User user = userHandler.find(securityContext.getUserPrincipal().getName());
+            long datasetCount = datasetHandler.countAllOfCreator(user.getId());
+            int maxAllowedDatasets = new UserFacade(user).getMaxDatasets();
 
-        if (datasetCount > maxAllowedDatasets) {
-            LOG.info(String.format("User %s has %d algorithms while maximum is %d",
-                    user.getId(), datasetCount, maxAllowedDatasets));
-            throw new QuotaExceededException("Dear " + user.getId()
-                    + ", your quota has been exceeded; you already have " + datasetCount + " datasets. "
-                    + "No more than " + maxAllowedDatasets + " are allowed with your subscription.");
+            if (datasetCount > maxAllowedDatasets) {
+                LOG.info(String.format("User %s has %d datasets while maximum is %d",
+                        user.getId(), datasetCount, maxAllowedDatasets));
+                throw new QuotaExceededException("Dear " + user.getId()
+                        + ", your quota has been exceeded; you already have " + datasetCount + " datasets. "
+                        + "No more than " + maxAllowedDatasets + " are allowed with your subscription.");
+            }
         }
-
+        
         Model model = modelHandler.find(id);
         if (model == null) {
             throw new NotFoundException("Model not found.");
