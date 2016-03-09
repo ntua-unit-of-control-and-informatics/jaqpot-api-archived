@@ -34,28 +34,32 @@ import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Logger;
 import javax.annotation.Resource;
 import javax.ejb.EJB;
 import javax.inject.Inject;
 import javax.jms.JMSContext;
 import javax.jms.Topic;
 import javax.ws.rs.FormParam;
-import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
+import org.jaqpot.core.data.ReportHandler;
 import org.jaqpot.core.data.TaskHandler;
+import org.jaqpot.core.data.UserHandler;
 import org.jaqpot.core.model.Task;
+import org.jaqpot.core.model.User;
 import org.jaqpot.core.model.builder.MetaInfoBuilder;
+import org.jaqpot.core.model.facades.UserFacade;
 import org.jaqpot.core.model.util.ROG;
 import org.jaqpot.core.service.annotations.Authorize;
+import org.jaqpot.core.service.exceptions.QuotaExceededException;
 
 /**
  *
@@ -68,6 +72,8 @@ import org.jaqpot.core.service.annotations.Authorize;
 @Produces(MediaType.APPLICATION_JSON)
 @Authorize
 public class ValidationResource {
+
+    private static final Logger LOG = Logger.getLogger(ValidationResource.class.getName());
 
     private static final String DEFAULT_ALGORITHM = "{\n"
             + "  \"trainingService\":\"http://z.ch/t/a\",\n"
@@ -95,6 +101,12 @@ public class ValidationResource {
     @EJB
     TaskHandler taskHandler;
 
+    @EJB
+    UserHandler userHandler;
+
+    @EJB
+    ReportHandler reportHandler;
+
     @Context
     SecurityContext securityContext;
 
@@ -117,7 +129,19 @@ public class ValidationResource {
             @FormParam("model_uri") String modelURI,
             @FormParam("test_dataset_uri") String datasetURI,
             @HeaderParam("subjectId") String subjectId
-    ) {
+    ) throws QuotaExceededException {
+
+        User user = userHandler.find(securityContext.getUserPrincipal().getName());
+        long reportCount = reportHandler.countAllOfCreator(user.getId());
+        int maxAllowedReports = new UserFacade(user).getMaxReports();
+
+        if (reportCount > maxAllowedReports) {
+            LOG.info(String.format("User %s has %d algorithms while maximum is %d",
+                    user.getId(), reportCount, maxAllowedReports));
+            throw new QuotaExceededException("Dear " + user.getId()
+                    + ", your quota has been exceeded; you already have " + reportCount + " reports. "
+                    + "No more than " + maxAllowedReports + " are allowed with your subscription.");
+        }
 
         Task task = new Task(new ROG(true).nextString(12));
         task.setMeta(
@@ -164,7 +188,19 @@ public class ValidationResource {
             @FormParam("stratify") String stratify,
             @FormParam("seed") Integer seed,
             @HeaderParam("subjectId") String subjectId
-    ) {
+    ) throws QuotaExceededException {
+        
+        User user = userHandler.find(securityContext.getUserPrincipal().getName());
+        long reportCount = reportHandler.countAllOfCreator(user.getId());
+        int maxAllowedReports = new UserFacade(user).getMaxReports();
+
+        if (reportCount > maxAllowedReports) {
+            LOG.info(String.format("User %s has %d algorithms while maximum is %d",
+                    user.getId(), reportCount, maxAllowedReports));
+            throw new QuotaExceededException("Dear " + user.getId()
+                    + ", your quota has been exceeded; you already have " + reportCount + " reports. "
+                    + "No more than " + maxAllowedReports + " are allowed with your subscription.");
+        }
 
         Task task = new Task(new ROG(true).nextString(12));
         task.setMeta(
@@ -213,7 +249,19 @@ public class ValidationResource {
             @ApiParam(name = "scaling", defaultValue = STANDARIZATION) @FormParam("scaling") String scaling, //, allowableValues = SCALING + "," + STANDARIZATION          
             @FormParam("split_ratio") Double splitRatio,
             @HeaderParam("subjectId") String subjectId
-    ) {
+    ) throws QuotaExceededException {
+        
+        User user = userHandler.find(securityContext.getUserPrincipal().getName());
+        long reportCount = reportHandler.countAllOfCreator(user.getId());
+        int maxAllowedReports = new UserFacade(user).getMaxReports();
+
+        if (reportCount > maxAllowedReports) {
+            LOG.info(String.format("User %s has %d algorithms while maximum is %d",
+                    user.getId(), reportCount, maxAllowedReports));
+            throw new QuotaExceededException("Dear " + user.getId()
+                    + ", your quota has been exceeded; you already have " + reportCount + " reports. "
+                    + "No more than " + maxAllowedReports + " are allowed with your subscription.");
+        }
 
         Task task = new Task(new ROG(true).nextString(12));
         task.setMeta(

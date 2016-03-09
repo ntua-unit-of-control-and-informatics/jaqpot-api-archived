@@ -41,6 +41,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import javax.ejb.EJB;
 import javax.inject.Inject;
@@ -61,16 +62,19 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
+import org.jaqpot.core.data.DatasetHandler;
 import org.jaqpot.core.data.ModelHandler;
-import org.jaqpot.core.model.BibTeX;
-import org.jaqpot.core.model.Feature;
+import org.jaqpot.core.data.UserHandler;
 import org.jaqpot.core.model.Model;
 import org.jaqpot.core.model.Task;
+import org.jaqpot.core.model.User;
 import org.jaqpot.core.model.dto.dataset.FeatureInfo;
+import org.jaqpot.core.model.facades.UserFacade;
 import org.jaqpot.core.model.factory.ErrorReportFactory;
 import org.jaqpot.core.service.annotations.Authorize;
 import org.jaqpot.core.service.annotations.UnSecure;
 import org.jaqpot.core.service.data.PredictionService;
+import org.jaqpot.core.service.exceptions.QuotaExceededException;
 
 /**
  *
@@ -83,6 +87,8 @@ import org.jaqpot.core.service.data.PredictionService;
 @Authorize
 public class ModelResource {
 
+    private static final Logger LOG = Logger.getLogger(ModelResource.class.getName());
+
     private static final String DEFAULT_DATASET = "http://app.jaqpot.org:8080/jaqpot/services/dataset/corona";
 
     @Context
@@ -90,6 +96,12 @@ public class ModelResource {
 
     @EJB
     ModelHandler modelHandler;
+
+    @EJB
+    DatasetHandler datasetHandler;
+
+    @EJB
+    UserHandler userHandler;
 
     @EJB
     PredictionService predictionService;
@@ -161,13 +173,6 @@ public class ModelResource {
                 .build();
     }
 
-//    @GET
-//    @Path("/count")
-//    @Produces(MediaType.TEXT_PLAIN)
-//    @ApiOperation(value = "Count all Models", response = Long.class)
-//    public Response countModels(@QueryParam("creator") String creator) {
-//        return Response.ok(modelHandler.countAllOfCreator(creator)).build();
-//    }
     @GET
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @Path("/{id}")
@@ -371,7 +376,19 @@ public class ModelResource {
             @ApiParam(name = "dataset_uri", defaultValue = DEFAULT_DATASET) @FormParam("dataset_uri") String datasetURI,
             @FormParam("visible") Boolean visible,
             @PathParam("id") String id,
-            @HeaderParam("subjectid") String subjectId) throws GeneralSecurityException {
+            @HeaderParam("subjectid") String subjectId) throws GeneralSecurityException, QuotaExceededException {
+
+        User user = userHandler.find(securityContext.getUserPrincipal().getName());
+        long datasetCount = datasetHandler.countAllOfCreator(user.getId());
+        int maxAllowedDatasets = new UserFacade(user).getMaxDatasets();
+
+        if (datasetCount > maxAllowedDatasets) {
+            LOG.info(String.format("User %s has %d algorithms while maximum is %d",
+                    user.getId(), datasetCount, maxAllowedDatasets));
+            throw new QuotaExceededException("Dear " + user.getId()
+                    + ", your quota has been exceeded; you already have " + datasetCount + " datasets. "
+                    + "No more than " + maxAllowedDatasets + " are allowed with your subscription.");
+        }
 
         Model model = modelHandler.find(id);
         if (model == null) {

@@ -34,7 +34,7 @@ import org.jaqpot.core.model.Feature;
 /**
  *
  * @author Pantelis Sopasakis
- * @author Charalambos Chomenidis
+ * @author Charalampos Chomenidis
  */
 public class FeatureFactory {
 

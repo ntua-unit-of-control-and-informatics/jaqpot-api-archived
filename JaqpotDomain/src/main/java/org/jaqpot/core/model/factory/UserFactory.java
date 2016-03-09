@@ -40,7 +40,7 @@ import org.jaqpot.core.model.builder.UserBuilder;
 /**
  *
  * @author Pantelis Sopasakis
- * @author Charalambos Chomenidis
+ * @author Charalampos Chomenidis
  */
 public class UserFactory {
 
@@ -60,10 +60,12 @@ public class UserFactory {
         return UserBuilder.builder(userName)
                 .setHashedPassword(hashedPassword)
                 .setMaxBibTeX(100)
-                .setMaxModels(100)
-                .setMaxAlgorithms(5)
+                .setMaxModels(20)
+                .setMaxAlgorithms(0)
                 .setMaxParallelTasks(5)
                 .setMaxSubstances(1000)
+                .setMaxDatasets(20)
+                .setMaxReports(20)
                 .setMaxWeeklyPublishedModels(10)
                 .setMaxWeeklyPublishedSubstances(10)
                 .setMaxWeeklyPublishedBibTeX(10)
@@ -74,10 +76,12 @@ public class UserFactory {
     public static User newNormalUser() {
         return UserBuilder.builder((String) null)
                 .setMaxBibTeX(100)
-                .setMaxModels(100)
-                .setMaxAlgorithms(5)
+                .setMaxModels(20)
+                .setMaxAlgorithms(0)
                 .setMaxParallelTasks(5)
                 .setMaxSubstances(1000)
+                .setMaxDatasets(20)
+                .setMaxReports(20)
                 .setMaxWeeklyPublishedModels(10)
                 .setMaxWeeklyPublishedSubstances(10)
                 .setMaxWeeklyPublishedBibTeX(10)

@@ -39,6 +39,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.logging.Logger;
 import javax.ejb.EJB;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
@@ -58,12 +59,16 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import org.jaqpot.core.data.DatasetHandler;
+import org.jaqpot.core.data.UserHandler;
 import org.jaqpot.core.model.MetaInfo;
+import org.jaqpot.core.model.User;
 import org.jaqpot.core.model.dto.dataset.Dataset;
+import org.jaqpot.core.model.facades.UserFacade;
 import org.jaqpot.core.model.factory.DatasetFactory;
 import org.jaqpot.core.model.util.ROG;
 import org.jaqpot.core.service.annotations.Authorize;
 import org.jaqpot.core.service.annotations.UnSecure;
+import org.jaqpot.core.service.exceptions.QuotaExceededException;
 
 /**
  *
@@ -76,9 +81,14 @@ import org.jaqpot.core.service.annotations.UnSecure;
 @Authorize
 public class DatasetResource {
 
+    private static final Logger LOG = Logger.getLogger(DatasetResource.class.getName());
+
     @EJB
     DatasetHandler datasetHandler;
 
+    @EJB
+    UserHandler userHandler;
+    
     @Inject
     @UnSecure
     Client client;
@@ -232,7 +242,20 @@ public class DatasetResource {
             response = Dataset.class)
     public Response createDataset(
             @ApiParam(value = "Authorization token") @HeaderParam("subjectid") String subjectId,
-            Dataset dataset) throws URISyntaxException {
+            Dataset dataset) throws URISyntaxException, QuotaExceededException {
+        
+        User user = userHandler.find(securityContext.getUserPrincipal().getName());
+        long datasetCount = datasetHandler.countAllOfCreator(user.getId());
+        int maxAllowedDatasets = new UserFacade(user).getMaxDatasets();
+
+        if (datasetCount > maxAllowedDatasets) {
+            LOG.info(String.format("User %s has %d algorithms while maximum is %d",
+                    user.getId(), datasetCount, maxAllowedDatasets));
+            throw new QuotaExceededException("Dear " + user.getId()
+                    + ", your quota has been exceeded; you already have " + datasetCount + " datasets. "
+                    + "No more than " + maxAllowedDatasets + " are allowed with your subscription.");
+        }
+        
         ROG randomStringGenerator = new ROG(true);
         dataset.setId(randomStringGenerator.nextString(14));
         dataset.setFeatured(Boolean.FALSE);

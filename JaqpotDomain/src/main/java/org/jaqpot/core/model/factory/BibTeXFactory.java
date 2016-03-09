@@ -35,7 +35,7 @@ import org.jaqpot.core.model.builder.BibTeXBuilder;
 /**
  *
  * @author Pantelis Sopasakis
- * @author Charalambos Chomenidis
+ * @author Charalampos Chomenidis
  */
 public class BibTeXFactory {
 

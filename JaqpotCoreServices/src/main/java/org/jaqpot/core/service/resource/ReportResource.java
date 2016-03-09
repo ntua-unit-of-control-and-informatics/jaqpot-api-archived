@@ -33,8 +33,11 @@ import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
 import javax.ejb.EJB;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -44,6 +47,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import org.jaqpot.core.data.ReportHandler;
+import org.jaqpot.core.model.Report;
 import org.jaqpot.core.service.annotations.Authorize;
 
 /**
@@ -88,7 +92,32 @@ public class ReportResource {
             @ApiParam(value = "Authorization token") @HeaderParam("subjectid") String subjectId,
             @PathParam("id") String id) {
 
+        Report report = reportHandler.find(id);
+        if (report == null) {
+            throw new NotFoundException();
+        }
         return Response.ok(reportHandler.find(id)).build();
+    }
+
+    @DELETE
+    @Path("/{id}")
+    @ApiOperation(value = "Removes Report by id")
+    public Response removeReport(
+            @ApiParam(value = "Authorization token") @HeaderParam("subjectid") String subjectId,
+            @PathParam("id") String id
+    ) {
+        Report report = reportHandler.find(id);
+        if (report == null) {
+            throw new NotFoundException();
+        }
+
+        String userName = securityContext.getUserPrincipal().getName();
+        if (!report.getMeta().getCreators().contains(userName)) {
+            throw new ForbiddenException("You cannot delete a Report that was not created by you.");
+        }
+
+        reportHandler.remove(report);
+        return Response.ok().build();
     }
 
 }

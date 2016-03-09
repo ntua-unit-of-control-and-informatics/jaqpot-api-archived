@@ -38,6 +38,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import javax.ejb.EJB;
 import javax.inject.Inject;
@@ -60,19 +61,23 @@ import javax.ws.rs.core.UriInfo;
 import org.jaqpot.core.annotations.Jackson;
 import org.jaqpot.core.data.DatasetHandler;
 import org.jaqpot.core.data.ModelHandler;
+import org.jaqpot.core.data.UserHandler;
 import org.jaqpot.core.data.serialize.JSONSerializer;
 import org.jaqpot.core.model.Task;
+import org.jaqpot.core.model.User;
 import org.jaqpot.core.model.dto.ambit.AmbitTask;
 import org.jaqpot.core.model.dto.ambit.AmbitTaskArray;
 import org.jaqpot.core.model.dto.ambit.ProtocolCategory;
 import org.jaqpot.core.model.dto.bundle.BundleSubstances;
 import org.jaqpot.core.model.dto.dataset.Dataset;
+import org.jaqpot.core.model.facades.UserFacade;
 import org.jaqpot.core.model.factory.ErrorReportFactory;
 import org.jaqpot.core.service.data.ConjoinerService;
 import org.jaqpot.core.service.data.TrainingService;
 import org.jaqpot.core.service.annotations.Authorize;
 import org.jaqpot.core.service.annotations.UnSecure;
 import org.jaqpot.core.service.data.PredictionService;
+import org.jaqpot.core.service.exceptions.QuotaExceededException;
 
 /**
  *
@@ -84,6 +89,8 @@ import org.jaqpot.core.service.data.PredictionService;
 @Api(value = "/enm", description = "eNM API")
 @Authorize
 public class EnanomapperResource {
+
+    private static final Logger LOG = Logger.getLogger(EnanomapperResource.class.getName());
 
     @EJB
     ConjoinerService conjoinerService;
@@ -99,6 +106,9 @@ public class EnanomapperResource {
 
     @EJB
     DatasetHandler datasetHandler;
+
+    @EJB
+    UserHandler userHandler;
 
     @Context
     UriInfo uriInfo;
@@ -203,7 +213,19 @@ public class EnanomapperResource {
     )
     public Response createDataset(
             @ApiParam(name = "data", defaultValue = DEFAULT_DATASET_DATA) DatasetData datasetData,
-            @HeaderParam("subjectid") String subjectId) {
+            @HeaderParam("subjectid") String subjectId) throws QuotaExceededException {
+
+        User user = userHandler.find(securityContext.getUserPrincipal().getName());
+        long datasetCount = datasetHandler.countAllOfCreator(user.getId());
+        int maxAllowedDatasets = new UserFacade(user).getMaxDatasets();
+
+        if (datasetCount > maxAllowedDatasets) {
+            LOG.info(String.format("User %s has %d algorithms while maximum is %d",
+                    user.getId(), datasetCount, maxAllowedDatasets));
+            throw new QuotaExceededException("Dear " + user.getId()
+                    + ", your quota has been exceeded; you already have " + datasetCount + " datasets. "
+                    + "No more than " + maxAllowedDatasets + " are allowed with your subscription.");
+        }
 
         String bundleURI = datasetData.getBundle();
         if (bundleURI == null || bundleURI.isEmpty()) {

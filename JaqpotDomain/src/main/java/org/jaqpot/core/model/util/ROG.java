@@ -45,7 +45,7 @@ import org.jaqpot.core.model.builder.MetaInfoBuilder;
  * Random Object Generator for testing purposes mainly.
  *
  * @author Pantelis Sopasakis
- * @author Charalambos Chomenidis
+ * @author Charalampos Chomenidis
  */
 public class ROG {
 

@@ -54,6 +54,7 @@ public class UserQuota {
     private Long algorithms;
     private Long datasets;
     private Long bibtex;
+    private Long reports;
 
     public UserQuota() {
     }
@@ -112,6 +113,14 @@ public class UserQuota {
 
     public void setBibtex(Long bibtex) {
         this.bibtex = bibtex;
+    }
+
+    public Long getReports() {
+        return reports;
+    }
+
+    public void setReports(Long reports) {
+        this.reports = reports;
     }
 
 }

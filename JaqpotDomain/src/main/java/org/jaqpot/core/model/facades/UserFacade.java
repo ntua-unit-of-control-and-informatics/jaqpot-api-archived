@@ -36,7 +36,7 @@ import org.jaqpot.core.model.User;
 /**
  *
  * @author Pantelis Sopasakis
- * @author Charalambos Chomenidis
+ * @author Charalampos Chomenidis
  */
 public class UserFacade {
 
@@ -55,9 +55,9 @@ public class UserFacade {
     public User getUser() {
         return user;
     }
-    
-    public int getMaxCapability(String capability){
-        if (capability == null){
+
+    public int getMaxCapability(String capability) {
+        if (capability == null) {
             throw new NullPointerException("You need to provide the name of a capability!");
         }
         int maxCapability = -1;
@@ -69,13 +69,13 @@ public class UserFacade {
         }
         return maxCapability;
     }
-    
-    public int getMaxWeeklyPublicationRate(String capability){
-        if (capability == null){
+
+    public int getMaxWeeklyPublicationRate(String capability) {
+        if (capability == null) {
             throw new NullPointerException("You need to provide the name of a publication rate capability!");
         }
         int maxPublicationRateCapability = -1;
-        if (user.getPublicationRatePerWeek()!= null && user.getPublicationRatePerWeek().containsKey(capability)) {
+        if (user.getPublicationRatePerWeek() != null && user.getPublicationRatePerWeek().containsKey(capability)) {
             Integer maxPublicationRateCapabilityRetrieved = user.getPublicationRatePerWeek().get(capability);
             if (maxPublicationRateCapabilityRetrieved != null) {
                 return (int) maxPublicationRateCapabilityRetrieved;
@@ -84,7 +84,7 @@ public class UserFacade {
         return maxPublicationRateCapability;
     }
 
-    public int getMaxSubstnaces() {        
+    public int getMaxSubstnaces() {
         return getMaxCapability("substances");
     }
 
@@ -93,7 +93,7 @@ public class UserFacade {
     }
 
     public int getMaxDatasets() {
-        return getMaxCapability("datasets");    
+        return getMaxCapability("datasets");
     }
 
     public int getMaxBibTeX() {
@@ -102,6 +102,14 @@ public class UserFacade {
 
     public int getMaxAlgorithms() {
         return getMaxCapability("algorithms");
+    }
+
+    public int getMaxModels() {
+        return getMaxCapability("models");
+    }
+
+    public int getMaxReports() {
+        return getMaxCapability("reports");
     }
 
     public int getMaxPublishedSubstancesPerWeek() {

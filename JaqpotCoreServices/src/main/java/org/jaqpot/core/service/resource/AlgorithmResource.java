@@ -69,6 +69,7 @@ import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
 import org.jaqpot.core.annotations.Jackson;
 import org.jaqpot.core.data.AlgorithmHandler;
+import org.jaqpot.core.data.ModelHandler;
 import org.jaqpot.core.data.UserHandler;
 import org.jaqpot.core.data.serialize.JSONSerializer;
 import org.jaqpot.core.model.Algorithm;
@@ -94,9 +95,9 @@ import org.jaqpot.core.service.exceptions.QuotaExceededException;
 @Produces({"application/json", "text/uri-list"})
 @Authorize
 public class AlgorithmResource {
-    
+
     private static final Logger LOG = Logger.getLogger(AlgorithmResource.class.getName());
-    
+
     private static final String DEFAULT_ALGORITHM = "{\n"
             + "  \"trainingService\":\"http://z.ch/t/a\",\n"
             + "  \"predictionService\":\"http://z.ch/p/b\",\n"
@@ -119,33 +120,36 @@ public class AlgorithmResource {
             SCALING = "http://app.jaqpot.org:8080/jaqpot/services/algorithm/scaling",
             DEFAULT_TRANSFORMATIONS = "http://app.jaqpot.org:8080/jaqpot/services/pmml/corona-standard-transformations",
             STANDARIZATION = "http://app.jaqpot.org:8080/jaqpot/services/algorithm/standarization";
-    
+
     @EJB
     TrainingService trainingService;
-    
+
     @EJB
     AlgorithmHandler algorithmHandler;
-    
+
+    @EJB
+    ModelHandler modelHandler;
+
     @Context
     SecurityContext securityContext;
-    
+
     @Context
     UriInfo uriInfo;
-    
+
     @EJB
     UserHandler userHandler;
-    
+
     @Inject
     @Jackson
     JSONSerializer serializer;
-    
+
     @GET
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @ApiOperation(value = "Finds all Algorithms",
             notes = "Finds all Algorithms JaqpotQuattro supports",
             response = Algorithm.class,
             responseContainer = "List")
-    
+
     public Response getAlgorithms(
             @ApiParam(value = "Authorization token") @HeaderParam("subjectid") String subjectId,
             @ApiParam(value = "class") @QueryParam("class") String ontologicalClass,
@@ -162,7 +166,7 @@ public class AlgorithmResource {
                 .header("total", algorithmHandler.countAll())
                 .build();
     }
-    
+
     @POST
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @ApiOperation(value = "Creates Algorithm",
@@ -181,11 +185,11 @@ public class AlgorithmResource {
             @ApiParam(value = "Short description of your algorithm") @HeaderParam("description") String description,
             @ApiParam(value = "Tags for your algorithm (in a comma separated list) to facilitate look-up") @HeaderParam("tags") String tags
     ) throws QuotaExceededException {
-        
+
         User user = userHandler.find(securityContext.getUserPrincipal().getName());
         long algorithmCount = algorithmHandler.countAllOfCreator(user.getId());
         int maxAllowedAlgorithms = new UserFacade(user).getMaxAlgorithms();
-        
+
         if (algorithmCount > maxAllowedAlgorithms) {
             LOG.info(String.format("User %s has %d algorithms while maximum is %d",
                     user.getId(), algorithmCount, maxAllowedAlgorithms));
@@ -193,14 +197,14 @@ public class AlgorithmResource {
                     + ", your quota has been exceeded; you already have " + algorithmCount + " algorithms. "
                     + "No more than " + maxAllowedAlgorithms + " are allowed with your subscription.");
         }
-        
+
         if (algorithm.getId() == null) {
             ROG rog = new ROG(true);
             algorithm.setId(rog.nextString(10));
         }
-        
+
         AlgorithmBuilder algorithmBuilder = AlgorithmBuilder.builder(algorithm);
-        
+
         if (title != null) {
             algorithmBuilder.addTitles(title);
         }
@@ -221,7 +225,7 @@ public class AlgorithmResource {
                 .header("Location", uriInfo.getBaseUri().toString() + "algorithm/" + algorithm.getId())
                 .entity(algorithm).build();
     }
-    
+
     @GET
     @Path("/{id}")
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
@@ -238,7 +242,7 @@ public class AlgorithmResource {
         }
         return Response.ok(algorithm).build();
     }
-    
+
     @POST
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @Path("/{id}")
@@ -257,7 +261,20 @@ public class AlgorithmResource {
             @ApiParam(name = "doa", defaultValue = DEFAULT_DOA) @FormParam("doa") String doa,
             @FormParam("visible") Boolean visible,
             @PathParam("id") String algorithmId,
-            @HeaderParam("subjectid") String subjectId) {
+            @HeaderParam("subjectid") String subjectId) throws QuotaExceededException {
+
+        User user = userHandler.find(securityContext.getUserPrincipal().getName());
+        long modelCount = modelHandler.countAllOfCreator(user.getId());
+        int maxAllowedModels = new UserFacade(user).getMaxModels();
+
+        if (modelCount > maxAllowedModels) {
+            LOG.info(String.format("User %s has %d algorithms while maximum is %d",
+                    user.getId(), modelCount, maxAllowedModels));
+            throw new QuotaExceededException("Dear " + user.getId()
+                    + ", your quota has been exceeded; you already have " + modelCount + " models. "
+                    + "No more than " + maxAllowedModels + " are allowed with your subscription.");
+        }
+
         Map<String, Object> options = new HashMap<>();
         options.put("title", title != null ? title : "");
         options.put("description", description != null ? description : "");
@@ -269,7 +286,7 @@ public class AlgorithmResource {
         options.put("base_uri", uriInfo.getBaseUri().toString());
         options.put("createdBy", securityContext.getUserPrincipal().getName());
         options.put("visible", visible != null ? visible : false);
-        
+
         Map<String, String> transformationAlgorithms = new LinkedHashMap<>();
         if (transformations != null && !transformations.isEmpty()) {
             transformationAlgorithms.put(uriInfo.getBaseUri().toString() + "algorithm/pmml",
@@ -287,10 +304,10 @@ public class AlgorithmResource {
             options.put("transformations", transformationAlgorithmsString);
         }
         Task task = trainingService.initiateTraining(options, securityContext.getUserPrincipal().getName());
-        
+
         return Response.ok(task).build();
     }
-    
+
     @DELETE
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/{id}")
@@ -308,17 +325,17 @@ public class AlgorithmResource {
             @ApiParam(value = "ID of the algorithm which is to be deleted.", required = true) @PathParam("id") String id,
             @HeaderParam("subjectid") String subjectId) {
         Algorithm algorithm = algorithmHandler.find(id);
-        
+
         String userName = securityContext.getUserPrincipal().getName();
-        
+
         if (!algorithm.getMeta().getCreators().contains(userName)) {
             return Response.status(Response.Status.FORBIDDEN).entity("You cannot delete an Algorithm that was not created by you.").build();
         }
-        
+
         algorithmHandler.remove(new Algorithm(id));
         return Response.ok().build();
     }
-    
+
     @PATCH
     @Path("/{id}")
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
@@ -339,12 +356,12 @@ public class AlgorithmResource {
             @ApiParam(value = "ID of an existing BibTeX.", required = true) @PathParam("id") String id,
             @ApiParam(value = "The patch in JSON according to the RFC 6902 specs", required = true) String patch
     ) throws JsonPatchException, JsonProcessingException {
-        
+
         Algorithm originalAlgorithm = algorithmHandler.find(id); // find doc in DB
         if (originalAlgorithm == null) {
             throw new NotFoundException("Algorithm with ID " + id + " not found.");
         }
-        
+
         Algorithm modifiedAsAlgorithm = serializer.patch(originalAlgorithm, patch, Algorithm.class);
         if (modifiedAsAlgorithm == null) {
             return Response
@@ -352,12 +369,12 @@ public class AlgorithmResource {
                     .entity(ErrorReportFactory.badRequest("Patch cannot be applied because the request is malformed", "Bad patch"))
                     .build();
         }
-        
+
         algorithmHandler.edit(modifiedAsAlgorithm); // update the entry in the DB
 
         return Response
                 .ok(modifiedAsAlgorithm)
                 .build();
     }
-    
+
 }
