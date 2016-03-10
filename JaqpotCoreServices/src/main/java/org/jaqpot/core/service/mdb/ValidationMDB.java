@@ -114,10 +114,15 @@ public class ValidationMDB extends RunningTaskMDB {
 
     @Override
     public void onMessage(Message msg) {
-        Task task = new Task();
+        final Task task;
+        Map<String, Object> messageBody = null;
         try {
-            Map<String, Object> messageBody = msg.getBody(Map.class);
-            task = taskHandler.find(messageBody.get("taskId"));
+            messageBody = msg.getBody(Map.class);
+        } catch (JMSException ex) {
+            Logger.getLogger(ValidationMDB.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        task = taskHandler.find(messageBody.get("taskId"));
+        try {
 
             if (task == null) {
                 throw new NullPointerException("FATAL: Could not find task with id:" + messageBody.get("taskId"));
@@ -205,7 +210,12 @@ public class ValidationMDB extends RunningTaskMDB {
                 String trainDatasetURI = datasetURI + "?rowStart=0&rowMax=" + split;
                 String testDatasetURI = datasetURI + "?rowStart=" + split + "&rowMax=" + (rows - split);
 
+                task.getMeta().getComments().add("Starting train and test with train_dataset:" + trainDatasetURI + " test_dataset:" + testDatasetURI);
+                taskHandler.edit(task);
                 Object[] results = validationService.trainAndTest(algorithmURI, trainDatasetURI, testDatasetURI, predictionFeature, algorithmParams, transformations, scaling, subjectId);
+                task.getMeta().getComments().add("Finished train and test with train_dataset:" + trainDatasetURI + " test_dataset:" + testDatasetURI);
+                taskHandler.edit(task);
+
                 String finalDatasetURI = (String) results[0];
                 String predictedFeature = (String) results[2];
                 Integer indepFeatureSize = (Integer) results[3];
@@ -298,7 +308,12 @@ public class ValidationMDB extends RunningTaskMDB {
                                 .post(Entity.form(params), String.class);
                         c.close();
 
+                        task.getMeta().getComments().add("Starting train and test with train_dataset:" + trainDataset + " test_dataset:" + testDataset);
+                        taskHandler.edit(task);
                         Object[] crossResults = validationService.trainAndTest(algorithmURI, trainDataset, testDataset, predictionFeature, algorithmParams, transformations, scaling, subjectId);
+                        task.getMeta().getComments().add("Finished train and test with train_dataset:" + trainDataset + " test_dataset:" + testDataset);
+                        taskHandler.edit(task);
+                        
                         String finalSubDataset = (String) crossResults[0];
                         resultMap.put(finalSubDataset, crossResults);
                         finalDatasets.add(finalSubDataset);
@@ -448,10 +463,6 @@ public class ValidationMDB extends RunningTaskMDB {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             task.setStatus(Task.Status.ERROR);
             task.setErrorReport(ErrorReportFactory.internalServerError(ex, "", ex.getMessage(), "")); // Application runtime error
-        } catch (JMSException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            task.setStatus(Task.Status.ERROR);
-            task.setErrorReport(ErrorReportFactory.internalServerError(ex, "", ex.getMessage(), ""));
         } catch (NullPointerException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             task.setStatus(Task.Status.ERROR);
