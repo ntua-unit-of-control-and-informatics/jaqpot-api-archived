@@ -266,7 +266,6 @@ public class DatasetResource {
     
     @POST
     @Path("/merge")
-    @Produces("text/uri-list")
     @ApiOperation(value = "Merges Datasets")
     public Response mergeDatasets(
             @FormParam("dataset_uris") String datasetURIs,
