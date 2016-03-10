@@ -90,7 +90,6 @@ import org.jpmml.model.JAXBUtil;
  */
 @Path("pmml")
 @Api(value = "/pmml", description = "PMML API")
-@Authorize
 public class PmmlResource {
     
     @EJB
@@ -167,6 +166,7 @@ public class PmmlResource {
     @ApiOperation(value = "Creates a new PMML entry",
             notes = "Creates a new PMML entry which is assigned a random unique ID",
             response = Pmml.class)
+    @Authorize
     public Response createPMML(
             @ApiParam(value = "Authorization token") @HeaderParam("subjectid") String subjectId,
             @FormParam("features") String featuresString) {
@@ -283,6 +283,7 @@ public class PmmlResource {
         @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)"),
         @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
     })
+    @Authorize
     public Response listPmml(
             @ApiParam(value = "Authorization token") @HeaderParam("subjectid") String subjectId,
             @ApiParam(value = "start", defaultValue = "0") @QueryParam("start") Integer start,
