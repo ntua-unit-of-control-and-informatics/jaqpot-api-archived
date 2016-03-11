@@ -293,7 +293,7 @@ public class ValidationMDB extends RunningTaskMDB {
                 List<String> finalDatasets = new ArrayList<>();
 
                 Map<String, Object[]> resultMap = new HashMap<>();
-                partialDatasets.parallelStream().forEach(testDataset -> {
+                partialDatasets.stream().forEach(testDataset -> {
                     try {
                         String trainDatasets = partialDatasets.stream()
                                 .filter(d -> !d.equals(testDataset))

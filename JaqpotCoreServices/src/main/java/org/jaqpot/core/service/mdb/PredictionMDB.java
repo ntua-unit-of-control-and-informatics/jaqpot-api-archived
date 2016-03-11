@@ -339,7 +339,7 @@ public class PredictionMDB extends RunningTaskMDB {
                             dataset.getFeatures().clear();
                         }
                         row.entrySet()
-                                .parallelStream()
+                                .stream()
                                 .forEach(entry -> {
                                     Feature feature = featureHandler.findByTitleAndSource(entry.getKey(), "algorithm/" + model.getAlgorithm().getId());
                                     if (feature == null) {
