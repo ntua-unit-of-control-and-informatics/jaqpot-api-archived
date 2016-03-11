@@ -78,7 +78,14 @@ public class Leverage {
             Dataset dataset = request.getDataset();
 
             int numOfSubstances = dataset.getDataEntry().size();
-            int numOfFeatures = dataset.getDataEntry().stream().findFirst().get().getValues().size();
+            int numOfFeatures = dataset.getDataEntry().stream()
+                    .findFirst()
+                    .get()
+                    .getValues()
+                    .size();
+            if (request.getPredictionFeature() != null) {
+                numOfFeatures--;
+            }
 
             double[][] dataArray = new double[numOfSubstances][numOfFeatures];
 
