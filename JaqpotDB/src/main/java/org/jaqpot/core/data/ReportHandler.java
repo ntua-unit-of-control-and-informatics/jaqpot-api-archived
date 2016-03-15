@@ -27,53 +27,32 @@
  * All source files of JAQPOT Quattro that are stored on github are licensed
  * with the aforementioned licence. 
  */
-package org.jaqpot.core.model.dto.dataset;
+package org.jaqpot.core.data;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import javax.ejb.Stateless;
+import javax.inject.Inject;
+import org.jaqpot.core.annotations.MongoDB;
+import org.jaqpot.core.db.entitymanager.JaqpotEntityManager;
+import org.jaqpot.core.model.Report;
 
 /**
  *
- * @author Pantelis Sopasakis
  * @author Charalampos Chomenidis
- *
+ * @author Pantelis Sopasakis
  */
-@JsonIgnoreProperties(ignoreUnknown = true)
-public class Substance {
+@Stateless
+public class ReportHandler extends AbstractHandler<Report> {
 
-    String URI;
-    String name;
-    String ownerUUID;
+    @Inject
+    @MongoDB
+    JaqpotEntityManager em;
 
-    @JsonProperty("URI")
-    public String getURI() {
-        return URI;
-    }
-
-    @JsonProperty("URI")
-    public void setURI(String URI) {
-        this.URI = URI;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getOwnerUUID() {
-        return ownerUUID;
-    }
-
-    public void setOwnerUUID(String ownerUUID) {
-        this.ownerUUID = ownerUUID;
+    public ReportHandler() {
+        super(Report.class);
     }
 
     @Override
-    public String toString() {
-        return "Substance{" + "URI=" + URI + '}';
+    protected JaqpotEntityManager getEntityManager() {
+        return em;
     }
-
 }

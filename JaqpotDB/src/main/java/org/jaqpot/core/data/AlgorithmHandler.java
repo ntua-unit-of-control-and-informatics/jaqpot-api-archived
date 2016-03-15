@@ -36,10 +36,8 @@ package org.jaqpot.core.data;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import org.jaqpot.core.annotations.MongoDB;
@@ -48,7 +46,8 @@ import org.jaqpot.core.model.Algorithm;
 
 /**
  *
- * @author hampos
+ * @author Charalampos Chomenidis
+ * @author Pantelis Sopasakis
  */
 @Stateless
 public class AlgorithmHandler extends AbstractHandler<Algorithm> {
@@ -66,12 +65,6 @@ public class AlgorithmHandler extends AbstractHandler<Algorithm> {
         return em;
     }
 
-    public Long countByUser(String userName) {
-        Map<String, Object> properties = new HashMap<>();
-        properties.put("createdBy", userName);
-        return em.count(Algorithm.class, properties);
-    }
-
     public List<Algorithm> findByOntologicalClass(String className, Integer start, Integer max) {
         Map<String, Object> properties = new HashMap<>();
         List<String> classes = new ArrayList<>();
@@ -84,6 +77,15 @@ public class AlgorithmHandler extends AbstractHandler<Algorithm> {
         fields.add("ontologicalClasses");
 
         return em.find(Algorithm.class, properties, fields, start, max);
+    }
+
+    public Long countByOntologicalClass(String className) {
+        Map<String, Object> properties = new HashMap<>();
+        List<String> classes = new ArrayList<>();
+        classes.add(className);
+        properties.put("ontologicalClasses", classes);
+
+        return em.count(Algorithm.class, properties);
     }
 
 }

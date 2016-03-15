@@ -89,11 +89,6 @@ public class TaskBuilder implements EntityBuilder<Task> {
         this.task = other;
     }
 
-    public TaskBuilder setCreatedBy(String createdBy) {
-        task.setCreatedBy(createdBy);
-        return this;
-    }
-
     public TaskBuilder setDuration(long duration) {
         task.setDuration(duration);
         return this;
@@ -134,15 +129,15 @@ public class TaskBuilder implements EntityBuilder<Task> {
      * @return The current modifiable instance of TaskBuilder.
      */
     public TaskBuilder addProgressComments(String... progressComments) {
-        if (progressComments==null){
+        if (progressComments == null) {
             return this;
         }
         initMeta();
         if (task.getMeta().getComments() == null) {
             task.getMeta().setComments(new ArrayList<>(progressComments.length));
         }
-        for (String entry : progressComments){
-            if (entry != null){
+        for (String entry : progressComments) {
+            if (entry != null) {
                 task.getMeta().getComments().add(entry);
             }
         }
@@ -174,7 +169,7 @@ public class TaskBuilder implements EntityBuilder<Task> {
     }
 
     public TaskBuilder setDate(Date date) {
-        if (date==null){
+        if (date == null) {
             return null;
         }
         initMeta();
@@ -194,6 +189,15 @@ public class TaskBuilder implements EntityBuilder<Task> {
             task.getMeta().setTitles(new HashSet<>(titles.length));
         }
         task.getMeta().getTitles().addAll(Arrays.asList(titles));
+        return this;
+    }
+
+    public TaskBuilder addCreators(String... creators) {
+        initMeta();
+        if (task.getMeta().getCreators() == null) {
+            task.getMeta().setCreators(new HashSet<>(creators.length));
+        }
+        task.getMeta().getCreators().addAll(Arrays.asList(creators));
         return this;
     }
 

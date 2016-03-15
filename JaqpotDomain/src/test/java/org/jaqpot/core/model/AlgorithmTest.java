@@ -71,17 +71,14 @@ public class AlgorithmTest {
         Algorithm alg_old = rog.nextAlgorithm();
         
         assertNotNull(alg_old.getBibtex());
-        assertNotNull(alg_old.getCreatedBy());
         assertNotNull(alg_old.getParameters());
         
         Algorithm alg_copied = new Algorithm(alg_old); // Copy-construct!
         
         alg_old.setBibtex(null);
-        alg_old.setCreatedBy(null);
         alg_old.setParameters(null);
         
         assertNotNull(alg_copied.getBibtex());
-        assertNotNull(alg_copied.getCreatedBy());
         assertNotNull(alg_copied.getParameters());
     }
     
@@ -91,17 +88,14 @@ public class AlgorithmTest {
         Algorithm alg_old = rog.nextAlgorithm();
         
         assertNotNull(alg_old.getBibtex());
-        assertNotNull(alg_old.getCreatedBy());
         assertNotNull(alg_old.getParameters());
         
         Algorithm alg_copied = new Algorithm(alg_old); // Copy-construct!
         
         alg_copied.setBibtex(null);
-        alg_copied.setCreatedBy(null);
         alg_copied.setParameters(null);
         
         assertNotNull(alg_old.getBibtex());
-        assertNotNull(alg_old.getCreatedBy());
         assertNotNull(alg_old.getParameters());
     }
     
@@ -118,7 +112,6 @@ public class AlgorithmTest {
               
         assertNotNull(alg_copied);
         assertNotNull(alg_copied.getBibtex());
-        assertNotNull(alg_copied.getCreatedBy());
         assertNotNull(alg_copied.getId());
         assertNotNull(alg_copied.getMeta());
         assertNotNull(alg_copied.getOntologicalClasses());

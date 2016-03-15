@@ -42,7 +42,9 @@ import com.wordnik.swagger.annotations.ApiParam;
 import com.wordnik.swagger.annotations.ApiResponse;
 import com.wordnik.swagger.annotations.ApiResponses;
 import com.wordnik.swagger.jaxrs.PATCH;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -67,9 +69,11 @@ import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
 import org.jaqpot.core.annotations.Jackson;
 import org.jaqpot.core.data.AlgorithmHandler;
+import org.jaqpot.core.data.ModelHandler;
 import org.jaqpot.core.data.UserHandler;
 import org.jaqpot.core.data.serialize.JSONSerializer;
 import org.jaqpot.core.model.Algorithm;
+import org.jaqpot.core.model.MetaInfo;
 import org.jaqpot.core.model.Task;
 import org.jaqpot.core.model.User;
 import org.jaqpot.core.model.builder.AlgorithmBuilder;
@@ -123,6 +127,9 @@ public class AlgorithmResource {
     @EJB
     AlgorithmHandler algorithmHandler;
 
+    @EJB
+    ModelHandler modelHandler;
+
     @Context
     SecurityContext securityContext;
 
@@ -144,16 +151,19 @@ public class AlgorithmResource {
             responseContainer = "List")
 
     public Response getAlgorithms(
+            @ApiParam(value = "Authorization token") @HeaderParam("subjectid") String subjectId,
             @ApiParam(value = "class") @QueryParam("class") String ontologicalClass,
             @ApiParam(value = "start", defaultValue = "0") @QueryParam("start") Integer start,
             @ApiParam(value = "max", defaultValue = "10") @QueryParam("max") Integer max) {
         if (ontologicalClass != null && !ontologicalClass.isEmpty()) {
             return Response
                     .ok(algorithmHandler.findByOntologicalClass(ontologicalClass, start != null ? start : 0, max != null ? max : Integer.MAX_VALUE))
+                    .header("total", algorithmHandler.countByOntologicalClass(ontologicalClass))
                     .build();
         }
         return Response
                 .ok(algorithmHandler.findAll(start != null ? start : 0, max != null ? max : Integer.MAX_VALUE))
+                .header("total", algorithmHandler.countAll())
                 .build();
     }
 
@@ -177,7 +187,7 @@ public class AlgorithmResource {
     ) throws QuotaExceededException {
 
         User user = userHandler.find(securityContext.getUserPrincipal().getName());
-        long algorithmCount = algorithmHandler.countByUser(user.getId());
+        long algorithmCount = algorithmHandler.countAllOfCreator(user.getId());
         int maxAllowedAlgorithms = new UserFacade(user).getMaxAlgorithms();
 
         if (algorithmCount > maxAllowedAlgorithms) {
@@ -193,8 +203,8 @@ public class AlgorithmResource {
             algorithm.setId(rog.nextString(10));
         }
 
-        AlgorithmBuilder algorithmBuilder = AlgorithmBuilder.builder(algorithm)
-                .setCreatedBy(securityContext.getUserPrincipal().getName());
+        AlgorithmBuilder algorithmBuilder = AlgorithmBuilder.builder(algorithm);
+
         if (title != null) {
             algorithmBuilder.addTitles(title);
         }
@@ -205,6 +215,10 @@ public class AlgorithmResource {
             algorithmBuilder.addTagsCSV(tags);
         }
         algorithm = algorithmBuilder.build();
+        if (algorithm.getMeta() == null) {
+            algorithm.setMeta(new MetaInfo());
+        }
+        algorithm.getMeta().setCreators(new HashSet<>(Arrays.asList(securityContext.getUserPrincipal().getName())));
         algorithmHandler.create(algorithm);
         return Response
                 .status(Response.Status.OK)
@@ -219,7 +233,9 @@ public class AlgorithmResource {
             notes = "Finds Algorithm with provided name",
             response = Algorithm.class
     )
-    public Response getAlgorithm(@PathParam("id") String algorithmId) {
+    public Response getAlgorithm(
+            @ApiParam(value = "Authorization token") @HeaderParam("subjectid") String subjectId,
+            @PathParam("id") String algorithmId) {
         Algorithm algorithm = algorithmHandler.find(algorithmId);
         if (algorithm == null) {
             throw new NotFoundException("Could not find Algorithm with id:" + algorithmId);
@@ -241,10 +257,26 @@ public class AlgorithmResource {
             @ApiParam(name = "prediction_feature", defaultValue = DEFAULT_PRED_FEATURE) @FormParam("prediction_feature") String predictionFeature,
             @FormParam("parameters") String parameters,
             @ApiParam(name = "transformations", defaultValue = DEFAULT_TRANSFORMATIONS) @FormParam("transformations") String transformations,
-            @ApiParam(name = "scaling", allowableValues = SCALING + "," + STANDARIZATION) @FormParam("scaling") String scaling,
+            @ApiParam(name = "scaling", defaultValue = STANDARIZATION) @FormParam("scaling") String scaling, //, allowableValues = SCALING + "," + STANDARIZATION
             @ApiParam(name = "doa", defaultValue = DEFAULT_DOA) @FormParam("doa") String doa,
+            @FormParam("visible") Boolean visible,
             @PathParam("id") String algorithmId,
-            @HeaderParam("subjectid") String subjectId) {
+            @HeaderParam("subjectid") String subjectId) throws QuotaExceededException {
+
+        if (visible != null && visible == true) {
+            User user = userHandler.find(securityContext.getUserPrincipal().getName());
+            long modelCount = modelHandler.countAllOfCreator(user.getId());
+            int maxAllowedModels = new UserFacade(user).getMaxModels();
+
+            if (modelCount > maxAllowedModels) {
+                LOG.info(String.format("User %s has %d models while maximum is %d",
+                        user.getId(), modelCount, maxAllowedModels));
+                throw new QuotaExceededException("Dear " + user.getId()
+                        + ", your quota has been exceeded; you already have " + modelCount + " models. "
+                        + "No more than " + maxAllowedModels + " are allowed with your subscription.");
+            }
+        }
+
         Map<String, Object> options = new HashMap<>();
         options.put("title", title != null ? title : "");
         options.put("description", description != null ? description : "");
@@ -255,6 +287,7 @@ public class AlgorithmResource {
         options.put("parameters", parameters);
         options.put("base_uri", uriInfo.getBaseUri().toString());
         options.put("createdBy", securityContext.getUserPrincipal().getName());
+        options.put("visible", visible != null ? visible : false);
 
         Map<String, String> transformationAlgorithms = new LinkedHashMap<>();
         if (transformations != null && !transformations.isEmpty()) {
@@ -291,8 +324,15 @@ public class AlgorithmResource {
         @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
     })
     public Response deleteAlgorithm(
-            @ApiParam(value = "ID of the task which is to be deleted.", required = true) @PathParam("id") String id,
+            @ApiParam(value = "ID of the algorithm which is to be deleted.", required = true) @PathParam("id") String id,
             @HeaderParam("subjectid") String subjectId) {
+        Algorithm algorithm = algorithmHandler.find(id);
+
+        String userName = securityContext.getUserPrincipal().getName();
+
+        if (!algorithm.getMeta().getCreators().contains(userName)) {
+            return Response.status(Response.Status.FORBIDDEN).entity("You cannot delete an Algorithm that was not created by you.").build();
+        }
 
         algorithmHandler.remove(new Algorithm(id));
         return Response.ok().build();

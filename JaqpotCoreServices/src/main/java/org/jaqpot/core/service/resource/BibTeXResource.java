@@ -37,6 +37,8 @@ import com.wordnik.swagger.annotations.ApiParam;
 import com.wordnik.swagger.annotations.ApiResponse;
 import com.wordnik.swagger.annotations.ApiResponses;
 import com.wordnik.swagger.jaxrs.PATCH;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.logging.Logger;
 import javax.ejb.EJB;
 import javax.inject.Inject;
@@ -61,6 +63,7 @@ import org.jaqpot.core.data.BibTeXHandler;
 import org.jaqpot.core.data.serialize.JSONSerializer;
 import org.jaqpot.core.model.BibTeX;
 import org.jaqpot.core.model.ErrorReport;
+import org.jaqpot.core.model.MetaInfo;
 import org.jaqpot.core.model.factory.ErrorReportFactory;
 import org.jaqpot.core.model.util.ROG;
 import org.jaqpot.core.model.validator.BibTeXValidator;
@@ -78,22 +81,22 @@ import org.jaqpot.core.service.exceptions.JaqpotNotAuthorizedException;
 @Api(value = "/bibtex", description = "BibTeX API")
 @Produces({"application/json", "text/uri-list"})
 public class BibTeXResource {
-
+    
     @EJB
     AAService aaService;
-
+    
     @Context
     SecurityContext securityContext;
-
+    
     @Context
     UriInfo uriInfo;
-
+    
     @Inject
     @Jackson
     JSONSerializer serializer;
-
+    
     private static final Logger LOG = Logger.getLogger(BibTeXResource.class.getName());
-
+    
     private static final String DEFAULT_BIBTEX
             = "{\n"
             + "  \"bibType\":\"Article\",\n"
@@ -110,10 +113,10 @@ public class BibTeXResource {
             + "    \"value\": \"foo\"\n "
             + "  }\n"
             + "]";
-
+    
     @EJB
     BibTeXHandler bibtexHandler;
-
+    
     @GET
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @ApiOperation(value = "Finds all BibTeX entries",
@@ -142,7 +145,7 @@ public class BibTeXResource {
                 .status(Response.Status.OK)
                 .build();
     }
-
+    
     @GET
     @Path("/{id}")
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
@@ -166,7 +169,7 @@ public class BibTeXResource {
         }
         return Response.ok(b).build();
     }
-
+    
     @POST
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @Consumes(MediaType.APPLICATION_JSON)
@@ -201,7 +204,6 @@ public class BibTeXResource {
             ROG rog = new ROG(true);
             bib.setId(rog.nextString(10));
         }
-        bib.setCreatedBy(securityContext.getUserPrincipal().getName());
         ErrorReport error = BibTeXValidator.validate(bib);
         if (error != null) {
             return Response
@@ -209,15 +211,19 @@ public class BibTeXResource {
                     .status(Response.Status.BAD_REQUEST)
                     .build();
         }
+        if (bib.getMeta() == null) {
+            bib.setMeta(new MetaInfo());
+        }
+        bib.getMeta().setCreators(new HashSet<>(Arrays.asList(securityContext.getUserPrincipal().getName())));
         bibtexHandler.create(bib);
         return Response
                 .ok(bib)
                 .status(Response.Status.CREATED)
                 .header("Location", uriInfo.getBaseUri().toString() + "bibtex/" + bib.getId())
                 .build();
-
+        
     }
-
+    
     @PUT
     @Path("/{id}")
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
@@ -254,21 +260,21 @@ public class BibTeXResource {
                     .status(Response.Status.BAD_REQUEST)
                     .build();
         }
-
+        
         BibTeX foundBibTeX = bibtexHandler.find(id);
         if (foundBibTeX != null) {
             bibtexHandler.edit(bib);
         } else {
             bibtexHandler.create(bib);
         }
-
+        
         return Response
                 .ok(bib)
                 .status(Response.Status.CREATED)
                 .header("Location", uriInfo.getBaseUri().toString() + "bibtex/" + bib.getId())
                 .build();
     }
-
+    
     @DELETE
     @Path("/{id}")
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
@@ -291,7 +297,7 @@ public class BibTeXResource {
         bibtexHandler.remove(new BibTeX(id));
         return Response.ok().build();
     }
-
+    
     @PATCH
     @Path("/{id}")
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
@@ -313,12 +319,12 @@ public class BibTeXResource {
             @ApiParam(value = "ID of an existing BibTeX.", required = true) @PathParam("id") String id,
             @ApiParam(value = "The patch in JSON according to the RFC 6902 specs", required = true, defaultValue = DEFAULT_BIBTEX_PATCH) String patch
     ) throws JsonPatchException, JsonProcessingException {
-
+        
         BibTeX originalBib = bibtexHandler.find(id); // find doc in DB
         if (originalBib == null) {
             throw new NotFoundException("BibTeX " + id + " not found.");
         }
-
+        
         BibTeX modifiedAsBib = serializer.patch(originalBib, patch, BibTeX.class);
         if (modifiedAsBib == null) {
             return Response
@@ -339,5 +345,5 @@ public class BibTeXResource {
                 .ok(modifiedAsBib)
                 .build();
     }
-
+    
 }

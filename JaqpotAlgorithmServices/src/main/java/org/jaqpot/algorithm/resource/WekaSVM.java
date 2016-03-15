@@ -36,12 +36,10 @@ package org.jaqpot.algorithm.resource;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
@@ -57,9 +55,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import libsvm.svm_model;
 import org.jaqpot.algorithm.model.WekaModel;
-import org.jaqpot.algorithm.pmml.PmmlUtils;
 import org.jaqpot.algorithm.weka.InstanceUtils;
 import org.jaqpot.core.model.dto.jpdi.PredictionRequest;
 import org.jaqpot.core.model.dto.jpdi.PredictionResponse;
@@ -75,7 +71,8 @@ import weka.core.SelectedTag;
 
 /**
  *
- * @author hampos
+ * @author Charalampos Chomenidis
+ * @author Pantelis Sopasakis
  */
 @Path("svm")
 @Consumes(MediaType.APPLICATION_JSON)

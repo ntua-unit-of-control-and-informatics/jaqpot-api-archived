@@ -72,7 +72,6 @@ public class TaskBuilderTest {
         String taskTitle = "Task for Model 2324123";
         Task queuedTask = instance.addProgressComments("Task is queued", "Task is about to start").
                 addTitles(taskTitle).
-                setCreatedBy(taskCreator).
                 setCurrentDate().
                 setDuration(0L).
                 setHttpStatus(202).
@@ -81,7 +80,6 @@ public class TaskBuilderTest {
         assertNotNull(queuedTask);
         assertEquals(Task.Status.QUEUED, queuedTask.getStatus());
         assertNotNull(queuedTask.getMeta());
-        assertEquals(taskCreator, queuedTask.getCreatedBy());
         assertTrue(queuedTask.getMeta().getTitles().contains(taskTitle));
         assertEquals(1, queuedTask.getMeta().getTitles().size());
     }

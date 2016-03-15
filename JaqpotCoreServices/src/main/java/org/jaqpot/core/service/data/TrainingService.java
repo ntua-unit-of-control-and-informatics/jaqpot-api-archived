@@ -83,12 +83,18 @@ public class TrainingService {
                 .addSources("algorithm/" + options.get("algorithmId").toString())
                 .addComments("Training task created")
                 .addDescriptions("Training task using algorithm " + algorithmId)
+                .addCreators(userName)
                 .build());
         task.setType(Task.Type.TRAINING);
-        task.setCreatedBy((String) options.get("createdBy"));
+
         task.setHttpStatus(202);
         task.setStatus(Task.Status.QUEUED);
         options.put("taskId", task.getId());
+        if ((Boolean) options.get("visible")) {
+            task.setVisible(Boolean.TRUE);
+        } else {
+            task.setVisible(Boolean.FALSE);
+        }
         taskHandler.create(task);
         jmsContext.createProducer().setDeliveryDelay(1000).send(trainingQueue, options);
         return task;

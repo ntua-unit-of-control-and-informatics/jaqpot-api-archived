@@ -1,13 +1,38 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ *
+ * JAQPOT Quattro
+ *
+ * JAQPOT Quattro and the components shipped with it (web applications and beans)
+ * are licensed by GPL v3 as specified hereafter. Additional components may ship
+ * with some other licence as will be specified therein.
+ *
+ * Copyright (C) 2014-2015 KinkyDesign (Charalampos Chomenidis, Pantelis Sopasakis)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * 
+ * Source code:
+ * The source code of JAQPOT Quattro is available on github at:
+ * https://github.com/KinkyDesign/JaqpotQuattro
+ * All source files of JAQPOT Quattro that are stored on github are licensed
+ * with the aforementioned licence. 
  */
 package org.jaqpot.core.model.dto.ambit;
 
 /**
  *
- * @author hampos
+ * @author Charalampos Chomenidis
+ * @author Pantelis Sopasakis
  */
 public enum ProtocolCategory {
 
@@ -15,488 +40,488 @@ public enum ProtocolCategory {
      * Phys chem properties
      */
     GI_GENERAL_INFORM_SECTION("P-CHEM") {
-                @Override
-                public String toString() {
-                    return "Appearance";
-                }
-            },
+        @Override
+        public String toString() {
+            return "Appearance";
+        }
+    },
     PC_MELTING_SECTION("P-CHEM") {
-                @Override
-                public String toString() {
-                    return "Melting point / freezing point";
-                }
-            },
+        @Override
+        public String toString() {
+            return "Melting point / freezing point";
+        }
+    },
     PC_BOILING_SECTION("P-CHEM") {
-                @Override
-                public String toString() {
-                    return "Boiling point";
-                }
-            },
+        @Override
+        public String toString() {
+            return "Boiling point";
+        }
+    },
     PC_GRANULOMETRY_SECTION("P-CHEM") {
-                @Override
-                public String toString() {
-                    return "Particle size distribution (Granulometry)";
-                }
-            },
+        @Override
+        public String toString() {
+            return "Particle size distribution (Granulometry)";
+        }
+    },
     PC_VAPOUR_SECTION("P-CHEM") {
-                @Override
-                public String toString() {
-                    return "Vapour pressure";
-                }
-            },
+        @Override
+        public String toString() {
+            return "Vapour pressure";
+        }
+    },
     PC_PARTITION_SECTION("P-CHEM") {
-                @Override
-                public String toString() {
-                    return "Partition coefficient";
-                }
-            },
+        @Override
+        public String toString() {
+            return "Partition coefficient";
+        }
+    },
     PC_WATER_SOL_SECTION("P-CHEM") {
-                @Override
-                public String toString() {
-                    return "Water solubility";
-                }
-            },
+        @Override
+        public String toString() {
+            return "Water solubility";
+        }
+    },
     PC_SOL_ORGANIC_SECTION("P-CHEM") {
-                @Override
-                public String toString() {
-                    return "Solubility in organic solvents";
-                }
-            },
+        @Override
+        public String toString() {
+            return "Solubility in organic solvents";
+        }
+    },
     PC_NON_SATURATED_PH_SECTION("P-CHEM") {
-                @Override
-                public String toString() {
-                    return "pH";
-                }
-            },
+        @Override
+        public String toString() {
+            return "pH";
+        }
+    },
     PC_DISSOCIATION_SECTION("P-CHEM") {
-                @Override
-                public String toString() {
-                    return "Dissociation constant";
-                }
-            },
+        @Override
+        public String toString() {
+            return "Dissociation constant";
+        }
+    },
     PC_UNKNOWN_SECTION("P-CHEM") {
-                @Override
-                public String toString() {
-                    return "Physico chemical properties (other)";
-                }
+        @Override
+        public String toString() {
+            return "Physico chemical properties (other)";
+        }
 
-            },
+    },
     /**
      * Environmental fate
      */
     TO_PHOTOTRANS_AIR_SECTION("ENV FATE") {
-                @Override
-                public String toString() {
-                    return "Phototransformation in Air";
-                }
+        @Override
+        public String toString() {
+            return "Phototransformation in Air";
+        }
 
-            },
+    },
     TO_HYDROLYSIS_SECTION("ENV FATE") {
-                @Override
-                public String toString() {
-                    return "Hydrolysis";
-                }
+        @Override
+        public String toString() {
+            return "Hydrolysis";
+        }
 
-            },
+    },
     TO_BIODEG_WATER_SCREEN_SECTION("ENV FATE") {
-                @Override
-                public String toString() {
-                    return "Biodegradation in water - screening tests";
-                }
+        @Override
+        public String toString() {
+            return "Biodegradation in water - screening tests";
+        }
 
-            },
+    },
     TO_BIODEG_WATER_SIM_SECTION("ENV FATE") {
-                @Override
-                public String toString() {
-                    return "Biodegradation in water and sediment: simulation tests";
-                }
+        @Override
+        public String toString() {
+            return "Biodegradation in water and sediment: simulation tests";
+        }
 
-            },
+    },
     EN_STABILITY_IN_SOIL_SECTION("ENV FATE") {
-                @Override
-                public String toString() {
-                    return "Biodegradation in Soil";
-                }
+        @Override
+        public String toString() {
+            return "Biodegradation in Soil";
+        }
 
-            },
+    },
     EN_BIOACCUMULATION_SECTION("ENV FATE") {
-                @Override
-                public String toString() {
-                    return "Bioaccumulation: aquatic / sediment";
-                }
+        @Override
+        public String toString() {
+            return "Bioaccumulation: aquatic / sediment";
+        }
 
-            },
+    },
     EN_BIOACCU_TERR_SECTION("ENV FATE") {
-                @Override
-                public String toString() {
-                    return "Bioaccumulation: terrestrial";
-                }
+        @Override
+        public String toString() {
+            return "Bioaccumulation: terrestrial";
+        }
 
-            },
+    },
     EN_ADSORPTION_SECTION("ENV FATE") {
-                @Override
-                public String toString() {
-                    return "Adsorption / Desorption";
-                }
+        @Override
+        public String toString() {
+            return "Adsorption / Desorption";
+        }
 
-            },
+    },
     EN_HENRY_LAW_SECTION("ENV FATE") {
-                @Override
-                public String toString() {
-                    return "Henry's Law constant";
-                }
+        @Override
+        public String toString() {
+            return "Henry's Law constant";
+        }
 
-            },
+    },
     /**
      * Toxicity
      */
     TO_ACUTE_ORAL_SECTION("TOX") {
-                @Override
-                public String toString() {
-                    return "Acute toxicity - oral";
-                }
+        @Override
+        public String toString() {
+            return "Acute toxicity - oral";
+        }
 
-            },
+    },
     TO_ACUTE_INHAL_SECTION("TOX") {
-                @Override
-                public String toString() {
-                    return "Acute toxicity - inhalation";
-                }
+        @Override
+        public String toString() {
+            return "Acute toxicity - inhalation";
+        }
 
-            },
+    },
     TO_ACUTE_DERMAL_SECTION("TOX") {
-                @Override
-                public String toString() {
-                    return "Acute toxicity - dermal";
-                }
+        @Override
+        public String toString() {
+            return "Acute toxicity - dermal";
+        }
 
-            },
+    },
     TO_SKIN_IRRITATION_SECTION("TOX") {
-                @Override
-                public String toString() {
-                    return "Skin irritation / Corrosion";
-                }
+        @Override
+        public String toString() {
+            return "Skin irritation / Corrosion";
+        }
 
-            },
+    },
     TO_EYE_IRRITATION_SECTION("TOX") {
-                @Override
-                public String toString() {
-                    return "Eye irritation";
-                }
+        @Override
+        public String toString() {
+            return "Eye irritation";
+        }
 
-            },
+    },
     TO_SENSITIZATION_SECTION("TOX") {
-                @Override
-                public String toString() {
-                    return "Skin sensitisation";
-                }
+        @Override
+        public String toString() {
+            return "Skin sensitisation";
+        }
 
-            },
+    },
     TO_SENSITIZATION_HUMAN_SECTION("TOX") {
-                @Override
-                public String toString() {
-                    return "Skin sensitisation (human)";
-                }
+        @Override
+        public String toString() {
+            return "Skin sensitisation (human)";
+        }
 
-            },
+    },
     TO_SENSITIZATION_INVITRO_SECTION("TOX") {
-                @Override
-                public String toString() {
-                    return "Skin sensitisation (in vitro)";
-                }
+        @Override
+        public String toString() {
+            return "Skin sensitisation (in vitro)";
+        }
 
-            },
+    },
     TO_SENSITIZATION_INCHEMICO_SECTION("TOX") {
-                @Override
-                public String toString() {
-                    return "Skin sensitisation (in chemico)";
-                }
+        @Override
+        public String toString() {
+            return "Skin sensitisation (in chemico)";
+        }
 
-            },
+    },
     TO_REPEATED_ORAL_SECTION("TOX") {
-                @Override
-                public String toString() {
-                    return "Repeated dose toxicity - oral";
-                }
+        @Override
+        public String toString() {
+            return "Repeated dose toxicity - oral";
+        }
 
-            },
+    },
     TO_REPEATED_INHAL_SECTION("TOX") {
-                @Override
-                public String toString() {
-                    return "Repeated dose toxicity - inhalation";
-                }
+        @Override
+        public String toString() {
+            return "Repeated dose toxicity - inhalation";
+        }
 
-            },
+    },
     TO_REPEATED_DERMAL_SECTION("TOX") {
-                @Override
-                public String toString() {
-                    return "Repeated dose toxicity - dermal";
-                }
+        @Override
+        public String toString() {
+            return "Repeated dose toxicity - dermal";
+        }
 
-            },
+    },
     TO_GENETIC_IN_VITRO_SECTION("TOX") {
-                @Override
-                public String toString() {
-                    return "Genetic toxicity in vitro";
-                }
+        @Override
+        public String toString() {
+            return "Genetic toxicity in vitro";
+        }
 
-            },
+    },
     TO_GENETIC_IN_VIVO_SECTION("TOX") {
-                @Override
-                public String toString() {
-                    return "Genetic toxicity in vivo";
-                }
+        @Override
+        public String toString() {
+            return "Genetic toxicity in vivo";
+        }
 
-            },
+    },
     TO_CARCINOGENICITY_SECTION("TOX") {
-                @Override
-                public String toString() {
-                    return "Carcinogenicity";
-                }
+        @Override
+        public String toString() {
+            return "Carcinogenicity";
+        }
 
-            },
+    },
     TO_REPRODUCTION_SECTION("TOX") {
-                @Override
-                public String toString() {
-                    return "Toxicity to reproduction";
-                }
+        @Override
+        public String toString() {
+            return "Toxicity to reproduction";
+        }
 
-            },
+    },
     TO_DEVELOPMENTAL_SECTION("TOX") {
-                @Override
-                public String toString() {
-                    return "Developmental toxicity / teratogenicity";
-                }
+        @Override
+        public String toString() {
+            return "Developmental toxicity / teratogenicity";
+        }
 
-            },
+    },
     /**
      * Ecotoxicity
      */
     EC_FISHTOX_SECTION("ECOTOX") {
-                @Override
-                public String toString() {
-                    return "Short-term toxicity to fish";
-                }
+        @Override
+        public String toString() {
+            return "Short-term toxicity to fish";
+        }
 
-            },
+    },
     EC_CHRONFISHTOX_SECTION("ECOTOX") {
-                @Override
-                public String toString() {
-                    return "Long-term toxicity to fish";
-                }
+        @Override
+        public String toString() {
+            return "Long-term toxicity to fish";
+        }
 
-            },
+    },
     EC_DAPHNIATOX_SECTION("ECOTOX") {
-                @Override
-                public String toString() {
-                    return "Short-term toxicity to aquatic inverterbrates";
-                }
+        @Override
+        public String toString() {
+            return "Short-term toxicity to aquatic inverterbrates";
+        }
 
-            },
+    },
     EC_CHRONDAPHNIATOX_SECTION("ECOTOX") {
-                @Override
-                public String toString() {
-                    return "Long-term toxicity to aquatic inverterbrates";
-                }
+        @Override
+        public String toString() {
+            return "Long-term toxicity to aquatic inverterbrates";
+        }
 
-            },
+    },
     EC_ALGAETOX_SECTION("ECOTOX") {
-                @Override
-                public String toString() {
-                    return "Toxicity to aquatic algae and cyanobacteria";
-                }
+        @Override
+        public String toString() {
+            return "Toxicity to aquatic algae and cyanobacteria";
+        }
 
-            },
+    },
     EC_BACTOX_SECTION("ECOTOX") {
-                @Override
-                public String toString() {
-                    return "Toxicity to microorganisms";
-                }
+        @Override
+        public String toString() {
+            return "Toxicity to microorganisms";
+        }
 
-            },
+    },
     EC_SEDIMENTDWELLINGTOX_SECTION("ECOTOX") {
-                @Override
-                public String toString() {
-                    return "Sediment toxicity";
-                }
+        @Override
+        public String toString() {
+            return "Sediment toxicity";
+        }
 
-            },
+    },
     EC_SOILDWELLINGTOX_SECTION("ECOTOX") {
-                @Override
-                public String toString() {
-                    return "Toxicity to soil macroorganisms";
-                }
+        @Override
+        public String toString() {
+            return "Toxicity to soil macroorganisms";
+        }
 
-            },
+    },
     EC_HONEYBEESTOX_SECTION("ECOTOX") {
-                @Override
-                public String toString() {
-                    return "Toxicity to terrestrial arthropods";
-                }
+        @Override
+        public String toString() {
+            return "Toxicity to terrestrial arthropods";
+        }
 
-            },
+    },
     EC_PLANTTOX_SECTION("ECOTOX") {
-                @Override
-                public String toString() {
-                    return "Toxicity to terrestrial plants";
-                }
+        @Override
+        public String toString() {
+            return "Toxicity to terrestrial plants";
+        }
 
-            },
+    },
     EC_SOIL_MICRO_TOX_SECTION("ECOTOX") {
-                @Override
-                public String toString() {
-                    return "Toxicity to soil microorganisms";
-                }
+        @Override
+        public String toString() {
+            return "Toxicity to soil microorganisms";
+        }
 
-            },
+    },
     AGGLOMERATION_AGGREGATION_SECTION("P-CHEM") {
-                @Override
-                public String toString() {
-                    return "Nanomaterial agglomeration/aggregation";
-                }
+        @Override
+        public String toString() {
+            return "Nanomaterial agglomeration/aggregation";
+        }
 
-            },
+    },
     CRYSTALLINE_PHASE_SECTION("P-CHEM") {
-                @Override
-                public String toString() {
-                    return "Nanomaterial crystalline phase";
-                }
+        @Override
+        public String toString() {
+            return "Nanomaterial crystalline phase";
+        }
 
-            },
+    },
     CRYSTALLITE_AND_GRAIN_SIZE_SECTION("P-CHEM") {
-                @Override
-                public String toString() {
-                    return "Nanomaterial crystallite and grain size";
-                }
+        @Override
+        public String toString() {
+            return "Nanomaterial crystallite and grain size";
+        }
 
-            },
+    },
     ASPECT_RATIO_SHAPE_SECTION("P-CHEM") {
-                @Override
-                public String toString() {
-                    return "Nanomaterial aspect ratio/shape";
-                }
+        @Override
+        public String toString() {
+            return "Nanomaterial aspect ratio/shape";
+        }
 
-            },
+    },
     SPECIFIC_SURFACE_AREA_SECTION("P-CHEM") {
-                @Override
-                public String toString() {
-                    return "Nanomaterial specific surface area";
-                }
+        @Override
+        public String toString() {
+            return "Nanomaterial specific surface area";
+        }
 
-            },
+    },
     ZETA_POTENTIAL_SECTION("P-CHEM") {
-                @Override
-                public String toString() {
-                    return "Nanomaterial zeta potential";
-                }
+        @Override
+        public String toString() {
+            return "Nanomaterial zeta potential";
+        }
 
-            },
+    },
     SURFACE_CHEMISTRY_SECTION("P-CHEM") {
-                @Override
-                public String toString() {
-                    return "Nanomaterial surface chemistry";
-                }
+        @Override
+        public String toString() {
+            return "Nanomaterial surface chemistry";
+        }
 
-            },
+    },
     DUSTINESS_SECTION("P-CHEM") {
-                @Override
-                public String toString() {
-                    return "Nanomaterial dustiness";
-                }
+        @Override
+        public String toString() {
+            return "Nanomaterial dustiness";
+        }
 
-            },
+    },
     POROSITY_SECTION("P-CHEM") {
-                @Override
-                public String toString() {
-                    return "Nanomaterial porosity";
-                }
+        @Override
+        public String toString() {
+            return "Nanomaterial porosity";
+        }
 
-            },
+    },
     POUR_DENSITY_SECTION("P-CHEM") {
-                @Override
-                public String toString() {
-                    return "Nanomaterial pour density";
-                }
+        @Override
+        public String toString() {
+            return "Nanomaterial pour density";
+        }
 
-            },
+    },
     PHOTOCATALYTIC_ACTIVITY_SECTION("P-CHEM") {
-                @Override
-                public String toString() {
-                    return "Nanomaterial photocatalytic activity";
-                }
+        @Override
+        public String toString() {
+            return "Nanomaterial photocatalytic activity";
+        }
 
-            },
+    },
     CATALYTIC_ACTIVITY_SECTION("P-CHEM") {
-                @Override
-                public String toString() {
-                    return "Nanomaterial catalytic activity";
-                }
+        @Override
+        public String toString() {
+            return "Nanomaterial catalytic activity";
+        }
 
-            },
+    },
     UNKNOWN_TOXICITY_SECTION("TOX") {
-                @Override
-                public String toString() {
-                    return "Unclassified toxicity";
-                }
+        @Override
+        public String toString() {
+            return "Unclassified toxicity";
+        }
 
-            },
+    },
     PUBCHEM_CONFIRMATORY_SECTION("TOX"),
     PUBCHEM_SUMMARY_SECTION("TOX"),
     PUBCHEM_SCREENING_SECTION("TOX"),
     PUBCHEM_DOSERESPONSE_SECTION("TOX"),
     PUBCHEM_PANEL_SECTION("TOX"),
     PROTEOMICS_SECTION("TOX") {
-                @Override
-                public String toString() {
-                    return "Proteomics";
-                }
+        @Override
+        public String toString() {
+            return "Proteomics";
+        }
 
-            },
+    },
     BAO_0003009_SECTION("TOX") {
-                @Override
-                public String toString() {
-                    return "Cell Viability Assay";
-                }
+        @Override
+        public String toString() {
+            return "Cell Viability Assay";
+        }
 
-            },
+    },
     BAO_0002993_SECTION("TOX") {
-                @Override
-                public String toString() {
-                    return "Cytotoxicity Assay";
-                }
+        @Override
+        public String toString() {
+            return "Cytotoxicity Assay";
+        }
 
-            },
+    },
     BAO_0002100_SECTION("TOX") {
-                @Override
-                public String toString() {
-                    return "Cell Growth Assay";
-                }
+        @Override
+        public String toString() {
+            return "Cell Growth Assay";
+        }
 
-            },
+    },
     BAO_0002167_SECTION("TOX") {
-                // to be merged with genotox
-                @Override
-                public String toString() {
-                    return "Genotoxicity Assay";
-                }
+        // to be merged with genotox
+        @Override
+        public String toString() {
+            return "Genotoxicity Assay";
+        }
 
-            },
+    },
     BAO_0002168_SECTION("TOX") {
-                // to be merged with I5 category
-                @Override
-                public String toString() {
-                    return "Oxidative Stress Assay";
-                }
+        // to be merged with I5 category
+        @Override
+        public String toString() {
+            return "Oxidative Stress Assay";
+        }
 
-            },
+    },
     BAO_0002189_SECTION("TOX") {
-                // to be merged with I5 category
-                @Override
-                public String toString() {
-                    return "Toxicity Assay";
-                }
+        // to be merged with I5 category
+        @Override
+        public String toString() {
+            return "Toxicity Assay";
+        }
 
-            },
+    },
     // Toxcast - BAO
     CELL_CYCLE("TOX"),
     CELL_DEATH("TOX"),
@@ -509,7 +534,8 @@ public enum ProtocolCategory {
     REGULATION_OF_CATALYTIC_ACTIVITY("TOX"),
     REGULATION_OF_GENE_EXPRESSION("TOX"),
     REGULATION_OF_TRANSCRIPTION_FACTOR_ACTIVITY("TOX"),
-    NA("TOX");
+    NA("TOX"),
+    BAO_0000015_SECTION("TOX");
 
     private final String topCategory;
 

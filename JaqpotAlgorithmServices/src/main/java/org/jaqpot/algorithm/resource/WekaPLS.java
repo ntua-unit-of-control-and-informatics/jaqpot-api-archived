@@ -68,11 +68,11 @@ import weka.classifiers.functions.PLSClassifier;
 import weka.core.Attribute;
 import weka.core.Instance;
 import weka.core.Instances;
-import weka.filters.supervised.attribute.PLSFilter;
 
 /**
  *
- * @author hampos
+ * @author Charalampos Chomenidis
+ * @author Pantelis Sopasakis
  */
 @Path("pls")
 @Consumes(MediaType.APPLICATION_JSON)

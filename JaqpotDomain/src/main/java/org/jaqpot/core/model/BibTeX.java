@@ -60,7 +60,6 @@ public class BibTeX extends JaqpotEntity {
         this.bookTitle = other.bookTitle;
         this.chapter = other.chapter;
         this.copyright = other.copyright;
-        this.createdBy = other.createdBy;
         this.crossref = other.crossref;
         this.edition = other.edition;
         this.editor = other.editor;
@@ -250,7 +249,6 @@ public class BibTeX extends JaqpotEntity {
      */
     private String url;
     private BibTYPE bibType;
-    private String createdBy;
     /**
      * The publisher's name.
      */
@@ -456,14 +454,6 @@ public class BibTeX extends JaqpotEntity {
 
     public void setBibType(BibTYPE bibType) {
         this.bibType = bibType;
-    }
-
-    public String getCreatedBy() {
-        return createdBy;
-    }
-
-    public void setCreatedBy(String createdBy) {
-        this.createdBy = createdBy;
     }
 
 }

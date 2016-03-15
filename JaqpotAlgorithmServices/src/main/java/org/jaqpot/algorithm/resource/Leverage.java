@@ -46,6 +46,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -62,7 +63,8 @@ import org.jaqpot.core.model.factory.ErrorReportFactory;
 
 /**
  *
- * @author hampos
+ * @author Charalampos Chomenidis
+ * @author Pantelis Sopasakis
  */
 @Path("leverage")
 @Consumes(MediaType.APPLICATION_JSON)
@@ -76,7 +78,14 @@ public class Leverage {
             Dataset dataset = request.getDataset();
 
             int numOfSubstances = dataset.getDataEntry().size();
-            int numOfFeatures = dataset.getDataEntry().stream().findFirst().get().getValues().size();
+            int numOfFeatures = dataset.getDataEntry().stream()
+                    .findFirst()
+                    .get()
+                    .getValues()
+                    .size();
+            if (request.getPredictionFeature() != null) {
+                numOfFeatures--;
+            }
 
             double[][] dataArray = new double[numOfSubstances][numOfFeatures];
 
@@ -86,6 +95,7 @@ public class Leverage {
                         .getValues()
                         .entrySet()
                         .stream()
+                        .filter(e -> !e.getKey().equals(request.getPredictionFeature()))
                         .mapToDouble(entry -> {
                             return Double.parseDouble(entry.getValue().toString());
                         }).toArray();
@@ -104,7 +114,11 @@ public class Leverage {
             out.writeObject(model);
             String base64Model = Base64.getEncoder().encodeToString(baos.toByteArray());
             response.setRawModel(base64Model);
-            response.setIndependentFeatures(new ArrayList<>(dataset.getDataEntry().get(0).getValues().keySet()));
+            response.setIndependentFeatures(dataset.getDataEntry().get(0).getValues()
+                    .keySet()
+                    .stream()
+                    .filter(e -> !e.equals(request.getPredictionFeature()))
+                    .collect(Collectors.toList()));
             response.setPredictedFeatures(Arrays.asList("Leverage DoA"));
             return Response.ok(response).build();
         } catch (IOException ex) {

@@ -18,22 +18,22 @@ import static org.junit.Assert.*;
  * @author chung
  */
 public class TaskFactoryTest {
-    
+
     public TaskFactoryTest() {
     }
-    
+
     @BeforeClass
     public static void setUpClass() {
     }
-    
+
     @AfterClass
     public static void tearDownClass() {
     }
-    
+
     @Before
     public void setUp() {
     }
-    
+
     @After
     public void tearDown() {
     }
@@ -42,13 +42,12 @@ public class TaskFactoryTest {
     public void testQueuedTask() {
         System.out.println("queuedTask");
         String title = "myTitle";
-        String descirption="what a nice task";
+        String descirption = "what a nice task";
         String creator = "someuser";
         Task t = TaskFactory.queuedTask(title, descirption, creator);
-        assertEquals(201, (int)t.getHttpStatus());
-        assertEquals(creator, t.getCreatedBy());
+        assertEquals(201, (int) t.getHttpStatus());
         assertNotNull(t.getId());
         assertEquals(Task.Status.QUEUED, t.getStatus());
     }
-    
+
 }

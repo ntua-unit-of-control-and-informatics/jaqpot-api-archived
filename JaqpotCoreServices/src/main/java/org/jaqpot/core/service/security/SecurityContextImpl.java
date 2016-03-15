@@ -39,7 +39,8 @@ import javax.ws.rs.core.SecurityContext;
 
 /**
  *
- * @author hampos
+ * @author Charalampos Chomenidis
+ * @author Pantelis Sopasakis
  */
 public class SecurityContextImpl implements SecurityContext {
 

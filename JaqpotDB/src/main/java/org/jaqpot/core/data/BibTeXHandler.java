@@ -70,10 +70,4 @@ public class BibTeXHandler extends AbstractHandler<BibTeX> {
         return getEntityManager().findAll(BibTeX.class, fields, start, max);
     }
 
-    public Long countByUser(String userName) {
-        Map<String, Object> properties = new HashMap<>();
-        properties.put("createdBy", userName);
-        return em.count(BibTeX.class, properties);
-    }
-
 }

@@ -39,6 +39,7 @@ public class Category {
 
     private String code;
     private String title;
+    private String term;
 
     public String getCode() {
         return this.code;
@@ -54,6 +55,14 @@ public class Category {
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public String getTerm() {
+        return term;
+    }
+
+    public void setTerm(String term) {
+        this.term = term;
     }
 
 }

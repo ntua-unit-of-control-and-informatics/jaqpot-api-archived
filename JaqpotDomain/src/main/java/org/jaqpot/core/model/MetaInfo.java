@@ -60,6 +60,7 @@ public class MetaInfo {
     private Set<String> sameAs;
     private Set<String> seeAlso;
     private Set<String> hasSources;
+    private Set<String> doi;
     private Date date;
 
     public MetaInfo(MetaInfo other) {
@@ -80,7 +81,7 @@ public class MetaInfo {
         this.subjects = other.subjects != null ? new HashSet<>(other.subjects) : null;
         this.titles = other.titles != null ? new HashSet<>(other.titles) : null;
         this.date = other.date != null ? (Date) other.date.clone() : null;
-
+        this.doi = other.doi != null ? new HashSet<>(other.doi) : null;
     }
 
     public MetaInfo() {
@@ -196,6 +197,14 @@ public class MetaInfo {
 
     public void setDate(Date date) {
         this.date = date;
+    }
+
+    public Set<String> getDoi() {
+        return doi;
+    }
+
+    public void setDoi(Set<String> doi) {
+        this.doi = doi;
     }
 
 }

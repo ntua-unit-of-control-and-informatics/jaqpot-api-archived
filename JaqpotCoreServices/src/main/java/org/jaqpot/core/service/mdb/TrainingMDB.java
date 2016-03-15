@@ -37,9 +37,11 @@ package org.jaqpot.core.service.mdb;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ejb.ActivationConfigProperty;
@@ -114,6 +116,10 @@ public class TrainingMDB extends RunningTaskMDB {
 
     long DOA_TASK_MAX_WAITING_TIME = 45; // 45s
 
+    private final Set<String> intermediateDatasets = new HashSet<>();
+
+    String subjectId;
+
     @Override
     public void onMessage(Message msg) {
         Task task = new Task();
@@ -144,6 +150,8 @@ public class TrainingMDB extends RunningTaskMDB {
             taskHandler.edit(task);
 
             String dataset_uri = (String) messageBody.get("dataset_uri");
+            subjectId = (String) messageBody.get("subjectid");
+
             List<String> transformationModels = new ArrayList<>();
             List<String> linkedModels = new ArrayList<>();
 
@@ -160,7 +168,7 @@ public class TrainingMDB extends RunningTaskMDB {
                 for (String transformationAlgorithmURI : transformations.keySet()) {
                     Algorithm algorithm = client.target(transformationAlgorithmURI)
                             .request()
-                            .header("subjectid", messageBody.get("subjectid"))
+                            .header("subjectid", subjectId)
                             .accept(MediaType.APPLICATION_JSON)
                             .get(Algorithm.class);
                     algorithm.setId(transformationAlgorithmURI);
@@ -177,15 +185,18 @@ public class TrainingMDB extends RunningTaskMDB {
                     taskHandler.edit(task);
 
                     MultivaluedMap<String, String> formMap = new MultivaluedHashMap<>();
-                    messageBody.entrySet().forEach(entry -> {
-                        formMap.put(entry.getKey(), Arrays.asList((String) entry.getValue()));
-                    });
+                    messageBody.entrySet().stream()
+                            .filter(e -> !e.getKey().equals("visible"))
+                            .filter(e -> e.getValue() != null)
+                            .forEach(entry -> {
+                                formMap.put(entry.getKey(), Arrays.asList(entry.getValue().toString()));
+                            });
                     formMap.remove("transformations");
                     formMap.put("parameters", Arrays.asList(transformations.get(algorithm.getId())));
                     formMap.put("dataset_uri", Arrays.asList(dataset_uri));
                     Task trainTask = client.target(algorithm.getId())
                             .request()
-                            .header("subjectid", messageBody.get("subjectid"))
+                            .header("subjectid", subjectId)
                             .accept(MediaType.APPLICATION_JSON)
                             .post(Entity.form(formMap), Task.class);
                     String trainTaskURI = algorithm.getId().split("algorithm")[0] + "task/" + trainTask.getId();
@@ -200,7 +211,7 @@ public class TrainingMDB extends RunningTaskMDB {
                         }
                         trainTask = client.target(trainTaskURI)
                                 .request()
-                                .header("subjectid", messageBody.get("subjectid"))
+                                .header("subjectid", subjectId)
                                 .accept(MediaType.APPLICATION_JSON)
                                 .get(Task.class);
                     }
@@ -216,7 +227,7 @@ public class TrainingMDB extends RunningTaskMDB {
                     formMap.put("dataset_uri", Arrays.asList(dataset_uri));
                     Task predictionTask = client.target(trainTask.getResultUri())
                             .request()
-                            .header("subjectid", messageBody.get("subjectid"))
+                            .header("subjectid", subjectId)
                             .accept(MediaType.APPLICATION_JSON)
                             .post(Entity.form(formMap), Task.class);
                     String predictionTaskURI = trainTask.getResultUri().split("model")[0] + "task/" + predictionTask.getId();
@@ -231,7 +242,7 @@ public class TrainingMDB extends RunningTaskMDB {
                         }
                         predictionTask = client.target(predictionTaskURI)
                                 .request()
-                                .header("subjectid", messageBody.get("subjectid"))
+                                .header("subjectid", subjectId)
                                 .accept(MediaType.APPLICATION_JSON)
                                 .get(Task.class);
                     }
@@ -239,6 +250,7 @@ public class TrainingMDB extends RunningTaskMDB {
                         dataset_uri = predictionTask.getResultUri();
                         task.getMeta().getComments().add("Transformed dataset created successfully:" + predictionTask.getResultUri());
                         taskHandler.edit(task);
+                        intermediateDatasets.add(dataset_uri);
                     } else {
                         task.getMeta().getComments().add("Transformation task failed.");
                         throw new JaqpotWebException(predictionTask.getErrorReport());
@@ -252,15 +264,18 @@ public class TrainingMDB extends RunningTaskMDB {
                     taskHandler.edit(task);
 
                     MultivaluedMap<String, String> formMap = new MultivaluedHashMap<>();
-                    messageBody.entrySet().forEach(entry -> {
-                        formMap.put(entry.getKey(), Arrays.asList((String) entry.getValue()));
-                    });
+                    messageBody.entrySet().stream()
+                            .filter(e -> !e.getKey().equals("visible"))
+                            .filter(e -> e.getValue() != null)
+                            .forEach(entry -> {
+                                formMap.put(entry.getKey(), Arrays.asList(entry.getValue().toString()));
+                            });
                     formMap.remove("transformations");
                     formMap.put("parameters", Arrays.asList(transformations.get(algorithm.getId())));
                     formMap.put("dataset_uri", Arrays.asList(dataset_uri));
                     Task trainTask = client.target(algorithm.getId())
                             .request()
-                            .header("subjectid", messageBody.get("subjectid"))
+                            .header("subjectid", subjectId)
                             .accept(MediaType.APPLICATION_JSON)
                             .post(Entity.form(formMap), Task.class);
                     String trainTaskURI = algorithm.getId().split("algorithm")[0] + "task/" + trainTask.getId();
@@ -275,7 +290,7 @@ public class TrainingMDB extends RunningTaskMDB {
                         }
                         trainTask = client.target(trainTaskURI)
                                 .request()
-                                .header("subjectid", messageBody.get("subjectid"))
+                                .header("subjectid", subjectId)
                                 .accept(MediaType.APPLICATION_JSON)
                                 .get(Task.class);
                     }
@@ -290,19 +305,21 @@ public class TrainingMDB extends RunningTaskMDB {
                 }
             }
             task.getMeta().getComments().add("--");
-            task.getMeta().getComments().add("Training dataset URI is:" + dataset_uri);
-            task.getMeta().getComments().add("Attempting to download dataset...");
-            task.setPercentageCompleted(12.f);
-            taskHandler.edit(task);
-            Dataset dataset = client.target(dataset_uri)
-                    .request()
-                    .header("subjectid", messageBody.get("subjectid"))
-                    .accept(MediaType.APPLICATION_JSON)
-                    .get(Dataset.class);
-            dataset.setDatasetURI(dataset_uri);
+            Dataset dataset = null;
+            if (dataset_uri != null && !dataset_uri.isEmpty()) {
+                task.getMeta().getComments().add("Training dataset URI is:" + dataset_uri);
+                task.getMeta().getComments().add("Attempting to download dataset...");
+                task.setPercentageCompleted(12.f);
+                taskHandler.edit(task);
+                dataset = client.target(dataset_uri)
+                        .request()
+                        .header("subjectid", subjectId)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .get(Dataset.class);
+                dataset.setDatasetURI(dataset_uri);
 
-            task.getMeta().getComments().add("Dataset has been retrieved.");
-
+                task.getMeta().getComments().add("Dataset has been retrieved.");
+            }
             task.getMeta().getComments().add("Creating JPDI training request...");
             task.setPercentageCompleted(20.f);
             taskHandler.edit(task);
@@ -360,7 +377,7 @@ public class TrainingMDB extends RunningTaskMDB {
                     throw new JaqpotWebException(ErrorReportFactory.internalServerError("500", responseString, responseString));
                 }
             }
-            System.out.println(responseString);
+//            System.out.println(responseString);
 
             task.getMeta().getComments().add("Attempting to parse response...");
             task.setPercentageCompleted(71.f);
@@ -383,6 +400,7 @@ public class TrainingMDB extends RunningTaskMDB {
             model.setIndependentFeatures(trainingResponse.getIndependentFeatures());
             model.setDatasetUri((String) messageBody.get("dataset_uri"));
             model.setAdditionalInfo(trainingResponse.getAdditionalInfo());
+            model.setParameters(trainingRequest.getParameters());
             ArrayList<String> dependentFeatures = new ArrayList<>();
             if (predictionFeature != null) {
                 dependentFeatures.add(predictionFeature);
@@ -401,13 +419,13 @@ public class TrainingMDB extends RunningTaskMDB {
                     predictionFeatureResource.setId(predFeatID);
                     predictionFeatureResource
                             .setPredictorFor(dependentFeatures.stream().findFirst().orElse(null));
-                    predictionFeatureResource.setCreatedBy(task.getCreatedBy());
                     predictionFeatureResource.setMeta(MetaInfoBuilder
                             .builder()
                             .addSources(/*messageBody.get("base_uri") + */"algorithm/" + algorithmId)
                             .addComments("Feature created to hold predictions by algorithm with ID " + algorithmId)
                             .addTitles(featureTitle)
                             .addSeeAlso(dependentFeatures.toArray(new String[dependentFeatures.size()]))
+                            .addCreators(task.getMeta().getCreators())
                             .build());
                     /* Create feature */
                     featureHandler.create(predictionFeatureResource);
@@ -426,65 +444,19 @@ public class TrainingMDB extends RunningTaskMDB {
             model.setMeta(MetaInfoBuilder
                     .builder()
                     .addTitles((String) messageBody.get("title"))
-                    .addCreators(task.getCreatedBy())
-                    .addSources(dataset.getDatasetURI())
+                    .addCreators(task.getMeta().getCreators())
+                    .addSources(dataset != null ? dataset.getDatasetURI() : "")
                     .addComments("Created by task " + task.getId())
                     .addDescriptions((String) messageBody.get("description"))
                     .build());
 
-
-            /* Create DoA model by POSTing to the leverages algorithm */
-//            if (messageBody.containsKey("doa") && messageBody.get("doa") != null
-//                    && (!algorithm.getOntologicalClasses().contains(AlgorithmOntologicalTypes.ApplicabilityDomain.toString()))
-//                    && (!algorithm.getOntologicalClasses().contains(AlgorithmOntologicalTypes.ApplicabilityDomain.getURI()))) {
-//                task.getMeta().getComments().add("Constructing DoA for this model...");
-//                task.setPercentageCompleted(86f);
-//                taskHandler.edit(task);
-//
-//                Form form = new Form();
-//                form.param("dataset_uri", (String) messageBody.get("dataset_uri"));
-//                form.param("prediction_feature", (String) messageBody.get("prediction_feature"));
-//                LOG.log(Level.INFO, "Calling remote DoA service at {0}", messageBody.get("doa"));
-//                LOG.log(Level.INFO, "Request on behalf of user with subjectid {0}", messageBody.get("subjectid"));
-//                Response doaTaskResponse = client.target((String) messageBody.get("doa"))
-//                        .request()
-//                        .header("subjectid", messageBody.get("subjectid"))
-//                        .post(Entity.form(form));
-//                if (201 != doaTaskResponse.getStatus() && 202 != doaTaskResponse.getStatus()
-//                        && 200 != doaTaskResponse.getStatus()) {
-//                    ErrorReport remoteTaskError = doaTaskResponse.readEntity(ErrorReport.class);
-//                    task.setErrorReport(remoteTaskError);
-//                    task.setStatus(Task.Status.ERROR);
-//                    task.setHttpStatus(remoteTaskError.getHttpStatus());
-//                    taskHandler.edit(task);
-//                    return;
-//                }
-//                Task leverageTask = doaTaskResponse.readEntity(Task.class);
-//                task.getMeta().getComments().add("DoA to be created by task: " + leverageTask.getId());
-//                task.setPercentageCompleted(87f);
-//                taskHandler.edit(task);
-//
-//                int i_leverage_check = 0;
-//                while ((Task.Status.RUNNING == leverageTask.getStatus() || Task.Status.QUEUED == leverageTask.getStatus())
-//                        && i_leverage_check < DOA_TASK_MAX_WAITING_TIME) {
-//                    leverageTask = taskHandler.find(leverageTask.getId());
-//                    Thread.sleep(1000);
-//                    i_leverage_check++;
-//                }
-//                if (Task.Status.RUNNING == leverageTask.getStatus()) {
-//                    task.getMeta().getComments().add("DoA task is still running - check out its progress at "
-//                            + messageBody.get("base_uri") + "task/" + leverageTask.getId());
-//                }
-//                if (Task.Status.COMPLETED == leverageTask.getStatus()) {
-//                    task.getMeta().getComments().add("DoA model created - ID : " + leverageTask.getResult());
-//                    model.setDoaModel(messageBody.get("base_uri") + leverageTask.getResult());
-//                }
-//                taskHandler.edit(task);
-//                //TODO link model to DoA
-//
-//            }
             task.getMeta().getComments().add("Model was built successfully. Now saving to database...");
             taskHandler.edit(task);
+            if ((Boolean) messageBody.get("visible")) {
+                model.setVisible(Boolean.TRUE);
+            } else {
+                model.setVisible(Boolean.FALSE);
+            }
             modelHandler.create(model);
 
             task.setResult("model/" + model.getId());
@@ -502,11 +474,11 @@ public class TrainingMDB extends RunningTaskMDB {
         } catch (ResponseProcessingException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             task.setStatus(Task.Status.ERROR);
-            task.setErrorReport(ErrorReportFactory.remoteError("", null)); //  Process response failed
+            task.setErrorReport(ErrorReportFactory.remoteError("", null, ex)); //  Process response failed
         } catch (ProcessingException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             task.setStatus(Task.Status.ERROR);
-            task.setErrorReport(ErrorReportFactory.remoteError("", null)); // Process response runtime error
+            task.setErrorReport(ErrorReportFactory.remoteError("", null, ex)); // Process response runtime error
         } catch (WebApplicationException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             task.setStatus(Task.Status.ERROR);
@@ -524,6 +496,14 @@ public class TrainingMDB extends RunningTaskMDB {
             task.setStatus(Task.Status.ERROR);
             task.setErrorReport(ex.getError());
         } finally {
+            task.getMeta().getComments().add("Performing cleanup.");
+            for (String intermediateDataset : intermediateDatasets) {
+                client.target(intermediateDataset)
+                        .request()
+                        .header("subjectid", subjectId)
+                        .delete()
+                        .close();
+            }
             if (task != null) {
                 terminate(task.getId());
             }

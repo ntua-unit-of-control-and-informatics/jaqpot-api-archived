@@ -91,22 +91,22 @@ import org.jpmml.model.JAXBUtil;
 @Path("pmml")
 @Api(value = "/pmml", description = "PMML API")
 public class PmmlResource {
-
+    
     @EJB
     AAService aaService;
-
+    
     @Context
     SecurityContext securityContext;
-
+    
     @Context
     UriInfo uriInfo;
-
+    
     @EJB
     PmmlHandler pmmlHandler;
-
+    
     @Context
     HttpHeaders httpHeaders;
-
+    
     @POST
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @Consumes({MediaType.APPLICATION_XML, MediaType.TEXT_XML})
@@ -144,14 +144,15 @@ public class PmmlResource {
             ROG rog = new ROG(true);
             pmml.setId(rog.nextString(10));
         }
-        pmml.setCreatedBy(securityContext.getUserPrincipal().getName());
-
+        
         MetaInfo info = MetaInfoBuilder.builder()
                 .addTitles(title)
                 .addDescriptions(description)
+                .addCreators(securityContext.getUserPrincipal().getName())
                 .build();
         pmml.setMeta(info);
-
+        pmml.setVisible(Boolean.TRUE);
+        
         pmmlHandler.create(pmml);
         return Response
                 .ok(pmml)
@@ -159,15 +160,18 @@ public class PmmlResource {
                 .header("Location", uriInfo.getBaseUri().toString() + "pmml/" + pmml.getId())
                 .build();
     }
-
+    
     @POST
     @Path("/selection")
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @ApiOperation(value = "Creates a new PMML entry",
             notes = "Creates a new PMML entry which is assigned a random unique ID",
             response = Pmml.class)
-    public Response createPMML(@FormParam("features") String featuresString) {
-
+    @Authorize
+    public Response createPMML(
+            @ApiParam(value = "Authorization token") @HeaderParam("subjectid") String subjectId,
+            @FormParam("features") String featuresString) {
+        
         List<String> features = Arrays.asList(featuresString.split(","));
         try {
             PMML pmml = new PMML();
@@ -178,7 +182,7 @@ public class PmmlResource {
             header.setTimestamp(new Timestamp());
             header.setApplication(new Application("Jaqpot Quattro"));
             pmml.setHeader(header);
-
+            
             List<DataField> dataFields = features
                     .stream()
                     .map(feature -> {
@@ -191,7 +195,7 @@ public class PmmlResource {
                     .collect(Collectors.toList());
             DataDictionary dataDictionary = new DataDictionary(dataFields);
             pmml.setDataDictionary(dataDictionary);
-
+            
             TransformationDictionary transformationDictionary = new TransformationDictionary();
             List<DerivedField> derivedFields = features
                     .stream()
@@ -207,21 +211,22 @@ public class PmmlResource {
             transformationDictionary.withDerivedFields(derivedFields);
             
             pmml.setTransformationDictionary(transformationDictionary);
-
+            
             ByteArrayOutputStream pmmlBaos = new ByteArrayOutputStream();
             JAXBUtil.marshalPMML(pmml, new StreamResult(pmmlBaos));
-
+            
             Pmml pmmlResource = new Pmml();
             pmmlResource.setPmml(pmmlBaos.toString());
             ROG rog = new ROG(true);
             pmmlResource.setId(rog.nextString(10));
-
+            
             MetaInfo info = MetaInfoBuilder.builder()
                     .addTitles("PMML")
                     .addDescriptions("PMML created for feature selection")
+                    .addCreators(securityContext.getUserPrincipal().getName())
                     .build();
             pmmlResource.setMeta(info);
-
+            
             pmmlHandler.create(pmmlResource);
             return Response
                     .ok(pmmlResource)
@@ -232,9 +237,9 @@ public class PmmlResource {
             Logger.getLogger(PmmlResource.class.getName()).log(Level.SEVERE, null, ex);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).build();
         }
-
+        
     }
-
+    
     @GET
     @Path("/{id}")
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list", MediaType.APPLICATION_XML, "text/xml"})
@@ -249,9 +254,10 @@ public class PmmlResource {
         @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
     })
     public Response getPmml(
+            @ApiParam(value = "Authorization token") @HeaderParam("subjectid") String subjectId,
             @ApiParam(value = "ID of the BibTeX", required = true) @PathParam("id") String id
     ) {
-
+        
         Pmml retrievedPmml = pmmlHandler.find(id);
         if (retrievedPmml == null) {
             throw new NotFoundException("PMML with ID " + id + " not found.");
@@ -264,7 +270,7 @@ public class PmmlResource {
             return Response.ok(retrievedPmml).build();
         }
     }
-
+    
     @GET
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @ApiOperation(value = "Finds all PMML entries",
@@ -278,14 +284,18 @@ public class PmmlResource {
         @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)"),
         @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
     })
+    @Authorize
     public Response listPmml(
+            @ApiParam(value = "Authorization token") @HeaderParam("subjectid") String subjectId,
             @ApiParam(value = "start", defaultValue = "0") @QueryParam("start") Integer start,
             @ApiParam(value = "max", defaultValue = "10") @QueryParam("max") Integer max
     ) {
+        String creator = securityContext.getUserPrincipal().getName();
         return Response
-                .ok(pmmlHandler.listOnlyIDs(start != null ? start : 0, max != null ? max : Integer.MAX_VALUE))
+                .ok(pmmlHandler.listOnlyIDsOfCreator(creator, start != null ? start : 0, max != null ? max : Integer.MAX_VALUE))
                 .status(Response.Status.OK)
+                .header("total", pmmlHandler.countAllOfCreator(creator))
                 .build();
     }
-
+    
 }

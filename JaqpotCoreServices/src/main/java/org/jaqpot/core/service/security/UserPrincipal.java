@@ -38,7 +38,8 @@ import java.security.Principal;
 
 /**
  *
- * @author hampos
+ * @author Charalampos Chomenidis
+ * @author Pantelis Sopasakis
  */
 public class UserPrincipal implements Principal {
 

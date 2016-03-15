@@ -38,6 +38,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import javax.ejb.EJB;
 import javax.inject.Inject;
@@ -60,19 +61,23 @@ import javax.ws.rs.core.UriInfo;
 import org.jaqpot.core.annotations.Jackson;
 import org.jaqpot.core.data.DatasetHandler;
 import org.jaqpot.core.data.ModelHandler;
+import org.jaqpot.core.data.UserHandler;
 import org.jaqpot.core.data.serialize.JSONSerializer;
 import org.jaqpot.core.model.Task;
+import org.jaqpot.core.model.User;
 import org.jaqpot.core.model.dto.ambit.AmbitTask;
 import org.jaqpot.core.model.dto.ambit.AmbitTaskArray;
 import org.jaqpot.core.model.dto.ambit.ProtocolCategory;
 import org.jaqpot.core.model.dto.bundle.BundleSubstances;
 import org.jaqpot.core.model.dto.dataset.Dataset;
+import org.jaqpot.core.model.facades.UserFacade;
 import org.jaqpot.core.model.factory.ErrorReportFactory;
 import org.jaqpot.core.service.data.ConjoinerService;
 import org.jaqpot.core.service.data.TrainingService;
 import org.jaqpot.core.service.annotations.Authorize;
 import org.jaqpot.core.service.annotations.UnSecure;
 import org.jaqpot.core.service.data.PredictionService;
+import org.jaqpot.core.service.exceptions.QuotaExceededException;
 
 /**
  *
@@ -84,6 +89,8 @@ import org.jaqpot.core.service.data.PredictionService;
 @Api(value = "/enm", description = "eNM API")
 @Authorize
 public class EnanomapperResource {
+
+    private static final Logger LOG = Logger.getLogger(EnanomapperResource.class.getName());
 
     @EJB
     ConjoinerService conjoinerService;
@@ -99,6 +106,9 @@ public class EnanomapperResource {
 
     @EJB
     DatasetHandler datasetHandler;
+
+    @EJB
+    UserHandler userHandler;
 
     @Context
     UriInfo uriInfo;
@@ -120,8 +130,9 @@ public class EnanomapperResource {
             + "	\"bundle\": \"https://apps.ideaconsult.net/enmtest/bundle/14\",\n"
             + "	\"descriptors\":[\n"
             + "		\"IMAGE\",\n"
-            + "		\"MOPAC\"\n"
-            + "	]\n"
+            + "		\"EXPERIMENTAL\"\n"
+            + "	],\n"
+            + " \"intersectColumns\": true\n"
             + "}",
             DEFAULT_BUNDLE_DATA = "{\n"
             + "	\"description\":\"a bundle with protein corona data\",\n"
@@ -202,7 +213,19 @@ public class EnanomapperResource {
     )
     public Response createDataset(
             @ApiParam(name = "data", defaultValue = DEFAULT_DATASET_DATA) DatasetData datasetData,
-            @HeaderParam("subjectid") String subjectId) {
+            @HeaderParam("subjectid") String subjectId) throws QuotaExceededException {
+
+        User user = userHandler.find(securityContext.getUserPrincipal().getName());
+        long datasetCount = datasetHandler.countAllOfCreator(user.getId());
+        int maxAllowedDatasets = new UserFacade(user).getMaxDatasets();
+
+        if (datasetCount > maxAllowedDatasets) {
+            LOG.info(String.format("User %s has %d datasets while maximum is %d",
+                    user.getId(), datasetCount, maxAllowedDatasets));
+            throw new QuotaExceededException("Dear " + user.getId()
+                    + ", your quota has been exceeded; you already have " + datasetCount + " datasets. "
+                    + "No more than " + maxAllowedDatasets + " are allowed with your subscription.");
+        }
 
         String bundleURI = datasetData.getBundle();
         if (bundleURI == null || bundleURI.isEmpty()) {
@@ -222,9 +245,11 @@ public class EnanomapperResource {
         options.put("title", datasetData.getTitle());
         options.put("description", datasetData.getDescription());
         options.put("descriptors", descriptorsString);
+        options.put("intersect_columns", datasetData.getIntersectColumns() != null ? datasetData.getIntersectColumns() : true);
         options.put("subjectid", subjectId);
         options.put("base_uri", uriInfo.getBaseUri().toString());
         options.put("mode", "PREPARATION");
+        options.put("retain_null_values", datasetData.getRetainNullValues() != null ? datasetData.getRetainNullValues() : false);
         Task task = conjoinerService.initiatePreparation(options, securityContext.getUserPrincipal().getName());
         return Response.ok(task).build();
     }
@@ -256,7 +281,7 @@ public class EnanomapperResource {
         formParameters.add("title", "owner-bundle");
         formParameters.add("description", bundleData.getDescription());
         formParameters.add("source", userName);
-        formParameters.add("url", "");
+        formParameters.add("seeAlso", substanceOwner);
         formParameters.add("license", "Copyright of " + userName);
         formParameters.add("rightsHolder", userName);
         formParameters.add("maintainer", userName);
@@ -291,7 +316,7 @@ public class EnanomapperResource {
         } else {
             return Response
                     .status(Response.Status.BAD_GATEWAY)
-                    .entity(ErrorReportFactory.remoteError(ambitTaskUri, ErrorReportFactory.internalServerError()))
+                    .entity(ErrorReportFactory.remoteError(ambitTaskUri, ErrorReportFactory.internalServerError(), null))
                     .build();
         }
         List<String> substances = bundleData.getSubstances();
@@ -362,7 +387,7 @@ public class EnanomapperResource {
             return Response.created(new URI(bundleUri)).entity(bundleUri).build();
         } catch (URISyntaxException ex) {
             return Response.status(Response.Status.BAD_GATEWAY)
-                    .entity(ErrorReportFactory.remoteError(bundleUri, ErrorReportFactory.internalServerError()))
+                    .entity(ErrorReportFactory.remoteError(bundleUri, ErrorReportFactory.internalServerError(), ex))
                     .build();
         }
     }
@@ -516,6 +541,8 @@ public class EnanomapperResource {
         private String description;
         private String bundle;
         private List<String> descriptors;
+        private Boolean intersectColumns;
+        private Boolean retainNullValues;
 
         public String getTitle() {
             return title;
@@ -547,6 +574,22 @@ public class EnanomapperResource {
 
         public void setDescriptors(List<String> descriptors) {
             this.descriptors = descriptors;
+        }
+
+        public Boolean getIntersectColumns() {
+            return intersectColumns;
+        }
+
+        public void setIntersectColumns(Boolean intersectColumns) {
+            this.intersectColumns = intersectColumns;
+        }
+
+        public Boolean getRetainNullValues() {
+            return retainNullValues;
+        }
+
+        public void setRetainNullValues(Boolean retainNullValues) {
+            this.retainNullValues = retainNullValues;
         }
 
     }

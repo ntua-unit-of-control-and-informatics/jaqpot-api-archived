@@ -44,7 +44,8 @@ import org.jaqpot.core.model.dto.dataset.DataEntry;
 
 /**
  *
- * @author hampos
+ * @author Charalampos Chomenidis
+ * @author Pantelis Sopasakis
  */
 public class DataEntrySerializer extends JsonSerializer<DataEntry> {
 

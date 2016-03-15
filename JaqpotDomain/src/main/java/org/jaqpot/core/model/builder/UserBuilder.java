@@ -105,7 +105,7 @@ public class UserBuilder implements EntityBuilder<User> {
     public UserBuilder setMaxBibTeX(int maxBibTeX) {
         return setMaxCapability("bibtex", maxBibTeX);
     }
-    
+
     public UserBuilder setMaxAlgorithms(int algorithms) {
         return setMaxCapability("algorithms", algorithms);
     }
@@ -113,8 +113,6 @@ public class UserBuilder implements EntityBuilder<User> {
     public UserBuilder setMaxWeeklyPublishedSubstances(int maxSubstances) {
         return setMaxWeeklyCapability("substances", maxSubstances);
     }
-    
-    
 
     public UserBuilder setMaxSubstances(int maxSubstances) {
         return setMaxCapability("substances", maxSubstances);
@@ -131,7 +129,7 @@ public class UserBuilder implements EntityBuilder<User> {
     public UserBuilder setMaxWeeklyPublishedFeatures(int maxFeatures) {
         return setMaxWeeklyCapability("features", maxFeatures);
     }
-    
+
     public UserBuilder setMaxWeeklyPublishedAlgorithms(int maxAlgorithms) {
         return setMaxWeeklyCapability("algorithms", maxAlgorithms);
     }
@@ -142,6 +140,14 @@ public class UserBuilder implements EntityBuilder<User> {
 
     public UserBuilder setMaxParallelTasks(int maxParallelTasks) {
         return setMaxCapability("tasksParallel", maxParallelTasks);
+    }
+
+    public UserBuilder setMaxDatasets(int maxDatasets) {
+        return setMaxCapability("datasets", maxDatasets);
+    }
+    
+    public UserBuilder setMaxReports(int maxReports) {
+        return setMaxCapability("reports", maxReports);
     }
 
     public UserBuilder setHashedPassword(String hashedPassword) {

@@ -37,8 +37,12 @@ import com.wordnik.swagger.annotations.ApiResponses;
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import javax.ejb.EJB;
 import javax.inject.Inject;
 import javax.ws.rs.DELETE;
@@ -53,19 +57,24 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
+import org.jaqpot.core.data.DatasetHandler;
 import org.jaqpot.core.data.ModelHandler;
-import org.jaqpot.core.model.BibTeX;
-import org.jaqpot.core.model.Feature;
+import org.jaqpot.core.data.UserHandler;
 import org.jaqpot.core.model.Model;
 import org.jaqpot.core.model.Task;
+import org.jaqpot.core.model.User;
+import org.jaqpot.core.model.dto.dataset.FeatureInfo;
+import org.jaqpot.core.model.facades.UserFacade;
 import org.jaqpot.core.model.factory.ErrorReportFactory;
 import org.jaqpot.core.service.annotations.Authorize;
 import org.jaqpot.core.service.annotations.UnSecure;
 import org.jaqpot.core.service.data.PredictionService;
+import org.jaqpot.core.service.exceptions.QuotaExceededException;
 
 /**
  *
@@ -78,6 +87,8 @@ import org.jaqpot.core.service.data.PredictionService;
 @Authorize
 public class ModelResource {
 
+    private static final Logger LOG = Logger.getLogger(ModelResource.class.getName());
+
     private static final String DEFAULT_DATASET = "http://app.jaqpot.org:8080/jaqpot/services/dataset/corona";
 
     @Context
@@ -85,6 +96,12 @@ public class ModelResource {
 
     @EJB
     ModelHandler modelHandler;
+
+    @EJB
+    DatasetHandler datasetHandler;
+
+    @EJB
+    UserHandler userHandler;
 
     @EJB
     PredictionService predictionService;
@@ -112,7 +129,7 @@ public class ModelResource {
         @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
     })
     public Response listModels(
-            @ApiParam(value = "Creator of the model (username)") @QueryParam("creator") String creator,
+            @ApiParam(value = "Authorization token") @HeaderParam("subjectid") String subjectId,
             @ApiParam(value = "start", defaultValue = "0") @QueryParam("start") Integer start,
             @ApiParam(value = "max - the server imposes an upper limit of 500 on this "
                     + "parameter.", defaultValue = "20") @QueryParam("max") Integer max
@@ -120,15 +137,40 @@ public class ModelResource {
         if (max == null || max > 500) {
             max = 500;
         }
-        return Response.ok(modelHandler.listOnlyIDsOfCreator(creator, start != null ? start : 0, max)).build();
+        String creator = securityContext.getUserPrincipal().getName();
+        return Response.ok(modelHandler.listOnlyIDsOfCreator(creator, start != null ? start : 0, max))
+                .header("total", modelHandler.countAllOfCreator(creator))
+                .build();
     }
 
     @GET
-    @Path("/count")
-    @Produces(MediaType.TEXT_PLAIN)
-    @ApiOperation(value = "Count all Models", response = Long.class)
-    public Response countModels(@QueryParam("creator") String creator) {
-        return Response.ok(modelHandler.countAllOfCreator(creator)).build();
+    @Path("/featured")
+    @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
+    @ApiOperation(value = "Finds all Models",
+            notes = "Finds featured Models from Jaqpot database. The response will list all models and will return either a URI list "
+            + "of a list of JSON model objects. In the latter case, only the IDs, metadata, ontological classes "
+            + "and reliability of the models will be returned. "
+            + "Use the parameters start and max to get paginated results.",
+            response = Model.class,
+            responseContainer = "List")
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "Models found and are listed in the response body"),
+        @ApiResponse(code = 204, message = "No content: The request succeeded, but there are no models "
+                + "matching your search criteria."),
+        @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
+    })
+    public Response listFeaturedModels(
+            @ApiParam(value = "Authorization token") @HeaderParam("subjectid") String subjectId,
+            @ApiParam(value = "start", defaultValue = "0") @QueryParam("start") Integer start,
+            @ApiParam(value = "max - the server imposes an upper limit of 500 on this "
+                    + "parameter.", defaultValue = "20") @QueryParam("max") Integer max
+    ) {
+        if (max == null || max > 500) {
+            max = 500;
+        }
+        return Response.ok(modelHandler.findFeatured(start != null ? start : 0, max))
+                .header("total", modelHandler.countFeatured())
+                .build();
     }
 
     @GET
@@ -172,16 +214,19 @@ public class ModelResource {
     })
     public Response getModelPmml(
             @PathParam("id") String id,
-            @ApiParam(value = "Clients need to authenticate in order to access models") @HeaderParam("subjectid") String subjectId) {
+            @ApiParam(value = "Clients need to authenticate in order to access models") @HeaderParam("subjectid") String subjectId) throws Throwable {
         Model model = modelHandler.findModelPmml(id);
         if (model == null || model.getPmmlModel() == null) {
             throw new NotFoundException("The requested model was not found on the server.");
         }
 
         Object pmmlObj = model.getPmmlModel();
+        if (pmmlObj == null || pmmlObj.toString().isEmpty()) {
+            return Response.status(Response.Status.NOT_FOUND).entity("This model does not have a PMML representation.").build();
+        }
         if (pmmlObj instanceof List) {
             List pmmlObjList = (List) pmmlObj;
-            Object pmml = pmmlObjList.stream().findFirst().orElse(null);
+            Object pmml = pmmlObjList.stream().findFirst().orElseThrow(() -> new NotFoundException("This model does not have a PMML representation."));
             return Response
                     .ok(pmml.toString(), MediaType.APPLICATION_XML)
                     .build();
@@ -236,10 +281,11 @@ public class ModelResource {
     public Response listModelDependentFeatures(
             @PathParam("id") String id,
             @ApiParam(value = "Clients need to authenticate in order to access models") @HeaderParam("subjectid") String subjectId) {
-        return Response.status(Response.Status.NOT_IMPLEMENTED)
-                .entity(ErrorReportFactory.notImplementedYet())
-                .type(MediaType.APPLICATION_JSON_TYPE)
-                .build();
+        Model foundModel = modelHandler.findModelIndependentFeatures(id);
+        if (foundModel == null) {
+            throw new NotFoundException("The requested model was not found on the server.");
+        }
+        return Response.ok(foundModel.getDependentFeatures()).build();
 
     }
 
@@ -260,15 +306,25 @@ public class ModelResource {
     public Response listModelPredictedFeatures(
             @PathParam("id") String id,
             @ApiParam(value = "Clients need to authenticate in order to access models") @HeaderParam("subjectid") String subjectId) {
-        return Response.status(Response.Status.NOT_IMPLEMENTED)
-                .entity(ErrorReportFactory.notImplementedYet())
-                .type(MediaType.APPLICATION_JSON_TYPE)
-                .build();
+
+        Model foundModel = modelHandler.findModel(id);
+        if (foundModel == null) {
+            throw new NotFoundException("The requested model was not found on the server.");
+        }
+        List<String> predictedFeatures = new ArrayList<>();
+        predictedFeatures.addAll(foundModel.getPredictedFeatures());
+        foundModel.getLinkedModels().stream()
+                .map(m -> m.split("model/")[1])
+                .forEach(mid -> {
+                    Model linkedModel = modelHandler.findModel(mid);
+                    predictedFeatures.addAll(linkedModel.getPredictedFeatures());
+                });
+        return Response.ok(predictedFeatures).build();
 
     }
 
     @GET
-    @Produces({"text/uri-list"})
+    @Produces(MediaType.APPLICATION_JSON)
     @Path("/{id}/required")
     @ApiOperation(value = "Lists the required features of a Model",
             notes = "Lists the required features of a Model identified by its ID. The result is available as a URI list.",
@@ -282,6 +338,7 @@ public class ModelResource {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
         List<String> requiredFeatures;
+        String datasetURI;
         if (model.getTransformationModels() != null && !model.getTransformationModels().isEmpty()) {
             Model firstTransformation = client.target(model.getTransformationModels().get(0))
                     .request()
@@ -289,10 +346,23 @@ public class ModelResource {
                     .header("subjectId", subjectId)
                     .get(Model.class);
             requiredFeatures = firstTransformation.getIndependentFeatures();
+            datasetURI = firstTransformation.getDatasetUri();
         } else {
             requiredFeatures = model.getIndependentFeatures();
+            datasetURI = model.getDatasetUri();
         }
-        return Response.status(Response.Status.OK).entity(requiredFeatures).build();
+        Set<FeatureInfo> featureSet = client.target(datasetURI.split("\\?")[0] + "/features")
+                .request()
+                .accept(MediaType.APPLICATION_JSON)
+                .header("subjectId", subjectId)
+                .get(new GenericType<Set<FeatureInfo>>() {
+                });
+
+        Set<String> requiredFeatureSet = new HashSet<>(requiredFeatures);
+        List<FeatureInfo> selectedFeatures = featureSet.stream()
+                .filter(f -> requiredFeatureSet.contains(f.getURI()))
+                .collect(Collectors.toList());
+        return Response.status(Response.Status.OK).entity(selectedFeatures).build();
     }
 
     @POST
@@ -304,8 +374,23 @@ public class ModelResource {
     )
     public Response makePrediction(
             @ApiParam(name = "dataset_uri", defaultValue = DEFAULT_DATASET) @FormParam("dataset_uri") String datasetURI,
+            @FormParam("visible") Boolean visible,
             @PathParam("id") String id,
-            @HeaderParam("subjectid") String subjectId) throws GeneralSecurityException {
+            @HeaderParam("subjectid") String subjectId) throws GeneralSecurityException, QuotaExceededException {
+
+        if (visible != null && visible == true) {
+            User user = userHandler.find(securityContext.getUserPrincipal().getName());
+            long datasetCount = datasetHandler.countAllOfCreator(user.getId());
+            int maxAllowedDatasets = new UserFacade(user).getMaxDatasets();
+
+            if (datasetCount > maxAllowedDatasets) {
+                LOG.info(String.format("User %s has %d datasets while maximum is %d",
+                        user.getId(), datasetCount, maxAllowedDatasets));
+                throw new QuotaExceededException("Dear " + user.getId()
+                        + ", your quota has been exceeded; you already have " + datasetCount + " datasets. "
+                        + "No more than " + maxAllowedDatasets + " are allowed with your subscription.");
+            }
+        }
 
         Model model = modelHandler.find(id);
         if (model == null) {
@@ -318,6 +403,7 @@ public class ModelResource {
         options.put("modelId", id);
         options.put("createdBy", securityContext.getUserPrincipal().getName());
         options.put("base_uri", uriInfo.getBaseUri().toString());
+        options.put("visible", visible != null ? visible : false);
         Task task = predictionService.initiatePrediction(options);
         return Response.ok(task).build();
     }
@@ -340,6 +426,20 @@ public class ModelResource {
             @ApiParam("Clients need to authenticate in order to create resources on the server") @HeaderParam("subjectid") String subjectId,
             @ApiParam(value = "ID of the Model.", required = true) @PathParam("id") String id
     ) {
+        Model model = modelHandler.find(id);
+        if (model == null) {
+            throw new NotFoundException("The model with id:" + id + " was not found.");
+        }
+        String userName = securityContext.getUserPrincipal().getName();
+        if (!model.getMeta().getCreators().contains(userName)) {
+            return Response.status(Response.Status.FORBIDDEN).entity("You cannot delete a Model that was not created by you.").build();
+        }
+        for (String transformationModel : model.getTransformationModels()) {
+            modelHandler.remove(new Model(transformationModel));
+        }
+        for (String linkedModel : model.getLinkedModels()) {
+            modelHandler.remove(new Model(linkedModel));
+        }
         modelHandler.remove(new Model(id));
         return Response.ok().build();
     }

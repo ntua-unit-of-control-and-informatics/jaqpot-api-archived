@@ -87,7 +87,6 @@ public class JacksonJSONSerializerTest {
                 addDescriptions("this is a very nice task", "oh, and it's very useful too").
                 addSources("http://jaqpot.org/algorithm/wonk").build();
         taskPojo = new Task(uuid);
-        taskPojo.setCreatedBy("random-user@jaqpot.org");
         taskPojo.setPercentageCompleted(0.95f);
         taskPojo.setDuration(1534l);
         taskPojo.setMeta(meta);
@@ -129,7 +128,6 @@ public class JacksonJSONSerializerTest {
         assertNotNull("jsonString generated from OutputStream is null", jsonString);
         assertTrue("_id not found in serialized string",jsonString.contains("\"_id\":\""+uuid+"\""));
         assertTrue("percentageCompleted not found in serialized string",jsonString.contains("\"percentageCompleted\":"+taskPojo.getPercentageCompleted()));
-        assertTrue("createdBy not found in serialized string",jsonString.contains("\"createdBy\":\""+taskPojo.getCreatedBy()+"\""));
         assertTrue("status not found in serialized string",jsonString.contains("\"status\":\""+taskPojo.getStatus()+"\""));
         assertTrue("duration not found in serialized string",jsonString.contains("\"duration\":"+taskPojo.getDuration()));
         assertTrue("meta not found", jsonString.contains("\"meta\":{"));        
@@ -172,7 +170,6 @@ public class JacksonJSONSerializerTest {
         Task result = instance.parse(taskJSON, Task.class);
         assertEquals(expResult, result);
         assertEquals("not the same ID", expResult.getId(), result.getId());
-        assertEquals("not the same createdBy", expResult.getCreatedBy(), result.getCreatedBy());
         assertEquals("not the same percentageComplete", expResult.getPercentageCompleted(), result.getPercentageCompleted());
         assertEquals("not the same duration", expResult.getDuration(), result.getDuration());
         assertEquals("not the same HTTP status", expResult.getHttpStatus(), result.getHttpStatus());
@@ -191,7 +188,6 @@ public class JacksonJSONSerializerTest {
         Task result = instance.parse(stream, Task.class);
         assertEquals(expResult, result);
         assertEquals("not the same ID", expResult.getId(), result.getId());
-        assertEquals("not the same createdBy", expResult.getCreatedBy(), result.getCreatedBy());
         assertEquals("not the same percentageComplete", expResult.getPercentageCompleted(), result.getPercentageCompleted());
         assertEquals("not the same duration", expResult.getDuration(), result.getDuration());
         assertEquals("not the same HTTP status", expResult.getHttpStatus(), result.getHttpStatus());

@@ -133,7 +133,6 @@ public class MongoDBEntityManagerTest {
                 addSources("http://jaqpot.org/algorithm/wonk").build();
 
         taskPojo = new Task("115a0da8-92cc-4ec4-845f-df643ad607ee");
-        taskPojo.setCreatedBy("random-user@jaqpot.org");
         taskPojo.setPercentageCompleted(0.95f);
         taskPojo.setDuration(1534l);
         taskPojo.setMeta(meta);
@@ -141,7 +140,6 @@ public class MongoDBEntityManagerTest {
         taskPojo.setStatus(Task.Status.RUNNING);
 
         taskPojo2 = new Task("215a0da8-92cc-4ec4-845f-df643ad607ee");
-        taskPojo2.setCreatedBy("random-user@jaqpot.org");
         taskPojo2.setPercentageCompleted(0.95f);
         taskPojo2.setDuration(1534l);
         taskPojo2.setMeta(meta);
@@ -196,7 +194,6 @@ public class MongoDBEntityManagerTest {
 
         assertEquals(taskPojo, objFromDB);
         assertEquals("not the same ID", taskPojo.getId(), objFromDB.getId());
-        assertEquals("not the same createdBy", taskPojo.getCreatedBy(), objFromDB.getCreatedBy());
         assertEquals("not the same percentageComplete", taskPojo.getPercentageCompleted(), objFromDB.getPercentageCompleted());
         assertEquals("not the same duration", taskPojo.getDuration(), objFromDB.getDuration());
         assertEquals("not the same HTTP status", taskPojo.getHttpStatus(), objFromDB.getHttpStatus());
@@ -216,7 +213,6 @@ public class MongoDBEntityManagerTest {
 
         assertEquals(foundTask, taskPojo);
         assertEquals("not the same ID", taskPojo.getId(), foundTask.getId());
-        assertEquals("not the same createdBy", taskPojo.getCreatedBy(), foundTask.getCreatedBy());
         assertEquals("not the same percentageComplete", taskPojo.getPercentageCompleted(), foundTask.getPercentageCompleted());
         assertEquals("not the same duration", taskPojo.getDuration(), foundTask.getDuration());
         assertEquals("not the same HTTP status", taskPojo.getHttpStatus(), foundTask.getHttpStatus());
@@ -239,7 +235,6 @@ public class MongoDBEntityManagerTest {
                 addSources("http://jaqpot.org/algorithm/wonk").build();
 
         Task mergeTask = new Task("115a0da8-92cc-4ec4-845f-df643ad607ee");
-        mergeTask.setCreatedBy("random-user@jaqpot.org");
         mergeTask.setPercentageCompleted(0.95f);
         mergeTask.setDuration(1534l);
         mergeTask.setMeta(meta);
@@ -258,7 +253,6 @@ public class MongoDBEntityManagerTest {
 
         assertEquals(mergeTask, objFromDB);
         assertEquals("not the same ID", mergeTask.getId(), objFromDB.getId());
-        assertEquals("not the same createdBy", mergeTask.getCreatedBy(), objFromDB.getCreatedBy());
         assertEquals("not the same percentageComplete", mergeTask.getPercentageCompleted(), objFromDB.getPercentageCompleted());
         assertEquals("not the same duration", mergeTask.getDuration(), objFromDB.getDuration());
         assertEquals("not the same HTTP status", mergeTask.getHttpStatus(), objFromDB.getHttpStatus());
@@ -268,7 +262,6 @@ public class MongoDBEntityManagerTest {
 
         assertEquals(oldTask, taskPojo);
         assertEquals("not the same ID", taskPojo.getId(), oldTask.getId());
-        assertEquals("not the same createdBy", taskPojo.getCreatedBy(), oldTask.getCreatedBy());
         assertEquals("not the same percentageComplete", taskPojo.getPercentageCompleted(), oldTask.getPercentageCompleted());
         assertEquals("not the same duration", taskPojo.getDuration(), oldTask.getDuration());
         assertEquals("not the same HTTP status", taskPojo.getHttpStatus(), oldTask.getHttpStatus());
@@ -293,7 +286,6 @@ public class MongoDBEntityManagerTest {
 
         assertEquals(foundTask, taskPojo);
         assertEquals("not the same ID", taskPojo.getId(), foundTask.getId());
-        assertEquals("not the same createdBy", taskPojo.getCreatedBy(), foundTask.getCreatedBy());
         assertEquals("not the same percentageComplete", taskPojo.getPercentageCompleted(), foundTask.getPercentageCompleted());
         assertEquals("not the same duration", taskPojo.getDuration(), foundTask.getDuration());
         assertEquals("not the same HTTP status", taskPojo.getHttpStatus(), foundTask.getHttpStatus());
@@ -303,7 +295,6 @@ public class MongoDBEntityManagerTest {
 
         assertEquals(foundTask2, taskPojo2);
         assertEquals("not the same ID", taskPojo2.getId(), foundTask2.getId());
-        assertEquals("not the same createdBy", taskPojo2.getCreatedBy(), foundTask2.getCreatedBy());
         assertEquals("not the same percentageComplete", taskPojo2.getPercentageCompleted(), foundTask2.getPercentageCompleted());
         assertEquals("not the same duration", taskPojo2.getDuration(), foundTask2.getDuration());
         assertEquals("not the same HTTP status", taskPojo2.getHttpStatus(), foundTask2.getHttpStatus());
@@ -360,7 +351,6 @@ public class MongoDBEntityManagerTest {
         Task foundTask = result.get(0);
         assertEquals(foundTask, taskPojo);
         assertEquals("not the same ID", taskPojo.getId(), foundTask.getId());
-        assertEquals("not the same createdBy", taskPojo.getCreatedBy(), foundTask.getCreatedBy());
         assertEquals("not the same percentageComplete", taskPojo.getPercentageCompleted(), foundTask.getPercentageCompleted());
         assertEquals("not the same duration", taskPojo.getDuration(), foundTask.getDuration());
         assertEquals("not the same HTTP status", taskPojo.getHttpStatus(), foundTask.getHttpStatus());
@@ -400,14 +390,12 @@ public class MongoDBEntityManagerTest {
 
         assertEquals(foundTask, taskPojo);
         assertEquals("not the same ID", taskPojo.getId(), foundTask.getId());
-        assertNull(foundTask.getCreatedBy());
         assertNull(foundTask.getPercentageCompleted());
         assertEquals("not the same duration", taskPojo.getDuration(), foundTask.getDuration());
         assertEquals("not the same status", taskPojo.getStatus(), foundTask.getStatus());
 
         assertEquals(foundTask2, taskPojo2);
         assertEquals("not the same ID", taskPojo2.getId(), foundTask2.getId());
-        assertNull(foundTask2.getCreatedBy());
         assertNull(foundTask2.getPercentageCompleted());
         assertEquals("not the same duration", taskPojo2.getDuration(), foundTask2.getDuration());
         assertEquals("not the same status", taskPojo2.getStatus(), foundTask2.getStatus());

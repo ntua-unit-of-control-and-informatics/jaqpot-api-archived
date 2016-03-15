@@ -92,7 +92,8 @@ public class Task extends JaqpotEntity {
 
         TRAINING,
         PREDICTION,
-        PREPARATION
+        PREPARATION,
+        VALIDATION
     }
 
     /**
@@ -119,10 +120,6 @@ public class Task extends JaqpotEntity {
      */
     private Integer httpStatus;
     /**
-     * ID of the user that triggered this task.
-     */
-    private String createdBy;
-    /**
      * Duration of the task when it has completed or has failed.
      */
     private Long duration;
@@ -135,7 +132,6 @@ public class Task extends JaqpotEntity {
 
     public Task(Task other) {
         super(other);
-        this.createdBy = other.createdBy;
         this.duration = other.duration;
         this.errorReport = other.errorReport != null ? new ErrorReport(other.errorReport) : null;
         this.hasStatus = other.hasStatus;
@@ -197,14 +193,6 @@ public class Task extends JaqpotEntity {
 
     public void setHttpStatus(Integer httpStatus) {
         this.httpStatus = httpStatus;
-    }
-
-    public String getCreatedBy() {
-        return createdBy;
-    }
-
-    public void setCreatedBy(String createdBy) {
-        this.createdBy = createdBy;
     }
 
     public Long getDuration() {

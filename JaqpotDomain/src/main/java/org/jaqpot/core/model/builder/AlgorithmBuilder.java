@@ -90,11 +90,6 @@ public class AlgorithmBuilder implements EntityBuilder<Algorithm> {
         return this;
     }
 
-    public AlgorithmBuilder setCreatedBy(String createdBy) {
-        algorithm.setCreatedBy(createdBy);
-        return this;
-    }
-
     public AlgorithmBuilder setTrainingService(String trainingService) {
         algorithm.setTrainingService(trainingService);
         return this;

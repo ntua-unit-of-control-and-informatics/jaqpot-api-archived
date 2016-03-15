@@ -34,7 +34,8 @@ import weka.classifiers.Classifier;
 
 /**
  *
- * @author hampos
+ * @author Charalampos Chomenidis
+ * @author Pantelis Sopasakis
  */
 public class WekaModel implements Serializable {
 

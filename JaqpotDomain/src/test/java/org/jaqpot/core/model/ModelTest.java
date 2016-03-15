@@ -141,16 +141,6 @@ public class ModelTest {
     }
     
     @Test
-    public void testClone_createdBy(){
-        Model m = rog.nextModel();
-        String originalCreatedBy = m.getCreatedBy();
-        Model copy = new Model(m);
-        copy.setCreatedBy(null);
-        assertNotNull(m.getCreatedBy());
-        assertEquals(originalCreatedBy, m.getCreatedBy());
-    }
-    
-    @Test
     public void testClone_datasetUri(){
         Model m = rog.nextModel();
         String originalDatasetUri = m.getDatasetUri();

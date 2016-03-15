@@ -67,7 +67,7 @@ import org.jaqpot.core.data.TaskHandler;
 import org.jaqpot.core.data.UserHandler;
 import org.jaqpot.core.model.Task;
 
-@Stateless
+//@Stateless
 public class SendStatisticsCron {
 
     private static final Logger LOG = Logger.getLogger(SendStatisticsCron.class.getName());
@@ -105,7 +105,7 @@ public class SendStatisticsCron {
 
     // Every Sunday midnight a mail will be sent to the recipients defined in settings.xml
     // Check out the example settings.xml in JAQPOT_BASE/config
-    @Schedule(dayOfWeek = "Sun", hour = "0", minute = "0", second = "0", info = "Mailer", persistent = false) 
+//    @Schedule(dayOfWeek = "Sun", hour = "0", minute = "0", second = "0", info = "Mailer", persistent = false) 
     public void mailStatisticsWeekly() throws MandrillApiError, IOException {
         String doSendMail = configResourceBundle.getString("jaqpot.mail.dosend");
         if (doSendMail == null || !"true".equals(doSendMail)) {

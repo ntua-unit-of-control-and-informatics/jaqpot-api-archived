@@ -41,7 +41,8 @@ import org.jaqpot.core.model.Model;
 
 /**
  *
- * @author hampos
+ * @author Charalampos Chomenidis
+ * @author Pantelis Sopasakis
  */
 @Stateless
 public class ModelHandler extends AbstractHandler<Model> {
@@ -101,8 +102,7 @@ public class ModelHandler extends AbstractHandler<Model> {
 
     public List<Model> findAllMeta() {
         List<String> fields = new ArrayList<>();
-        fields.add("_id");
-        fields.add("createdBy");
+        fields.add("_id");        
         fields.add("dependentFeatures");
         fields.add("independentFeatures");
         fields.add("predictedFeatures");
@@ -120,8 +120,7 @@ public class ModelHandler extends AbstractHandler<Model> {
 
         List<String> fields = new ArrayList<>();
         fields.add("_id");
-        fields.add("meta");
-        fields.add("createdBy");
+        fields.add("meta");        
         fields.add("dependentFeatures");
         fields.add("independentFeatures");
         fields.add("predictedFeatures");
@@ -132,6 +131,7 @@ public class ModelHandler extends AbstractHandler<Model> {
         fields.add("doaModel");
         fields.add("transformationModels");
         fields.add("linkedModels");
+        fields.add("additionalInfo");
 
         return em.find(Model.class, keys, fields).stream().findFirst().orElse(null);
     }

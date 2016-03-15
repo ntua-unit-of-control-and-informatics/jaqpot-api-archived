@@ -45,19 +45,25 @@ import java.util.HashSet;
 @XmlRootElement
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public abstract class JaqpotEntity {
-    
+
     /**
      * Identifier of the entity.
      */
     private String id;
     /**
-     * Metadata of the entity.
+     * Meta data of the entity.
      */
     private MetaInfo meta;
     /**
      * Set of ontological characterizations.
      */
     private Set<String> ontologicalClasses;
+
+    private Boolean visible;
+
+    private Boolean temporary;
+
+    private Boolean featured;
 
     public JaqpotEntity() {
     }
@@ -99,6 +105,30 @@ public abstract class JaqpotEntity {
 
     public void setOntologicalClasses(Set<String> ontologicalClasses) {
         this.ontologicalClasses = ontologicalClasses;
+    }
+
+    public Boolean getVisible() {
+        return visible;
+    }
+
+    public void setVisible(Boolean visible) {
+        this.visible = visible;
+    }
+
+    public Boolean getTemporary() {
+        return temporary;
+    }
+
+    public void setTemporary(Boolean temporary) {
+        this.temporary = temporary;
+    }
+
+    public Boolean getFeatured() {
+        return featured;
+    }
+
+    public void setFeatured(Boolean featured) {
+        this.featured = featured;
     }
 
     @Override

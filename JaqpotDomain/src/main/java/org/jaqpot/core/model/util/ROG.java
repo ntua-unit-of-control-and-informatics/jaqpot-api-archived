@@ -45,7 +45,7 @@ import org.jaqpot.core.model.builder.MetaInfoBuilder;
  * Random Object Generator for testing purposes mainly.
  *
  * @author Pantelis Sopasakis
- * @author Charalambos Chomenidis
+ * @author Charalampos Chomenidis
  */
 public class ROG {
 
@@ -97,7 +97,6 @@ public class ROG {
                 .setBookTitle(nextString(50))                
                 .setChapter(nextString(50))
                 .setCopyright(nextString(50))
-                .setCreatedBy(nextString(50))
                 .setCrossref(nextString(50))
                 .setEdition(nextString(50))
                 .setEditor(nextString(50))
@@ -152,7 +151,6 @@ public class ROG {
         a.setBibtex(new HashSet<>());
         a.getBibtex().add(nextBibTeX());
         a.getBibtex().add(nextBibTeX());
-        a.setCreatedBy(nextString(25));
         a.setMeta(nextMeta());
         a.setOntologicalClasses(nextSetString(10, 20));
 
@@ -170,7 +168,6 @@ public class ROG {
         m.setActualModel(nextString(10000));
         m.setAlgorithm(nextAlgorithm());
         m.setBibtex(nextBibTeX());
-        m.setCreatedBy(nextString(20));
         m.setDatasetUri(nextString(50));
         m.setDependentFeatures(nextListString(20, 5));
         m.setIndependentFeatures(nextListString(2, 5));
@@ -178,9 +175,9 @@ public class ROG {
         m.setReliability(1);
         m.setMeta(nextMeta());
         m.setOntologicalClasses(nextSetString(5, 20));
-        m.setParameters(new HashSet<>());
+        m.setParameters(new HashMap<>());
         for (int i = 0; i < 5; i++) {
-            m.getParameters().add(nextParameter());
+            m.getParameters().put(nextParameter().getName(),nextParameter().getValue());
         }
         m.setPmmlModel(nextString(5000));
         m.setPmmlTransformations(nextString(10000));
@@ -189,7 +186,6 @@ public class ROG {
 
     public Feature nextFeature() {
         Feature f = new Feature("/feature/" + nextString(5));
-        f.setCreatedBy(nextString(10));
         f.setMeta(nextMeta());
         f.setOntologicalClasses(new HashSet<>());
         f.getOntologicalClasses().add("Feature");

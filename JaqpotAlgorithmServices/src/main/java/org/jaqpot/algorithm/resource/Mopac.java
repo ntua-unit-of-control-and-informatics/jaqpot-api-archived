@@ -34,15 +34,11 @@
  */
 package org.jaqpot.algorithm.resource;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Base64;
 import java.util.UUID;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
@@ -66,10 +62,10 @@ import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataOutput;
 
 /**
  *
- * @author hampos
+ * @author Charalampos Chomenidis
+ * @author Pantelis Sopasakis
  */
 @Path("mopac")
-//@Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class Mopac {
 
@@ -80,19 +76,22 @@ public class Mopac {
             @HeaderParam("subjectid") String subjectId) {
 
         try {
-            URL pdbURL = new URL(pdbFile);
-
+            byte[] file;
+            if (pdbFile.startsWith("data:")) {
+                String base64pdb = pdbFile.split(",")[1];
+                file = Base64.getDecoder().decode(base64pdb.getBytes());
+            } else {
+                URL pdbURL = new URL(pdbFile);
+                file = IOUtils.toByteArray(pdbURL.openStream());
+            }
             ResteasyClient client = new ResteasyClientBuilder().disableTrustManager().build();
-
             ResteasyWebTarget target = client.target("https://apps.ideaconsult.net/enmtest/dataset");
-
-            byte[] file = IOUtils.toByteArray(pdbURL.openStream());
             String fileName = UUID.randomUUID().toString() + ".pdb";
             MultipartFormDataOutput mdo = new MultipartFormDataOutput();
             mdo.addFormData("file", file, MediaType.APPLICATION_OCTET_STREAM_TYPE, fileName);
             GenericEntity<MultipartFormDataOutput> entity = new GenericEntity<MultipartFormDataOutput>(
                     mdo) {
-                    };
+            };
 
             Response response = target
                     .request()
@@ -124,7 +123,7 @@ public class Mopac {
             } else {
                 return Response
                         .status(Response.Status.BAD_GATEWAY)
-                        .entity(ErrorReportFactory.remoteError(ambitTaskUri, ErrorReportFactory.internalServerError()))
+                        .entity(ErrorReportFactory.remoteError(ambitTaskUri, ErrorReportFactory.internalServerError(), null))
                         .build();
             }
 
@@ -163,7 +162,7 @@ public class Mopac {
             } else {
                 return Response
                         .status(Response.Status.BAD_GATEWAY)
-                        .entity(ErrorReportFactory.remoteError(ambitTaskUri, ErrorReportFactory.internalServerError()))
+                        .entity(ErrorReportFactory.remoteError(ambitTaskUri, ErrorReportFactory.internalServerError(), null))
                         .build();
             }
 
@@ -185,7 +184,7 @@ public class Mopac {
         } catch (IOException ex) {
             return Response
                     .status(Response.Status.BAD_GATEWAY)
-                    .entity(ErrorReportFactory.remoteError(ex.getMessage(), ErrorReportFactory.internalServerError()))
+                    .entity(ErrorReportFactory.remoteError(ex.getMessage(), ErrorReportFactory.internalServerError(), ex))
                     .build();
         }
     }

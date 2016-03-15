@@ -2,7 +2,12 @@
  *
  * JAQPOT Quattro
  *
- * JAQPOT Quattro and the components shipped with it (web applications and beans)
+ * JAQPOT Quattro and the components shipped with it, in particular:
+ * (i)   JaqpotCoreServices
+ * (ii)  JaqpotAlgorithmServices
+ * (iii) JaqpotDB
+ * (iv)  JaqpotDomain
+ * (v)   JaqpotEAR
  * are licensed by GPL v3 as specified hereafter. Additional components may ship
  * with some other licence as will be specified therein.
  *
@@ -27,53 +32,37 @@
  * All source files of JAQPOT Quattro that are stored on github are licensed
  * with the aforementioned licence. 
  */
-package org.jaqpot.core.model.dto.dataset;
+package org.jaqpot.core.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  *
- * @author Pantelis Sopasakis
  * @author Charalampos Chomenidis
- *
+ * @author Pantelis Sopasakis
  */
-@JsonIgnoreProperties(ignoreUnknown = true)
-public class Substance {
+public class ArrayCalculation {
 
-    String URI;
-    String name;
-    String ownerUUID;
+    private List<String> colNames;
 
-    @JsonProperty("URI")
-    public String getURI() {
-        return URI;
+    private Map<String, List<Object>> values;
+
+    public List<String> getColNames() {
+        return colNames;
     }
 
-    @JsonProperty("URI")
-    public void setURI(String URI) {
-        this.URI = URI;
+    public void setColNames(List<String> colNames) {
+        this.colNames = colNames;
     }
 
-    public String getName() {
-        return name;
+    public Map<String, List<Object>> getValues() {
+        return values;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getOwnerUUID() {
-        return ownerUUID;
-    }
-
-    public void setOwnerUUID(String ownerUUID) {
-        this.ownerUUID = ownerUUID;
-    }
-
-    @Override
-    public String toString() {
-        return "Substance{" + "URI=" + URI + '}';
+    public void setValues(LinkedHashMap<String, List<Object>> values) {
+        this.values = values;
     }
 
 }

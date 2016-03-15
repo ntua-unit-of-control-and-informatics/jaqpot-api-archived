@@ -60,7 +60,7 @@ public class TaskFactory {
      * @return The default queued task.
      */
     public static Task queuedTask(String title, String description, String creator) {
-        return queuedTask(title, description, creator, "Task created", null);
+        return queuedTask(title, description, "Task created", creator, null);
     }
 
     /**
@@ -82,19 +82,20 @@ public class TaskFactory {
      * <code>null</code>, but it is not advisable to help discoverability
      * @param creator of tasks.
      * @param comment comments
-     * @param hasSource the source of the task (who created it, e.g., an algorithm)
+     * @param hasSource the source of the task (who created it, e.g., an
+     * algorithm)
      * @return The default queued task.
      */
-    public static Task queuedTask(String title, String description, String creator, String comment, String hasSource) {
+    public static Task queuedTask(String title, String description, String comment, String creator, String hasSource) {
         Task queuedTask = TaskBuilder.builderRandomId().
                 addProgressComments(hasSource).
                 addDescription(description).
                 addTitles(title).
-                setCreatedBy(creator).
                 addSources(hasSource).
                 setCurrentDate().
                 setHttpStatus(202).
                 setStatus(Task.Status.QUEUED).
+                addCreators(creator).
                 build();
         return queuedTask;
     }

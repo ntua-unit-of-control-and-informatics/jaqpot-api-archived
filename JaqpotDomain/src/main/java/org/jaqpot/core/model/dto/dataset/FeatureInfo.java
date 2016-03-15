@@ -29,8 +29,8 @@
  */
 package org.jaqpot.core.model.dto.dataset;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  *
@@ -38,19 +38,26 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * @author Charalampos Chomenidis
  *
  */
-@JsonIgnoreProperties(ignoreUnknown = true)
-public class Substance {
+public class FeatureInfo {
 
-    String URI;
-    String name;
-    String ownerUUID;
+    private String URI;
+    private String name;
+    private String units;
+    private Map<String, Object> conditions;
+    private Dataset.DescriptorCategory category;
 
-    @JsonProperty("URI")
+    public FeatureInfo() {
+    }
+
+    public FeatureInfo(String URI, String name) {
+        this.URI = URI;
+        this.name = name;
+    }
+
     public String getURI() {
         return URI;
     }
 
-    @JsonProperty("URI")
     public void setURI(String URI) {
         this.URI = URI;
     }
@@ -63,17 +70,50 @@ public class Substance {
         this.name = name;
     }
 
-    public String getOwnerUUID() {
-        return ownerUUID;
+    public String getUnits() {
+        return units;
     }
 
-    public void setOwnerUUID(String ownerUUID) {
-        this.ownerUUID = ownerUUID;
+    public void setUnits(String units) {
+        this.units = units;
+    }
+
+    public Map<String, Object> getConditions() {
+        return conditions;
+    }
+
+    public void setConditions(Map<String, Object> conditions) {
+        this.conditions = conditions;
+    }
+
+    public Dataset.DescriptorCategory getCategory() {
+        return category;
+    }
+
+    public void setCategory(Dataset.DescriptorCategory category) {
+        this.category = category;
     }
 
     @Override
-    public String toString() {
-        return "Substance{" + "URI=" + URI + '}';
+    public int hashCode() {
+        int hash = 7;
+        hash = 29 * hash + Objects.hashCode(this.URI);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final FeatureInfo other = (FeatureInfo) obj;
+        if (!Objects.equals(this.URI, other.URI)) {
+            return false;
+        }
+        return true;
     }
 
 }

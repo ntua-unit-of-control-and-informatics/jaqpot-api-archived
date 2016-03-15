@@ -67,7 +67,6 @@ import org.jaqpot.core.model.dto.jpdi.PredictionRequest;
 import org.jaqpot.core.model.dto.jpdi.PredictionResponse;
 import org.jaqpot.core.model.dto.jpdi.TrainingRequest;
 import org.jaqpot.core.model.dto.jpdi.TrainingResponse;
-import org.jaqpot.core.model.factory.ErrorReportFactory;
 import org.jboss.resteasy.client.jaxrs.ResteasyClient;
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 import org.jpmml.evaluator.ExpressionUtil;
@@ -80,7 +79,8 @@ import org.xml.sax.InputSource;
 
 /**
  *
- * @author hampos
+ * @author Charalampos Chomenidis
+ * @author Pantelis Sopasakis
  */
 @Path("pmml")
 @Consumes(MediaType.APPLICATION_JSON)

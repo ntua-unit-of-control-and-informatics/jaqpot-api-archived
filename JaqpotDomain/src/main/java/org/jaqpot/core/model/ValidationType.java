@@ -27,10 +27,7 @@
  * All source files of JAQPOT Quattro that are stored on github are licensed
  * with the aforementioned licence. 
  */
-package org.jaqpot.core.model.dto.dataset;
-
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
+package org.jaqpot.core.model;
 
 /**
  *
@@ -38,42 +35,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * @author Charalampos Chomenidis
  *
  */
-@JsonIgnoreProperties(ignoreUnknown = true)
-public class Substance {
-
-    String URI;
-    String name;
-    String ownerUUID;
-
-    @JsonProperty("URI")
-    public String getURI() {
-        return URI;
-    }
-
-    @JsonProperty("URI")
-    public void setURI(String URI) {
-        this.URI = URI;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getOwnerUUID() {
-        return ownerUUID;
-    }
-
-    public void setOwnerUUID(String ownerUUID) {
-        this.ownerUUID = ownerUUID;
-    }
-
-    @Override
-    public String toString() {
-        return "Substance{" + "URI=" + URI + '}';
-    }
-
+public enum ValidationType {
+    
+    REGRESSION,
+    CLASSIFICATION
+    
 }

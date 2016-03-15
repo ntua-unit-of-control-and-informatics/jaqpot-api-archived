@@ -34,7 +34,9 @@ import java.util.Set;
 import javax.xml.bind.annotation.XmlRootElement;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 
 /**
  *
@@ -58,10 +60,7 @@ public class Model extends JaqpotEntity {
      * List of predicted features.
      */
     private List<String> predictedFeatures;
-    /**
-     * ID of the user who created the model.
-     */
-    private String createdBy;
+
     /**
      * Reliability of the model (ranking).
      */
@@ -73,7 +72,7 @@ public class Model extends JaqpotEntity {
     /**
      * Set of parameters of this model.
      */
-    private Set<Parameter> parameters;
+    private Map<String, Object> parameters;
     /**
      * Algorithm that was used to create this model.
      */
@@ -100,9 +99,9 @@ public class Model extends JaqpotEntity {
     private String pmmlTransformations;
 
     private String doaModel;
-    
+
     private List<String> transformationModels;
-    
+
     private List<String> linkedModels;
 
     public Model() {
@@ -125,14 +124,13 @@ public class Model extends JaqpotEntity {
         super(other);
         this.algorithm = other.algorithm != null ? new Algorithm(other.algorithm) : null;
         this.bibtex = other.bibtex != null ? new BibTeX(other.bibtex) : null;
-        this.createdBy = other.createdBy;
         this.datasetUri = other.datasetUri;
         this.dependentFeatures = other.dependentFeatures != null
                 ? new ArrayList<>(other.dependentFeatures) : null;
         this.independentFeatures = other.independentFeatures != null
                 ? new ArrayList<>(other.independentFeatures) : null;
         this.parameters = other.parameters != null
-                ? new HashSet<>(other.parameters) : null;
+                ? new HashMap<>(other.parameters) : null;
         this.predictedFeatures = other.predictedFeatures != null
                 ? new ArrayList<>(other.predictedFeatures) : null;
         this.reliability = other.reliability;
@@ -165,14 +163,6 @@ public class Model extends JaqpotEntity {
         this.predictedFeatures = predictedFeatures;
     }
 
-    public String getCreatedBy() {
-        return createdBy;
-    }
-
-    public void setCreatedBy(String createdBy) {
-        this.createdBy = createdBy;
-    }
-
     public Integer getReliability() {
         return reliability;
     }
@@ -189,11 +179,11 @@ public class Model extends JaqpotEntity {
         this.datasetUri = datasetUri;
     }
 
-    public Set<Parameter> getParameters() {
+    public Map<String, Object> getParameters() {
         return parameters;
     }
 
-    public void setParameters(Set<Parameter> parameters) {
+    public void setParameters(Map<String, Object> parameters) {
         this.parameters = parameters;
     }
 

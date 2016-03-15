@@ -57,12 +57,6 @@ public class Algorithm extends JaqpotEntity {
      */
     private Set<BibTeX> bibtex;
 
-    /**
-     * User who created the algorithm. This is useful for user-created
-     * algorithms
-     */
-    private String createdBy;
-
     private String trainingService;
     private String predictionService;
 
@@ -76,7 +70,6 @@ public class Algorithm extends JaqpotEntity {
     public Algorithm(Algorithm other) {
         super(other);
         this.bibtex = other.bibtex != null ? new HashSet<>(other.bibtex) : null;
-        this.createdBy = other.createdBy;
         this.parameters = other.parameters != null ? new HashSet<>(other.parameters) : null;
         this.ranking = other.ranking;
         this.trainingService = other.trainingService;
@@ -105,14 +98,6 @@ public class Algorithm extends JaqpotEntity {
 
     public void setBibtex(Set<BibTeX> bibtex) {
         this.bibtex = bibtex;
-    }
-
-    public String getCreatedBy() {
-        return createdBy;
-    }
-
-    public void setCreatedBy(String createdBy) {
-        this.createdBy = createdBy;
     }
 
     public String getTrainingService() {

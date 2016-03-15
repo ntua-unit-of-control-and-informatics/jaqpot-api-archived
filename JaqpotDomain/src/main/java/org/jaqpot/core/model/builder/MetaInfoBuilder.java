@@ -33,6 +33,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Set;
 import org.jaqpot.core.model.MetaInfo;
 
 /**
@@ -53,15 +54,16 @@ public class MetaInfoBuilder implements EntityBuilder<MetaInfo> {
     public static MetaInfoBuilder builder() {
         return new MetaInfoBuilder();
     }
-    
+
     public static MetaInfoBuilder builder(MetaInfo other) {
         return new MetaInfoBuilder(other);
     }
 
     private MetaInfoBuilder() {
         meta = new MetaInfo();
+        meta.setDate(new Date());
     }
-    
+
     private MetaInfoBuilder(MetaInfo meta) {
         this.meta = meta;
     }
@@ -118,6 +120,17 @@ public class MetaInfoBuilder implements EntityBuilder<MetaInfo> {
             meta.setCreators(new HashSet<>());
         }
         meta.getCreators().addAll(Arrays.asList(creators));
+        return this;
+    }
+
+    public MetaInfoBuilder addCreators(Set<String> creators) {
+        if (creators == null) {
+            return this;
+        }
+        if (meta.getCreators() == null) {
+            meta.setCreators(new HashSet<>());
+        }
+        meta.getCreators().addAll(creators);
         return this;
     }
 
@@ -208,17 +221,15 @@ public class MetaInfoBuilder implements EntityBuilder<MetaInfo> {
         meta.getSubjects().addAll(Arrays.asList(subjects));
         return this;
     }
-    
-    public MetaInfoBuilder setDate(Date date){
+
+    public MetaInfoBuilder setDate(Date date) {
         meta.setDate(date);
         return this;
     }
-    
-    public MetaInfoBuilder setCurrentDate(){
+
+    public MetaInfoBuilder setCurrentDate() {
         meta.setDate(new Date());
         return this;
     }
-    
-    
 
 }

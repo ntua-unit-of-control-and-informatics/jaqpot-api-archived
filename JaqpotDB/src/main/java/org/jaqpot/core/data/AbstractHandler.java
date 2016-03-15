@@ -45,43 +45,62 @@ import org.jaqpot.core.model.JaqpotEntity;
  *
  */
 public abstract class AbstractHandler<T extends JaqpotEntity> {
-    
+
     private final Class<T> entityClass;
-    
+
     public AbstractHandler(Class<T> entityClass) {
         this.entityClass = entityClass;
     }
-    
+
     protected abstract JaqpotEntityManager getEntityManager();
-    
+
     public void create(T entity) {
         getEntityManager().persist(entity);
     }
-    
+
     public void edit(T entity) {
         getEntityManager().merge(entity);
     }
-    
+
     public void remove(T entity) {
         getEntityManager().remove(entity);
     }
-    
+
     public T find(Object id) {
         return getEntityManager().find(entityClass, id);
     }
-    
+
     public List<T> find(Map<String, Object> properties) {
         return getEntityManager().find(entityClass, properties, 0, Integer.MAX_VALUE);
     }
-    
+
     public List<T> findAll() {
         return getEntityManager().findAll(entityClass, 0, Integer.MAX_VALUE);
     }
-    
+
     public List<T> findAll(Integer start, Integer max) {
         return getEntityManager().findAll(entityClass, start, max);
     }
-    
+
+    public List<T> findFeatured(Integer start, Integer max) {
+        List<String> fields = new ArrayList<>();
+        fields.add("_id");
+        fields.add("meta");
+        fields.add("ontologicalClasses");
+
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("featured", true);
+
+        return getEntityManager().find(entityClass, properties, fields, start, max);
+    }
+
+    public Long countFeatured() {
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("featured", true);
+
+        return getEntityManager().count(entityClass, properties);
+    }
+
     public List<T> listOnlyIDs(Integer start, Integer max) {
         List<String> fields = new ArrayList<>();
         fields.add("_id");
@@ -89,28 +108,30 @@ public abstract class AbstractHandler<T extends JaqpotEntity> {
         fields.add("ontologicalClasses");
         return getEntityManager().findAll(entityClass, fields, start, max);
     }
-    
+
     public List<T> listOnlyIDsOfCreator(String createdBy, Integer start, Integer max) {
         List<String> fields = new ArrayList<>();
         fields.add("_id");
         fields.add("meta");
         fields.add("ontologicalClasses");
-        
+
         Map<String, Object> properties = new HashMap<>();
         properties.put("meta.creators", Arrays.asList(createdBy));
-        
+        properties.put("visible", true);
+
         return getEntityManager().find(entityClass, properties, fields, start, max);
     }
-    
+
     public Long countAll() {
         return getEntityManager().countAll(entityClass);
     }
-    
+
     public Long countAllOfCreator(String createdBy) {
         Map<String, Object> properties = new HashMap<>();
         properties.put("meta.creators", Arrays.asList(createdBy));
-        
+        properties.put("visible", true);
+
         return getEntityManager().count(entityClass, properties);
     }
-    
+
 }

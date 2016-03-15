@@ -80,6 +80,7 @@ import org.jaqpot.core.model.dto.bundle.BundleProperties;
 import org.jaqpot.core.model.dto.bundle.BundleSubstances;
 import org.jaqpot.core.model.dto.dataset.DataEntry;
 import org.jaqpot.core.model.dto.dataset.Dataset;
+import org.jaqpot.core.model.dto.dataset.FeatureInfo;
 import org.jaqpot.core.model.dto.dataset.Substance;
 import org.jaqpot.core.model.dto.study.Effect;
 import org.jaqpot.core.model.dto.study.Studies;
@@ -97,55 +98,56 @@ import org.jaqpot.core.service.annotations.UnSecure;
  */
 @Stateless
 public class ConjoinerService {
-
+    
     @Inject
     @Jackson
     JSONSerializer serializer;
-
+    
     @Inject
     @UnSecure
     Client client;
-
+    
     @EJB
     TaskHandler taskHandler;
-
+    
     @EJB
     FeatureHandler featureHandler;
-
+    
     @Resource(lookup = "java:jboss/exported/jms/topic/preparation")
     private Topic preparationQueue;
-
+    
     @Inject
     private JMSContext jmsContext;
-
+    
     private ResourceBundle configResourceBundle;
-
-    private Set<org.jaqpot.core.model.dto.dataset.Feature> featureMap;
-
+    
+    private Set<org.jaqpot.core.model.dto.dataset.FeatureInfo> featureMap;
+    
     private Set<Dataset.DescriptorCategory> usedDescriptors;
-
+    
     @PostConstruct
     private void init() {
         configResourceBundle = ResourceBundle.getBundle("config");
     }
-
+    
     public Task initiatePreparation(Map<String, Object> options, String userName) {
-
+        
         Task task = TaskFactory.queuedTask("Preparation on bundle: " + options.get("bundle_uri"),
                 "A preparation procedure will return a Dataset if completed successfully."
                 + "It may also initiate other procedures if desired.",
                 userName);
         task.setType(Task.Type.PREPARATION);
         options.put("taskId", task.getId());
+        task.setVisible(Boolean.TRUE);
         taskHandler.create(task);
         jmsContext.createProducer().setDeliveryDelay(1000).send(preparationQueue, options);
         return task;
     }
-
-    public Dataset prepareDataset(String bundleURI, String subjectId, Set<String> descriptors) {
-
+    
+    public Dataset prepareDataset(String bundleURI, String subjectId, Set<String> descriptors, Boolean intersectColumns, Boolean retainNullValues) {
+        
         String remoteServerBase = bundleURI.split("bundle")[0];
-
+        
         BundleSubstances substances = client.target(bundleURI + "/substance")
                 .request()
                 .accept(MediaType.APPLICATION_JSON)
@@ -156,45 +158,48 @@ public class ConjoinerService {
                 .accept(MediaType.APPLICATION_JSON)
                 .header("subjectid", subjectId)
                 .get(BundleProperties.class);
-
+        
         Dataset dataset = new Dataset();
         List<DataEntry> dataEntries = new ArrayList<>();
-
+        
         featureMap = new HashSet<>();
         usedDescriptors = new HashSet<>();
-
+        
         for (Substance substance : substances.getSubstance()) {
             Studies studies = client.target(substance.getURI() + "/study")
                     .request()
                     .accept(MediaType.APPLICATION_JSON)
                     .header("subjectid", subjectId)
                     .get(Studies.class);
-            DataEntry dataEntry = createDataEntry(substance, studies, properties.getFeature().keySet(), remoteServerBase, subjectId, descriptors);
+            DataEntry dataEntry = createDataEntry(substance, studies, properties.getFeature().keySet(), remoteServerBase, subjectId, descriptors, retainNullValues);
             dataEntries.add(dataEntry);
         }
-
+        
         dataset.setFeatures(featureMap);
-
+        
         ROG rog = new ROG(true);
         dataset.setId(rog.nextString(12));
         dataset.setDataEntry(dataEntries);
-
-        //Takes the intersection of properties of all substances
-        dataset.getDataEntry().parallelStream().forEach(de -> {
-            dataset.getDataEntry().parallelStream().forEach(e -> {
-                de.getValues().keySet().retainAll(e.getValues().keySet());
+        
+        if (intersectColumns) {
+            //Takes the intersection of properties of all substances
+            dataset.getDataEntry().parallelStream().forEach(de -> {
+                dataset.getDataEntry().parallelStream().forEach(e -> {
+                    de.getValues().keySet().retainAll(e.getValues().keySet());
+                });
             });
-        });
+        }
 
-        dataset.setTotalRows(dataset.getDataEntry().size());
-        dataset.setTotalColumns(dataset.getDataEntry().stream().findFirst().get().getValues().size());
+//        dataset.setTotalRows(dataset.getDataEntry().size());
+//        dataset.setTotalColumns(dataset.getDataEntry().stream().findFirst().get().getValues().size());
         dataset.setDescriptors(usedDescriptors);
+        dataset.setVisible(Boolean.TRUE);
         return dataset;
-
+        
     }
 
     //TODO: Handle multiple effects that map to the same property
-    public DataEntry createDataEntry(Substance substance, Studies studies, Set<String> propertyCategories, String remoteServerBase, String subjectId, Set<String> descriptors) {
+    public DataEntry createDataEntry(Substance substance, Studies studies, Set<String> propertyCategories, String remoteServerBase, String subjectId, Set<String> descriptors, Boolean retainNullValues) {
         DataEntry dataEntry = new DataEntry();
         TreeMap<String, Object> values = new TreeMap<>();
         for (Study study : studies.getStudy()) {
@@ -242,7 +247,11 @@ public class ConjoinerService {
                                     String URI = configResourceBundle.getString("ServerBasePath")
                                             + "feature/" + f.getId();
                                     values.put(URI, value);
-                                    featureMap.add(new org.jaqpot.core.model.dto.dataset.Feature(URI, entry.getKey()));
+                                    FeatureInfo featureInfo = new FeatureInfo();
+                                    featureInfo.setURI(URI);
+                                    featureInfo.setName(entry.getKey());
+                                    featureInfo.setCategory(Dataset.DescriptorCategory.IMAGE);
+                                    featureMap.add(featureInfo);
                                 } catch (NumberFormatException ex) {
                                     continue;
                                 }
@@ -283,7 +292,10 @@ public class ConjoinerService {
                                 .getJsonObject("feature")
                                 .getJsonObject(key)
                                 .getString("title");
-                        featureMap.add(new org.jaqpot.core.model.dto.dataset.Feature(key, featureTitle));
+                        featureResponse.close();
+                        FeatureInfo featureInfo = new org.jaqpot.core.model.dto.dataset.FeatureInfo(key, featureTitle);
+                        featureInfo.setCategory(Dataset.DescriptorCategory.MOPAC);
+                        featureMap.add(featureInfo);
                     });
                     usedDescriptors.add(Dataset.DescriptorCategory.MOPAC);
                     continue;
@@ -301,32 +313,51 @@ public class ConjoinerService {
                     String guideline = guidelines == null || guidelines.isEmpty() ? "" : guidelines.get(0);
                     StringJoiner propertyURIJoiner = getRelativeURI(name, topcategory, endpointcategory, identifier, guideline);
                     Object value = calculateValue(effect);
-                    if (value == null) {
+                    if (value == null && !retainNullValues) {
                         continue;
                     }
-                    values.put(remoteServerBase + propertyURIJoiner.toString(), value);
-                    featureMap.add(new org.jaqpot.core.model.dto.dataset.Feature(remoteServerBase + propertyURIJoiner.toString(), name));
+                    String propertyKey = remoteServerBase + propertyURIJoiner.toString();
+                    if (values.containsKey(propertyKey)) {
+                        Object old = values.get(propertyKey);
+                        if (old instanceof List) {
+                            ((List) old).add(value);
+                        } else {
+                            List list = new ArrayList();
+                            list.add(old);
+                            list.add(value);
+                            values.put(propertyKey, list);
+                        }
+                    } else {
+                        values.put(propertyKey, value);
+                    }
+                    FeatureInfo featureInfo = new FeatureInfo();
+                    featureInfo.setURI(propertyKey);
+                    featureInfo.setName(name);
+                    featureInfo.setUnits(units);
+                    featureInfo.setConditions(effect.getConditions());
+                    featureInfo.setCategory(Dataset.DescriptorCategory.EXPERIMENTAL);
+                    featureMap.add(featureInfo);
                     usedDescriptors.add(Dataset.DescriptorCategory.EXPERIMENTAL);
                 }
             }
         }
         dataEntry.setCompound(substance);
         dataEntry.setValues(values);
-
+        
         return dataEntry;
     }
 
     //TODO: Implement Dixon's q-test
     public Object calculateValue(Effect effect) {
-
+        
         Object currentValue = null; // return null if conditions not satisfied
 
         // values not allowed for loQualifier & upQualifier --> this can be switched to "allowed values" if necessary
-        List<String> loNotAllowed = Arrays.asList(null, "", " ", "~", "!=", ">", ">=");
-        List<String> upNotAllowed = Arrays.asList(null, "", " ", "~", "!=", "<", "<=");
-
+        List<String> loNotAllowed = Arrays.asList("~", "!=", ">", ">=");
+        List<String> upNotAllowed = Arrays.asList("~", "!=", "<", "<=");
+        
         if ((effect.getResult().getLoValue() != null) && (!(loNotAllowed.contains(effect.getResult().getLoQualifier())))) {
-
+            
             checker:
             if ((effect.getResult().getUpValue() != null) && (!(upNotAllowed.contains(effect.getResult().getUpQualifier())))) {
 
@@ -351,15 +382,13 @@ public class ConjoinerService {
             } else {
                 currentValue = effect.getResult().getLoValue().doubleValue();
             }
-        } else {
-            if ((effect.getResult().getUpValue() != null) && (!(upNotAllowed.contains(effect.getResult().getUpQualifier())))) {
-                currentValue = effect.getResult().getUpValue().doubleValue();
-            }
+        } else if ((effect.getResult().getUpValue() != null) && (!(upNotAllowed.contains(effect.getResult().getUpQualifier())))) {
+            currentValue = effect.getResult().getUpValue().doubleValue();
         }
-
+        
         return currentValue;
     }
-
+    
     public Map<String, Object> parseProteomics(Study study, String remoteServerBase) {
         Map<String, Object> values = new TreeMap<>();
         study.getEffects().stream().findFirst().ifPresent(effect -> {
@@ -378,12 +407,14 @@ public class ConjoinerService {
                 propertyURIJoiner.add(entry.getKey());
                 Object protValue = entry.getValue().getLoValue();
                 values.put(remoteServerBase + propertyURIJoiner.toString(), protValue);
-                featureMap.add(new org.jaqpot.core.model.dto.dataset.Feature(remoteServerBase + propertyURIJoiner.toString(), entry.getKey()));
+                FeatureInfo featureInfo = new org.jaqpot.core.model.dto.dataset.FeatureInfo(remoteServerBase + propertyURIJoiner.toString(), entry.getKey());
+                featureInfo.setCategory(Dataset.DescriptorCategory.EXPERIMENTAL);
+                featureMap.add(featureInfo);
             });
         });
         return values;
     }
-
+    
     public StringJoiner getRelativeURI(
             String name,
             String topcategory,
@@ -403,7 +434,7 @@ public class ConjoinerService {
             return new StringJoiner("/").add("property");
         }
     }
-
+    
     @Deprecated
     public String getRelativeURI(String name, String topcategory, String endpointcategory, String identifier, Boolean extendedURI, String guideline) {
         try {
@@ -419,18 +450,18 @@ public class ConjoinerService {
             return "/property";
         }
     }
-
+    
     public String createHashedIdentifier(String name, String units, String conditions) {
         HashFunction hf = Hashing.sha1();
         StringBuilder b = new StringBuilder();
         b.append(name == null ? "" : name);
         b.append(units == null ? "" : units);
         b.append(conditions == null ? "" : conditions);
-
+        
         HashCode hc = hf.newHasher()
                 .putString(b.toString(), Charsets.US_ASCII)
                 .hash();
         return hc.toString().toUpperCase();
     }
-
+    
 }

@@ -44,10 +44,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import javax.ejb.ActivationConfigProperty;
 import javax.ejb.EJB;
 import javax.ejb.MessageDriven;
@@ -73,6 +75,7 @@ import org.jaqpot.core.model.Task;
 import org.jaqpot.core.model.dto.dataset.DataEntry;
 import org.jaqpot.core.model.factory.ErrorReportFactory;
 import org.jaqpot.core.model.dto.dataset.Dataset;
+import org.jaqpot.core.model.dto.dataset.FeatureInfo;
 import org.jaqpot.core.model.dto.jpdi.PredictionRequest;
 import org.jaqpot.core.model.dto.jpdi.PredictionResponse;
 import org.jaqpot.core.model.dto.study.Category;
@@ -90,7 +93,8 @@ import org.jaqpot.core.service.exceptions.JaqpotWebException;
 
 /**
  *
- * @author hampos
+ * @author Charalampos Chomenidis
+ * @author Pantelis Sopasakis
  */
 @MessageDriven(activationConfig = {
     @ActivationConfigProperty(propertyName = "destinationLookup",
@@ -99,49 +103,57 @@ import org.jaqpot.core.service.exceptions.JaqpotWebException;
             propertyValue = "javax.jms.Topic")
 })
 public class PredictionMDB extends RunningTaskMDB {
-
+    
     private static final Logger LOG = Logger.getLogger(PredictionMDB.class.getName());
-
+    
     @EJB
     TaskHandler taskHandler;
-
+    
     @EJB
     ModelHandler modelHandler;
-
+    
     @EJB
     DatasetHandler datasetHandler;
-
+    
     @EJB
     FeatureHandler featureHandler;
-
+    
     @Inject
     @UnSecure
     Client client;
-
+    
     @Inject
     @Jackson
     JSONSerializer jsonSerializer;
-
+    
+    private final Set<String> intermediateDatasets;
+    
+    private String subjectId;
+    
+    public PredictionMDB() {
+        this.intermediateDatasets = new HashSet<>();
+    }
+    
     @Override
     public void onMessage(Message msg) {
         Task task = null;
         try {
             Map<String, Object> messageBody = msg.getBody(Map.class);
             task = taskHandler.find(messageBody.get("taskId"));
-
+            
             if (task == null) {
                 throw new NullPointerException("FATAL: Could not find task with id:" + messageBody.get("taskId"));
             }
-
+            
             init(task.getId());
-
+            
             task.setHttpStatus(202);
             task.setStatus(Task.Status.RUNNING);
             task.setType(Task.Type.PREDICTION);
             task.getMeta().getComments().add("Prediction Task is now running.");
             task.setPercentageCompleted(1.0f);
             taskHandler.edit(task);
-
+            
             task.getMeta().getComments().add("Attempting to find model in database...");
             task.setPercentageCompleted(1.5f);
             taskHandler.edit(task);
@@ -155,18 +167,22 @@ public class PredictionMDB extends RunningTaskMDB {
             task.getMeta().getComments().add("Model retrieved successfully.");
             task.setPercentageCompleted(5.f);
             taskHandler.edit(task);
-
+            
+            String creator = (String) messageBody.get("createdBy");
             String dataset_uri = (String) messageBody.get("dataset_uri");
+            subjectId = (String) messageBody.get("subjectid");
+            
             if (model.getTransformationModels() != null && !model.getTransformationModels().isEmpty()) {
                 task.getMeta().getComments().add("--");
                 task.getMeta().getComments().add("Processing transformations...");
                 taskHandler.edit(task);
+                
                 for (String transformationModel : model.getTransformationModels()) {
                     MultivaluedMap<String, String> formMap = new MultivaluedHashMap<>();
                     formMap.put("dataset_uri", Arrays.asList(dataset_uri));
                     Task predictionTask = client.target(transformationModel)
                             .request()
-                            .header("subjectid", messageBody.get("subjectid"))
+                            .header("subjectid", subjectId)
                             .accept(MediaType.APPLICATION_JSON)
                             .post(Entity.form(formMap), Task.class);
                     String predictionTaskURI = transformationModel.split("model")[0] + "task/" + predictionTask.getId();
@@ -177,28 +193,29 @@ public class PredictionMDB extends RunningTaskMDB {
                         try {
                             Thread.sleep(500);
                         } catch (InterruptedException ex) {
-
+                            
                         }
                         predictionTask = client.target(predictionTaskURI)
                                 .request()
-                                .header("subjectid", messageBody.get("subjectid"))
+                                .header("subjectid", subjectId)
                                 .accept(MediaType.APPLICATION_JSON)
                                 .get(Task.class);
                     }
                     if (predictionTask.getStatus().equals(Task.Status.COMPLETED)) {
                         dataset_uri = predictionTask.getResultUri();
                         task.getMeta().getComments().add("Transformed dataset created successfully:" + predictionTask.getResultUri());
+                        intermediateDatasets.add(dataset_uri);
                         taskHandler.edit(task);
                     } else {
                         task.getMeta().getComments().add("Transformation task failed.");
                         throw new JaqpotWebException(predictionTask.getErrorReport());
                     }
                 }
-
+                
                 task.getMeta().getComments().add("--");
                 taskHandler.edit(task);
             }
-
+            
             List<String> predictionDatasets = new ArrayList<>();
             if (model.getLinkedModels() != null && !model.getLinkedModels().isEmpty()) {
                 task.getMeta().getComments().add("--");
@@ -210,7 +227,7 @@ public class PredictionMDB extends RunningTaskMDB {
                     formMap.put("dataset_uri", Arrays.asList(transformedDataset));
                     Task predictionTask = client.target(linkedModel)
                             .request()
-                            .header("subjectid", messageBody.get("subjectid"))
+                            .header("subjectid", subjectId)
                             .accept(MediaType.APPLICATION_JSON)
                             .post(Entity.form(formMap), Task.class);
                     String predictionTaskURI = linkedModel.split("model")[0] + "task/" + predictionTask.getId();
@@ -221,11 +238,11 @@ public class PredictionMDB extends RunningTaskMDB {
                         try {
                             Thread.sleep(500);
                         } catch (InterruptedException ex) {
-
+                            
                         }
                         predictionTask = client.target(predictionTaskURI)
                                 .request()
-                                .header("subjectid", messageBody.get("subjectid"))
+                                .header("subjectid", subjectId)
                                 .accept(MediaType.APPLICATION_JSON)
                                 .get(Task.class);
                     }
@@ -238,29 +255,36 @@ public class PredictionMDB extends RunningTaskMDB {
                         task.getMeta().getComments().add("Prediction task failed.");
                     }
                 }
-
+                
                 task.getMeta().getComments().add("--");
                 taskHandler.edit(task);
             }
-
-            task.getMeta().getComments().add("Attempting to download dataset...");
-            taskHandler.edit(task);
-            Dataset dataset = client.target(dataset_uri)
-                    .request()
-                    .header("subjectid", messageBody.get("subjectid"))
-                    .accept(MediaType.APPLICATION_JSON)
-                    .get(Dataset.class);
-            dataset.setDatasetURI(dataset_uri);
-            task.getMeta().getComments().add("Dataset has been retrieved.");
-
-            Dataset predFeatureDataset = DatasetFactory.copy(dataset, new HashSet<>(model.getDependentFeatures()));
-
-            dataset.getDataEntry().parallelStream()
-                    .forEach(dataEntry -> {
-                        dataEntry.getValues().keySet().retainAll(model.getIndependentFeatures());
-                    });
-            task.getMeta().getComments().add("Dataset has been cleaned from unused values.");
-
+            Dataset dataset;
+            Dataset predFeatureDataset;
+            if (dataset_uri != null && !dataset_uri.isEmpty()) {
+                task.getMeta().getComments().add("Attempting to download dataset...");
+                taskHandler.edit(task);
+                dataset = client.target(dataset_uri)
+                        .request()
+                        .header("subjectid", subjectId)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .get(Dataset.class);
+                dataset.setDatasetURI(dataset_uri);
+                task.getMeta().getComments().add("Dataset has been retrieved.");
+                
+                predFeatureDataset = DatasetFactory.copy(dataset, new HashSet<>(model.getDependentFeatures()));
+                
+                dataset.getDataEntry().parallelStream()
+                        .forEach(dataEntry -> {
+                            dataEntry.getValues().keySet().retainAll(model.getIndependentFeatures());
+                        });
+                
+                task.getMeta().getComments().add("Dataset has been cleaned from unused values.");
+            } else {
+                dataset = DatasetFactory.createEmpty(0);
+                predFeatureDataset = null;
+            }
+            dataset.getMeta().getCreators().add(creator);
             task.setPercentageCompleted(15.f);
             task.getMeta().getComments().add("Creating JPDI prediction request...");
             taskHandler.edit(task);
@@ -268,7 +292,7 @@ public class PredictionMDB extends RunningTaskMDB {
             predictionRequest.setDataset(dataset);
             predictionRequest.setRawModel(model.getActualModel());
             predictionRequest.setAdditionalInfo(model.getAdditionalInfo());
-
+            
             task.getMeta().getComments().add("Sending request to algorithm service:" + model.getAlgorithm().getPredictionService());
             task.setPercentageCompleted(17.f);
             taskHandler.edit(task);
@@ -278,7 +302,7 @@ public class PredictionMDB extends RunningTaskMDB {
                     .post(Entity.json(predictionRequest));
             task.getMeta().getComments().add("Algorithm service responded with status:" + response.getStatus());
             taskHandler.edit(task);
-
+            
             String responseString = response.readEntity(String.class);
             if (response.getStatus() != 200 && response.getStatus() != 201 && response.getStatus() != 202) {
                 if (response.getStatus() == 400) {
@@ -287,7 +311,7 @@ public class PredictionMDB extends RunningTaskMDB {
                     throw new JaqpotWebException(ErrorReportFactory.internalServerError("500", responseString, responseString));
                 }
             }
-            System.out.println(responseString);
+//            System.out.println(responseString);
 
             task.getMeta().getComments().add("Attempting to parse response...");
             task.setPercentageCompleted(18.f);
@@ -295,43 +319,64 @@ public class PredictionMDB extends RunningTaskMDB {
             PredictionResponse predictionResponse = jsonSerializer.parse(responseString, PredictionResponse.class);
             response.close();
             task.getMeta().getComments().add("Response was parsed successfully.");
-
+            
             task.getMeta().getComments().add("Creating new Dataset for predictions...");
             task.setPercentageCompleted(22.f);
             taskHandler.edit(task);
             List<Map<String, Object>> predictions = predictionResponse.getPredictions();
-            for (int i = 0; i < dataset.getDataEntry().size(); i++) {
-                Map<String, Object> row = predictions.get(i);
-                DataEntry dataEntry = dataset.getDataEntry().get(i);
-                if (model.getAlgorithm().getOntologicalClasses().contains("ot:Scaling")
-                        || model.getAlgorithm().getOntologicalClasses().contains("ot:Transformation")) {
-                    dataEntry.getValues().clear();
-                    dataset.getFeatures().clear();
-                }
-                for (Entry<String, Object> entry : row.entrySet()) {
-//                row.entrySet().stream().forEach(entry -> {
-                    Feature feature = featureHandler.findByTitleAndSource(entry.getKey(), "algorithm/" + model.getAlgorithm().getId());
-                    dataEntry.getValues().put(messageBody.get("base_uri") + "feature/" + feature.getId(), entry.getValue());
-                    dataset.getFeatures().add(new org.jaqpot.core.model.dto.dataset.Feature(messageBody.get("base_uri") + "feature/" + feature.getId(), feature.getMeta().getTitles().stream().findFirst().get()));
-                }
+//            for (int i = 0; i < dataset.getDataEntry().size(); i++) {
+            if (dataset.getDataEntry().isEmpty()) {
+                DatasetFactory.addEmptyRows(dataset, predictions.size());
             }
-//            System.out.println(jsonSerializer.write(dataset));
-            dataset = DatasetFactory.merge(dataset, predFeatureDataset);
+            IntStream.range(0, dataset.getDataEntry().size())
+                    .parallel()
+                    .forEach(i -> {
+                        Map<String, Object> row = predictions.get(i);
+                        DataEntry dataEntry = dataset.getDataEntry().get(i);
+                        if (model.getAlgorithm().getOntologicalClasses().contains("ot:Scaling")
+                                || model.getAlgorithm().getOntologicalClasses().contains("ot:Transformation")) {
+                            dataEntry.getValues().clear();
+                            dataset.getFeatures().clear();
+                        }
+                        row.entrySet()
+                                .stream()
+                                .forEach(entry -> {
+                                    Feature feature = featureHandler.findByTitleAndSource(entry.getKey(), "algorithm/" + model.getAlgorithm().getId());
+                                    if (feature == null) {
+                                        return;
+                                    }
+                                    dataEntry.getValues().put(messageBody.get("base_uri") + "feature/" + feature.getId(), entry.getValue());
+                                    FeatureInfo featInfo = new FeatureInfo(messageBody.get("base_uri") + "feature/" + feature.getId(), feature.getMeta().getTitles().stream().findFirst().get());
+                                    featInfo.setCategory(Dataset.DescriptorCategory.PREDICTED);
+                                    dataset.getFeatures().add(featInfo);
+                                });
+                    });
+            Dataset mergedDataset = DatasetFactory.mergeColumns(dataset, predFeatureDataset);
             for (String predictionDatasetURI : predictionDatasets) {
                 Dataset predictionDataset = client.target(predictionDatasetURI)
                         .request()
-                        .header("subjectid", messageBody.get("subjectid"))
+                        .header("subjectid", subjectId)
                         .accept(MediaType.APPLICATION_JSON)
                         .get(Dataset.class);
-                dataset = DatasetFactory.merge(dataset, predictionDataset);
+                mergedDataset = DatasetFactory.mergeColumns(mergedDataset, predictionDataset);
             }
             ROG randomStringGenerator = new ROG(true);
-            dataset.setId(randomStringGenerator.nextString(14));
+            mergedDataset.setId(randomStringGenerator.nextString(14));
             task.getMeta().getComments().add("Dataset ready.");
             task.getMeta().getComments().add("Saving to database...");
             task.setPercentageCompleted(30.f);
             taskHandler.edit(task);
-            datasetHandler.create(dataset);
+            if ((Boolean) messageBody.get("visible")) {
+                mergedDataset.setVisible(Boolean.TRUE);
+            } else {
+                mergedDataset.setVisible(Boolean.FALSE);
+            }
+            mergedDataset.setFeatured(Boolean.FALSE);
+            mergedDataset.getMeta().getTitles().add("With Predictions");
+            mergedDataset.getMeta().getDescriptions().add("Contains Predictions by model " + model.getId());
+            mergedDataset.setByModel(model.getId());
+            mergedDataset.getMeta().setCreators(new HashSet<>(Arrays.asList(creator)));
+            datasetHandler.create(mergedDataset);
             task.getMeta().getComments().add("Dataset saved...");
             taskHandler.edit(task);
 //            System.out.println(jsonSerializer.write(dataset));
@@ -340,17 +385,17 @@ public class PredictionMDB extends RunningTaskMDB {
                 task.getMeta().getComments().add("We will attempt to upload results into the bundle.");
                 task.setPercentageCompleted(35.f);
                 taskHandler.edit(task);
-
+                
                 String bundleUri = (String) messageBody.get("bundle_uri");
-
-                List<String> substances = dataset.getDataEntry().stream().map(de -> {
+                
+                List<String> substances = mergedDataset.getDataEntry().stream().map(de -> {
                     return de.getCompound().getURI();
                 }).collect(Collectors.toList());
                 String predictionFeature = model.getPredictedFeatures().stream().findFirst().get();
                 Feature feature = featureHandler.find(predictionFeature.split("/")[1]);
                 String predictedProperty = feature.getMeta().getSeeAlso().stream().findFirst().get();
                 String studyJSON = createStudyJSON(predictedProperty, model.getId(), predictions, substances);
-
+                
                 task.getMeta().getComments().add("Creating a working matrix in the bundle...");
                 task.setPercentageCompleted(45.f);
                 taskHandler.edit(task);
@@ -359,7 +404,7 @@ public class PredictionMDB extends RunningTaskMDB {
                 client.target(bundleUri + "/matrix/working")
                         .request()
                         .post(Entity.form(formData)).close();
-
+                
                 task.getMeta().getComments().add("Now putting results in the bundle...");
                 task.setPercentageCompleted(50.f);
                 taskHandler.edit(task);
@@ -368,19 +413,19 @@ public class PredictionMDB extends RunningTaskMDB {
                         .header("Content-type", MediaType.APPLICATION_JSON)
                         .accept("text/uri-list")
                         .put(Entity.entity(studyJSON, MediaType.APPLICATION_JSON));
-
+                
                 String taskUri = taskResponse.readEntity(String.class);
                 taskResponse.close();
-
+                
                 task.getMeta().getComments().add("An upload task has been started with URI:" + taskUri.trim());
                 task.setPercentageCompleted(85.f);
                 taskHandler.edit(task);
             }
-
+            
             task.setStatus(Task.Status.COMPLETED);
             task.setPercentageCompleted(100.f);
             task.setHttpStatus(201);
-            task.setResult("dataset/" + dataset.getId());
+            task.setResult("dataset/" + mergedDataset.getId());
             task.getMeta().getComments().add("Task Completed Successfully.");
         } catch (JMSException ex) {
             LOG.log(Level.SEVERE, null, ex);
@@ -398,13 +443,21 @@ public class PredictionMDB extends RunningTaskMDB {
             task.setHttpStatus(500);
             task.setErrorReport(ErrorReportFactory.internalServerError(ex, "", ex.getMessage(), ""));
         } finally {
+            task.getMeta().getComments().add("Performing cleanup.");
+            for (String intermediateDataset : intermediateDatasets) {
+                client.target(intermediateDataset)
+                        .request()
+                        .header("subjectid", subjectId)
+                        .delete()
+                        .close();
+            }
             if (task != null) {
                 terminate(task.getId());
             }
             taskHandler.edit(task);
         }
     }
-
+    
     private String createStudyJSON(
             String predictedProperty,
             String modelId,
@@ -413,7 +466,7 @@ public class PredictionMDB extends RunningTaskMDB {
             throws UnsupportedEncodingException, JsonProcessingException {
         Studies studies = new Studies();
         List<Study> studyList = new ArrayList<>();
-
+        
         for (int i = 0; i < predictions.size(); i++) {
             Object value = predictions.get(i).values().stream().findFirst().get();
             Study study = new Study();
@@ -422,15 +475,15 @@ public class PredictionMDB extends RunningTaskMDB {
             substance.setUuid(substances.get(i));
             owner.setSubstance(substance);
             study.setOwner(owner);
-
+            
             String[] parts = predictedProperty.split("/");
-
+            
             Protocol protocol = new Protocol();
             protocol.setTopcategory(parts[1]);
             Category category = new Category();
             category.setCode(parts[2]);
             protocol.setCategory(category);
-
+            
             String endpoint = URLDecoder.decode(parts[3], "UTF-8");
             protocol.setEndpoint(endpoint);
             protocol.setGuideline(Arrays.asList("Predicted Property by Model " + modelId));
@@ -438,20 +491,20 @@ public class PredictionMDB extends RunningTaskMDB {
             Map<String, Object> reliability = new HashMap<>();
             reliability.put("r_studyResultType", "(Q)SAR");
             study.setReliability(reliability);
-
+            
             Effect effect = new Effect();
             effect.setEndpoint(endpoint);
             Result result = new Result();
             result.setLoValue((Number) value);
             result.setLoQualifier("mean");
             effect.setResult(result);
-
+            
             TreeMap<String, Object> conditions = new TreeMap<>();
             conditions.put("Model", modelId);
             effect.setConditions(conditions);
             study.setEffects(Arrays.asList(effect));
             study.setParameters(new HashMap<>());
-
+            
             studyList.add(study);
         }
         studies.setStudy(studyList);
@@ -461,5 +514,5 @@ public class PredictionMDB extends RunningTaskMDB {
                 .writeValueAsString(studies);
         return studyJSON;
     }
-
+    
 }

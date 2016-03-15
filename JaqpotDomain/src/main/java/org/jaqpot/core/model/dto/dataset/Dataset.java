@@ -52,7 +52,8 @@ public class Dataset extends JaqpotEntity {
         IMAGE("ImageAnalysis descriptors", "Descriptors derived from analyzing substance images by the ImageAnalysis software."),
         GO("GO descriptors", "Descriptors derived by proteomics data."),
         MOPAC("Mopac descriptors", "Descriptors derived by crystallographic data."),
-        CDK("CDK descriptors", "Descriptors derived from cdk software.");
+        CDK("CDK descriptors", "Descriptors derived from cdk software."),
+        PREDICTED("Predicted descriptors", "Descriptors derived from algorithm predictions.");
 
         private final String name;
         private final String description;
@@ -73,10 +74,12 @@ public class Dataset extends JaqpotEntity {
     }
 
     private String datasetURI;
+    
+    private String byModel;
 
     private List<DataEntry> dataEntry;
 
-    private Set<Feature> features;
+    private Set<FeatureInfo> features;
 
     private Integer totalRows;
     private Integer totalColumns;
@@ -91,6 +94,14 @@ public class Dataset extends JaqpotEntity {
         this.datasetURI = datasetURI;
     }
 
+    public String getByModel() {
+        return byModel;
+    }
+
+    public void setByModel(String byModel) {
+        this.byModel = byModel;
+    }
+
     public List<DataEntry> getDataEntry() {
         return dataEntry;
     }
@@ -99,11 +110,11 @@ public class Dataset extends JaqpotEntity {
         this.dataEntry = dataEntry;
     }
 
-    public Set<Feature> getFeatures() {
+    public Set<FeatureInfo> getFeatures() {
         return features;
     }
 
-    public void setFeatures(Set<Feature> features) {
+    public void setFeatures(Set<FeatureInfo> features) {
         this.features = features;
     }
 

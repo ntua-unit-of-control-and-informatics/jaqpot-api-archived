@@ -39,7 +39,9 @@ import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import org.jaqpot.core.data.AlgorithmHandler;
 import org.jaqpot.core.data.BibTeXHandler;
+import org.jaqpot.core.data.DatasetHandler;
 import org.jaqpot.core.data.ModelHandler;
+import org.jaqpot.core.data.ReportHandler;
 import org.jaqpot.core.data.TaskHandler;
 import org.jaqpot.core.model.Task;
 import org.jaqpot.core.model.UserQuota;
@@ -52,30 +54,38 @@ import org.jaqpot.core.model.UserQuota;
  */
 @Stateless
 public class QuotaService {
-
+    
     private static final Logger LOG = Logger.getLogger(QuotaService.class.getName());
-
+    
     @EJB
     TaskHandler taskHandler;
-
+    
     @EJB
     AlgorithmHandler algorithmHandler;
-
+    
     @EJB
     ModelHandler modelHandler;
-
+    
     @EJB
     BibTeXHandler bibtexHandler;
-
+    
+    @EJB
+    DatasetHandler datasetHandler;
+    
+    @EJB
+    ReportHandler reportHandler;
+    
     public UserQuota getUserQuota(String userId) {
         UserQuota userQuota = new UserQuota();
         userQuota.setUserId(userId);
-        userQuota.setAlgorithms(algorithmHandler.countByUser(userId));
+        userQuota.setAlgorithms(algorithmHandler.countAllOfCreator(userId));
         userQuota.setTasks(taskHandler.countByUser(userId));
         userQuota.setTasksRunning(taskHandler.countByUserAndStatus(userId, Task.Status.RUNNING));
         userQuota.setModels(modelHandler.countAllOfCreator(userId));
         userQuota.setBibtex(bibtexHandler.countAllOfCreator(userId));
+        userQuota.setDatasets(datasetHandler.countAllOfCreator(userId));
+        userQuota.setReports(reportHandler.countAllOfCreator(userId));
         return userQuota;
     }
-
+    
 }
