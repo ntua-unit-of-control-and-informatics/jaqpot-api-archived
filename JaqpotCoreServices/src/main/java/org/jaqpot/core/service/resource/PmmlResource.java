@@ -144,13 +144,14 @@ public class PmmlResource {
             ROG rog = new ROG(true);
             pmml.setId(rog.nextString(10));
         }
-        pmml.setCreatedBy(securityContext.getUserPrincipal().getName());
         
         MetaInfo info = MetaInfoBuilder.builder()
                 .addTitles(title)
                 .addDescriptions(description)
+                .addCreators(securityContext.getUserPrincipal().getName())
                 .build();
         pmml.setMeta(info);
+        pmml.setVisible(Boolean.TRUE);
         
         pmmlHandler.create(pmml);
         return Response

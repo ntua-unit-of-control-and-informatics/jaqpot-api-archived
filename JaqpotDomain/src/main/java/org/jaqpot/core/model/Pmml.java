@@ -18,8 +18,6 @@ public class Pmml extends JaqpotEntity {
 
     private String pmml;
 
-    private String createdBy;
-
     public Pmml() {
     }
 
@@ -38,14 +36,6 @@ public class Pmml extends JaqpotEntity {
 
     public void setPmml(String pmml) {
         this.pmml = pmml;
-    }
-
-    public String getCreatedBy() {
-        return createdBy;
-    }
-
-    public void setCreatedBy(String createdBy) {
-        this.createdBy = createdBy;
     }
 
 }
