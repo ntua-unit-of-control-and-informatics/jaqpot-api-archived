@@ -391,7 +391,7 @@ public class ModelResource {
                         + "No more than " + maxAllowedDatasets + " are allowed with your subscription.");
             }
         }
-        
+
         Model model = modelHandler.find(id);
         if (model == null) {
             throw new NotFoundException("Model not found.");
@@ -427,6 +427,9 @@ public class ModelResource {
             @ApiParam(value = "ID of the Model.", required = true) @PathParam("id") String id
     ) {
         Model model = modelHandler.find(id);
+        if (model == null) {
+            throw new NotFoundException("The model with id:" + id + " was not found.");
+        }
         String userName = securityContext.getUserPrincipal().getName();
         if (!model.getMeta().getCreators().contains(userName)) {
             return Response.status(Response.Status.FORBIDDEN).entity("You cannot delete a Model that was not created by you.").build();
