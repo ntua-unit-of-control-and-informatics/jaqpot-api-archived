@@ -241,12 +241,11 @@ public class ValidationMDB extends RunningTaskMDB {
                 validationParameters.put("type", validationType);
                 reportRequest.setParameters(validationParameters);
 
-                try {
-                    System.out.println(new ObjectMapper().writeValueAsString(reportRequest));
-                } catch (JsonProcessingException ex) {
-                    throw new UnsupportedOperationException(ex);
-                }
-
+//                try {
+//                    System.out.println(new ObjectMapper().writeValueAsString(reportRequest));
+//                } catch (JsonProcessingException ex) {
+//                    throw new UnsupportedOperationException(ex);
+//                }
                 report = client.target(ResourceBundle.getBundle("config").getString("ValidationBasePath"))
                         .request()
                         .header("Content-Type", MediaType.APPLICATION_JSON)
@@ -313,7 +312,7 @@ public class ValidationMDB extends RunningTaskMDB {
                         Object[] crossResults = validationService.trainAndTest(algorithmURI, trainDataset, testDataset, predictionFeature, algorithmParams, transformations, scaling, subjectId);
                         task.getMeta().getComments().add("Finished train and test with train_dataset:" + trainDataset + " test_dataset:" + testDataset);
                         taskHandler.edit(task);
-                        
+
                         String finalSubDataset = (String) crossResults[0];
                         resultMap.put(finalSubDataset, crossResults);
                         finalDatasets.add(finalSubDataset);
@@ -362,7 +361,7 @@ public class ValidationMDB extends RunningTaskMDB {
 //                } catch (JsonProcessingException ex) {
 //                    throw new UnsupportedOperationException(ex);
 //                }
-                report = client.target("http://147.102.82.32:8092/pws/validation")
+                report = client.target(ResourceBundle.getBundle("config").getString("ValidationBasePath"))
                         .request()
                         .header("Content-Type", MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
@@ -417,7 +416,7 @@ public class ValidationMDB extends RunningTaskMDB {
                 validationParameters.put("type", validationType);
                 reportRequest.setParameters(validationParameters);
 
-                report = client.target("http://147.102.82.32:8092/pws/validation")
+                report = client.target(ResourceBundle.getBundle("config").getString("ValidationBasePath"))
                         .request()
                         .header("Content-Type", MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
