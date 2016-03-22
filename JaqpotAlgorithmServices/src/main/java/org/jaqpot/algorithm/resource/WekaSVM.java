@@ -50,6 +50,8 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -59,6 +61,7 @@ import javax.ws.rs.core.Response;
 import libsvm.svm_model;
 import libsvm.svm_node;
 import org.jaqpot.algorithm.model.WekaModel;
+import org.jaqpot.algorithm.pmml.PmmlUtils;
 import org.jaqpot.algorithm.weka.InstanceUtils;
 import org.jaqpot.core.model.dto.jpdi.PredictionRequest;
 import org.jaqpot.core.model.dto.jpdi.PredictionResponse;
@@ -167,18 +170,20 @@ public class WekaSVM {
             WekaModel model = new WekaModel();
             model.setClassifier(regressor);
 
-//            Map<String, Double> options = new HashMap<>();
-//            options.put("gamma", gamma);
-//            options.put("coeff0", coeff0);
-//            options.put("degree", new Double(degree.toString()));
-//
+            Map<String, Double> options = new HashMap<>();
+            options.put("gamma", gamma);
+            options.put("coeff0", coeff0);
+            options.put("degree", new Double(degree.toString()));
+
             Field modelField = LibSVM.class.getDeclaredField("m_Model");
             modelField.setAccessible(true);
             svm_model svmModel = (svm_model) modelField.get(regressor);
             double[][] coefs = svmModel.sv_coef;
-            svm_node[][] svmNodes = svmModel.SV;            
-//
-//            String pmml = PmmlUtils.createSVMModel(features, request.getPredictionFeature(), "SVM", kernel, svm_type, options, null);
+            List<Double> coefsList = IntStream.range(0, coefs[0].length)
+                    .mapToObj(i -> coefs[0][i])
+                    .collect(Collectors.toList());
+
+            String pmml = PmmlUtils.createSVMModel(features, request.getPredictionFeature(), "SVM", kernel, svm_type, options, coefsList);
             TrainingResponse response = new TrainingResponse();
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             ObjectOutput out = new ObjectOutputStream(baos);
@@ -190,7 +195,7 @@ public class WekaSVM {
                     .filter(feature -> !feature.equals(request.getPredictionFeature()))
                     .collect(Collectors.toList());
             response.setIndependentFeatures(independentFeatures);
-//            response.setPmmlModel(pmml);
+            response.setPmmlModel(pmml);
             response.setAdditionalInfo(request.getPredictionFeature());
             response.setPredictedFeatures(Arrays.asList("Weka SVM prediction of " + request.getPredictionFeature()));
 

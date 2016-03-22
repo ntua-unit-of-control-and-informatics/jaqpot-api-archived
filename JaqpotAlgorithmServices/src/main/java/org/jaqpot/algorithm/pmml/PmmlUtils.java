@@ -186,7 +186,7 @@ public class PmmlUtils {
                     .filter(feature -> !feature.equals(predictionFeature))
                     .collect(Collectors.toList());
 
-            switch (kernel) {
+            switch (kernel.toLowerCase()) {
                 case "rbf":
                     svmModel.setSvmRepresentation(SvmRepresentationType.SUPPORT_VECTORS);
                     RadialBasisKernelType rbfKernel = new RadialBasisKernelType();
