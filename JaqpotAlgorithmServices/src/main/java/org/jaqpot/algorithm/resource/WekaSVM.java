@@ -40,6 +40,7 @@ import java.io.ObjectInput;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
@@ -55,6 +56,8 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import libsvm.svm_model;
+import libsvm.svm_node;
 import org.jaqpot.algorithm.model.WekaModel;
 import org.jaqpot.algorithm.weka.InstanceUtils;
 import org.jaqpot.core.model.dto.jpdi.PredictionRequest;
@@ -169,10 +172,11 @@ public class WekaSVM {
 //            options.put("coeff0", coeff0);
 //            options.put("degree", new Double(degree.toString()));
 //
-//            Field modelField = LibSVM.class.getDeclaredField("m_Model");
-//            modelField.setAccessible(true);
-//            svm_model svmModel = (svm_model) modelField.get(regressor);
-////            svmModel.
+            Field modelField = LibSVM.class.getDeclaredField("m_Model");
+            modelField.setAccessible(true);
+            svm_model svmModel = (svm_model) modelField.get(regressor);
+            double[][] coefs = svmModel.sv_coef;
+            svm_node[][] svmNodes = svmModel.SV;            
 //
 //            String pmml = PmmlUtils.createSVMModel(features, request.getPredictionFeature(), "SVM", kernel, svm_type, options, null);
             TrainingResponse response = new TrainingResponse();
