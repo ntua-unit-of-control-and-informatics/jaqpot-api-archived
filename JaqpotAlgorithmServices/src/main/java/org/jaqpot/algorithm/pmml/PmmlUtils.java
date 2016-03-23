@@ -299,6 +299,8 @@ public class PmmlUtils {
                     })
                     .collect(Collectors.toList())
             );
+            
+            svmModel.withVectorDictionary(vd);
 
             PMML pmml = new PMML();
             pmml.withModels(svmModel);
