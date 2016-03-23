@@ -50,6 +50,7 @@ import org.dmg.pmml.Coefficients;
 import org.dmg.pmml.DataDictionary;
 import org.dmg.pmml.DataField;
 import org.dmg.pmml.DataType;
+import org.dmg.pmml.Extension;
 import org.dmg.pmml.FieldName;
 import org.dmg.pmml.FieldRef;
 import org.dmg.pmml.FieldUsageType;
@@ -65,6 +66,7 @@ import org.dmg.pmml.OutputField;
 import org.dmg.pmml.PMML;
 import org.dmg.pmml.PolynomialKernelType;
 import org.dmg.pmml.RadialBasisKernelType;
+import org.dmg.pmml.RealSparseArray;
 import org.dmg.pmml.RegressionModel;
 import org.dmg.pmml.RegressionTable;
 import org.dmg.pmml.SupportVector;
@@ -158,7 +160,7 @@ public class PmmlUtils {
         }
     }
 
-    public static String createSVMModel(List<String> features, String predictionFeature, String algorithmName, String kernel, Integer type, Map<String, Double> options, List<Double> coefficients) {
+    public static String createSVMModel(List<String> features, String predictionFeature, String algorithmName, String kernel, Integer type, Map<String, Double> options, List<Double> coefficients, List<Map<Integer, Double>> vectors) {
         try {
             SupportVectorMachineModel svmModel = new SupportVectorMachineModel();
 
@@ -238,7 +240,7 @@ public class PmmlUtils {
                     }).collect(Collectors.toList()));
                     vectorDictionary.setVectorFields(vectorFields);
                     vectorDictionary.withVectorInstances(IntStream.range(0, coefficients.size()).mapToObj(i -> {
-                        return new VectorInstance("k" + i);
+                        return new VectorInstance("mv" + i);
                     }).collect(Collectors.toList()));
                     svmModel.setVectorDictionary(vectorDictionary);
 
@@ -246,7 +248,7 @@ public class PmmlUtils {
                     svm.setSupportVectors(new SupportVectors(IntStream
                             .range(0, coefficients.size())
                             .mapToObj(i -> {
-                                return new SupportVector("k" + i);
+                                return new SupportVector("mv" + i);
                             })
                             .collect(Collectors.toList())));
                     svm.setCoefficients(new Coefficients(coefficients.stream()
@@ -276,8 +278,28 @@ public class PmmlUtils {
                     svmModel.withSupportVectorMachines(svm);
                     break;
             }
+            VectorDictionary vd = new VectorDictionary();
 
-//            vectorDictionary.
+            VectorFields vf = new VectorFields(IntStream.range(0, vectors.get(0).size())
+                    .mapToObj(i -> new FieldRef(new FieldName("x" + i)))
+                    .collect(Collectors.toList()));
+
+            vd.withVectorFields(vf);
+
+            vd.withVectorInstances(IntStream.range(0, vectors.size())
+                    .mapToObj(i -> {
+                        Map<Integer, Double> v = vectors.get(i);
+                        VectorInstance vi = new VectorInstance("mv" + i);
+                        RealSparseArray a = new RealSparseArray();
+                        a.withN(v.size())
+                                .withIndices(v.keySet())
+                                .withEntries(v.values());
+                        vi.withREALSparseArray(a);
+                        return vi;
+                    })
+                    .collect(Collectors.toList())
+            );
+
             PMML pmml = new PMML();
             pmml.withModels(svmModel);
             pmml.setVersion("4.2");

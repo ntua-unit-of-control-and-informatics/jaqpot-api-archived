@@ -47,6 +47,7 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -183,7 +184,18 @@ public class WekaSVM {
                     .mapToObj(i -> coefs[0][i])
                     .collect(Collectors.toList());
 
-            String pmml = PmmlUtils.createSVMModel(features, request.getPredictionFeature(), "SVM", kernel, svm_type, options, coefsList);
+            svm_node[][] nodes = svmModel.SV;
+
+            List<Map<Integer, Double>> vectors = IntStream.range(0, nodes.length)
+                    .mapToObj(i -> {
+                        Map<Integer, Double> node = new TreeMap<>();
+                        Arrays.stream(nodes[i])
+                                .forEach(n -> node.put(n.index, n.value));
+                        return node;
+                    })
+                    .collect(Collectors.toList());
+
+            String pmml = PmmlUtils.createSVMModel(features, request.getPredictionFeature(), "SVM", kernel, svm_type, options, coefsList, vectors);
             TrainingResponse response = new TrainingResponse();
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             ObjectOutput out = new ObjectOutputStream(baos);
