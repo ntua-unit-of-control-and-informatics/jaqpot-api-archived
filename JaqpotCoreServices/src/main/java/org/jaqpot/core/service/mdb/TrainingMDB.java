@@ -84,12 +84,12 @@ import org.jaqpot.core.service.exceptions.JaqpotWebException;
  * @author Charalampos Chomenidis
  *
  */
-@MessageDriven(activationConfig = {
-    @ActivationConfigProperty(propertyName = "destinationLookup",
-            propertyValue = "java:jboss/exported/jms/topic/training"),
-    @ActivationConfigProperty(propertyName = "destinationType",
-            propertyValue = "javax.jms.Topic")
-})
+//@MessageDriven(activationConfig = {
+//    @ActivationConfigProperty(propertyName = "destinationLookup",
+//            propertyValue = "java:jboss/exported/jms/topic/training"),
+//    @ActivationConfigProperty(propertyName = "destinationType",
+//            propertyValue = "javax.jms.Topic")
+//})
 public class TrainingMDB extends RunningTaskMDB {
 
     private static final Logger LOG = Logger.getLogger(TrainingMDB.class.getName());
