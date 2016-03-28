@@ -34,6 +34,7 @@
  */
 package org.jaqpot.core.service.client.jpdi;
 
+import java.io.Closeable;
 import java.util.Map;
 import java.util.concurrent.Future;
 import org.jaqpot.core.model.Algorithm;
@@ -47,7 +48,7 @@ import org.jaqpot.core.model.dto.dataset.Dataset;
  * @author Charalampos Chomenidis
  * @author Pantelis Sopasakis
  */
-public interface JPDIClient {
+public interface JPDIClient extends Closeable {
 
     public Future<Model> train(Dataset dataset, Algorithm algorithm, Map<String, Object> parameters, String predictionFeature, MetaInfo modelMeta, String taskId);
 
