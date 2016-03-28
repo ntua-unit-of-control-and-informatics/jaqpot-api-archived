@@ -143,8 +143,6 @@ public class JPDIClientImpl implements JPDIClient {
             return futureModel;
         }
         request.setEntity(new InputStreamEntity(in, ContentType.APPLICATION_JSON));
-
-        serializer.write(trainingRequest, out);
         
         Future futureResponse = client.execute(request, new FutureCallback<HttpResponse>() {
 
@@ -231,7 +229,7 @@ public class JPDIClientImpl implements JPDIClient {
 
         });
 
-//        serializer.write(trainingRequest, out);
+        serializer.write(trainingRequest, out);
         try {
             out.close();
         } catch (IOException ex) {
