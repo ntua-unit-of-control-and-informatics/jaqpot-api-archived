@@ -189,6 +189,7 @@ public class TrainingProcedure implements MessageListener {
         } catch (CancellationException ex) {
             LOG.log(Level.SEVERE, "Task with id:" + taskId + " was cancelled", ex);
             task.setStatus(Task.Status.CANCELLED);
+            task.getMeta().getComments().add("Task was cancelled by the user.");
             return;
         } finally {
             taskHandler.edit(task);
