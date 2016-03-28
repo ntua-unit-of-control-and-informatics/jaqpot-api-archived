@@ -232,7 +232,6 @@ public class JPDIClientImpl implements JPDIClient {
         serializer.write(trainingRequest, out);
         try {
             out.close();
-            in.close();
         } catch (IOException ex) {
             futureModel.completeExceptionally(ex);
         }
