@@ -122,17 +122,26 @@ public class JPDIClientImpl implements JPDIClient {
     @Override
     public Future<Model> train(Dataset dataset, Algorithm algorithm, Map<String, Object> parameters, String predictionFeature, MetaInfo modelMeta, String taskId) {
 
+        CompletableFuture<Model> futureModel = new CompletableFuture<>();
+
         TrainingRequest trainingRequest = new TrainingRequest();
         trainingRequest.setDataset(dataset);
         trainingRequest.setParameters(parameters);
         trainingRequest.setPredictionFeature(predictionFeature);
-        String trainingRequestString = serializer.write(trainingRequest);
+//        String trainingRequestString = serializer.write(trainingRequest);
 
         final HttpPost request = new HttpPost(algorithm.getTrainingService());
         request.addHeader("Accept", "application/json");
-        request.setEntity(new StringEntity(trainingRequestString, ContentType.APPLICATION_JSON));
 
-        CompletableFuture<Model> futureModel = new CompletableFuture<>();
+        PipedOutputStream out = new PipedOutputStream();
+        PipedInputStream in;
+        try {
+            in = new PipedInputStream(out);
+        } catch (IOException ex) {
+            futureModel.completeExceptionally(ex);
+            return futureModel;
+        }
+        request.setEntity(new InputStreamEntity(in, ContentType.APPLICATION_JSON));
 
         Future futureResponse = client.execute(request, new FutureCallback<HttpResponse>() {
 
@@ -220,12 +229,15 @@ public class JPDIClientImpl implements JPDIClient {
 
         });
 
+        serializer.write(trainingRequest, out);
         futureMap.put(taskId, futureResponse);
         return futureModel;
     }
 
     @Override
     public Future<Dataset> predict(Dataset dataset, Model model, MetaInfo datasetMeta, String taskId) {
+
+        CompletableFuture<Dataset> futureDataset = new CompletableFuture<>();
 
         PredictionRequest predictionRequest = new PredictionRequest();
         predictionRequest.setDataset(dataset);
@@ -234,16 +246,16 @@ public class JPDIClientImpl implements JPDIClient {
 
         final HttpPost request = new HttpPost(model.getAlgorithm().getPredictionService());
         request.addHeader("Accept", "application/json");
+
         PipedOutputStream out = new PipedOutputStream();
-        PipedInputStream in = null;
+        PipedInputStream in;
         try {
             in = new PipedInputStream(out);
         } catch (IOException ex) {
-            throw new RuntimeException(ex);
+            futureDataset.completeExceptionally(ex);
+            return futureDataset;
         }
         request.setEntity(new InputStreamEntity(in, ContentType.APPLICATION_JSON));
-
-        CompletableFuture<Dataset> futureDataset = new CompletableFuture<>();
 
         Future futureResponse = client.execute(request, new FutureCallback<HttpResponse>() {
 
