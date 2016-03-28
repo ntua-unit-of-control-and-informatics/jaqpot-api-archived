@@ -142,8 +142,8 @@ public class JPDIClientImpl implements JPDIClient {
             futureModel.completeExceptionally(ex);
             return futureModel;
         }
-        request.setEntity(new InputStreamEntity(in, ContentType.APPLICATION_JSON));
-        
+        request.setEntity(new InputStreamEntity(in, 100, ContentType.APPLICATION_JSON));
+
         Future futureResponse = client.execute(request, new FutureCallback<HttpResponse>() {
 
             @Override
