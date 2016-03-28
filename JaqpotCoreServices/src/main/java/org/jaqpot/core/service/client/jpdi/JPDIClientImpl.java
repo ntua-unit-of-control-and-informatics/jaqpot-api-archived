@@ -230,6 +230,13 @@ public class JPDIClientImpl implements JPDIClient {
         });
 
         serializer.write(trainingRequest, out);
+        try {
+            out.close();
+            in.close();
+        } catch (IOException ex) {
+            futureModel.completeExceptionally(ex);
+        }
+
         futureMap.put(taskId, futureResponse);
         return futureModel;
     }
@@ -247,7 +254,7 @@ public class JPDIClientImpl implements JPDIClient {
         final HttpPost request = new HttpPost(model.getAlgorithm().getPredictionService());
         request.addHeader("Accept", "application/json");
         request.addHeader("Content-Type", "application/json");
-        
+
         PipedOutputStream out = new PipedOutputStream();
         PipedInputStream in;
         try {
