@@ -101,7 +101,7 @@ public class JPDIClientImpl implements JPDIClient {
     private static final Logger LOG = Logger.getLogger(JPDIClientImpl.class.getName());
 
 //    private final Client client;
-    private final HttpAsyncClient client;
+    private final CloseableHttpAsyncClient client;
     private final JSONSerializer serializer;
     private final FeatureHandler featureHandler;
     private final String baseURI;
@@ -109,8 +109,9 @@ public class JPDIClientImpl implements JPDIClient {
 
     private final Map<String, Future> futureMap;
 
-    public JPDIClientImpl(HttpAsyncClient client, JSONSerializer serializer, FeatureHandler featureHandler, String baseURI) {
+    public JPDIClientImpl(CloseableHttpAsyncClient client, JSONSerializer serializer, FeatureHandler featureHandler, String baseURI) {
         this.client = client;
+        client.start();
         this.serializer = serializer;
         this.featureHandler = featureHandler;
         this.baseURI = baseURI;
@@ -343,6 +344,11 @@ public class JPDIClientImpl implements JPDIClient {
             return true;
         }
         return false;
+    }
+
+    @Override
+    public void close() throws IOException {
+        client.close();
     }
 
 }
