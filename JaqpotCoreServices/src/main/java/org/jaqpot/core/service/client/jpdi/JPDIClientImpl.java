@@ -132,6 +132,7 @@ public class JPDIClientImpl implements JPDIClient {
 
         final HttpPost request = new HttpPost(algorithm.getTrainingService());
         request.addHeader("Accept", "application/json");
+        request.addHeader("Content-Type", "application/json");
 
         PipedOutputStream out = new PipedOutputStream();
         PipedInputStream in;
@@ -224,7 +225,6 @@ public class JPDIClientImpl implements JPDIClient {
             public void cancelled() {
                 futureMap.remove(taskId);
                 futureModel.cancel(true);
-                LOG.log(Level.INFO, "Task with id:{0} was cancelled.", taskId);
             }
 
         });
@@ -246,7 +246,8 @@ public class JPDIClientImpl implements JPDIClient {
 
         final HttpPost request = new HttpPost(model.getAlgorithm().getPredictionService());
         request.addHeader("Accept", "application/json");
-
+        request.addHeader("Content-Type", "application/json");
+        
         PipedOutputStream out = new PipedOutputStream();
         PipedInputStream in;
         try {

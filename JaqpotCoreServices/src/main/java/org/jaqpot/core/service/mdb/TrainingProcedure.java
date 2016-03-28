@@ -187,7 +187,7 @@ public class TrainingProcedure implements MessageListener {
             task.setErrorReport(ErrorReportFactory.internalServerError(ex, "", "JPDI Training procedure error", ex.getMessage()));
             return;
         } catch (CancellationException ex) {
-            LOG.log(Level.SEVERE, "Task with id:" + taskId + " was cancelled", ex);
+            LOG.log(Level.INFO, "Task with id:{0} was cancelled", taskId);
             task.setStatus(Task.Status.CANCELLED);
             task.getMeta().getComments().add("Task was cancelled by the user.");
             return;
