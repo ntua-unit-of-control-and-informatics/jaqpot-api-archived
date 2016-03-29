@@ -35,7 +35,9 @@
 package org.jaqpot.core.service.mdb;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -55,6 +57,7 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.core.MediaType;
 import org.jaqpot.core.annotations.Jackson;
 import org.jaqpot.core.data.AlgorithmHandler;
+import org.jaqpot.core.data.DatasetHandler;
 import org.jaqpot.core.data.FeatureHandler;
 import org.jaqpot.core.data.ModelHandler;
 import org.jaqpot.core.data.TaskHandler;
@@ -65,25 +68,26 @@ import org.jaqpot.core.model.Model;
 import org.jaqpot.core.model.Task;
 import org.jaqpot.core.model.builder.MetaInfoBuilder;
 import org.jaqpot.core.model.dto.dataset.Dataset;
+import org.jaqpot.core.model.factory.DatasetFactory;
 import org.jaqpot.core.model.factory.ErrorReportFactory;
 import org.jaqpot.core.service.annotations.Secure;
 import org.jaqpot.core.service.client.jpdi.JPDIClient;
 
 /**
- * 
+ *
  * @author Charalampos Chomenidis
  * @author Pantelis Sopasakis
  *
  */
 @MessageDriven(activationConfig = {
     @ActivationConfigProperty(propertyName = "destinationLookup",
-            propertyValue = "java:jboss/exported/jms/topic/training"),
+            propertyValue = "java:jboss/exported/jms/topic/prediction"),
     @ActivationConfigProperty(propertyName = "destinationType",
             propertyValue = "javax.jms.Topic")
 })
-public class TrainingProcedure implements MessageListener {
+public class PredictionProcedure implements MessageListener {
 
-    private static final Logger LOG = Logger.getLogger(TrainingProcedure.class.getName());
+    private static final Logger LOG = Logger.getLogger(PredictionProcedure.class.getName());
 
     @EJB
     TaskHandler taskHandler;
@@ -93,6 +97,9 @@ public class TrainingProcedure implements MessageListener {
 
     @EJB
     ModelHandler modelHandler;
+
+    @EJB
+    DatasetHandler datasetHandler;
 
     @Inject
     @Jackson
@@ -117,12 +124,7 @@ public class TrainingProcedure implements MessageListener {
 
         String taskId = (String) messageBody.get("taskId");
         String dataset_uri = (String) messageBody.get("dataset_uri");
-        String trans = (String) messageBody.get("transformations");
-        String predictionFeature = (String) messageBody.get("prediction_feature");
-        String parameters = (String) messageBody.get("parameters");
-        String algorithmId = (String) messageBody.get("algorithmId");
-        String modelTitle = (String) messageBody.get("title");
-        String modelDescription = (String) messageBody.get("description");
+        String modelId = (String) messageBody.get("modelId");
         String subjectId = (String) messageBody.get("subjectid");
 
         Task task = taskHandler.find(taskId);
@@ -133,48 +135,57 @@ public class TrainingProcedure implements MessageListener {
 
         task.setHttpStatus(202);
         task.setStatus(Task.Status.RUNNING);
-        task.setType(Task.Type.TRAINING);
-        task.getMeta().getComments().add("Training Task is now running.");
+        task.setType(Task.Type.PREDICTION);
+        task.getMeta().getComments().add("Prediction Task is now running.");
         task.setPercentageCompleted(5f);
         taskHandler.edit(task);
 
-        if (trans != null && !trans.isEmpty()) {
+        Model model = modelHandler.find(modelId);
+        if (model == null) {
+            task.setStatus(Task.Status.ERROR);
+            task.setErrorReport(ErrorReportFactory.notFoundError((String) messageBody.get("modelId")));
+            taskHandler.edit(task);
+            return;
+        }
+
+        task.getMeta().getComments().add("Model retrieved successfully.");
+        task.setPercentageCompleted(10f);
+        taskHandler.edit(task);
+
+        Dataset dataset;
+        if (dataset_uri != null && !dataset_uri.isEmpty()) {
+            task.getMeta().getComments().add("Attempting to download dataset...");
+            taskHandler.edit(task);
+            dataset = client.target(dataset_uri)
+                    .request()
+                    .header("subjectid", subjectId)
+                    .accept(MediaType.APPLICATION_JSON)
+                    .get(Dataset.class);
+            dataset.setDatasetURI(dataset_uri);
+            task.getMeta().getComments().add("Dataset has been retrieved.");
+
+        } else {
+            dataset = DatasetFactory.createEmpty(0);
+        }
+
+        if (model.getTransformationModels() != null && !model.getTransformationModels().isEmpty()) {
             task.getMeta().getComments().add("--");
             task.getMeta().getComments().add("Processing transformations...");
             taskHandler.edit(task);
 
-            String transformationsString = (String) messageBody.get("transformations");
-            LinkedHashMap<String, String> transformations = serializer.parse(transformationsString, LinkedHashMap.class);
-            List<Algorithm> transformationAlgorithms = new ArrayList<>();
-            List<Algorithm> linkedAlgorithms = new ArrayList<>();
+            task.getMeta().getComments().add("Done processing transformations.");
+            task.getMeta().getComments().add("--");
         }
+        task.setPercentageCompleted(50f);
+        taskHandler.edit(task);
 
-        Dataset dataset = client.target(dataset_uri)
-                .request()
-                .header("subjectid", subjectId)
-                .accept(MediaType.APPLICATION_JSON)
-                .get(Dataset.class);
-        Algorithm algorithm = algorithmHandler.find(algorithmId);
+        MetaInfo datasetMeta = dataset.getMeta();
+        datasetMeta.setCreators(task.getMeta().getCreators());
 
-        Map<String, Object> parameterMap = null;
-        if (parameters != null && !parameters.isEmpty()) {
-            parameterMap = serializer.parse(parameters, new HashMap<String, Object>().getClass());
-        }
+        Future<Dataset> futureDataset = jpdiClient.predict(dataset, model, datasetMeta, taskId);
 
-        MetaInfo modelMeta = MetaInfoBuilder
-                .builder()
-                .addTitles(modelTitle)
-                .addCreators(task.getMeta().getCreators())
-                .addSources(dataset != null ? dataset.getDatasetURI() : "")
-                .addComments("Created by task " + task.getId())
-                .addDescriptions(modelDescription)
-                .build();
-
-        Future<Model> futureModel = jpdiClient.train(dataset, algorithm, parameterMap, predictionFeature, modelMeta, taskId);
-
-        Model model = null;
         try {
-            model = futureModel.get();
+            dataset = futureDataset.get();
             task.getMeta().getComments().add("JPDI Training completed successfully.");
         } catch (InterruptedException ex) {
             LOG.log(Level.SEVERE, "JPDI Training procedure interupted", ex);
@@ -195,12 +206,12 @@ public class TrainingProcedure implements MessageListener {
             taskHandler.edit(task);
         }
 
-        task.getMeta().getComments().add("Model was built successfully. Now saving to database...");
+        task.getMeta().getComments().add("Dataset was built successfully. Now saving to database...");
         taskHandler.edit(task);
-        model.setVisible(Boolean.TRUE);
-        modelHandler.create(model);
+        dataset.setVisible(Boolean.TRUE);
+        datasetHandler.create(dataset);
 
-        task.setResult("model/" + model.getId());
+        task.setResult("dataset/" + dataset.getId());
         task.setHttpStatus(201);
         task.setPercentageCompleted(100.f);
         task.setDuration(System.currentTimeMillis() - task.getMeta().getDate().getTime()); // in ms

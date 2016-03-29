@@ -96,12 +96,12 @@ import org.jaqpot.core.service.exceptions.JaqpotWebException;
  * @author Charalampos Chomenidis
  * @author Pantelis Sopasakis
  */
-@MessageDriven(activationConfig = {
-    @ActivationConfigProperty(propertyName = "destinationLookup",
-            propertyValue = "java:jboss/exported/jms/topic/prediction"),
-    @ActivationConfigProperty(propertyName = "destinationType",
-            propertyValue = "javax.jms.Topic")
-})
+//@MessageDriven(activationConfig = {
+//    @ActivationConfigProperty(propertyName = "destinationLookup",
+//            propertyValue = "java:jboss/exported/jms/topic/prediction"),
+//    @ActivationConfigProperty(propertyName = "destinationType",
+//            propertyValue = "javax.jms.Topic")
+//})
 public class PredictionMDB extends RunningTaskMDB {
     
     private static final Logger LOG = Logger.getLogger(PredictionMDB.class.getName());
