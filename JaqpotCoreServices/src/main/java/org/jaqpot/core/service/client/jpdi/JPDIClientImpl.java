@@ -73,6 +73,7 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
 import org.apache.http.impl.nio.client.HttpAsyncClients;
 import org.apache.http.nio.client.HttpAsyncClient;
+import org.apache.http.nio.client.methods.HttpAsyncMethods;
 import org.jaqpot.core.data.FeatureHandler;
 import org.jaqpot.core.data.serialize.JSONSerializer;
 import org.jaqpot.core.model.Algorithm;
@@ -140,10 +141,14 @@ public class JPDIClientImpl implements JPDIClient {
             futureModel.completeExceptionally(ex);
             return futureModel;
         }
-        request.setEntity(new InputStreamEntity(in, ContentType.APPLICATION_JSON));
+        InputStreamEntity entity = new InputStreamEntity(in, ContentType.APPLICATION_JSON);
+        entity.setChunked(true);  
+        
+        request.setEntity(entity);
         request.addHeader("Accept", "application/json");
-        request.addHeader("Content-Type", "application/json");
-        request.removeHeaders("Content-Length");
+//        request.addHeader("Content-Type", "application/json");
+        
+//        request.removeHeaders("Content-Length");
 //        request.addHeader("Content-Length", "");
 
         Future futureResponse = client.execute(request, new FutureCallback<HttpResponse>() {
