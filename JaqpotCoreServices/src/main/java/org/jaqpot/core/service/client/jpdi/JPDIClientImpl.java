@@ -143,7 +143,8 @@ public class JPDIClientImpl implements JPDIClient {
         request.setEntity(new InputStreamEntity(in, ContentType.APPLICATION_JSON));
         request.addHeader("Accept", "application/json");
         request.addHeader("Content-Type", "application/json");
-        request.setHeader("Content-Length", "");
+        request.removeHeaders("Content-Length");
+//        request.addHeader("Content-Length", "");
 
         Future futureResponse = client.execute(request, new FutureCallback<HttpResponse>() {
 
