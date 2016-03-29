@@ -131,8 +131,6 @@ public class JPDIClientImpl implements JPDIClient {
 //        String trainingRequestString = serializer.write(trainingRequest);
 
         final HttpPost request = new HttpPost(algorithm.getTrainingService());
-        request.addHeader("Accept", "application/json");
-        request.addHeader("Content-Type", "application/json");
 
         PipedOutputStream out = new PipedOutputStream();
         PipedInputStream in;
@@ -142,7 +140,10 @@ public class JPDIClientImpl implements JPDIClient {
             futureModel.completeExceptionally(ex);
             return futureModel;
         }
-        request.setEntity(new InputStreamEntity(in, 100, ContentType.APPLICATION_JSON));
+        request.setEntity(new InputStreamEntity(in, ContentType.APPLICATION_JSON));
+        request.addHeader("Accept", "application/json");
+        request.addHeader("Content-Type", "application/json");
+        request.addHeader("Content-Length", "");
 
         Future futureResponse = client.execute(request, new FutureCallback<HttpResponse>() {
 
