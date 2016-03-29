@@ -434,11 +434,15 @@ public class ModelResource {
         if (!model.getMeta().getCreators().contains(userName)) {
             return Response.status(Response.Status.FORBIDDEN).entity("You cannot delete a Model that was not created by you.").build();
         }
-        for (String transformationModel : model.getTransformationModels()) {
-            modelHandler.remove(new Model(transformationModel));
+        if (model.getTransformationModels() != null) {
+            for (String transformationModel : model.getTransformationModels()) {
+                modelHandler.remove(new Model(transformationModel));
+            }
         }
-        for (String linkedModel : model.getLinkedModels()) {
-            modelHandler.remove(new Model(linkedModel));
+        if (model.getLinkedModels() != null) {
+            for (String linkedModel : model.getLinkedModels()) {
+                modelHandler.remove(new Model(linkedModel));
+            }
         }
         modelHandler.remove(new Model(id));
         return Response.ok().build();
