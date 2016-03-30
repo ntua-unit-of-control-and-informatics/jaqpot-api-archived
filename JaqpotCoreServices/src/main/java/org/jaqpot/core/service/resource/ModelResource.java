@@ -313,12 +313,14 @@ public class ModelResource {
         }
         List<String> predictedFeatures = new ArrayList<>();
         predictedFeatures.addAll(foundModel.getPredictedFeatures());
-        foundModel.getLinkedModels().stream()
-                .map(m -> m.split("model/")[1])
-                .forEach(mid -> {
-                    Model linkedModel = modelHandler.findModel(mid);
-                    predictedFeatures.addAll(linkedModel.getPredictedFeatures());
-                });
+        if (foundModel.getLinkedModels() != null) {
+            foundModel.getLinkedModels().stream()
+                    .map(m -> m.split("model/")[1])
+                    .forEach(mid -> {
+                        Model linkedModel = modelHandler.findModel(mid);
+                        predictedFeatures.addAll(linkedModel.getPredictedFeatures());
+                    });
+        }
         return Response.ok(predictedFeatures).build();
 
     }
