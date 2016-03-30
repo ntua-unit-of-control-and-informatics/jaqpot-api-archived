@@ -86,32 +86,32 @@ import org.jaqpot.core.service.client.jpdi.JPDIClient;
             propertyValue = "javax.jms.Topic")
 })
 public class PredictionProcedure implements MessageListener {
-
+    
     private static final Logger LOG = Logger.getLogger(PredictionProcedure.class.getName());
-
+    
     @EJB
     TaskHandler taskHandler;
-
+    
     @EJB
     AlgorithmHandler algorithmHandler;
-
+    
     @EJB
     ModelHandler modelHandler;
-
+    
     @EJB
     DatasetHandler datasetHandler;
-
+    
     @Inject
     @Jackson
     JSONSerializer serializer;
-
+    
     @Inject
     JPDIClient jpdiClient;
-
+    
     @Inject
     @Secure
     Client client;
-
+    
     @Override
     public void onMessage(Message msg) {
         Map<String, Object> messageBody;
@@ -121,37 +121,37 @@ public class PredictionProcedure implements MessageListener {
             LOG.log(Level.SEVERE, "JMS message could not be read", ex);
             return;
         }
-
+        
         String taskId = (String) messageBody.get("taskId");
         String dataset_uri = (String) messageBody.get("dataset_uri");
         String modelId = (String) messageBody.get("modelId");
         String subjectId = (String) messageBody.get("subjectid");
-
+        
         Task task = taskHandler.find(taskId);
         if (task == null) {
             LOG.log(Level.SEVERE, "Task with id:{0} could not be found in the database.", taskId);
             return;
         }
-
+        
         task.setHttpStatus(202);
         task.setStatus(Task.Status.RUNNING);
         task.setType(Task.Type.PREDICTION);
         task.getMeta().getComments().add("Prediction Task is now running.");
         task.setPercentageCompleted(5f);
         taskHandler.edit(task);
-
+        
         Model model = modelHandler.find(modelId);
         if (model == null) {
             task.setStatus(Task.Status.ERROR);
-            task.setErrorReport(ErrorReportFactory.notFoundError((String) messageBody.get("modelId")));
+            task.setErrorReport(ErrorReportFactory.notFoundError("Model with id:"+modelId+" was not found."));
             taskHandler.edit(task);
             return;
         }
-
+        
         task.getMeta().getComments().add("Model retrieved successfully.");
         task.setPercentageCompleted(10f);
         taskHandler.edit(task);
-
+        
         Dataset dataset;
         if (dataset_uri != null && !dataset_uri.isEmpty()) {
             task.getMeta().getComments().add("Attempting to download dataset...");
@@ -163,39 +163,42 @@ public class PredictionProcedure implements MessageListener {
                     .get(Dataset.class);
             dataset.setDatasetURI(dataset_uri);
             task.getMeta().getComments().add("Dataset has been retrieved.");
-
         } else {
             dataset = DatasetFactory.createEmpty(0);
         }
-
+        task.setPercentageCompleted(20f);
+        taskHandler.edit(task);
+        
         if (model.getTransformationModels() != null && !model.getTransformationModels().isEmpty()) {
             task.getMeta().getComments().add("--");
             task.getMeta().getComments().add("Processing transformations...");
             taskHandler.edit(task);
-
+            
             task.getMeta().getComments().add("Done processing transformations.");
             task.getMeta().getComments().add("--");
         }
         task.setPercentageCompleted(50f);
-        taskHandler.edit(task);
-
+        
         MetaInfo datasetMeta = dataset.getMeta();
         datasetMeta.setCreators(task.getMeta().getCreators());
-
+        
+        task.getMeta().getComments().add("Starting JPDI Prediction...");
+        taskHandler.edit(task);
+        
         Future<Dataset> futureDataset = jpdiClient.predict(dataset, model, datasetMeta, taskId);
-
+        
         try {
             dataset = futureDataset.get();
-            task.getMeta().getComments().add("JPDI Training completed successfully.");
+            task.getMeta().getComments().add("JPDI Prediction completed successfully.");
         } catch (InterruptedException ex) {
-            LOG.log(Level.SEVERE, "JPDI Training procedure interupted", ex);
+            LOG.log(Level.SEVERE, "JPDI Prediction procedure interupted", ex);
             task.setStatus(Task.Status.ERROR);
-            task.setErrorReport(ErrorReportFactory.internalServerError(ex, "", "JPDI Training procedure interupted", ex.getMessage()));
+            task.setErrorReport(ErrorReportFactory.internalServerError(ex, "", "JPDI Prediction procedure interupted", ex.getMessage()));
             return;
         } catch (ExecutionException ex) {
-            LOG.log(Level.SEVERE, "Training procedure execution error", ex.getCause());
+            LOG.log(Level.SEVERE, "Prediction procedure execution error", ex.getCause());
             task.setStatus(Task.Status.ERROR);
-            task.setErrorReport(ErrorReportFactory.internalServerError(ex, "", "JPDI Training procedure error", ex.getMessage()));
+            task.setErrorReport(ErrorReportFactory.internalServerError(ex, "", "JPDI Prediction procedure error", ex.getMessage()));
             return;
         } catch (CancellationException ex) {
             LOG.log(Level.INFO, "Task with id:{0} was cancelled", taskId);
@@ -205,20 +208,21 @@ public class PredictionProcedure implements MessageListener {
         } finally {
             taskHandler.edit(task);
         }
-
+        
         task.getMeta().getComments().add("Dataset was built successfully. Now saving to database...");
+        task.setPercentageCompleted(80f);
         taskHandler.edit(task);
         dataset.setVisible(Boolean.TRUE);
         datasetHandler.create(dataset);
-
+        
         task.setResult("dataset/" + dataset.getId());
         task.setHttpStatus(201);
-        task.setPercentageCompleted(100.f);
+        task.setPercentageCompleted(100f);
         task.setDuration(System.currentTimeMillis() - task.getMeta().getDate().getTime()); // in ms
         task.setStatus(Task.Status.COMPLETED);
         task.getMeta().getComments().add("Task Completed Successfully.");
         taskHandler.edit(task);
-
+        
     }
-
+    
 }

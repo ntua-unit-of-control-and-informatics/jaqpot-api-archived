@@ -351,12 +351,17 @@ public class ModelResource {
             requiredFeatures = model.getIndependentFeatures();
             datasetURI = model.getDatasetUri();
         }
-        Set<FeatureInfo> featureSet = client.target(datasetURI.split("\\?")[0] + "/features")
-                .request()
-                .accept(MediaType.APPLICATION_JSON)
-                .header("subjectId", subjectId)
-                .get(new GenericType<Set<FeatureInfo>>() {
-                });
+        Set<FeatureInfo> featureSet;
+        if (datasetURI != null) {
+            featureSet = client.target(datasetURI.split("\\?")[0] + "/features")
+                    .request()
+                    .accept(MediaType.APPLICATION_JSON)
+                    .header("subjectId", subjectId)
+                    .get(new GenericType<Set<FeatureInfo>>() {
+                    });
+        } else {
+            featureSet = new HashSet<>();
+        }
 
         Set<String> requiredFeatureSet = new HashSet<>(requiredFeatures);
         List<FeatureInfo> selectedFeatures = featureSet.stream()

@@ -171,6 +171,7 @@ public class JPDIClientImpl implements JPDIClient {
                             model.setAdditionalInfo(trainingResponse.getAdditionalInfo());
                             model.setAlgorithm(algorithm);
                             model.setParameters(parameters);
+                            model.setDatasetUri(dataset != null ? dataset.getDatasetURI() : null);
 //                            model.setPredictedFeatures(trainingResponse.getPredictedFeatures());
                             model.setIndependentFeatures(trainingResponse.getIndependentFeatures());
                             model.setDependentFeatures(Arrays.asList(predictionFeature));

@@ -70,7 +70,7 @@ import org.jaqpot.core.service.annotations.Secure;
 import org.jaqpot.core.service.client.jpdi.JPDIClient;
 
 /**
- * 
+ *
  * @author Charalampos Chomenidis
  * @author Pantelis Sopasakis
  *
@@ -138,6 +138,35 @@ public class TrainingProcedure implements MessageListener {
         task.setPercentageCompleted(5f);
         taskHandler.edit(task);
 
+        Algorithm algorithm = algorithmHandler.find(algorithmId);
+
+        if (algorithm == null) {
+            task.setStatus(Task.Status.ERROR);
+            task.setErrorReport(ErrorReportFactory.notFoundError("Algorithm with id:" + algorithmId + " was not found."));
+            taskHandler.edit(task);
+            return;
+        }
+
+        task.getMeta().getComments().add("Algorithm retrieved successfully.");
+        task.setPercentageCompleted(10f);
+        taskHandler.edit(task);
+
+        Dataset dataset = null;
+        if (dataset_uri != null && !dataset_uri.isEmpty()) {
+            task.getMeta().getComments().add("Training dataset URI is:" + dataset_uri);
+            task.getMeta().getComments().add("Attempting to download dataset...");
+            taskHandler.edit(task);
+            dataset = client.target(dataset_uri)
+                    .request()
+                    .header("subjectid", subjectId)
+                    .accept(MediaType.APPLICATION_JSON)
+                    .get(Dataset.class);
+            dataset.setDatasetURI(dataset_uri);
+            task.getMeta().getComments().add("Dataset has been retrieved.");            
+        }   
+        task.setPercentageCompleted(20f);
+        taskHandler.edit(task);
+
         if (trans != null && !trans.isEmpty()) {
             task.getMeta().getComments().add("--");
             task.getMeta().getComments().add("Processing transformations...");
@@ -147,14 +176,12 @@ public class TrainingProcedure implements MessageListener {
             LinkedHashMap<String, String> transformations = serializer.parse(transformationsString, LinkedHashMap.class);
             List<Algorithm> transformationAlgorithms = new ArrayList<>();
             List<Algorithm> linkedAlgorithms = new ArrayList<>();
-        }
 
-        Dataset dataset = client.target(dataset_uri)
-                .request()
-                .header("subjectid", subjectId)
-                .accept(MediaType.APPLICATION_JSON)
-                .get(Dataset.class);
-        Algorithm algorithm = algorithmHandler.find(algorithmId);
+            task.getMeta().getComments().add("Done processing transformations.");
+            task.getMeta().getComments().add("--");
+        }
+        task.setPercentageCompleted(50f);
+        taskHandler.edit(task);
 
         Map<String, Object> parameterMap = null;
         if (parameters != null && !parameters.isEmpty()) {
@@ -169,6 +196,9 @@ public class TrainingProcedure implements MessageListener {
                 .addComments("Created by task " + task.getId())
                 .addDescriptions(modelDescription)
                 .build();
+        
+        task.getMeta().getComments().add("Starting JPDI Prediction...");
+        taskHandler.edit(task);       
 
         Future<Model> futureModel = jpdiClient.train(dataset, algorithm, parameterMap, predictionFeature, modelMeta, taskId);
 
@@ -196,6 +226,7 @@ public class TrainingProcedure implements MessageListener {
         }
 
         task.getMeta().getComments().add("Model was built successfully. Now saving to database...");
+        task.setPercentageCompleted(80f);
         taskHandler.edit(task);
         model.setVisible(Boolean.TRUE);
         modelHandler.create(model);
