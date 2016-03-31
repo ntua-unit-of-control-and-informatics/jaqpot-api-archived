@@ -188,22 +188,22 @@ public class TrainingProcedure implements MessageListener {
             progress("--", "Processing transformations...");
 
             transformations.putAll(serializer.parse(trans, LinkedHashMap.class));
-
-            transformations.keySet().iterator().forEachRemaining((algUri) -> {
+            LinkedHashMap<String, String> newTransformations = new LinkedHashMap<>();
+            transformations.keySet().stream().forEach((algUri) -> {
                 String algId = algUri.split("algorithm/")[1];
                 Algorithm transAlgorithm = algorithmHandler.find(algId);
                 if (transAlgorithm == null) {
                     errNotFound("Algorithm with id:" + algId + " was not found.");
                     return;
                 }
-                transformations.put(transAlgorithm.getId(), transformations.get(algUri));
-                transformations.remove(algUri);
+                newTransformations.put(transAlgorithm.getId(), transformations.get(algUri));
                 if (transAlgorithm.getOntologicalClasses().contains("ot:Transformation")) {
                     transformationAlgorithms.add(transAlgorithm);
                 } else {
                     linkedAlgorithms.add(transAlgorithm);
                 }
             });
+            transformations.putAll(newTransformations);
             for (Algorithm transAlgorithm : transformationAlgorithms) {
                 progress("-", "Starting training on transformation algorithm:" + transAlgorithm.getId());
 
