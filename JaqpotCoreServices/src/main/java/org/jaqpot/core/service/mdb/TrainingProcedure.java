@@ -85,31 +85,31 @@ import org.jaqpot.core.service.client.jpdi.JPDIClient;
             propertyValue = "javax.jms.Topic")
 })
 public class TrainingProcedure implements MessageListener {
-
+    
     private static final Logger LOG = Logger.getLogger(TrainingProcedure.class.getName());
-
+    
     @EJB
     TaskHandler taskHandler;
-
+    
     @EJB
     AlgorithmHandler algorithmHandler;
-
+    
     @EJB
     ModelHandler modelHandler;
-
+    
     @Inject
     @Jackson
     JSONSerializer serializer;
-
+    
     @Inject
     JPDIClient jpdiClient;
-
+    
     @Inject
     @Secure
     Client client;
-
+    
     Task task;
-
+    
     @Override
     public void onMessage(Message msg) {
         Map<String, Object> messageBody;
@@ -119,7 +119,7 @@ public class TrainingProcedure implements MessageListener {
             LOG.log(Level.SEVERE, "JMS message could not be read", ex);
             return;
         }
-
+        
         String taskId = (String) messageBody.get("taskId");
         String dataset_uri = (String) messageBody.get("dataset_uri");
         String trans = (String) messageBody.get("transformations");
@@ -130,7 +130,7 @@ public class TrainingProcedure implements MessageListener {
         String modelDescription = (String) messageBody.get("description");
         String subjectId = (String) messageBody.get("subjectid");
         String baseURI = (String) messageBody.get("base_uri");
-
+        
         task = taskHandler.find(taskId);
         if (task == null) {
             LOG.log(Level.SEVERE, "Task with id:{0} could not be found in the database.", taskId);
@@ -140,20 +140,20 @@ public class TrainingProcedure implements MessageListener {
             LOG.log(Level.INFO, "Task with id:{0} was already cancelled.", taskId);
             return;
         }
-
+        
         task.setHttpStatus(202);
         task.setStatus(Task.Status.RUNNING);
         task.setType(Task.Type.TRAINING);
         progress(5f, "Training Task is now running.");
-
+        
         Algorithm algorithm = algorithmHandler.find(algorithmId);
-
+        
         if (algorithm == null) {
             errNotFound("Algorithm with id:" + algorithmId + " was not found.");
             return;
         }
         progress(10f, "Algorithm retrieved successfully.");
-
+        
         Dataset dataset = null;
         if (dataset_uri != null && !dataset_uri.isEmpty()) {
             progress("Training dataset URI is:" + dataset_uri,
@@ -167,7 +167,7 @@ public class TrainingProcedure implements MessageListener {
             progress("Dataset has been retrieved.");
         }
         progress(20f);
-
+        
         MetaInfo modelMeta = MetaInfoBuilder
                 .builder()
                 .addTitles(modelTitle)
@@ -176,19 +176,19 @@ public class TrainingProcedure implements MessageListener {
                 .addComments("Created by task " + task.getId())
                 .addDescriptions(modelDescription)
                 .build();
-
+        
         List<Model> transformationModels = new ArrayList<>();
         List<Model> linkedModels = new ArrayList<>();
-
+        
         List<Algorithm> transformationAlgorithms = new ArrayList<>();
         List<Algorithm> linkedAlgorithms = new ArrayList<>();
         LinkedHashMap<String, String> transformations = null;
-
+        
         if (trans != null && !trans.isEmpty()) {
             progress("--", "Processing transformations...");
-
+            
             transformations = serializer.parse(trans, LinkedHashMap.class);
-
+            
             for (String algUri : transformations.keySet()) {
                 String algId = algUri.split("algorithm/")[1];
                 Algorithm transAlgorithm = algorithmHandler.find(algId);
@@ -197,15 +197,15 @@ public class TrainingProcedure implements MessageListener {
                     return;
                 }
                 transAlgorithm.setId(algUri);
-                if (algorithm.getOntologicalClasses().contains("ot:Transformation")) {
-                    transformationAlgorithms.add(algorithm);
+                if (transAlgorithm.getOntologicalClasses().contains("ot:Transformation")) {
+                    transformationAlgorithms.add(transAlgorithm);
                 } else {
-                    linkedAlgorithms.add(algorithm);
+                    linkedAlgorithms.add(transAlgorithm);
                 }
             }
             for (Algorithm transAlgorithm : transformationAlgorithms) {
                 progress("-", "Starting training on transformation algorithm:" + algorithm.getId());
-
+                
                 Map<String, Object> parameterMap = null;
                 String transParameters = transformations.get(transAlgorithm.getId());
                 if (transParameters != null && !transParameters.isEmpty()) {
@@ -215,7 +215,7 @@ public class TrainingProcedure implements MessageListener {
                     Model transModel = jpdiClient.train(dataset, transAlgorithm, parameterMap, predictionFeature, modelMeta, taskId).get();
                     transformationModels.add(transModel);
                     dataset = jpdiClient.predict(dataset, transModel, dataset != null ? dataset.getMeta() : null, taskId).get();
-
+                    
                     progress(task.getPercentageCompleted() + 5f, "Transformation model created successfully:" + transModel.getId());
                 } catch (InterruptedException ex) {
                     LOG.log(Level.SEVERE, "JPDI Training procedure interupted", ex);
@@ -234,16 +234,16 @@ public class TrainingProcedure implements MessageListener {
             progress("Done processing transformations.", "--");
         }
         progress(50f);
-
+        
         Map<String, Object> parameterMap = null;
         if (parameters != null && !parameters.isEmpty()) {
             parameterMap = serializer.parse(parameters, new HashMap<String, Object>().getClass());
         }
-
+        
         progress("Starting JPDI Prediction...");
-
+        
         Future<Model> futureModel = jpdiClient.train(dataset, algorithm, parameterMap, predictionFeature, modelMeta, taskId);
-
+        
         Model model = null;
         try {
             model = futureModel.get();
@@ -263,9 +263,9 @@ public class TrainingProcedure implements MessageListener {
         } finally {
             taskHandler.edit(task);
         }
-
+        
         progress(70f, "Model was built successfully.");
-
+        
         for (Algorithm linkedAlgorithm : linkedAlgorithms) {
             String transParameters = transformations.get(linkedAlgorithm.getId());
             if (transParameters != null && !transParameters.isEmpty()) {
@@ -294,19 +294,21 @@ public class TrainingProcedure implements MessageListener {
                 taskHandler.edit(task);
             }
         }
-
+        
         progress("Saving transformation models.");
         for (Model transModel : transformationModels) {
+            transModel.setVisible(Boolean.FALSE);
             modelHandler.create(transModel);
         }
-
+        
         progress(80f, "Saving linked models.");
         for (Model linkedModel : linkedModels) {
+            linkedModel.setVisible(Boolean.FALSE);
             modelHandler.create(linkedModel);
         }
-
+        
         progress(90f, "Saving main model.");
-
+        
         model.setVisible(Boolean.TRUE);
         model.setTransformationModels(transformationModels.stream()
                 .map(tm -> baseURI + "/model/" + tm.getId())
@@ -317,32 +319,32 @@ public class TrainingProcedure implements MessageListener {
                 .collect(Collectors.toList())
         );
         modelHandler.create(model);
-
+        
         complete("model/" + model.getId());
     }
-
+    
     private void progress(Float percentage, String... messages) {
         task.getMeta().getComments().addAll(Arrays.asList(messages));
         task.setPercentageCompleted(percentage);
         taskHandler.edit(task);
     }
-
+    
     private void progress(Float percentage) {
         task.setPercentageCompleted(percentage);
         taskHandler.edit(task);
     }
-
+    
     private void progress(String... messages) {
         task.getMeta().getComments().addAll(Arrays.asList(messages));
         taskHandler.edit(task);
     }
-
+    
     private void cancel() {
         task.setStatus(Task.Status.CANCELLED);
         task.getMeta().getComments().add("Task was cancelled by the user.");
         taskHandler.edit(task);
     }
-
+    
     private void complete(String result) {
         task.setResult(result);
         task.setHttpStatus(201);
@@ -352,30 +354,30 @@ public class TrainingProcedure implements MessageListener {
         task.getMeta().getComments().add("Task Completed Successfully.");
         taskHandler.edit(task);
     }
-
+    
     private void errNotFound(String message) {
         task.setStatus(Task.Status.ERROR);
         task.setHttpStatus(404);
         task.setErrorReport(ErrorReportFactory.notFoundError(message));
         taskHandler.edit(task);
     }
-
+    
     private void errorInternalServerError(String message) {
         task.setStatus(Task.Status.ERROR);
         task.setHttpStatus(500);
         task.setErrorReport(ErrorReportFactory.internalServerError(message, null));
         taskHandler.edit(task);
     }
-
+    
     private void errorInternalServerError(Throwable t, String details) {
         task.setStatus(Task.Status.ERROR);
         task.setHttpStatus(500);
         task.setErrorReport(ErrorReportFactory.internalServerError(t, details));
         taskHandler.edit(task);
     }
-
+    
     private void error(Exception ex) {
-
+        
     }
-
+    
 }
