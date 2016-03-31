@@ -196,7 +196,8 @@ public class TrainingProcedure implements MessageListener {
                     errNotFound("Algorithm with id:" + algId + " was not found.");
                     return;
                 }
-                transAlgorithm.setId(algUri);
+                transformations.put(transAlgorithm.getId(), transformations.get(algUri));
+                transformations.remove(algUri);
                 if (transAlgorithm.getOntologicalClasses().contains("ot:Transformation")) {
                     transformationAlgorithms.add(transAlgorithm);
                 } else {
@@ -204,7 +205,7 @@ public class TrainingProcedure implements MessageListener {
                 }
             }
             for (Algorithm transAlgorithm : transformationAlgorithms) {
-                progress("-", "Starting training on transformation algorithm:" + algorithm.getId());
+                progress("-", "Starting training on transformation algorithm:" + transAlgorithm.getId());
                 
                 Map<String, Object> parameterMap = null;
                 String transParameters = transformations.get(transAlgorithm.getId());
@@ -311,11 +312,11 @@ public class TrainingProcedure implements MessageListener {
         
         model.setVisible(Boolean.TRUE);
         model.setTransformationModels(transformationModels.stream()
-                .map(tm -> baseURI + "/model/" + tm.getId())
+                .map(tm -> baseURI + "model/" + tm.getId())
                 .collect(Collectors.toList())
         );
         model.setLinkedModels(linkedModels.stream()
-                .map(lm -> baseURI + "/model/" + lm.getId())
+                .map(lm -> baseURI + "model/" + lm.getId())
                 .collect(Collectors.toList())
         );
         modelHandler.create(model);
