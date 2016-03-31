@@ -197,7 +197,7 @@ public class TrainingProcedure implements MessageListener {
                     return;
                 }
                 transformations.put(transAlgorithm.getId(), transformations.get(algUri));
-                transformations.remove(algUri);
+//                transformations.remove(algUri);
                 if (transAlgorithm.getOntologicalClasses().contains("ot:Transformation")) {
                     transformationAlgorithms.add(transAlgorithm);
                 } else {
