@@ -42,7 +42,7 @@ import org.jaqpot.core.model.factory.ErrorReportFactory;
 
 /**
  * Takes care of duplicate key errors and other un-handled DB errors.
- * 
+ *
  * @author Pantelis Sopasakis
  * @author Charampos Chomenidis
  */
@@ -50,7 +50,7 @@ import org.jaqpot.core.model.factory.ErrorReportFactory;
 public class MongoWriteExceptionMapper implements ExceptionMapper<MongoWriteException> {
 
     private static final Logger LOG = Logger.getLogger(MongoWriteExceptionMapper.class.getName());
-            
+
     @Override
     public Response toResponse(MongoWriteException exception) {
         LOG.log(Level.INFO, "MongoWriteExceptionMapper exception caught", exception);
@@ -62,7 +62,7 @@ public class MongoWriteExceptionMapper implements ExceptionMapper<MongoWriteExce
             status = Response.Status.BAD_REQUEST;
         } else {
             error = ErrorReportFactory
-                    .internalServerError(exception, "MongoWriteException", "", null);
+                    .internalServerError(exception, "MongoWriteException");
         }
 
         return Response

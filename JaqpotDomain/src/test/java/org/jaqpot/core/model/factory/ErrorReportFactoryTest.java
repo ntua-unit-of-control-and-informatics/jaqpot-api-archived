@@ -52,7 +52,7 @@ public class ErrorReportFactoryTest {
         String code = "asdf";
         String message = "dgdfgd";
         String details = "asdasdasda";
-        ErrorReport result = ErrorReportFactory.internalServerError(code, message, details);
+        ErrorReport result = ErrorReportFactory.internalServerError(message, details);
         assertEquals("server", result.getActor());
         assertEquals(message, result.getMessage());
         assertEquals(details, result.getDetails());

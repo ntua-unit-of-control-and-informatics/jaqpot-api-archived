@@ -84,12 +84,12 @@ import org.jaqpot.core.service.exceptions.JaqpotWebException;
  * @author Charalampos Chomenidis
  *
  */
-@MessageDriven(activationConfig = {
-    @ActivationConfigProperty(propertyName = "destinationLookup",
-            propertyValue = "java:jboss/exported/jms/topic/training"),
-    @ActivationConfigProperty(propertyName = "destinationType",
-            propertyValue = "javax.jms.Topic")
-})
+//@MessageDriven(activationConfig = {
+//    @ActivationConfigProperty(propertyName = "destinationLookup",
+//            propertyValue = "java:jboss/exported/jms/topic/training"),
+//    @ActivationConfigProperty(propertyName = "destinationType",
+//            propertyValue = "javax.jms.Topic")
+//})
 public class TrainingMDB extends RunningTaskMDB {
 
     private static final Logger LOG = Logger.getLogger(TrainingMDB.class.getName());
@@ -374,7 +374,7 @@ public class TrainingMDB extends RunningTaskMDB {
                 if (response.getStatus() == 400) {
                     throw new JaqpotWebException(ErrorReportFactory.badRequest(responseString, responseString));
                 } else {
-                    throw new JaqpotWebException(ErrorReportFactory.internalServerError("500", responseString, responseString));
+                    throw new JaqpotWebException(ErrorReportFactory.internalServerError(responseString, responseString));
                 }
             }
 //            System.out.println(responseString);
@@ -482,15 +482,15 @@ public class TrainingMDB extends RunningTaskMDB {
         } catch (WebApplicationException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             task.setStatus(Task.Status.ERROR);
-            task.setErrorReport(ErrorReportFactory.internalServerError(ex, "", ex.getMessage(), "")); // Application runtime error
+            task.setErrorReport(ErrorReportFactory.internalServerError(ex, ex.getMessage())); // Application runtime error
         } catch (JMSException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             task.setStatus(Task.Status.ERROR);
-            task.setErrorReport(ErrorReportFactory.internalServerError(ex, "", ex.getMessage(), ""));
+            task.setErrorReport(ErrorReportFactory.internalServerError(ex, ex.getMessage()));
         } catch (NullPointerException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             task.setStatus(Task.Status.ERROR);
-            task.setErrorReport(ErrorReportFactory.internalServerError(ex, "", ex.getMessage(), "")); // rest
+            task.setErrorReport(ErrorReportFactory.internalServerError(ex, ex.getMessage())); // rest
         } catch (JaqpotWebException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             task.setStatus(Task.Status.ERROR);

@@ -190,7 +190,7 @@ public class PreparationMDB extends RunningTaskMDB {
         } catch (JMSException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             task.setStatus(Task.Status.ERROR);
-            task.setErrorReport(ErrorReportFactory.internalServerError(ex, "JMS", "Error Accessing JMS asynchronous queues.", ex.getMessage()));
+            task.setErrorReport(ErrorReportFactory.internalServerError(ex, "Error Accessing JMS asynchronous queues."));
         } catch (BadRequestException ex) {
             LOG.log(Level.SEVERE, null, ex);
             task.setStatus(Task.Status.ERROR);

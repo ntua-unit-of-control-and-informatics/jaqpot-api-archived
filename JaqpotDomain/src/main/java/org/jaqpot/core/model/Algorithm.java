@@ -59,6 +59,7 @@ public class Algorithm extends JaqpotEntity {
 
     private String trainingService;
     private String predictionService;
+    private String reportService;
 
     public Algorithm() {
     }
@@ -114,6 +115,14 @@ public class Algorithm extends JaqpotEntity {
 
     public void setPredictionService(String predictionService) {
         this.predictionService = predictionService;
+    }
+
+    public String getReportService() {
+        return reportService;
+    }
+
+    public void setReportService(String reportService) {
+        this.reportService = reportService;
     }
 
 }

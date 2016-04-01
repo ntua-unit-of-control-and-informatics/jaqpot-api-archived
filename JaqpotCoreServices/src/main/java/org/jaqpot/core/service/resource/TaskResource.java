@@ -37,7 +37,9 @@ import com.wordnik.swagger.annotations.ApiResponses;
 import java.util.List;
 import javax.ejb.EJB;
 import javax.inject.Inject;
+import javax.ws.rs.BadRequestException;
 import javax.ws.rs.DELETE;
+import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.NotFoundException;
@@ -53,6 +55,7 @@ import javax.ws.rs.core.UriInfo;
 import org.jaqpot.core.data.TaskHandler;
 import org.jaqpot.core.model.Task;
 import org.jaqpot.core.service.annotations.Authorize;
+import org.jaqpot.core.service.client.jpdi.JPDIClient;
 import org.jaqpot.core.service.mdb.ThreadReference;
 
 /**
@@ -73,7 +76,7 @@ public class TaskResource {
     TaskHandler taskHandler;
 
     @Inject
-    ThreadReference threadMap;
+    JPDIClient jpdiClient;
 
     @Context
     SecurityContext securityContext;
@@ -172,21 +175,23 @@ public class TaskResource {
         @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
     })
     public Response deleteTask(
-            @ApiParam(value = "ID of the task which is to be deleted.", required = true) @PathParam("id") String id,
+            @ApiParam(value = "ID of the task which is to be cancelled.", required = true) @PathParam("id") String id,
             @HeaderParam("subjectid") String subjectId) {
-
-        Thread thread = threadMap.getThreadReferenceMap().get(id);
-        if (thread != null) {
-            thread.interrupt();
-            threadMap.getThreadReferenceMap().remove(id);
-        }
 
         Task task = taskHandler.find(id);
         if (task == null) {
-            throw new NotFoundException("Task with ID " + id + " was not found on the server.");
+            throw new NotFoundException("Task with ID:" + id + " was not found on the server.");
         }
-        task.setStatus(Task.Status.CANCELLED);
-        taskHandler.edit(task);
+        String userName = securityContext.getUserPrincipal().getName();
+        if (!task.getMeta().getCreators().contains(userName)) {
+            throw new ForbiddenException("You cannot cancel a Task not created by you.");
+        }
+
+        boolean cancelled = jpdiClient.cancel(id);
+
+        if (!cancelled) {
+            throw new BadRequestException("Task with ID:" + id + " was not running");
+        }
 
         return Response.ok().build();
     }

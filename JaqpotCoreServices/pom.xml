@@ -108,8 +108,8 @@
         </dependency>      
         
         <!-- JSON-PATCH implements RFC 6902 (JSON Patch) and 
-             RFC 7386 (JSON Merge Patch) and is used to PATCH
-             JSON the standard way -->
+        RFC 7386 (JSON Merge Patch) and is used to PATCH
+        JSON the standard way -->
         <dependency>
             <groupId>com.github.fge</groupId>
             <artifactId>json-patch</artifactId>

@@ -464,11 +464,11 @@ public class ValidationMDB extends RunningTaskMDB {
         } catch (WebApplicationException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             task.setStatus(Task.Status.ERROR);
-            task.setErrorReport(ErrorReportFactory.internalServerError(ex, "", ex.getMessage(), "")); // Application runtime error
+            task.setErrorReport(ErrorReportFactory.internalServerError(ex, ex.getMessage())); // Application runtime error
         } catch (NullPointerException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             task.setStatus(Task.Status.ERROR);
-            task.setErrorReport(ErrorReportFactory.internalServerError(ex, "", ex.getMessage(), "")); // rest
+            task.setErrorReport(ErrorReportFactory.internalServerError(ex, ex.getMessage())); // rest
         } catch (JaqpotWebException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             task.setStatus(Task.Status.ERROR);
@@ -476,7 +476,7 @@ public class ValidationMDB extends RunningTaskMDB {
         } catch (UnsupportedEncodingException ex) {
             Logger.getLogger(ValidationMDB.class.getName()).log(Level.SEVERE, null, ex);
             task.setStatus(Task.Status.ERROR);
-            task.setErrorReport(ErrorReportFactory.internalServerError("", ex.getMessage(), ""));
+            task.setErrorReport(ErrorReportFactory.internalServerError(ex, ex.getMessage()));
         } finally {
             task.getMeta().getComments().add("Performing cleanup.");
             for (String intermediateResource : intermediateResources) {
