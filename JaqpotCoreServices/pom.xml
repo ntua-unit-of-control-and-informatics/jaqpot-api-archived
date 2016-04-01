@@ -108,8 +108,8 @@
         </dependency>      
         
         <!-- JSON-PATCH implements RFC 6902 (JSON Patch) and 
-             RFC 7386 (JSON Merge Patch) and is used to PATCH
-             JSON the standard way -->
+        RFC 7386 (JSON Merge Patch) and is used to PATCH
+        JSON the standard way -->
         <dependency>
             <groupId>com.github.fge</groupId>
             <artifactId>json-patch</artifactId>
@@ -121,6 +121,17 @@
             <artifactId>resteasy-client</artifactId>
             <version>3.0.10.Final</version>
             <scope>provided</scope>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpasyncclient</artifactId>
+            <version>4.1.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>4.5.2</version>
         </dependency>
     </dependencies>
 

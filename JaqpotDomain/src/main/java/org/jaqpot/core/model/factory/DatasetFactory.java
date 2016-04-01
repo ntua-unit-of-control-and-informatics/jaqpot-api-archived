@@ -107,6 +107,12 @@ public class DatasetFactory {
                 })
                 .collect(Collectors.toList());
         result.setDataEntry(dataEntries);
+        result.setFeatures(dataset.getFeatures());
+        result.setDatasetURI(dataset.getDatasetURI());
+        result.setDescriptors(dataset.getDescriptors());
+        result.setTotalColumns(dataset.getTotalColumns());
+        result.setTotalRows(dataset.getTotalRows());
+        result.setByModel(dataset.getByModel());       
         return result;
     }
     
