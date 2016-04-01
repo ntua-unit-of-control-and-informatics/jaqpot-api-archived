@@ -40,6 +40,7 @@ import javax.ejb.EJB;
 import javax.inject.Inject;
 import javax.jms.JMSContext;
 import javax.jms.Topic;
+import javax.ws.rs.BadRequestException;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
@@ -50,6 +51,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
+import org.apache.commons.validator.routines.UrlValidator;
 import org.jaqpot.core.data.ReportHandler;
 import org.jaqpot.core.data.TaskHandler;
 import org.jaqpot.core.data.UserHandler;
@@ -143,6 +145,14 @@ public class ValidationResource {
                     + "No more than " + maxAllowedReports + " are allowed with your subscription.");
         }
 
+        UrlValidator urlValidator = new UrlValidator();
+        if (!urlValidator.isValid(modelURI)) {
+            throw new BadRequestException("Not valid model URI.");
+        }
+        if (!urlValidator.isValid(datasetURI)) {
+            throw new BadRequestException("Not valid dataset URI.");
+        }
+
         Task task = new Task(new ROG(true).nextString(12));
         task.setMeta(
                 MetaInfoBuilder.builder()
@@ -189,7 +199,7 @@ public class ValidationResource {
             @FormParam("seed") Integer seed,
             @HeaderParam("subjectId") String subjectId
     ) throws QuotaExceededException {
-        
+
         User user = userHandler.find(securityContext.getUserPrincipal().getName());
         long reportCount = reportHandler.countAllOfCreator(user.getId());
         int maxAllowedReports = new UserFacade(user).getMaxReports();
@@ -200,6 +210,26 @@ public class ValidationResource {
             throw new QuotaExceededException("Dear " + user.getId()
                     + ", your quota has been exceeded; you already have " + reportCount + " reports. "
                     + "No more than " + maxAllowedReports + " are allowed with your subscription.");
+        }
+
+        UrlValidator urlValidator = new UrlValidator();
+        if (!urlValidator.isValid(algorithmURI)) {
+            throw new BadRequestException("Not valid algorithm URI.");
+        }
+        if (!urlValidator.isValid(datasetURI)) {
+            throw new BadRequestException("Not valid dataset URI.");
+        }
+        if (!urlValidator.isValid(predictionFeature)) {
+            throw new BadRequestException("Not valid prediction feature URI.");
+        }
+        if (!urlValidator.isValid(transformations)) {
+            throw new BadRequestException("Not valid transformation URI.");
+        }
+        if (!urlValidator.isValid(scaling)) {
+            throw new BadRequestException("Not valid scaling URI.");
+        }
+        if (stratify != null && (!stratify.equals("random") || !stratify.equals("normal"))) {
+            throw new BadRequestException("Not valid stratify option - choose between random and normal");
         }
 
         Task task = new Task(new ROG(true).nextString(12));
@@ -248,9 +278,11 @@ public class ValidationResource {
             @ApiParam(name = "transformations", defaultValue = DEFAULT_TRANSFORMATIONS) @FormParam("transformations") String transformations,
             @ApiParam(name = "scaling", defaultValue = STANDARIZATION) @FormParam("scaling") String scaling, //, allowableValues = SCALING + "," + STANDARIZATION          
             @FormParam("split_ratio") Double splitRatio,
+            @FormParam("stratify") String stratify,
+            @FormParam("seed") Integer seed,
             @HeaderParam("subjectId") String subjectId
     ) throws QuotaExceededException {
-        
+
         User user = userHandler.find(securityContext.getUserPrincipal().getName());
         long reportCount = reportHandler.countAllOfCreator(user.getId());
         int maxAllowedReports = new UserFacade(user).getMaxReports();
@@ -261,6 +293,26 @@ public class ValidationResource {
             throw new QuotaExceededException("Dear " + user.getId()
                     + ", your quota has been exceeded; you already have " + reportCount + " reports. "
                     + "No more than " + maxAllowedReports + " are allowed with your subscription.");
+        }
+
+        UrlValidator urlValidator = new UrlValidator();
+        if (!urlValidator.isValid(algorithmURI)) {
+            throw new BadRequestException("Not valid algorithm URI.");
+        }
+        if (!urlValidator.isValid(datasetURI)) {
+            throw new BadRequestException("Not valid dataset URI.");
+        }
+        if (!urlValidator.isValid(predictionFeature)) {
+            throw new BadRequestException("Not valid prediction feature URI.");
+        }
+        if (!urlValidator.isValid(transformations)) {
+            throw new BadRequestException("Not valid transformation URI.");
+        }
+        if (!urlValidator.isValid(scaling)) {
+            throw new BadRequestException("Not valid scaling URI.");
+        }
+        if (stratify != null && (!stratify.equals("random") || !stratify.equals("normal"))) {
+            throw new BadRequestException("Not valid stratify option - choose between random and normal");
         }
 
         Task task = new Task(new ROG(true).nextString(12));
@@ -285,6 +337,8 @@ public class ValidationResource {
         options.put("transformations", transformations);
         options.put("scaling", scaling);
         options.put("split_ratio", splitRatio);
+        options.put("stratify", stratify);
+        options.put("seed", seed);
         options.put("type", "SPLIT");
         options.put("subjectId", subjectId);
 

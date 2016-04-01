@@ -198,6 +198,9 @@ public class ValidationMDB extends RunningTaskMDB {
                 task.getMeta().getComments().add("Validation mode is SPLIT.");
                 taskHandler.edit(task);
 
+                String stratify = (String) messageBody.get("stratify");
+                Integer seed = (Integer) messageBody.get("seed");
+
                 Double splitRatio = (Double) messageBody.get("split_ratio");
                 Dataset dataset = client.target(datasetURI)
                         .request()
@@ -207,8 +210,8 @@ public class ValidationMDB extends RunningTaskMDB {
                 Integer rows = dataset.getTotalRows();
 
                 Long split = Math.round(rows * splitRatio);
-                String trainDatasetURI = datasetURI + "?rowStart=0&rowMax=" + split;
-                String testDatasetURI = datasetURI + "?rowStart=" + split + "&rowMax=" + (rows - split);
+                String trainDatasetURI = datasetURI + "?rowStart=0&rowMax=" + split + ((stratify != null && !stratify.isEmpty()) ? "&stratify=" + stratify : "") + (seed != null ? "&seed=" + seed.toString() : "");
+                String testDatasetURI = datasetURI + "?rowStart=" + split + "&rowMax=" + (rows - split) + ((stratify != null && !stratify.isEmpty()) ? "&stratify=" + stratify : "") + (seed != null ? "&seed=" + seed.toString() : "");;
 
                 task.getMeta().getComments().add("Starting train and test with train_dataset:" + trainDatasetURI + " test_dataset:" + testDatasetURI);
                 taskHandler.edit(task);
@@ -285,7 +288,7 @@ public class ValidationMDB extends RunningTaskMDB {
                         rowMax = minRows;
                         i += rowMax;
                     }
-                    String partialDatasetURI = datasetURI + "?rowStart=" + rowStart + "&rowMax=" + rowMax + (stratify != null ? "&stratify=" + stratify : "") + (folds != null ? "&folds=" + folds.toString() : "") + (seed != null ? "&seed=" + seed.toString() : "") + "&target_feature=" + URLEncoder.encode(predictionFeature, "UTF-8");
+                    String partialDatasetURI = datasetURI + "?rowStart=" + rowStart + "&rowMax=" + rowMax + ((stratify != null && !stratify.isEmpty()) ? "&stratify=" + stratify : "") + (folds != null ? "&folds=" + folds.toString() : "") + (seed != null ? "&seed=" + seed.toString() : "") + "&target_feature=" + URLEncoder.encode(predictionFeature, "UTF-8");
                     partialDatasets.add(partialDatasetURI);
                 }
 
