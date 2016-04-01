@@ -86,34 +86,34 @@ import org.jaqpot.core.service.client.jpdi.JPDIClient;
             propertyValue = "javax.jms.Topic")
 })
 public class PredictionProcedure implements MessageListener {
-
+    
     private static final Logger LOG = Logger.getLogger(PredictionProcedure.class.getName());
-
+    
     @EJB
     TaskHandler taskHandler;
-
+    
     @EJB
     AlgorithmHandler algorithmHandler;
-
+    
     @EJB
     ModelHandler modelHandler;
-
+    
     @EJB
     DatasetHandler datasetHandler;
-
+    
     @Inject
     @Jackson
     JSONSerializer serializer;
-
+    
     @Inject
     JPDIClient jpdiClient;
-
+    
     @Inject
     @Secure
     Client client;
-
+    
     Task task;
-
+    
     @Override
     public void onMessage(Message msg) {
         Map<String, Object> messageBody;
@@ -123,12 +123,12 @@ public class PredictionProcedure implements MessageListener {
             LOG.log(Level.SEVERE, "JMS message could not be read", ex);
             return;
         }
-
+        
         String taskId = (String) messageBody.get("taskId");
         String dataset_uri = (String) messageBody.get("dataset_uri");
         String modelId = (String) messageBody.get("modelId");
         String subjectId = (String) messageBody.get("subjectid");
-
+        
         task = taskHandler.find(taskId);
         if (task == null) {
             LOG.log(Level.SEVERE, "Task with id:{0} could not be found in the database.", taskId);
@@ -138,19 +138,19 @@ public class PredictionProcedure implements MessageListener {
             LOG.log(Level.INFO, "Task with id:{0} was already cancelled.", taskId);
             return;
         }
-
+        
         task.setHttpStatus(202);
         task.setStatus(Task.Status.RUNNING);
         task.setType(Task.Type.PREDICTION);
         progress(5f, "Prediction Task is now running.");
-
+        
         Model model = modelHandler.find(modelId);
         if (model == null) {
             errNotFound("Model with id:" + modelId + " was not found.");
             return;
         }
         progress(10f, "Model retrieved successfully.");
-
+        
         Dataset dataset;
         if (dataset_uri != null && !dataset_uri.isEmpty()) {
             progress("Attempting to download dataset...");
@@ -165,7 +165,7 @@ public class PredictionProcedure implements MessageListener {
             dataset = DatasetFactory.createEmpty(0);
         }
         progress(20f);
-
+        
         if (model.getTransformationModels() != null && !model.getTransformationModels().isEmpty()) {
             progress("--", "Processing transformations...");
             for (String transModelURI : model.getTransformationModels()) {
@@ -194,14 +194,14 @@ public class PredictionProcedure implements MessageListener {
             progress("Done processing transformations.", "--");
         }
         progress(50f);
-
+        
         MetaInfo datasetMeta = dataset.getMeta();
         datasetMeta.setCreators(task.getMeta().getCreators());
-
+        
         progress("Starting JPDI Prediction...");
-
+        
         Future<Dataset> futureDataset = jpdiClient.predict(dataset, model, datasetMeta, taskId);
-
+        
         try {
             dataset = futureDataset.get();
             task.getMeta().getComments().add("JPDI Prediction completed successfully.");
@@ -221,14 +221,14 @@ public class PredictionProcedure implements MessageListener {
             taskHandler.edit(task);
         }
         progress(80f, "Dataset was built successfully.");
-
+        
         if (model.getLinkedModels() != null & !model.getLinkedModels().isEmpty()) {
             progress("--", "Processing linked models...");
             Dataset copyDataset = DatasetFactory.copy(dataset);
             for (String linkedModelURI : model.getLinkedModels()) {
                 Model linkedModel = modelHandler.find(linkedModelURI.split("model/")[1]);
                 if (linkedModel == null) {
-                    errNotFound("Transformation modle with id:" + linkedModelURI + " was not found.");
+                    errNotFound("Transformation model with id:" + linkedModelURI + " was not found.");
                     return;
                 }
                 try {
@@ -253,33 +253,34 @@ public class PredictionProcedure implements MessageListener {
         }
         progress(90f, "Now saving to database...");
         dataset.setVisible(Boolean.TRUE);
+        dataset.setFeatured(Boolean.FALSE);
         datasetHandler.create(dataset);
-
+        
         complete("dataset/" + dataset.getId());
     }
-
+    
     private void progress(Float percentage, String... messages) {
         task.getMeta().getComments().addAll(Arrays.asList(messages));
         task.setPercentageCompleted(percentage);
         taskHandler.edit(task);
     }
-
+    
     private void progress(Float percentage) {
         task.setPercentageCompleted(percentage);
         taskHandler.edit(task);
     }
-
+    
     private void progress(String... messages) {
         task.getMeta().getComments().addAll(Arrays.asList(messages));
         taskHandler.edit(task);
     }
-
+    
     private void cancel() {
         task.setStatus(Task.Status.CANCELLED);
         task.getMeta().getComments().add("Task was cancelled by the user.");
         taskHandler.edit(task);
     }
-
+    
     private void complete(String result) {
         task.setResult(result);
         task.setHttpStatus(201);
@@ -289,26 +290,26 @@ public class PredictionProcedure implements MessageListener {
         task.getMeta().getComments().add("Task Completed Successfully.");
         taskHandler.edit(task);
     }
-
+    
     private void errNotFound(String message) {
         task.setStatus(Task.Status.ERROR);
         task.setHttpStatus(404);
         task.setErrorReport(ErrorReportFactory.notFoundError(message));
         taskHandler.edit(task);
     }
-
+    
     private void errorInternalServerError(String message) {
         task.setStatus(Task.Status.ERROR);
         task.setHttpStatus(500);
         task.setErrorReport(ErrorReportFactory.internalServerError(message, null));
         taskHandler.edit(task);
     }
-
+    
     private void errorInternalServerError(Throwable t, String details) {
         task.setStatus(Task.Status.ERROR);
         task.setHttpStatus(500);
         task.setErrorReport(ErrorReportFactory.internalServerError(t, details));
         taskHandler.edit(task);
     }
-
+    
 }
