@@ -222,13 +222,13 @@ public class ValidationResource {
         if (!urlValidator.isValid(predictionFeature)) {
             throw new BadRequestException("Not valid prediction feature URI.");
         }
-        if (!urlValidator.isValid(transformations)) {
+        if (transformations != null && !transformations.isEmpty() && !urlValidator.isValid(transformations)) {
             throw new BadRequestException("Not valid transformation URI.");
         }
-        if (!urlValidator.isValid(scaling)) {
+        if (scaling != null && !scaling.isEmpty() && !urlValidator.isValid(scaling)) {
             throw new BadRequestException("Not valid scaling URI.");
         }
-        if (stratify != null && (!stratify.equals("random") || !stratify.equals("normal"))) {
+        if (stratify != null && (!stratify.isEmpty() || !stratify.equals("random") || !stratify.equals("normal"))) {
             throw new BadRequestException("Not valid stratify option - choose between random and normal");
         }
 
@@ -305,13 +305,13 @@ public class ValidationResource {
         if (!urlValidator.isValid(predictionFeature)) {
             throw new BadRequestException("Not valid prediction feature URI.");
         }
-        if (!urlValidator.isValid(transformations)) {
+        if (transformations != null && !transformations.isEmpty() && !urlValidator.isValid(transformations)) {
             throw new BadRequestException("Not valid transformation URI.");
         }
-        if (!urlValidator.isValid(scaling)) {
+        if (scaling != null && !scaling.isEmpty() && !urlValidator.isValid(scaling)) {
             throw new BadRequestException("Not valid scaling URI.");
         }
-        if (stratify != null && (!stratify.equals("random") || !stratify.equals("normal"))) {
+        if (stratify != null && (!stratify.isEmpty() || !stratify.equals("random") || !stratify.equals("normal"))) {
             throw new BadRequestException("Not valid stratify option - choose between random and normal");
         }
 
