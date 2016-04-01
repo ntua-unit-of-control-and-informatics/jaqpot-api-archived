@@ -313,12 +313,14 @@ public class ModelResource {
         }
         List<String> predictedFeatures = new ArrayList<>();
         predictedFeatures.addAll(foundModel.getPredictedFeatures());
-        foundModel.getLinkedModels().stream()
-                .map(m -> m.split("model/")[1])
-                .forEach(mid -> {
-                    Model linkedModel = modelHandler.findModel(mid);
-                    predictedFeatures.addAll(linkedModel.getPredictedFeatures());
-                });
+        if (foundModel.getLinkedModels() != null) {
+            foundModel.getLinkedModels().stream()
+                    .map(m -> m.split("model/")[1])
+                    .forEach(mid -> {
+                        Model linkedModel = modelHandler.findModel(mid);
+                        predictedFeatures.addAll(linkedModel.getPredictedFeatures());
+                    });
+        }
         return Response.ok(predictedFeatures).build();
 
     }
@@ -351,12 +353,17 @@ public class ModelResource {
             requiredFeatures = model.getIndependentFeatures();
             datasetURI = model.getDatasetUri();
         }
-        Set<FeatureInfo> featureSet = client.target(datasetURI.split("\\?")[0] + "/features")
-                .request()
-                .accept(MediaType.APPLICATION_JSON)
-                .header("subjectId", subjectId)
-                .get(new GenericType<Set<FeatureInfo>>() {
-                });
+        Set<FeatureInfo> featureSet;
+        if (datasetURI != null) {
+            featureSet = client.target(datasetURI.split("\\?")[0] + "/features")
+                    .request()
+                    .accept(MediaType.APPLICATION_JSON)
+                    .header("subjectId", subjectId)
+                    .get(new GenericType<Set<FeatureInfo>>() {
+                    });
+        } else {
+            featureSet = new HashSet<>();
+        }
 
         Set<String> requiredFeatureSet = new HashSet<>(requiredFeatures);
         List<FeatureInfo> selectedFeatures = featureSet.stream()
@@ -434,11 +441,15 @@ public class ModelResource {
         if (!model.getMeta().getCreators().contains(userName)) {
             return Response.status(Response.Status.FORBIDDEN).entity("You cannot delete a Model that was not created by you.").build();
         }
-        for (String transformationModel : model.getTransformationModels()) {
-            modelHandler.remove(new Model(transformationModel));
+        if (model.getTransformationModels() != null) {
+            for (String transformationModel : model.getTransformationModels()) {
+                modelHandler.remove(new Model(transformationModel));
+            }
         }
-        for (String linkedModel : model.getLinkedModels()) {
-            modelHandler.remove(new Model(linkedModel));
+        if (model.getLinkedModels() != null) {
+            for (String linkedModel : model.getLinkedModels()) {
+                modelHandler.remove(new Model(linkedModel));
+            }
         }
         modelHandler.remove(new Model(id));
         return Response.ok().build();

@@ -123,16 +123,16 @@ public class ErrorReportFactory {
      * Resource not found error. Error report that is generated when a resource
      * is not found.
      *
-     * @param details The URI that is not found on the server.
+     * @param message The URI that is not found on the server.
      * @return Error report with HTTP status code 404.
      */
     public static ErrorReport notFoundError(
-            String details) {
+            String message) {
         return ErrorReportBuilder.builderRandomId().
                 setActor("client").
                 setCode("NotFound").
-                setMessage("URI was not found on the server").
-                setDetails(ERROR404 + "\n Further details:" + details).
+                setMessage(message).
+                setDetails(ERROR404).
                 setHttpStatus(404).
                 build();
     }
@@ -157,12 +157,11 @@ public class ErrorReportFactory {
      * @return Error report with HTTP status code 500.
      */
     public static ErrorReport internalServerError(
-            String code,
             String message,
             String details) {
         return ErrorReportBuilder.builderRandomId().
                 setActor("server").
-                setCode(code).
+                setCode("InternalServerError").
                 setMessage(message).
                 setDetails(details).
                 setHttpStatus(500).
@@ -185,25 +184,20 @@ public class ErrorReportFactory {
      * @param ex A Throwable that leads to this exceptional event for which this
      * report is generated. MUST NOT be <code>null</code>!
      * @param code Error code (to identify errors of such type).
-     * @param additionalMessage Additional custom message to explain the
-     * situation. Set to <code>null</code> if you don't want to specify an
-     * additional message.
-     * @param addittionalDetails Additional details (apart from the ones
-     * provided with the Throwable). Set to <code>null</code> if you don't want
-     * to provide additional details.
+     * @param details Additional custom message to explain the situation. Set to
+     * <code>null</code> if you don't want to specify an additional message.
      * @return Error report with HTTP status code 500.
      */
     public static ErrorReport internalServerError(
             Throwable ex,
-            String code,
-            String additionalMessage,
-            String addittionalDetails) {
+            String details) {
         StringWriter sw = new StringWriter();
         PrintWriter pw = new PrintWriter(sw);
         ex.printStackTrace(pw);
         return ErrorReportBuilder.builderRandomId().
+                setCode("InternalServerError").
                 setHttpStatus(500).
-                setMessage(ex.getMessage()).
+                setMessage(ex.getMessage() + " Details: " + (details != null ? details : ERROR500)).
                 setDetails(sw.toString()).
                 build();
     }
