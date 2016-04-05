@@ -4,7 +4,7 @@
 Jaqpot v4 (Quattro) is a REST application developed under the eNanoMapper project (http://www.enanomapper.net) that supports model training and data preprocessing algorithms such as multiple linear regression, support vector machines, neural networks, an implementation of the leverage algorithm for domain of applicability estimation and various data preprocessing algorithms like PLS and scaling.
 
 ***How to run Jaqpot using Docker***  
-You can download the Jaqpot docker image and start a container with the following commands:
+You can download the Jaqpot docker image and start a container with the following commands:  
 `docker pull jaqpot/jaqpot-core`  
 `docker run -d -p 8080:8080 --net="host" jaqpot/jaqpot-core`
 
