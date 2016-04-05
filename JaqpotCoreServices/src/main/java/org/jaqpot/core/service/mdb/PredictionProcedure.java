@@ -200,25 +200,25 @@ public class PredictionProcedure implements MessageListener {
 
         progress("Starting JPDI Prediction...");
 
-        Future<Dataset> futureDataset = jpdiClient.predict(dataset, model, datasetMeta, taskId);
-
         try {
-            dataset = futureDataset.get();
-            task.getMeta().getComments().add("JPDI Prediction completed successfully.");
+            dataset = jpdiClient.predict(dataset, model, datasetMeta, taskId).get();
+            progress("JPDI Prediction completed successfully.");
         } catch (InterruptedException ex) {
             LOG.log(Level.SEVERE, "JPDI Prediction procedure interupted", ex);
             errorInternalServerError(ex, "JPDI Prediction procedure interupted");
             return;
         } catch (ExecutionException ex) {
-            LOG.log(Level.SEVERE, "Prediction procedure execution error", ex.getCause());
+            LOG.log(Level.SEVERE, "JPDI Prediction procedure execution error", ex.getCause());
             errorInternalServerError(ex, "JPDI Prediction procedure error");
             return;
         } catch (CancellationException ex) {
             LOG.log(Level.INFO, "Task with id:{0} was cancelled", taskId);
             cancel();
             return;
-        } finally {
-            taskHandler.edit(task);
+        } catch (Exception ex) {
+            LOG.log(Level.SEVERE, "JPDI Prediction procedure unknown error", ex);
+            errorInternalServerError(ex, "JPDI Prediction procedure unknown error");
+            return;
         }
         progress(80f, "Dataset was built successfully.");
 
@@ -228,7 +228,7 @@ public class PredictionProcedure implements MessageListener {
             for (String linkedModelURI : model.getLinkedModels()) {
                 Model linkedModel = modelHandler.find(linkedModelURI.split("model/")[1]);
                 if (linkedModel == null) {
-                    errNotFound("Transformation modle with id:" + linkedModelURI + " was not found.");
+                    errNotFound("Transformation model with id:" + linkedModelURI + " was not found.");
                     return;
                 }
                 try {
@@ -253,6 +253,7 @@ public class PredictionProcedure implements MessageListener {
         }
         progress(90f, "Now saving to database...");
         dataset.setVisible(Boolean.TRUE);
+        dataset.setFeatured(Boolean.FALSE);
         datasetHandler.create(dataset);
 
         complete("dataset/" + dataset.getId());
