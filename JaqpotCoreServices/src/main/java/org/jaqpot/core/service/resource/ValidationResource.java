@@ -228,7 +228,7 @@ public class ValidationResource {
         if (scaling != null && !scaling.isEmpty() && !urlValidator.isValid(scaling)) {
             throw new BadRequestException("Not valid scaling URI.");
         }
-        if (stratify != null && (!stratify.isEmpty() || !stratify.equals("random") || !stratify.equals("normal"))) {
+        if ((stratify != null && !stratify.isEmpty() && !stratify.equals("random") && !stratify.equals("normal"))) {
             throw new BadRequestException("Not valid stratify option - choose between random and normal");
         }
 
