@@ -97,7 +97,7 @@ public class Scaling {
             LinkedHashMap<String, Double> maxValues = new LinkedHashMap<>();
             LinkedHashMap<String, Double> minValues = new LinkedHashMap<>();
 
-            features.parallelStream().forEach(feature -> {
+            features.stream().forEach(feature -> {
                 Double max = request.getDataset().getDataEntry().stream().map(dataEntry -> {
                     return Double.parseDouble(dataEntry.getValues().get(feature).toString());
                 }).max(Double::compare).orElse(0.0);
