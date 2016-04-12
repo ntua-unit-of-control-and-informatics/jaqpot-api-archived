@@ -43,6 +43,7 @@ import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -93,8 +94,8 @@ public class Scaling {
                     .filter(feature -> !feature.equals(request.getPredictionFeature()))
                     .collect(Collectors.toList());
 
-            Map<String, Double> maxValues = new HashMap<>();
-            Map<String, Double> minValues = new HashMap<>();
+            LinkedHashMap<String, Double> maxValues = new LinkedHashMap<>();
+            LinkedHashMap<String, Double> minValues = new LinkedHashMap<>();
 
             features.parallelStream().forEach(feature -> {
                 Double max = request.getDataset().getDataEntry().stream().map(dataEntry -> {

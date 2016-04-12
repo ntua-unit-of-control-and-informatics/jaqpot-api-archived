@@ -35,6 +35,7 @@
 package org.jaqpot.algorithm.model;
 
 import java.io.Serializable;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -42,27 +43,27 @@ import java.util.Map;
  * @author Charalampos Chomenidis
  * @author Pantelis Sopasakis
  */
-public class ScalingModel implements Serializable{
+public class ScalingModel implements Serializable {
 
-    private Map<String, Double> maxValues;
-    private Map<String, Double> minValues;
+    private LinkedHashMap<String, Double> maxValues;
+    private LinkedHashMap<String, Double> minValues;
 
     public ScalingModel() {
     }
 
-    public Map<String, Double> getMaxValues() {
+    public LinkedHashMap<String, Double> getMaxValues() {
         return maxValues;
     }
 
-    public void setMaxValues(Map<String, Double> maxValues) {
+    public void setMaxValues(LinkedHashMap<String, Double> maxValues) {
         this.maxValues = maxValues;
     }
 
-    public Map<String, Double> getMinValues() {
+    public LinkedHashMap<String, Double> getMinValues() {
         return minValues;
     }
 
-    public void setMinValues(Map<String, Double> minValues) {
+    public void setMinValues(LinkedHashMap<String, Double> minValues) {
         this.minValues = minValues;
     }
 
