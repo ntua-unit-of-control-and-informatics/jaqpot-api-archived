@@ -29,8 +29,8 @@
  */
 package org.jaqpot.core.model.dto.jpdi;
 
+import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  *
@@ -40,13 +40,13 @@ import java.util.Map;
  */
 public class PredictionResponse {
 
-    List<Map<String, Object>> predictions;
+    List<LinkedHashMap<String, Object>> predictions;
 
-    public List<Map<String, Object>> getPredictions() {
+    public List<LinkedHashMap<String, Object>> getPredictions() {
         return predictions;
     }
 
-    public void setPredictions(List<Map<String, Object>> predictions) {
+    public void setPredictions(List<LinkedHashMap<String, Object>> predictions) {
         this.predictions = predictions;
     }
 

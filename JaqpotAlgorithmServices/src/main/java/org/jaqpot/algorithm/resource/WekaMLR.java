@@ -39,6 +39,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -157,7 +158,7 @@ public class WekaMLR {
             String dependentFeature = additionalInfo.get(0);
             String dependentFeatureName = additionalInfo.get(1);
             data.insertAttributeAt(new Attribute(dependentFeature), data.numAttributes());
-            List<Map<String, Object>> predictions = new ArrayList<>();
+            List<LinkedHashMap<String, Object>> predictions = new ArrayList<>();
 //            data.stream().forEach(instance -> {
 //                try {
 //                    double prediction = classifier.classifyInstance(instance);
@@ -173,7 +174,7 @@ public class WekaMLR {
                 Instance instance = data.instance(i);
                 try {
                     double prediction = classifier.classifyInstance(instance);
-                    Map<String, Object> predictionMap = new HashMap<>();
+                    LinkedHashMap<String, Object> predictionMap = new LinkedHashMap<>();
                     predictionMap.put("Weka MLR prediction of " + dependentFeatureName, prediction);
                     predictions.add(predictionMap);
                 } catch (Exception ex) {

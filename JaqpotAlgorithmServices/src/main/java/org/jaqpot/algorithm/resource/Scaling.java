@@ -152,10 +152,10 @@ public class Scaling {
             ObjectInput in = new ObjectInputStream(bais);
             ScalingModel model = (ScalingModel) in.readObject();
 
-            List<Map<String, Object>> predictions = new ArrayList<>();
+            List<LinkedHashMap<String, Object>> predictions = new ArrayList<>();
 
             request.getDataset().getDataEntry().stream().forEach(dataEntry -> {
-                Map<String, Object> data = new HashMap<>();
+                LinkedHashMap<String, Object> data = new LinkedHashMap<>();
                 features.stream().forEach(feature -> {
                     Double max = model.getMaxValues().get(feature);
                     Double min = model.getMinValues().get(feature);

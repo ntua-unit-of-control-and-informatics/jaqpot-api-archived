@@ -158,10 +158,10 @@ public class Standarization {
             in.close();
             bais.close();
 
-            List<Map<String, Object>> predictions = new ArrayList<>();
+            List<LinkedHashMap<String, Object>> predictions = new ArrayList<>();
 
             for (DataEntry dataEntry : request.getDataset().getDataEntry()) {
-                Map<String, Object> data = new HashMap<>();
+                LinkedHashMap<String, Object> data = new LinkedHashMap<>();
                 for (String feature : features) {
                     Double stdev = model.getMaxValues().get(feature);
                     Double mean = model.getMinValues().get(feature);

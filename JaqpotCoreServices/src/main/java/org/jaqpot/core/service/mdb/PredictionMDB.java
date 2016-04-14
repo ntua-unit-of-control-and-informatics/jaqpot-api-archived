@@ -41,6 +41,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -323,7 +324,7 @@ public class PredictionMDB extends RunningTaskMDB {
             task.getMeta().getComments().add("Creating new Dataset for predictions...");
             task.setPercentageCompleted(22.f);
             taskHandler.edit(task);
-            List<Map<String, Object>> predictions = predictionResponse.getPredictions();
+            List<LinkedHashMap<String, Object>> predictions = predictionResponse.getPredictions();
 //            for (int i = 0; i < dataset.getDataEntry().size(); i++) {
             if (dataset.getDataEntry().isEmpty()) {
                 DatasetFactory.addEmptyRows(dataset, predictions.size());
@@ -461,7 +462,7 @@ public class PredictionMDB extends RunningTaskMDB {
     private String createStudyJSON(
             String predictedProperty,
             String modelId,
-            List<Map<String, Object>> predictions,
+            List<LinkedHashMap<String, Object>> predictions,
             List<String> substances)
             throws UnsupportedEncodingException, JsonProcessingException {
         Studies studies = new Studies();

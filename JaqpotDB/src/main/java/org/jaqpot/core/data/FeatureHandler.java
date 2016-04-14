@@ -21,20 +21,20 @@ import org.jaqpot.core.model.Feature;
  */
 @Stateless
 public class FeatureHandler extends AbstractHandler<Feature> {
-    
+
     @Inject
     @MongoDB
     JaqpotEntityManager em;
-    
+
     public FeatureHandler() {
         super(Feature.class);
     }
-    
+
     @Override
     protected JaqpotEntityManager getEntityManager() {
         return em;
     }
-    
+
     public Feature findByTitleAndSource(String title, String source) {
         Map<String, Object> properties = new HashMap<>();
         properties.put("meta.titles", Arrays.asList(title));
@@ -42,5 +42,12 @@ public class FeatureHandler extends AbstractHandler<Feature> {
         List<Feature> features = this.find(properties);
         return features.stream().findFirst().orElse(null);
     }
-    
+
+    public List<Feature> findBySource(String source) {
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("meta.hasSources", Arrays.asList(source));
+        List<Feature> features = this.find(properties);
+        return features;
+    }
+
 }
