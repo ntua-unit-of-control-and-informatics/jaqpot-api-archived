@@ -193,7 +193,7 @@ public class CrossValidationProcedure extends AbstractJaqpotProcedure {
                         transformationAlgorithms.add(transAlgorithm);
                     }
                 });
-
+                transformations.putAll(newTransformations);
                 for (Algorithm transAlgorithm : transformationAlgorithms) {
                     progress("-", "Starting transforming on algorithm:" + transAlgorithm.getId());
 
@@ -319,6 +319,8 @@ public class CrossValidationProcedure extends AbstractJaqpotProcedure {
             errInternalServerError(ex, "Validation procedure error");
         } catch (BadRequestException | IllegalArgumentException ex) {
             errBadRequest(ex, null);
+        } catch (Exception ex) {
+            errInternalServerError(ex, null);
         }
     }
 }
