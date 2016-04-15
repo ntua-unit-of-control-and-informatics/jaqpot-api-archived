@@ -187,11 +187,20 @@ public class TaskResource {
             throw new ForbiddenException("You cannot cancel a Task not created by you.");
         }
 
-        boolean cancelled = jpdiClient.cancel(id);
-
-        if (!cancelled) {
-            throw new BadRequestException("Task with ID:" + id + " was not running");
+        if (task.getStatus().equals(Task.Status.QUEUED)) {
+            task.setStatus(Task.Status.CANCELLED);
+            task.getMeta().getComments().add("Task was cancelled by the user.");
+            taskHandler.edit(task);
         }
+
+        if (task.getStatus().equals(Task.Status.RUNNING)) {
+            boolean cancelled = jpdiClient.cancel(id);
+            if (!cancelled) {
+                task.setStatus(Task.Status.CANCELLED);
+                task.getMeta().getComments().add("Task was cancelled by the user.");
+                taskHandler.edit(task);
+            }
+        }        
 
         return Response.ok().build();
     }

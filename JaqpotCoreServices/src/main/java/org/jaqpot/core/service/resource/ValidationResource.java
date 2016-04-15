@@ -33,7 +33,9 @@ import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Resource;
 import javax.ejb.EJB;
@@ -52,9 +54,11 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
 import org.apache.commons.validator.routines.UrlValidator;
+import org.jaqpot.core.annotations.Jackson;
 import org.jaqpot.core.data.ReportHandler;
 import org.jaqpot.core.data.TaskHandler;
 import org.jaqpot.core.data.UserHandler;
+import org.jaqpot.core.data.serialize.JSONSerializer;
 import org.jaqpot.core.model.Task;
 import org.jaqpot.core.model.User;
 import org.jaqpot.core.model.builder.MetaInfoBuilder;
@@ -109,6 +113,10 @@ public class ValidationResource {
     @EJB
     ReportHandler reportHandler;
 
+    @Inject
+    @Jackson
+    JSONSerializer serializer;
+
     @Context
     SecurityContext securityContext;
 
@@ -117,6 +125,9 @@ public class ValidationResource {
 
     @Resource(lookup = "java:jboss/exported/jms/topic/validation")
     private Topic validationQueue;
+
+    @Resource(lookup = "java:jboss/exported/jms/topic/validation-cross")
+    private Topic crossValidationQueue;
 
     @Inject
     private JMSContext jmsContext;
@@ -251,15 +262,28 @@ public class ValidationResource {
         options.put("dataset_uri", datasetURI);
         options.put("algorithm_params", algorithmParameters);
         options.put("prediction_feature", predictionFeature);
-        options.put("transformations", transformations);
-        options.put("scaling", scaling);
         options.put("folds", folds);
-        options.put("type", "CROSS");
         options.put("stratify", stratify);
         options.put("seed", seed);
+        options.put("creator", user.getId());
         options.put("subjectId", subjectId);
+
+        Map<String, String> transformationAlgorithms = new LinkedHashMap<>();
+        if (transformations != null && !transformations.isEmpty()) {
+            transformationAlgorithms.put(uriInfo.getBaseUri().toString() + "algorithm/pmml",
+                    "{\"transformations\" : \"" + transformations + "\"}");
+        }
+        if (scaling != null && !scaling.isEmpty()) {
+            transformationAlgorithms.put(scaling, "");
+        }
+        if (!transformationAlgorithms.isEmpty()) {
+            String transformationAlgorithmsString = serializer.write(transformationAlgorithms);
+            LOG.log(Level.INFO, "Transformations:{0}", transformationAlgorithmsString);
+            options.put("transformations", transformationAlgorithmsString);
+        }
+
         taskHandler.create(task);
-        jmsContext.createProducer().setDeliveryDelay(1000).send(validationQueue, options);
+        jmsContext.createProducer().setDeliveryDelay(1000).send(crossValidationQueue, options);
 
         return Response.ok(task).build();
     }
