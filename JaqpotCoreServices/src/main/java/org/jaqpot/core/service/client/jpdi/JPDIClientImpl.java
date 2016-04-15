@@ -234,11 +234,13 @@ public class JPDIClientImpl implements JPDIClient {
     }
     
     @Override
-    public Future<Dataset> predict(Dataset dataset, Model model, MetaInfo datasetMeta, String taskId) {
+    public Future<Dataset> predict(Dataset inputDataset, Model model, MetaInfo datasetMeta, String taskId) {
         
         CompletableFuture<Dataset> futureDataset = new CompletableFuture<>();
         
+        Dataset dataset = DatasetFactory.copy(inputDataset);
         Dataset tempWithDependentFeatures = DatasetFactory.copy(dataset, new HashSet<>(model.getDependentFeatures()));
+        
         dataset.getDataEntry().parallelStream()
                 .forEach(dataEntry -> {
                     dataEntry.getValues().keySet().retainAll(model.getIndependentFeatures());
