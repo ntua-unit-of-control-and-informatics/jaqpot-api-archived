@@ -247,8 +247,8 @@ public class CrossValidationProcedure extends AbstractJaqpotProcedure {
                 progress("Starting partial train and test:" + p++);
                 Dataset trainingDataset = partialDatasets.stream()
                         .filter(d -> !d.getId().equals(predictionDataset.getId()))
-                        .reduce((a, b) -> DatasetFactory.mergeRows(a, b))
-                        .orElseThrow(() -> new InternalServerErrorException("Training dataset merging failed"));
+                        .reduce(DatasetFactory.createEmpty(0),(a, b) -> DatasetFactory.mergeRows(a, b));
+                        //.orElseThrow(() -> new InternalServerErrorException("Training dataset merging failed"));
                 Model model = jpdiClient.train(trainingDataset, algorithm, parameterMap, predictionFeature, trainingDataset.getMeta(), taskId).get();
                 Dataset predictedDataset = jpdiClient.predict(predictionDataset, model, predictionDataset.getMeta(), taskId).get();
                 finalDataset = DatasetFactory.mergeRows(finalDataset, predictedDataset);
