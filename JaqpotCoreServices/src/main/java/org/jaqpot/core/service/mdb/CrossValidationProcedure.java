@@ -115,7 +115,7 @@ public class CrossValidationProcedure extends AbstractJaqpotProcedure {
 
     public CrossValidationProcedure() {
         super(null);
-        throw new IllegalStateException("Cannot use empty constructor, instantiate with TaskHandler");
+//        throw new IllegalStateException("Cannot use empty constructor, instantiate with TaskHandler");
     }
 
     @Inject
