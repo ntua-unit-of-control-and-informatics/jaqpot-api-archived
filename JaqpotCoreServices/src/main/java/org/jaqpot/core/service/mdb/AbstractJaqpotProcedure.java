@@ -51,7 +51,7 @@ import org.jaqpot.core.model.factory.ErrorReportFactory;
  * @author Pantelis Sopasakis
  *
  */
-public abstract class AbstractJaqpotProcedure implements JaqpotProcedure {
+public abstract class AbstractJaqpotProcedure implements MessageListener {
 
     private static final Logger LOG = Logger.getLogger(AbstractJaqpotProcedure.class.getName());
 
