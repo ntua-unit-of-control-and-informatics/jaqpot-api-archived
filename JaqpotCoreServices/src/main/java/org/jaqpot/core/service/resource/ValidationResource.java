@@ -138,6 +138,7 @@ public class ValidationResource {
             notes = "Creates Validation Report",
             response = Task.class
     )
+    @org.jaqpot.core.service.annotations.Task
     public Response validateModel(
             @FormParam("model_uri") String modelURI,
             @FormParam("test_dataset_uri") String datasetURI,
@@ -198,6 +199,7 @@ public class ValidationResource {
             notes = "Creates Validation Report",
             response = Task.class
     )
+    @org.jaqpot.core.service.annotations.Task
     public Response crossValidateAlgorithm(
             @FormParam("algorithm_uri") String algorithmURI,
             @FormParam("training_dataset_uri") String datasetURI,
@@ -294,6 +296,7 @@ public class ValidationResource {
             notes = "Creates Validation Report",
             response = Task.class
     )
+    @org.jaqpot.core.service.annotations.Task
     public Response splitValidateAlgorithm(
             @FormParam("algorithm_uri") String algorithmURI,
             @FormParam("training_dataset_uri") String datasetURI,
