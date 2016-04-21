@@ -36,6 +36,8 @@ import com.wordnik.swagger.annotations.ApiResponse;
 import com.wordnik.swagger.annotations.ApiResponses;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.annotation.Resource;
 import javax.ejb.Asynchronous;
 import javax.ejb.EJB;
@@ -225,8 +227,13 @@ public class TaskResource {
             @PathParam("id") String id) {
 
         executor.submit(() -> {
-            asyncResponse.setTimeout(1, TimeUnit.MINUTES);
-            asyncResponse.resume(taskHandler.find(id));
+            asyncResponse.setTimeout(3, TimeUnit.MINUTES);
+            try {
+                Task task = taskHandler.longPoll(id);
+                asyncResponse.resume(task);
+            } catch (InterruptedException ex) {
+                asyncResponse.resume(ex);
+            }
         });
     }
 }

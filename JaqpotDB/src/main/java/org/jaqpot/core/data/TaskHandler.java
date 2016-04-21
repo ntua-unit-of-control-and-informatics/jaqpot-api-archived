@@ -33,6 +33,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import org.jaqpot.core.annotations.MongoDB;
@@ -48,6 +50,9 @@ import org.jaqpot.core.model.Task;
 @Stateless
 public class TaskHandler extends AbstractHandler<Task> {
 
+    private static final Map<Object, Task> taskCache = new HashMap<>();
+    private static final Map<Object, CountDownLatch> taskLatches = new ConcurrentHashMap<>();
+
     @Inject
     @MongoDB
     JaqpotEntityManager em;
@@ -61,10 +66,50 @@ public class TaskHandler extends AbstractHandler<Task> {
         return em;
     }
 
+    @Override
+    public Task find(Object id) {
+        Task result = taskCache.get(id);
+        return result != null ? result : super.find(id);
+    }
+
+    @Override
+    public void edit(Task entity) {
+        CountDownLatch latch = taskLatches.get(entity.getId());
+        if (latch != null) {
+            latch.countDown();
+            taskLatches.put(entity.getId(), new CountDownLatch(1));
+        }
+        super.edit(entity);
+    }
+
+    public void cache(Object id) {
+        Task result = super.find(id);
+        if (result != null) {
+            taskCache.put(id, result);
+            taskLatches.put(id, new CountDownLatch(1));
+        }
+    }
+
+    public void clear(Object id) {
+        taskCache.remove(id);
+        taskLatches.remove(id);
+    }
+
+    public Task longPoll(Object id) throws InterruptedException {
+        CountDownLatch latch = taskLatches.get(id);
+        Task result = this.find(id);
+        if (result.getStatus().equals(Task.Status.QUEUED) || result.getStatus().equals(Task.Status.RUNNING)) {
+            latch.await();
+            return result;
+        } else {
+            return result;
+        }
+    }
+
     public List<Task> findByUser(String userName, Integer start, Integer max) {
         Map<String, Object> properties = new HashMap<>();
         properties.put("meta.creators", Arrays.asList(userName));
-        properties.put("visible",true);
+        properties.put("visible", true);
 
         return em.find(Task.class, properties, start, max);
     }
@@ -72,7 +117,7 @@ public class TaskHandler extends AbstractHandler<Task> {
     public Long countByUser(String userName) {
         Map<String, Object> properties = new HashMap<>();
         properties.put("meta.creators", Arrays.asList(userName));
-        properties.put("visible",true);
+        properties.put("visible", true);
 
         return em.count(Task.class, properties);
     }
@@ -80,7 +125,7 @@ public class TaskHandler extends AbstractHandler<Task> {
     public List<Task> findByStatus(Task.Status status, Integer start, Integer max) {
         Map<String, Object> properties = new HashMap<>();
         properties.put("status", status.name());
-        properties.put("visible",true);
+        properties.put("visible", true);
 
         return em.find(Task.class, properties, start, max);
     }
@@ -88,7 +133,7 @@ public class TaskHandler extends AbstractHandler<Task> {
     public Long countByStatus(Task.Status status) {
         Map<String, Object> properties = new HashMap<>();
         properties.put("status", status.name());
-        properties.put("visible",true);
+        properties.put("visible", true);
 
         return em.count(Task.class, properties);
     }
@@ -97,7 +142,7 @@ public class TaskHandler extends AbstractHandler<Task> {
         Map<String, Object> properties = new HashMap<>();
         properties.put("meta.creators", Arrays.asList(userName));
         properties.put("status", status.name());
-        properties.put("visible",true);
+        properties.put("visible", true);
 
         return em.find(Task.class, properties, start, max);
     }
@@ -106,7 +151,7 @@ public class TaskHandler extends AbstractHandler<Task> {
         Map<String, Object> properties = new HashMap<>();
         properties.put("meta.creators", Arrays.asList(userName));
         properties.put("status", status.name());
-        properties.put("visible",true);
+        properties.put("visible", true);
 
         return em.count(Task.class, properties);
     }

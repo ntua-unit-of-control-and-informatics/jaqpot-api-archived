@@ -63,6 +63,7 @@ public abstract class AbstractJaqpotProcedure implements MessageListener {
     }
 
     protected void init(String taskId) {
+        taskHandler.cache(taskId);
         task = taskHandler.find(taskId);
         if (task == null) {
             LOG.log(Level.SEVERE, "Task with id:{0} could not be found in the database.", taskId);
@@ -70,7 +71,7 @@ public abstract class AbstractJaqpotProcedure implements MessageListener {
         }
     }
 
-    protected void checkStatus() {
+    protected void checkCancelled() {
         if (task.getStatus().equals(Task.Status.CANCELLED)) {
             throw new CancellationException("Task with id:" + task.getId() + " was cancelled");
         }
@@ -109,6 +110,7 @@ public abstract class AbstractJaqpotProcedure implements MessageListener {
         task.setStatus(Task.Status.CANCELLED);
         task.getMeta().getComments().add("Task was cancelled by the user.");
         taskHandler.edit(task);
+        taskHandler.clear(task.getId());
     }
 
     protected void complete(String result) {
@@ -119,6 +121,7 @@ public abstract class AbstractJaqpotProcedure implements MessageListener {
         task.setStatus(Task.Status.COMPLETED);
         task.getMeta().getComments().add("Task Completed Successfully.");
         taskHandler.edit(task);
+        taskHandler.clear(task.getId());
     }
 
     protected void errNotFound(Throwable t) {
@@ -126,6 +129,7 @@ public abstract class AbstractJaqpotProcedure implements MessageListener {
         task.setHttpStatus(404);
         task.setErrorReport(ErrorReportFactory.notFoundError(t, null));
         taskHandler.edit(task);
+        taskHandler.clear(task.getId());
     }
 
     protected void errNotFound(Throwable t, String details) {
@@ -133,6 +137,7 @@ public abstract class AbstractJaqpotProcedure implements MessageListener {
         task.setHttpStatus(404);
         task.setErrorReport(ErrorReportFactory.notFoundError(t, details));
         taskHandler.edit(task);
+        taskHandler.clear(task.getId());
     }
 
     protected void errNotFound(String message) {
@@ -140,6 +145,7 @@ public abstract class AbstractJaqpotProcedure implements MessageListener {
         task.setHttpStatus(404);
         task.setErrorReport(ErrorReportFactory.notFoundError(message));
         taskHandler.edit(task);
+        taskHandler.clear(task.getId());
     }
 
     protected void errInternalServerError(String message) {
@@ -147,6 +153,7 @@ public abstract class AbstractJaqpotProcedure implements MessageListener {
         task.setHttpStatus(500);
         task.setErrorReport(ErrorReportFactory.internalServerError(message, null));
         taskHandler.edit(task);
+        taskHandler.clear(task.getId());
     }
 
     protected void errInternalServerError(Throwable t, String details) {
@@ -154,18 +161,21 @@ public abstract class AbstractJaqpotProcedure implements MessageListener {
         task.setHttpStatus(500);
         task.setErrorReport(ErrorReportFactory.internalServerError(t, details));
         taskHandler.edit(task);
+        taskHandler.clear(task.getId());
     }
 
     protected void errBadRequest(String message) {
         task.setStatus(Task.Status.ERROR);
         task.setHttpStatus(400);
         task.setErrorReport(ErrorReportFactory.badRequest(message, null));
+        taskHandler.clear(task.getId());
     }
 
     protected void errBadRequest(Throwable t, String details) {
         task.setStatus(Task.Status.ERROR);
         task.setHttpStatus(400);
         task.setErrorReport(ErrorReportFactory.badRequest(t, details));
+        taskHandler.clear(task.getId());
     }
 
 }

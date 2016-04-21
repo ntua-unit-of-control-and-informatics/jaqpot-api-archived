@@ -152,7 +152,7 @@ public class CrossValidationProcedure extends AbstractJaqpotProcedure {
 
         try {
             init(taskId);
-            checkStatus();
+            checkCancelled();
             start(Task.Type.VALIDATION);
 
             Algorithm algorithm = Optional.of(client.target(algorithmURI)
@@ -172,7 +172,7 @@ public class CrossValidationProcedure extends AbstractJaqpotProcedure {
                     .header("subjectId", subjectId)
                     .get(Dataset.class)).orElseThrow(() -> new NotFoundException("Dataset with URI:" + datasetURI + " was not found."));
             progress(10f, "Dataset retrieved successfully.");
-            checkStatus();
+            checkCancelled();
 
             LinkedHashMap<String, String> transformations = new LinkedHashMap<>();
             List<Algorithm> transformationAlgorithms = new ArrayList<>();
@@ -207,7 +207,7 @@ public class CrossValidationProcedure extends AbstractJaqpotProcedure {
                 }
                 progress(30f, "Done processing transformations.", "--");
             }
-            checkStatus();
+            checkCancelled();
 
             Integer rows = dataset.getTotalRows();
 
@@ -239,7 +239,7 @@ public class CrossValidationProcedure extends AbstractJaqpotProcedure {
                 partialDatasets.add(partialDataset);
             }
             progress(50f, "Created partial datasets.");
-            checkStatus();
+            checkCancelled();
             int p = 1;
             String predictedFeature = "";
             Integer indepFeatureSize = 0;
@@ -255,7 +255,7 @@ public class CrossValidationProcedure extends AbstractJaqpotProcedure {
                 predictedFeature = model.getPredictedFeatures().get(0);
                 indepFeatureSize = Math.max(indepFeatureSize, model.getIndependentFeatures().size());
                 addProgress(40f / folds, "Done");
-                checkStatus();
+                checkCancelled();
             }
 
             ValidationType validationType;
@@ -287,7 +287,7 @@ public class CrossValidationProcedure extends AbstractJaqpotProcedure {
                     .post(Entity.json(reportRequest), Report.class);
 
             progress(90f, "Done", "Saving report to database...");
-            checkStatus();
+            checkCancelled();
 
             ROG randomStringGenerator = new ROG(true);
             String reportId = randomStringGenerator.nextString(15);
