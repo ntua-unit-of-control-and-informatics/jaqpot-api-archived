@@ -183,10 +183,12 @@ public class ConjoinerService {
         
         if (intersectColumns) {
             //Takes the intersection of properties of all substances
-            dataset.getDataEntry().parallelStream().forEach(de -> {
-                dataset.getDataEntry().parallelStream().forEach(e -> {
-                    de.getValues().keySet().retainAll(e.getValues().keySet());
-                });
+            dataset.getDataEntry().stream().forEach(de -> {
+                dataset.getDataEntry().stream()
+                        .filter(e -> !e.equals(de))
+                        .forEach(e -> {
+                            de.getValues().keySet().retainAll(e.getValues().keySet());
+                        });
             });
         }
 
