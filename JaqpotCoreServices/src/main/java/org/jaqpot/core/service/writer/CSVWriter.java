@@ -56,43 +56,44 @@ import org.jaqpot.core.model.dto.dataset.Dataset;
 @Provider
 @Produces("text/csv")
 public class CSVWriter implements MessageBodyWriter<JaqpotEntity> {
-    
+
     @Context
     UriInfo uriInfo;
-    
+
     @Override
     public boolean isWriteable(Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
         return type.equals(Dataset.class);
     }
-    
+
     @Override
     public long getSize(JaqpotEntity t, Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
         return 0;
     }
-    
+
     @Override
     public void writeTo(JaqpotEntity entity, Class<?> type, Type genericType,
             Annotation[] annotations, MediaType mediaType, MultivaluedMap<String, Object> httpHeaders,
             OutputStream entityStream) throws IOException, WebApplicationException {
-        
+
         String uri = uriInfo.getBaseUri() + entity.getClass().getSimpleName().toLowerCase() + "/" + entity.getId();
         Dataset dataset = (Dataset) entity;
-        
+
         Set<String> attributes = dataset.getDataEntry().get(0).getValues().keySet();
-        String headers = "Substance," + attributes.stream()
-                .map(a -> dataset.getFeatures().stream()
+        String headers = "\"Substance\"," + attributes.stream()
+                .map(a -> "\"" + dataset.getFeatures().stream()
                         .filter(f -> f.getURI().equals(a))
                         .findFirst()
                         .get()
-                        .getName())
+                        .getName() + "\"")
                 .collect(Collectors.joining(","));
 //        String headers = dataset.getDataEntry().get(0).getValues().keySet().stream().collect(Collectors.joining(","));
         entityStream.write(headers.getBytes());
         for (DataEntry de : dataset.getDataEntry()) {
-            String row = "\n" + de.getCompound().getName() + "," + de.getValues().values().stream().map(v -> v.toString()).collect(Collectors.joining(","));
+            String row = "\n" + de.getCompound().getName() + "," + de.getValues().values().stream()
+                    .map(v -> "\"" + v.toString() + "\"").collect(Collectors.joining(","));
             entityStream.write(row.getBytes());
         }
         entityStream.flush();
     }
-    
+
 }
