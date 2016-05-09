@@ -114,10 +114,13 @@ public class AuthorizationRequestFilter implements ContainerRequestFilter {
         // Check whether there is an AA token...
         String token = requestContext.getHeaderString("subjectid");
         if (token == null) {
-            requestContext.abortWith(Response
-                    .ok(ErrorReportFactory.unauthorized("Please provide an authorization token in a subjectid header."))
-                    .status(Response.Status.UNAUTHORIZED)
-                    .build());
+            token = requestContext.getUriInfo().getQueryParameters().getFirst("subjectid");
+            if (token == null) {
+                requestContext.abortWith(Response
+                        .ok(ErrorReportFactory.unauthorized("Please provide an authorization token in a subjectid header."))
+                        .status(Response.Status.UNAUTHORIZED)
+                        .build());
+            }
         }
 
         // is the token valid? if not: forbidden...
