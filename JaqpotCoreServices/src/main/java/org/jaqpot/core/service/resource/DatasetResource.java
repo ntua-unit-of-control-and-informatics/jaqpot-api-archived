@@ -133,7 +133,7 @@ public class DatasetResource {
     }
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces({MediaType.APPLICATION_JSON, "text/csv"})
     @Path("/{id}")
     @ApiOperation(value = "Finds Dataset by Id",
             notes = "Finds specified Dataset",
