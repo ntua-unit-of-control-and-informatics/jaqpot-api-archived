@@ -90,7 +90,7 @@ public class CSVWriter implements MessageBodyWriter<JaqpotEntity> {
         entityStream.write(headers.getBytes());
         for (DataEntry de : dataset.getDataEntry()) {
             String row = "\n\"" + de.getCompound().getName() + "\"," + de.getValues().values().stream()
-                    .map(v -> "\"" + v.toString() + "\"").collect(Collectors.joining(","));
+                    .map(v -> v.toString()).collect(Collectors.joining(","));
             entityStream.write(row.getBytes());
         }
         entityStream.flush();
