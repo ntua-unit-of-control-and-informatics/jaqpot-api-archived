@@ -94,8 +94,8 @@ public class DoseResponseResource {
 
     @POST
 //    @Path("/test")
-    @ApiOperation(value = "Creates Interlab Testing Report",
-            notes = "Creates Interlab Testing Report",
+    @ApiOperation(value = "Creates Dose Response Report",
+            notes = "Creates Dose Response Report",
             response = Report.class
     )
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
@@ -136,7 +136,7 @@ public class DoseResponseResource {
             trainingRequest.setParameters(parameterMap);
         }
 
-        Report report = client.target("http://147.102.86.129:8004/ocpu/library/IntPROAST61v5/R/enm.proast61")
+        Report report = client.target("http://147.102.86.129:8004/ocpu/library/IntPROAST61v5/R/enm.proast61/json")
                 .request()
                 .header("Content-Type", MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
