@@ -241,7 +241,7 @@ public class TrainingProcedure implements MessageListener {
             parameterMap = serializer.parse(parameters, new HashMap<String, Object>().getClass());
         }
 
-        progress("Starting JPDI Prediction...");
+        progress("Starting JPDI Training...");
 
         Future<Model> futureModel = jpdiClient.train(dataset, algorithm, parameterMap, predictionFeature, modelMeta, taskId);
 
