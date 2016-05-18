@@ -65,7 +65,7 @@ public class JacksonJSONSerializer implements JSONSerializer {
         try {
             mapper.writeValue(out, entity);
         } catch (IOException ex) {
-            LOG.log(Level.SEVERE, null, ex);
+            throw new JaqpotSerializationException(ex);
         }
     }
 
@@ -74,7 +74,7 @@ public class JacksonJSONSerializer implements JSONSerializer {
         try {
             mapper.writeValue(writer, entity);
         } catch (IOException ex) {
-            LOG.log(Level.SEVERE, null, ex);
+            throw new JaqpotSerializationException(ex);
         }
     }
 
@@ -83,8 +83,7 @@ public class JacksonJSONSerializer implements JSONSerializer {
         try {
             return mapper.writeValueAsString(entity);
         } catch (IOException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
-            return null;
+            throw new JaqpotSerializationException(ex);
         }
     }
 
@@ -93,8 +92,7 @@ public class JacksonJSONSerializer implements JSONSerializer {
         try {
             return mapper.readValue(content, valueType);
         } catch (IOException ex) {
-            LOG.log(Level.SEVERE, null, ex);
-            return null;
+            throw new JaqpotSerializationException(ex);
         }
     }
 
@@ -103,8 +101,7 @@ public class JacksonJSONSerializer implements JSONSerializer {
         try {
             return mapper.readValue(src, valueType);
         } catch (IOException ex) {
-            LOG.log(Level.SEVERE, null, ex);
-            return null;
+            throw new JaqpotSerializationException(ex);
         }
     }
 
@@ -117,8 +114,7 @@ public class JacksonJSONSerializer implements JSONSerializer {
             JsonNode modifiedAsNode = patchTool.apply(entityAsNode);
             return mapper.treeToValue(modifiedAsNode, valueType);
         } catch (IOException | JsonPatchException ex) {
-            LOG.log(Level.SEVERE, null, ex);
-            return null;
+            throw new JaqpotSerializationException(ex);
         }
     }
 
