@@ -38,15 +38,25 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.ExecutionException;
+import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import javax.ejb.EJB;
 import javax.inject.Inject;
+import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
+import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -58,16 +68,23 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
+import org.apache.commons.validator.routines.UrlValidator;
+import org.jaqpot.core.data.AlgorithmHandler;
 import org.jaqpot.core.data.DatasetHandler;
+import org.jaqpot.core.data.ModelHandler;
 import org.jaqpot.core.data.UserHandler;
 import org.jaqpot.core.model.MetaInfo;
+import org.jaqpot.core.model.Model;
 import org.jaqpot.core.model.User;
+import org.jaqpot.core.model.dto.dataset.DataEntry;
 import org.jaqpot.core.model.dto.dataset.Dataset;
+import org.jaqpot.core.model.dto.jpdi.TrainingRequest;
 import org.jaqpot.core.model.facades.UserFacade;
 import org.jaqpot.core.model.factory.DatasetFactory;
 import org.jaqpot.core.model.util.ROG;
 import org.jaqpot.core.service.annotations.Authorize;
 import org.jaqpot.core.service.annotations.UnSecure;
+import org.jaqpot.core.service.client.jpdi.JPDIClient;
 import org.jaqpot.core.service.exceptions.QuotaExceededException;
 
 /**
@@ -89,9 +106,18 @@ public class DatasetResource {
     @EJB
     UserHandler userHandler;
 
+    @EJB
+    ModelHandler modelHandler;
+
+    @EJB
+    AlgorithmHandler algorithmHandler;
+
     @Inject
     @UnSecure
     Client client;
+
+    @Inject
+    JPDIClient jpdiClient;
 
     @Context
     SecurityContext securityContext;
@@ -328,5 +354,122 @@ public class DatasetResource {
         }
         datasetHandler.remove(ds);
         return Response.ok().build();
+    }
+
+    @POST
+    @Path("/{id}/qprf")
+    @ApiOperation("Creates QPRF Report")
+    @Authorize
+    public Response createQPRFReport(
+            @ApiParam(value = "Authorization token") @HeaderParam("subjectid") String subjectId,
+            @PathParam("id") String id,
+            @FormParam("substance_uri") String substanceURI
+    ) {
+
+        Dataset ds = datasetHandler.find(id);
+        if (ds == null) {
+            throw new NotFoundException("Dataset with id:" + id + " was not found on the server.");
+        }
+        if (ds.getByModel() == null || ds.getByModel().isEmpty()) {
+            throw new BadRequestException("Selected dataset was not produced by a valid model.");
+        }
+        Model model = modelHandler.find(ds.getByModel());
+        if (model == null) {
+            throw new BadRequestException("Selected dataset was not produced by a valid model.");
+        }
+        String datasetURI = model.getDatasetUri();
+        if (datasetURI == null || datasetURI.isEmpty()) {
+            throw new BadRequestException("The model that created this dataset does not point to a valid training dataset.");
+        }
+        Dataset trainingDS = client.target(datasetURI)
+                .request()
+                .accept(MediaType.APPLICATION_JSON)
+                .header("subjectid", subjectId)
+                .get(Dataset.class);
+        if (trainingDS == null) {
+            throw new BadRequestException("The model that created this dataset does not point to a valid training dataset.");
+        }
+
+        if (model.getTransformationModels() != null) {
+            for (String transModelURI : model.getTransformationModels()) {
+                Model transModel = modelHandler.find(transModelURI.split("model/")[1]);
+                if (transModel == null) {
+                    throw new NotFoundException("Transformation model with id:" + transModelURI + " was not found.");
+                }
+                try {
+                    trainingDS = jpdiClient.predict(trainingDS, transModel, trainingDS.getMeta(), UUID.randomUUID().toString()).get();
+                } catch (InterruptedException ex) {
+                    LOG.log(Level.SEVERE, "JPDI Training procedure interupted", ex);
+                    throw new InternalServerErrorException("JPDI Training procedure interupted", ex);
+                } catch (ExecutionException ex) {
+                    LOG.log(Level.SEVERE, "Training procedure execution error", ex.getCause());
+                    throw new InternalServerErrorException("JPDI Training procedure error", ex.getCause());
+                } catch (CancellationException ex) {
+                    throw new InternalServerErrorException("Procedure was cancelled");
+                }
+            }
+        }
+
+        DataEntry dataEntry = ds.getDataEntry().stream()
+                .filter(de -> de.getCompound().getURI().equals(substanceURI))
+                .findFirst()
+                .orElseThrow(() -> new BadRequestException(""));
+
+        trainingDS.getDataEntry().add(dataEntry);
+
+        Map<String, Object> parameters = new HashMap<>();
+
+        UrlValidator urlValidator = new UrlValidator();
+        if (urlValidator.isValid(substanceURI)) {
+            Dataset structures = client.target(substanceURI + "/structures")
+                    .request()
+                    .accept(MediaType.APPLICATION_JSON)
+                    .header("subjectid", subjectId)
+                    .get(Dataset.class);
+            List<Map<String, String>> structuresList = structures.getDataEntry()
+                    .stream()
+                    .map(de -> {
+                        String compound = de.getCompound().getURI();
+                        String casrn = de.getValues().get("https://apps.ideaconsult.net/enmtest/feature/http%3A%2F%2Fwww.opentox.org%2Fapi%2F1.1%23CASRNDefault").toString();
+                        String einecs = de.getValues().get("https://apps.ideaconsult.net/enmtest/feature/http%3A%2F%2Fwww.opentox.org%2Fapi%2F1.1%23EINECSDefault").toString();
+                        String iuclid5 = de.getValues().get("https://apps.ideaconsult.net/enmtest/feature/http%3A%2F%2Fwww.opentox.org%2Fapi%2F1.1%23IUCLID5_UUIDDefault").toString();
+                        String inchi = de.getValues().get("https://apps.ideaconsult.net/enmtest/feature/http%3A%2F%2Fwww.opentox.org%2Fapi%2F1.1%23InChI_stdDefault").toString();
+                        String reach = de.getValues().get("https://apps.ideaconsult.net/enmtest/feature/http%3A%2F%2Fwww.opentox.org%2Fapi%2F1.1%23REACHRegistrationDateDefault").toString();
+                        String iupac = de.getValues().get("https://apps.ideaconsult.net/enmtest/feature/http%3A%2F%2Fwww.opentox.org%2Fapi%2F1.1%23IUPACNameDefault").toString();
+
+                        Map<String, String> structuresMap = new HashMap<>();
+                        structuresMap.put("Compound", compound);
+                        structuresMap.put("CasRN", casrn);
+                        structuresMap.put("EC number", einecs);
+                        structuresMap.put("REACH registration date", reach);
+                        structuresMap.put("IUCLID 5 Reference substance UUID", iuclid5);
+                        structuresMap.put("Std. InChI", inchi);
+                        structuresMap.put("IUPAC name", iupac);
+
+                        return structuresMap;
+                    })
+                    .collect(Collectors.toList());
+            parameters.put("structures", structuresList);
+        }
+
+        parameters.put("predictedFeature",
+                model
+                .getPredictedFeatures()
+                .stream()
+                .findFirst()
+                .orElseThrow(() -> new BadRequestException("Model does not have a valid predicted feature")));
+
+        parameters.put("algorithm", algorithmHandler.find(model.getAlgorithm().getId()));
+
+        TrainingRequest request = new TrainingRequest();
+
+        request.setDataset(trainingDS);
+        request.setParameters(parameters);
+        request.setPredictionFeature(model.getDependentFeatures()
+                .stream()
+                .findFirst()
+                .orElseThrow(() -> new BadRequestException("Model does not have a valid prediction feature")));
+
+        return Response.ok(request).build();
     }
 }
