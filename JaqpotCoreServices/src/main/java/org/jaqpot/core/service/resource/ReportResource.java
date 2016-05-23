@@ -32,7 +32,10 @@ package org.jaqpot.core.service.resource;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
+import java.io.BufferedOutputStream;
+import java.io.OutputStream;
 import javax.ejb.EJB;
+import javax.inject.Inject;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.GET;
@@ -46,9 +49,11 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
+import javax.ws.rs.core.StreamingOutput;
 import org.jaqpot.core.data.ReportHandler;
 import org.jaqpot.core.model.Report;
 import org.jaqpot.core.service.annotations.Authorize;
+import org.jaqpot.core.service.data.ReportService;
 
 /**
  *
@@ -66,6 +71,9 @@ public class ReportResource {
 
     @EJB
     ReportHandler reportHandler;
+
+    @Inject
+    ReportService reportService;
 
     @GET
     @ApiOperation(value = "Retrieves Reports of User")
@@ -118,6 +126,30 @@ public class ReportResource {
 
         reportHandler.remove(report);
         return Response.ok().build();
+    }
+
+    @GET
+    @Path("/{id}/pdf")
+    @ApiOperation(value = "Creates PDF from report")
+    public Response createPDF(
+            @ApiParam(value = "Authorization token") @HeaderParam("subjectid") String subjectId,
+            @PathParam("id") String id) {
+        Report report = reportHandler.find(id);
+        if (report == null) {
+            throw new NotFoundException();
+        }
+
+        StreamingOutput out = (OutputStream output) -> {
+            BufferedOutputStream buffer = new BufferedOutputStream(output);
+            try {
+                reportService.report2PDF(report, output);
+            } finally {
+                buffer.flush();
+            }
+        };
+        return Response.ok(out)
+                .header("Content-Disposition", "attachment; filename=" + "report-" + report.getId() + ".pdf")
+                .build();
     }
 
 }

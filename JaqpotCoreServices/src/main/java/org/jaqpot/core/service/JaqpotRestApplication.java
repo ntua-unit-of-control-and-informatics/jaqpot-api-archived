@@ -58,8 +58,6 @@ public class JaqpotRestApplication extends Application {
         beanConfig.setScan(true);
         beanConfig.setTitle("Jaqpot Quattro");
         beanConfig.setDescription("Jaqpot Quattro");
-
-        System.setProperty("sun.java2d.cmm", "sun.java2d.cmm.kcms.KcmsServiceProvider");
     }
 
     @Override
