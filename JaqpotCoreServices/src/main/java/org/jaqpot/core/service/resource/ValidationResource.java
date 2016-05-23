@@ -41,6 +41,7 @@ import javax.annotation.Resource;
 import javax.ejb.EJB;
 import javax.inject.Inject;
 import javax.jms.JMSContext;
+import javax.jms.JMSException;
 import javax.jms.Topic;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.FormParam;
@@ -123,16 +124,16 @@ public class ValidationResource {
     @Context
     UriInfo uriInfo;
 
-    @Resource(lookup = "java:jboss/exported/jms/topic/validation")
-    private Topic validationQueue;
-
-    @Resource(lookup = "java:jboss/exported/jms/topic/validation-cross")
+    @Resource(lookup = "java:jboss/exported/jms/topic/validationCross")
     private Topic crossValidationQueue;
+
+    @Resource(lookup = "java:jboss/exported/jms/topic/validationSplit")
+    private Topic splitValidationQueue;
 
     @Inject
     private JMSContext jmsContext;
 
-    @POST
+  /*  @POST
     @Path("/test_set_validation")
     @ApiOperation(value = "Creates Validation Report",
             notes = "Creates Validation Report",
@@ -191,7 +192,7 @@ public class ValidationResource {
 
         return Response.ok(task).build();
 
-    }
+    }*/
 
     @POST
     @Path("/training_test_cross")
@@ -211,7 +212,7 @@ public class ValidationResource {
             @FormParam("stratify") String stratify,
             @FormParam("seed") Integer seed,
             @HeaderParam("subjectId") String subjectId
-    ) throws QuotaExceededException {
+    ) throws QuotaExceededException, JMSException {
 
         User user = userHandler.find(securityContext.getUserPrincipal().getName());
         long reportCount = reportHandler.countAllOfCreator(user.getId());
@@ -284,6 +285,7 @@ public class ValidationResource {
             options.put("transformations", transformationAlgorithmsString);
         }
 
+
         taskHandler.create(task);
         jmsContext.createProducer().setDeliveryDelay(1000).send(crossValidationQueue, options);
 
@@ -308,7 +310,7 @@ public class ValidationResource {
             @FormParam("stratify") String stratify,
             @FormParam("seed") Integer seed,
             @HeaderParam("subjectId") String subjectId
-    ) throws QuotaExceededException {
+    ) throws QuotaExceededException, JMSException {
 
         User user = userHandler.find(securityContext.getUserPrincipal().getName());
         long reportCount = reportHandler.countAllOfCreator(user.getId());
@@ -370,7 +372,9 @@ public class ValidationResource {
         options.put("subjectId", subjectId);
 
         taskHandler.create(task);
-        jmsContext.createProducer().setDeliveryDelay(1000).send(validationQueue, options);
+        System.out.println(crossValidationQueue.getTopicName());
+        System.out.println(splitValidationQueue.getTopicName());
+        jmsContext.createProducer().setDeliveryDelay(1000).send(splitValidationQueue, options);
 
         return Response.ok(task).build();
     }

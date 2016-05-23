@@ -1,37 +1,3 @@
-/*
- *
- * JAQPOT Quattro
- *
- * JAQPOT Quattro and the components shipped with it, in particular:
- * (i)   JaqpotCoreServices
- * (ii)  JaqpotAlgorithmServices
- * (iii) JaqpotDB
- * (iv)  JaqpotDomain
- * (v)   JaqpotEAR
- * are licensed by GPL v3 as specified hereafter. Additional components may ship
- * with some other licence as will be specified therein.
- *
- * Copyright (C) 2014-2015 KinkyDesign (Charalampos Chomenidis, Pantelis Sopasakis)
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * 
- * Source code:
- * The source code of JAQPOT Quattro is available on github at:
- * https://github.com/KinkyDesign/JaqpotQuattro
- * All source files of JAQPOT Quattro that are stored on github are licensed
- * with the aforementioned licence. 
- */
 package org.jaqpot.core.service.mdb;
 
 import java.util.ArrayList;
@@ -81,20 +47,22 @@ import org.jaqpot.core.service.annotations.Secure;
 import org.jaqpot.core.service.client.jpdi.JPDIClient;
 
 /**
+ *
+ * @author Angelos Valsamis
  * @author Charalampos Chomenidis
  * @author Georgios Drakakis
  * @author Pantelis Sopasakis
  *
  */
 @MessageDriven(activationConfig = {
-    @ActivationConfigProperty(propertyName = "destinationLookup",
-            propertyValue = "java:jboss/exported/jms/topic/validationCross"),
-    @ActivationConfigProperty(propertyName = "destinationType",
-            propertyValue = "javax.jms.Topic")
+        @ActivationConfigProperty(propertyName = "destinationLookup",
+                propertyValue = "java:jboss/exported/jms/topic/validationSplit"),
+        @ActivationConfigProperty(propertyName = "destinationType",
+                propertyValue = "javax.jms.Topic")
 })
-public class CrossValidationProcedure extends AbstractJaqpotProcedure {
+public class SplitValidationProcedure extends AbstractJaqpotProcedure {
 
-    private static final Logger LOG = Logger.getLogger(CrossValidationProcedure.class.getName());
+    private static final Logger LOG = Logger.getLogger(SplitValidationProcedure.class.getName());
 
     @EJB
     AlgorithmHandler algorithmHandler;
@@ -113,13 +81,13 @@ public class CrossValidationProcedure extends AbstractJaqpotProcedure {
     @Secure
     Client client;
 
-    public CrossValidationProcedure() {
+    public SplitValidationProcedure() {
         super(null);
 //        throw new IllegalStateException("Cannot use empty constructor, instantiate with TaskHandler");
     }
 
     @Inject
-    public CrossValidationProcedure(TaskHandler taskHandler) {
+    public SplitValidationProcedure(TaskHandler taskHandler) {
         super(taskHandler);
     }
 
@@ -134,26 +102,23 @@ public class CrossValidationProcedure extends AbstractJaqpotProcedure {
         }
 
         String taskId = (String) messageBody.get("taskId");
-//        String type = (String) messageBody.get("type");
         String subjectId = (String) messageBody.get("subjectId");
-//        String modelURI = (String) messageBody.get("model_uri");
         String algorithmURI = (String) messageBody.get("algorithm_uri");
         String datasetURI = (String) messageBody.get("dataset_uri");
         String predictionFeature = (String) messageBody.get("prediction_feature");
         String algorithmParams = (String) messageBody.get("algorithm_params");
         String trans = (String) messageBody.get("transformations");
         String creator = (String) messageBody.get("creator");
-//        String scaling = (String) messageBody.get("scaling");
-//        String baseUri = (String) messageBody.get("base_uri");
 
-        Integer folds = (Integer) messageBody.get("folds");
         String stratify = (String) messageBody.get("stratify");
         Integer seed = (Integer) messageBody.get("seed");
-
+        Double splitRatio = (Double) messageBody.get("split_ratio");
         try {
             init(taskId);
             checkCancelled();
             start(Task.Type.VALIDATION);
+
+            progress(1f, "Split validation procedure initiated.");
 
             Algorithm algorithm = Optional.of(client.target(algorithmURI)
                     .request()
@@ -165,7 +130,7 @@ public class CrossValidationProcedure extends AbstractJaqpotProcedure {
 
             Dataset dataset = Optional.of(client.target(datasetURI)
                     .queryParam("stratify", stratify)
-                    .queryParam("folds", folds)
+                    .queryParam("splitRatio", splitRatio)
                     .queryParam("seed", seed)
                     .request()
                     .accept(MediaType.APPLICATION_JSON)
@@ -209,54 +174,35 @@ public class CrossValidationProcedure extends AbstractJaqpotProcedure {
             }
             checkCancelled();
 
-            Integer rows = dataset.getTotalRows();
-
-            Integer minRows = rows / folds;
-            Integer extras = rows % folds;
-
             Map<String, Object> parameterMap = null;
             if (algorithmParams != null && !algorithmParams.isEmpty()) {
                 parameterMap = serializer.parse(algorithmParams, new HashMap<String, Object>().getClass());
             }
 
-            Set<Dataset> partialDatasets = new HashSet<>();
-            Dataset finalDataset = null;
-            Integer i = 0, j = 0;
-            while (i < rows) {
-                Integer rowStart;
-                Integer rowMax;
-                if (j < extras) {
-                    rowStart = i;
-                    rowMax = minRows + 1;
-                    i += rowMax;
-                    j++;
-                } else {
-                    rowStart = i;
-                    rowMax = minRows;
-                    i += rowMax;
-                }
-                Dataset partialDataset = DatasetFactory.copy(dataset, rowStart, rowMax);
-                partialDatasets.add(partialDataset);
-            }
-            progress(50f, "Created partial datasets.");
-            checkCancelled();
-            int p = 1;
+            Integer rows = dataset.getTotalRows();
+            Long split = Math.round(rows * splitRatio);
+
+            Dataset trainDataset = DatasetFactory.copy(dataset, 0, split.intValue());
+            Dataset testDataset = DatasetFactory.copy(dataset,split.intValue(),rows-split.intValue());
+
+            progress(50f, "Created train and test datasets.");
+
+            progress("Starting train and test with train_dataset:" + trainDataset.getDatasetURI() + " test_dataset:" + testDataset.getDatasetURI());
+
             String predictedFeature = "";
             Integer indepFeatureSize = 0;
-            for (Dataset predictionDataset : partialDatasets) {
-                progress("Starting partial train and test:" + p++);
-                Dataset trainingDataset = partialDatasets.stream()
-                        .filter(d -> !d.getId().equals(predictionDataset.getId()))
-                        .reduce(DatasetFactory.createEmpty(0),(a, b) -> DatasetFactory.mergeRows(a, b));
-                        //.orElseThrow(() -> new InternalServerErrorException("Training dataset merging failed"));
-                Model model = jpdiClient.train(trainingDataset, algorithm, parameterMap, predictionFeature, trainingDataset.getMeta(), taskId).get();
-                Dataset predictedDataset = jpdiClient.predict(predictionDataset, model, predictionDataset.getMeta(), taskId).get();
-                finalDataset = DatasetFactory.mergeRows(finalDataset, predictedDataset);
-                predictedFeature = model.getPredictedFeatures().get(0);
-                indepFeatureSize = Math.max(indepFeatureSize, model.getIndependentFeatures().size());
-                addProgress(40f / folds, "Done");
-                checkCancelled();
-            }
+
+            Model model = jpdiClient.train(trainDataset, algorithm, parameterMap, predictionFeature, trainDataset.getMeta(), taskId).get();
+            Dataset predictedDataset = jpdiClient.predict(testDataset, model, testDataset.getMeta(), taskId).get();
+
+            addProgress(20f,"Finished train and test with train_dataset:" + trainDataset.getDatasetURI() + " test_dataset:" + testDataset.getDatasetURI());
+
+            Dataset finalDataset = null;
+            finalDataset = DatasetFactory.mergeRows(finalDataset,predictedDataset);
+            predictedFeature = model.getPredictedFeatures().get(0);
+            indepFeatureSize = Math.max(indepFeatureSize, model.getIndependentFeatures().size());
+
+            checkCancelled();
 
             ValidationType validationType;
             if (algorithm.getOntologicalClasses().contains("ot:Regression")) {
@@ -297,30 +243,29 @@ public class CrossValidationProcedure extends AbstractJaqpotProcedure {
                     .addTitles("Cross validation report")
                     .addCreators(creator)
                     .addSources(datasetURI, algorithmURI)
-                    .addDescriptions(folds + " Fold cross validation on algorithm:" + algorithmURI + " with dataset:" + datasetURI)
+                    .addDescriptions(splitRatio + " Split validation on algorithm:" + algorithmURI + " with dataset:" + datasetURI)
                     .build());
             report.setVisible(Boolean.TRUE);
             reportHandler.create(report);
             complete("report/" + report.getId());
 
-        } catch (InterruptedException ex) {
+
+
+
+
+            checkCancelled();
+
+
+
+        }  catch (InterruptedException ex) {
             LOG.log(Level.SEVERE, "Validation procedure interupted", ex);
             errInternalServerError(ex, "Validation procedure interupted");
         } catch (ExecutionException ex) {
             LOG.log(Level.SEVERE, "Validation procedure execution error", ex.getCause());
             errInternalServerError(ex.getCause(), "JPDI Training procedure error");
-        } catch (CancellationException ex) {
-            LOG.log(Level.INFO, "Task with id:{0} was cancelled - {1}", new Object[]{taskId, ex.getMessage()});
-            cancel();
-        } catch (NotFoundException ex) {
-            errNotFound(ex);
-        } catch (InternalServerErrorException ex) {
-            LOG.log(Level.SEVERE, "Validation procedure execution error", ex.getCause());
-            errInternalServerError(ex, "Validation procedure error");
-        } catch (BadRequestException | IllegalArgumentException ex) {
-            errBadRequest(ex, null);
-        } catch (Exception ex) {
-            errInternalServerError(ex, null);
+        } finally {
         }
+
+
     }
 }
