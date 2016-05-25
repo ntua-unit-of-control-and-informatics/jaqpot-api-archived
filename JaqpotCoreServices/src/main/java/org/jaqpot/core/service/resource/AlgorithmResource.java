@@ -287,7 +287,7 @@ public class AlgorithmResource {
         options.put("algorithmId", algorithmId);
         options.put("parameters", parameters);
         options.put("base_uri", uriInfo.getBaseUri().toString());
-        options.put("createdBy", securityContext.getUserPrincipal().getName());
+        options.put("creator", securityContext.getUserPrincipal().getName());
         options.put("visible", visible != null ? visible : false);
 
         Map<String, String> transformationAlgorithms = new LinkedHashMap<>();
