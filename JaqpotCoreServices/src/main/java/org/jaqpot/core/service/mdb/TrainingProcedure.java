@@ -71,10 +71,10 @@ import java.util.stream.Collectors;
  * @author Pantelis Sopasakis
  */
 @MessageDriven(activationConfig = {
-        @ActivationConfigProperty(propertyName = "destinationLookup",
-                propertyValue = "java:jboss/exported/jms/topic/training"),
-        @ActivationConfigProperty(propertyName = "destinationType",
-                propertyValue = "javax.jms.Topic")
+    @ActivationConfigProperty(propertyName = "destinationLookup",
+            propertyValue = "java:jboss/exported/jms/topic/training"),
+    @ActivationConfigProperty(propertyName = "destinationType",
+            propertyValue = "javax.jms.Topic")
 })
 public class TrainingProcedure extends AbstractJaqpotProcedure implements MessageListener {
 
@@ -218,14 +218,13 @@ public class TrainingProcedure extends AbstractJaqpotProcedure implements Messag
                 parameterMap = serializer.parse(parameters, new HashMap<String, Object>().getClass());
             }
 
-            progress("Starting JPDI Prediction...");
+            progress("Starting JPDI Training...");
 
             Future<Model> futureModel = jpdiClient.train(dataset, algorithm, parameterMap, predictionFeature, modelMeta, taskId);
 
             Model model = null;
             model = futureModel.get();
             progress("JPDI Training completed successfully.");
-
 
             progress(70f, "Model was built successfully.");
 
@@ -242,7 +241,6 @@ public class TrainingProcedure extends AbstractJaqpotProcedure implements Messag
                 linkedModels.add(linkedModel);
                 addProgress(5f, "Linked model created successfully:" + linkedModel.getId());
             }
-
 
             progress("Saving transformation models.");
             for (Model transModel : transformationModels) {

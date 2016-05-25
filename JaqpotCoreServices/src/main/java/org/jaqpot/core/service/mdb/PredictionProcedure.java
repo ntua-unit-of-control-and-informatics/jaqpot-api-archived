@@ -81,23 +81,23 @@ import java.util.logging.Logger;
 public class PredictionProcedure extends AbstractJaqpotProcedure implements MessageListener {
 
     private static final Logger LOG = Logger.getLogger(PredictionProcedure.class.getName());
-
+    
     @EJB
     AlgorithmHandler algorithmHandler;
-
+    
     @EJB
     ModelHandler modelHandler;
-
+    
     @EJB
     DatasetHandler datasetHandler;
-
+    
     @Inject
     @Jackson
     JSONSerializer serializer;
-
+    
     @Inject
     JPDIClient jpdiClient;
-
+    
     @Inject
     @Secure
     Client client;
@@ -120,7 +120,7 @@ public class PredictionProcedure extends AbstractJaqpotProcedure implements Mess
             LOG.log(Level.SEVERE, "JMS message could not be read", ex);
             return;
         }
-
+        
         String taskId = (String) messageBody.get("taskId");
         String dataset_uri = (String) messageBody.get("dataset_uri");
         String modelId = (String) messageBody.get("modelId");
