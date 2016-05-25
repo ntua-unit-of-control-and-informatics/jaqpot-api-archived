@@ -505,4 +505,147 @@ public class DatasetResource {
 
         return Response.ok(report).build();
     }
+    
+    @POST
+    @Path("/{id}/qprf-dummy")
+    @ApiOperation("Creates QPRF Report")
+    @Authorize
+    public Response createQPRFReportDummy(
+            @ApiParam(value = "Authorization token") @HeaderParam("subjectid") String subjectId,
+            @PathParam("id") String id,
+            @FormParam("substance_uri") String substanceURI,
+            @FormParam("title") String title,
+            @FormParam("description") String description
+    ) {
+
+        Dataset ds = datasetHandler.find(id);
+        if (ds == null) {
+            throw new NotFoundException("Dataset with id:" + id + " was not found on the server.");
+        }
+        if (ds.getByModel() == null || ds.getByModel().isEmpty()) {
+            throw new BadRequestException("Selected dataset was not produced by a valid model.");
+        }
+        Model model = modelHandler.find(ds.getByModel());
+        if (model == null) {
+            throw new BadRequestException("Selected dataset was not produced by a valid model.");
+        }
+        String datasetURI = model.getDatasetUri();
+        if (datasetURI == null || datasetURI.isEmpty()) {
+            throw new BadRequestException("The model that created this dataset does not point to a valid training dataset.");
+        }
+        Dataset trainingDS = client.target(datasetURI)
+                .request()
+                .accept(MediaType.APPLICATION_JSON)
+                .header("subjectid", subjectId)
+                .get(Dataset.class);
+        if (trainingDS == null) {
+            throw new BadRequestException("The model that created this dataset does not point to a valid training dataset.");
+        }
+
+        if (model.getTransformationModels() != null) {
+            for (String transModelURI : model.getTransformationModels()) {
+                Model transModel = modelHandler.find(transModelURI.split("model/")[1]);
+                if (transModel == null) {
+                    throw new NotFoundException("Transformation model with id:" + transModelURI + " was not found.");
+                }
+                try {
+                    trainingDS = jpdiClient.predict(trainingDS, transModel, trainingDS.getMeta(), UUID.randomUUID().toString()).get();
+                } catch (InterruptedException ex) {
+                    LOG.log(Level.SEVERE, "JPDI Training procedure interupted", ex);
+                    throw new InternalServerErrorException("JPDI Training procedure interupted", ex);
+                } catch (ExecutionException ex) {
+                    LOG.log(Level.SEVERE, "Training procedure execution error", ex.getCause());
+                    throw new InternalServerErrorException("JPDI Training procedure error", ex.getCause());
+                } catch (CancellationException ex) {
+                    throw new InternalServerErrorException("Procedure was cancelled");
+                }
+            }
+        }
+
+        DataEntry dataEntry = ds.getDataEntry().stream()
+                .filter(de -> de.getCompound().getURI().equals(substanceURI))
+                .findFirst()
+                .orElseThrow(() -> new BadRequestException(""));
+
+        trainingDS.getDataEntry().add(dataEntry);
+
+        Map<String, Object> parameters = new HashMap<>();
+
+        UrlValidator urlValidator = new UrlValidator();
+        if (urlValidator.isValid(substanceURI)) {
+            Dataset structures = client.target(substanceURI + "/structures")
+                    .request()
+                    .accept(MediaType.APPLICATION_JSON)
+                    .header("subjectid", subjectId)
+                    .get(Dataset.class);
+            List<Map<String, String>> structuresList = structures.getDataEntry()
+                    .stream()
+                    .map(de -> {
+                        String compound = de.getCompound().getURI();
+                        String casrn = Optional.ofNullable(de.getValues().get("https://apps.ideaconsult.net/enmtest/feature/http%3A%2F%2Fwww.opentox.org%2Fapi%2F1.1%23CASRNDefault")).orElse("").toString();
+                        String einecs = Optional.ofNullable(de.getValues().get("https://apps.ideaconsult.net/enmtest/feature/http%3A%2F%2Fwww.opentox.org%2Fapi%2F1.1%23EINECSDefault")).orElse("").toString();
+                        String iuclid5 = Optional.ofNullable(de.getValues().get("https://apps.ideaconsult.net/enmtest/feature/http%3A%2F%2Fwww.opentox.org%2Fapi%2F1.1%23IUCLID5_UUIDDefault")).orElse("").toString();
+                        String inchi = Optional.ofNullable(de.getValues().get("https://apps.ideaconsult.net/enmtest/feature/http%3A%2F%2Fwww.opentox.org%2Fapi%2F1.1%23InChI_stdDefault")).orElse("").toString();
+                        String reach = Optional.ofNullable(de.getValues().get("https://apps.ideaconsult.net/enmtest/feature/http%3A%2F%2Fwww.opentox.org%2Fapi%2F1.1%23REACHRegistrationDateDefault")).orElse("").toString();
+                        String iupac = Optional.ofNullable(de.getValues().get("https://apps.ideaconsult.net/enmtest/feature/http%3A%2F%2Fwww.opentox.org%2Fapi%2F1.1%23IUPACNameDefault")).orElse("").toString();
+
+                        Map<String, String> structuresMap = new HashMap<>();
+                        structuresMap.put("Compound", compound);
+                        structuresMap.put("CasRN", casrn);
+                        structuresMap.put("EC number", einecs);
+                        structuresMap.put("REACH registration date", reach);
+                        structuresMap.put("IUCLID 5 Reference substance UUID", iuclid5);
+                        structuresMap.put("Std. InChI", inchi);
+                        structuresMap.put("IUPAC name", iupac);
+
+                        return structuresMap;
+                    })
+                    .collect(Collectors.toList());
+            parameters.put("structures", structuresList);
+        }
+
+        parameters.put("predictedFeature",
+                model
+                .getPredictedFeatures()
+                .stream()
+                .findFirst()
+                .orElseThrow(() -> new BadRequestException("Model does not have a valid predicted feature")));
+
+        parameters.put("algorithm", algorithmHandler.find(model.getAlgorithm().getId()));
+        parameters.put("substanceURI", substanceURI);
+        if (model.getLinkedModels() != null && !model.getLinkedModels().isEmpty()) {
+            Model doa = modelHandler.find(model.getLinkedModels().get(0).split("model/")[1]);
+            if (doa != null) {
+                parameters.put("doaURI", doa.getPredictedFeatures().get(0));
+                parameters.put("doaMethod", doa.getMeta().getTitles().toArray()[0]);
+            }
+        }
+        TrainingRequest request = new TrainingRequest();
+
+        request.setDataset(trainingDS);
+        request.setParameters(parameters);
+        request.setPredictionFeature(model.getDependentFeatures()
+                .stream()
+                .findFirst()
+                .orElseThrow(() -> new BadRequestException("Model does not have a valid prediction feature")));
+
+        return Response.ok(request).build();
+//        Report report = client.target("http://147.102.82.32:8094/pws/qprf")
+//                .request()
+//                .header("Content-Type", MediaType.APPLICATION_JSON)
+//                .accept(MediaType.APPLICATION_JSON)
+//                .post(Entity.json(request), Report.class);
+//
+//        report.setMeta(MetaInfoBuilder.builder()
+//                .addTitles(title)
+//                .addDescriptions(description)
+//                .addCreators(securityContext.getUserPrincipal().getName())
+//                .build()
+//        );
+//        report.setId(new ROG(true).nextString(15));
+//        report.setVisible(Boolean.TRUE);
+//        reportHandler.create(report);
+//
+//        return Response.ok(report).build();
+    }
 }
