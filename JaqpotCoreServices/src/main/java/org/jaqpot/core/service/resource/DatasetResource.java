@@ -472,9 +472,11 @@ public class DatasetResource {
         parameters.put("algorithm", algorithmHandler.find(model.getAlgorithm().getId()));
         parameters.put("substanceURI", substanceURI);
         if (model.getLinkedModels() != null && !model.getLinkedModels().isEmpty()) {
-            Model doa = modelHandler.find(model.getLinkedModels().get(0));
-            parameters.put("doaURI", doa.getPredictedFeatures().get(0));
-            parameters.put("doaMethod", doa.getMeta().getTitles().toArray()[0]);
+            Model doa = modelHandler.find(model.getLinkedModels().get(0).split("model/")[1]);
+            if (doa != null) {
+                parameters.put("doaURI", doa.getPredictedFeatures().get(0));
+                parameters.put("doaMethod", doa.getMeta().getTitles().toArray()[0]);
+            }
         }
         TrainingRequest request = new TrainingRequest();
 
