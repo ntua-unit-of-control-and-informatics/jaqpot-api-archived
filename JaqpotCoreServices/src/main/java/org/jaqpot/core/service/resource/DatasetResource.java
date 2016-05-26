@@ -420,6 +420,11 @@ public class DatasetResource {
             }
         }
 
+        trainingDS.getDataEntry().parallelStream()
+                .forEach(dataEntry -> {
+                    dataEntry.getValues().keySet().retainAll(model.getIndependentFeatures());
+                });
+
         DataEntry dataEntry = ds.getDataEntry().stream()
                 .filter(de -> de.getCompound().getURI().equals(substanceURI))
                 .findFirst()
@@ -505,7 +510,7 @@ public class DatasetResource {
 
         return Response.ok(report).build();
     }
-    
+
     @POST
     @Path("/{id}/qprf-dummy")
     @ApiOperation("Creates QPRF Report")
@@ -561,6 +566,11 @@ public class DatasetResource {
                 }
             }
         }
+
+        trainingDS.getDataEntry().parallelStream()
+                .forEach(dataEntry -> {
+                    dataEntry.getValues().keySet().retainAll(model.getIndependentFeatures());
+                });
 
         DataEntry dataEntry = ds.getDataEntry().stream()
                 .filter(de -> de.getCompound().getURI().equals(substanceURI))
