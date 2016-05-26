@@ -107,6 +107,7 @@ public class PredictionProcedure extends AbstractJaqpotProcedure implements Mess
         //        throw new IllegalStateException("Cannot use empty constructor, instantiate with TaskHandler");
     }
 
+    @Inject
     public PredictionProcedure(TaskHandler taskHandler) {
         super(taskHandler);
     }

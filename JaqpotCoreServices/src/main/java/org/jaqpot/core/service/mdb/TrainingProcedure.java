@@ -101,6 +101,7 @@ public class TrainingProcedure extends AbstractJaqpotProcedure implements Messag
         super(null);
     }
 
+    @Inject
     public TrainingProcedure(TaskHandler taskHandler) {
         super(taskHandler);
     }
