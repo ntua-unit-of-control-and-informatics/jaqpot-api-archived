@@ -201,6 +201,7 @@ public class PredictionProcedure extends AbstractJaqpotProcedure implements Mess
             progress(90f, "Now saving to database...");
             dataset.setVisible(Boolean.TRUE);
             dataset.setFeatured(Boolean.FALSE);
+            dataset.setByModel(model.getId());
             datasetHandler.create(dataset);
             complete("dataset/" + dataset.getId());
 
