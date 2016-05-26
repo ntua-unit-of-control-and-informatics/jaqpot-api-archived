@@ -45,6 +45,8 @@ public class ReportService {
         document.open();
         Font chapterFont = FontFactory.getFont(FontFactory.HELVETICA, 16, Font.BOLDITALIC);
         Font paragraphFont = FontFactory.getFont(FontFactory.HELVETICA, 12, Font.NORMAL);
+        Font tableFont = FontFactory.getFont(FontFactory.HELVETICA, 12, Font.BOLD);
+
         Chunk chunk = new Chunk("Report", chapterFont);
         Chapter chapter = new Chapter(new Paragraph(chunk), 1);
         chapter.setNumberDepth(0);
@@ -65,7 +67,7 @@ public class ReportService {
             String label = entry.getKey();
             ArrayCalculation ac = entry.getValue();
 
-            PdfPTable table = new PdfPTable(ac.getColNames().size()+1);
+            PdfPTable table = new PdfPTable(ac.getColNames().size() + 1);
 
             for (Entry<String, List<Object>> row : ac.getValues().entrySet()) {
                 table.addCell(row.getKey());
@@ -75,7 +77,10 @@ public class ReportService {
                 table.completeRow();
             }
             try {
-                document.add(table);
+                Chunk tableChunk = new Chunk(label, tableFont);
+                Chapter tableChapter = new Chapter(new Paragraph(tableChunk), 1);
+                tableChapter.add(table);
+                document.add(tableChapter);
             } catch (DocumentException ex) {
                 throw new InternalServerErrorException(ex);
             }
