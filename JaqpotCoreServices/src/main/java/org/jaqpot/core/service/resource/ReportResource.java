@@ -130,6 +130,7 @@ public class ReportResource {
 
     @GET
     @Path("/{id}/pdf")
+    @Produces("application/json; charset=UTF-8")
     @ApiOperation(value = "Creates PDF from report")
     public Response createPDF(
             @ApiParam(value = "Authorization token") @HeaderParam("subjectid") String subjectId,
