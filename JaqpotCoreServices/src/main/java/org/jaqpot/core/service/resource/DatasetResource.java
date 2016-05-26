@@ -483,7 +483,7 @@ public class DatasetResource {
             Model doa = modelHandler.find(model.getLinkedModels().get(0).split("model/")[1]);
             if (doa != null) {
                 parameters.put("doaURI", doa.getPredictedFeatures().get(0));
-                parameters.put("doaMethod", doa.getId());
+                parameters.put("doaMethod", doa.getAlgorithm().getId());
             }
         }
         TrainingRequest request = new TrainingRequest();
@@ -633,7 +633,7 @@ public class DatasetResource {
             Model doa = modelHandler.find(model.getLinkedModels().get(0).split("model/")[1]);
             if (doa != null) {
                 parameters.put("doaURI", doa.getPredictedFeatures().get(0));
-                parameters.put("doaMethod", doa.getMeta().getTitles().toArray()[0]);
+                parameters.put("doaMethod", doa.getAlgorithm().getId());
             }
         }
         TrainingRequest request = new TrainingRequest();
