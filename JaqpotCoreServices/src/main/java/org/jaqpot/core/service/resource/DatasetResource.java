@@ -419,10 +419,13 @@ public class DatasetResource {
                 }
             }
         }
+        
+        List<String> retainableFeatures = new ArrayList<>(model.getIndependentFeatures());
+        retainableFeatures.addAll(model.getDependentFeatures());        
 
         trainingDS.getDataEntry().parallelStream()
                 .forEach(dataEntry -> {
-                    dataEntry.getValues().keySet().retainAll(model.getIndependentFeatures());
+                    dataEntry.getValues().keySet().retainAll(retainableFeatures);
                 });
 
         DataEntry dataEntry = ds.getDataEntry().stream()
@@ -567,9 +570,12 @@ public class DatasetResource {
             }
         }
 
+        List<String> retainableFeatures = new ArrayList<>(model.getIndependentFeatures());
+        retainableFeatures.addAll(model.getDependentFeatures());        
+
         trainingDS.getDataEntry().parallelStream()
                 .forEach(dataEntry -> {
-                    dataEntry.getValues().keySet().retainAll(model.getIndependentFeatures());
+                    dataEntry.getValues().keySet().retainAll(retainableFeatures);
                 });
 
         DataEntry dataEntry = ds.getDataEntry().stream()
