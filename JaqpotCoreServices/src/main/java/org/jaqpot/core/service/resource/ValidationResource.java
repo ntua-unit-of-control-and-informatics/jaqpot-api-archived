@@ -322,7 +322,7 @@ public class ValidationResource {
     }
 
     @POST
-    @Path("/training_test_external")
+    @Path("/test_set_validation")
     @ApiOperation(value = "Creates Validation Report",
             notes = "Creates Validation Report",
             response = Task.class
