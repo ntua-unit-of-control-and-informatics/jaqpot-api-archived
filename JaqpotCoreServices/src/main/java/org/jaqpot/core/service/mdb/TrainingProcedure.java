@@ -126,7 +126,7 @@ public class TrainingProcedure extends AbstractJaqpotProcedure implements Messag
         String modelDescription = (String) messageBody.get("description");
         String subjectId = (String) messageBody.get("subjectid");
         String baseURI = (String) messageBody.get("base_uri");
-        String creator = (String) messageBody.get("creators");
+        String creator = (String) messageBody.get("creator");
         try {
             init(taskId);
             checkCancelled();
@@ -156,12 +156,10 @@ public class TrainingProcedure extends AbstractJaqpotProcedure implements Messag
             }
             progress(20f);
 
-            HashSet<String> creators = new HashSet<>(Arrays.asList(creator));
-
             MetaInfo modelMeta = MetaInfoBuilder
                     .builder()
                     .addTitles(modelTitle)
-                    .addCreators(creators)
+                    .addCreators(creator)
                     .addSources(dataset != null ? dataset.getDatasetURI() : "")
                     .addComments("Created by task " + taskId)
                     .addDescriptions(modelDescription)
