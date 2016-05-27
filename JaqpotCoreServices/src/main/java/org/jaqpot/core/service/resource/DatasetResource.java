@@ -643,6 +643,18 @@ public class DatasetResource {
                     })
                     .collect(Collectors.toList());
             parameters.put("structures", structuresList);
+        } else {
+            List<Map<String, String>> structuresList = new ArrayList<>();
+            Map<String, String> structuresMap = new HashMap<>();
+            structuresMap.put("Compound", "");
+            structuresMap.put("CasRN", "");
+            structuresMap.put("EC number", "");
+            structuresMap.put("REACH registration date", "");
+            structuresMap.put("IUCLID 5 Reference substance UUID", "");
+            structuresMap.put("Std. InChI", "");
+            structuresMap.put("IUPAC name", "");
+            structuresList.add(structuresMap);
+            parameters.put("structures", structuresList);
         }
 
         parameters.put("predictedFeature",
