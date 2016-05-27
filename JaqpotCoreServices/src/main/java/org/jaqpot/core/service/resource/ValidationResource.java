@@ -328,24 +328,18 @@ public class ValidationResource {
             response = Task.class
     )
     @org.jaqpot.core.service.annotations.Task
-    public Response externalValidationQueue(
-            @FormParam("algorithm_uri") String algorithmURI,
-            @FormParam("training_dataset_uri") String datasetURI,
-            @FormParam("algorithm_params") String algorithmParameters,
-            @FormParam("prediction_feature") String predictionFeature,
-            @ApiParam(name = "transformations", defaultValue = DEFAULT_TRANSFORMATIONS) @FormParam("transformations") String transformations,
-            @ApiParam(name = "scaling", defaultValue = STANDARIZATION) @FormParam("scaling") String scaling, //, allowableValues = SCALING + "," + STANDARIZATION
-            @FormParam("stratify") String stratify,
-            @FormParam("seed") Integer seed,
+    public Response externalValidateAlgorithm(
+            @FormParam("model_uri") String modelURI,
+            @FormParam("test_dataset_uri") String datasetURI,
             @HeaderParam("subjectId") String subjectId
-    ) throws QuotaExceededException, JMSException {
+    ) throws QuotaExceededException {
 
         User user = userHandler.find(securityContext.getUserPrincipal().getName());
         long reportCount = reportHandler.countAllOfCreator(user.getId());
         int maxAllowedReports = new UserFacade(user).getMaxReports();
 
         if (reportCount > maxAllowedReports) {
-            LOG.info(String.format("User %s has %d reports while maximum is %d",
+            LOG.info(String.format("User %s has %d algorithms while maximum is %d",
                     user.getId(), reportCount, maxAllowedReports));
             throw new QuotaExceededException("Dear " + user.getId()
                     + ", your quota has been exceeded; you already have " + reportCount + " reports. "
@@ -353,32 +347,20 @@ public class ValidationResource {
         }
 
         UrlValidator urlValidator = new UrlValidator();
-        if (!urlValidator.isValid(algorithmURI)) {
-            throw new BadRequestException("Not valid algorithm URI.");
+        if (!urlValidator.isValid(modelURI)) {
+            throw new BadRequestException("Not valid model URI.");
         }
         if (!urlValidator.isValid(datasetURI)) {
             throw new BadRequestException("Not valid dataset URI.");
-        }
-        if (!urlValidator.isValid(predictionFeature)) {
-            throw new BadRequestException("Not valid prediction feature URI.");
-        }
-        if (transformations != null && !transformations.isEmpty() && !urlValidator.isValid(transformations)) {
-            throw new BadRequestException("Not valid transformation URI.");
-        }
-        if (scaling != null && !scaling.isEmpty() && !urlValidator.isValid(scaling)) {
-            throw new BadRequestException("Not valid scaling URI.");
-        }
-        if ((stratify != null && !stratify.isEmpty() && !stratify.equals("random") && !stratify.equals("normal"))) {
-            throw new BadRequestException("Not valid stratify option - choose between random and normal");
         }
 
         Task task = new Task(new ROG(true).nextString(12));
         task.setMeta(
                 MetaInfoBuilder.builder()
                         .setCurrentDate()
-                        .addTitles("Validation on algorithm: " + algorithmURI)
+                        .addTitles("Validation on model: " + modelURI)
                         .addComments("Validation task created")
-                        .addDescriptions("Validation task using algorithm " + algorithmURI + " and dataset " + datasetURI)
+                        .addDescriptions("Validation task using model " + modelURI + " and dataset " + datasetURI)
                         .addCreators(securityContext.getUserPrincipal().getName())
                         .build());
         task.setType(Task.Type.VALIDATION);
@@ -387,19 +369,16 @@ public class ValidationResource {
         task.setVisible(Boolean.TRUE);
         Map<String, Object> options = new HashMap<>();
         options.put("taskId", task.getId());
-        options.put("algorithm_uri", algorithmURI);
+        options.put("model_uri", modelURI);
+        options.put("subjectId",subjectId);
         options.put("dataset_uri", datasetURI);
-        options.put("algorithm_params", algorithmParameters);
-        options.put("prediction_feature", predictionFeature);
-        options.put("transformations", transformations);
-        options.put("scaling", scaling);
-        options.put("stratify", stratify);
-        options.put("seed", seed);
-        options.put("type", "SPLIT");
+        options.put("base_uri", uriInfo.getBaseUri().toString());
+        options.put("type", "EXTERNAL");
         options.put("subjectId", subjectId);
+        options.put("creator", user.getId());
+
 
         taskHandler.create(task);
-
         jmsContext.createProducer().setDeliveryDelay(1000).send(externalValidationQueue, options);
 
         return Response.ok(task).build();

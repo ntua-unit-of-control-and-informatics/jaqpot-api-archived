@@ -44,13 +44,14 @@ import java.util.logging.Logger;
                 propertyValue = "javax.jms.Topic")
 })
 public class ExternalValidationProcedure extends AbstractJaqpotProcedure{
-    private static final Logger LOG = Logger.getLogger(SplitValidationProcedure.class.getName());
+    private static final Logger LOG = Logger.getLogger(ExternalValidationProcedure.class.getName());
 
     @EJB
     AlgorithmHandler algorithmHandler;
 
     @EJB
     ModelHandler modelHandler;
+
 
     @EJB
     ReportHandler reportHandler;
@@ -69,6 +70,7 @@ public class ExternalValidationProcedure extends AbstractJaqpotProcedure{
     @Secure
     Client client;
 
+
     public ExternalValidationProcedure() {
         super(null);
 //        throw new IllegalStateException("Cannot use empty constructor, instantiate with TaskHandler");
@@ -81,7 +83,6 @@ public class ExternalValidationProcedure extends AbstractJaqpotProcedure{
 
     @Override
     public void onMessage(Message msg) {
-        Report report = null;
 
         Map<String, Object> messageBody;
         try {
@@ -93,89 +94,48 @@ public class ExternalValidationProcedure extends AbstractJaqpotProcedure{
 
         String taskId = (String) messageBody.get("taskId");
         String dataset_uri = (String) messageBody.get("dataset_uri");
-        String predictionFeature = (String) messageBody.get("prediction_feature");
-
-        String algorithmParams = (String) messageBody.get("algorithm_params");
+        String model_uri = (String) messageBody.get("model_uri");
         String subjectId = (String) messageBody.get("subjectId");
-
         String creator = (String) messageBody.get("creator");
-        String trans = (String) messageBody.get("transformations");
-        String algorithmURI = (String) messageBody.get("algorithm_uri");
 
 
         try {
             init(taskId);
             checkCancelled();
-            start(Task.Type.PREDICTION);
-
-            progress(5f, " Task is now running.");
-
-
-            init(taskId);
-            checkCancelled();
             start(Task.Type.VALIDATION);
 
-            Algorithm algorithm = Optional.of(client.target(algorithmURI)
+            progress(5f, "External Validation Task is now running.");
+
+            Model model = modelHandler.find(model_uri.split("model/")[1]);
+            if (model == null) {
+                errNotFound("Model with id:" + model_uri.split("model/")[1] + " was not found.");
+                return;
+            }
+            progress(10f, "Model retrieved successfully.");
+
+            Dataset dataset = Optional.of(client.target(dataset_uri)
                     .request()
                     .accept(MediaType.APPLICATION_JSON)
                     .header("subjectId", subjectId)
-                    .get(Algorithm.class)).orElseThrow(() -> new NotFoundException("Algorithm with URI:" + algorithmURI + " was not found."));
+                    .get(Dataset.class)).orElseThrow(() -> new NotFoundException("Dataset with URI:" + dataset_uri + " was not found."));
+            progress(10f, "Dataset retrieved successfully.");
+            checkCancelled();
 
-            progress(10f, "Algorithm retrieved successfully.");
-
-            Dataset dataset;
-            if (dataset_uri != null && !dataset_uri.isEmpty()) {
-                progress("Attempting to download dataset...");
-                dataset = client.target(dataset_uri)
-                        .request()
-                        .header("subjectid", subjectId)
-                        .accept(MediaType.APPLICATION_JSON)
-                        .get(Dataset.class);
-                dataset.setDatasetURI(dataset_uri);
-                progress("Dataset has been retrieved.");
-            } else {
-                dataset = DatasetFactory.createEmpty(0);
-            }
-
-            progress(20f);
-
-
-            LinkedHashMap<String, String> transformations = new LinkedHashMap<>();
-            List<Algorithm> transformationAlgorithms = new ArrayList<>();
-            if (trans != null && !trans.isEmpty()) {
+            if (model.getTransformationModels() != null && !model.getTransformationModels().isEmpty()) {
                 progress("--", "Processing transformations...");
-
-                transformations.putAll(serializer.parse(trans, LinkedHashMap.class));
-                LinkedHashMap<String, String> newTransformations = new LinkedHashMap<>();
-                transformations.keySet().stream().forEach((algUri) -> {
-                    String algId = algUri.split("algorithm/")[1];
-                    Algorithm transAlgorithm = algorithmHandler.find(algId);
-                    if (transAlgorithm == null) {
-                        errNotFound("Algorithm with id:" + algId + " was not found.");
+                for (String transModelURI : model.getTransformationModels()) {
+                    Model transModel = modelHandler.find(transModelURI.split("model/")[1]);
+                    if (transModel == null) {
+                        errNotFound("Transformation modle with id:" + transModelURI + " was not found.");
                         return;
                     }
-                    newTransformations.put(transAlgorithm.getId(), transformations.get(algUri));
-                    if (transAlgorithm.getOntologicalClasses().contains("ot:Transformation")) {
-                        transformationAlgorithms.add(transAlgorithm);
-                    }
-                });
-                transformations.putAll(newTransformations);
-                for (Algorithm transAlgorithm : transformationAlgorithms) {
-                    progress("-", "Starting transforming on algorithm:" + transAlgorithm.getId());
-
-                    Map<String, Object> parameterMap = null;
-                    String transParameters = transformations.get(transAlgorithm.getId());
-                    if (transParameters != null && !transParameters.isEmpty()) {
-                        parameterMap = serializer.parse(transParameters, new HashMap<String, Object>().getClass());
-                    }
-                    dataset = jpdiClient.transform(dataset, transAlgorithm, parameterMap, predictionFeature, dataset.getMeta(), taskId).get();
-                    addProgress(10f, "Done");
+                    dataset = jpdiClient.predict(dataset, transModel, dataset != null ? dataset.getMeta() : null, taskId).get();
+                    addProgress(5f, "Transformed successfull by model:" + transModel.getId());
                 }
-                progress(30f, "Done processing transformations.", "--");
+                progress("Done processing transformations.", "--");
             }
-            if (dataset == null) return;
-
             progress(50f);
+
 
             MetaInfo datasetMeta = dataset.getMeta();
             HashSet<String> creators = new HashSet<>(Arrays.asList(creator));
@@ -183,54 +143,50 @@ public class ExternalValidationProcedure extends AbstractJaqpotProcedure{
 
             progress("Starting JPDI Prediction...");
 
-            Map<String, Object> parameterMap = null;
-            if (algorithmParams != null && !algorithmParams.isEmpty()) {
-                parameterMap = serializer.parse(algorithmParams, new HashMap<String, Object>().getClass());
-            }
-
-            Model model = jpdiClient.train(dataset, algorithm, parameterMap, predictionFeature, dataset.getMeta(), taskId).get();
-
             dataset = jpdiClient.predict(dataset, model, datasetMeta, taskId).get();
             progress("JPDI Prediction completed successfully.");
             progress(80f, "Dataset was built successfully.");
 
+
             progress(90f, "Now saving to database...");
             dataset.setVisible(Boolean.TRUE);
             dataset.setFeatured(Boolean.FALSE);
+            dataset.setByModel(model.getId());
+
+
             datasetHandler.create(dataset);
             complete("dataset/" + dataset.getId());
 
-            String predictedFeature = "";
-            Integer indepFeatureSize = 0;
-            indepFeatureSize = Math.max(indepFeatureSize, model.getIndependentFeatures().size());
-
-            TrainingRequest reportRequest = new TrainingRequest();
-            reportRequest.setDataset(dataset);
-            reportRequest.setPredictionFeature(predictionFeature);
-            Map<String, Object> validationParameters = new HashMap<>();
-            validationParameters.put("predictionFeature", predictionFeature);
-            predictedFeature = model.getPredictedFeatures().get(0);
-            validationParameters.put("predictedFeature", predictedFeature);
-            validationParameters.put("variables", indepFeatureSize);
-
             ValidationType validationType;
-            if (algorithm.getOntologicalClasses().contains("ot:Regression")) {
+            if (model.getAlgorithm().getOntologicalClasses().contains("ot:Regression")) {
                 validationType = ValidationType.REGRESSION;
-            } else if (algorithm.getOntologicalClasses().contains("ot:Classification")) {
+            } else if (model.getAlgorithm().getOntologicalClasses().contains("ot:Classification")) {
                 validationType = ValidationType.CLASSIFICATION;
             } else {
                 throw new IllegalArgumentException("Selected Algorithm is neither Regression nor Classification.");
             }
+            Integer indepFeatureSize = 0;
+            indepFeatureSize = Math.max(indepFeatureSize, model.getIndependentFeatures().size());
 
+            TrainingRequest reportRequest = new TrainingRequest();
+            Map<String, Object> validationParameters = new HashMap<>();
+            reportRequest.setDataset(dataset);
+            reportRequest.setPredictionFeature(model.getDependentFeatures().get(0));
+            validationParameters.put("predictionFeature", model.getDependentFeatures().get(0));
+            validationParameters.put("predictedFeature", model.getPredictedFeatures().get(0));
+            validationParameters.put("variables", indepFeatureSize);
             validationParameters.put("type", validationType);
             reportRequest.setParameters(validationParameters);
 
-            report = client.target(ResourceBundle.getBundle("config").getString("ValidationBasePath"))
+            progress(92f, "Validation info populated successfully");
+
+            Report report = client.target(ResourceBundle.getBundle("config").getString("ValidationBasePath"))
                     .request()
                     .header("Content-Type", MediaType.APPLICATION_JSON)
                     .accept(MediaType.APPLICATION_JSON)
                     .post(Entity.json(reportRequest), Report.class);
-            progress(90f, "Done", "Saving report to database...");
+
+            progress(95f, "Done", "Saving report to database...");
             checkCancelled();
 
             ROG randomStringGenerator = new ROG(true);
@@ -239,9 +195,8 @@ public class ExternalValidationProcedure extends AbstractJaqpotProcedure{
             report.setMeta(MetaInfoBuilder
                     .builder()
                     .addTitles("External validation report")
-                    .addCreators(creator)
-                    .addSources(dataset_uri, algorithmURI)
-                    .addDescriptions("External validation on algorithm:" + algorithmURI + " with dataset:" + dataset_uri)
+                    .addSources(dataset_uri,model_uri)
+                    .addDescriptions("External validation with model:" + model_uri + " and dataset:" + dataset_uri)
                     .build());
             report.setVisible(Boolean.TRUE);
             reportHandler.create(report);
@@ -262,6 +217,7 @@ public class ExternalValidationProcedure extends AbstractJaqpotProcedure{
         } catch (Exception ex) {
             LOG.log(Level.SEVERE, "JPDI Prediction procedure unknown error", ex);
             errInternalServerError(ex, "JPDI Prediction procedure unknown error");
+
         }
     }
 }
