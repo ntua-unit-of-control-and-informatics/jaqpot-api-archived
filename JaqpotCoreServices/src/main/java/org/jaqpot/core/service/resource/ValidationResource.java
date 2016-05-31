@@ -126,7 +126,7 @@ public class ValidationResource {
     @Resource(lookup = "java:jboss/exported/jms/topic/validation")
     private Topic validationQueue;
 
-    @Resource(lookup = "java:jboss/exported/jms/topic/validation-cross")
+    @Resource(lookup = "java:jboss/exported/jms/topic/validationCross")
     private Topic crossValidationQueue;
 
     @Inject
