@@ -27,6 +27,17 @@ import java.util.Map.Entry;
 @RequestScoped
 public class ReportService {
 
+    /** helper function to add logo image in header*/
+    public static PdfPCell createImageCell(String path) throws DocumentException, IOException {
+        Image img = Image.getInstance(path);
+        img.scaleToFit(120f,120f);
+        PdfPCell cell = new PdfPCell(img, false);
+        cell.setPaddingBottom(5f);
+        cell.setUseBorderPadding(true);
+        cell.setBorder(Rectangle.BOTTOM);
+        return cell;
+    }
+
     /**
      * Inner class to add a table as header.
      */
@@ -35,6 +46,9 @@ public class ReportService {
         String header;
 
         String logo = "eNanoMapper Report Service";
+
+        String img = "http://www.enanomapper.net/sites/all/themes/theme807/logo.png";
+
         /** The template with the total number of pages. */
         PdfTemplate total;
 
@@ -68,7 +82,13 @@ public class ReportService {
                 table.setLockedWidth(true);
                 table.getDefaultCell().setFixedHeight(20);
                 table.getDefaultCell().setBorder(Rectangle.BOTTOM);
-                table.addCell(logo);
+
+                try {
+                    table.addCell(createImageCell(img));
+                } catch (IOException e) {
+                    table.addCell(logo);
+                    e.printStackTrace();
+                }
                 table.getDefaultCell().setHorizontalAlignment(Element.ALIGN_LEFT);
                 table.addCell(header);
                 table.getDefaultCell().setHorizontalAlignment(Element.ALIGN_RIGHT);
@@ -77,7 +97,6 @@ public class ReportService {
                 cell.setBorder(Rectangle.BOTTOM);
                 table.addCell(cell);
                 table.writeSelectedRows(0, -1, 34, 803, writer.getDirectContent());
-
             }
             catch(DocumentException de) {
                 throw new ExceptionConverter(de);
@@ -121,11 +140,12 @@ public class ReportService {
         Font tableFont = FontFactory.getFont(FontFactory.HELVETICA, 12, Font.BOLD);
 
         /** get title */
-        String title = "Report";
-        if (!report.getMeta().getTitles().isEmpty())
+        String title = null;
+        if (report.getMeta()!=null && report.getMeta().getTitles()!=null && !report.getMeta().getTitles().isEmpty())
             title = report.getMeta().getTitles().iterator().next();
 
         /** print title aligned centered in page */
+        if (title ==null) title = "Report";
         Chunk chunk = new Chunk(title, chapterFont);
         Paragraph paragraph = new Paragraph(chunk);
         paragraph.setAlignment(Element.ALIGN_CENTER);
@@ -135,28 +155,33 @@ public class ReportService {
         Chapter chapter = new Chapter(paragraph, 1);
         chapter.setNumberDepth(0);
 
-
         /** report Description */
-        paragraph = new Paragraph();
-        paragraph.add(new Chunk("Description: ", paragraphFontBold));
-        paragraph.add(new Chunk(report.getMeta().getDescriptions().toString().replaceAll(":http", ": http"), paragraphFont));
-        chapter.add(paragraph);
-        chapter.add(Chunk.NEWLINE);
+        if (report.getMeta()!=null && report.getMeta().getDescriptions()!=null && !report.getMeta().getDescriptions().isEmpty() && report.getMeta().getDescriptions().toString().equalsIgnoreCase("null")) {
+            paragraph = new Paragraph();
+            paragraph.add(new Chunk("Description: ", paragraphFontBold));
+            paragraph.add(new Chunk(report.getMeta().getDescriptions().toString().replaceAll(":http", ": http"), paragraphFont));
+            chapter.add(paragraph);
+            chapter.add(Chunk.NEWLINE);
+        }
 
         /** report model, algorithm and/or dataset id */
-        Iterator<String> sources = report.getMeta().getHasSources().iterator();
-        sources.forEachRemaining(o -> {
-            String[] source = o.split("/");
-            if (source[source.length - 2].trim().equals("model") ||
-                    source[source.length - 2].trim().equals("algorithm") ||
-                    source[source.length - 2].trim().equals("dataset")) {
-                Paragraph paragraph1 = new Paragraph();
-                paragraph1.add(new Chunk(source[source.length - 2].substring(0, 1).toUpperCase() + source[source.length - 2].substring(1) + ": ", paragraphFontBold));
-                paragraph1.add(new Chunk(source[source.length - 1], paragraphFont));
-                chapter.add(paragraph1);
-                chapter.add(Chunk.NEWLINE);
-            }
-        });
+        if (report.getMeta()!=null && report.getMeta().getHasSources()!=null && !report.getMeta().getHasSources().isEmpty() && !report.getMeta().getDescriptions().isEmpty() && report.getMeta().getDescriptions().toString().equalsIgnoreCase("null")) {
+            Iterator<String> sources = report.getMeta().getHasSources().iterator();
+            sources.forEachRemaining(o -> {
+                if (o!=null) {
+                    String[] source = o.split("/");
+                    if (source[source.length - 2].trim().equals("model") ||
+                            source[source.length - 2].trim().equals("algorithm") ||
+                            source[source.length - 2].trim().equals("dataset")) {
+                        Paragraph paragraph1 = new Paragraph();
+                        paragraph1.add(new Chunk(source[source.length - 2].substring(0, 1).toUpperCase() + source[source.length - 2].substring(1) + ": ", paragraphFontBold));
+                        paragraph1.add(new Chunk(source[source.length - 1], paragraphFont));
+                        chapter.add(paragraph1);
+                        chapter.add(Chunk.NEWLINE);
+                    }
+                }
+            });
+        }
 
         /** report single calculations */
         report.getSingleCalculations().forEach((key, value) -> {
@@ -169,11 +194,13 @@ public class ReportService {
         });
 
         /** report date of completion */
-        Paragraph paragraph1 = new Paragraph();
-        paragraph1.add(new Chunk("Procedure completed on: ", paragraphFontBold));
-        paragraph1.add(new Chunk(report.getMeta().getDate().toString(), paragraphFont));
-        chapter.add(paragraph1);
-        chapter.add(Chunk.NEWLINE);
+        if (report.getMeta()!=null && report.getMeta().getDate()!=null) {
+            Paragraph paragraph1 = new Paragraph();
+            paragraph1.add(new Chunk("Procedure completed on: ", paragraphFontBold));
+            paragraph1.add(new Chunk(report.getMeta().getDate().toString(), paragraphFont));
+            chapter.add(paragraph1);
+            chapter.add(Chunk.NEWLINE);
+        }
 
         try {
             document.add(chapter);
@@ -226,6 +253,5 @@ public class ReportService {
             }
         }
         document.close();
-
     }
 }
