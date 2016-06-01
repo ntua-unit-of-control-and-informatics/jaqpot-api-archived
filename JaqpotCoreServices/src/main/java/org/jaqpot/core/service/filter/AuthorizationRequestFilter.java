@@ -35,7 +35,9 @@ import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.PostConstruct;
+import javax.annotation.Priority;
 import javax.ejb.EJB;
+import javax.ws.rs.Priorities;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.core.Response;
@@ -58,6 +60,7 @@ import org.jaqpot.core.service.security.UserPrincipal;
  */
 @Provider
 @Authorize
+@Priority(Priorities.AUTHENTICATION)
 public class AuthorizationRequestFilter implements ContainerRequestFilter {
 
     @EJB
@@ -111,10 +114,13 @@ public class AuthorizationRequestFilter implements ContainerRequestFilter {
         // Check whether there is an AA token...
         String token = requestContext.getHeaderString("subjectid");
         if (token == null) {
-            requestContext.abortWith(Response
-                    .ok(ErrorReportFactory.unauthorized("Please provide an authorization token in a subjectid header."))
-                    .status(Response.Status.UNAUTHORIZED)
-                    .build());
+            token = requestContext.getUriInfo().getQueryParameters().getFirst("subjectid");
+            if (token == null) {
+                requestContext.abortWith(Response
+                        .ok(ErrorReportFactory.unauthorized("Please provide an authorization token in a subjectid header."))
+                        .status(Response.Status.UNAUTHORIZED)
+                        .build());
+            }
         }
 
         // is the token valid? if not: forbidden...

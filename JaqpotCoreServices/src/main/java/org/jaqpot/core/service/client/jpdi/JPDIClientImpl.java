@@ -43,16 +43,20 @@ import java.io.PipedOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.InternalServerErrorException;
+import javax.ws.rs.NotFoundException;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.concurrent.FutureCallback;
@@ -131,7 +135,7 @@ public class JPDIClientImpl implements JPDIClient {
         
         request.setEntity(entity);
         request.addHeader("Accept", "application/json");
-
+        
         Future futureResponse = client.execute(request, new FutureCallback<HttpResponse>() {
             
             @Override
@@ -230,11 +234,13 @@ public class JPDIClientImpl implements JPDIClient {
     }
     
     @Override
-    public Future<Dataset> predict(Dataset dataset, Model model, MetaInfo datasetMeta, String taskId) {
+    public Future<Dataset> predict(Dataset inputDataset, Model model, MetaInfo datasetMeta, String taskId) {
         
         CompletableFuture<Dataset> futureDataset = new CompletableFuture<>();
         
+        Dataset dataset = DatasetFactory.copy(inputDataset);
         Dataset tempWithDependentFeatures = DatasetFactory.copy(dataset, new HashSet<>(model.getDependentFeatures()));
+        
         dataset.getDataEntry().parallelStream()
                 .forEach(dataEntry -> {
                     dataEntry.getValues().keySet().retainAll(model.getIndependentFeatures());
@@ -270,43 +276,58 @@ public class JPDIClientImpl implements JPDIClient {
                     switch (status) {
                         case 200:
                         case 201:
-                            PredictionResponse predictionResponse = serializer.parse(responseStream, PredictionResponse.class);
-                            
-                            List<Map<String, Object>> predictions = predictionResponse.getPredictions();
-                            if (dataset.getDataEntry().isEmpty()) {
-                                DatasetFactory.addEmptyRows(dataset, predictions.size());
+                            try {
+                                PredictionResponse predictionResponse = serializer.parse(responseStream, PredictionResponse.class);
+                                
+                                List<LinkedHashMap<String, Object>> predictions = predictionResponse.getPredictions();
+                                if (dataset.getDataEntry().isEmpty()) {
+                                    DatasetFactory.addEmptyRows(dataset, predictions.size());
+                                }
+                                List<Feature> features = featureHandler.findBySource("algorithm/" + model.getAlgorithm().getId());
+                                IntStream.range(0, dataset.getDataEntry().size())
+                                        // .parallel()
+                                        .forEach(i -> {
+                                            Map<String, Object> row = predictions.get(i);
+                                            DataEntry dataEntry = dataset.getDataEntry().get(i);
+                                            if (model.getAlgorithm().getOntologicalClasses().contains("ot:Scaling")
+                                                    || model.getAlgorithm().getOntologicalClasses().contains("ot:Transformation")) {
+                                                dataEntry.getValues().clear();
+                                                dataset.getFeatures().clear();
+                                            }
+                                            row.entrySet()
+                                                    .stream()
+                                                    .forEach(entry -> {
+//                                                    Feature feature = featureHandler.findByTitleAndSource(entry.getKey(), "algorithm/" + model.getAlgorithm().getId());
+                                                        Feature feature = features.stream()
+                                                                .filter(f -> f.getMeta().getTitles().contains(entry.getKey()))
+                                                                .findFirst()
+                                                                .orElse(null);
+                                                        if (feature == null) {
+                                                            return;
+                                                        }
+                                                        dataEntry.getValues().put(baseURI + "feature/" + feature.getId(), entry.getValue());
+                                                        FeatureInfo featInfo = new FeatureInfo(baseURI + "feature/" + feature.getId(), feature.getMeta().getTitles().stream().findFirst().get());
+                                                        featInfo.setCategory(Dataset.DescriptorCategory.PREDICTED);
+                                                        dataset.getFeatures().add(featInfo);
+                                                    });
+                                        });
+                                dataset.setId(randomStringGenerator.nextString(20));
+                                dataset.setTotalRows(dataset.getDataEntry().size());
+                                dataset.setMeta(datasetMeta);
+                                futureDataset.complete(DatasetFactory.mergeColumns(dataset, tempWithDependentFeatures));
+                            } catch (Exception ex) {
+                                futureDataset.completeExceptionally(ex);
                             }
-                            IntStream.range(0, dataset.getDataEntry().size())
-                                    .parallel()
-                                    .forEach(i -> {
-                                        Map<String, Object> row = predictions.get(i);
-                                        DataEntry dataEntry = dataset.getDataEntry().get(i);
-                                        if (model.getAlgorithm().getOntologicalClasses().contains("ot:Scaling")
-                                                || model.getAlgorithm().getOntologicalClasses().contains("ot:Transformation")) {
-                                            dataEntry.getValues().clear();
-                                            dataset.getFeatures().clear();
-                                        }
-                                        row.entrySet()
-                                                .stream()
-                                                .forEach(entry -> {
-                                                    Feature feature = featureHandler.findByTitleAndSource(entry.getKey(), "algorithm/" + model.getAlgorithm().getId());
-                                                    if (feature == null) {
-                                                        return;
-                                                    }
-                                                    dataEntry.getValues().put(baseURI + "feature/" + feature.getId(), entry.getValue());
-                                                    FeatureInfo featInfo = new FeatureInfo(baseURI + "feature/" + feature.getId(), feature.getMeta().getTitles().stream().findFirst().get());
-                                                    featInfo.setCategory(Dataset.DescriptorCategory.PREDICTED);
-                                                    dataset.getFeatures().add(featInfo);
-                                                });
-                                    });
-                            dataset.setId(randomStringGenerator.nextString(20));
-                            dataset.setMeta(datasetMeta);
-                            futureDataset.complete(DatasetFactory.mergeColumns(dataset, tempWithDependentFeatures));
                             break;
                         case 400:
                             String message = new BufferedReader(new InputStreamReader(responseStream))
                                     .lines().collect(Collectors.joining("\n"));
                             futureDataset.completeExceptionally(new BadRequestException(message));
+                            break;
+                        case 404:
+                            message = new BufferedReader(new InputStreamReader(responseStream))
+                                    .lines().collect(Collectors.joining("\n"));
+                            futureDataset.completeExceptionally(new NotFoundException(message));
                             break;
                         case 500:
                             message = new BufferedReader(new InputStreamReader(responseStream))
@@ -326,7 +347,7 @@ public class JPDIClientImpl implements JPDIClient {
             @Override
             public void failed(final Exception ex) {
                 futureMap.remove(taskId);
-                futureDataset.completeExceptionally(ex);
+                futureDataset.completeExceptionally(new InternalServerErrorException(ex));
             }
             
             @Override
@@ -347,7 +368,14 @@ public class JPDIClientImpl implements JPDIClient {
     
     @Override
     public Future<Dataset> transform(Dataset dataset, Algorithm algorithm, Map<String, Object> parameters, String predictionFeature, MetaInfo datasetMeta, String taskId) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        try {
+            Model model = this.train(dataset, algorithm, parameters, predictionFeature, datasetMeta, taskId).get();
+            return this.predict(dataset, model, datasetMeta, taskId);
+        } catch (InterruptedException ex) {
+            throw new RuntimeException("Error while transforming Dataset:" + dataset.getId() + " with Algorithm:" + algorithm.getId(), ex);
+        } catch (ExecutionException ex) {
+            throw new RuntimeException("Error while transforming Dataset:" + dataset.getId() + " with Algorithm:" + algorithm.getId(), ex.getCause());
+        }
     }
     
     @Override

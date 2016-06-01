@@ -250,6 +250,7 @@ public class AlgorithmResource {
             notes = "Applies Dataset and Parameters on Algorithm and creates Model.",
             response = Task.class
     )
+    @org.jaqpot.core.service.annotations.Task
     public Response trainModel(
             @ApiParam(name = "title") @FormParam("title") String title,
             @ApiParam(name = "description") @FormParam("description") String description,
@@ -286,7 +287,7 @@ public class AlgorithmResource {
         options.put("algorithmId", algorithmId);
         options.put("parameters", parameters);
         options.put("base_uri", uriInfo.getBaseUri().toString());
-        options.put("createdBy", securityContext.getUserPrincipal().getName());
+        options.put("creator", securityContext.getUserPrincipal().getName());
         options.put("visible", visible != null ? visible : false);
 
         Map<String, String> transformationAlgorithms = new LinkedHashMap<>();

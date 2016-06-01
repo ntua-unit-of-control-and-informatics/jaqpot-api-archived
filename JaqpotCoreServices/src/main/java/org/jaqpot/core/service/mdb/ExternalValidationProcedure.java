@@ -1,50 +1,14 @@
-/*
- *
- * JAQPOT Quattro
- *
- * JAQPOT Quattro and the components shipped with it, in particular:
- * (i)   JaqpotCoreServices
- * (ii)  JaqpotAlgorithmServices
- * (iii) JaqpotDB
- * (iv)  JaqpotDomain
- * (v)   JaqpotEAR
- * are licensed by GPL v3 as specified hereafter. Additional components may ship
- * with some other licence as will be specified therein.
- *
- * Copyright (C) 2014-2015 KinkyDesign (Charalampos Chomenidis, Pantelis Sopasakis)
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * 
- * Source code:
- * The source code of JAQPOT Quattro is available on github at:
- * https://github.com/KinkyDesign/JaqpotQuattro
- * All source files of JAQPOT Quattro that are stored on github are licensed
- * with the aforementioned licence. 
- */
 package org.jaqpot.core.service.mdb;
 
 import org.jaqpot.core.annotations.Jackson;
-import org.jaqpot.core.data.AlgorithmHandler;
-import org.jaqpot.core.data.DatasetHandler;
-import org.jaqpot.core.data.ModelHandler;
-import org.jaqpot.core.data.TaskHandler;
+import org.jaqpot.core.data.*;
 import org.jaqpot.core.data.serialize.JSONSerializer;
-import org.jaqpot.core.model.MetaInfo;
-import org.jaqpot.core.model.Model;
-import org.jaqpot.core.model.Task;
+import org.jaqpot.core.model.*;
+import org.jaqpot.core.model.builder.MetaInfoBuilder;
 import org.jaqpot.core.model.dto.dataset.Dataset;
+import org.jaqpot.core.model.dto.jpdi.TrainingRequest;
 import org.jaqpot.core.model.factory.DatasetFactory;
+import org.jaqpot.core.model.util.ROG;
 import org.jaqpot.core.service.annotations.Secure;
 import org.jaqpot.core.service.client.jpdi.JPDIClient;
 
@@ -54,14 +18,12 @@ import javax.ejb.MessageDriven;
 import javax.inject.Inject;
 import javax.jms.JMSException;
 import javax.jms.Message;
-import javax.jms.MessageListener;
 import javax.ws.rs.BadRequestException;
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.client.Client;
+import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
@@ -70,50 +32,58 @@ import java.util.logging.Logger;
 /**
  * @author Angelos Valsamis
  * @author Charalampos Chomenidis
+ * @author Georgios Drakakis
  * @author Pantelis Sopasakis
+ *
  */
+
 @MessageDriven(activationConfig = {
         @ActivationConfigProperty(propertyName = "destinationLookup",
-                propertyValue = "java:jboss/exported/jms/topic/prediction"),
+                propertyValue = "java:jboss/exported/jms/topic/validationExternal"),
         @ActivationConfigProperty(propertyName = "destinationType",
                 propertyValue = "javax.jms.Topic")
 })
-public class PredictionProcedure extends AbstractJaqpotProcedure implements MessageListener {
+public class ExternalValidationProcedure extends AbstractJaqpotProcedure{
+    private static final Logger LOG = Logger.getLogger(ExternalValidationProcedure.class.getName());
 
-    private static final Logger LOG = Logger.getLogger(PredictionProcedure.class.getName());
-    
     @EJB
     AlgorithmHandler algorithmHandler;
-    
+
     @EJB
     ModelHandler modelHandler;
-    
+
+
+    @EJB
+    ReportHandler reportHandler;
+
     @EJB
     DatasetHandler datasetHandler;
-    
+
     @Inject
     @Jackson
     JSONSerializer serializer;
-    
+
     @Inject
     JPDIClient jpdiClient;
-    
+
     @Inject
     @Secure
     Client client;
 
-    public PredictionProcedure() {
+
+    public ExternalValidationProcedure() {
         super(null);
-        //        throw new IllegalStateException("Cannot use empty constructor, instantiate with TaskHandler");
+//        throw new IllegalStateException("Cannot use empty constructor, instantiate with TaskHandler");
     }
 
     @Inject
-    public PredictionProcedure(TaskHandler taskHandler) {
+    public ExternalValidationProcedure(TaskHandler taskHandler) {
         super(taskHandler);
     }
 
     @Override
     public void onMessage(Message msg) {
+
         Map<String, Object> messageBody;
         try {
             messageBody = msg.getBody(Map.class);
@@ -121,41 +91,35 @@ public class PredictionProcedure extends AbstractJaqpotProcedure implements Mess
             LOG.log(Level.SEVERE, "JMS message could not be read", ex);
             return;
         }
-        
+
         String taskId = (String) messageBody.get("taskId");
         String dataset_uri = (String) messageBody.get("dataset_uri");
-        String modelId = (String) messageBody.get("modelId");
-        String subjectId = (String) messageBody.get("subjectid");
+        String model_uri = (String) messageBody.get("model_uri");
+        String subjectId = (String) messageBody.get("subjectId");
         String creator = (String) messageBody.get("creator");
+
 
         try {
             init(taskId);
             checkCancelled();
-            start(Task.Type.PREDICTION);
+            start(Task.Type.VALIDATION);
 
-            progress(5f, "Prediction Task is now running.");
+            progress(5f, "External Validation Task is now running.");
 
-            Model model = modelHandler.find(modelId);
+            Model model = modelHandler.find(model_uri.split("model/")[1]);
             if (model == null) {
-                errNotFound("Model with id:" + modelId + " was not found.");
+                errNotFound("Model with id:" + model_uri.split("model/")[1] + " was not found.");
                 return;
             }
             progress(10f, "Model retrieved successfully.");
 
-            Dataset dataset;
-            if (dataset_uri != null && !dataset_uri.isEmpty()) {
-                progress("Attempting to download dataset...");
-                dataset = client.target(dataset_uri)
-                        .request()
-                        .header("subjectid", subjectId)
-                        .accept(MediaType.APPLICATION_JSON)
-                        .get(Dataset.class);
-                dataset.setDatasetURI(dataset_uri);
-                progress("Dataset has been retrieved.");
-            } else {
-                dataset = DatasetFactory.createEmpty(0);
-            }
-            progress(20f);
+            Dataset dataset = Optional.of(client.target(dataset_uri)
+                    .request()
+                    .accept(MediaType.APPLICATION_JSON)
+                    .header("subjectId", subjectId)
+                    .get(Dataset.class)).orElseThrow(() -> new NotFoundException("Dataset with URI:" + dataset_uri + " was not found."));
+            progress(10f, "Dataset retrieved successfully.");
+            checkCancelled();
 
             if (model.getTransformationModels() != null && !model.getTransformationModels().isEmpty()) {
                 progress("--", "Processing transformations...");
@@ -172,6 +136,7 @@ public class PredictionProcedure extends AbstractJaqpotProcedure implements Mess
             }
             progress(50f);
 
+
             MetaInfo datasetMeta = dataset.getMeta();
             HashSet<String> creators = new HashSet<>(Arrays.asList(creator));
             datasetMeta.setCreators(creators);
@@ -182,28 +147,61 @@ public class PredictionProcedure extends AbstractJaqpotProcedure implements Mess
             progress("JPDI Prediction completed successfully.");
             progress(80f, "Dataset was built successfully.");
 
-            if (model.getLinkedModels() != null & !model.getLinkedModels().isEmpty()) {
-                progress("--", "Processing linked models...");
-                Dataset copyDataset = DatasetFactory.copy(dataset);
-                for (String linkedModelURI : model.getLinkedModels()) {
-                    Model linkedModel = modelHandler.find(linkedModelURI.split("model/")[1]);
-                    if (linkedModel == null) {
-                        errNotFound("Transformation model with id:" + linkedModelURI + " was not found.");
-                        return;
-                    }
-                    Dataset linkedDataset = jpdiClient.predict(copyDataset, linkedModel, dataset != null ? dataset.getMeta() : null, taskId).get();
-                    dataset = DatasetFactory.mergeColumns(dataset, linkedDataset);
-                    addProgress(5f, "Prediction successfull by model:" + linkedModel.getId());
 
-                }
-                progress("Done processing linked models.", "--");
-            }
             progress(90f, "Now saving to database...");
             dataset.setVisible(Boolean.TRUE);
             dataset.setFeatured(Boolean.FALSE);
             dataset.setByModel(model.getId());
+
+
             datasetHandler.create(dataset);
             complete("dataset/" + dataset.getId());
+
+            ValidationType validationType;
+            if (model.getAlgorithm().getOntologicalClasses().contains("ot:Regression")) {
+                validationType = ValidationType.REGRESSION;
+            } else if (model.getAlgorithm().getOntologicalClasses().contains("ot:Classification")) {
+                validationType = ValidationType.CLASSIFICATION;
+            } else {
+                throw new IllegalArgumentException("Selected Algorithm is neither Regression nor Classification.");
+            }
+            Integer indepFeatureSize = 0;
+            indepFeatureSize = Math.max(indepFeatureSize, model.getIndependentFeatures().size());
+
+            TrainingRequest reportRequest = new TrainingRequest();
+            Map<String, Object> validationParameters = new HashMap<>();
+            reportRequest.setDataset(dataset);
+            reportRequest.setPredictionFeature(model.getDependentFeatures().get(0));
+            validationParameters.put("predictionFeature", model.getDependentFeatures().get(0));
+            validationParameters.put("predictedFeature", model.getPredictedFeatures().get(0));
+            validationParameters.put("variables", indepFeatureSize);
+            validationParameters.put("type", validationType);
+            reportRequest.setParameters(validationParameters);
+
+            progress(92f, "Validation info populated successfully");
+
+            Report report = client.target(ResourceBundle.getBundle("config").getString("ValidationBasePath"))
+                    .request()
+                    .header("Content-Type", MediaType.APPLICATION_JSON)
+                    .accept(MediaType.APPLICATION_JSON)
+                    .post(Entity.json(reportRequest), Report.class);
+
+            progress(95f, "Done", "Saving report to database...");
+            checkCancelled();
+
+            ROG randomStringGenerator = new ROG(true);
+            String reportId = randomStringGenerator.nextString(15);
+            report.setId(reportId);
+            report.setMeta(MetaInfoBuilder
+                    .builder()
+                    .addTitles("External validation report")
+                    .addSources(dataset_uri,model_uri)
+                    .addDescriptions("External validation with model:" + model_uri + " and dataset:" + dataset_uri)
+                    .build());
+            report.setVisible(Boolean.TRUE);
+            reportHandler.create(report);
+            complete("report/" + report.getId());
+
 
         } catch (InterruptedException ex) {
             LOG.log(Level.SEVERE, "JPDI Training procedure interupted", ex);
@@ -219,6 +217,7 @@ public class PredictionProcedure extends AbstractJaqpotProcedure implements Mess
         } catch (Exception ex) {
             LOG.log(Level.SEVERE, "JPDI Prediction procedure unknown error", ex);
             errInternalServerError(ex, "JPDI Prediction procedure unknown error");
+
         }
     }
 }

@@ -137,6 +137,20 @@ public class ErrorReportFactory {
                 build();
     }
 
+    public static ErrorReport notFoundError(
+            Throwable ex,
+            String details) {
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        ex.printStackTrace(pw);
+        return ErrorReportBuilder.builderRandomId().
+                setCode("NotFoundError").
+                setHttpStatus(404).
+                setMessage(ex.getMessage() + " Details: " + (details != null ? details : ERROR404)).
+                setDetails(sw.toString()).
+                build();
+    }
+
     public static ErrorReport quotaExceeded(
             String message) {
         return ErrorReportBuilder.builderRandomId().
@@ -221,6 +235,21 @@ public class ErrorReportFactory {
                 setDetails((details != null ? (details + ".\n") : "")
                         + ERROR400).
                 setHttpStatus(400).
+                build();
+    }
+
+    public static ErrorReport badRequest(
+            Throwable ex,
+            String details) {
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        ex.printStackTrace(pw);
+        return ErrorReportBuilder.builderRandomId().
+                setActor("client").
+                setCode("BadRequest").
+                setHttpStatus(400).
+                setMessage(ex.getMessage() + " Details: " + (details != null ? details : ERROR400)).
+                setDetails(sw.toString()).
                 build();
     }
 

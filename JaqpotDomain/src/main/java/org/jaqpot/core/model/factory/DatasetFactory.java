@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.jaqpot.core.model.builder.MetaInfoBuilder;
@@ -64,7 +65,7 @@ public class DatasetFactory {
                     return de;
                 }).collect(Collectors.toList());
         dataset.setDataEntry(dataEntries);
-        dataset.setId("");
+        dataset.setId(UUID.randomUUID().toString());
         dataset.setVisible(Boolean.TRUE);
         ROG randomStringGenerator = new ROG(true);
         dataset.setId(randomStringGenerator.nextString(14));
@@ -99,6 +100,32 @@ public class DatasetFactory {
 
         List<DataEntry> dataEntries = dataset.getDataEntry()
                 .parallelStream()
+                .map(dataEntry -> {
+                    DataEntry newEntry = new DataEntry();
+                    newEntry.setCompound(dataEntry.getCompound());
+                    newEntry.setValues(new TreeMap<>(dataEntry.getValues()));
+                    return newEntry;
+                })
+                .collect(Collectors.toList());
+        result.setDataEntry(dataEntries);
+        result.setFeatures(dataset.getFeatures());
+        result.setDatasetURI(dataset.getDatasetURI());
+        result.setDescriptors(dataset.getDescriptors());
+        result.setTotalColumns(dataset.getTotalColumns());
+        result.setTotalRows(dataset.getTotalRows());
+        result.setByModel(dataset.getByModel());
+        return result;
+    }
+
+    public static Dataset copy(Dataset dataset, Integer rowStart, Integer rowMax) {
+        Dataset result = new Dataset();
+        result.setId(UUID.randomUUID().toString());
+        result.setMeta(dataset.getMeta());
+
+        List<DataEntry> dataEntries = dataset.getDataEntry()
+                .parallelStream()
+                .skip(rowStart)
+                .limit(rowMax)
                 .map(dataEntry -> {
                     DataEntry newEntry = new DataEntry();
                     newEntry.setCompound(dataEntry.getCompound());

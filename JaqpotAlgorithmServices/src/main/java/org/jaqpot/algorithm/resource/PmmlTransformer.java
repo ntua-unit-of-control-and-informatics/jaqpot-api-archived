@@ -44,6 +44,7 @@ import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -184,7 +185,7 @@ public class PmmlTransformer {
 
             Dataset dataset = request.getDataset();
 
-            List<Map<String, Object>> predictions = new ArrayList<>();
+            List<LinkedHashMap<String, Object>> predictions = new ArrayList<>();
 
             dataset.getDataEntry().stream().forEach((dataEntry) -> {
                 //For each data entry a PMMLEvaluationContext is saturated with values for each data field
@@ -197,7 +198,7 @@ public class PmmlTransformer {
                     }
                     context.declare(dataField.getName(), values.get(dataField.getName().getValue()));
                 });
-                TreeMap<String, Object> result = new TreeMap<>();
+                LinkedHashMap<String, Object> result = new LinkedHashMap<>();
                 //Each derived field is evaluated by the context and a value is produced
                 derivedFields.stream().forEach((derivedField) -> {
                     FieldValue value = ExpressionUtil.evaluate(derivedField, context);

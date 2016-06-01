@@ -43,6 +43,7 @@ import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -56,6 +57,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.commons.math3.stat.StatUtils;
 import org.jaqpot.algorithm.model.ScalingModel;
+import org.jaqpot.core.model.dto.dataset.DataEntry;
 import org.jaqpot.core.model.dto.jpdi.PredictionRequest;
 import org.jaqpot.core.model.dto.jpdi.PredictionResponse;
 import org.jaqpot.core.model.dto.jpdi.TrainingRequest;
@@ -94,10 +96,10 @@ public class Standarization {
                     .filter(feature -> !feature.equals(request.getPredictionFeature()))
                     .collect(Collectors.toList());
 
-            Map<String, Double> maxValues = new HashMap<>();
-            Map<String, Double> minValues = new HashMap<>();
+            LinkedHashMap<String, Double> maxValues = new LinkedHashMap<>();
+            LinkedHashMap<String, Double> minValues = new LinkedHashMap<>();
 
-            features.parallelStream().forEach(feature -> {
+            features.stream().forEach(feature -> {
                 List<Double> values = request.getDataset().getDataEntry().stream().map(dataEntry -> {
                     return Double.parseDouble(dataEntry.getValues().get(feature).toString());
                 }).collect(Collectors.toList());
@@ -156,23 +158,23 @@ public class Standarization {
             in.close();
             bais.close();
 
-            List<Map<String, Object>> predictions = new ArrayList<>();
+            List<LinkedHashMap<String, Object>> predictions = new ArrayList<>();
 
-            request.getDataset().getDataEntry().stream().forEach(dataEntry -> {
-                Map<String, Object> data = new HashMap<>();
-                features.stream().forEach(feature -> {
+            for (DataEntry dataEntry : request.getDataset().getDataEntry()) {
+                LinkedHashMap<String, Object> data = new LinkedHashMap<>();
+                for (String feature : features) {
                     Double stdev = model.getMaxValues().get(feature);
                     Double mean = model.getMinValues().get(feature);
                     Double value = Double.parseDouble(dataEntry.getValues().get(feature).toString());
-                    if (stdev != null && stdev != 0.0) {
+                    if (stdev != null && stdev != 0.0 && mean != null) {
                         value = (value - mean) / stdev;
                     } else {
                         value = 1.0;
                     }
                     data.put("Standarized " + feature, value);
-                });
+                }
                 predictions.add(data);
-            });
+            }
 
             PredictionResponse response = new PredictionResponse();
             response.setPredictions(predictions);

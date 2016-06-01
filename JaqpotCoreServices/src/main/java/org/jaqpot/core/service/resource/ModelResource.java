@@ -379,6 +379,7 @@ public class ModelResource {
             notes = "Creates Prediction",
             response = Task.class
     )
+    @org.jaqpot.core.service.annotations.Task
     public Response makePrediction(
             @ApiParam(name = "dataset_uri", defaultValue = DEFAULT_DATASET) @FormParam("dataset_uri") String datasetURI,
             @FormParam("visible") Boolean visible,
@@ -408,7 +409,7 @@ public class ModelResource {
         options.put("dataset_uri", datasetURI);
         options.put("subjectid", subjectId);
         options.put("modelId", id);
-        options.put("createdBy", securityContext.getUserPrincipal().getName());
+        options.put("creator", securityContext.getUserPrincipal().getName());
         options.put("base_uri", uriInfo.getBaseUri().toString());
         options.put("visible", visible != null ? visible : false);
         Task task = predictionService.initiatePrediction(options);

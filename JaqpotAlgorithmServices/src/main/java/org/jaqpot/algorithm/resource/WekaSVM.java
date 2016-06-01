@@ -45,6 +45,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -239,7 +240,7 @@ public class WekaSVM {
             String dependentFeature = (String) request.getAdditionalInfo();
             data.insertAttributeAt(new Attribute(dependentFeature), data.numAttributes());
             data.setClass(data.attribute(dependentFeature));
-            List<Map<String, Object>> predictions = new ArrayList<>();
+            List<LinkedHashMap<String, Object>> predictions = new ArrayList<>();
 //            data.stream().forEach(instance -> {
 //                try {
 //                    double prediction = classifier.classifyInstance(instance);
@@ -255,7 +256,7 @@ public class WekaSVM {
                 Instance instance = data.instance(i);
                 try {
                     double prediction = classifier.classifyInstance(instance);
-                    Map<String, Object> predictionMap = new HashMap<>();
+                    LinkedHashMap<String, Object> predictionMap = new LinkedHashMap<>();
                     predictionMap.put("Weka SVM prediction of " + dependentFeature, prediction);
                     predictions.add(predictionMap);
                 } catch (Exception ex) {

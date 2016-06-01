@@ -35,7 +35,13 @@ import com.wordnik.swagger.annotations.ApiParam;
 import com.wordnik.swagger.annotations.ApiResponse;
 import com.wordnik.swagger.annotations.ApiResponses;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.annotation.Resource;
+import javax.ejb.Asynchronous;
 import javax.ejb.EJB;
+import javax.enterprise.concurrent.ManagedExecutorService;
 import javax.inject.Inject;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.DELETE;
@@ -47,6 +53,8 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.container.AsyncResponse;
+import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -80,6 +88,9 @@ public class TaskResource {
 
     @Context
     SecurityContext securityContext;
+
+    @Resource
+    private ManagedExecutorService executor;
 
     @GET
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
@@ -187,12 +198,42 @@ public class TaskResource {
             throw new ForbiddenException("You cannot cancel a Task not created by you.");
         }
 
-        boolean cancelled = jpdiClient.cancel(id);
+        if (task.getStatus().equals(Task.Status.QUEUED)) {
+            task.setStatus(Task.Status.CANCELLED);
+            task.getMeta().getComments().add("Task was cancelled by the user.");
+            taskHandler.edit(task);
+        }
 
-        if (!cancelled) {
-            throw new BadRequestException("Task with ID:" + id + " was not running");
+        if (task.getStatus().equals(Task.Status.RUNNING)) {
+            boolean cancelled = jpdiClient.cancel(id);
+            if (!cancelled) {
+                task.setStatus(Task.Status.CANCELLED);
+                task.getMeta().getComments().add("Task was cancelled by the user.");
+                taskHandler.edit(task);
+            }
         }
 
         return Response.ok().build();
+    }
+
+    @GET
+    @Path("/{id}/poll")
+    @ApiOperation(value = "Poll Task by Id",
+            notes = "Implements long polling",
+            response = Task.class)
+    public void poll(
+            @ApiParam(value = "Authorization token") @HeaderParam("subjectid") String subjectId,
+            @Suspended final AsyncResponse asyncResponse,
+            @PathParam("id") String id) {
+
+        executor.submit(() -> {
+            asyncResponse.setTimeout(3, TimeUnit.MINUTES);
+            try {
+                Task task = taskHandler.longPoll(id);
+                asyncResponse.resume(task);
+            } catch (InterruptedException ex) {
+                asyncResponse.resume(ex);
+            }
+        });
     }
 }

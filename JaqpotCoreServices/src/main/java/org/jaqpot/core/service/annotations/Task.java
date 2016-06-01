@@ -32,39 +32,22 @@
  * All source files of JAQPOT Quattro that are stored on github are licensed
  * with the aforementioned licence. 
  */
-package org.jaqpot.algorithm.model;
+package org.jaqpot.core.service.annotations;
 
-import java.io.Serializable;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+import javax.ws.rs.NameBinding;
 
 /**
  *
  * @author Charalampos Chomenidis
  * @author Pantelis Sopasakis
  */
-public class ScalingModel implements Serializable {
-
-    private LinkedHashMap<String, Double> maxValues;
-    private LinkedHashMap<String, Double> minValues;
-
-    public ScalingModel() {
-    }
-
-    public LinkedHashMap<String, Double> getMaxValues() {
-        return maxValues;
-    }
-
-    public void setMaxValues(LinkedHashMap<String, Double> maxValues) {
-        this.maxValues = maxValues;
-    }
-
-    public LinkedHashMap<String, Double> getMinValues() {
-        return minValues;
-    }
-
-    public void setMinValues(LinkedHashMap<String, Double> minValues) {
-        this.minValues = minValues;
-    }
+@NameBinding
+@Target({ElementType.TYPE, ElementType.METHOD})
+@Retention(value = RetentionPolicy.RUNTIME)
+public @interface Task {
 
 }

@@ -42,6 +42,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -158,7 +159,7 @@ public class Leverage {
             Matrix omega = new Matrix(model.getOmega());
             double gamma = model.getGamma();
             Matrix x = null;
-            List<Map<String, Object>> predictions = new ArrayList<>();
+            List<LinkedHashMap<String, Object>> predictions = new ArrayList<>();
             SingularValueDecomposition svd = omega.svd();
             Matrix S = svd.getS();
             Matrix U = svd.getU();
@@ -174,7 +175,7 @@ public class Leverage {
                 x = dataMatrix.getMatrix(i, i, 0, numOfFeatures - 1);
 
                 double indicator = Math.max(0, (gamma - x.times(pseudoInverse.times(x.transpose())).get(0, 0)) / gamma);
-                Map<String, Object> predictionMap = new HashMap<>();
+                LinkedHashMap<String, Object> predictionMap = new LinkedHashMap<>();
                 predictionMap.put("Leverage DoA", indicator);
                 predictions.add(predictionMap);
             }

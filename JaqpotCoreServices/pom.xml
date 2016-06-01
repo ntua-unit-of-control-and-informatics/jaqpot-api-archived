@@ -4,12 +4,12 @@
     <parent>
         <artifactId>JaqpotQuattro</artifactId>
         <groupId>org.kinkydesign</groupId>
-        <version>1.0-SNAPSHOT</version>
+        <version>4.0.1</version>
     </parent>
 
     <groupId>org.kinkydesign</groupId>
     <artifactId>JaqpotCoreServices</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>4.0.1</version>
     <packaging>war</packaging>
 
     <name>JaqpotCoreServices</name>
@@ -44,6 +44,13 @@
             <scope>provided</scope>
         </dependency>
         
+        <dependency>
+            <groupId>javax</groupId>
+            <artifactId>javaee-api</artifactId>
+            <version>7.0</version>
+            <scope>provided</scope>
+        </dependency>
+        
         <!-- JMS -->
         <dependency>
             <groupId>javax.jms</groupId>
@@ -56,13 +63,13 @@
         <dependency>
             <groupId>org.kinkydesign</groupId>
             <artifactId>JaqpotDB</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>4.0.1</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.kinkydesign</groupId>
             <artifactId>JaqpotDomain</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>4.0.1</version>
         </dependency>
         
         <!-- Jackson -->
@@ -86,12 +93,12 @@
             <artifactId>pmml-evaluator</artifactId>
             <version>1.1.16</version>
         </dependency>
-        <dependency>
+<!--        <dependency>
             <groupId>org.jpmml</groupId>
             <artifactId>pmml-evaluator</artifactId>
             <version>1.1.16</version>
             <classifier>javadoc</classifier>
-        </dependency>       
+        </dependency>       -->
         
         <!-- javamelody-core -->
         <dependency>
@@ -138,7 +145,6 @@
             <artifactId>commons-validator</artifactId>
             <version>1.5.0</version>
         </dependency>
-
     </dependencies>
 
     <build>
@@ -166,6 +172,11 @@
                             <directory>src/main/resources</directory>
                             <filtering>true</filtering>
                             <targetPath>WEB-INF/classes</targetPath>
+                        </resource>
+                        <resource>
+                            <directory>src/main/webapp/swagger</directory>
+                            <filtering>true</filtering>
+                            <targetPath>swagger</targetPath>
                         </resource>
                     </webResources>
                 </configuration>

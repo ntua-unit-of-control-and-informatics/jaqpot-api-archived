@@ -43,6 +43,7 @@ import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -93,10 +94,10 @@ public class Scaling {
                     .filter(feature -> !feature.equals(request.getPredictionFeature()))
                     .collect(Collectors.toList());
 
-            Map<String, Double> maxValues = new HashMap<>();
-            Map<String, Double> minValues = new HashMap<>();
+            LinkedHashMap<String, Double> maxValues = new LinkedHashMap<>();
+            LinkedHashMap<String, Double> minValues = new LinkedHashMap<>();
 
-            features.parallelStream().forEach(feature -> {
+            features.stream().forEach(feature -> {
                 Double max = request.getDataset().getDataEntry().stream().map(dataEntry -> {
                     return Double.parseDouble(dataEntry.getValues().get(feature).toString());
                 }).max(Double::compare).orElse(0.0);
@@ -151,10 +152,10 @@ public class Scaling {
             ObjectInput in = new ObjectInputStream(bais);
             ScalingModel model = (ScalingModel) in.readObject();
 
-            List<Map<String, Object>> predictions = new ArrayList<>();
+            List<LinkedHashMap<String, Object>> predictions = new ArrayList<>();
 
             request.getDataset().getDataEntry().stream().forEach(dataEntry -> {
-                Map<String, Object> data = new HashMap<>();
+                LinkedHashMap<String, Object> data = new LinkedHashMap<>();
                 features.stream().forEach(feature -> {
                     Double max = model.getMaxValues().get(feature);
                     Double min = model.getMinValues().get(feature);

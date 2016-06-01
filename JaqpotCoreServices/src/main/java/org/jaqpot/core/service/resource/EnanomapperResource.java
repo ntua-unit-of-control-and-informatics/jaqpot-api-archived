@@ -211,6 +211,7 @@ public class EnanomapperResource {
             + "calculates Descriptors, returns Dataset",
             response = Task.class
     )
+    @org.jaqpot.core.service.annotations.Task
     public Response createDataset(
             @ApiParam(name = "data", defaultValue = DEFAULT_DATASET_DATA) DatasetData datasetData,
             @HeaderParam("subjectid") String subjectId) throws QuotaExceededException {
