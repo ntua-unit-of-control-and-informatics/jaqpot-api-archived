@@ -6,6 +6,7 @@
 package org.jaqpot.core.service.data;
 
 import com.itextpdf.text.*;
+import com.itextpdf.text.html.simpleparser.HTMLWorker;
 import com.itextpdf.text.pdf.*;
 import org.apache.commons.codec.binary.Base64;
 import org.jaqpot.core.model.ArrayCalculation;
@@ -77,6 +78,8 @@ public class ReportService {
         public void onEndPage(PdfWriter writer, Document document) {
             PdfPTable table = new PdfPTable(4);
             try {
+
+                /**PdfTable as header*/
                 table.setWidths(new int[]{logo.length(),24, 24, 2});
                 table.setTotalWidth(527);
                 table.setLockedWidth(true);
@@ -97,6 +100,16 @@ public class ReportService {
                 cell.setBorder(Rectangle.BOTTOM);
                 table.addCell(cell);
                 table.writeSelectedRows(0, -1, 34, 803, writer.getDirectContent());
+
+                /**Phrase as footer*/
+                PdfContentByte cb = writer.getDirectContent();
+                Font ffont = new Font(Font.FontFamily.UNDEFINED, 12, Font.ITALIC);
+
+                Phrase footer = new Phrase(" - JaqpotQuatro 2016 - ", ffont);
+                ColumnText.showTextAligned(cb, Element.ALIGN_CENTER,
+                        footer,
+                        (document.right() - document.left()) / 2 + document.leftMargin(),
+                        document.bottom() - 10, 0);
             }
             catch(DocumentException de) {
                 throw new ExceptionConverter(de);
@@ -134,10 +147,21 @@ public class ReportService {
         document.open();
 
         /** setup fonts for pdf */
+        Font ffont = new Font(Font.FontFamily.UNDEFINED, 9, Font.ITALIC);
         Font chapterFont = FontFactory.getFont(FontFactory.HELVETICA, 16, Font.BOLDITALIC);
         Font paragraphFontBold = FontFactory.getFont(FontFactory.HELVETICA, 12, Font.BOLD);
         Font paragraphFont = FontFactory.getFont(FontFactory.HELVETICA, 12, Font.NORMAL);
         Font tableFont = FontFactory.getFont(FontFactory.HELVETICA, 12, Font.BOLD);
+
+        /** print link to jaqpot*/
+        Chunk chunk = new Chunk("This report has been automatically created by the JaqpotQuatro report service. Click here to navigate to our official webpage",ffont);
+        chunk.setAnchor("http://www.jaqpot.org");
+
+        Paragraph paragraph = new Paragraph(chunk);
+        paragraph.add(Chunk.NEWLINE);
+
+        Chapter chapter = new Chapter(paragraph, 1);
+        chapter.setNumberDepth(0);
 
         /** get title */
         String title = null;
@@ -146,14 +170,13 @@ public class ReportService {
 
         /** print title aligned centered in page */
         if (title ==null) title = "Report";
-        Chunk chunk = new Chunk(title, chapterFont);
-        Paragraph paragraph = new Paragraph(chunk);
+        chunk = new Chunk(title, chapterFont);
+        paragraph = new Paragraph(chunk);
         paragraph.setAlignment(Element.ALIGN_CENTER);
         paragraph.add(Chunk.NEWLINE);
         paragraph.add(Chunk.NEWLINE);
 
-        Chapter chapter = new Chapter(paragraph, 1);
-        chapter.setNumberDepth(0);
+        chapter.add(paragraph);
 
         /** report Description */
         if (report.getMeta()!=null && report.getMeta().getDescriptions()!=null && !report.getMeta().getDescriptions().isEmpty() && report.getMeta().getDescriptions().toString().equalsIgnoreCase("null")) {
