@@ -62,6 +62,22 @@ public class DatasetHandler extends AbstractHandler<Dataset> {
     }
 
     @Override
+    public void create(Dataset entity) {
+        entity.setTotalRows(entity.getDataEntry().size());
+        entity.setTotalColumns(entity.getDataEntry()
+                .stream()
+                .max((e1, e2) -> Integer.compare(e1.getValues().size(), e2.getValues().size()))
+                .orElseGet(() -> {
+                    DataEntry de = new DataEntry();
+                    de.setValues(new TreeMap<>());
+                    return de;
+                })
+                .getValues().size());
+        getEntityManager().persist(entity);
+    }
+
+
+    @Override
     protected JaqpotEntityManager getEntityManager() {
         return em;
     }
@@ -79,7 +95,6 @@ public class DatasetHandler extends AbstractHandler<Dataset> {
                 case "normal":
                     dataset = DatasetFactory.stratify(dataset, folds, targetFeature);
                     break;
-
                 case "default":
                     break;
             }
