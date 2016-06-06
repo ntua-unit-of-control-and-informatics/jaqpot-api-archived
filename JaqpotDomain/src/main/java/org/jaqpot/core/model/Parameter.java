@@ -62,6 +62,17 @@ public class Parameter extends JaqpotEntity {
         MANDATORY;
     };
 
+    public enum Type {
+        CONTINUOUS,
+        CATEGORICAL,
+        DISCRETE,
+        BOOLEAN,
+        ARRAY_CONTINUOUS,
+        ARRAY_CATEGORICAL,
+        ARRAY_DISCRETE,
+        ARRAY_BOOLEAN
+    }
+
     /**
      * Name of the parameter.
      */
@@ -76,11 +87,15 @@ public class Parameter extends JaqpotEntity {
      */
     private Scope scope;
 
+    private Type type;
+
     private List<Object> allowedValues;
 
     private Object minValue;
-
     private Object maxValue;
+
+    private Integer minArraySize;
+    private Integer maxArraySize;
 
     private String description;
 
@@ -122,6 +137,14 @@ public class Parameter extends JaqpotEntity {
         this.scope = scope;
     }
 
+    public Type getType() {
+        return type;
+    }
+
+    public void setType(Type type) {
+        this.type = type;
+    }
+
     public List<Object> getAllowedValues() {
         return allowedValues;
     }
@@ -144,6 +167,22 @@ public class Parameter extends JaqpotEntity {
 
     public void setMaxValue(Object maxValue) {
         this.maxValue = maxValue;
+    }
+
+    public Integer getMinArraySize() {
+        return minArraySize;
+    }
+
+    public void setMinArraySize(Integer minArraySize) {
+        this.minArraySize = minArraySize;
+    }
+
+    public Integer getMaxArraySize() {
+        return maxArraySize;
+    }
+
+    public void setMaxArraySize(Integer maxArraySize) {
+        this.maxArraySize = maxArraySize;
     }
 
     public String getDescription() {
