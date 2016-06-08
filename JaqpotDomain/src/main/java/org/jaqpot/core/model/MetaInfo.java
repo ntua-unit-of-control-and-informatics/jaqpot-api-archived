@@ -61,8 +61,6 @@ public class MetaInfo {
     private Set<String> seeAlso;
     private Set<String> hasSources;
     private Set<String> doi;
-    private Integer totalRows;
-    private Integer totalColumns;
     private Date date;
 
     public MetaInfo(MetaInfo other) {
@@ -84,19 +82,9 @@ public class MetaInfo {
         this.titles = other.titles != null ? new HashSet<>(other.titles) : null;
         this.date = other.date != null ? (Date) other.date.clone() : null;
         this.doi = other.doi != null ? new HashSet<>(other.doi) : null;
-        this.totalColumns = other.totalColumns !=null ? other.totalColumns : null;
-        this.totalRows = other.totalRows !=null ? other.totalRows : null;
     }
 
     public MetaInfo() {}
-
-    public Integer getTotalColumns() { return totalColumns; }
-
-    public void setTotalColumns(Integer totalColumns) { this.totalColumns = totalColumns; }
-
-    public Integer getTotalRows() { return totalRows; }
-
-    public void setTotalRows(Integer totalRows) { this.totalRows = totalRows; }
 
     public Set<String> getIdentifiers() {
         return identifiers;

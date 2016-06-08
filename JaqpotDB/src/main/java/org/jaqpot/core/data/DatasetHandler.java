@@ -41,6 +41,7 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 import org.jaqpot.core.annotations.MongoDB;
 import org.jaqpot.core.db.entitymanager.JaqpotEntityManager;
+import org.jaqpot.core.model.MetaInfo;
 import org.jaqpot.core.model.dto.dataset.DataEntry;
 import org.jaqpot.core.model.dto.dataset.Dataset;
 import org.jaqpot.core.model.factory.DatasetFactory;
@@ -75,7 +76,6 @@ public class DatasetHandler extends AbstractHandler<Dataset> {
                 .getValues().size());
         getEntityManager().persist(entity);
     }
-
 
     @Override
     protected JaqpotEntityManager getEntityManager() {
