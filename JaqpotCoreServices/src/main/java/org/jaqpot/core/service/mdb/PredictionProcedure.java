@@ -73,31 +73,31 @@ import java.util.logging.Logger;
  * @author Pantelis Sopasakis
  */
 @MessageDriven(activationConfig = {
-        @ActivationConfigProperty(propertyName = "destinationLookup",
-                propertyValue = "java:jboss/exported/jms/topic/prediction"),
-        @ActivationConfigProperty(propertyName = "destinationType",
-                propertyValue = "javax.jms.Topic")
+    @ActivationConfigProperty(propertyName = "destinationLookup",
+            propertyValue = "java:jboss/exported/jms/topic/prediction"),
+    @ActivationConfigProperty(propertyName = "destinationType",
+            propertyValue = "javax.jms.Topic")
 })
 public class PredictionProcedure extends AbstractJaqpotProcedure implements MessageListener {
 
     private static final Logger LOG = Logger.getLogger(PredictionProcedure.class.getName());
-    
+
     @EJB
     AlgorithmHandler algorithmHandler;
-    
+
     @EJB
     ModelHandler modelHandler;
-    
+
     @EJB
     DatasetHandler datasetHandler;
-    
+
     @Inject
     @Jackson
     JSONSerializer serializer;
-    
+
     @Inject
     JPDIClient jpdiClient;
-    
+
     @Inject
     @Secure
     Client client;
@@ -121,7 +121,7 @@ public class PredictionProcedure extends AbstractJaqpotProcedure implements Mess
             LOG.log(Level.SEVERE, "JMS message could not be read", ex);
             return;
         }
-        
+
         String taskId = (String) messageBody.get("taskId");
         String dataset_uri = (String) messageBody.get("dataset_uri");
         String modelId = (String) messageBody.get("modelId");
@@ -141,6 +141,7 @@ public class PredictionProcedure extends AbstractJaqpotProcedure implements Mess
                 return;
             }
             progress(10f, "Model retrieved successfully.");
+            checkCancelled();
 
             Dataset dataset;
             if (dataset_uri != null && !dataset_uri.isEmpty()) {
@@ -156,13 +157,15 @@ public class PredictionProcedure extends AbstractJaqpotProcedure implements Mess
                 dataset = DatasetFactory.createEmpty(0);
             }
             progress(20f);
+            checkCancelled();
 
             if (model.getTransformationModels() != null && !model.getTransformationModels().isEmpty()) {
                 progress("--", "Processing transformations...");
                 for (String transModelURI : model.getTransformationModels()) {
+                    checkCancelled();
                     Model transModel = modelHandler.find(transModelURI.split("model/")[1]);
                     if (transModel == null) {
-                        errNotFound("Transformation modle with id:" + transModelURI + " was not found.");
+                        errNotFound("Transformation model with id:" + transModelURI + " was not found.");
                         return;
                     }
                     dataset = jpdiClient.predict(dataset, transModel, dataset != null ? dataset.getMeta() : null, taskId).get();
@@ -171,6 +174,7 @@ public class PredictionProcedure extends AbstractJaqpotProcedure implements Mess
                 progress("Done processing transformations.", "--");
             }
             progress(50f);
+            checkCancelled();
 
             MetaInfo datasetMeta = dataset.getMeta();
             HashSet<String> creators = new HashSet<>(Arrays.asList(creator));
@@ -181,11 +185,13 @@ public class PredictionProcedure extends AbstractJaqpotProcedure implements Mess
             dataset = jpdiClient.predict(dataset, model, datasetMeta, taskId).get();
             progress("JPDI Prediction completed successfully.");
             progress(80f, "Dataset was built successfully.");
+            checkCancelled();
 
             if (model.getLinkedModels() != null & !model.getLinkedModels().isEmpty()) {
                 progress("--", "Processing linked models...");
                 Dataset copyDataset = DatasetFactory.copy(dataset);
                 for (String linkedModelURI : model.getLinkedModels()) {
+                    checkCancelled();
                     Model linkedModel = modelHandler.find(linkedModelURI.split("model/")[1]);
                     if (linkedModel == null) {
                         errNotFound("Transformation model with id:" + linkedModelURI + " was not found.");
@@ -198,18 +204,18 @@ public class PredictionProcedure extends AbstractJaqpotProcedure implements Mess
                 }
                 progress("Done processing linked models.", "--");
             }
+            checkCancelled();
             progress(90f, "Now saving to database...");
             dataset.setVisible(Boolean.TRUE);
             dataset.setFeatured(Boolean.FALSE);
             dataset.setByModel(model.getId());
             datasetHandler.create(dataset);
             complete("dataset/" + dataset.getId());
-
         } catch (InterruptedException ex) {
-            LOG.log(Level.SEVERE, "JPDI Training procedure interupted", ex);
-            errInternalServerError(ex, "JPDI Training procedure interupted");
+            LOG.log(Level.SEVERE, "JPDI Prediction procedure interupted", ex);
+            errInternalServerError(ex, "JPDI Prediction procedure interupted");
         } catch (ExecutionException ex) {
-            LOG.log(Level.SEVERE, "Training procedure execution error", ex.getCause());
+            LOG.log(Level.SEVERE, "Prediction procedure execution error", ex.getCause());
             errInternalServerError(ex.getCause(), "JPDI Training procedure error");
         } catch (CancellationException ex) {
             LOG.log(Level.INFO, "Task with id:{0} was cancelled", taskId);
