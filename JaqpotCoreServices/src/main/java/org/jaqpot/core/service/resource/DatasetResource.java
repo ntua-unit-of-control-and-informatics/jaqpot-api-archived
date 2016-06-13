@@ -88,6 +88,7 @@ import org.jaqpot.core.service.annotations.Authorize;
 import org.jaqpot.core.service.annotations.UnSecure;
 import org.jaqpot.core.service.client.jpdi.JPDIClient;
 
+import org.jaqpot.core.service.exceptions.DeficientDatasetException;
 import org.jaqpot.core.service.exceptions.QuotaExceededException;
 
 
@@ -265,7 +266,7 @@ public class DatasetResource {
             response = Dataset.class)
     public Response createDataset(
             @ApiParam(value = "Authorization token") @HeaderParam("subjectid") String subjectId,
-            Dataset dataset) throws URISyntaxException, QuotaExceededException, JsonMappingException {
+            Dataset dataset) throws URISyntaxException, QuotaExceededException, DeficientDatasetException {
 
         if (dataset.getVisible() != null && dataset.getVisible() == true) {
             User user = userHandler.find(securityContext.getUserPrincipal().getName());
@@ -289,11 +290,13 @@ public class DatasetResource {
         }
         dataset.getMeta().setCreators(new HashSet<>(Arrays.asList(securityContext.getUserPrincipal().getName())));
 
-        if (!datasetHandler.create(dataset))
-            throw new JsonMappingException("Corrupted JSON - DataEntry URIs do not match with Feature URIs.");
-
+        try {
+            datasetHandler.create(dataset);
+        }catch (IllegalArgumentException exception)
+        {
+            throw  new DeficientDatasetException(exception.getLocalizedMessage());
+        }
         return Response.created(new URI(dataset.getId())).entity(dataset).build();
-
     }
 
     @POST
@@ -302,7 +305,7 @@ public class DatasetResource {
     public Response mergeDatasets(
             @FormParam("dataset_uris") String datasetURIs,
             @FormParam("visible") Boolean visible,
-            @HeaderParam("subjectid") String subjectId) throws URISyntaxException, QuotaExceededException, JsonMappingException {
+            @HeaderParam("subjectid") String subjectId) throws URISyntaxException, QuotaExceededException, DeficientDatasetException {
 
         if (visible != null && visible == true) {
             User user = userHandler.find(securityContext.getUserPrincipal().getName());
@@ -336,8 +339,14 @@ public class DatasetResource {
             dataset.setMeta(new MetaInfo());
         }
         dataset.getMeta().setCreators(new HashSet<>(Arrays.asList(securityContext.getUserPrincipal().getName())));
-        if (!datasetHandler.create(dataset))
-            throw new JsonMappingException("Corrupted JSON - DataEntry URIs do not match with Feature URIs.");
+
+        try {
+            datasetHandler.create(dataset);
+        }catch (IllegalArgumentException illegalArgumentException)
+        {
+            throw  new DeficientDatasetException(illegalArgumentException.getMessage());
+        }
+
         return Response.created(new URI(dataset.getId())).entity(dataset).build();
     }
 

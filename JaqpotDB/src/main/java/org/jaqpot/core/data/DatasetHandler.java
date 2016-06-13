@@ -34,17 +34,20 @@
  */
 package org.jaqpot.core.data;
 
-import java.util.*;
-import java.util.stream.Collectors;
-import javax.ejb.Stateless;
-import javax.inject.Inject;
 import org.jaqpot.core.annotations.MongoDB;
 import org.jaqpot.core.db.entitymanager.JaqpotEntityManager;
-import org.jaqpot.core.model.Feature;
 import org.jaqpot.core.model.dto.dataset.DataEntry;
 import org.jaqpot.core.model.dto.dataset.Dataset;
 import org.jaqpot.core.model.dto.dataset.FeatureInfo;
 import org.jaqpot.core.model.factory.DatasetFactory;
+
+import javax.ejb.Stateless;
+import javax.inject.Inject;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.NavigableSet;
+import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -68,16 +71,32 @@ public class DatasetHandler extends AbstractHandler<Dataset> {
     }
 
     @Override
-    public Boolean create(Dataset dataset) {
-        TreeSet<String> features = dataset.getFeatures().stream().map(FeatureInfo::getURI).collect(Collectors.toCollection(TreeSet::new));
+    public void create(Dataset dataset) throws IllegalArgumentException{
+        if (dataset.getDataEntry().isEmpty())
+            throw new IllegalArgumentException("Resulting dataset is empty");
+        HashSet<String> features = dataset.getFeatures().stream().map(FeatureInfo::getURI).collect(Collectors.toCollection(HashSet::new));
         for (DataEntry dataEntry : dataset.getDataEntry())
         {
-            TreeSet<String> entryFeatures = new TreeSet<>(dataEntry.getValues().keySet());
+            HashSet<String> entryFeatures = new HashSet<>(dataEntry.getValues().keySet());
             if (!entryFeatures.equals(features))
-                return false;
+                throw new IllegalArgumentException("Corrupted JSON - DataEntry URIs do not match with Feature URIs. \n " +
+                        " Problem was found when parsing "+dataEntry.getCompound());
         }
         getEntityManager().persist(dataset);
-        return true;
+    }
+
+    @Override
+    public void edit(Dataset dataset) throws IllegalArgumentException{
+        if (dataset.getDataEntry().isEmpty())
+            throw new IllegalArgumentException("Resulting dataset is empty");
+        HashSet<String> features = dataset.getFeatures().stream().map(FeatureInfo::getURI).collect(Collectors.toCollection(HashSet::new));
+        for (DataEntry dataEntry : dataset.getDataEntry())
+        {
+            HashSet<String> entryFeatures = new HashSet<>(dataEntry.getValues().keySet());
+            if (!entryFeatures.equals(features))
+                throw new IllegalArgumentException("Corrupted JSON - DataEntry URIs do not match with Feature URIs.");
+        }
+        getEntityManager().merge(dataset);
     }
 
     public Dataset find(Object id, Integer rowStart, Integer rowMax, Integer colStart, Integer colMax, String stratify, Long seed, Integer folds, String targetFeature) {

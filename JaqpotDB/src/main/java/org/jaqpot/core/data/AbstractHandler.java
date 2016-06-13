@@ -34,8 +34,12 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import com.fasterxml.jackson.databind.JsonMappingException;
 import org.jaqpot.core.db.entitymanager.JaqpotEntityManager;
 import org.jaqpot.core.model.JaqpotEntity;
+
+import javax.ws.rs.BadRequestException;
 
 /**
  *
@@ -44,7 +48,7 @@ import org.jaqpot.core.model.JaqpotEntity;
  * @param <T> Entity Type to be handled by the Handler.
  *
  */
-public abstract class AbstractHandler<T extends JaqpotEntity> {
+public abstract class AbstractHandler<T extends JaqpotEntity>  {
 
     private final Class<T> entityClass;
 
@@ -54,12 +58,9 @@ public abstract class AbstractHandler<T extends JaqpotEntity> {
 
     protected abstract JaqpotEntityManager getEntityManager();
 
-    public Boolean create(T entity) {
+    public void create(T entity) throws IllegalArgumentException {
         getEntityManager().persist(entity);
-        return true;
     }
-
-
 
     public void edit(T entity) {
         getEntityManager().merge(entity);
