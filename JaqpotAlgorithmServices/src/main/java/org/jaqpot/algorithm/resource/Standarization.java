@@ -138,7 +138,7 @@ public class Standarization {
         try {
             if (request.getDataset().getDataEntry().isEmpty() || request.getDataset().getDataEntry().get(0).getValues().isEmpty()) {
                 return Response.status(Response.Status.BAD_REQUEST)
-                        .entity(ErrorReportFactory.badRequest("Dataset is empty", "Cannot train model on empty dataset"))
+                        .entity(ErrorReportFactory.badRequest("Dataset is empty", "Cannot make predictions on empty dataset"))
                         .build();
             }
             List<String> features = request.getDataset()

@@ -7,7 +7,6 @@ import org.jaqpot.core.model.*;
 import org.jaqpot.core.model.builder.MetaInfoBuilder;
 import org.jaqpot.core.model.dto.dataset.Dataset;
 import org.jaqpot.core.model.dto.jpdi.TrainingRequest;
-import org.jaqpot.core.model.factory.DatasetFactory;
 import org.jaqpot.core.model.util.ROG;
 import org.jaqpot.core.service.annotations.Secure;
 import org.jaqpot.core.service.client.jpdi.JPDIClient;
@@ -36,14 +35,14 @@ import java.util.logging.Logger;
  * @author Pantelis Sopasakis
  *
  */
-
 @MessageDriven(activationConfig = {
-        @ActivationConfigProperty(propertyName = "destinationLookup",
-                propertyValue = "java:jboss/exported/jms/topic/validationExternal"),
-        @ActivationConfigProperty(propertyName = "destinationType",
-                propertyValue = "javax.jms.Topic")
+    @ActivationConfigProperty(propertyName = "destinationLookup",
+            propertyValue = "java:jboss/exported/jms/topic/validationExternal"),
+    @ActivationConfigProperty(propertyName = "destinationType",
+            propertyValue = "javax.jms.Topic")
 })
-public class ExternalValidationProcedure extends AbstractJaqpotProcedure{
+public class ExternalValidationProcedure extends AbstractJaqpotProcedure {
+
     private static final Logger LOG = Logger.getLogger(ExternalValidationProcedure.class.getName());
 
     @EJB
@@ -51,7 +50,6 @@ public class ExternalValidationProcedure extends AbstractJaqpotProcedure{
 
     @EJB
     ModelHandler modelHandler;
-
 
     @EJB
     ReportHandler reportHandler;
@@ -69,7 +67,6 @@ public class ExternalValidationProcedure extends AbstractJaqpotProcedure{
     @Inject
     @Secure
     Client client;
-
 
     public ExternalValidationProcedure() {
         super(null);
@@ -98,7 +95,6 @@ public class ExternalValidationProcedure extends AbstractJaqpotProcedure{
         String subjectId = (String) messageBody.get("subjectId");
         String creator = (String) messageBody.get("creator");
 
-
         try {
             init(taskId);
             checkCancelled();
@@ -112,6 +108,7 @@ public class ExternalValidationProcedure extends AbstractJaqpotProcedure{
                 return;
             }
             progress(10f, "Model retrieved successfully.");
+            checkCancelled();
 
             Dataset dataset = Optional.of(client.target(dataset_uri)
                     .request()
@@ -124,6 +121,7 @@ public class ExternalValidationProcedure extends AbstractJaqpotProcedure{
             if (model.getTransformationModels() != null && !model.getTransformationModels().isEmpty()) {
                 progress("--", "Processing transformations...");
                 for (String transModelURI : model.getTransformationModels()) {
+                    checkCancelled();
                     Model transModel = modelHandler.find(transModelURI.split("model/")[1]);
                     if (transModel == null) {
                         errNotFound("Transformation modle with id:" + transModelURI + " was not found.");
@@ -135,7 +133,7 @@ public class ExternalValidationProcedure extends AbstractJaqpotProcedure{
                 progress("Done processing transformations.", "--");
             }
             progress(50f);
-
+            checkCancelled();
 
             MetaInfo datasetMeta = dataset.getMeta();
             HashSet<String> creators = new HashSet<>(Arrays.asList(creator));
@@ -146,16 +144,7 @@ public class ExternalValidationProcedure extends AbstractJaqpotProcedure{
             dataset = jpdiClient.predict(dataset, model, datasetMeta, taskId).get();
             progress("JPDI Prediction completed successfully.");
             progress(80f, "Dataset was built successfully.");
-
-
-            progress(90f, "Now saving to database...");
-            dataset.setVisible(Boolean.TRUE);
-            dataset.setFeatured(Boolean.FALSE);
-            dataset.setByModel(model.getId());
-
-
-            datasetHandler.create(dataset);
-            complete("dataset/" + dataset.getId());
+            checkCancelled();
 
             ValidationType validationType;
             if (model.getAlgorithm().getOntologicalClasses().contains("ot:Regression")) {
@@ -179,6 +168,7 @@ public class ExternalValidationProcedure extends AbstractJaqpotProcedure{
             reportRequest.setParameters(validationParameters);
 
             progress(92f, "Validation info populated successfully");
+            checkCancelled();
 
             Report report = client.target(ResourceBundle.getBundle("config").getString("ValidationBasePath"))
                     .request()
@@ -195,28 +185,29 @@ public class ExternalValidationProcedure extends AbstractJaqpotProcedure{
             report.setMeta(MetaInfoBuilder
                     .builder()
                     .addTitles("External validation report")
-                    .addSources(dataset_uri,model_uri)
+                    .addSources(dataset_uri, model_uri)
                     .addDescriptions("External validation with model:" + model_uri + " and dataset:" + dataset_uri)
                     .build());
             report.setVisible(Boolean.TRUE);
             reportHandler.create(report);
             complete("report/" + report.getId());
 
-
         } catch (InterruptedException ex) {
-            LOG.log(Level.SEVERE, "JPDI Training procedure interupted", ex);
-            errInternalServerError(ex, "JPDI Training procedure interupted");
+            LOG.log(Level.SEVERE, "JPDI Validation procedure interupted", ex);
+            errInternalServerError(ex, "JPDI Validation procedure interupted");
         } catch (ExecutionException ex) {
-            LOG.log(Level.SEVERE, "Training procedure execution error", ex.getCause());
-            errInternalServerError(ex.getCause(), "JPDI Training procedure error");
+            LOG.log(Level.SEVERE, "Validation procedure execution error", ex.getCause());
+            errInternalServerError(ex.getCause(), "JPDI Validation procedure error");
         } catch (CancellationException ex) {
             LOG.log(Level.INFO, "Task with id:{0} was cancelled", taskId);
             cancel();
         } catch (BadRequestException | IllegalArgumentException ex) {
             errBadRequest(ex, null);
+        } catch (NotFoundException ex) {
+            errNotFound(ex);
         } catch (Exception ex) {
-            LOG.log(Level.SEVERE, "JPDI Prediction procedure unknown error", ex);
-            errInternalServerError(ex, "JPDI Prediction procedure unknown error");
+            LOG.log(Level.SEVERE, "JPDI Validation procedure unknown error", ex);
+            errInternalServerError(ex, "JPDI Validation procedure unknown error");
 
         }
     }

@@ -65,6 +65,8 @@ import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import javax.ws.rs.BadRequestException;
+import javax.ws.rs.NotFoundException;
 
 /**
  * @author Charalampos Chomenidis
@@ -141,6 +143,7 @@ public class TrainingProcedure extends AbstractJaqpotProcedure implements Messag
                 return;
             }
             progress(10f, "Algorithm retrieved successfully.");
+            checkCancelled();
 
             Dataset dataset = null;
             if (dataset_uri != null && !dataset_uri.isEmpty()) {
@@ -155,6 +158,7 @@ public class TrainingProcedure extends AbstractJaqpotProcedure implements Messag
                 progress("Dataset has been retrieved.");
             }
             progress(20f);
+            checkCancelled();
 
             MetaInfo modelMeta = MetaInfoBuilder
                     .builder()
@@ -193,6 +197,7 @@ public class TrainingProcedure extends AbstractJaqpotProcedure implements Messag
                 });
                 transformations.putAll(newTransformations);
                 for (Algorithm transAlgorithm : transformationAlgorithms) {
+                    checkCancelled();
                     progress("-", "Starting training on transformation algorithm:" + transAlgorithm.getId());
 
                     Map<String, Object> parameterMap = null;
@@ -211,6 +216,7 @@ public class TrainingProcedure extends AbstractJaqpotProcedure implements Messag
                 progress("Done processing transformations.", "--");
             }
             progress(50f);
+            checkCancelled();
 
             Map<String, Object> parameterMap = null;
             if (parameters != null && !parameters.isEmpty()) {
@@ -220,12 +226,11 @@ public class TrainingProcedure extends AbstractJaqpotProcedure implements Messag
             progress("Starting JPDI Training...");
 
             Future<Model> futureModel = jpdiClient.train(dataset, algorithm, parameterMap, predictionFeature, modelMeta, taskId);
-
-            Model model = null;
-            model = futureModel.get();
+            Model model = futureModel.get();
             progress("JPDI Training completed successfully.");
 
             progress(70f, "Model was built successfully.");
+            checkCancelled();
 
             for (Algorithm linkedAlgorithm : linkedAlgorithms) {
                 String transParameters = transformations.get(linkedAlgorithm.getId());
@@ -239,8 +244,10 @@ public class TrainingProcedure extends AbstractJaqpotProcedure implements Messag
                 Model linkedModel = jpdiClient.train(dataset, linkedAlgorithm, parameterMap, predictionFeature, modelMeta, taskId).get();
                 linkedModels.add(linkedModel);
                 addProgress(5f, "Linked model created successfully:" + linkedModel.getId());
+                checkCancelled();
             }
 
+            checkCancelled();
             progress("Saving transformation models.");
             for (Model transModel : transformationModels) {
                 transModel.setVisible(Boolean.FALSE);
@@ -265,7 +272,6 @@ public class TrainingProcedure extends AbstractJaqpotProcedure implements Messag
                     .collect(Collectors.toList())
             );
             modelHandler.create(model);
-
             complete("model/" + model.getId());
 
         } catch (InterruptedException ex) {
@@ -277,9 +283,13 @@ public class TrainingProcedure extends AbstractJaqpotProcedure implements Messag
         } catch (CancellationException ex) {
             LOG.log(Level.INFO, "Task with id:{0} was cancelled", taskId);
             cancel();
+        } catch (BadRequestException | IllegalArgumentException ex) {
+            errBadRequest(ex, null);
+        } catch (NotFoundException ex) {
+            errNotFound(ex);
         } catch (Exception ex) {
-            LOG.log(Level.SEVERE, "JPDI Prediction procedure unknown error", ex);
-            errInternalServerError(ex, "JPDI Prediction procedure unknown error");
+            LOG.log(Level.SEVERE, "JPDI Training procedure unknown error", ex);
+            errInternalServerError(ex, "JPDI Training procedure unknown error");
         }
 
     }
