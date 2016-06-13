@@ -54,9 +54,12 @@ public abstract class AbstractHandler<T extends JaqpotEntity> {
 
     protected abstract JaqpotEntityManager getEntityManager();
 
-    public void create(T entity) {
+    public Boolean create(T entity) {
         getEntityManager().persist(entity);
+        return true;
     }
+
+
 
     public void edit(T entity) {
         getEntityManager().merge(entity);

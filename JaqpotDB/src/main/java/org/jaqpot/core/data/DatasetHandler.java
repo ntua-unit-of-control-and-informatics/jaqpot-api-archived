@@ -34,15 +34,16 @@
  */
 package org.jaqpot.core.data;
 
-import java.util.Iterator;
-import java.util.NavigableSet;
-import java.util.TreeMap;
+import java.util.*;
+import java.util.stream.Collectors;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import org.jaqpot.core.annotations.MongoDB;
 import org.jaqpot.core.db.entitymanager.JaqpotEntityManager;
+import org.jaqpot.core.model.Feature;
 import org.jaqpot.core.model.dto.dataset.DataEntry;
 import org.jaqpot.core.model.dto.dataset.Dataset;
+import org.jaqpot.core.model.dto.dataset.FeatureInfo;
 import org.jaqpot.core.model.factory.DatasetFactory;
 
 /**
@@ -64,6 +65,19 @@ public class DatasetHandler extends AbstractHandler<Dataset> {
     @Override
     protected JaqpotEntityManager getEntityManager() {
         return em;
+    }
+
+    @Override
+    public Boolean create(Dataset dataset) {
+        TreeSet<String> features = dataset.getFeatures().stream().map(FeatureInfo::getURI).collect(Collectors.toCollection(TreeSet::new));
+        for (DataEntry dataEntry : dataset.getDataEntry())
+        {
+            TreeSet<String> entryFeatures = new TreeSet<>(dataEntry.getValues().keySet());
+            if (!entryFeatures.equals(features))
+                return false;
+        }
+        getEntityManager().persist(dataset);
+        return true;
     }
 
     public Dataset find(Object id, Integer rowStart, Integer rowMax, Integer colStart, Integer colMax, String stratify, Long seed, Integer folds, String targetFeature) {

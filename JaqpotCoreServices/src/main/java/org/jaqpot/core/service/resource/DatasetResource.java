@@ -29,6 +29,7 @@
  */
 package org.jaqpot.core.service.resource;
 
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
@@ -86,7 +87,9 @@ import org.jaqpot.core.model.util.ROG;
 import org.jaqpot.core.service.annotations.Authorize;
 import org.jaqpot.core.service.annotations.UnSecure;
 import org.jaqpot.core.service.client.jpdi.JPDIClient;
+
 import org.jaqpot.core.service.exceptions.QuotaExceededException;
+
 
 /**
  *
@@ -262,7 +265,7 @@ public class DatasetResource {
             response = Dataset.class)
     public Response createDataset(
             @ApiParam(value = "Authorization token") @HeaderParam("subjectid") String subjectId,
-            Dataset dataset) throws URISyntaxException, QuotaExceededException {
+            Dataset dataset) throws URISyntaxException, QuotaExceededException, JsonMappingException {
 
         if (dataset.getVisible() != null && dataset.getVisible() == true) {
             User user = userHandler.find(securityContext.getUserPrincipal().getName());
@@ -285,7 +288,9 @@ public class DatasetResource {
             dataset.setMeta(new MetaInfo());
         }
         dataset.getMeta().setCreators(new HashSet<>(Arrays.asList(securityContext.getUserPrincipal().getName())));
-        datasetHandler.create(dataset);
+
+        if (!datasetHandler.create(dataset))
+            throw new JsonMappingException("Corrupted JSON - DataEntry URIs do not match with Feature URIs.");
 
         return Response.created(new URI(dataset.getId())).entity(dataset).build();
 
@@ -297,7 +302,7 @@ public class DatasetResource {
     public Response mergeDatasets(
             @FormParam("dataset_uris") String datasetURIs,
             @FormParam("visible") Boolean visible,
-            @HeaderParam("subjectid") String subjectId) throws URISyntaxException, QuotaExceededException {
+            @HeaderParam("subjectid") String subjectId) throws URISyntaxException, QuotaExceededException, JsonMappingException {
 
         if (visible != null && visible == true) {
             User user = userHandler.find(securityContext.getUserPrincipal().getName());
@@ -331,11 +336,9 @@ public class DatasetResource {
             dataset.setMeta(new MetaInfo());
         }
         dataset.getMeta().setCreators(new HashSet<>(Arrays.asList(securityContext.getUserPrincipal().getName())));
-
-        datasetHandler.create(dataset);
-
+        if (!datasetHandler.create(dataset))
+            throw new JsonMappingException("Corrupted JSON - DataEntry URIs do not match with Feature URIs.");
         return Response.created(new URI(dataset.getId())).entity(dataset).build();
-
     }
 
     @DELETE
