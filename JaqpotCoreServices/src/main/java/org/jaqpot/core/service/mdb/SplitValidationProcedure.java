@@ -240,7 +240,7 @@ public class SplitValidationProcedure extends AbstractJaqpotProcedure {
             report.setId(reportId);
             report.setMeta(MetaInfoBuilder
                     .builder()
-                    .addTitles("Cross validation report")
+                    .addTitles("Split validation report")
                     .addCreators(creator)
                     .addSources(datasetURI, algorithmURI)
                     .addDescriptions(splitRatio + " Split validation on algorithm:" + algorithmURI + " with dataset:" + datasetURI)
@@ -248,15 +248,7 @@ public class SplitValidationProcedure extends AbstractJaqpotProcedure {
             report.setVisible(Boolean.TRUE);
             reportHandler.create(report);
             complete("report/" + report.getId());
-
-
-
-
-
             checkCancelled();
-
-
-
         }  catch (InterruptedException ex) {
             LOG.log(Level.SEVERE, "Validation procedure interupted", ex);
             errInternalServerError(ex, "Validation procedure interupted");
