@@ -36,6 +36,7 @@ package org.jaqpot.core.data;
 
 import org.jaqpot.core.annotations.MongoDB;
 import org.jaqpot.core.db.entitymanager.JaqpotEntityManager;
+import org.jaqpot.core.model.MetaInfo;
 import org.jaqpot.core.model.dto.dataset.DataEntry;
 import org.jaqpot.core.model.dto.dataset.Dataset;
 import org.jaqpot.core.model.dto.dataset.FeatureInfo;
@@ -60,6 +61,21 @@ public class DatasetHandler extends AbstractHandler<Dataset>  {
 
     public DatasetHandler() {
         super(Dataset.class);
+    }
+
+    @Override
+    public void create(Dataset entity) {
+        entity.setTotalRows(entity.getDataEntry().size());
+        entity.setTotalColumns(entity.getDataEntry()
+                .stream()
+                .max((e1, e2) -> Integer.compare(e1.getValues().size(), e2.getValues().size()))
+                .orElseGet(() -> {
+                    DataEntry de = new DataEntry();
+                    de.setValues(new TreeMap<>());
+                    return de;
+                })
+                .getValues().size());
+        getEntityManager().persist(entity);
     }
 
     @Override

@@ -12,6 +12,8 @@ import java.util.Set;
 import javax.ws.rs.BadRequestException;
 import org.jaqpot.core.data.serialize.JSONSerializer;
 import org.jaqpot.core.data.serialize.JaqpotSerializationException;
+import org.jaqpot.core.model.Dataset;
+import org.jaqpot.core.model.MetaInfo;
 import org.jaqpot.core.model.Parameter;
 
 /**
@@ -26,8 +28,10 @@ public class ParameterValidator {
         this.serializer = serializer;
     }
 
-    public void validate(String input, Set<Parameter> parameters) {
+    public void validate(String input, Set<Parameter> parameters, Dataset dataset) {
         try {
+
+
             Map<String, Object> parameterMap = serializer.parse(input, new HashMap<String, Object>().getClass());
             for (Map.Entry<String, Object> entry : parameterMap.entrySet()) {
                 String parameterId = entry.getKey();

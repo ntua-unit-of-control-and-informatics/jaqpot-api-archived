@@ -232,4 +232,13 @@ public class MetaInfoBuilder implements EntityBuilder<MetaInfo> {
         return this;
     }
 
+    public MetaInfoBuilder setTotalColumns(Integer totalColumns) {
+        meta.setTotalColumns(totalColumns);
+        return this;
+    }
+
+    public MetaInfoBuilder getTotalRows(Integer totalRows) {
+        meta.setTotalRows(totalRows);
+        return this;
+    }
 }

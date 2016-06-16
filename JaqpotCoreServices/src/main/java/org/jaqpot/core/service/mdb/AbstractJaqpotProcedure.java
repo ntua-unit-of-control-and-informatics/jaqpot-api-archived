@@ -168,6 +168,7 @@ public abstract class AbstractJaqpotProcedure implements MessageListener {
         task.setStatus(Task.Status.ERROR);
         task.setHttpStatus(400);
         task.setErrorReport(ErrorReportFactory.badRequest(message, null));
+        taskHandler.edit(task);
         taskHandler.clear(task.getId());
     }
 
@@ -175,6 +176,7 @@ public abstract class AbstractJaqpotProcedure implements MessageListener {
         task.setStatus(Task.Status.ERROR);
         task.setHttpStatus(400);
         task.setErrorReport(ErrorReportFactory.badRequest(t, details));
+        taskHandler.edit(task);
         taskHandler.clear(task.getId());
     }
 

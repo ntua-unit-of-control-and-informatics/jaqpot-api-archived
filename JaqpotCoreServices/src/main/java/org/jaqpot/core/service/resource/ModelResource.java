@@ -409,7 +409,7 @@ public class ModelResource {
         options.put("dataset_uri", datasetURI);
         options.put("subjectid", subjectId);
         options.put("modelId", id);
-        options.put("createdBy", securityContext.getUserPrincipal().getName());
+        options.put("creator", securityContext.getUserPrincipal().getName());
         options.put("base_uri", uriInfo.getBaseUri().toString());
         options.put("visible", visible != null ? visible : false);
         Task task = predictionService.initiatePrediction(options);
