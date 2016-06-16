@@ -110,28 +110,13 @@ public class DatasetHandler extends AbstractHandler<Dataset>  {
                 case "normal":
                     dataset = DatasetFactory.stratify(dataset, folds, targetFeature);
                     break;
-
                 case "default":
                     break;
             }
         }
 
-        if (rowStart == null) {
-            rowStart = 0;
-        }
-        if (colStart == null) {
-            colStart = 0;
-        }
-        dataset.setTotalRows(dataset.getDataEntry().size());
-        dataset.setTotalColumns(dataset.getDataEntry()
-                .stream()
-                .max((e1, e2) -> Integer.compare(e1.getValues().size(), e2.getValues().size()))
-                .orElseGet(() -> {
-                    DataEntry de = new DataEntry();
-                    de.setValues(new TreeMap<>());
-                    return de;
-                })
-                .getValues().size());
+        if (rowStart == null) { rowStart = 0; }
+        if (colStart == null) { colStart = 0; }
 
         if (rowMax == null || rowMax > dataset.getTotalRows()) {
             rowMax = dataset.getTotalRows();
@@ -159,14 +144,11 @@ public class DatasetHandler extends AbstractHandler<Dataset>  {
                 it.next();
                 it.remove();
             }
-
         }
-
 //        DataEntry blank = new DataEntry();
 //        blank.setValues(new TreeMap<>());
 //        DataEntry firstEntry = dataset.getDataEntry().stream().findFirst().orElse(blank);
 //        dataset.getFeatures().keySet().retainAll(firstEntry.getValues().keySet());                
         return dataset;
     }
-
 }

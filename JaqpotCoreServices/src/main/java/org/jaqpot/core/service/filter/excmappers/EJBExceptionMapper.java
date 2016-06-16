@@ -63,7 +63,6 @@ public class EJBExceptionMapper implements ExceptionMapper<EJBException> {
 
         Exception ne = (Exception) exception.getCause();
 
-
         LOG.log(Level.FINEST, "Runtime exception caught", exception);
         StringWriter sw = new StringWriter();
         exception.printStackTrace(new PrintWriter(sw));
@@ -81,6 +80,4 @@ public class EJBExceptionMapper implements ExceptionMapper<EJBException> {
                 .status(Response.Status.BAD_REQUEST)
                 .build();
     }
-
 }
-

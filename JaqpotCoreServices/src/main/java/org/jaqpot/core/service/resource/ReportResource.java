@@ -115,9 +115,7 @@ public class ReportResource {
         if (!report.getMeta().getCreators().contains(userName)) {
             throw new ForbiddenException("You cannot delete a Report that was not created by you.");
         }
-
         reportHandler.remove(report);
         return Response.ok().build();
     }
-
 }
