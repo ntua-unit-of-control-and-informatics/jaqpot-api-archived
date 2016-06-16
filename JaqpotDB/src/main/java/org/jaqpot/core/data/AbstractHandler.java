@@ -83,6 +83,7 @@ public abstract class AbstractHandler<T extends JaqpotEntity>  {
         List<String> fields = new ArrayList<>();
         fields.add("totalColumns");
         fields.add("totalRows");
+        fields.add("features");
         return getEntityManager().find(entityClass, id, fields);
     }
 

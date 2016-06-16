@@ -5,16 +5,17 @@
  */
 package org.jaqpot.core.service.validator;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 import javax.ws.rs.BadRequestException;
 import org.jaqpot.core.data.serialize.JSONSerializer;
 import org.jaqpot.core.data.serialize.JaqpotSerializationException;
-import org.jaqpot.core.model.Dataset;
 import org.jaqpot.core.model.MetaInfo;
+import org.jaqpot.core.model.Model;
 import org.jaqpot.core.model.Parameter;
+import org.jaqpot.core.model.dto.dataset.DataEntry;
+import org.jaqpot.core.model.dto.dataset.Dataset;
+import org.jaqpot.core.model.dto.dataset.FeatureInfo;
 
 /**
  *
@@ -28,7 +29,22 @@ public class ParameterValidator {
         this.serializer = serializer;
     }
 
-    public void validate(String input, Set<Parameter> parameters, Dataset dataset) {
+    //dataset.getTotalColumns(),dataset.getTotalRows(),dataset.getFeatures()
+    //model.getIndependentFeatures()
+    public void validateDataset(Dataset dataset, Model model)
+    {
+        if (dataset.getDataEntry().isEmpty())
+            throw new IllegalArgumentException("Resulting dataset is empty");
+        HashSet<String> features = dataset.getFeatures().stream().map(FeatureInfo::getURI).collect(Collectors.toCollection(HashSet::new));
+        HashSet<String> entryFeatures = new HashSet<>(model.getIndependentFeatures());
+        if (!features.containsAll(entryFeatures))
+        {
+            //throw new IllegalArgumentException("");
+        };
+    }
+
+
+    public void validate(String input, Set<Parameter> parameters) {
         try {
 
 

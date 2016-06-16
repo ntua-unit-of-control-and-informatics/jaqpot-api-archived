@@ -68,6 +68,7 @@ import org.jaqpot.core.data.UserHandler;
 import org.jaqpot.core.model.Model;
 import org.jaqpot.core.model.Task;
 import org.jaqpot.core.model.User;
+import org.jaqpot.core.model.dto.dataset.Dataset;
 import org.jaqpot.core.model.dto.dataset.FeatureInfo;
 import org.jaqpot.core.model.facades.UserFacade;
 import org.jaqpot.core.model.factory.ErrorReportFactory;
@@ -75,6 +76,7 @@ import org.jaqpot.core.service.annotations.Authorize;
 import org.jaqpot.core.service.annotations.UnSecure;
 import org.jaqpot.core.service.data.PredictionService;
 import org.jaqpot.core.service.exceptions.QuotaExceededException;
+import org.jaqpot.core.service.validator.ParameterValidator;
 
 /**
  *
@@ -108,6 +110,11 @@ public class ModelResource {
 
     @Context
     SecurityContext securityContext;
+
+    @Inject
+    @UnSecure
+    ParameterValidator parameterValidator;
+
 
     @Inject
     @UnSecure
@@ -404,7 +411,10 @@ public class ModelResource {
         if (model == null) {
             throw new NotFoundException("Model not found.");
         }
+        String datasetId = datasetURI.split("dataset/")[1];
+        Dataset datasetMeta = datasetHandler.findMeta(datasetId);
 
+        parameterValidator.validateDataset(datasetMeta,model);
         Map<String, Object> options = new HashMap<>();
         options.put("dataset_uri", datasetURI);
         options.put("subjectid", subjectId);
