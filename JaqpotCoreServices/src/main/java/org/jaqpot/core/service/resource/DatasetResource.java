@@ -51,6 +51,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import javax.ejb.EJB;
+import javax.ejb.EJBException;
+import javax.ejb.EJBTransactionRequiredException;
 import javax.inject.Inject;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Consumes;
@@ -87,8 +89,6 @@ import org.jaqpot.core.model.util.ROG;
 import org.jaqpot.core.service.annotations.Authorize;
 import org.jaqpot.core.service.annotations.UnSecure;
 import org.jaqpot.core.service.client.jpdi.JPDIClient;
-
-import org.jaqpot.core.service.exceptions.DeficientDatasetException;
 import org.jaqpot.core.service.exceptions.QuotaExceededException;
 
 
@@ -266,7 +266,7 @@ public class DatasetResource {
             response = Dataset.class)
     public Response createDataset(
             @ApiParam(value = "Authorization token") @HeaderParam("subjectid") String subjectId,
-            Dataset dataset) throws URISyntaxException, QuotaExceededException, DeficientDatasetException {
+            Dataset dataset) throws URISyntaxException, QuotaExceededException, RuntimeException {
 
         if (dataset.getVisible() != null && dataset.getVisible() == true) {
             User user = userHandler.find(securityContext.getUserPrincipal().getName());
@@ -289,13 +289,7 @@ public class DatasetResource {
             dataset.setMeta(new MetaInfo());
         }
         dataset.getMeta().setCreators(new HashSet<>(Arrays.asList(securityContext.getUserPrincipal().getName())));
-
-        try {
-            datasetHandler.create(dataset);
-        }catch (IllegalArgumentException exception)
-        {
-            throw  new DeficientDatasetException(exception.getLocalizedMessage());
-        }
+        datasetHandler.create(dataset);
         return Response.created(new URI(dataset.getId())).entity(dataset).build();
     }
 
@@ -305,7 +299,7 @@ public class DatasetResource {
     public Response mergeDatasets(
             @FormParam("dataset_uris") String datasetURIs,
             @FormParam("visible") Boolean visible,
-            @HeaderParam("subjectid") String subjectId) throws URISyntaxException, QuotaExceededException, DeficientDatasetException {
+            @HeaderParam("subjectid") String subjectId) throws URISyntaxException, QuotaExceededException, RuntimeException {
 
         if (visible != null && visible == true) {
             User user = userHandler.find(securityContext.getUserPrincipal().getName());
@@ -339,14 +333,7 @@ public class DatasetResource {
             dataset.setMeta(new MetaInfo());
         }
         dataset.getMeta().setCreators(new HashSet<>(Arrays.asList(securityContext.getUserPrincipal().getName())));
-
-        try {
-            datasetHandler.create(dataset);
-        }catch (IllegalArgumentException illegalArgumentException)
-        {
-            throw  new DeficientDatasetException(illegalArgumentException.getMessage());
-        }
-
+        datasetHandler.create(dataset);
         return Response.created(new URI(dataset.getId())).entity(dataset).build();
     }
 

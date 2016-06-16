@@ -40,8 +40,8 @@ package org.jaqpot.core.service.filter.excmappers;
 
 import org.jaqpot.core.model.ErrorReport;
 import org.jaqpot.core.model.factory.ErrorReportFactory;
-import org.jaqpot.core.service.exceptions.DeficientDatasetException;
 
+import javax.ejb.EJBException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
@@ -54,20 +54,27 @@ import java.util.logging.Logger;
 
 
 @Provider
-public class DeficientDatasetExceptionMapper implements ExceptionMapper<DeficientDatasetException> {
+public class EJBExceptionMapper implements ExceptionMapper<EJBException> {
 
-    private static final Logger LOG = Logger.getLogger(DeficientDatasetExceptionMapper.class.getName());
+    private static final Logger LOG = Logger.getLogger(EJBExceptionMapper.class.getName());
 
     @Override
-    public Response toResponse(DeficientDatasetException exception) {
-        LOG.log(Level.FINEST, "DeficientDatasetExceptionMapper exception caught", exception);
+    public Response toResponse(EJBException exception) {
+
+        Exception ne = (Exception) exception.getCause();
+
+
+        LOG.log(Level.FINEST, "Runtime exception caught", exception);
         StringWriter sw = new StringWriter();
         exception.printStackTrace(new PrintWriter(sw));
         String details = sw.toString();
-        ErrorReport error = ErrorReportFactory.badRequest(exception.getMessage(),
-                details);
+        ErrorReport error = ErrorReportFactory.badRequest(exception.getMessage(), details);
         error.setDetails(details);
-        error.setCode("DeficientDatasetException");
+
+        if (ne instanceof IllegalArgumentException)
+            error.setCode("IllegalArgumentException");
+        else
+            error.setCode("RuntimeException");
         error.setHttpStatus(404);
         return Response
                 .ok(error, MediaType.APPLICATION_JSON)

@@ -40,13 +40,10 @@ import org.jaqpot.core.model.dto.dataset.DataEntry;
 import org.jaqpot.core.model.dto.dataset.Dataset;
 import org.jaqpot.core.model.dto.dataset.FeatureInfo;
 import org.jaqpot.core.model.factory.DatasetFactory;
-
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.NavigableSet;
-import java.util.TreeMap;
+
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -55,7 +52,7 @@ import java.util.stream.Collectors;
  * @author Pantelis Sopasakis
  */
 @Stateless
-public class DatasetHandler extends AbstractHandler<Dataset> {
+public class DatasetHandler extends AbstractHandler<Dataset>  {
 
     @Inject
     @MongoDB
@@ -79,7 +76,7 @@ public class DatasetHandler extends AbstractHandler<Dataset> {
         {
             HashSet<String> entryFeatures = new HashSet<>(dataEntry.getValues().keySet());
             if (!entryFeatures.equals(features))
-                throw new IllegalArgumentException("Corrupted JSON - DataEntry URIs do not match with Feature URIs. \n " +
+                throw new IllegalArgumentException("Corrupted JSON - DataEntry URIs do not match with Feature URIs. " +
                         " Problem was found when parsing "+dataEntry.getCompound());
         }
         getEntityManager().persist(dataset);
@@ -94,7 +91,8 @@ public class DatasetHandler extends AbstractHandler<Dataset> {
         {
             HashSet<String> entryFeatures = new HashSet<>(dataEntry.getValues().keySet());
             if (!entryFeatures.equals(features))
-                throw new IllegalArgumentException("Corrupted JSON - DataEntry URIs do not match with Feature URIs.");
+                throw new IllegalArgumentException("Corrupted JSON - DataEntry URIs do not match with Feature URIs. " +
+                        " Problem was found when parsing "+dataEntry.getCompound());
         }
         getEntityManager().merge(dataset);
     }
