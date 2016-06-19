@@ -31,6 +31,7 @@ package org.jaqpot.core.data;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -55,6 +56,9 @@ public abstract class AbstractHandler<T extends JaqpotEntity> {
     protected abstract JaqpotEntityManager getEntityManager();
 
     public void create(T entity) {
+        if (entity.getMeta() != null) {
+            entity.getMeta().setDate(new Date());
+        }
         getEntityManager().persist(entity);
     }
 
