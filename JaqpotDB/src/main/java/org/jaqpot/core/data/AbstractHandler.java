@@ -35,8 +35,12 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import com.fasterxml.jackson.databind.JsonMappingException;
 import org.jaqpot.core.db.entitymanager.JaqpotEntityManager;
 import org.jaqpot.core.model.JaqpotEntity;
+
+import javax.ws.rs.BadRequestException;
 
 /**
  *
@@ -45,7 +49,7 @@ import org.jaqpot.core.model.JaqpotEntity;
  * @param <T> Entity Type to be handled by the Handler.
  *
  */
-public abstract class AbstractHandler<T extends JaqpotEntity> {
+public abstract class AbstractHandler<T extends JaqpotEntity>  {
 
     private final Class<T> entityClass;
 
@@ -72,6 +76,19 @@ public abstract class AbstractHandler<T extends JaqpotEntity> {
 
     public T find(Object id) {
         return getEntityManager().find(entityClass, id);
+    }
+
+    public T find(Object id, List<String> fields) {
+        return getEntityManager().find(entityClass, id, fields);
+    }
+
+    public T findMeta(Object id)
+    {
+        List<String> fields = new ArrayList<>();
+        fields.add("totalColumns");
+        fields.add("totalRows");
+        fields.add("features");
+        return getEntityManager().find(entityClass, id, fields);
     }
 
     public List<T> find(Map<String, Object> properties) {

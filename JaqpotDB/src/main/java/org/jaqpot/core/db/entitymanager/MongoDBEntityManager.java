@@ -33,9 +33,15 @@ import com.mongodb.MongoClient;
 import com.mongodb.MongoWriteException;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.Projections;
 import com.mongodb.util.JSON;
 import java.io.IOException;
 import java.io.InputStream;
+import static com.mongodb.client.model.Projections.*;
+
+import org.bson.BsonDocument;
+import org.bson.codecs.configuration.CodecRegistry;
+import org.bson.conversions.Bson;
 import org.jaqpot.core.annotations.MongoDB;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
@@ -53,6 +59,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import org.bson.Document;
 import org.jaqpot.core.data.serialize.JSONSerializer;
 import org.jaqpot.core.model.JaqpotEntity;
+import org.jaqpot.core.model.Model;
 import org.reflections.Reflections;
 
 /**
@@ -180,6 +187,14 @@ public class MongoDBEntityManager implements JaqpotEntityManager {
     }
 
     @Override
+    public <T extends JaqpotEntity> T find(Class<T> entityClass, Object primaryKey, List<String> fields) {
+        MongoDatabase db = mongoClient.getDatabase(database);
+        MongoCollection<Document> collection = db.getCollection(collectionNames.get(entityClass));
+        Document retrieved = collection.find(new Document("_id", primaryKey)).projection(include(fields)).first();
+        return serializer.parse(JSON.serialize(retrieved), entityClass);
+    }
+
+        @Override
     public <T extends JaqpotEntity> List<T> find(Class<T> entityClass, Map<String, Object> properties, Integer start, Integer max) {
         MongoDatabase db = mongoClient.getDatabase(database);
         MongoCollection<Document> collection = db.getCollection(collectionNames.get(entityClass));

@@ -34,16 +34,18 @@
  */
 package org.jaqpot.core.data;
 
-import java.util.Iterator;
-import java.util.NavigableSet;
-import java.util.TreeMap;
-import javax.ejb.Stateless;
-import javax.inject.Inject;
 import org.jaqpot.core.annotations.MongoDB;
 import org.jaqpot.core.db.entitymanager.JaqpotEntityManager;
+import org.jaqpot.core.model.MetaInfo;
 import org.jaqpot.core.model.dto.dataset.DataEntry;
 import org.jaqpot.core.model.dto.dataset.Dataset;
+import org.jaqpot.core.model.dto.dataset.FeatureInfo;
 import org.jaqpot.core.model.factory.DatasetFactory;
+import javax.ejb.Stateless;
+import javax.inject.Inject;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -51,7 +53,7 @@ import org.jaqpot.core.model.factory.DatasetFactory;
  * @author Pantelis Sopasakis
  */
 @Stateless
-public class DatasetHandler extends AbstractHandler<Dataset> {
+public class DatasetHandler extends AbstractHandler<Dataset>  {
 
     @Inject
     @MongoDB
@@ -64,6 +66,46 @@ public class DatasetHandler extends AbstractHandler<Dataset> {
     @Override
     protected JaqpotEntityManager getEntityManager() {
         return em;
+    }
+
+    @Override
+    public void create(Dataset dataset) throws IllegalArgumentException{
+        if (dataset.getDataEntry().isEmpty())
+            throw new IllegalArgumentException("Resulting dataset is empty");
+        HashSet<String> features = dataset.getFeatures().stream().map(FeatureInfo::getURI).collect(Collectors.toCollection(HashSet::new));
+        for (DataEntry dataEntry : dataset.getDataEntry())
+        {
+            HashSet<String> entryFeatures = new HashSet<>(dataEntry.getValues().keySet());
+            if (!entryFeatures.equals(features))
+                throw new IllegalArgumentException("Corrupted JSON - DataEntry URIs do not match with Feature URIs. " +
+                        " Problem was found when parsing "+dataEntry.getCompound());
+        }
+        dataset.setTotalRows(dataset.getDataEntry().size());
+        dataset.setTotalColumns(dataset.getDataEntry()
+                .stream()
+                .max((e1, e2) -> Integer.compare(e1.getValues().size(), e2.getValues().size()))
+                .orElseGet(() -> {
+                    DataEntry de = new DataEntry();
+                    de.setValues(new TreeMap<>());
+                    return de;
+                })
+                .getValues().size());
+        getEntityManager().persist(dataset);
+    }
+
+    @Override
+    public void edit(Dataset dataset) throws IllegalArgumentException{
+        if (dataset.getDataEntry().isEmpty())
+            throw new IllegalArgumentException("Resulting dataset is empty");
+        HashSet<String> features = dataset.getFeatures().stream().map(FeatureInfo::getURI).collect(Collectors.toCollection(HashSet::new));
+        for (DataEntry dataEntry : dataset.getDataEntry())
+        {
+            HashSet<String> entryFeatures = new HashSet<>(dataEntry.getValues().keySet());
+            if (!entryFeatures.equals(features))
+                throw new IllegalArgumentException("Corrupted JSON - DataEntry URIs do not match with Feature URIs. " +
+                        " Problem was found when parsing "+dataEntry.getCompound());
+        }
+        getEntityManager().merge(dataset);
     }
 
     public Dataset find(Object id, Integer rowStart, Integer rowMax, Integer colStart, Integer colMax, String stratify, Long seed, Integer folds, String targetFeature) {
@@ -79,28 +121,13 @@ public class DatasetHandler extends AbstractHandler<Dataset> {
                 case "normal":
                     dataset = DatasetFactory.stratify(dataset, folds, targetFeature);
                     break;
-
                 case "default":
                     break;
             }
         }
 
-        if (rowStart == null) {
-            rowStart = 0;
-        }
-        if (colStart == null) {
-            colStart = 0;
-        }
-        dataset.setTotalRows(dataset.getDataEntry().size());
-        dataset.setTotalColumns(dataset.getDataEntry()
-                .stream()
-                .max((e1, e2) -> Integer.compare(e1.getValues().size(), e2.getValues().size()))
-                .orElseGet(() -> {
-                    DataEntry de = new DataEntry();
-                    de.setValues(new TreeMap<>());
-                    return de;
-                })
-                .getValues().size());
+        if (rowStart == null) { rowStart = 0; }
+        if (colStart == null) { colStart = 0; }
 
         if (rowMax == null || rowMax > dataset.getTotalRows()) {
             rowMax = dataset.getTotalRows();
@@ -128,14 +155,11 @@ public class DatasetHandler extends AbstractHandler<Dataset> {
                 it.next();
                 it.remove();
             }
-
         }
-
 //        DataEntry blank = new DataEntry();
 //        blank.setValues(new TreeMap<>());
 //        DataEntry firstEntry = dataset.getDataEntry().stream().findFirst().orElse(blank);
 //        dataset.getFeatures().keySet().retainAll(firstEntry.getValues().keySet());                
         return dataset;
     }
-
 }
