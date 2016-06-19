@@ -292,7 +292,7 @@ public class PmmlResource {
     ) {
         String creator = securityContext.getUserPrincipal().getName();
         return Response
-                .ok(pmmlHandler.listOnlyIDsOfCreator(creator, start != null ? start : 0, max != null ? max : Integer.MAX_VALUE))
+                .ok(pmmlHandler.listMetaOfCreator(creator, start != null ? start : 0, max != null ? max : Integer.MAX_VALUE))
                 .status(Response.Status.OK)
                 .header("total", pmmlHandler.countAllOfCreator(creator))
                 .build();

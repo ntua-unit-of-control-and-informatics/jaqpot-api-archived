@@ -38,6 +38,7 @@ import com.mongodb.util.JSON;
 import java.io.IOException;
 import java.io.InputStream;
 import static com.mongodb.client.model.Projections.*;
+import com.mongodb.client.model.Sorts;
 
 import org.bson.BsonDocument;
 import org.bson.codecs.configuration.CodecRegistry;
@@ -259,6 +260,34 @@ public class MongoDBEntityManager implements JaqpotEntityManager {
         List<T> result = new ArrayList<>();
         collection.find(new Document(properties))
                 .projection(filter)
+                .skip(start != null ? start : 0)
+                .limit(max != null ? max : DEFAULT_PAGE_SIZE)
+                .map(document -> serializer.parse(JSON.serialize(document), entityClass))
+                .into(result);
+        return result;
+    }
+    
+    @Override
+    public <T extends JaqpotEntity> List<T> findSorted(Class<T> entityClass, Map<String, Object> properties, List<String> fields, Integer start, Integer max, List<String> ascendingFields, List<String> descendingFields) {
+        MongoDatabase db = mongoClient.getDatabase(database);
+        MongoCollection<Document> collection = db.getCollection(collectionNames.get(entityClass));
+        properties.entrySet()
+                .stream()
+                .filter(e -> {
+                    return e.getValue() instanceof List;
+                })
+                .forEach(e -> {
+                    Map<String, Object> all = new HashMap<>();
+                    all.put("$all", e.getValue());
+                    properties.put(e.getKey(), all);
+                });
+
+        Document filter = new Document();
+        fields.stream().forEach(f -> filter.put(f, 1));
+        List<T> result = new ArrayList<>();
+        collection.find(new Document(properties))
+                .projection(filter)
+                .sort(Sorts.orderBy(Sorts.ascending(ascendingFields),Sorts.descending(descendingFields)))
                 .skip(start != null ? start : 0)
                 .limit(max != null ? max : DEFAULT_PAGE_SIZE)
                 .map(document -> serializer.parse(JSON.serialize(document), entityClass))

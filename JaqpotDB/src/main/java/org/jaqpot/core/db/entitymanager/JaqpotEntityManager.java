@@ -195,4 +195,6 @@ public interface JaqpotEntityManager extends Closeable {
      * @return only the specified fields of the entity with given primary key
      */
     public <T extends JaqpotEntity> T find(Class<T> entityClass, Object primaryKey, List<String> fields);
+    
+    public <T extends JaqpotEntity> List<T> findSorted(Class<T> entityClass, Map<String, Object> properties, List<String> fields, Integer start, Integer max, List<String> ascendingFields, List<String> descendingFields);
 }

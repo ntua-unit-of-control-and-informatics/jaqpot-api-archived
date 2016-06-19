@@ -87,7 +87,7 @@ public class ReportResource {
             max = 500;
         }
         String userName = securityContext.getUserPrincipal().getName();
-        return Response.ok(reportHandler.listOnlyIDsOfCreator(userName, start != null ? start : 0, max))
+        return Response.ok(reportHandler.listMetaOfCreator(userName, start != null ? start : 0, max))
                 .header("total", reportHandler.countAllOfCreator(userName))
                 .build();
 

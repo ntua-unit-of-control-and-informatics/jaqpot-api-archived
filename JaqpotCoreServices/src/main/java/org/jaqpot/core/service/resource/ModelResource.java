@@ -145,7 +145,7 @@ public class ModelResource {
             max = 500;
         }
         String creator = securityContext.getUserPrincipal().getName();
-        return Response.ok(modelHandler.listOnlyIDsOfCreator(creator, start != null ? start : 0, max))
+        return Response.ok(modelHandler.listMetaOfCreator(creator, start != null ? start : 0, max))
                 .header("total", modelHandler.countAllOfCreator(creator))
                 .build();
     }

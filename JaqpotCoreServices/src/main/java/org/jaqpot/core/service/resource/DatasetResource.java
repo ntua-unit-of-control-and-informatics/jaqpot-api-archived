@@ -159,7 +159,7 @@ public class DatasetResource {
             max = 500;
         }
         String creator = securityContext.getUserPrincipal().getName();
-        return Response.ok(datasetHandler.listOnlyIDsOfCreator(creator, start, max))
+        return Response.ok(datasetHandler.listMetaOfCreator(creator, start, max))
                 .status(Response.Status.OK)
                 .header("total", datasetHandler.countAllOfCreator(creator))
                 .build();

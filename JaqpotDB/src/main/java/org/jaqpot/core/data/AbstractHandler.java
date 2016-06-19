@@ -120,7 +120,7 @@ public abstract class AbstractHandler<T extends JaqpotEntity>  {
         return getEntityManager().count(entityClass, properties);
     }
 
-    public List<T> listOnlyIDs(Integer start, Integer max) {
+    public List<T> listMeta(Integer start, Integer max) {
         List<String> fields = new ArrayList<>();
         fields.add("_id");
         fields.add("meta");
@@ -128,7 +128,7 @@ public abstract class AbstractHandler<T extends JaqpotEntity>  {
         return getEntityManager().findAll(entityClass, fields, start, max);
     }
 
-    public List<T> listOnlyIDsOfCreator(String createdBy, Integer start, Integer max) {
+    public List<T> listMetaOfCreator(String createdBy, Integer start, Integer max) {
         List<String> fields = new ArrayList<>();
         fields.add("_id");
         fields.add("meta");
