@@ -1,8 +1,3 @@
-package org.jaqpot.core.service.filter.excmappers;
-
-/**
- * Created by root on 13/6/2016.
- */
 /*
  *
  * JAQPOT Quattro
@@ -37,6 +32,7 @@ package org.jaqpot.core.service.filter.excmappers;
  * All source files of JAQPOT Quattro that are stored on github are licensed
  * with the aforementioned licence.
  */
+package org.jaqpot.core.service.filter.excmappers;
 
 import org.jaqpot.core.model.ErrorReport;
 import org.jaqpot.core.model.factory.ErrorReportFactory;
@@ -46,12 +42,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-
 
 @Provider
 public class EJBExceptionMapper implements ExceptionMapper<EJBException> {
@@ -61,23 +53,19 @@ public class EJBExceptionMapper implements ExceptionMapper<EJBException> {
     @Override
     public Response toResponse(EJBException exception) {
 
-        Exception ne = (Exception) exception.getCause();
+        LOG.log(Level.FINEST, "EJBException exception caught", exception);
+        
+        Exception cause = exception.getCausedByException();     
+        ErrorReport error;
+        if (cause instanceof java.lang. IllegalArgumentException) {
+            error = ErrorReportFactory.badRequest(cause, null);
+        } else {
+            error = ErrorReportFactory.internalServerError(cause, null);
+        }
 
-        LOG.log(Level.FINEST, "Runtime exception caught", exception);
-        StringWriter sw = new StringWriter();
-        exception.printStackTrace(new PrintWriter(sw));
-        String details = sw.toString();
-        ErrorReport error = ErrorReportFactory.badRequest(exception.getMessage(), details);
-        error.setDetails(details);
-
-        if (ne instanceof IllegalArgumentException)
-            error.setCode("IllegalArgumentException");
-        else
-            error.setCode("RuntimeException");
-        error.setHttpStatus(404);
         return Response
                 .ok(error, MediaType.APPLICATION_JSON)
-                .status(Response.Status.BAD_REQUEST)
+                .status(error.getHttpStatus())
                 .build();
     }
 }
