@@ -29,11 +29,8 @@
  */
 package org.jaqpot.core.service.resource;
 
-import com.wordnik.swagger.annotations.Api;
-import com.wordnik.swagger.annotations.ApiOperation;
-import com.wordnik.swagger.annotations.ApiParam;
-import com.wordnik.swagger.annotations.ApiResponse;
-import com.wordnik.swagger.annotations.ApiResponses;
+import com.wordnik.swagger.annotations.*;
+
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -45,6 +42,7 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import javax.ejb.EJB;
 import javax.inject.Inject;
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
@@ -75,6 +73,7 @@ import org.jaqpot.core.model.factory.ErrorReportFactory;
 import org.jaqpot.core.service.annotations.Authorize;
 import org.jaqpot.core.service.annotations.UnSecure;
 import org.jaqpot.core.service.data.PredictionService;
+import org.jaqpot.core.service.exceptions.IsNullException;
 import org.jaqpot.core.service.exceptions.QuotaExceededException;
 import org.jaqpot.core.service.validator.ParameterValidator;
 
@@ -382,10 +381,16 @@ public class ModelResource {
     )
     @org.jaqpot.core.service.annotations.Task
     public Response makePrediction(
-            @ApiParam(name = "dataset_uri", defaultValue = DEFAULT_DATASET) @FormParam("dataset_uri") String datasetURI,
+                // defaultValue = DEFAULT_DATASET
+            @ApiParam (name = "dataset_uri", required = true) @FormParam("dataset_uri") String datasetURI,
             @FormParam("visible") Boolean visible,
-            @PathParam("id") String id,
-            @HeaderParam("subjectid") String subjectId) throws GeneralSecurityException, QuotaExceededException {
+            @PathParam("id")    String id,
+            @HeaderParam("subjectid") String subjectId) throws GeneralSecurityException, QuotaExceededException, IsNullException{
+
+        if (datasetURI==null) throw new IsNullException("datasetURI");
+        if (id==null) throw new IsNullException("id");
+
+
 
         if (visible != null && visible == true) {
             User user = userHandler.find(securityContext.getUserPrincipal().getName());

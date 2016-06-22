@@ -51,6 +51,7 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import javax.ejb.EJB;
 import javax.inject.Inject;
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -269,7 +270,7 @@ public class DatasetResource {
             response = Dataset.class)
     public Response createDataset(
             @ApiParam(value = "Authorization token") @HeaderParam("subjectid") String subjectId,
-            Dataset dataset) throws URISyntaxException, QuotaExceededException {
+             Dataset dataset) throws URISyntaxException, QuotaExceededException {
         
         if (dataset.getVisible() != null && dataset.getVisible() == true) {
             User user = userHandler.find(securityContext.getUserPrincipal().getName());
@@ -293,9 +294,9 @@ public class DatasetResource {
         }
         dataset.getMeta().setCreators(new HashSet<>(Arrays.asList(securityContext.getUserPrincipal().getName())));
         datasetHandler.create(dataset);
-        
+
         return Response.created(new URI(dataset.getId())).entity(dataset).build();
-        
+
     }
     
     @POST
