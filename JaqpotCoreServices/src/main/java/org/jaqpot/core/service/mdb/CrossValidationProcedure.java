@@ -134,17 +134,13 @@ public class CrossValidationProcedure extends AbstractJaqpotProcedure {
         }
 
         String taskId = (String) messageBody.get("taskId");
-//        String type = (String) messageBody.get("type");
         String subjectId = (String) messageBody.get("subjectId");
-//        String modelURI = (String) messageBody.get("model_uri");
         String algorithmURI = (String) messageBody.get("algorithm_uri");
         String datasetURI = (String) messageBody.get("dataset_uri");
         String predictionFeature = (String) messageBody.get("prediction_feature");
         String algorithmParams = (String) messageBody.get("algorithm_params");
         String trans = (String) messageBody.get("transformations");
         String creator = (String) messageBody.get("creator");
-//        String scaling = (String) messageBody.get("scaling");
-//        String baseUri = (String) messageBody.get("base_uri");
 
         Integer folds = (Integer) messageBody.get("folds");
         String stratify = (String) messageBody.get("stratify");

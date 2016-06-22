@@ -111,9 +111,6 @@ public class ModelResource {
     @Context
     SecurityContext securityContext;
 
-    @Inject
-    @UnSecure
-    ParameterValidator parameterValidator;
 
 
     @Inject
@@ -242,7 +239,6 @@ public class ModelResource {
                     .ok(pmmlObj.toString(), MediaType.APPLICATION_XML)
                     .build();
         }
-
     }
 
     @GET
@@ -268,7 +264,6 @@ public class ModelResource {
             throw new NotFoundException("The requested model was not found on the server.");
         }
         return Response.ok(foundModel.getIndependentFeatures()).build();
-
     }
 
     @GET
@@ -293,7 +288,6 @@ public class ModelResource {
             throw new NotFoundException("The requested model was not found on the server.");
         }
         return Response.ok(foundModel.getDependentFeatures()).build();
-
     }
 
     @GET
@@ -329,7 +323,6 @@ public class ModelResource {
                     });
         }
         return Response.ok(predictedFeatures).build();
-
     }
 
     @GET
@@ -348,6 +341,7 @@ public class ModelResource {
         }
         List<String> requiredFeatures;
         String datasetURI;
+
         if (model.getTransformationModels() != null && !model.getTransformationModels().isEmpty()) {
             Model firstTransformation = client.target(model.getTransformationModels().get(0))
                     .request()
@@ -413,8 +407,12 @@ public class ModelResource {
         }
         String datasetId = datasetURI.split("dataset/")[1];
         Dataset datasetMeta = datasetHandler.findMeta(datasetId);
+        List<String> requiredFeatures = retrieveRequiredFeatures(model);
 
-        parameterValidator.validateDataset(datasetMeta,model);
+        ParameterValidator parameterValidator = new ParameterValidator();
+
+        parameterValidator.validateDataset(datasetMeta,requiredFeatures);
+
         Map<String, Object> options = new HashMap<>();
         options.put("dataset_uri", datasetURI);
         options.put("subjectid", subjectId);
@@ -464,5 +462,16 @@ public class ModelResource {
         }
         modelHandler.remove(new Model(id));
         return Response.ok().build();
+    }
+
+    private List<String> retrieveRequiredFeatures(Model model)
+    {
+        if (model.getTransformationModels() != null && !model.getTransformationModels().isEmpty()) {
+            String transModelId = model.getTransformationModels().get(0).split("/model")[1];
+            Model transformationModel = modelHandler.findModelIndependentFeatures(transModelId);
+            if (transformationModel.getIndependentFeatures()!=null)
+                return transformationModel.getIndependentFeatures();
+        }
+        return model.getIndependentFeatures();
     }
 }

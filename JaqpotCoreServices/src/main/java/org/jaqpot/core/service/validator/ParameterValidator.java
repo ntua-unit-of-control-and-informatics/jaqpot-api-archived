@@ -5,17 +5,15 @@
  */
 package org.jaqpot.core.service.validator;
 
-import java.util.*;
-import java.util.stream.Collectors;
-import javax.ws.rs.BadRequestException;
 import org.jaqpot.core.data.serialize.JSONSerializer;
 import org.jaqpot.core.data.serialize.JaqpotSerializationException;
-import org.jaqpot.core.model.MetaInfo;
-import org.jaqpot.core.model.Model;
 import org.jaqpot.core.model.Parameter;
-import org.jaqpot.core.model.dto.dataset.DataEntry;
 import org.jaqpot.core.model.dto.dataset.Dataset;
 import org.jaqpot.core.model.dto.dataset.FeatureInfo;
+
+import javax.ws.rs.BadRequestException;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -29,25 +27,24 @@ public class ParameterValidator {
         this.serializer = serializer;
     }
 
-    //dataset.getTotalColumns(),dataset.getTotalRows(),dataset.getFeatures()
-    //model.getIndependentFeatures()
-    public void validateDataset(Dataset dataset, Model model)
-    {
-        if (dataset.getDataEntry().isEmpty())
-            throw new IllegalArgumentException("Resulting dataset is empty");
-        HashSet<String> features = dataset.getFeatures().stream().map(FeatureInfo::getURI).collect(Collectors.toCollection(HashSet::new));
-        HashSet<String> entryFeatures = new HashSet<>(model.getIndependentFeatures());
-        if (!features.containsAll(entryFeatures))
-        {
-            //throw new IllegalArgumentException("");
-        };
+    public ParameterValidator(){
+        serializer = null;
     }
 
+    public void validateDataset(Dataset dataset, List<String> requiredFeatures)
+    {
+        if (dataset.getFeatures()==null || dataset.getFeatures().isEmpty())
+            throw new IllegalArgumentException("Resulting dataset is empty");
+        HashSet<String> features = dataset.getFeatures().stream().map(FeatureInfo::getURI).collect(Collectors.toCollection(HashSet::new));
+
+        if (!features.containsAll(requiredFeatures))
+            throw new IllegalArgumentException("Dataset is not compatible with model");
+    }
 
     public void validate(String input, Set<Parameter> parameters) {
-        try {
 
-
+        try
+        {
             Map<String, Object> parameterMap = serializer.parse(input, new HashMap<String, Object>().getClass());
             for (Map.Entry<String, Object> entry : parameterMap.entrySet()) {
                 String parameterId = entry.getKey();
@@ -169,7 +166,8 @@ public class ParameterValidator {
                     }
                 }
             }
-        } catch (JaqpotSerializationException ex) {
+        }
+        catch (JaqpotSerializationException ex) {
             throw new BadRequestException(ex);
         }
     }
