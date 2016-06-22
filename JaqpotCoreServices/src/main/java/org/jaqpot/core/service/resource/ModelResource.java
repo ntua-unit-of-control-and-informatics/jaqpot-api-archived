@@ -29,6 +29,7 @@
  */
 package org.jaqpot.core.service.resource;
 
+import com.sun.org.apache.xerces.internal.util.URI;
 import com.wordnik.swagger.annotations.*;
 
 import java.security.GeneralSecurityException;
@@ -43,16 +44,7 @@ import java.util.stream.Collectors;
 import javax.ejb.EJB;
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.FormParam;
-import javax.ws.rs.GET;
-import javax.ws.rs.HeaderParam;
-import javax.ws.rs.NotFoundException;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.*;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.GenericType;
@@ -60,6 +52,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
+
+import org.apache.commons.validator.routines.UrlValidator;
 import org.jaqpot.core.data.DatasetHandler;
 import org.jaqpot.core.data.ModelHandler;
 import org.jaqpot.core.data.UserHandler;
@@ -73,6 +67,7 @@ import org.jaqpot.core.model.factory.ErrorReportFactory;
 import org.jaqpot.core.service.annotations.Authorize;
 import org.jaqpot.core.service.annotations.UnSecure;
 import org.jaqpot.core.service.data.PredictionService;
+import org.jaqpot.core.service.exceptions.InvalidURIException;
 import org.jaqpot.core.service.exceptions.IsNullException;
 import org.jaqpot.core.service.exceptions.QuotaExceededException;
 import org.jaqpot.core.service.validator.ParameterValidator;
@@ -385,12 +380,15 @@ public class ModelResource {
             @ApiParam (name = "dataset_uri", required = true) @FormParam("dataset_uri") String datasetURI,
             @FormParam("visible") Boolean visible,
             @PathParam("id")    String id,
-            @HeaderParam("subjectid") String subjectId) throws GeneralSecurityException, QuotaExceededException, IsNullException{
+            @HeaderParam("subjectid") String subjectId) throws GeneralSecurityException, QuotaExceededException, IsNullException , InvalidURIException{
 
+        /**VALIDATION**/
         if (datasetURI==null) throw new IsNullException("datasetURI");
         if (id==null) throw new IsNullException("id");
-
-
+        UrlValidator urlValidator = new UrlValidator();
+        if (!urlValidator.isValid(datasetURI)) {
+            throw new InvalidURIException("Not valid dataset URI.");
+        }
 
         if (visible != null && visible == true) {
             User user = userHandler.find(securityContext.getUserPrincipal().getName());
