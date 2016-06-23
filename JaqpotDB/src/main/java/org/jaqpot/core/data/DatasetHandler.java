@@ -53,7 +53,7 @@ import java.util.stream.Collectors;
  * @author Pantelis Sopasakis
  */
 @Stateless
-public class DatasetHandler extends AbstractHandler<Dataset>  {
+public class DatasetHandler extends AbstractHandler<Dataset> {
 
     @Inject
     @MongoDB
@@ -69,16 +69,17 @@ public class DatasetHandler extends AbstractHandler<Dataset>  {
     }
 
     @Override
-    public void create(Dataset dataset) throws IllegalArgumentException{
-        if (dataset.getDataEntry().isEmpty())
+    public void create(Dataset dataset) throws IllegalArgumentException {
+        if (dataset.getDataEntry().isEmpty()) {
             throw new IllegalArgumentException("Resulting dataset is empty");
+        }
         HashSet<String> features = dataset.getFeatures().stream().map(FeatureInfo::getURI).collect(Collectors.toCollection(HashSet::new));
-        for (DataEntry dataEntry : dataset.getDataEntry())
-        {
+        for (DataEntry dataEntry : dataset.getDataEntry()) {
             HashSet<String> entryFeatures = new HashSet<>(dataEntry.getValues().keySet());
-            if (!entryFeatures.equals(features))
-                throw new IllegalArgumentException("Corrupted JSON - DataEntry URIs do not match with Feature URIs. " +
-                        " Problem was found when parsing "+dataEntry.getCompound());
+            if (!entryFeatures.equals(features)) {
+                throw new IllegalArgumentException("Invalid Dataset - DataEntry URIs do not match with Feature URIs. "
+                        + " Problem was found when parsing " + dataEntry.getCompound());
+            }
         }
         dataset.setTotalRows(dataset.getDataEntry().size());
         dataset.setTotalColumns(dataset.getDataEntry()
@@ -90,20 +91,22 @@ public class DatasetHandler extends AbstractHandler<Dataset>  {
                     return de;
                 })
                 .getValues().size());
-        getEntityManager().persist(dataset);
+        dataset.setVisible(Boolean.TRUE);
+        super.create(dataset);
     }
 
     @Override
-    public void edit(Dataset dataset) throws IllegalArgumentException{
-        if (dataset.getDataEntry().isEmpty())
+    public void edit(Dataset dataset) throws IllegalArgumentException {
+        if (dataset.getDataEntry().isEmpty()) {
             throw new IllegalArgumentException("Resulting dataset is empty");
+        }
         HashSet<String> features = dataset.getFeatures().stream().map(FeatureInfo::getURI).collect(Collectors.toCollection(HashSet::new));
-        for (DataEntry dataEntry : dataset.getDataEntry())
-        {
+        for (DataEntry dataEntry : dataset.getDataEntry()) {
             HashSet<String> entryFeatures = new HashSet<>(dataEntry.getValues().keySet());
-            if (!entryFeatures.equals(features))
-                throw new IllegalArgumentException("Corrupted JSON - DataEntry URIs do not match with Feature URIs. " +
-                        " Problem was found when parsing "+dataEntry.getCompound());
+            if (!entryFeatures.equals(features)) {
+                throw new IllegalArgumentException("Invalid Dataset - DataEntry URIs do not match with Feature URIs. "
+                        + " Problem was found when parsing " + dataEntry.getCompound());
+            }
         }
         getEntityManager().merge(dataset);
     }
@@ -126,8 +129,12 @@ public class DatasetHandler extends AbstractHandler<Dataset>  {
             }
         }
 
-        if (rowStart == null) { rowStart = 0; }
-        if (colStart == null) { colStart = 0; }
+        if (rowStart == null) {
+            rowStart = 0;
+        }
+        if (colStart == null) {
+            colStart = 0;
+        }
 
         if (rowMax == null || rowMax > dataset.getTotalRows()) {
             rowMax = dataset.getTotalRows();

@@ -112,7 +112,6 @@ public class ModelResource {
     SecurityContext securityContext;
 
     @Inject
-    @UnSecure
     ParameterValidator parameterValidator;
 
 

@@ -138,7 +138,7 @@ public abstract class AbstractHandler<T extends JaqpotEntity>  {
         properties.put("meta.creators", Arrays.asList(createdBy));
         properties.put("visible", true);
 
-        return getEntityManager().find(entityClass, properties, fields, start, max);
+        return getEntityManager().findSortedDesc(entityClass, properties, fields, start, max, Arrays.asList("meta.date"));
     }
 
     public Long countAll() {
