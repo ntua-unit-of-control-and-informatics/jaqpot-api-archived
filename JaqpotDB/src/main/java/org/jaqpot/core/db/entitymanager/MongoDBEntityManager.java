@@ -185,7 +185,7 @@ public class MongoDBEntityManager implements JaqpotEntityManager {
         return serializer.parse(JSON.serialize(retrieved), entityClass);
     }
 
-        @Override
+    @Override
     public <T extends JaqpotEntity> List<T> find(Class<T> entityClass, Map<String, Object> properties, Integer start, Integer max) {
         MongoDatabase db = mongoClient.getDatabase(database);
         MongoCollection<Document> collection = db.getCollection(collectionNames.get(entityClass));
@@ -202,6 +202,81 @@ public class MongoDBEntityManager implements JaqpotEntityManager {
 
         List<T> result = new ArrayList<>();
         collection.find(new Document(properties))
+                .skip(start != null ? start : 0)
+                .limit(max != null ? max : DEFAULT_PAGE_SIZE)
+                .map(document -> serializer.parse(JSON.serialize(document), entityClass))
+                .into(result);
+        return result;
+    }
+
+    @Override
+    public <T extends JaqpotEntity> List<T> findSorted(Class<T> entityClass, Map<String, Object> properties, Integer start, Integer max, List<String> ascendingFields, List<String> descendingFields) {
+        MongoDatabase db = mongoClient.getDatabase(database);
+        MongoCollection<Document> collection = db.getCollection(collectionNames.get(entityClass));
+        properties.entrySet()
+                .stream()
+                .filter(e -> {
+                    return e.getValue() instanceof List;
+                })
+                .forEach(e -> {
+                    Map<String, Object> all = new HashMap<>();
+                    all.put("$all", e.getValue());
+                    properties.put(e.getKey(), all);
+                });
+
+        List<T> result = new ArrayList<>();
+        collection.find(new Document(properties))
+                .sort(Sorts.orderBy(Sorts.ascending(ascendingFields), Sorts.descending(descendingFields)))
+                .skip(start != null ? start : 0)
+                .limit(max != null ? max : DEFAULT_PAGE_SIZE)
+                .map(document -> serializer.parse(JSON.serialize(document), entityClass))
+                .into(result);
+        return result;
+    }
+    
+    @Override
+    public <T extends JaqpotEntity> List<T> findSortedAsc(Class<T> entityClass, Map<String, Object> properties, Integer start, Integer max, List<String> ascendingFields) {
+        MongoDatabase db = mongoClient.getDatabase(database);
+        MongoCollection<Document> collection = db.getCollection(collectionNames.get(entityClass));
+        properties.entrySet()
+                .stream()
+                .filter(e -> {
+                    return e.getValue() instanceof List;
+                })
+                .forEach(e -> {
+                    Map<String, Object> all = new HashMap<>();
+                    all.put("$all", e.getValue());
+                    properties.put(e.getKey(), all);
+                });
+
+        List<T> result = new ArrayList<>();
+        collection.find(new Document(properties))
+                .sort(Sorts.ascending(ascendingFields))
+                .skip(start != null ? start : 0)
+                .limit(max != null ? max : DEFAULT_PAGE_SIZE)
+                .map(document -> serializer.parse(JSON.serialize(document), entityClass))
+                .into(result);
+        return result;
+    }
+    
+    @Override
+    public <T extends JaqpotEntity> List<T> findSortedDesc(Class<T> entityClass, Map<String, Object> properties, Integer start, Integer max, List<String> descendingFields) {
+        MongoDatabase db = mongoClient.getDatabase(database);
+        MongoCollection<Document> collection = db.getCollection(collectionNames.get(entityClass));
+        properties.entrySet()
+                .stream()
+                .filter(e -> {
+                    return e.getValue() instanceof List;
+                })
+                .forEach(e -> {
+                    Map<String, Object> all = new HashMap<>();
+                    all.put("$all", e.getValue());
+                    properties.put(e.getKey(), all);
+                });
+
+        List<T> result = new ArrayList<>();
+        collection.find(new Document(properties))
+                .sort(Sorts.descending(descendingFields))
                 .skip(start != null ? start : 0)
                 .limit(max != null ? max : DEFAULT_PAGE_SIZE)
                 .map(document -> serializer.parse(JSON.serialize(document), entityClass))
@@ -266,7 +341,7 @@ public class MongoDBEntityManager implements JaqpotEntityManager {
                 .into(result);
         return result;
     }
-    
+
     @Override
     public <T extends JaqpotEntity> List<T> findSorted(Class<T> entityClass, Map<String, Object> properties, List<String> fields, Integer start, Integer max, List<String> ascendingFields, List<String> descendingFields) {
         MongoDatabase db = mongoClient.getDatabase(database);
@@ -287,7 +362,63 @@ public class MongoDBEntityManager implements JaqpotEntityManager {
         List<T> result = new ArrayList<>();
         collection.find(new Document(properties))
                 .projection(filter)
-                .sort(Sorts.orderBy(Sorts.ascending(ascendingFields),Sorts.descending(descendingFields)))
+                .sort(Sorts.orderBy(Sorts.ascending(ascendingFields), Sorts.descending(descendingFields)))
+                .skip(start != null ? start : 0)
+                .limit(max != null ? max : DEFAULT_PAGE_SIZE)
+                .map(document -> serializer.parse(JSON.serialize(document), entityClass))
+                .into(result);
+        return result;
+    }
+    
+    @Override
+    public <T extends JaqpotEntity> List<T> findSortedAsc(Class<T> entityClass, Map<String, Object> properties, List<String> fields, Integer start, Integer max, List<String> ascendingFields) {
+        MongoDatabase db = mongoClient.getDatabase(database);
+        MongoCollection<Document> collection = db.getCollection(collectionNames.get(entityClass));
+        properties.entrySet()
+                .stream()
+                .filter(e -> {
+                    return e.getValue() instanceof List;
+                })
+                .forEach(e -> {
+                    Map<String, Object> all = new HashMap<>();
+                    all.put("$all", e.getValue());
+                    properties.put(e.getKey(), all);
+                });
+
+        Document filter = new Document();
+        fields.stream().forEach(f -> filter.put(f, 1));
+        List<T> result = new ArrayList<>();
+        collection.find(new Document(properties))
+                .projection(filter)
+                .sort(Sorts.ascending(ascendingFields))
+                .skip(start != null ? start : 0)
+                .limit(max != null ? max : DEFAULT_PAGE_SIZE)
+                .map(document -> serializer.parse(JSON.serialize(document), entityClass))
+                .into(result);
+        return result;
+    }
+    
+    @Override
+    public <T extends JaqpotEntity> List<T> findSortedDesc(Class<T> entityClass, Map<String, Object> properties, List<String> fields, Integer start, Integer max, List<String> descendingFields) {
+        MongoDatabase db = mongoClient.getDatabase(database);
+        MongoCollection<Document> collection = db.getCollection(collectionNames.get(entityClass));
+        properties.entrySet()
+                .stream()
+                .filter(e -> {
+                    return e.getValue() instanceof List;
+                })
+                .forEach(e -> {
+                    Map<String, Object> all = new HashMap<>();
+                    all.put("$all", e.getValue());
+                    properties.put(e.getKey(), all);
+                });
+
+        Document filter = new Document();
+        fields.stream().forEach(f -> filter.put(f, 1));
+        List<T> result = new ArrayList<>();
+        collection.find(new Document(properties))
+                .projection(filter)
+                .sort(Sorts.descending(descendingFields))
                 .skip(start != null ? start : 0)
                 .limit(max != null ? max : DEFAULT_PAGE_SIZE)
                 .map(document -> serializer.parse(JSON.serialize(document), entityClass))
