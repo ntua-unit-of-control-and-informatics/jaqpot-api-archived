@@ -29,11 +29,8 @@
  */
 package org.jaqpot.core.service.resource;
 
-import com.wordnik.swagger.annotations.Api;
-import com.wordnik.swagger.annotations.ApiOperation;
-import com.wordnik.swagger.annotations.ApiParam;
-import com.wordnik.swagger.annotations.ApiResponse;
-import com.wordnik.swagger.annotations.ApiResponses;
+import com.wordnik.swagger.annotations.*;
+
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -45,16 +42,7 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import javax.ejb.EJB;
 import javax.inject.Inject;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.FormParam;
-import javax.ws.rs.GET;
-import javax.ws.rs.HeaderParam;
-import javax.ws.rs.NotFoundException;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.*;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.GenericType;
@@ -62,6 +50,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
+
+import org.apache.commons.validator.routines.UrlValidator;
 import org.jaqpot.core.data.DatasetHandler;
 import org.jaqpot.core.data.ModelHandler;
 import org.jaqpot.core.data.UserHandler;
@@ -75,6 +65,8 @@ import org.jaqpot.core.model.factory.ErrorReportFactory;
 import org.jaqpot.core.service.annotations.Authorize;
 import org.jaqpot.core.service.annotations.UnSecure;
 import org.jaqpot.core.service.data.PredictionService;
+import org.jaqpot.core.service.exceptions.InvalidURIException;
+import org.jaqpot.core.service.exceptions.IsNullException;
 import org.jaqpot.core.service.exceptions.QuotaExceededException;
 import org.jaqpot.core.service.validator.ParameterValidator;
 
@@ -110,10 +102,6 @@ public class ModelResource {
 
     @Context
     SecurityContext securityContext;
-
-    @Inject
-    ParameterValidator parameterValidator;
-
 
     @Inject
     @UnSecure
@@ -241,7 +229,6 @@ public class ModelResource {
                     .ok(pmmlObj.toString(), MediaType.APPLICATION_XML)
                     .build();
         }
-
     }
 
     @GET
@@ -267,7 +254,6 @@ public class ModelResource {
             throw new NotFoundException("The requested model was not found on the server.");
         }
         return Response.ok(foundModel.getIndependentFeatures()).build();
-
     }
 
     @GET
@@ -292,7 +278,6 @@ public class ModelResource {
             throw new NotFoundException("The requested model was not found on the server.");
         }
         return Response.ok(foundModel.getDependentFeatures()).build();
-
     }
 
     @GET
@@ -328,7 +313,6 @@ public class ModelResource {
                     });
         }
         return Response.ok(predictedFeatures).build();
-
     }
 
     @GET
@@ -347,6 +331,7 @@ public class ModelResource {
         }
         List<String> requiredFeatures;
         String datasetURI;
+
         if (model.getTransformationModels() != null && !model.getTransformationModels().isEmpty()) {
             Model firstTransformation = client.target(model.getTransformationModels().get(0))
                     .request()
@@ -387,10 +372,19 @@ public class ModelResource {
     )
     @org.jaqpot.core.service.annotations.Task
     public Response makePrediction(
-            @ApiParam(name = "dataset_uri", defaultValue = DEFAULT_DATASET) @FormParam("dataset_uri") String datasetURI,
+                // defaultValue = DEFAULT_DATASET
+            @ApiParam (name = "dataset_uri", required = true) @FormParam("dataset_uri") String datasetURI,
             @FormParam("visible") Boolean visible,
-            @PathParam("id") String id,
-            @HeaderParam("subjectid") String subjectId) throws GeneralSecurityException, QuotaExceededException {
+            @PathParam("id")    String id,
+            @HeaderParam("subjectid") String subjectId) throws GeneralSecurityException, QuotaExceededException, IsNullException , InvalidURIException{
+
+        /**VALIDATION**/
+        if (datasetURI==null) throw new IsNullException("datasetURI");
+        if (id==null) throw new IsNullException("id");
+        UrlValidator urlValidator = new UrlValidator();
+        if (!urlValidator.isValid(datasetURI)) {
+            throw new InvalidURIException("Not valid dataset URI.");
+        }
 
         if (visible != null && visible == true) {
             User user = userHandler.find(securityContext.getUserPrincipal().getName());
@@ -412,8 +406,12 @@ public class ModelResource {
         }
         String datasetId = datasetURI.split("dataset/")[1];
         Dataset datasetMeta = datasetHandler.findMeta(datasetId);
+        List<String> requiredFeatures = retrieveRequiredFeatures(model);
 
-        parameterValidator.validateDataset(datasetMeta,model);
+        ParameterValidator parameterValidator = new ParameterValidator();
+
+        parameterValidator.validateDataset(datasetMeta,requiredFeatures);
+
         Map<String, Object> options = new HashMap<>();
         options.put("dataset_uri", datasetURI);
         options.put("subjectid", subjectId);
@@ -463,5 +461,16 @@ public class ModelResource {
         }
         modelHandler.remove(new Model(id));
         return Response.ok().build();
+    }
+
+    private List<String> retrieveRequiredFeatures(Model model)
+    {
+        if (model.getTransformationModels() != null && !model.getTransformationModels().isEmpty()) {
+            String transModelId = model.getTransformationModels().get(0).split("/model")[1];
+            Model transformationModel = modelHandler.findModelIndependentFeatures(transModelId);
+            if (transformationModel.getIndependentFeatures()!=null)
+                return transformationModel.getIndependentFeatures();
+        }
+        return model.getIndependentFeatures();
     }
 }

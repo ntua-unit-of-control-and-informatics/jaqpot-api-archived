@@ -70,7 +70,7 @@ public class DatasetHandler extends AbstractHandler<Dataset> {
 
     @Override
     public void create(Dataset dataset) throws IllegalArgumentException {
-        if (dataset.getDataEntry().isEmpty()) {
+        if (dataset.getDataEntry() == null || dataset.getDataEntry().isEmpty()) {
             throw new IllegalArgumentException("Resulting dataset is empty");
         }
         HashSet<String> features = dataset.getFeatures().stream().map(FeatureInfo::getURI).collect(Collectors.toCollection(HashSet::new));
