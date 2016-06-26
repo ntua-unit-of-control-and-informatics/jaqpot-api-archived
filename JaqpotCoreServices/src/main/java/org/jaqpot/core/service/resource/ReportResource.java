@@ -29,13 +29,19 @@
  */
 package org.jaqpot.core.service.resource;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.github.fge.jsonpatch.JsonPatchException;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
+import com.wordnik.swagger.annotations.ApiResponse;
+import com.wordnik.swagger.annotations.ApiResponses;
+import com.wordnik.swagger.jaxrs.PATCH;
 import java.io.BufferedOutputStream;
 import java.io.OutputStream;
 import javax.ejb.EJB;
 import javax.inject.Inject;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.GET;
@@ -50,8 +56,14 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.StreamingOutput;
+import org.jaqpot.core.annotations.Jackson;
 import org.jaqpot.core.data.ReportHandler;
+import org.jaqpot.core.data.serialize.JSONSerializer;
+import org.jaqpot.core.model.BibTeX;
+import org.jaqpot.core.model.ErrorReport;
 import org.jaqpot.core.model.Report;
+import org.jaqpot.core.model.factory.ErrorReportFactory;
+import org.jaqpot.core.model.validator.BibTeXValidator;
 import org.jaqpot.core.service.annotations.Authorize;
 import org.jaqpot.core.service.data.ReportService;
 
@@ -65,6 +77,14 @@ import org.jaqpot.core.service.data.ReportService;
 @Produces(MediaType.APPLICATION_JSON)
 @Authorize
 public class ReportResource {
+    
+    private static final String DEFAULT_PATCH = "[\n"
+            + "  {\n"
+            + "    \"op\": \"add\",\n"
+            + "    \"path\": \"/key\",\n"
+            + "    \"value\": \"foo\"\n "
+            + "  }\n"
+            + "]";
 
     @Context
     SecurityContext securityContext;
@@ -74,6 +94,10 @@ public class ReportResource {
 
     @Inject
     ReportService reportService;
+    
+    @Inject
+    @Jackson
+    JSONSerializer serializer;
 
     @GET
     @ApiOperation(value = "Retrieves Reports of User")
@@ -149,6 +173,54 @@ public class ReportResource {
         };
         return Response.ok(out)
                 .header("Content-Disposition", "attachment; filename=" + "report-" + report.getId() + ".pdf")
+                .build();
+    }
+    
+    @PATCH
+    @Path("/{id}")
+    @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
+    @Consumes("application/json-patch+json")
+    @ApiOperation(value = "Modifies a particular Report resource",
+            notes = "Modifies (applies a patch on) a Report resource of a given ID. "
+            + "This implementation of PATCH follows the RFC 6902 proposed standard. "
+            + "See https://tools.ietf.org/rfc/rfc6902.txt for details.",
+            position = 5)
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "Report entry was modified successfully."),
+        @ApiResponse(code = 404, message = "No such Report - the patch will not be applied"),
+        @ApiResponse(code = 401, message = "You are not authorized to modify this resource (e.g., no authentication token is provided)"),
+        @ApiResponse(code = 403, message = "This request is forbidden (e.g., you don't have permission from the owner)"),
+        @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
+    })
+    public Response modifyReport(
+            @ApiParam("Clients need to authenticate in order to create resources on the server") @HeaderParam("subjectid") String subjectId,
+            @ApiParam(value = "ID of an existing Report.", required = true) @PathParam("id") String id,
+            @ApiParam(value = "The patch in JSON according to the RFC 6902 specs", required = true, defaultValue = DEFAULT_PATCH) String patch
+    ) throws JsonPatchException, JsonProcessingException {
+        
+        Report originalReport = reportHandler.find(id);
+        if (originalReport == null) {
+            throw new NotFoundException("Report " + id + " not found.");
+        }
+        
+        Report modifiedReport = serializer.patch(originalReport, patch, Report.class);
+        if (modifiedReport == null) {
+            return Response
+                    .status(Response.Status.BAD_REQUEST)
+                    .entity(ErrorReportFactory.badRequest("Patch cannot be applied because the request is malformed", "Bad patch"))
+                    .build();
+        }
+//        ErrorReport validationError = BibTeXValidator.validate(modifiedAsBib);
+//        if (validationError != null) {
+//            return Response
+//                    .ok(validationError)
+//                    .status(Response.Status.BAD_REQUEST)
+//                    .build();
+//        }
+        reportHandler.edit(modifiedReport); // update the entry in the DB
+
+        return Response
+                .ok(modifiedReport)
                 .build();
     }
     
