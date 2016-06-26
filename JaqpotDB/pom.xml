@@ -93,7 +93,15 @@
             <artifactId>elasticsearch</artifactId>
             <version>1.4.2</version>
         </dependency>
-        
+
+        <!-- https://mvnrepository.com/artifact/org.jboss.resteasy/resteasy-validator-provider-11 -->
+        <dependency>
+            <groupId>org.jboss.resteasy</groupId>
+            <artifactId>resteasy-validator-provider-11</artifactId>
+            <version>3.0.4.Final</version>
+        </dependency>
+
+
         <!-- JSON-PATCH implements RFC 6902 (JSON Patch) and 
              RFC 7386 (JSON Merge Patch) and is used to PATCH
              JSON the standard way -->

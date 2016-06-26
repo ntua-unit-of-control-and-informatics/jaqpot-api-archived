@@ -51,6 +51,7 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import javax.ejb.EJB;
 import javax.inject.Inject;
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -159,7 +160,7 @@ public class DatasetResource {
             max = 500;
         }
         String creator = securityContext.getUserPrincipal().getName();
-        return Response.ok(datasetHandler.listOnlyIDsOfCreator(creator, start, max))
+        return Response.ok(datasetHandler.listMetaOfCreator(creator, start, max))
                 .status(Response.Status.OK)
                 .header("total", datasetHandler.countAllOfCreator(creator))
                 .build();

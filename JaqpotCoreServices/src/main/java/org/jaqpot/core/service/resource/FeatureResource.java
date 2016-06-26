@@ -134,7 +134,7 @@ public class FeatureResource {
             max = 500;
         }
         String creator = securityContext.getUserPrincipal().getName();
-        return Response.ok(featureHandler.listOnlyIDsOfCreator(creator, start != null ? start : 0, max))
+        return Response.ok(featureHandler.listMetaOfCreator(creator, start != null ? start : 0, max))
                 .status(Response.Status.OK)
                 .header("total", featureHandler.countAllOfCreator(creator))
                 .build();

@@ -66,6 +66,7 @@ import org.jaqpot.core.model.builder.MetaInfoBuilder;
 import org.jaqpot.core.model.facades.UserFacade;
 import org.jaqpot.core.model.util.ROG;
 import org.jaqpot.core.service.annotations.Authorize;
+import org.jaqpot.core.service.exceptions.InvalidURIException;
 import org.jaqpot.core.service.exceptions.QuotaExceededException;
 
 /**
@@ -155,7 +156,7 @@ public class ValidationResource {
             @FormParam("stratify") String stratify,
             @FormParam("seed") Integer seed,
             @HeaderParam("subjectId") String subjectId
-    ) throws QuotaExceededException, JMSException {
+    ) throws QuotaExceededException, JMSException, InvalidURIException {
 
         User user = userHandler.find(securityContext.getUserPrincipal().getName());
         long reportCount = reportHandler.countAllOfCreator(user.getId());
@@ -171,22 +172,22 @@ public class ValidationResource {
 
         UrlValidator urlValidator = new UrlValidator();
         if (!urlValidator.isValid(algorithmURI)) {
-            throw new BadRequestException("Not valid algorithm URI.");
+            throw new InvalidURIException("Not valid algorithm URI.");
         }
         if (!urlValidator.isValid(datasetURI)) {
-            throw new BadRequestException("Not valid dataset URI.");
+            throw new InvalidURIException("Not valid dataset URI.");
         }
         if (!urlValidator.isValid(predictionFeature)) {
-            throw new BadRequestException("Not valid prediction feature URI.");
+            throw new InvalidURIException("Not valid prediction feature URI.");
         }
         if (transformations != null && !transformations.isEmpty() && !urlValidator.isValid(transformations)) {
-            throw new BadRequestException("Not valid transformation URI.");
+            throw new InvalidURIException("Not valid transformation URI.");
         }
         if (scaling != null && !scaling.isEmpty() && !urlValidator.isValid(scaling)) {
-            throw new BadRequestException("Not valid scaling URI.");
+            throw new InvalidURIException("Not valid scaling URI.");
         }
         if ((stratify != null && !stratify.isEmpty() && !stratify.equals("random") && !stratify.equals("normal"))) {
-            throw new BadRequestException("Not valid stratify option - choose between random and normal");
+            throw new InvalidURIException("Not valid stratify option - choose between random and normal");
         }
 
         Task task = new Task(new ROG(true).nextString(12));

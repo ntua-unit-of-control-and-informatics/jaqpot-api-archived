@@ -25,12 +25,12 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  * Source code:
  * The source code of JAQPOT Quattro is available on github at:
  * https://github.com/KinkyDesign/JaqpotQuattro
  * All source files of JAQPOT Quattro that are stored on github are licensed
- * with the aforementioned licence. 
+ * with the aforementioned licence.
  */
 package org.jaqpot.core.service.exceptions;
 
@@ -38,12 +38,14 @@ package org.jaqpot.core.service.exceptions;
  *
  * @author chung
  */
-public class QuotaExceededException extends Exception {
+public class InvalidURIException extends Exception {
 
-    public QuotaExceededException() {
+    public InvalidURIException() {
     }
 
-    public QuotaExceededException(String message) {
+    public InvalidURIException(String message) {
+
+
         super(message);
     }
 }

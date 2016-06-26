@@ -87,7 +87,7 @@ public class ReportResource {
             max = 500;
         }
         String userName = securityContext.getUserPrincipal().getName();
-        return Response.ok(reportHandler.listOnlyIDsOfCreator(userName, start != null ? start : 0, max))
+        return Response.ok(reportHandler.listMetaOfCreator(userName, start != null ? start : 0, max))
                 .header("total", reportHandler.countAllOfCreator(userName))
                 .build();
 
@@ -123,7 +123,6 @@ public class ReportResource {
         if (!report.getMeta().getCreators().contains(userName)) {
             throw new ForbiddenException("You cannot delete a Report that was not created by you.");
         }
-
         reportHandler.remove(report);
         return Response.ok().build();
     }
@@ -152,5 +151,5 @@ public class ReportResource {
                 .header("Content-Disposition", "attachment; filename=" + "report-" + report.getId() + ".pdf")
                 .build();
     }
-
+    
 }
