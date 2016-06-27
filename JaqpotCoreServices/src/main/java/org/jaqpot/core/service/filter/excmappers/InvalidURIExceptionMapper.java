@@ -66,7 +66,7 @@ public class InvalidURIExceptionMapper implements ExceptionMapper<InvalidURIExce
                 .build();
         return Response
                 .ok(error, MediaType.APPLICATION_JSON)
-                .status(Response.Status.INTERNAL_SERVER_ERROR)
+                .status(Response.Status.BAD_REQUEST)
                 .build();
     }
 

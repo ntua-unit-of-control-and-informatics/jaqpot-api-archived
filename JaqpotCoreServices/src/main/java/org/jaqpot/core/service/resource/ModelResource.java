@@ -382,7 +382,6 @@ public class ModelResource {
             @PathParam("id")    String id,
             @HeaderParam("subjectid") String subjectId) throws GeneralSecurityException, QuotaExceededException, IsNullException , InvalidURIException{
 
-        /**VALIDATION**/
         if (datasetURI==null) throw new IsNullException("datasetURI");
         if (id==null) throw new IsNullException("id");
         UrlValidator urlValidator = new UrlValidator();
