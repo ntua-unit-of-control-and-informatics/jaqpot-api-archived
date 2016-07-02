@@ -54,6 +54,7 @@ import java.util.Set;
 import java.util.StringJoiner;
 import java.util.TreeMap;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.ejb.EJB;
@@ -189,6 +190,17 @@ public class ConjoinerService {
                         .forEach(e -> {
                             de.getValues().keySet().retainAll(e.getValues().keySet());
                         });
+                if (!dataset.getDataEntry().isEmpty()) {
+                    dataset.setFeatures(dataset.getFeatures()
+                            .stream()
+                            .filter(f -> dataset.getDataEntry()
+                                    .get(0)
+                                    .getValues()
+                                    .keySet()
+                                    .contains(f.getURI())
+                            )
+                            .collect(Collectors.toSet()));
+                }
             });
         } else {
             dataset.getDataEntry().stream().forEach(de -> {
