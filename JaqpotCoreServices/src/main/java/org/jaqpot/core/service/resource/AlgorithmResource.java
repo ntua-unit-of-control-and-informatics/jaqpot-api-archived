@@ -260,22 +260,19 @@ public class AlgorithmResource {
             @ApiParam(name = "transformations", defaultValue = DEFAULT_TRANSFORMATIONS) @FormParam("transformations") String transformations,
             @ApiParam(name = "scaling", defaultValue = STANDARIZATION) @FormParam("scaling") String scaling, //, allowableValues = SCALING + "," + STANDARIZATION
             @ApiParam(name = "doa", defaultValue = DEFAULT_DOA) @FormParam("doa") String doa,
-            @FormParam("visible") Boolean visible,
             @PathParam("id") String algorithmId,
             @HeaderParam("subjectid") String subjectId) throws QuotaExceededException {
 
-        if (visible != null && visible == true) {
-            User user = userHandler.find(securityContext.getUserPrincipal().getName());
-            long modelCount = modelHandler.countAllOfCreator(user.getId());
-            int maxAllowedModels = new UserFacade(user).getMaxModels();
+        User user = userHandler.find(securityContext.getUserPrincipal().getName());
+        long modelCount = modelHandler.countAllOfCreator(user.getId());
+        int maxAllowedModels = new UserFacade(user).getMaxModels();
 
-            if (modelCount > maxAllowedModels) {
-                LOG.info(String.format("User %s has %d models while maximum is %d",
-                        user.getId(), modelCount, maxAllowedModels));
-                throw new QuotaExceededException("Dear " + user.getId()
-                        + ", your quota has been exceeded; you already have " + modelCount + " models. "
-                        + "No more than " + maxAllowedModels + " are allowed with your subscription.");
-            }
+        if (modelCount > maxAllowedModels) {
+            LOG.info(String.format("User %s has %d models while maximum is %d",
+                    user.getId(), modelCount, maxAllowedModels));
+            throw new QuotaExceededException("Dear " + user.getId()
+                    + ", your quota has been exceeded; you already have " + modelCount + " models. "
+                    + "No more than " + maxAllowedModels + " are allowed with your subscription.");
         }
 
         Map<String, Object> options = new HashMap<>();
@@ -288,7 +285,6 @@ public class AlgorithmResource {
         options.put("parameters", parameters);
         options.put("base_uri", uriInfo.getBaseUri().toString());
         options.put("creator", securityContext.getUserPrincipal().getName());
-        options.put("visible", visible != null ? visible : false);
 
         Map<String, String> transformationAlgorithms = new LinkedHashMap<>();
         if (transformations != null && !transformations.isEmpty()) {

@@ -272,18 +272,16 @@ public class DatasetResource {
             @ApiParam(value = "Authorization token") @HeaderParam("subjectid") String subjectId,
             Dataset dataset) throws URISyntaxException, QuotaExceededException {
 
-        if (dataset.getVisible() != null && dataset.getVisible() == true) {
-            User user = userHandler.find(securityContext.getUserPrincipal().getName());
-            long datasetCount = datasetHandler.countAllOfCreator(user.getId());
-            int maxAllowedDatasets = new UserFacade(user).getMaxDatasets();
+        User user = userHandler.find(securityContext.getUserPrincipal().getName());
+        long datasetCount = datasetHandler.countAllOfCreator(user.getId());
+        int maxAllowedDatasets = new UserFacade(user).getMaxDatasets();
 
-            if (datasetCount > maxAllowedDatasets) {
-                LOG.info(String.format("User %s has %d datasets while maximum is %d",
-                        user.getId(), datasetCount, maxAllowedDatasets));
-                throw new QuotaExceededException("Dear " + user.getId()
-                        + ", your quota has been exceeded; you already have " + datasetCount + " datasets. "
-                        + "No more than " + maxAllowedDatasets + " are allowed with your subscription.");
-            }
+        if (datasetCount > maxAllowedDatasets) {
+            LOG.info(String.format("User %s has %d datasets while maximum is %d",
+                    user.getId(), datasetCount, maxAllowedDatasets));
+            throw new QuotaExceededException("Dear " + user.getId()
+                    + ", your quota has been exceeded; you already have " + datasetCount + " datasets. "
+                    + "No more than " + maxAllowedDatasets + " are allowed with your subscription.");
         }
 
         ROG randomStringGenerator = new ROG(true);
@@ -293,6 +291,7 @@ public class DatasetResource {
             dataset.setMeta(new MetaInfo());
         }
         dataset.getMeta().setCreators(new HashSet<>(Arrays.asList(securityContext.getUserPrincipal().getName())));
+        dataset.setVisible(Boolean.TRUE);
         datasetHandler.create(dataset);
 
         return Response.created(new URI(dataset.getId())).entity(dataset).build();
@@ -304,21 +303,18 @@ public class DatasetResource {
     @ApiOperation(value = "Merges Datasets")
     public Response mergeDatasets(
             @FormParam("dataset_uris") String datasetURIs,
-            @FormParam("visible") Boolean visible,
             @HeaderParam("subjectid") String subjectId) throws URISyntaxException, QuotaExceededException {
 
-        if (visible != null && visible == true) {
-            User user = userHandler.find(securityContext.getUserPrincipal().getName());
-            long datasetCount = datasetHandler.countAllOfCreator(user.getId());
-            int maxAllowedDatasets = new UserFacade(user).getMaxDatasets();
+        User user = userHandler.find(securityContext.getUserPrincipal().getName());
+        long datasetCount = datasetHandler.countAllOfCreator(user.getId());
+        int maxAllowedDatasets = new UserFacade(user).getMaxDatasets();
 
-            if (datasetCount > maxAllowedDatasets) {
-                LOG.info(String.format("User %s has %d datasets while maximum is %d",
-                        user.getId(), datasetCount, maxAllowedDatasets));
-                throw new QuotaExceededException("Dear " + user.getId()
-                        + ", your quota has been exceeded; you already have " + datasetCount + " datasets. "
-                        + "No more than " + maxAllowedDatasets + " are allowed with your subscription.");
-            }
+        if (datasetCount > maxAllowedDatasets) {
+            LOG.info(String.format("User %s has %d datasets while maximum is %d",
+                    user.getId(), datasetCount, maxAllowedDatasets));
+            throw new QuotaExceededException("Dear " + user.getId()
+                    + ", your quota has been exceeded; you already have " + datasetCount + " datasets. "
+                    + "No more than " + maxAllowedDatasets + " are allowed with your subscription.");
         }
 
         String[] datasets = datasetURIs.split(",");
@@ -334,7 +330,7 @@ public class DatasetResource {
         ROG randomStringGenerator = new ROG(true);
         dataset.setId(randomStringGenerator.nextString(14));
         dataset.setFeatured(Boolean.FALSE);
-        dataset.setVisible(visible != null ? visible : false);
+        dataset.setVisible(true);
         if (dataset.getMeta() == null) {
             dataset.setMeta(new MetaInfo());
         }
