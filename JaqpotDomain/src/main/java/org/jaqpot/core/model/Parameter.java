@@ -62,16 +62,7 @@ public class Parameter extends JaqpotEntity {
         MANDATORY;
     };
 
-    public enum Type {
-        CONTINUOUS,
-        CATEGORICAL,
-        DISCRETE,
-        BOOLEAN,
-        ARRAY_CONTINUOUS,
-        ARRAY_CATEGORICAL,
-        ARRAY_DISCRETE,
-        ARRAY_BOOLEAN
-    }
+
 
     /**
      * Name of the parameter.
@@ -86,8 +77,6 @@ public class Parameter extends JaqpotEntity {
      * Scope of the parameter (optional/mandatory).
      */
     private Scope scope;
-
-    private Type type;
 
     private List<Object> allowedValues;
 
@@ -135,14 +124,6 @@ public class Parameter extends JaqpotEntity {
 
     public void setScope(Scope scope) {
         this.scope = scope;
-    }
-
-    public Type getType() {
-        return type;
-    }
-
-    public void setType(Type type) {
-        this.type = type;
     }
 
     public List<Object> getAllowedValues() {

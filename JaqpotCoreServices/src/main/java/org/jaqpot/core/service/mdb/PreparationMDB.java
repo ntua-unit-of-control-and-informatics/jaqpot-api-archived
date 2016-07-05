@@ -62,12 +62,12 @@ import org.jaqpot.core.service.data.ConjoinerService;
  * @author Charalampos Chomenidis
  * @author Pantelis Sopasakis
  */
-@MessageDriven(activationConfig = {
+/*@MessageDriven(activationConfig = {
     @ActivationConfigProperty(propertyName = "destinationLookup",
             propertyValue = "java:jboss/exported/jms/topic/preparation"),
     @ActivationConfigProperty(propertyName = "destinationType",
             propertyValue = "javax.jms.Topic")
-})
+})*/
 public class PreparationMDB extends RunningTaskMDB {
 
     private static final Logger LOG = Logger.getLogger(PreparationMDB.class.getName());
