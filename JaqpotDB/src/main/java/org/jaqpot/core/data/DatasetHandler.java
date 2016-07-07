@@ -136,6 +136,16 @@ public class DatasetHandler extends AbstractHandler<Dataset> {
             colStart = 0;
         }
 
+        if (dataset.getTotalRows() == null)
+            dataset.setTotalRows(dataset.getDataEntry().size());
+
+        if (dataset.getTotalColumns() == null)
+            dataset.setTotalColumns(dataset.getDataEntry()
+                    .stream()
+                    .max((e1, e2) -> Integer.compare(e1.getValues().size(), e2.getValues().size()))
+                    .get()
+                    .getValues().size());
+
         if (rowMax == null || rowMax > dataset.getTotalRows()) {
             rowMax = dataset.getTotalRows();
         }
