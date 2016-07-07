@@ -93,7 +93,7 @@ public class JacksonMongoSerializer implements JSONSerializer {
             String result = mapper.writeValueAsString(entity);
             //for(int i=0; i<20 ; i++){
             while (true) {
-                String temp = result.replaceAll("(\".*)(\\.)(.*\" *:)", "$1\\(DOT\\)$3");
+                String temp = result.replaceAll("(\"[^\"]*(\\\")*[^\"]*)(\\.)([^\"]*(\\\")*[^\"]*\":)", "$1\\(DOT\\)$4");
                 if (temp.equals(result)) {
                     result = temp;
                     break;
