@@ -87,6 +87,7 @@ import org.jaqpot.core.service.data.TrainingService;
 import org.jaqpot.core.service.exceptions.InvalidURIException;
 import org.jaqpot.core.service.exceptions.IsNullException;
 import org.jaqpot.core.service.exceptions.QuotaExceededException;
+import org.jaqpot.core.service.validator.ParameterValidator;
 
 /**
  *
@@ -327,6 +328,18 @@ public class AlgorithmResource {
             LOG.log(Level.INFO, "Transformations:{0}", transformationAlgorithmsString);
             options.put("transformations", transformationAlgorithmsString);
         }
+
+        Algorithm algorithm = algorithmHandler.find(algorithmId);
+        if (algorithm == null) {
+            throw new NotFoundException("Could not find Algorithm with id:" + algorithmId);
+        }
+
+
+        ParameterValidator parameterValidator = new ParameterValidator(serializer);
+
+        parameterValidator.validate(parameters,algorithm.getParameters());
+
+        //return Response.ok().build();
         Task task = trainingService.initiateTraining(options, securityContext.getUserPrincipal().getName());
 
         return Response.ok(task).build();

@@ -10,10 +10,11 @@ import org.jaqpot.core.data.serialize.JSONSerializer;
 import org.jaqpot.core.model.Parameter;
 import org.jaqpot.core.model.dto.dataset.Dataset;
 import org.jaqpot.core.model.dto.dataset.FeatureInfo;
-
 import javax.ws.rs.BadRequestException;
 import java.util.*;
 import java.util.stream.Collectors;
+
+
 /**
  *
  * @author hampos
@@ -23,6 +24,8 @@ public class ParameterValidator {
     public enum Type {
         NUMERIC,
         STRING,
+        NUMERIC_ARRAY,
+        STRING_ARRAY,
         UNDEFINED
     }
 
@@ -45,9 +48,11 @@ public class ParameterValidator {
             throw new IllegalArgumentException("Dataset is not compatible with model");
     }
 
+    //TODO add scope check in validation logic
     public void validate(String input, Set<Parameter> parameters) {
 
         Map<String, Object> parameterMap = serializer.parse(input, new HashMap<String, Object>().getClass());
+        //For each parameter in set
         for (Map.Entry<String, Object> entry : parameterMap.entrySet()) {
             String parameterId = entry.getKey();
             Parameter parameter = parameters.stream()
@@ -55,149 +60,117 @@ public class ParameterValidator {
                     .findFirst().orElseThrow(() -> new BadRequestException("Could not recognise parameter with id:" + parameterId));
             Object value = entry.getValue();
 
-            if(!isNumeric(value.toString()) && isNumeric(parameter.getValue().toString()))
-                throw new BadRequestException("Parameter with id:" + parameterId + " should be Numeric");
-            if(!StringUtils.isAlphanumericSpace(value.toString()) && StringUtils.isAlphanumericSpace(parameter.getValue().toString()))
-                throw new BadRequestException("Parameter with id:" + parameterId + " should be Alphanumeric");
-            if(!(value instanceof Collection) && parameter instanceof Collection)
-                throw new BadRequestException("Parameter with id:" + parameterId + " should be Alphanumeric");
-            else if ((value instanceof Collection) && (parameter instanceof Collection))
-            {
-                Type typeOfValue = getTypeOfCollection((Collection)value);
-                Type typeOfParameter = getTypeOfCollection((Collection)parameter.getValue());
+            //Get type of algorithm's parameter
+            Type typeOfParameter = Type.UNDEFINED;
+            if (isNumeric(parameter.getValue().toString()))
+                typeOfParameter = Type.NUMERIC;
+            else if (StringUtils.isAlphanumericSpace(parameter.getValue().toString()))
+                typeOfParameter = Type.STRING;
+            else if (parameter.getValue() instanceof Collection)
+                typeOfParameter = getTypeOfCollection((Collection) parameter.getValue());
 
-                if (typeOfParameter == Type.NUMERIC && typeOfValue!=Type.NUMERIC)
-                    throw new BadRequestException("Parameter with id:" + parameterId + " should be Array of numeric values");
-                if (typeOfParameter == Type.STRING && typeOfValue!=Type.STRING)
-                    throw new BadRequestException("Parameter with id:" + parameterId + " should be Array of alphanumeric values");
-            }
+            if (typeOfParameter==Type.UNDEFINED)
+                continue; //parameter is of a type that we cannot validate.
 
-
-              /*  if (parameter.getType() != null) {
-                    switch (parameter.getType()) {
-                        case CONTINUOUS:
-                            if (!(value instanceof Double || value instanceof Float)) {
-                                throw new BadRequestException("Parameter with id:" + parameterId + " should be Continuous");
-                            }
-                            break;
-                        case CATEGORICAL:
-                            if (!(value instanceof String)) {
-                                throw new BadRequestException("Parameter with id:" + parameterId + " should be Categorical");
-                            }
-                            break;
-                        case DISCRETE:
-                            if (!(value instanceof Integer || value instanceof Long)) {
-                                throw new BadRequestException("Parameter with id:" + parameterId + " should be Discrete");
-                            }
-                            break;
-                        case BOOLEAN:
-                            if (!(value instanceof Boolean)) {
-                                throw new BadRequestException("Parameter with id:" + parameterId + " should be Boolean");
-                            }
-                            break;
-                        case ARRAY_CONTINUOUS:
-                            if (!(value instanceof Collection)) {
-                                throw new BadRequestException("Parameter with id:" + parameterId + " should be Array");
-                            }
-                            Collection valueCollection = (Collection) value;
-                            if (parameter.getMinArraySize() != null) {
-                                if (valueCollection.size() < parameter.getMinArraySize()) {
-                                    throw new BadRequestException("Parameter with id:" + parameterId + " should be Array with minimum size:" + parameter.getMinArraySize());
-                                }
-                            }
-                            if (parameter.getMaxArraySize() != null) {
-                                if (valueCollection.size() > parameter.getMaxArraySize()) {
-                                    throw new BadRequestException("Parameter with id:" + parameterId + " should be Array with maximum size:" + parameter.getMaxArraySize());
-                                }
-                            }
-                            for (Object v : valueCollection) {
-                                if (!(v instanceof Double || v instanceof Float)) {
-                                    throw new BadRequestException("Parameter with id:" + parameterId + " should be Array of Continuous values");
-                                }
-                            }
-                            break;
-                        case ARRAY_CATEGORICAL:
-                            if (!(value instanceof Collection)) {
-                                throw new BadRequestException("Parameter with id:" + parameterId + " should be Array");
-                            }
-                            valueCollection = (Collection) value;
-                            if (parameter.getMinArraySize() != null) {
-                                if (valueCollection.size() < parameter.getMinArraySize()) {
-                                    throw new BadRequestException("Parameter with id:" + parameterId + " should be Array with minimum size:" + parameter.getMinArraySize());
-                                }
-                            }
-                            if (parameter.getMaxArraySize() != null) {
-                                if (valueCollection.size() > parameter.getMaxArraySize()) {
-                                    throw new BadRequestException("Parameter with id:" + parameterId + " should be Array with maximum size:" + parameter.getMaxArraySize());
-                                }
-                            }
-                            for (Object v : valueCollection) {
-                                if (!(v instanceof String)) {
-                                    throw new BadRequestException("Parameter with id:" + parameterId + " should be Array of Categorical values");
-                                }
-                            }
-                            break;
-                        case ARRAY_DISCRETE:
-                            if (!(value instanceof Collection)) {
-                                throw new BadRequestException("Parameter with id:" + parameterId + " should be Array");
-                            }
-                            valueCollection = (Collection) value;
-                            if (parameter.getMinArraySize() != null) {
-                                if (valueCollection.size() < parameter.getMinArraySize()) {
-                                    throw new BadRequestException("Parameter with id:" + parameterId + " should be Array with minimum size:" + parameter.getMinArraySize());
-                                }
-                            }
-                            if (parameter.getMaxArraySize() != null) {
-                                if (valueCollection.size() > parameter.getMaxArraySize()) {
-                                    throw new BadRequestException("Parameter with id:" + parameterId + " should be Array with maximum size:" + parameter.getMaxArraySize());
-                                }
-                            }
-                            for (Object v : valueCollection) {
-                                if (!(v instanceof Integer || v instanceof Long)) {
-                                    throw new BadRequestException("Parameter with id:" + parameterId + " should be Array of Discrete values");
-                                }
-                            }
-                            break;
-                        case ARRAY_BOOLEAN:
-                            if (!(value instanceof Collection)) {
-                                throw new BadRequestException("Parameter with id:" + parameterId + " should be Array");
-                            }
-                            valueCollection = (Collection) value;
-                            if (parameter.getMinArraySize() != null) {
-                                if (valueCollection.size() < parameter.getMinArraySize()) {
-                                    throw new BadRequestException("Parameter with id:" + parameterId + " should be Array with minimum size:" + parameter.getMinArraySize());
-                                }
-                            }
-                            if (parameter.getMaxArraySize() != null) {
-                                if (valueCollection.size() > parameter.getMaxArraySize()) {
-                                    throw new BadRequestException("Parameter with id:" + parameterId + " should be Array with maximum size:" + parameter.getMaxArraySize());
-                                }
-                            }
-                            for (Object v : valueCollection) {
-                                if (!(v instanceof Boolean)) {
-                                    throw new BadRequestException("Parameter with id:" + parameterId + " should be Array of Boolean values");
-                                }
-                            }
-                            break;
+            //Get type of user's value and validate
+            switch (typeOfParameter) {
+                case NUMERIC:
+                    if (isNumeric(value.toString())) {
+                        if (parameter.getAllowedValues()!=null)
+                            checkAllowedValues(Double.parseDouble(value.toString()), (List<Double>) (List<?>) parameter.getAllowedValues());
+                        if (parameter.getMinValue()!=null)
+                            checkIsLessThan(Double.parseDouble(value.toString()), (Double.parseDouble(parameter.getMinValue().toString())));
+                        if (parameter.getMaxValue()!=null)
+                            checkIsGreaterThan(Double.parseDouble(value.toString()), (Double.parseDouble(parameter.getMaxValue().toString())));
                     }
-                }
-                if (parameter.getAllowedValues() != null && !parameter.getAllowedValues().isEmpty()) {
-                    if (!parameter.getAllowedValues().contains(value)) {
-                        throw new BadRequestException("Parameter with id:" + parameterId + " is not one of the allowed values");
+                    else
+                        throw new BadRequestException("Parameter with id:" + parameterId + " should be Numeric");
+                    break;
+                case STRING:
+                    if (StringUtils.isAlphanumericSpace(value.toString())) {
+                        checkAllowedValues(value.toString(), (List<String>) (List<?>) parameter.getAllowedValues());
+                        if (parameter.getMinValue()!=null)
+                            checkIsLessThan(value.toString(), parameter.getMinValue().toString());
+                        if (parameter.getMaxValue()!=null)
+                            checkIsGreaterThan(value.toString(), parameter.getMaxValue().toString());
                     }
-                }
+                    else
+                        throw new BadRequestException("Parameter with id:" + parameterId + " should be Alphanumeric");
+                    break;
+                case NUMERIC_ARRAY:
+                    if ((value instanceof Collection && getTypeOfCollection((Collection) value) == Type.NUMERIC_ARRAY)) {
+                        checkMinMaxSize((Collection) value, parameter.getMinArraySize(), parameter.getMaxArraySize());
+                        for (Object o : (Collection) value) {
+                            checkAllowedValues(Double.parseDouble(o.toString()), (List<Double>) (List<?>) parameter.getAllowedValues());
+                            if (parameter.getMinValue()!=null)
+                                checkIsLessThan(Double.parseDouble(value.toString()), (Double.parseDouble(parameter.getMinValue().toString())));
+                            if (parameter.getMaxValue()!=null)
+                                checkIsGreaterThan(Double.parseDouble(value.toString()), (Double.parseDouble(parameter.getMaxValue().toString())));
+                        }
+                    }
+                    else
+                        throw new BadRequestException("Parameter with id:" + parameterId + " should be Array of numeric values");
+                    break;
+                case STRING_ARRAY:
+                    if ((value instanceof Collection && getTypeOfCollection((Collection) value) == Type.STRING_ARRAY)) {
+                        checkMinMaxSize((Collection) value, parameter.getMinArraySize(), parameter.getMaxArraySize());
+                        for (Object o : (Collection) value) {
+                            checkAllowedValues(o.toString(), (List<String>) (List<?>) parameter.getAllowedValues());
+                            if (parameter.getMinValue()!=null)
+                                checkIsLessThan(value.toString(),parameter.getMinValue().toString());
+                            if (parameter.getMaxValue()!=null)
+                                checkIsGreaterThan(value.toString(),parameter.getMaxValue().toString());
+                        }
+                    }
+                    else
+                        throw new BadRequestException("Parameter with id:" + parameterId + " should be Array of alphanumeric values");
+                    break;
+                default:
+                    break;
+
             }
         }
-        catch (JaqpotSerializationException ex) {
-            throw new BadRequestException(ex);
-        }*/
+    }
 
-        }
+    static <T> boolean  checkAllowedValues(T value, List<T> elements) {
+        if (value!=null)
+            if (elements!=null) {
+                for (T o : elements) {
+                    if (o.equals(value))
+                        return true;
+                }
+                return false;
+            }
+        return true;
+    }
+
+    static <T extends Comparable<? super T>> Boolean  checkIsLessThan (T value, T minimum) {
+        if (minimum != null)
+            if (value.compareTo(minimum)<0)
+                return false;
+        return true;
+    }
+
+    static <T extends Comparable<? super T>> Boolean  checkIsGreaterThan (T value, T maximum) {
+        if (maximum != null)
+            if (value.compareTo(maximum)>0)
+                return false;
+        return true;
+    }
+
+    static Boolean checkMinMaxSize(Collection collection, Integer minSize, Integer maxSize){
+        if (minSize!=null)
+            if (collection.size()<minSize)
+                return false;
+        if (maxSize!=null)
+            if (collection.size()>maxSize)
+                return false;
+        return true;
     }
 
     //Returns if array is a (consistent) collection of Strings (Type.STRING) or Numbers (Type.NUMERIC).
     //else returns Type.UNDEFINED
-    Type getTypeOfCollection(Collection collection)
+    static Type getTypeOfCollection(Collection collection)
     {
         Type content = null;
         for (Object value:collection)
@@ -206,22 +179,22 @@ public class ParameterValidator {
                 if (!StringUtils.isAlphanumericSpace(value.toString()))
                     return Type.UNDEFINED;
                 else
-                    if (content == Type.NUMERIC)
+                    if (content == Type.NUMERIC_ARRAY)
                         return Type.UNDEFINED;
                     else
-                        content=Type.STRING;
+                        content=Type.STRING_ARRAY;
             else
-                if (content == Type.STRING)
+                if (content == Type.STRING_ARRAY)
                     return Type.UNDEFINED;
             else
-                    content=Type.NUMERIC;
+                    content=Type.NUMERIC_ARRAY;
         }
         return content;
     }
 
     //Probably most performant solution to check for isNumeric, according to discussion here
     //http://stackoverflow.com/questions/1102891/how-to-check-if-a-string-is-numeric-in-java/1102916#1102916
-    public static boolean isNumeric(String str)
+    static boolean isNumeric(String str)
     {
         try
         {
