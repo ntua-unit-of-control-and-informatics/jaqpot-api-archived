@@ -92,14 +92,14 @@ public class JacksonMongoSerializer implements JSONSerializer {
         try {
             String result = mapper.writeValueAsString(entity);
             //for(int i=0; i<20 ; i++){
-            while (true) {
-                String temp = result.replaceAll("(\"[^\"]*)(\\.)([^\"]*\":)", "$1\\(DOT\\)$3");
-                if (temp.equals(result)) {
-                    result = temp;
-                    break;
-                }
+         //   while (true) {
+                String temp = result.replaceAll("([A-Za-z*])(\\.)([A-Za-z0-9*])", "$1\\(DOT\\)$3");
+//                if (temp.equals(result)) {
+//                    result = temp;
+//                    break;
+//                }
                 result = temp;
-            }
+           // }
             //}
             return result;
         } catch (IOException ex) {
