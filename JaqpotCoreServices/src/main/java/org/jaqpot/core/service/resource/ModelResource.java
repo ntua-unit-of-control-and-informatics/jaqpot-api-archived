@@ -467,9 +467,9 @@ public class ModelResource {
 
     private List<String> retrieveRequiredFeatures(Model model) {
         if (model.getTransformationModels() != null && !model.getTransformationModels().isEmpty()) {
-            String transModelId = model.getTransformationModels().get(0).split("/model")[1];
+            String transModelId = model.getTransformationModels().get(0).split("model/")[1];
             Model transformationModel = modelHandler.findModelIndependentFeatures(transModelId);
-            if (transformationModel.getIndependentFeatures() != null) {
+            if (transformationModel != null && transformationModel.getIndependentFeatures() != null) {
                 return transformationModel.getIndependentFeatures();
             }
         }
