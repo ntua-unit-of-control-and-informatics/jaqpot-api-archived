@@ -10,7 +10,10 @@ import org.jaqpot.core.data.serialize.JSONSerializer;
 import org.jaqpot.core.model.Parameter;
 import org.jaqpot.core.model.dto.dataset.Dataset;
 import org.jaqpot.core.model.dto.dataset.FeatureInfo;
-import javax.ws.rs.BadRequestException;
+import org.jaqpot.core.service.exceptions.parameter.ParameterRangeException;
+import org.jaqpot.core.service.exceptions.parameter.ParameterScopeException;
+import org.jaqpot.core.service.exceptions.parameter.ParameterTypeException;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -48,16 +51,23 @@ public class ParameterValidator {
             throw new IllegalArgumentException("Dataset is not compatible with model");
     }
 
-    //TODO add scope check in validation logic
-    public void validate(String input, Set<Parameter> parameters) {
-
+    public void validate(String input, Set<Parameter> parameters) throws ParameterTypeException, ParameterRangeException, ParameterScopeException {
         Map<String, Object> parameterMap = serializer.parse(input, new HashMap<String, Object>().getClass());
+
+        //For each mandatory parameter in stored algorithm, check if it exists in user input
+        for (Parameter parameter: parameters) {
+            if (parameter.getScope().equals(Parameter.Scope.MANDATORY) && !parameterMap.containsKey(parameter.getId()))
+            {
+                throw new ParameterScopeException("Parameter with id: '"+parameter.getId()+"' is mandatory.");
+            }
+        }
+
         //For each parameter in set
         for (Map.Entry<String, Object> entry : parameterMap.entrySet()) {
             String parameterId = entry.getKey();
             Parameter parameter = parameters.stream()
                     .filter(p -> p.getId().equals(parameterId))
-                    .findFirst().orElseThrow(() -> new BadRequestException("Could not recognise parameter with id:" + parameterId));
+                    .findFirst().orElseThrow(() -> new ParameterTypeException("Could not recognise parameter with id:" + parameterId));
             Object value = entry.getValue();
 
             //Get type of algorithm's parameter
@@ -77,94 +87,96 @@ public class ParameterValidator {
                 case NUMERIC:
                     if (isNumeric(value.toString())) {
                         if (parameter.getAllowedValues()!=null)
-                            checkAllowedValues(Double.parseDouble(value.toString()), (List<Double>) (List<?>) parameter.getAllowedValues());
-                        if (parameter.getMinValue()!=null)
-                            checkIsLessThan(Double.parseDouble(value.toString()), (Double.parseDouble(parameter.getMinValue().toString())));
-                        if (parameter.getMaxValue()!=null)
-                            checkIsGreaterThan(Double.parseDouble(value.toString()), (Double.parseDouble(parameter.getMaxValue().toString())));
+                            checkAllowedValues(parameterId,Double.parseDouble(value.toString()), (List<Double>) (List<?>) parameter.getAllowedValues());
+                        if (parameter.getMinValue()!=null && isNumeric(parameter.getMinValue().toString()))
+                            checkIsLessThan(parameterId,Double.parseDouble(value.toString()), (Double.parseDouble(parameter.getMinValue().toString())));
+                        if (parameter.getMaxValue()!=null && isNumeric(parameter.getMaxValue().toString()))
+                            checkIsGreaterThan(parameterId,Double.parseDouble(value.toString()), (Double.parseDouble(parameter.getMaxValue().toString())));
                     }
                     else
-                        throw new BadRequestException("Parameter with id:" + parameterId + " should be Numeric");
+                        throw new ParameterTypeException("Parameter with id:" + parameterId + " must be Numeric");
                     break;
                 case STRING:
                     if (StringUtils.isAlphanumericSpace(value.toString())) {
-                        checkAllowedValues(value.toString(), (List<String>) (List<?>) parameter.getAllowedValues());
-                        if (parameter.getMinValue()!=null)
-                            checkIsLessThan(value.toString(), parameter.getMinValue().toString());
-                        if (parameter.getMaxValue()!=null)
-                            checkIsGreaterThan(value.toString(), parameter.getMaxValue().toString());
+                        List<String> strings = parameter.getAllowedValues().stream()
+                                .map(object -> (object != null ? object.toString() : null))
+                                .collect(Collectors.toList());
+                        checkAllowedValues(parameterId,value.toString(), strings);
+                        if (parameter.getMinValue()!=null && isNumeric(parameter.getMinValue().toString()))
+                            checkIsLessThan(parameterId,value.toString(), parameter.getMinValue().toString());
+                        if (parameter.getMaxValue()!=null && isNumeric(parameter.getMaxValue().toString()))
+                            checkIsGreaterThan(parameterId,value.toString(), parameter.getMaxValue().toString());
                     }
                     else
-                        throw new BadRequestException("Parameter with id:" + parameterId + " should be Alphanumeric");
+                        throw new ParameterTypeException("Parameter with id: '" + parameterId + "' must be Alphanumeric");
                     break;
                 case NUMERIC_ARRAY:
                     if ((value instanceof Collection && getTypeOfCollection((Collection) value) == Type.NUMERIC_ARRAY)) {
-                        checkMinMaxSize((Collection) value, parameter.getMinArraySize(), parameter.getMaxArraySize());
+                        checkAllowedValues(parameterId,value, parameter.getAllowedValues());
+                        checkMinMaxSize(parameterId,(Collection) value, parameter.getMinArraySize(), parameter.getMaxArraySize());
                         for (Object o : (Collection) value) {
-                            checkAllowedValues(Double.parseDouble(o.toString()), (List<Double>) (List<?>) parameter.getAllowedValues());
-                            if (parameter.getMinValue()!=null)
-                                checkIsLessThan(Double.parseDouble(value.toString()), (Double.parseDouble(parameter.getMinValue().toString())));
-                            if (parameter.getMaxValue()!=null)
-                                checkIsGreaterThan(Double.parseDouble(value.toString()), (Double.parseDouble(parameter.getMaxValue().toString())));
+                            if (parameter.getMinValue()!=null && isNumeric(parameter.getMinValue().toString()))
+                                checkIsLessThan(parameterId,Double.parseDouble(o.toString()), (Double.parseDouble(parameter.getMinValue().toString())));
+                            if (parameter.getMaxValue()!=null && isNumeric(parameter.getMaxValue().toString()))
+                                checkIsGreaterThan(parameterId,Double.parseDouble(o.toString()), (Double.parseDouble(parameter.getMaxValue().toString())));
                         }
                     }
                     else
-                        throw new BadRequestException("Parameter with id:" + parameterId + " should be Array of numeric values");
+                        throw new ParameterTypeException("Parameter with id: '" + parameterId + "' must be Array of numeric values");
                     break;
                 case STRING_ARRAY:
                     if ((value instanceof Collection && getTypeOfCollection((Collection) value) == Type.STRING_ARRAY)) {
-                        checkMinMaxSize((Collection) value, parameter.getMinArraySize(), parameter.getMaxArraySize());
+                        checkAllowedValues(parameterId,value, parameter.getAllowedValues());
+                        checkMinMaxSize(parameterId,(Collection) value, parameter.getMinArraySize(), parameter.getMaxArraySize());
                         for (Object o : (Collection) value) {
-                            checkAllowedValues(o.toString(), (List<String>) (List<?>) parameter.getAllowedValues());
-                            if (parameter.getMinValue()!=null)
-                                checkIsLessThan(value.toString(),parameter.getMinValue().toString());
-                            if (parameter.getMaxValue()!=null)
-                                checkIsGreaterThan(value.toString(),parameter.getMaxValue().toString());
+                            if (parameter.getMinValue()!=null && isNumeric(parameter.getMinValue().toString()))
+                                checkIsLessThan(parameterId,o.toString(),parameter.getMinValue().toString());
+                            if (parameter.getMaxValue()!=null && isNumeric(parameter.getMaxValue().toString()))
+                                checkIsGreaterThan(parameterId,o.toString(),parameter.getMaxValue().toString());
                         }
                     }
                     else
-                        throw new BadRequestException("Parameter with id:" + parameterId + " should be Array of alphanumeric values");
+                        throw new ParameterTypeException("Parameter with id: '" + parameterId + "' must be Array of alphanumeric values");
                     break;
                 default:
                     break;
-
             }
         }
     }
 
-    static <T> boolean  checkAllowedValues(T value, List<T> elements) {
+    static <T> boolean  checkAllowedValues(String parameterId, T value, List<T> elements) throws ParameterRangeException {
         if (value!=null)
             if (elements!=null) {
                 for (T o : elements) {
                     if (o.equals(value))
                         return true;
                 }
-                return false;
+                throw new ParameterRangeException("Parameter with id: '" + parameterId + "' has a value not found in allowed values.");
             }
         return true;
     }
 
-    static <T extends Comparable<? super T>> Boolean  checkIsLessThan (T value, T minimum) {
-        if (minimum != null)
+    static <T extends Comparable<? super T>> Boolean  checkIsLessThan (String parameterId, T value, T minimum) throws ParameterRangeException {
+        if (minimum != null && isNumeric(minimum.toString()))
             if (value.compareTo(minimum)<0)
-                return false;
+                throw new ParameterRangeException("Parameter with id: '" + parameterId + "' has a value less than the parameter's allowed minimum");
         return true;
     }
 
-    static <T extends Comparable<? super T>> Boolean  checkIsGreaterThan (T value, T maximum) {
+    static <T extends Comparable<? super T>> Boolean  checkIsGreaterThan (String parameterId, T value, T maximum) throws ParameterRangeException {
         if (maximum != null)
             if (value.compareTo(maximum)>0)
-                return false;
+                throw new ParameterRangeException("Parameter with id: '" + parameterId + "' has a value greater than the parameter's allowed maximum");
         return true;
     }
 
-    static Boolean checkMinMaxSize(Collection collection, Integer minSize, Integer maxSize){
-        if (minSize!=null)
+    static Boolean checkMinMaxSize(String parameterId, Collection collection, Integer minSize, Integer maxSize) throws ParameterRangeException {
+        if (minSize!=null && isNumeric(minSize.toString()))
             if (collection.size()<minSize)
-                return false;
-        if (maxSize!=null)
+                throw new ParameterRangeException("Parameter with id: '" + parameterId + "' has an array size lees than the parameter's allowed minimum array size");
+        if (maxSize!=null && isNumeric(maxSize.toString()))
             if (collection.size()>maxSize)
-                return false;
+                throw new ParameterRangeException("Parameter with id: '" + parameterId + "' has an array size greater than the parameter's allowed maximum array size");
         return true;
     }
 

@@ -66,8 +66,8 @@ import org.jaqpot.core.model.builder.MetaInfoBuilder;
 import org.jaqpot.core.model.facades.UserFacade;
 import org.jaqpot.core.model.util.ROG;
 import org.jaqpot.core.service.annotations.Authorize;
-import org.jaqpot.core.service.exceptions.InvalidURIException;
-import org.jaqpot.core.service.exceptions.IsNullException;
+import org.jaqpot.core.service.exceptions.parameter.ParameterInvalidURIException;
+import org.jaqpot.core.service.exceptions.parameter.ParameterIsNullException;
 import org.jaqpot.core.service.exceptions.QuotaExceededException;
 
 /**
@@ -157,13 +157,13 @@ public class ValidationResource {
             @FormParam("stratify") String stratify,
             @FormParam("seed") Integer seed,
             @HeaderParam("subjectId") String subjectId
-    ) throws QuotaExceededException, JMSException, InvalidURIException, IsNullException {
+    ) throws QuotaExceededException, JMSException, ParameterInvalidURIException, ParameterIsNullException {
         if (algorithmURI==null)
-            throw new IsNullException("algorithmURI");
+            throw new ParameterIsNullException("algorithmURI");
         if (datasetURI==null)
-            throw new IsNullException("datasetURI");
+            throw new ParameterIsNullException("datasetURI");
         if (folds==null)
-            throw new IsNullException("folds");
+            throw new ParameterIsNullException("folds");
 
         User user = userHandler.find(securityContext.getUserPrincipal().getName());
         long reportCount = reportHandler.countAllOfCreator(user.getId());
@@ -179,19 +179,19 @@ public class ValidationResource {
 
         UrlValidator urlValidator = new UrlValidator();
         if (!urlValidator.isValid(algorithmURI)) {
-            throw new InvalidURIException("Not valid algorithm URI.");
+            throw new ParameterInvalidURIException("Not valid algorithm URI.");
         }
         if (!urlValidator.isValid(datasetURI)) {
-            throw new InvalidURIException("Not valid dataset URI.");
+            throw new ParameterInvalidURIException("Not valid dataset URI.");
         }
         if (!urlValidator.isValid(predictionFeature)) {
-            throw new InvalidURIException("Not valid prediction feature URI.");
+            throw new ParameterInvalidURIException("Not valid prediction feature URI.");
         }
         if (transformations != null && !transformations.isEmpty() && !urlValidator.isValid(transformations)) {
-            throw new InvalidURIException("Not valid transformation URI.");
+            throw new ParameterInvalidURIException("Not valid transformation URI.");
         }
         if (scaling != null && !scaling.isEmpty() && !urlValidator.isValid(scaling)) {
-            throw new InvalidURIException("Not valid scaling URI.");
+            throw new ParameterInvalidURIException("Not valid scaling URI.");
         }
         if ((stratify != null && !stratify.isEmpty() && !stratify.equals("random") && !stratify.equals("normal"))) {
             throw new BadRequestException("Not valid stratify option - choose between random and normal");
@@ -261,13 +261,13 @@ public class ValidationResource {
             @FormParam("stratify") String stratify,
             @FormParam("seed") Integer seed,
             @HeaderParam("subjectId") String subjectId
-    ) throws QuotaExceededException, JMSException, InvalidURIException, IsNullException {
+    ) throws QuotaExceededException, JMSException, ParameterInvalidURIException, ParameterIsNullException {
         if (algorithmURI==null)
-            throw new IsNullException("algorithmURI");
+            throw new ParameterIsNullException("algorithmURI");
         if (datasetURI==null)
-            throw new IsNullException("datasetURI");
+            throw new ParameterIsNullException("datasetURI");
         if (splitRatio==null)
-            throw new IsNullException("splitRatio");
+            throw new ParameterIsNullException("splitRatio");
 
         User user = userHandler.find(securityContext.getUserPrincipal().getName());
         long reportCount = reportHandler.countAllOfCreator(user.getId());
@@ -283,19 +283,19 @@ public class ValidationResource {
 
         UrlValidator urlValidator = new UrlValidator();
         if (!urlValidator.isValid(algorithmURI)) {
-            throw new InvalidURIException("Not valid algorithm URI.");
+            throw new ParameterInvalidURIException("Not valid algorithm URI.");
         }
         if (!urlValidator.isValid(datasetURI)) {
-            throw new InvalidURIException("Not valid dataset URI.");
+            throw new ParameterInvalidURIException("Not valid dataset URI.");
         }
         if (!urlValidator.isValid(predictionFeature)) {
-            throw new InvalidURIException("Not valid prediction feature URI.");
+            throw new ParameterInvalidURIException("Not valid prediction feature URI.");
         }
         if (transformations != null && !transformations.isEmpty() && !urlValidator.isValid(transformations)) {
-            throw new InvalidURIException("Not valid transformation URI.");
+            throw new ParameterInvalidURIException("Not valid transformation URI.");
         }
         if (scaling != null && !scaling.isEmpty() && !urlValidator.isValid(scaling)) {
-            throw new InvalidURIException("Not valid scaling URI.");
+            throw new ParameterInvalidURIException("Not valid scaling URI.");
         }
         if ((stratify != null && !stratify.isEmpty() && !stratify.equals("random") && !stratify.equals("normal"))) {
             throw new BadRequestException("Not valid stratify option - choose between random and normal");
@@ -346,11 +346,11 @@ public class ValidationResource {
             @FormParam("model_uri") String modelURI,
             @FormParam("test_dataset_uri") String datasetURI,
             @HeaderParam("subjectId") String subjectId
-    ) throws QuotaExceededException, IsNullException, InvalidURIException {
+    ) throws QuotaExceededException, ParameterIsNullException, ParameterInvalidURIException {
         if (modelURI==null)
-            throw new IsNullException("modelURI");
+            throw new ParameterIsNullException("modelURI");
         if (datasetURI==null)
-            throw new IsNullException("datasetURI");
+            throw new ParameterIsNullException("datasetURI");
 
         User user = userHandler.find(securityContext.getUserPrincipal().getName());
         long reportCount = reportHandler.countAllOfCreator(user.getId());
@@ -366,10 +366,10 @@ public class ValidationResource {
 
         UrlValidator urlValidator = new UrlValidator();
         if (!urlValidator.isValid(modelURI)) {
-            throw new InvalidURIException("Not valid model URI.");
+            throw new ParameterInvalidURIException("Not valid model URI.");
         }
         if (!urlValidator.isValid(datasetURI)) {
-            throw new InvalidURIException("Not valid dataset URI.");
+            throw new ParameterInvalidURIException("Not valid dataset URI.");
         }
 
         Task task = new Task(new ROG(true).nextString(12));

@@ -27,7 +27,7 @@
  * All source files of JAQPOT Quattro that are stored on github are licensed
  * with the aforementioned licence.
  */
-package org.jaqpot.core.service.filter.excmappers;
+package org.jaqpot.core.service.filter.excmappers.parameter;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -39,7 +39,8 @@ import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 import org.jaqpot.core.model.ErrorReport;
 import org.jaqpot.core.model.builder.ErrorReportBuilder;
-import org.jaqpot.core.service.exceptions.InvalidURIException;
+import org.jaqpot.core.service.exceptions.parameter.ParameterInvalidURIException;
+import org.jaqpot.core.service.filter.excmappers.GenericExceptionMapper;
 
 /**
  *
@@ -48,12 +49,13 @@ import org.jaqpot.core.service.exceptions.InvalidURIException;
  *
  */
 @Provider
-public class InvalidURIExceptionMapper implements ExceptionMapper<InvalidURIException> {
+public class
+ParameterInvalidURIExceptionMapper implements ExceptionMapper<ParameterInvalidURIException> {
 
     private static final Logger LOG = Logger.getLogger(GenericExceptionMapper.class.getName());
 
     @Override
-    public Response toResponse(InvalidURIException exception) {
+    public Response toResponse(ParameterInvalidURIException exception) {
         StringWriter sw = new StringWriter();
         exception.printStackTrace(new PrintWriter(sw));
         String details = sw.toString();

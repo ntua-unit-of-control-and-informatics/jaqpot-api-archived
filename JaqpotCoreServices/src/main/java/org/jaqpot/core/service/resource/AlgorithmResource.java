@@ -84,8 +84,7 @@ import org.jaqpot.core.model.factory.ErrorReportFactory;
 import org.jaqpot.core.model.util.ROG;
 import org.jaqpot.core.service.annotations.Authorize;
 import org.jaqpot.core.service.data.TrainingService;
-import org.jaqpot.core.service.exceptions.InvalidURIException;
-import org.jaqpot.core.service.exceptions.IsNullException;
+import org.jaqpot.core.service.exceptions.parameter.*;
 import org.jaqpot.core.service.exceptions.QuotaExceededException;
 import org.jaqpot.core.service.validator.ParameterValidator;
 
@@ -240,9 +239,9 @@ public class AlgorithmResource {
     )
     public Response getAlgorithm(
             @ApiParam(value = "Authorization token") @HeaderParam("subjectid") String subjectId,
-            @PathParam("id") String algorithmId) throws IsNullException {
+            @PathParam("id") String algorithmId) throws ParameterIsNullException {
         if (algorithmId==null)
-            throw new IsNullException("algorithmId");
+            throw new ParameterIsNullException("algorithmId");
 
         Algorithm algorithm = algorithmHandler.find(algorithmId);
         if (algorithm == null) {
@@ -270,21 +269,21 @@ public class AlgorithmResource {
             @ApiParam(name = "doa", defaultValue = DEFAULT_DOA) @FormParam("doa") String doa,
             @FormParam("visible") Boolean visible,
             @PathParam("id") String algorithmId,
-            @HeaderParam("subjectid") String subjectId) throws QuotaExceededException, IsNullException, InvalidURIException {
+            @HeaderParam("subjectid") String subjectId) throws QuotaExceededException, ParameterIsNullException, ParameterInvalidURIException, ParameterTypeException, ParameterRangeException, ParameterScopeException {
 
         if (datasetURI==null)
-            throw new IsNullException("datasetURI");
+            throw new ParameterIsNullException("datasetURI");
         if (title==null)
-            throw new IsNullException("title");
+            throw new ParameterIsNullException("title");
         if (description==null)
-            throw new IsNullException("description");
+            throw new ParameterIsNullException("description");
         if (predictionFeature==null)
-            throw new IsNullException("predictionFeature");
+            throw new ParameterIsNullException("predictionFeature");
         UrlValidator urlValidator = new UrlValidator();
         if (!urlValidator.isValid(datasetURI))
-            throw new InvalidURIException("Not valid Dataset URI.");
+            throw new ParameterInvalidURIException("Not valid Dataset URI.");
         if (!urlValidator.isValid(predictionFeature))
-            throw new InvalidURIException("Not valid Prediction Feature URI.");
+            throw new ParameterInvalidURIException("Not valid Prediction Feature URI.");
 
         if (visible != null && visible) {
             User user = userHandler.find(securityContext.getUserPrincipal().getName());
@@ -360,10 +359,10 @@ public class AlgorithmResource {
     })
     public Response deleteAlgorithm(
             @ApiParam(value = "ID of the algorithm which is to be deleted.", required = true) @PathParam("id") String id,
-            @HeaderParam("subjectid") String subjectId) throws IsNullException {
+            @HeaderParam("subjectid") String subjectId) throws ParameterIsNullException {
 
         if (id==null)
-            throw new IsNullException("id");
+            throw new ParameterIsNullException("id");
 
         Algorithm algorithm = algorithmHandler.find(id);
 

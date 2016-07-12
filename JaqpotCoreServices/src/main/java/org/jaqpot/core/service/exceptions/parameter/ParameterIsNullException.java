@@ -32,18 +32,18 @@
  * All source files of JAQPOT Quattro that are stored on github are licensed
  * with the aforementioned licence.
  */
-package org.jaqpot.core.service.exceptions;
+package org.jaqpot.core.service.exceptions.parameter;
 
 /**
  *
  * @author chung
  */
-public class IsNullException extends Exception {
+public class ParameterIsNullException extends Exception {
 
-    public IsNullException() {
+    public ParameterIsNullException() {
     }
 
-    public IsNullException(String message) {
+    public ParameterIsNullException(String message) {
 
 
         super("Parameter "+message+" is mandatory.");
