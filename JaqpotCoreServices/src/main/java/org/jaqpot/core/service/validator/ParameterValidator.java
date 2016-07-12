@@ -52,17 +52,22 @@ public class ParameterValidator {
     }
 
     public void validate(String input, Set<Parameter> parameters) throws ParameterTypeException, ParameterRangeException, ParameterScopeException {
-        Map<String, Object> parameterMap = serializer.parse(input, new HashMap<String, Object>().getClass());
+
+        Map<String, Object> parameterMap =null;
+        if (input!=null)
+            parameterMap = serializer.parse(input, new HashMap<String, Object>().getClass());
 
         //For each mandatory parameter in stored algorithm, check if it exists in user input
+        if (parameters!=null)
         for (Parameter parameter: parameters) {
-            if (parameter.getScope().equals(Parameter.Scope.MANDATORY) && !parameterMap.containsKey(parameter.getId()))
+            if (parameter.getScope().equals(Parameter.Scope.MANDATORY) && (parameterMap==null||!parameterMap.containsKey(parameter.getId())))
             {
                 throw new ParameterScopeException("Parameter with id: '"+parameter.getId()+"' is mandatory.");
             }
         }
 
         //For each parameter in set
+        if (parameterMap!=null)
         for (Map.Entry<String, Object> entry : parameterMap.entrySet()) {
             String parameterId = entry.getKey();
             Parameter parameter = parameters.stream()
