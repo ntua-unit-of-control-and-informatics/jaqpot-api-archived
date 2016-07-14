@@ -4,12 +4,12 @@
     <parent>
         <artifactId>JaqpotQuattro</artifactId>
         <groupId>org.kinkydesign</groupId>
-        <version>1.0-SNAPSHOT</version>
+        <version>4.0.1</version>
     </parent>
 
     <groupId>org.kinkydesign</groupId>
     <artifactId>JaqpotDB</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>4.0.1</version>
     <packaging>ejb</packaging>
 
     <name>JaqpotDB</name>
@@ -45,7 +45,7 @@
         <dependency>
             <groupId>org.kinkydesign</groupId>
             <artifactId>JaqpotDomain</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>4.0.1</version>
         </dependency>
         
         <!-- MONGODB DRIVER (with Javadoc) -->
@@ -54,12 +54,12 @@
             <artifactId>mongo-java-driver</artifactId>
             <version>3.0.2</version>
         </dependency>
-        <dependency>
+<!--        <dependency>
             <groupId>org.mongodb</groupId>
             <artifactId>mongo-java-driver</artifactId>
             <version>3.0.2</version>
             <classifier>javadoc</classifier>
-        </dependency>
+        </dependency>-->
         
         <!-- REFLECTIONS -  A classpath scanning library (with Javadoc) -->
         <dependency>
@@ -67,12 +67,12 @@
             <artifactId>reflections</artifactId>
             <version>0.9.9</version>
         </dependency>
-        <dependency>
+<!--        <dependency>
             <groupId>org.reflections</groupId>
             <artifactId>reflections</artifactId>
             <version>0.9.9</version>
             <classifier>javadoc</classifier>
-        </dependency>
+        </dependency>-->
         
         <!-- JACKSON - A JSON parsing library -->
         <dependency>
@@ -80,12 +80,12 @@
             <artifactId>jackson-core</artifactId>
             <version>2.5.0</version>
         </dependency>
-        <dependency>
+<!--        <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
             <version>2.5.0</version>
             <classifier>javadoc</classifier>
-        </dependency> 
+        </dependency> -->
         
         <!-- Elastic Search API for Java -->
         <dependency>

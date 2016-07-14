@@ -31,15 +31,14 @@ package org.jaqpot.core.data;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.fasterxml.jackson.databind.JsonMappingException;
 import org.jaqpot.core.db.entitymanager.JaqpotEntityManager;
 import org.jaqpot.core.model.JaqpotEntity;
 
-import javax.ws.rs.BadRequestException;
 
 /**
  *
@@ -58,7 +57,10 @@ public abstract class AbstractHandler<T extends JaqpotEntity>  {
 
     protected abstract JaqpotEntityManager getEntityManager();
 
-    public void create(T entity) throws IllegalArgumentException {
+    public void create(T entity) {
+        if (entity.getMeta() != null) {
+            entity.getMeta().setDate(new Date());
+        }
         getEntityManager().persist(entity);
     }
 
@@ -118,7 +120,7 @@ public abstract class AbstractHandler<T extends JaqpotEntity>  {
         return getEntityManager().count(entityClass, properties);
     }
 
-    public List<T> listOnlyIDs(Integer start, Integer max) {
+    public List<T> listMeta(Integer start, Integer max) {
         List<String> fields = new ArrayList<>();
         fields.add("_id");
         fields.add("meta");
@@ -126,7 +128,7 @@ public abstract class AbstractHandler<T extends JaqpotEntity>  {
         return getEntityManager().findAll(entityClass, fields, start, max);
     }
 
-    public List<T> listOnlyIDsOfCreator(String createdBy, Integer start, Integer max) {
+    public List<T> listMetaOfCreator(String createdBy, Integer start, Integer max) {
         List<String> fields = new ArrayList<>();
         fields.add("_id");
         fields.add("meta");
@@ -136,7 +138,7 @@ public abstract class AbstractHandler<T extends JaqpotEntity>  {
         properties.put("meta.creators", Arrays.asList(createdBy));
         properties.put("visible", true);
 
-        return getEntityManager().find(entityClass, properties, fields, start, max);
+        return getEntityManager().findSortedDesc(entityClass, properties, fields, start, max, Arrays.asList("meta.date"));
     }
 
     public Long countAll() {

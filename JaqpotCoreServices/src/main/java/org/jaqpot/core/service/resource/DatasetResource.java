@@ -103,34 +103,34 @@ import org.jaqpot.core.service.exceptions.QuotaExceededException;
 @Produces({"application/json", "text/uri-list"})
 @Authorize
 public class DatasetResource {
-    
+
     private static final Logger LOG = Logger.getLogger(DatasetResource.class.getName());
-    
+
     @EJB
     DatasetHandler datasetHandler;
-    
+
     @EJB
     UserHandler userHandler;
-    
+
     @EJB
     ModelHandler modelHandler;
-    
+
     @EJB
     AlgorithmHandler algorithmHandler;
-    
+
     @EJB
     ReportHandler reportHandler;
-    
+
     @Inject
     @UnSecure
     Client client;
-    
+
     @Inject
     JPDIClient jpdiClient;
-    
+
     @Context
     SecurityContext securityContext;
-    
+
     @GET
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @ApiOperation(value = "Finds all Datasets",
@@ -160,13 +160,13 @@ public class DatasetResource {
             max = 500;
         }
         String creator = securityContext.getUserPrincipal().getName();
-        return Response.ok(datasetHandler.listOnlyIDsOfCreator(creator, start, max))
+        return Response.ok(datasetHandler.listMetaOfCreator(creator, start, max))
                 .status(Response.Status.OK)
                 .header("total", datasetHandler.countAllOfCreator(creator))
                 .build();
-        
+
     }
-    
+
     @GET
     @Produces({"text/csv", MediaType.APPLICATION_JSON})
     @Path("/{id}")
@@ -190,7 +190,7 @@ public class DatasetResource {
         }
         return Response.ok(dataset).build();
     }
-    
+
     @GET
     @Path("/featured")
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
@@ -225,9 +225,9 @@ public class DatasetResource {
                 .status(Response.Status.OK)
                 .header("total", datasetHandler.countFeatured())
                 .build();
-        
+
     }
-    
+
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/{id}/features")
@@ -244,7 +244,7 @@ public class DatasetResource {
         }
         return Response.ok(dataset.getFeatures()).build();
     }
-    
+
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/{id}/meta")
@@ -261,7 +261,7 @@ public class DatasetResource {
         }
         return Response.ok(dataset).build();
     }
-    
+
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces("text/uri-list")
@@ -270,22 +270,20 @@ public class DatasetResource {
             response = Dataset.class)
     public Response createDataset(
             @ApiParam(value = "Authorization token") @HeaderParam("subjectid") String subjectId,
-             Dataset dataset) throws URISyntaxException, QuotaExceededException {
-        
-        if (dataset.getVisible() != null && dataset.getVisible() == true) {
-            User user = userHandler.find(securityContext.getUserPrincipal().getName());
-            long datasetCount = datasetHandler.countAllOfCreator(user.getId());
-            int maxAllowedDatasets = new UserFacade(user).getMaxDatasets();
-            
-            if (datasetCount > maxAllowedDatasets) {
-                LOG.info(String.format("User %s has %d datasets while maximum is %d",
-                        user.getId(), datasetCount, maxAllowedDatasets));
-                throw new QuotaExceededException("Dear " + user.getId()
-                        + ", your quota has been exceeded; you already have " + datasetCount + " datasets. "
-                        + "No more than " + maxAllowedDatasets + " are allowed with your subscription.");
-            }
+            Dataset dataset) throws URISyntaxException, QuotaExceededException {
+
+        User user = userHandler.find(securityContext.getUserPrincipal().getName());
+        long datasetCount = datasetHandler.countAllOfCreator(user.getId());
+        int maxAllowedDatasets = new UserFacade(user).getMaxDatasets();
+
+        if (datasetCount > maxAllowedDatasets) {
+            LOG.info(String.format("User %s has %d datasets while maximum is %d",
+                    user.getId(), datasetCount, maxAllowedDatasets));
+            throw new QuotaExceededException("Dear " + user.getId()
+                    + ", your quota has been exceeded; you already have " + datasetCount + " datasets. "
+                    + "No more than " + maxAllowedDatasets + " are allowed with your subscription.");
         }
-        
+
         ROG randomStringGenerator = new ROG(true);
         dataset.setId(randomStringGenerator.nextString(14));
         dataset.setFeatured(Boolean.FALSE);
@@ -293,34 +291,32 @@ public class DatasetResource {
             dataset.setMeta(new MetaInfo());
         }
         dataset.getMeta().setCreators(new HashSet<>(Arrays.asList(securityContext.getUserPrincipal().getName())));
+        dataset.setVisible(Boolean.TRUE);
         datasetHandler.create(dataset);
 
         return Response.created(new URI(dataset.getId())).entity(dataset).build();
 
     }
-    
+
     @POST
     @Path("/merge")
     @ApiOperation(value = "Merges Datasets")
     public Response mergeDatasets(
             @FormParam("dataset_uris") String datasetURIs,
-            @FormParam("visible") Boolean visible,
             @HeaderParam("subjectid") String subjectId) throws URISyntaxException, QuotaExceededException {
-        
-        if (visible != null && visible == true) {
-            User user = userHandler.find(securityContext.getUserPrincipal().getName());
-            long datasetCount = datasetHandler.countAllOfCreator(user.getId());
-            int maxAllowedDatasets = new UserFacade(user).getMaxDatasets();
-            
-            if (datasetCount > maxAllowedDatasets) {
-                LOG.info(String.format("User %s has %d datasets while maximum is %d",
-                        user.getId(), datasetCount, maxAllowedDatasets));
-                throw new QuotaExceededException("Dear " + user.getId()
-                        + ", your quota has been exceeded; you already have " + datasetCount + " datasets. "
-                        + "No more than " + maxAllowedDatasets + " are allowed with your subscription.");
-            }
+
+        User user = userHandler.find(securityContext.getUserPrincipal().getName());
+        long datasetCount = datasetHandler.countAllOfCreator(user.getId());
+        int maxAllowedDatasets = new UserFacade(user).getMaxDatasets();
+
+        if (datasetCount > maxAllowedDatasets) {
+            LOG.info(String.format("User %s has %d datasets while maximum is %d",
+                    user.getId(), datasetCount, maxAllowedDatasets));
+            throw new QuotaExceededException("Dear " + user.getId()
+                    + ", your quota has been exceeded; you already have " + datasetCount + " datasets. "
+                    + "No more than " + maxAllowedDatasets + " are allowed with your subscription.");
         }
-        
+
         String[] datasets = datasetURIs.split(",");
         Dataset dataset = null;
         for (String datasetURI : datasets) {
@@ -334,18 +330,18 @@ public class DatasetResource {
         ROG randomStringGenerator = new ROG(true);
         dataset.setId(randomStringGenerator.nextString(14));
         dataset.setFeatured(Boolean.FALSE);
-        dataset.setVisible(visible != null ? visible : false);
+        dataset.setVisible(true);
         if (dataset.getMeta() == null) {
             dataset.setMeta(new MetaInfo());
         }
         dataset.getMeta().setCreators(new HashSet<>(Arrays.asList(securityContext.getUserPrincipal().getName())));
-        
+
         datasetHandler.create(dataset);
-        
+
         return Response.created(new URI(dataset.getId())).entity(dataset).build();
-        
+
     }
-    
+
     @DELETE
     @Path("/{id}")
     @ApiOperation("Deletes dataset")
@@ -364,7 +360,7 @@ public class DatasetResource {
         datasetHandler.remove(ds);
         return Response.ok().build();
     }
-    
+
     @POST
     @Path("/{id}/qprf")
     @ApiOperation("Creates QPRF Report")
@@ -376,11 +372,11 @@ public class DatasetResource {
             @FormParam("title") String title,
             @FormParam("description") String description
     ) throws QuotaExceededException {
-        
+
         User user = userHandler.find(securityContext.getUserPrincipal().getName());
         long reportCount = reportHandler.countAllOfCreator(user.getId());
         int maxAllowedReports = new UserFacade(user).getMaxReports();
-        
+
         if (reportCount > maxAllowedReports) {
             LOG.info(String.format("User %s has %d algorithms while maximum is %d",
                     user.getId(), reportCount, maxAllowedReports));
@@ -388,7 +384,7 @@ public class DatasetResource {
                     + ", your quota has been exceeded; you already have " + reportCount + " reports. "
                     + "No more than " + maxAllowedReports + " are allowed with your subscription.");
         }
-        
+
         Dataset ds = datasetHandler.find(id);
         if (ds == null) {
             throw new NotFoundException("Dataset with id:" + id + " was not found on the server.");
@@ -412,7 +408,7 @@ public class DatasetResource {
         if (trainingDS == null) {
             throw new BadRequestException("The model that created this dataset does not point to a valid training dataset.");
         }
-        
+
         if (model.getTransformationModels() != null) {
             for (String transModelURI : model.getTransformationModels()) {
                 Model transModel = modelHandler.find(transModelURI.split("model/")[1]);
@@ -432,25 +428,25 @@ public class DatasetResource {
                 }
             }
         }
-        
+
         List<String> retainableFeatures = new ArrayList<>(model.getIndependentFeatures());
         retainableFeatures.addAll(model.getDependentFeatures());
-        
+
         trainingDS.getDataEntry().parallelStream()
                 .forEach(dataEntry -> {
                     dataEntry.getValues().keySet().retainAll(retainableFeatures);
                 });
-        
+
         DataEntry dataEntry = ds.getDataEntry().stream()
                 .filter(de -> de.getCompound().getURI().equals(substanceURI))
                 .findFirst()
                 .orElseThrow(() -> new BadRequestException(""));
-        
+
         trainingDS.getDataEntry().add(dataEntry);
         trainingDS.getMeta().setCreators(new HashSet<>(Arrays.asList(user.getId())));
-        
+
         Map<String, Object> parameters = new HashMap<>();
-        
+
         UrlValidator urlValidator = new UrlValidator();
         if (urlValidator.isValid(substanceURI)) {
             Dataset structures = client.target(substanceURI + "/structures")
@@ -468,7 +464,7 @@ public class DatasetResource {
                         String inchi = Optional.ofNullable(de.getValues().get("https://apps.ideaconsult.net/enmtest/feature/http%3A%2F%2Fwww.opentox.org%2Fapi%2F1.1%23InChI_stdDefault")).orElse("").toString();
                         String reach = Optional.ofNullable(de.getValues().get("https://apps.ideaconsult.net/enmtest/feature/http%3A%2F%2Fwww.opentox.org%2Fapi%2F1.1%23REACHRegistrationDateDefault")).orElse("").toString();
                         String iupac = Optional.ofNullable(de.getValues().get("https://apps.ideaconsult.net/enmtest/feature/http%3A%2F%2Fwww.opentox.org%2Fapi%2F1.1%23IUPACNameDefault")).orElse("").toString();
-                        
+
                         Map<String, String> structuresMap = new HashMap<>();
                         structuresMap.put("Compound", compound);
                         structuresMap.put("CasRN", casrn);
@@ -477,20 +473,32 @@ public class DatasetResource {
                         structuresMap.put("IUCLID 5 Reference substance UUID", iuclid5);
                         structuresMap.put("Std. InChI", inchi);
                         structuresMap.put("IUPAC name", iupac);
-                        
+
                         return structuresMap;
                     })
                     .collect(Collectors.toList());
             parameters.put("structures", structuresList);
+        } else {
+            List<Map<String, String>> structuresList = new ArrayList<>();
+            Map<String, String> structuresMap = new HashMap<>();
+            structuresMap.put("Compound", "");
+            structuresMap.put("CasRN", "");
+            structuresMap.put("EC number", "");
+            structuresMap.put("REACH registration date", "");
+            structuresMap.put("IUCLID 5 Reference substance UUID", "");
+            structuresMap.put("Std. InChI", "");
+            structuresMap.put("IUPAC name", "");
+            structuresList.add(structuresMap);
+            parameters.put("structures", structuresList);
         }
-        
+
         parameters.put("predictedFeature",
                 model
                 .getPredictedFeatures()
                 .stream()
                 .findFirst()
                 .orElseThrow(() -> new BadRequestException("Model does not have a valid predicted feature")));
-        
+
         parameters.put("algorithm", algorithmHandler.find(model.getAlgorithm().getId()));
         parameters.put("substanceURI", substanceURI);
         if (model.getLinkedModels() != null && !model.getLinkedModels().isEmpty()) {
@@ -501,20 +509,20 @@ public class DatasetResource {
             }
         }
         TrainingRequest request = new TrainingRequest();
-        
+
         request.setDataset(trainingDS);
         request.setParameters(parameters);
         request.setPredictionFeature(model.getDependentFeatures()
                 .stream()
                 .findFirst()
                 .orElseThrow(() -> new BadRequestException("Model does not have a valid prediction feature")));
-        
+
         Report report = client.target("http://147.102.82.32:8094/pws/qprf")
                 .request()
                 .header("Content-Type", MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .post(Entity.json(request), Report.class);
-        
+
         report.setMeta(MetaInfoBuilder.builder()
                 .addTitles(title)
                 .addDescriptions(description)
@@ -524,10 +532,10 @@ public class DatasetResource {
         report.setId(new ROG(true).nextString(15));
         report.setVisible(Boolean.TRUE);
         reportHandler.create(report);
-        
+
         return Response.ok(report).build();
     }
-    
+
     @POST
     @Path("/{id}/qprf-dummy")
     @ApiOperation("Creates QPRF Report")
@@ -539,7 +547,7 @@ public class DatasetResource {
             @FormParam("title") String title,
             @FormParam("description") String description
     ) {
-        
+
         Dataset ds = datasetHandler.find(id);
         if (ds == null) {
             throw new NotFoundException("Dataset with id:" + id + " was not found on the server.");
@@ -563,7 +571,7 @@ public class DatasetResource {
         if (trainingDS == null) {
             throw new BadRequestException("The model that created this dataset does not point to a valid training dataset.");
         }
-        
+
         if (model.getTransformationModels() != null) {
             for (String transModelURI : model.getTransformationModels()) {
                 Model transModel = modelHandler.find(transModelURI.split("model/")[1]);
@@ -583,24 +591,24 @@ public class DatasetResource {
                 }
             }
         }
-        
+
         List<String> retainableFeatures = new ArrayList<>(model.getIndependentFeatures());
         retainableFeatures.addAll(model.getDependentFeatures());
-        
+
         trainingDS.getDataEntry().parallelStream()
                 .forEach(dataEntry -> {
                     dataEntry.getValues().keySet().retainAll(retainableFeatures);
                 });
-        
+
         DataEntry dataEntry = ds.getDataEntry().stream()
                 .filter(de -> de.getCompound().getURI().equals(substanceURI))
                 .findFirst()
                 .orElseThrow(() -> new BadRequestException(""));
-        
+
         trainingDS.getDataEntry().add(dataEntry);
-        
+
         Map<String, Object> parameters = new HashMap<>();
-        
+
         UrlValidator urlValidator = new UrlValidator();
         if (urlValidator.isValid(substanceURI)) {
             Dataset structures = client.target(substanceURI + "/structures")
@@ -618,7 +626,7 @@ public class DatasetResource {
                         String inchi = Optional.ofNullable(de.getValues().get("https://apps.ideaconsult.net/enmtest/feature/http%3A%2F%2Fwww.opentox.org%2Fapi%2F1.1%23InChI_stdDefault")).orElse("").toString();
                         String reach = Optional.ofNullable(de.getValues().get("https://apps.ideaconsult.net/enmtest/feature/http%3A%2F%2Fwww.opentox.org%2Fapi%2F1.1%23REACHRegistrationDateDefault")).orElse("").toString();
                         String iupac = Optional.ofNullable(de.getValues().get("https://apps.ideaconsult.net/enmtest/feature/http%3A%2F%2Fwww.opentox.org%2Fapi%2F1.1%23IUPACNameDefault")).orElse("").toString();
-                        
+
                         Map<String, String> structuresMap = new HashMap<>();
                         structuresMap.put("Compound", compound);
                         structuresMap.put("CasRN", casrn);
@@ -627,20 +635,32 @@ public class DatasetResource {
                         structuresMap.put("IUCLID 5 Reference substance UUID", iuclid5);
                         structuresMap.put("Std. InChI", inchi);
                         structuresMap.put("IUPAC name", iupac);
-                        
+
                         return structuresMap;
                     })
                     .collect(Collectors.toList());
             parameters.put("structures", structuresList);
+        } else {
+            List<Map<String, String>> structuresList = new ArrayList<>();
+            Map<String, String> structuresMap = new HashMap<>();
+            structuresMap.put("Compound", "");
+            structuresMap.put("CasRN", "");
+            structuresMap.put("EC number", "");
+            structuresMap.put("REACH registration date", "");
+            structuresMap.put("IUCLID 5 Reference substance UUID", "");
+            structuresMap.put("Std. InChI", "");
+            structuresMap.put("IUPAC name", "");
+            structuresList.add(structuresMap);
+            parameters.put("structures", structuresList);
         }
-        
+
         parameters.put("predictedFeature",
                 model
                 .getPredictedFeatures()
                 .stream()
                 .findFirst()
                 .orElseThrow(() -> new BadRequestException("Model does not have a valid predicted feature")));
-        
+
         parameters.put("algorithm", algorithmHandler.find(model.getAlgorithm().getId()));
         parameters.put("substanceURI", substanceURI);
         if (model.getLinkedModels() != null && !model.getLinkedModels().isEmpty()) {
@@ -651,14 +671,14 @@ public class DatasetResource {
             }
         }
         TrainingRequest request = new TrainingRequest();
-        
+
         request.setDataset(trainingDS);
         request.setParameters(parameters);
         request.setPredictionFeature(model.getDependentFeatures()
                 .stream()
                 .findFirst()
                 .orElseThrow(() -> new BadRequestException("Model does not have a valid prediction feature")));
-        
+
         return Response.ok(request).build();
 //        Report report = client.target("http://147.102.82.32:8094/pws/qprf")
 //                .request()

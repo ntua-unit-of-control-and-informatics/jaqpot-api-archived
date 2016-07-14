@@ -111,7 +111,7 @@ public class TaskHandler extends AbstractHandler<Task> {
         properties.put("meta.creators", Arrays.asList(userName));
         properties.put("visible", true);
 
-        return em.find(Task.class, properties, start, max);
+        return em.findSortedDesc(Task.class, properties, start, max, Arrays.asList("meta.date"));
     }
 
     public Long countByUser(String userName) {
@@ -144,7 +144,7 @@ public class TaskHandler extends AbstractHandler<Task> {
         properties.put("status", status.name());
         properties.put("visible", true);
 
-        return em.find(Task.class, properties, start, max);
+        return em.findSortedDesc(Task.class, properties, start, max, Arrays.asList("meta.date"));
     }
 
     public Long countByUserAndStatus(String userName, Task.Status status) {

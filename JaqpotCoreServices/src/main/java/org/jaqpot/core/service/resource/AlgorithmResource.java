@@ -240,8 +240,9 @@ public class AlgorithmResource {
     public Response getAlgorithm(
             @ApiParam(value = "Authorization token") @HeaderParam("subjectid") String subjectId,
             @PathParam("id") String algorithmId) throws ParameterIsNullException {
-        if (algorithmId==null)
+        if (algorithmId == null) {
             throw new ParameterIsNullException("algorithmId");
+        }
 
         Algorithm algorithm = algorithmHandler.find(algorithmId);
         if (algorithm == null) {
@@ -267,36 +268,39 @@ public class AlgorithmResource {
             @ApiParam(name = "transformations", defaultValue = DEFAULT_TRANSFORMATIONS) @FormParam("transformations") String transformations,
             @ApiParam(name = "scaling", defaultValue = STANDARIZATION) @FormParam("scaling") String scaling, //, allowableValues = SCALING + "," + STANDARIZATION
             @ApiParam(name = "doa", defaultValue = DEFAULT_DOA) @FormParam("doa") String doa,
-            @FormParam("visible") Boolean visible,
             @PathParam("id") String algorithmId,
             @HeaderParam("subjectid") String subjectId) throws QuotaExceededException, ParameterIsNullException, ParameterInvalidURIException, ParameterTypeException, ParameterRangeException, ParameterScopeException {
 
-        if (datasetURI==null)
+        if (datasetURI == null) {
             throw new ParameterIsNullException("datasetURI");
-        if (title==null)
+        }
+        if (title == null) {
             throw new ParameterIsNullException("title");
-        if (description==null)
+        }
+        if (description == null) {
             throw new ParameterIsNullException("description");
-        if (predictionFeature==null)
+        }
+        if (predictionFeature == null) {
             throw new ParameterIsNullException("predictionFeature");
+        }
         UrlValidator urlValidator = new UrlValidator();
-        if (!urlValidator.isValid(datasetURI))
+        if (!urlValidator.isValid(datasetURI)) {
             throw new ParameterInvalidURIException("Not valid Dataset URI.");
-        if (!urlValidator.isValid(predictionFeature))
+        }
+        if (!urlValidator.isValid(predictionFeature)) {
             throw new ParameterInvalidURIException("Not valid Prediction Feature URI.");
+        }
 
-        if (visible != null && visible) {
-            User user = userHandler.find(securityContext.getUserPrincipal().getName());
-            long modelCount = modelHandler.countAllOfCreator(user.getId());
-            int maxAllowedModels = new UserFacade(user).getMaxModels();
+        User user = userHandler.find(securityContext.getUserPrincipal().getName());
+        long modelCount = modelHandler.countAllOfCreator(user.getId());
+        int maxAllowedModels = new UserFacade(user).getMaxModels();
 
-            if (modelCount > maxAllowedModels) {
-                LOG.info(String.format("User %s has %d models while maximum is %d",
-                        user.getId(), modelCount, maxAllowedModels));
-                throw new QuotaExceededException("Dear " + user.getId()
-                        + ", your quota has been exceeded; you already have " + modelCount + " models. "
-                        + "No more than " + maxAllowedModels + " are allowed with your subscription.");
-            }
+        if (modelCount > maxAllowedModels) {
+            LOG.info(String.format("User %s has %d models while maximum is %d",
+                    user.getId(), modelCount, maxAllowedModels));
+            throw new QuotaExceededException("Dear " + user.getId()
+                    + ", your quota has been exceeded; you already have " + modelCount + " models. "
+                    + "No more than " + maxAllowedModels + " are allowed with your subscription.");
         }
 
         Map<String, Object> options = new HashMap<>();
@@ -309,7 +313,6 @@ public class AlgorithmResource {
         options.put("parameters", parameters);
         options.put("base_uri", uriInfo.getBaseUri().toString());
         options.put("creator", securityContext.getUserPrincipal().getName());
-        options.put("visible", visible != null ? visible : false);
 
         Map<String, String> transformationAlgorithms = new LinkedHashMap<>();
         if (transformations != null && !transformations.isEmpty()) {
@@ -333,10 +336,9 @@ public class AlgorithmResource {
             throw new NotFoundException("Could not find Algorithm with id:" + algorithmId);
         }
 
-
         ParameterValidator parameterValidator = new ParameterValidator(serializer);
 
-        parameterValidator.validate(parameters,algorithm.getParameters());
+        parameterValidator.validate(parameters, algorithm.getParameters());
 
         //return Response.ok().build();
         Task task = trainingService.initiateTraining(options, securityContext.getUserPrincipal().getName());
@@ -361,8 +363,9 @@ public class AlgorithmResource {
             @ApiParam(value = "ID of the algorithm which is to be deleted.", required = true) @PathParam("id") String id,
             @HeaderParam("subjectid") String subjectId) throws ParameterIsNullException {
 
-        if (id==null)
+        if (id == null) {
             throw new ParameterIsNullException("id");
+        }
 
         Algorithm algorithm = algorithmHandler.find(id);
 

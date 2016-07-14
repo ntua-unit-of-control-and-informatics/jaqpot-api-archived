@@ -103,8 +103,6 @@ public class ModelResource {
     @Context
     SecurityContext securityContext;
 
-
-
     @Inject
     @UnSecure
     Client client;
@@ -134,7 +132,7 @@ public class ModelResource {
             max = 500;
         }
         String creator = securityContext.getUserPrincipal().getName();
-        return Response.ok(modelHandler.listOnlyIDsOfCreator(creator, start != null ? start : 0, max))
+        return Response.ok(modelHandler.listMetaOfCreator(creator, start != null ? start : 0, max))
                 .header("total", modelHandler.countAllOfCreator(creator))
                 .build();
     }
@@ -374,31 +372,34 @@ public class ModelResource {
     )
     @org.jaqpot.core.service.annotations.Task
     public Response makePrediction(
-                // defaultValue = DEFAULT_DATASET
-            @ApiParam (name = "dataset_uri", required = true) @FormParam("dataset_uri") String datasetURI,
+            // defaultValue = DEFAULT_DATASET
+            @ApiParam(name = "dataset_uri", required = true) @FormParam("dataset_uri") String datasetURI,
             @FormParam("visible") Boolean visible,
-            @PathParam("id")    String id,
+            @PathParam("id") String id,
             @HeaderParam("subjectid") String subjectId) throws GeneralSecurityException, QuotaExceededException, ParameterIsNullException, ParameterInvalidURIException {
 
-        if (datasetURI==null) throw new ParameterIsNullException("datasetURI");
-        if (id==null) throw new ParameterIsNullException("id");
+        if (datasetURI == null) {
+            throw new ParameterIsNullException("datasetURI");
+        }
+        if (id == null) {
+            throw new ParameterIsNullException("id");
+        }
+
         UrlValidator urlValidator = new UrlValidator();
         if (!urlValidator.isValid(datasetURI)) {
             throw new ParameterInvalidURIException("Not valid dataset URI.");
         }
 
-        if (visible != null && visible == true) {
-            User user = userHandler.find(securityContext.getUserPrincipal().getName());
-            long datasetCount = datasetHandler.countAllOfCreator(user.getId());
-            int maxAllowedDatasets = new UserFacade(user).getMaxDatasets();
+        User user = userHandler.find(securityContext.getUserPrincipal().getName());
+        long datasetCount = datasetHandler.countAllOfCreator(user.getId());
+        int maxAllowedDatasets = new UserFacade(user).getMaxDatasets();
 
-            if (datasetCount > maxAllowedDatasets) {
-                LOG.info(String.format("User %s has %d datasets while maximum is %d",
-                        user.getId(), datasetCount, maxAllowedDatasets));
-                throw new QuotaExceededException("Dear " + user.getId()
-                        + ", your quota has been exceeded; you already have " + datasetCount + " datasets. "
-                        + "No more than " + maxAllowedDatasets + " are allowed with your subscription.");
-            }
+        if (datasetCount > maxAllowedDatasets) {
+            LOG.info(String.format("User %s has %d datasets while maximum is %d",
+                    user.getId(), datasetCount, maxAllowedDatasets));
+            throw new QuotaExceededException("Dear " + user.getId()
+                    + ", your quota has been exceeded; you already have " + datasetCount + " datasets. "
+                    + "No more than " + maxAllowedDatasets + " are allowed with your subscription.");
         }
 
         Model model = modelHandler.find(id);
@@ -411,7 +412,7 @@ public class ModelResource {
 
         ParameterValidator parameterValidator = new ParameterValidator();
 
-        parameterValidator.validateDataset(datasetMeta,requiredFeatures);
+        parameterValidator.validateDataset(datasetMeta, requiredFeatures);
 
         Map<String, Object> options = new HashMap<>();
         options.put("dataset_uri", datasetURI);
@@ -419,7 +420,6 @@ public class ModelResource {
         options.put("modelId", id);
         options.put("creator", securityContext.getUserPrincipal().getName());
         options.put("base_uri", uriInfo.getBaseUri().toString());
-        options.put("visible", visible != null ? visible : false);
         Task task = predictionService.initiatePrediction(options);
         return Response.ok(task).build();
     }
@@ -464,13 +464,13 @@ public class ModelResource {
         return Response.ok().build();
     }
 
-    private List<String> retrieveRequiredFeatures(Model model)
-    {
+    private List<String> retrieveRequiredFeatures(Model model) {
         if (model.getTransformationModels() != null && !model.getTransformationModels().isEmpty()) {
-            String transModelId = model.getTransformationModels().get(0).split("/model")[1];
+            String transModelId = model.getTransformationModels().get(0).split("model/")[1];
             Model transformationModel = modelHandler.findModelIndependentFeatures(transModelId);
-            if (transformationModel.getIndependentFeatures()!=null)
+            if (transformationModel != null && transformationModel.getIndependentFeatures() != null) {
                 return transformationModel.getIndependentFeatures();
+            }
         }
         return model.getIndependentFeatures();
     }

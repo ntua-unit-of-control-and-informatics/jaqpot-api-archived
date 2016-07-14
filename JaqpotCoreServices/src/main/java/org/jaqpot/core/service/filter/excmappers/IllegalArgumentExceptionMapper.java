@@ -34,38 +34,36 @@
  */
 package org.jaqpot.core.service.filter.excmappers;
 
-import org.jaqpot.core.model.ErrorReport;
-import org.jaqpot.core.model.factory.ErrorReportFactory;
-
-import javax.ejb.EJBException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.jaqpot.core.model.ErrorReport;
+import org.jaqpot.core.model.factory.ErrorReportFactory;
 
+/**
+ *
+ * @author Charalampos Chomenidis
+ */
 @Provider
-public class EJBExceptionMapper implements ExceptionMapper<EJBException> {
+public class IllegalArgumentExceptionMapper implements ExceptionMapper<IllegalArgumentException> {
 
-    private static final Logger LOG = Logger.getLogger(EJBExceptionMapper.class.getName());
+    private static final Logger LOG = Logger.getLogger(IllegalArgumentExceptionMapper.class.getName());
 
     @Override
-    public Response toResponse(EJBException exception) {
+    public Response toResponse(IllegalArgumentException exception) {
 
-        LOG.log(Level.FINEST, "EJBException exception caught", exception);
-        
-        Exception cause = exception.getCausedByException();     
-        ErrorReport error;
-        if (cause instanceof java.lang. IllegalArgumentException) {
-            error = ErrorReportFactory.badRequest(cause, null);
-        } else {
-            error = ErrorReportFactory.internalServerError(cause, null);
-        }
+        LOG.log(Level.FINE, "IllegalArgumentException exception caught", exception);
+
+        ErrorReport error = ErrorReportFactory.badRequest(exception, null);
 
         return Response
-                .ok(error, MediaType.APPLICATION_JSON)
-                .status(error.getHttpStatus())
+                .status(Response.Status.BAD_REQUEST)
+                .entity(error)
+                .type(MediaType.APPLICATION_JSON)
                 .build();
     }
+
 }

@@ -158,6 +158,7 @@ public class CrossValidationProcedure extends AbstractJaqpotProcedure {
                     .get(Algorithm.class)).orElseThrow(() -> new NotFoundException("Algorithm with URI:" + algorithmURI + " was not found."));
 
             progress(5f, "Algorithm retrieved successfully.");
+            checkCancelled();
 
             Dataset dataset = Optional.of(client.target(datasetURI)
                     .queryParam("stratify", stratify)
@@ -191,6 +192,7 @@ public class CrossValidationProcedure extends AbstractJaqpotProcedure {
                 });
                 transformations.putAll(newTransformations);
                 for (Algorithm transAlgorithm : transformationAlgorithms) {
+                    checkCancelled();
                     progress("-", "Starting transforming on algorithm:" + transAlgorithm.getId());
 
                     Map<String, Object> parameterMap = null;
@@ -264,6 +266,7 @@ public class CrossValidationProcedure extends AbstractJaqpotProcedure {
             }
 
             progress("Creating report...");
+            checkCancelled();
 
             TrainingRequest reportRequest = new TrainingRequest();
 

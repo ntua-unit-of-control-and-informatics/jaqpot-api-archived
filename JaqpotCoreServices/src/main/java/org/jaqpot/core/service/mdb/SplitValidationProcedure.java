@@ -1,15 +1,12 @@
 package org.jaqpot.core.service.mdb;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.ResourceBundle;
-import java.util.Set;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
@@ -21,14 +18,12 @@ import javax.inject.Inject;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.ws.rs.BadRequestException;
-import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import org.jaqpot.core.annotations.Jackson;
 import org.jaqpot.core.data.AlgorithmHandler;
-import org.jaqpot.core.data.ModelHandler;
 import org.jaqpot.core.data.ReportHandler;
 import org.jaqpot.core.data.TaskHandler;
 import org.jaqpot.core.data.serialize.JSONSerializer;
@@ -41,7 +36,6 @@ import org.jaqpot.core.model.builder.MetaInfoBuilder;
 import org.jaqpot.core.model.dto.dataset.Dataset;
 import org.jaqpot.core.model.dto.jpdi.TrainingRequest;
 import org.jaqpot.core.model.factory.DatasetFactory;
-import org.jaqpot.core.model.factory.ErrorReportFactory;
 import org.jaqpot.core.model.util.ROG;
 import org.jaqpot.core.service.annotations.Secure;
 import org.jaqpot.core.service.client.jpdi.JPDIClient;
@@ -55,10 +49,10 @@ import org.jaqpot.core.service.client.jpdi.JPDIClient;
  *
  */
 @MessageDriven(activationConfig = {
-        @ActivationConfigProperty(propertyName = "destinationLookup",
-                propertyValue = "java:jboss/exported/jms/topic/validationSplit"),
-        @ActivationConfigProperty(propertyName = "destinationType",
-                propertyValue = "javax.jms.Topic")
+    @ActivationConfigProperty(propertyName = "destinationLookup",
+            propertyValue = "java:jboss/exported/jms/topic/validationSplit"),
+    @ActivationConfigProperty(propertyName = "destinationType",
+            propertyValue = "javax.jms.Topic")
 })
 public class SplitValidationProcedure extends AbstractJaqpotProcedure {
 
@@ -127,6 +121,7 @@ public class SplitValidationProcedure extends AbstractJaqpotProcedure {
                     .get(Algorithm.class)).orElseThrow(() -> new NotFoundException("Algorithm with URI:" + algorithmURI + " was not found."));
 
             progress(5f, "Algorithm retrieved successfully.");
+            checkCancelled();
 
             Dataset dataset = Optional.of(client.target(datasetURI)
                     .queryParam("stratify", stratify)
@@ -160,6 +155,7 @@ public class SplitValidationProcedure extends AbstractJaqpotProcedure {
                 });
                 transformations.putAll(newTransformations);
                 for (Algorithm transAlgorithm : transformationAlgorithms) {
+                    checkCancelled();
                     progress("-", "Starting transforming on algorithm:" + transAlgorithm.getId());
 
                     Map<String, Object> parameterMap = null;
@@ -183,9 +179,10 @@ public class SplitValidationProcedure extends AbstractJaqpotProcedure {
             Long split = Math.round(rows * splitRatio);
 
             Dataset trainDataset = DatasetFactory.copy(dataset, 0, split.intValue());
-            Dataset testDataset = DatasetFactory.copy(dataset,split.intValue(),rows-split.intValue());
+            Dataset testDataset = DatasetFactory.copy(dataset, split.intValue(), rows - split.intValue());
 
             progress(50f, "Created train and test datasets.");
+            checkCancelled();
 
             progress("Starting train and test with train_dataset:" + trainDataset.getDatasetURI() + " test_dataset:" + testDataset.getDatasetURI());
 
@@ -195,10 +192,11 @@ public class SplitValidationProcedure extends AbstractJaqpotProcedure {
             Model model = jpdiClient.train(trainDataset, algorithm, parameterMap, predictionFeature, trainDataset.getMeta(), taskId).get();
             Dataset predictedDataset = jpdiClient.predict(testDataset, model, testDataset.getMeta(), taskId).get();
 
-            addProgress(20f,"Finished train and test with train_dataset:" + trainDataset.getDatasetURI() + " test_dataset:" + testDataset.getDatasetURI());
+            addProgress(20f, "Finished train and test with train_dataset:" + trainDataset.getDatasetURI() + " test_dataset:" + testDataset.getDatasetURI());
+            checkCancelled();
 
             Dataset finalDataset = null;
-            finalDataset = DatasetFactory.mergeRows(finalDataset,predictedDataset);
+            finalDataset = DatasetFactory.mergeRows(finalDataset, predictedDataset);
             predictedFeature = model.getPredictedFeatures().get(0);
             indepFeatureSize = Math.max(indepFeatureSize, model.getIndependentFeatures().size());
 
@@ -240,7 +238,7 @@ public class SplitValidationProcedure extends AbstractJaqpotProcedure {
             report.setId(reportId);
             report.setMeta(MetaInfoBuilder
                     .builder()
-                    .addTitles("Cross validation report")
+                    .addTitles("Split validation report")
                     .addCreators(creator)
                     .addSources(datasetURI, algorithmURI)
                     .addDescriptions(splitRatio + " Split validation on algorithm:" + algorithmURI + " with dataset:" + datasetURI)
@@ -249,23 +247,22 @@ public class SplitValidationProcedure extends AbstractJaqpotProcedure {
             reportHandler.create(report);
             complete("report/" + report.getId());
 
-
-
-
-
-            checkCancelled();
-
-
-
-        }  catch (InterruptedException ex) {
+        } catch (InterruptedException ex) {
             LOG.log(Level.SEVERE, "Validation procedure interupted", ex);
             errInternalServerError(ex, "Validation procedure interupted");
         } catch (ExecutionException ex) {
             LOG.log(Level.SEVERE, "Validation procedure execution error", ex.getCause());
-            errInternalServerError(ex.getCause(), "JPDI Training procedure error");
-        } finally {
+            errInternalServerError(ex.getCause(), "JPDI Validation procedure error");
+        } catch (CancellationException ex) {
+            LOG.log(Level.INFO, "Task with id:{0} was cancelled", taskId);
+            cancel();
+        } catch (BadRequestException | IllegalArgumentException ex) {
+            errBadRequest(ex, null);
+        } catch (NotFoundException ex) {
+            errNotFound(ex);
+        } catch (Exception ex) {
+            LOG.log(Level.SEVERE, "JPDI Validation procedure unknown error", ex);
+            errInternalServerError(ex, "JPDI Validation procedure unknown error");
         }
-
-
     }
 }

@@ -185,10 +185,26 @@ public interface JaqpotEntityManager extends Closeable {
      */
     public <T extends JaqpotEntity> Long countAll(Class<T> entityClass);
 
-    public <T extends JaqpotEntity> T find(Class<T> entityClass, Object primaryKey, Map<String, Object> properties);
-
     /**
-    * Return specific fields of entity found by primaryKey.
-    * */
+     * Return specific fields of entity found by primaryKey.
+     *
+     * @param <T>
+     * @param entityClass entity class
+     * @param fields a list of fields to be returned
+     * @param primaryKey primary key
+     * @return only the specified fields of the entity with given primary key
+     */
     public <T extends JaqpotEntity> T find(Class<T> entityClass, Object primaryKey, List<String> fields);
+
+    public <T extends JaqpotEntity> List<T> findSorted(Class<T> entityClass, Map<String, Object> properties, List<String> fields, Integer start, Integer max, List<String> ascendingFields, List<String> descendingFields);
+    
+    public <T extends JaqpotEntity> List<T> findSortedAsc(Class<T> entityClass, Map<String, Object> properties, List<String> fields, Integer start, Integer max, List<String> ascendingFields);
+    
+    public <T extends JaqpotEntity> List<T> findSortedDesc(Class<T> entityClass, Map<String, Object> properties, List<String> fields, Integer start, Integer max, List<String> descendingFields);
+
+    public <T extends JaqpotEntity> List<T> findSorted(Class<T> entityClass, Map<String, Object> properties, Integer start, Integer max, List<String> ascendingFields, List<String> descendingFields);
+    
+    public <T extends JaqpotEntity> List<T> findSortedAsc(Class<T> entityClass, Map<String, Object> properties, Integer start, Integer max, List<String> ascendingFields);
+    
+    public <T extends JaqpotEntity> List<T> findSortedDesc(Class<T> entityClass, Map<String, Object> properties, Integer start, Integer max, List<String> descendingFields);
 }
