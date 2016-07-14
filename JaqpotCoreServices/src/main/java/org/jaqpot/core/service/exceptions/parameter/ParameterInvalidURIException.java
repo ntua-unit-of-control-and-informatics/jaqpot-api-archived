@@ -32,18 +32,18 @@
  * All source files of JAQPOT Quattro that are stored on github are licensed
  * with the aforementioned licence.
  */
-package org.jaqpot.core.service.exceptions;
+package org.jaqpot.core.service.exceptions.parameter;
 
 /**
  *
  * @author chung
  */
-public class InvalidURIException extends Exception {
+public class ParameterInvalidURIException extends Exception {
 
-    public InvalidURIException() {
+    public ParameterInvalidURIException() {
     }
 
-    public InvalidURIException(String message) {
+    public ParameterInvalidURIException(String message) {
 
 
         super(message);

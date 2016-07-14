@@ -1,14 +1,9 @@
-package org.jaqpot.core.service.filter.excmappers;
+package org.jaqpot.core.service.filter.excmappers.parameter;
 
-/**
- * Created by root on 22/6/2016.
- */
-
-
-import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import org.jaqpot.core.model.ErrorReport;
 import org.jaqpot.core.model.builder.ErrorReportBuilder;
-import org.jaqpot.core.service.exceptions.IsNullException;
+import org.jaqpot.core.service.exceptions.parameter.ParameterRangeException;
+import org.jaqpot.core.service.exceptions.parameter.ParameterScopeException;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -19,18 +14,21 @@ import java.io.StringWriter;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * Created by root on 12/7/2016.
+ */
 @Provider
-public class IsNullExceptionMapper implements ExceptionMapper<IsNullException> {
-    private static final Logger LOG = Logger.getLogger(IsNullExceptionMapper.class.getName());
 
+public class ParameterScopeExceptionMapper implements ExceptionMapper<ParameterScopeException> {
+    private static final Logger LOG = Logger.getLogger(ParameterRangeExceptionMapper.class.getName());
     @Override
-    public Response toResponse(IsNullException exception) {
-        LOG.log(Level.INFO, "IsNull exception caught", exception);
+    public Response toResponse(ParameterScopeException exception) {
+        LOG.log(Level.INFO, "ParameterScope exception caught", exception);
         StringWriter sw = new StringWriter();
         exception.printStackTrace(new PrintWriter(sw));
         String details = sw.toString();
         ErrorReport error = ErrorReportBuilder.builderRandomId()
-                .setCode("IsNullException")
+                .setCode("ParameterScopeException")
                 .setMessage(exception.getMessage())
                 .setDetails(details)
                 .setHttpStatus(400)
@@ -42,3 +40,4 @@ public class IsNullExceptionMapper implements ExceptionMapper<IsNullException> {
     }
 
 }
+

@@ -67,6 +67,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
+
+import org.apache.commons.validator.routines.UrlValidator;
 import org.jaqpot.core.annotations.Jackson;
 import org.jaqpot.core.data.AlgorithmHandler;
 import org.jaqpot.core.data.ModelHandler;
@@ -82,7 +84,9 @@ import org.jaqpot.core.model.factory.ErrorReportFactory;
 import org.jaqpot.core.model.util.ROG;
 import org.jaqpot.core.service.annotations.Authorize;
 import org.jaqpot.core.service.data.TrainingService;
+import org.jaqpot.core.service.exceptions.parameter.*;
 import org.jaqpot.core.service.exceptions.QuotaExceededException;
+import org.jaqpot.core.service.validator.ParameterValidator;
 
 /**
  *
@@ -235,7 +239,11 @@ public class AlgorithmResource {
     )
     public Response getAlgorithm(
             @ApiParam(value = "Authorization token") @HeaderParam("subjectid") String subjectId,
-            @PathParam("id") String algorithmId) {
+            @PathParam("id") String algorithmId) throws ParameterIsNullException {
+        if (algorithmId == null) {
+            throw new ParameterIsNullException("algorithmId");
+        }
+
         Algorithm algorithm = algorithmHandler.find(algorithmId);
         if (algorithm == null) {
             throw new NotFoundException("Could not find Algorithm with id:" + algorithmId);
@@ -252,8 +260,8 @@ public class AlgorithmResource {
     )
     @org.jaqpot.core.service.annotations.Task
     public Response trainModel(
-            @ApiParam(name = "title") @FormParam("title") String title,
-            @ApiParam(name = "description") @FormParam("description") String description,
+            @ApiParam(name = "title", required = true) @FormParam("title") String title,
+            @ApiParam(name = "description", required = true) @FormParam("description") String description,
             @ApiParam(name = "dataset_uri", defaultValue = DEFAULT_DATASET) @FormParam("dataset_uri") String datasetURI,
             @ApiParam(name = "prediction_feature", defaultValue = DEFAULT_PRED_FEATURE) @FormParam("prediction_feature") String predictionFeature,
             @FormParam("parameters") String parameters,
@@ -261,7 +269,27 @@ public class AlgorithmResource {
             @ApiParam(name = "scaling", defaultValue = STANDARIZATION) @FormParam("scaling") String scaling, //, allowableValues = SCALING + "," + STANDARIZATION
             @ApiParam(name = "doa", defaultValue = DEFAULT_DOA) @FormParam("doa") String doa,
             @PathParam("id") String algorithmId,
-            @HeaderParam("subjectid") String subjectId) throws QuotaExceededException {
+            @HeaderParam("subjectid") String subjectId) throws QuotaExceededException, ParameterIsNullException, ParameterInvalidURIException, ParameterTypeException, ParameterRangeException, ParameterScopeException {
+
+        if (datasetURI == null) {
+            throw new ParameterIsNullException("datasetURI");
+        }
+        if (title == null) {
+            throw new ParameterIsNullException("title");
+        }
+        if (description == null) {
+            throw new ParameterIsNullException("description");
+        }
+        if (predictionFeature == null) {
+            throw new ParameterIsNullException("predictionFeature");
+        }
+        UrlValidator urlValidator = new UrlValidator();
+        if (!urlValidator.isValid(datasetURI)) {
+            throw new ParameterInvalidURIException("Not valid Dataset URI.");
+        }
+        if (!urlValidator.isValid(predictionFeature)) {
+            throw new ParameterInvalidURIException("Not valid Prediction Feature URI.");
+        }
 
         User user = userHandler.find(securityContext.getUserPrincipal().getName());
         long modelCount = modelHandler.countAllOfCreator(user.getId());
@@ -276,8 +304,8 @@ public class AlgorithmResource {
         }
 
         Map<String, Object> options = new HashMap<>();
-        options.put("title", title != null ? title : "");
-        options.put("description", description != null ? description : "");
+        options.put("title", title);
+        options.put("description", description);
         options.put("dataset_uri", datasetURI);
         options.put("prediction_feature", predictionFeature);
         options.put("subjectid", subjectId);
@@ -302,6 +330,17 @@ public class AlgorithmResource {
             LOG.log(Level.INFO, "Transformations:{0}", transformationAlgorithmsString);
             options.put("transformations", transformationAlgorithmsString);
         }
+
+        Algorithm algorithm = algorithmHandler.find(algorithmId);
+        if (algorithm == null) {
+            throw new NotFoundException("Could not find Algorithm with id:" + algorithmId);
+        }
+
+        ParameterValidator parameterValidator = new ParameterValidator(serializer);
+
+        parameterValidator.validate(parameters, algorithm.getParameters());
+
+        //return Response.ok().build();
         Task task = trainingService.initiateTraining(options, securityContext.getUserPrincipal().getName());
 
         return Response.ok(task).build();
@@ -322,7 +361,12 @@ public class AlgorithmResource {
     })
     public Response deleteAlgorithm(
             @ApiParam(value = "ID of the algorithm which is to be deleted.", required = true) @PathParam("id") String id,
-            @HeaderParam("subjectid") String subjectId) {
+            @HeaderParam("subjectid") String subjectId) throws ParameterIsNullException {
+
+        if (id == null) {
+            throw new ParameterIsNullException("id");
+        }
+
         Algorithm algorithm = algorithmHandler.find(id);
 
         String userName = securityContext.getUserPrincipal().getName();

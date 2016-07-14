@@ -65,8 +65,8 @@ import org.jaqpot.core.model.factory.ErrorReportFactory;
 import org.jaqpot.core.service.annotations.Authorize;
 import org.jaqpot.core.service.annotations.UnSecure;
 import org.jaqpot.core.service.data.PredictionService;
-import org.jaqpot.core.service.exceptions.InvalidURIException;
-import org.jaqpot.core.service.exceptions.IsNullException;
+import org.jaqpot.core.service.exceptions.parameter.ParameterInvalidURIException;
+import org.jaqpot.core.service.exceptions.parameter.ParameterIsNullException;
 import org.jaqpot.core.service.exceptions.QuotaExceededException;
 import org.jaqpot.core.service.validator.ParameterValidator;
 
@@ -374,21 +374,20 @@ public class ModelResource {
     public Response makePrediction(
             // defaultValue = DEFAULT_DATASET
             @ApiParam(name = "dataset_uri", required = true) @FormParam("dataset_uri") String datasetURI,
+            @FormParam("visible") Boolean visible,
             @PathParam("id") String id,
-            @HeaderParam("subjectid") String subjectId) throws GeneralSecurityException, QuotaExceededException, IsNullException, InvalidURIException {
+            @HeaderParam("subjectid") String subjectId) throws GeneralSecurityException, QuotaExceededException, ParameterIsNullException, ParameterInvalidURIException {
 
-        /**
-         * VALIDATION*
-         */
         if (datasetURI == null) {
-            throw new IsNullException("datasetURI");
+            throw new ParameterIsNullException("datasetURI");
         }
         if (id == null) {
-            throw new IsNullException("id");
+            throw new ParameterIsNullException("id");
         }
+
         UrlValidator urlValidator = new UrlValidator();
         if (!urlValidator.isValid(datasetURI)) {
-            throw new InvalidURIException("Not valid dataset URI.");
+            throw new ParameterInvalidURIException("Not valid dataset URI.");
         }
 
         User user = userHandler.find(securityContext.getUserPrincipal().getName());
