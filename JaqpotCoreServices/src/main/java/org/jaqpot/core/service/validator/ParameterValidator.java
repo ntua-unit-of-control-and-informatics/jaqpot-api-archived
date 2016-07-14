@@ -67,9 +67,10 @@ public class ParameterValidator {
         }
 
         //For each parameter in set
-        if (parameterMap!=null)
+        if (parameterMap!=null && parameters!=null)
         for (Map.Entry<String, Object> entry : parameterMap.entrySet()) {
             String parameterId = entry.getKey();
+
             Parameter parameter = parameters.stream()
                     .filter(p -> p.getId().equals(parameterId))
                     .findFirst().orElseThrow(() -> new ParameterTypeException("Could not recognise parameter with id:" + parameterId));
@@ -103,10 +104,7 @@ public class ParameterValidator {
                     break;
                 case STRING:
                     if (StringUtils.isAlphanumericSpace(value.toString())) {
-                        List<String> strings = parameter.getAllowedValues().stream()
-                                .map(object -> (object != null ? object.toString() : null))
-                                .collect(Collectors.toList());
-                        checkAllowedValues(parameterId,value.toString(), strings);
+                        checkAllowedValues(parameterId,value.toString(),  parameter.getAllowedValues());
                         if (parameter.getMinValue()!=null && isNumeric(parameter.getMinValue().toString()))
                             checkIsLessThan(parameterId,value.toString(), parameter.getMinValue().toString());
                         if (parameter.getMaxValue()!=null && isNumeric(parameter.getMaxValue().toString()))
