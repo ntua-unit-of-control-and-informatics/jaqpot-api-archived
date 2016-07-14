@@ -93,7 +93,7 @@ public class ParameterValidator {
                 case NUMERIC:
                     if (isNumeric(value.toString())) {
                         if (parameter.getAllowedValues()!=null)
-                            checkAllowedValues(parameterId,Double.parseDouble(value.toString()), (List<Double>) (List<?>) parameter.getAllowedValues());
+                            checkAllowedValues(parameterId,value, parameter.getAllowedValues());
                         if (parameter.getMinValue()!=null && isNumeric(parameter.getMinValue().toString()))
                             checkIsLessThan(parameterId,Double.parseDouble(value.toString()), (Double.parseDouble(parameter.getMinValue().toString())));
                         if (parameter.getMaxValue()!=null && isNumeric(parameter.getMaxValue().toString()))
@@ -147,7 +147,7 @@ public class ParameterValidator {
         }
     }
 
-    static <T> boolean  checkAllowedValues(String parameterId, T value, List<T> elements) throws ParameterRangeException {
+    private static <T> boolean  checkAllowedValues(String parameterId, T value, List<T> elements) throws ParameterRangeException {
         if (value!=null)
             if (elements!=null) {
                 for (T o : elements) {
@@ -159,21 +159,21 @@ public class ParameterValidator {
         return true;
     }
 
-    static <T extends Comparable<? super T>> Boolean  checkIsLessThan (String parameterId, T value, T minimum) throws ParameterRangeException {
+    private static <T extends Comparable<? super T>> Boolean  checkIsLessThan(String parameterId, T value, T minimum) throws ParameterRangeException {
         if (minimum != null && isNumeric(minimum.toString()))
             if (value.compareTo(minimum)<0)
                 throw new ParameterRangeException("Parameter with id: '" + parameterId + "' has a value less than the parameter's allowed minimum");
         return true;
     }
 
-    static <T extends Comparable<? super T>> Boolean  checkIsGreaterThan (String parameterId, T value, T maximum) throws ParameterRangeException {
+    private static <T extends Comparable<? super T>> Boolean  checkIsGreaterThan(String parameterId, T value, T maximum) throws ParameterRangeException {
         if (maximum != null)
             if (value.compareTo(maximum)>0)
                 throw new ParameterRangeException("Parameter with id: '" + parameterId + "' has a value greater than the parameter's allowed maximum");
         return true;
     }
 
-    static Boolean checkMinMaxSize(String parameterId, Collection collection, Integer minSize, Integer maxSize) throws ParameterRangeException {
+    private static Boolean checkMinMaxSize(String parameterId, Collection collection, Integer minSize, Integer maxSize) throws ParameterRangeException {
         if (minSize!=null && isNumeric(minSize.toString()))
             if (collection.size()<minSize)
                 throw new ParameterRangeException("Parameter with id: '" + parameterId + "' has an array size lees than the parameter's allowed minimum array size");
@@ -185,7 +185,7 @@ public class ParameterValidator {
 
     //Returns if array is a (consistent) collection of Strings (Type.STRING) or Numbers (Type.NUMERIC).
     //else returns Type.UNDEFINED
-    static Type getTypeOfCollection(Collection collection)
+    private static Type getTypeOfCollection(Collection collection)
     {
         Type content = null;
         for (Object value:collection)
@@ -209,7 +209,7 @@ public class ParameterValidator {
 
     //Probably most performant solution to check for isNumeric, according to discussion here
     //http://stackoverflow.com/questions/1102891/how-to-check-if-a-string-is-numeric-in-java/1102916#1102916
-    static boolean isNumeric(String str)
+    private static boolean isNumeric(String str)
     {
         try
         {
