@@ -264,7 +264,7 @@ public class DatasetResource {
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces("text/uri-list")
+    @Produces({"text/uri-list", MediaType.APPLICATION_JSON})
     @ApiOperation(value = "Creates a new Dataset",
             notes = "The new Dataset created will be assigned on a random generated Id",
             response = Dataset.class)
@@ -296,6 +296,46 @@ public class DatasetResource {
 
         return Response.created(new URI(dataset.getId())).entity(dataset).build();
 
+    }
+
+    @POST
+    @Path("/empty")
+    @Produces({"text/uri-list", MediaType.APPLICATION_JSON})
+    @ApiOperation(value = "Creates a new empty Dataset",
+            notes = "The new empty Dataset created will be assigned on a random generated Id",
+            response = Dataset.class)
+    public Response createEmptyDataset(
+            @ApiParam(value = "Authorization token") @HeaderParam("subjectid") String subjectId,
+            @FormParam("title") String title,
+            @FormParam("description") String description) throws URISyntaxException, QuotaExceededException {
+
+        User user = userHandler.find(securityContext.getUserPrincipal().getName());
+        long datasetCount = datasetHandler.countAllOfCreator(user.getId());
+        int maxAllowedDatasets = new UserFacade(user).getMaxDatasets();
+
+        if (datasetCount > maxAllowedDatasets) {
+            LOG.info(String.format("User %s has %d datasets while maximum is %d",
+                    user.getId(), datasetCount, maxAllowedDatasets));
+            throw new QuotaExceededException("Dear " + user.getId()
+                    + ", your quota has been exceeded; you already have " + datasetCount + " datasets. "
+                    + "No more than " + maxAllowedDatasets + " are allowed with your subscription.");
+        }
+
+        Dataset emptyDataset = DatasetFactory.createEmpty(0);
+        ROG randomStringGenerator = new ROG(true);
+        emptyDataset.setId(randomStringGenerator.nextString(14));
+        emptyDataset.setFeatured(Boolean.FALSE);
+        emptyDataset.setMeta(MetaInfoBuilder.builder()
+                .addTitles(title)
+                .addDescriptions(description)
+                .build()
+        );
+
+        emptyDataset.getMeta().setCreators(new HashSet<>(Arrays.asList(securityContext.getUserPrincipal().getName())));
+        emptyDataset.setVisible(Boolean.TRUE);
+        datasetHandler.create(emptyDataset);
+
+        return Response.created(new URI(emptyDataset.getId())).entity(emptyDataset).build();
     }
 
     @POST
