@@ -70,9 +70,9 @@ public class DatasetHandler extends AbstractHandler<Dataset> {
 
     @Override
     public void create(Dataset dataset) throws IllegalArgumentException {
-        if (dataset.getDataEntry() == null || dataset.getDataEntry().isEmpty()) {
-            throw new IllegalArgumentException("Resulting dataset is empty");
-        }
+//        if (dataset.getDataEntry() == null || dataset.getDataEntry().isEmpty()) {
+//            throw new IllegalArgumentException("Resulting dataset is empty");
+//        }
         HashSet<String> features = dataset.getFeatures().stream().map(FeatureInfo::getURI).collect(Collectors.toCollection(HashSet::new));
         for (DataEntry dataEntry : dataset.getDataEntry()) {
             HashSet<String> entryFeatures = new HashSet<>(dataEntry.getValues().keySet());
@@ -97,9 +97,9 @@ public class DatasetHandler extends AbstractHandler<Dataset> {
 
     @Override
     public void edit(Dataset dataset) throws IllegalArgumentException {
-        if (dataset.getDataEntry().isEmpty()) {
-            throw new IllegalArgumentException("Resulting dataset is empty");
-        }
+//        if (dataset.getDataEntry().isEmpty()) {
+//            throw new IllegalArgumentException("Resulting dataset is empty");
+//        }
         HashSet<String> features = dataset.getFeatures().stream().map(FeatureInfo::getURI).collect(Collectors.toCollection(HashSet::new));
         for (DataEntry dataEntry : dataset.getDataEntry()) {
             HashSet<String> entryFeatures = new HashSet<>(dataEntry.getValues().keySet());
@@ -124,7 +124,7 @@ public class DatasetHandler extends AbstractHandler<Dataset> {
                 case "normal":
                     dataset = DatasetFactory.stratify(dataset, folds, targetFeature);
                     break;
-                case "default":
+                default:
                     break;
             }
         }
@@ -136,27 +136,29 @@ public class DatasetHandler extends AbstractHandler<Dataset> {
             colStart = 0;
         }
 
-        if (dataset.getTotalRows() == null)
+        if (dataset.getTotalRows() == null) {
             dataset.setTotalRows(dataset.getDataEntry().size());
+        }
 
-        if (dataset.getTotalColumns() == null)
+        if (dataset.getTotalColumns() == null) {
             dataset.setTotalColumns(dataset.getDataEntry()
                     .stream()
                     .max((e1, e2) -> Integer.compare(e1.getValues().size(), e2.getValues().size()))
                     .get()
                     .getValues().size());
-
-        if (rowMax == null || rowMax > dataset.getTotalRows()) {
-            rowMax = dataset.getTotalRows();
-        }
-        if (colMax == null || colMax > dataset.getTotalColumns()) {
-            colMax = dataset.getTotalColumns();
         }
 
-        dataset.setDataEntry(dataset.getDataEntry().subList(rowStart, rowStart + rowMax));
+        int rowEnd;
+        if (rowMax == null || (rowEnd = rowStart + rowMax) > dataset.getTotalRows()) {
+            rowEnd = dataset.getTotalRows();
+        }
+        if (colMax == null || colStart + colMax > dataset.getTotalColumns()) {
+            colMax = dataset.getTotalColumns() - colStart;
+        }
+
+        dataset.setDataEntry(dataset.getDataEntry().subList(rowStart, rowEnd));
 
         for (DataEntry de : dataset.getDataEntry()) {
-            Integer entryColMax = de.getValues().size() < colMax ? de.getValues().size() : colMax;
             TreeMap<String, Object> values = (TreeMap) de.getValues();
             NavigableSet<String> valuesSet = values.navigableKeySet();
 
@@ -165,7 +167,7 @@ public class DatasetHandler extends AbstractHandler<Dataset> {
                 it.next();
                 it.remove();
             }
-            for (int i = 0; i < entryColMax; i++) {
+            for (int i = 0; i < colMax; i++) {
                 it.next();
             }
             while (it.hasNext()) {
