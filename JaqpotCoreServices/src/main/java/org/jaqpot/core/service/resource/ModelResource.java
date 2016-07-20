@@ -409,9 +409,7 @@ public class ModelResource {
         String datasetId = datasetURI.split("dataset/")[1];
         Dataset datasetMeta = datasetHandler.findMeta(datasetId);
         List<String> requiredFeatures = retrieveRequiredFeatures(model);
-        if (datasetMeta.getTotalRows()<2)
-            throw new BadRequestException("Dataset should have more than 1 row for a meaningful prediction");
-
+        
         ParameterValidator parameterValidator = new ParameterValidator();
 
         parameterValidator.validateDataset(datasetMeta, requiredFeatures);
