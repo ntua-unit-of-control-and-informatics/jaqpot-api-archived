@@ -104,7 +104,8 @@ public class ParameterValidator {
                     break;
                 case STRING:
                     if (StringUtils.isAlphanumericSpace(value.toString())) {
-                        checkAllowedValues(parameterId,value.toString(),  parameter.getAllowedValues());
+                        if (parameter.getAllowedValues()!=null)
+                            checkAllowedValues(parameterId,value.toString(),  parameter.getAllowedValues());
                         if (parameter.getMinValue()!=null && isNumeric(parameter.getMinValue().toString()))
                             checkIsLessThan(parameterId,value.toString(), parameter.getMinValue().toString());
                         if (parameter.getMaxValue()!=null && isNumeric(parameter.getMaxValue().toString()))
@@ -115,7 +116,8 @@ public class ParameterValidator {
                     break;
                 case NUMERIC_ARRAY:
                     if ((value instanceof Collection && getTypeOfCollection((Collection) value) == Type.NUMERIC_ARRAY)) {
-                        checkAllowedValues(parameterId,value, parameter.getAllowedValues());
+                        if (parameter.getAllowedValues()!=null)
+                            checkAllowedValues(parameterId,value, parameter.getAllowedValues());
                         checkMinMaxSize(parameterId,(Collection) value, parameter.getMinArraySize(), parameter.getMaxArraySize());
                         for (Object o : (Collection) value) {
                             if (parameter.getMinValue()!=null && isNumeric(parameter.getMinValue().toString()))
@@ -129,7 +131,8 @@ public class ParameterValidator {
                     break;
                 case STRING_ARRAY:
                     if ((value instanceof Collection && getTypeOfCollection((Collection) value) == Type.STRING_ARRAY)) {
-                        checkAllowedValues(parameterId,value, parameter.getAllowedValues());
+                        if (parameter.getAllowedValues()!=null)
+                            checkAllowedValues(parameterId,value, parameter.getAllowedValues());
                         checkMinMaxSize(parameterId,(Collection) value, parameter.getMinArraySize(), parameter.getMaxArraySize());
                         for (Object o : (Collection) value) {
                             if (parameter.getMinValue()!=null && isNumeric(parameter.getMinValue().toString()))
