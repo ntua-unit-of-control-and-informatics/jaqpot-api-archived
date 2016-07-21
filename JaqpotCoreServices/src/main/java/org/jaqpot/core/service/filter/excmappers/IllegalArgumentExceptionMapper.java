@@ -25,25 +25,45 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  * Source code:
  * The source code of JAQPOT Quattro is available on github at:
  * https://github.com/KinkyDesign/JaqpotQuattro
  * All source files of JAQPOT Quattro that are stored on github are licensed
- * with the aforementioned licence. 
+ * with the aforementioned licence.
  */
-package org.jaqpot.core.service.exceptions;
+package org.jaqpot.core.service.filter.excmappers;
+
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.ext.ExceptionMapper;
+import javax.ws.rs.ext.Provider;
+import org.jaqpot.core.model.ErrorReport;
+import org.jaqpot.core.model.factory.ErrorReportFactory;
 
 /**
  *
- * @author chung
+ * @author Charalampos Chomenidis
  */
-public class QuotaExceededException extends Exception {
+@Provider
+public class IllegalArgumentExceptionMapper implements ExceptionMapper<IllegalArgumentException> {
 
-    public QuotaExceededException() {
+    private static final Logger LOG = Logger.getLogger(IllegalArgumentExceptionMapper.class.getName());
+
+    @Override
+    public Response toResponse(IllegalArgumentException exception) {
+
+        LOG.log(Level.FINE, "IllegalArgumentException exception caught", exception);
+
+        ErrorReport error = ErrorReportFactory.badRequest(exception, null);
+
+        return Response
+                .status(Response.Status.BAD_REQUEST)
+                .entity(error)
+                .type(MediaType.APPLICATION_JSON)
+                .build();
     }
 
-    public QuotaExceededException(String message) {
-        super(message);
-    }
 }

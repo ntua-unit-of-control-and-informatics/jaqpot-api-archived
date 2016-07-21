@@ -51,6 +51,7 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import javax.ejb.EJB;
 import javax.inject.Inject;
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -159,7 +160,7 @@ public class DatasetResource {
             max = 500;
         }
         String creator = securityContext.getUserPrincipal().getName();
-        return Response.ok(datasetHandler.listOnlyIDsOfCreator(creator, start, max))
+        return Response.ok(datasetHandler.listMetaOfCreator(creator, start, max))
                 .status(Response.Status.OK)
                 .header("total", datasetHandler.countAllOfCreator(creator))
                 .build();
@@ -263,7 +264,7 @@ public class DatasetResource {
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces("text/uri-list")
+    @Produces({"text/uri-list", MediaType.APPLICATION_JSON})
     @ApiOperation(value = "Creates a new Dataset",
             notes = "The new Dataset created will be assigned on a random generated Id",
             response = Dataset.class)
@@ -271,18 +272,16 @@ public class DatasetResource {
             @ApiParam(value = "Authorization token") @HeaderParam("subjectid") String subjectId,
             Dataset dataset) throws URISyntaxException, QuotaExceededException {
 
-        if (dataset.getVisible() != null && dataset.getVisible() == true) {
-            User user = userHandler.find(securityContext.getUserPrincipal().getName());
-            long datasetCount = datasetHandler.countAllOfCreator(user.getId());
-            int maxAllowedDatasets = new UserFacade(user).getMaxDatasets();
+        User user = userHandler.find(securityContext.getUserPrincipal().getName());
+        long datasetCount = datasetHandler.countAllOfCreator(user.getId());
+        int maxAllowedDatasets = new UserFacade(user).getMaxDatasets();
 
-            if (datasetCount > maxAllowedDatasets) {
-                LOG.info(String.format("User %s has %d datasets while maximum is %d",
-                        user.getId(), datasetCount, maxAllowedDatasets));
-                throw new QuotaExceededException("Dear " + user.getId()
-                        + ", your quota has been exceeded; you already have " + datasetCount + " datasets. "
-                        + "No more than " + maxAllowedDatasets + " are allowed with your subscription.");
-            }
+        if (datasetCount > maxAllowedDatasets) {
+            LOG.info(String.format("User %s has %d datasets while maximum is %d",
+                    user.getId(), datasetCount, maxAllowedDatasets));
+            throw new QuotaExceededException("Dear " + user.getId()
+                    + ", your quota has been exceeded; you already have " + datasetCount + " datasets. "
+                    + "No more than " + maxAllowedDatasets + " are allowed with your subscription.");
         }
 
         ROG randomStringGenerator = new ROG(true);
@@ -292,6 +291,7 @@ public class DatasetResource {
             dataset.setMeta(new MetaInfo());
         }
         dataset.getMeta().setCreators(new HashSet<>(Arrays.asList(securityContext.getUserPrincipal().getName())));
+        dataset.setVisible(Boolean.TRUE);
         datasetHandler.create(dataset);
 
         return Response.created(new URI(dataset.getId())).entity(dataset).build();
@@ -299,25 +299,62 @@ public class DatasetResource {
     }
 
     @POST
+    @Path("/empty")
+    @Produces({"text/uri-list", MediaType.APPLICATION_JSON})
+    @ApiOperation(value = "Creates a new empty Dataset",
+            notes = "The new empty Dataset created will be assigned on a random generated Id",
+            response = Dataset.class)
+    public Response createEmptyDataset(
+            @ApiParam(value = "Authorization token") @HeaderParam("subjectid") String subjectId,
+            @FormParam("title") String title,
+            @FormParam("description") String description) throws URISyntaxException, QuotaExceededException {
+
+        User user = userHandler.find(securityContext.getUserPrincipal().getName());
+        long datasetCount = datasetHandler.countAllOfCreator(user.getId());
+        int maxAllowedDatasets = new UserFacade(user).getMaxDatasets();
+
+        if (datasetCount > maxAllowedDatasets) {
+            LOG.info(String.format("User %s has %d datasets while maximum is %d",
+                    user.getId(), datasetCount, maxAllowedDatasets));
+            throw new QuotaExceededException("Dear " + user.getId()
+                    + ", your quota has been exceeded; you already have " + datasetCount + " datasets. "
+                    + "No more than " + maxAllowedDatasets + " are allowed with your subscription.");
+        }
+
+        Dataset emptyDataset = DatasetFactory.createEmpty(0);
+        ROG randomStringGenerator = new ROG(true);
+        emptyDataset.setId(randomStringGenerator.nextString(14));
+        emptyDataset.setFeatured(Boolean.FALSE);
+        emptyDataset.setMeta(MetaInfoBuilder.builder()
+                .addTitles(title)
+                .addDescriptions(description)
+                .build()
+        );
+
+        emptyDataset.getMeta().setCreators(new HashSet<>(Arrays.asList(securityContext.getUserPrincipal().getName())));
+        emptyDataset.setVisible(Boolean.TRUE);
+        datasetHandler.create(emptyDataset);
+
+        return Response.created(new URI(emptyDataset.getId())).entity(emptyDataset).build();
+    }
+
+    @POST
     @Path("/merge")
     @ApiOperation(value = "Merges Datasets")
     public Response mergeDatasets(
             @FormParam("dataset_uris") String datasetURIs,
-            @FormParam("visible") Boolean visible,
             @HeaderParam("subjectid") String subjectId) throws URISyntaxException, QuotaExceededException {
 
-        if (visible != null && visible == true) {
-            User user = userHandler.find(securityContext.getUserPrincipal().getName());
-            long datasetCount = datasetHandler.countAllOfCreator(user.getId());
-            int maxAllowedDatasets = new UserFacade(user).getMaxDatasets();
+        User user = userHandler.find(securityContext.getUserPrincipal().getName());
+        long datasetCount = datasetHandler.countAllOfCreator(user.getId());
+        int maxAllowedDatasets = new UserFacade(user).getMaxDatasets();
 
-            if (datasetCount > maxAllowedDatasets) {
-                LOG.info(String.format("User %s has %d datasets while maximum is %d",
-                        user.getId(), datasetCount, maxAllowedDatasets));
-                throw new QuotaExceededException("Dear " + user.getId()
-                        + ", your quota has been exceeded; you already have " + datasetCount + " datasets. "
-                        + "No more than " + maxAllowedDatasets + " are allowed with your subscription.");
-            }
+        if (datasetCount > maxAllowedDatasets) {
+            LOG.info(String.format("User %s has %d datasets while maximum is %d",
+                    user.getId(), datasetCount, maxAllowedDatasets));
+            throw new QuotaExceededException("Dear " + user.getId()
+                    + ", your quota has been exceeded; you already have " + datasetCount + " datasets. "
+                    + "No more than " + maxAllowedDatasets + " are allowed with your subscription.");
         }
 
         String[] datasets = datasetURIs.split(",");
@@ -333,7 +370,7 @@ public class DatasetResource {
         ROG randomStringGenerator = new ROG(true);
         dataset.setId(randomStringGenerator.nextString(14));
         dataset.setFeatured(Boolean.FALSE);
-        dataset.setVisible(visible != null ? visible : false);
+        dataset.setVisible(true);
         if (dataset.getMeta() == null) {
             dataset.setMeta(new MetaInfo());
         }

@@ -65,11 +65,8 @@ public class PredictionService {
                 (String) options.get("creator"));
         task.setType(Task.Type.PREDICTION);
         options.put("taskId", task.getId());
-        if ((Boolean) options.get("visible")) {
-            task.setVisible(Boolean.TRUE);
-        } else {
-            task.setVisible(Boolean.FALSE);
-        }
+        task.setVisible(Boolean.TRUE);
+
         taskHandler.create(task);
         jmsContext.createProducer().setDeliveryDelay(1000).send(predictionQueue, options);
         return task;

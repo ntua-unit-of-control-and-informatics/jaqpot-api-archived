@@ -84,8 +84,7 @@ public class MetaInfo {
         this.doi = other.doi != null ? new HashSet<>(other.doi) : null;
     }
 
-    public MetaInfo() {
-    }
+    public MetaInfo() {}
 
     public Set<String> getIdentifiers() {
         return identifiers;

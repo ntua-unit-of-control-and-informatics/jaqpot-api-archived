@@ -157,8 +157,19 @@ public class JPDIClientImpl implements JPDIClient {
                             model.setAlgorithm(algorithm);
                             model.setParameters(parameters);
                             model.setDatasetUri(dataset != null ? dataset.getDatasetURI() : null);
-//                            model.setPredictedFeatures(trainingResponse.getPredictedFeatures());
-                            model.setIndependentFeatures(trainingResponse.getIndependentFeatures());
+
+                            //Check if independedFeatures of model exist in dataset
+                            List<String> filteredIndependedFeatures= new ArrayList<String>();
+
+                            if (dataset!=null && dataset.getFeatures()!=null && trainingResponse.getIndependentFeatures()!=null)
+                            for (String feature:trainingResponse.getIndependentFeatures()){
+                                for (FeatureInfo featureInfo: dataset.getFeatures()){
+                                    if (feature.equals(featureInfo.getURI()))
+                                        filteredIndependedFeatures.add(feature);
+                                }
+                            }
+
+                            model.setIndependentFeatures(filteredIndependedFeatures);
                             model.setDependentFeatures(Arrays.asList(predictionFeature));
                             model.setMeta(modelMeta);
                             
