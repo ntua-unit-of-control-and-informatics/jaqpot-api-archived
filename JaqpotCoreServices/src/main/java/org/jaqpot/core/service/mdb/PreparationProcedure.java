@@ -21,10 +21,7 @@ import javax.ejb.ActivationConfigProperty;
 import javax.ejb.EJB;
 import javax.ejb.MessageDriven;
 import javax.inject.Inject;
-import javax.jms.JMSContext;
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.Topic;
+import javax.jms.*;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.client.Client;
 import java.util.Map;
@@ -43,7 +40,7 @@ import java.util.logging.Logger;
         @ActivationConfigProperty(propertyName = "destinationType",
                 propertyValue = "javax.jms.Topic")
 })
-public class PreparationProcedure extends AbstractJaqpotProcedure {
+public class PreparationProcedure extends AbstractJaqpotProcedure implements MessageListener {
 
     private static final Logger LOG = Logger.getLogger(PreparationProcedure.class.getName());
     @Resource(lookup = "java:jboss/exported/jms/topic/training")
@@ -78,6 +75,7 @@ public class PreparationProcedure extends AbstractJaqpotProcedure {
         super(null);
     }
 
+    @Inject
     public PreparationProcedure(TaskHandler taskHandler) {
         super(taskHandler);
     }
