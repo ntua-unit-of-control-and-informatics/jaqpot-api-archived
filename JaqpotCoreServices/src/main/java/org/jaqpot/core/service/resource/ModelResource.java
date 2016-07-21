@@ -409,7 +409,7 @@ public class ModelResource {
         String datasetId = datasetURI.split("dataset/")[1];
         Dataset datasetMeta = datasetHandler.findMeta(datasetId);
         List<String> requiredFeatures = retrieveRequiredFeatures(model);
-
+        
         ParameterValidator parameterValidator = new ParameterValidator();
 
         parameterValidator.validateDataset(datasetMeta, requiredFeatures);
