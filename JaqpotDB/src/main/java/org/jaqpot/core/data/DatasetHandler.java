@@ -54,20 +54,20 @@ import java.util.stream.Collectors;
  */
 @Stateless
 public class DatasetHandler extends AbstractHandler<Dataset> {
-
+    
     @Inject
     @MongoDB
     JaqpotEntityManager em;
-
+    
     public DatasetHandler() {
         super(Dataset.class);
     }
-
+    
     @Override
     protected JaqpotEntityManager getEntityManager() {
         return em;
     }
-
+    
     @Override
     public void create(Dataset dataset) throws IllegalArgumentException {
 //        if (dataset.getDataEntry() == null || dataset.getDataEntry().isEmpty()) {
@@ -94,7 +94,7 @@ public class DatasetHandler extends AbstractHandler<Dataset> {
         dataset.setVisible(Boolean.TRUE);
         super.create(dataset);
     }
-
+    
     @Override
     public void edit(Dataset dataset) throws IllegalArgumentException {
 //        if (dataset.getDataEntry().isEmpty()) {
@@ -110,7 +110,7 @@ public class DatasetHandler extends AbstractHandler<Dataset> {
         }
         getEntityManager().merge(dataset);
     }
-
+    
     public Dataset find(Object id, Integer rowStart, Integer rowMax, Integer colStart, Integer colMax, String stratify, Long seed, Integer folds, String targetFeature) {
         Dataset dataset = em.find(Dataset.class, id);
         if (dataset == null) {
@@ -128,18 +128,18 @@ public class DatasetHandler extends AbstractHandler<Dataset> {
                     break;
             }
         }
-
+        
         if (rowStart == null) {
             rowStart = 0;
         }
         if (colStart == null) {
             colStart = 0;
         }
-
+        
         if (dataset.getTotalRows() == null) {
             dataset.setTotalRows(dataset.getDataEntry().size());
         }
-
+        
         if (dataset.getTotalColumns() == null) {
             dataset.setTotalColumns(dataset.getDataEntry()
                     .stream()
@@ -147,7 +147,7 @@ public class DatasetHandler extends AbstractHandler<Dataset> {
                     .get()
                     .getValues().size());
         }
-
+        
         int rowEnd;
         if (rowMax == null || (rowEnd = rowStart + rowMax) > dataset.getTotalRows()) {
             rowEnd = dataset.getTotalRows();
@@ -155,13 +155,14 @@ public class DatasetHandler extends AbstractHandler<Dataset> {
         if (colMax == null || colStart + colMax > dataset.getTotalColumns()) {
             colMax = dataset.getTotalColumns() - colStart;
         }
-
+        
         dataset.setDataEntry(dataset.getDataEntry().subList(rowStart, rowEnd));
-
-        for (DataEntry de : dataset.getDataEntry()) {
+        
+        for (int j = 0; j < dataset.getDataEntry().size(); j++) {
+            DataEntry de = dataset.getDataEntry().get(j);
             TreeMap<String, Object> values = (TreeMap) de.getValues();
             NavigableSet<String> valuesSet = values.navigableKeySet();
-
+            
             Iterator<String> it = valuesSet.iterator();
             for (int i = 0; i < colStart; i++) {
                 it.next();
@@ -173,6 +174,9 @@ public class DatasetHandler extends AbstractHandler<Dataset> {
             while (it.hasNext()) {
                 it.next();
                 it.remove();
+            }
+            if (de.getCompound().getName() == null) {
+                de.getCompound().setName(Integer.toString(j+1));
             }
         }
 //        DataEntry blank = new DataEntry();
