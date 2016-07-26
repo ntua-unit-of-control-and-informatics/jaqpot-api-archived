@@ -283,6 +283,10 @@ public class AlgorithmResource {
                 throw new ParameterInvalidURIException("Not valid Dataset URI.");
             }
 
+            if (predictionFeature == null) {
+                throw new ParameterIsNullException("predictionFeature");
+            }
+
             String datasetId = datasetURI.split("dataset/")[1];
             Dataset datasetMeta = datasetHandler.findMeta(datasetId);
 
@@ -297,9 +301,7 @@ public class AlgorithmResource {
         if (description == null) {
             throw new ParameterIsNullException("description");
         }
-        if (predictionFeature == null) {
-            throw new ParameterIsNullException("predictionFeature");
-        }
+
         if (!urlValidator.isValid(predictionFeature)) {
             throw new ParameterInvalidURIException("Not valid Prediction Feature URI.");
         }
