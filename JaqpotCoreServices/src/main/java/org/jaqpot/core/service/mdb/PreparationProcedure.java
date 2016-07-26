@@ -26,6 +26,7 @@ import javax.ws.rs.BadRequestException;
 import javax.ws.rs.client.Client;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -160,6 +161,10 @@ public class PreparationProcedure extends AbstractJaqpotProcedure implements Mes
         } catch (BadRequestException ex) {
             errBadRequest(ex, "Error while processing input.");
             LOG.log(Level.SEVERE, null, ex);
+        }
+        catch (Exception ex) {
+            LOG.log(Level.SEVERE, "JPDI Validation procedure unknown error", ex);
+            errInternalServerError(ex, "JPDI Validation procedure unknown error");
         }
     }
 }
