@@ -170,11 +170,11 @@ public class AlgorithmResource {
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @ApiOperation(value = "Creates Algorithm",
             notes = "Registers a new JPDI-compliant algorithm service. When registering a new JPDI-compliant algorithm web service "
-                    + "it is crucial to propertly annotate your algorithm with appropriate ontological classes following the "
-                    + "<a href=\"http://opentox.org/dev/apis/api-1.1/Algorithms\">OpenTox algorithms ontology</a>. For instance, a "
-                    + "Clustering algorithm must be annotated with <code>ot:Clustering</code>. It is also important for "
-                    + "discoverability to add tags to your algorithm using the <code>meta.subjects</code> field. An example is "
-                    + "provided below.",
+            + "it is crucial to propertly annotate your algorithm with appropriate ontological classes following the "
+            + "<a href=\"http://opentox.org/dev/apis/api-1.1/Algorithms\">OpenTox algorithms ontology</a>. For instance, a "
+            + "Clustering algorithm must be annotated with <code>ot:Clustering</code>. It is also important for "
+            + "discoverability to add tags to your algorithm using the <code>meta.subjects</code> field. An example is "
+            + "provided below.",
             response = Algorithm.class
     )
     public Response createAlgorithm(
@@ -273,8 +273,8 @@ public class AlgorithmResource {
         }
 
         //Dataset validation should happen only in regression and classification algorithms
-        if (algorithm.getOntologicalClasses().contains("ot:Regression") ||
-                algorithm.getOntologicalClasses().contains("ot:Classification")) {
+        if (algorithm.getOntologicalClasses().contains("ot:Regression")
+                || algorithm.getOntologicalClasses().contains("ot:Classification")) {
             if (datasetURI == null) {
                 throw new ParameterIsNullException("datasetURI");
             }
@@ -290,8 +290,8 @@ public class AlgorithmResource {
             String datasetId = datasetURI.split("dataset/")[1];
             Dataset datasetMeta = datasetHandler.findMeta(datasetId);
 
-            if (datasetMeta.getTotalRows() < 2) {
-                throw new BadRequestException("Dataset should have more than 1 row for a meaningful prediction");
+            if (datasetMeta.getTotalRows() != null && datasetMeta.getTotalRows() < 2) {
+                throw new BadRequestException("Cannot train model on dataset with less than 2 rows.");
             }
         }
 
@@ -346,8 +346,6 @@ public class AlgorithmResource {
             options.put("transformations", transformationAlgorithmsString);
         }
 
-
-
         ParameterValidator parameterValidator = new ParameterValidator(serializer);
 
         parameterValidator.validate(parameters, algorithm.getParameters());
@@ -363,13 +361,13 @@ public class AlgorithmResource {
     @Path("/{id}")
     @ApiOperation(value = "Unregisters an algorithm of given ID",
             notes = "Deletes an algorithm of given ID. The application of this method "
-                    + "requires authentication and assumes certain priviledges."
+            + "requires authentication and assumes certain priviledges."
     )
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Algorithm deleted successfully"),
-            @ApiResponse(code = 401, message = "Wrong, missing or insufficient credentials. Error report is produced."),
-            @ApiResponse(code = 403, message = "This is a forbidden operation (do not attempt to repeat it)."),
-            @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
+        @ApiResponse(code = 200, message = "Algorithm deleted successfully"),
+        @ApiResponse(code = 401, message = "Wrong, missing or insufficient credentials. Error report is produced."),
+        @ApiResponse(code = 403, message = "This is a forbidden operation (do not attempt to repeat it)."),
+        @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
     })
     public Response deleteAlgorithm(
             @ApiParam(value = "ID of the algorithm which is to be deleted.", required = true) @PathParam("id") String id,
@@ -397,14 +395,14 @@ public class AlgorithmResource {
     @Consumes("application/json-patch+json")
     @ApiOperation(value = "Modifies a particular Algorithm resource",
             notes = "Modifies (applies a patch on) an Algorithm resource of a given ID. "
-                    + "This implementation of PATCH follows the RFC 6902 proposed standard. "
-                    + "See https://tools.ietf.org/rfc/rfc6902.txt for details.",
+            + "This implementation of PATCH follows the RFC 6902 proposed standard. "
+            + "See https://tools.ietf.org/rfc/rfc6902.txt for details.",
             position = 5)
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Algorithm deleted successfully"),
-            @ApiResponse(code = 401, message = "Wrong, missing or insufficient credentials. Error report is produced."),
-            @ApiResponse(code = 403, message = "This is a forbidden operation (do not attempt to repeat it)."),
-            @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
+        @ApiResponse(code = 200, message = "Algorithm deleted successfully"),
+        @ApiResponse(code = 401, message = "Wrong, missing or insufficient credentials. Error report is produced."),
+        @ApiResponse(code = 403, message = "This is a forbidden operation (do not attempt to repeat it)."),
+        @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
     })
     public Response modifyAlgorithm(
             @ApiParam("Clients need to authenticate in order to create resources on the server") @HeaderParam("subjectid") String subjectId,
