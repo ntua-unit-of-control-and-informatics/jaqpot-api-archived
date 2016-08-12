@@ -142,6 +142,9 @@ public class AlgorithmResource {
     @Jackson
     JSONSerializer serializer;
 
+    @Inject
+    ParameterValidator parameterValidator;
+
     @GET
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @ApiOperation(value = "Finds all Algorithms",
@@ -345,8 +348,6 @@ public class AlgorithmResource {
             LOG.log(Level.INFO, "Transformations:{0}", transformationAlgorithmsString);
             options.put("transformations", transformationAlgorithmsString);
         }
-
-        ParameterValidator parameterValidator = new ParameterValidator(serializer);
 
         parameterValidator.validate(parameters, algorithm.getParameters());
 

@@ -106,6 +106,9 @@ public class ModelResource {
     @Inject
     @UnSecure
     Client client;
+    
+    @Inject
+    ParameterValidator parameterValidator;
 
     @GET
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
@@ -410,8 +413,6 @@ public class ModelResource {
         Dataset datasetMeta = datasetHandler.findMeta(datasetId);
         List<String> requiredFeatures = retrieveRequiredFeatures(model);
         
-        ParameterValidator parameterValidator = new ParameterValidator();
-
         parameterValidator.validateDataset(datasetMeta, requiredFeatures);
 
         Map<String, Object> options = new HashMap<>();
