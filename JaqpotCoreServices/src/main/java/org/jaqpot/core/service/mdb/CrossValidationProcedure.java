@@ -79,7 +79,7 @@ import org.jaqpot.core.model.factory.ErrorReportFactory;
 import org.jaqpot.core.model.util.ROG;
 import org.jaqpot.core.service.annotations.Secure;
 import org.jaqpot.core.service.client.jpdi.JPDIClient;
-import org.jaqpot.core.service.properties.PropertyManager;
+import org.jaqpot.core.properties.PropertyManager;
 
 /**
  * @author Charalampos Chomenidis
@@ -283,7 +283,7 @@ public class CrossValidationProcedure extends AbstractJaqpotProcedure {
             validationParameters.put("type", validationType);
             reportRequest.setParameters(validationParameters);
 
-            String validationBasePath = propertyManager.getProperty(PropertyManager.PropertyType.VALIDATION_BASE_PATH);
+            String validationBasePath = propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_BASE_VALIDATION);
             Report report = client.target(validationBasePath)
                     .request()
                     .header("Content-Type", MediaType.APPLICATION_JSON)

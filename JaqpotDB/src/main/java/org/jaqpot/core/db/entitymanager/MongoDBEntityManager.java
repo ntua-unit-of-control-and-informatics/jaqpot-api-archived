@@ -61,6 +61,7 @@ import org.bson.Document;
 import org.jaqpot.core.data.serialize.JSONSerializer;
 import org.jaqpot.core.model.JaqpotEntity;
 import org.jaqpot.core.model.Model;
+import org.jaqpot.core.properties.PropertyManager;
 import org.reflections.Reflections;
 
 /**
@@ -80,6 +81,9 @@ public class MongoDBEntityManager implements JaqpotEntityManager {
     @Inject
     @MongoDB
     JSONSerializer serializer;
+
+    @Inject
+    PropertyManager propertyManager;
 
     private final MongoClient mongoClient;
     private String database;
@@ -107,20 +111,20 @@ public class MongoDBEntityManager implements JaqpotEntityManager {
     public MongoDBEntityManager() {
         LOG.log(Level.INFO, "Initializing MongoDB EntityManager");
 
-        ClassLoader classLoader = this.getClass().getClassLoader();
-        InputStream is = classLoader.getResourceAsStream("config/db.properties");
+//        ClassLoader classLoader = this.getClass().getClassLoader();
+//        InputStream is = classLoader.getResourceAsStream("config/db.properties");
         String dbName = "production"; // Default DB name in case no properties file is found!
         String dbHost = "localhost"; // Default DB host
         int dbPort = 27017; // Default DB port
         try {
-            dbProperties.load(is);
-            dbName = dbProperties.getProperty("db.name");
-            dbHost = dbProperties.getProperty("db.host", dbHost);
-            dbPort = Integer.parseInt(dbProperties.getProperty("db.port", Integer.toString(dbPort)));
+            //dbProperties.load(is);
+            dbName = propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_DB_NAME, dbName);
+            dbHost = propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_DB_HOST, dbHost);
+            dbPort = Integer.parseInt(propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_DB_PORT, Integer.toString(dbPort)));
             LOG.log(Level.INFO, "Database host : {0}", dbHost);
             LOG.log(Level.INFO, "Database port : {0}", dbPort);
             LOG.log(Level.INFO, "Database name : {0}", dbName);
-        } catch (IOException ex) {
+        } catch (Exception ex) {
             String errorMessage = "No DB properties file found!";
             LOG.log(Level.SEVERE, errorMessage, ex); // Log the event (but use the default properties)
         } finally {
@@ -233,7 +237,7 @@ public class MongoDBEntityManager implements JaqpotEntityManager {
                 .into(result);
         return result;
     }
-    
+
     @Override
     public <T extends JaqpotEntity> List<T> findSortedAsc(Class<T> entityClass, Map<String, Object> properties, Integer start, Integer max, List<String> ascendingFields) {
         MongoDatabase db = mongoClient.getDatabase(database);
@@ -258,7 +262,7 @@ public class MongoDBEntityManager implements JaqpotEntityManager {
                 .into(result);
         return result;
     }
-    
+
     @Override
     public <T extends JaqpotEntity> List<T> findSortedDesc(Class<T> entityClass, Map<String, Object> properties, Integer start, Integer max, List<String> descendingFields) {
         MongoDatabase db = mongoClient.getDatabase(database);
@@ -369,7 +373,7 @@ public class MongoDBEntityManager implements JaqpotEntityManager {
                 .into(result);
         return result;
     }
-    
+
     @Override
     public <T extends JaqpotEntity> List<T> findSortedAsc(Class<T> entityClass, Map<String, Object> properties, List<String> fields, Integer start, Integer max, List<String> ascendingFields) {
         MongoDatabase db = mongoClient.getDatabase(database);
@@ -397,7 +401,7 @@ public class MongoDBEntityManager implements JaqpotEntityManager {
                 .into(result);
         return result;
     }
-    
+
     @Override
     public <T extends JaqpotEntity> List<T> findSortedDesc(Class<T> entityClass, Map<String, Object> properties, List<String> fields, Integer start, Integer max, List<String> descendingFields) {
         MongoDatabase db = mongoClient.getDatabase(database);
