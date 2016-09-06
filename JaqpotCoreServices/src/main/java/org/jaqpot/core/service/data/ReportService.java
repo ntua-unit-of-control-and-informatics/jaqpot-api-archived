@@ -179,7 +179,7 @@ public class ReportService {
         chapter.add(paragraph);
 
         /** report Description */
-        if (report.getMeta()!=null && report.getMeta().getDescriptions()!=null && !report.getMeta().getDescriptions().isEmpty() && report.getMeta().getDescriptions().toString().equalsIgnoreCase("null")) {
+        if (report.getMeta()!=null && report.getMeta().getDescriptions()!=null && !report.getMeta().getDescriptions().isEmpty() && !report.getMeta().getDescriptions().toString().equalsIgnoreCase("null")) {
             paragraph = new Paragraph();
             paragraph.add(new Chunk("Description: ", paragraphFontBold));
             paragraph.add(new Chunk(report.getMeta().getDescriptions().toString().replaceAll(":http", ": http"), paragraphFont));
@@ -188,7 +188,7 @@ public class ReportService {
         }
 
         /** report model, algorithm and/or dataset id */
-        if (report.getMeta()!=null && report.getMeta().getHasSources()!=null && !report.getMeta().getHasSources().isEmpty() && !report.getMeta().getDescriptions().isEmpty() && report.getMeta().getDescriptions().toString().equalsIgnoreCase("null")) {
+        if (report.getMeta()!=null && report.getMeta().getHasSources()!=null && !report.getMeta().getHasSources().isEmpty() && !report.getMeta().getDescriptions().isEmpty() && !report.getMeta().getDescriptions().toString().equalsIgnoreCase("null")) {
             Iterator<String> sources = report.getMeta().getHasSources().iterator();
             sources.forEachRemaining(o -> {
                 if (o!=null) {
