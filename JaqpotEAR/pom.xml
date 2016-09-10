@@ -4,12 +4,12 @@
     <parent>
         <artifactId>JaqpotQuattro</artifactId>
         <groupId>org.kinkydesign</groupId>
-        <version>4.0.1</version>
+        <version>4.0.2</version>
     </parent>
 
     <groupId>org.kinkydesign</groupId>
     <artifactId>JaqpotEAR</artifactId>
-    <version>4.0.1</version>
+    <version>4.0.2</version>
     <packaging>ear</packaging>
 
     <name>JaqpotEAR</name>
@@ -99,31 +99,31 @@
         <dependency>
             <groupId>org.kinkydesign</groupId>
             <artifactId>JaqpotDomain</artifactId>
-            <version>4.0.1</version>
+            <version>4.0.2</version>
             <type>jar</type>
         </dependency>
         <dependency>
             <groupId>org.kinkydesign</groupId>
             <artifactId>JaqpotCoreServices</artifactId>
-            <version>4.0.1</version>
+            <version>4.0.2</version>
             <type>war</type>
         </dependency>
         <dependency>
             <groupId>org.kinkydesign</groupId>
             <artifactId>JaqpotDB</artifactId>
-            <version>4.0.1</version>
+            <version>4.0.2</version>
             <type>ejb</type>
         </dependency>
         <dependency>
             <groupId>org.kinkydesign</groupId>
             <artifactId>JaqpotAlgorithmServices</artifactId>
-            <version>4.0.1</version>
+            <version>4.0.2</version>
             <type>war</type>
         </dependency>
         <dependency>
             <groupId>org.kinkydesign</groupId>
             <artifactId>JaqpotJanitor</artifactId>
-            <version>4.0.1</version>
+            <version>4.0.2</version>
             <type>war</type>
         </dependency>
     </dependencies>
