@@ -60,7 +60,7 @@ public class BibTeXHandler extends AbstractHandler<BibTeX> {
     }
 
     @Override
-    public List<BibTeX> listOnlyIDs(Integer start, Integer max) {
+    public List<BibTeX> listMeta(Integer start, Integer max) {
         List<String> fields = new ArrayList<>();
         fields.add("_id");
         fields.add("meta");

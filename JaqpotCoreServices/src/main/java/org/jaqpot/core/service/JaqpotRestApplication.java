@@ -58,7 +58,6 @@ public class JaqpotRestApplication extends Application {
         beanConfig.setScan(true);
         beanConfig.setTitle("Jaqpot Quattro");
         beanConfig.setDescription("Jaqpot Quattro");
-
     }
 
     @Override

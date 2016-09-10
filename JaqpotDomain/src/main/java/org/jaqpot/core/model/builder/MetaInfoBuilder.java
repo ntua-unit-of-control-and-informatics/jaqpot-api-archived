@@ -231,5 +231,4 @@ public class MetaInfoBuilder implements EntityBuilder<MetaInfo> {
         meta.setDate(new Date());
         return this;
     }
-
 }

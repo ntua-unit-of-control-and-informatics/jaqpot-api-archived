@@ -51,24 +51,17 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ejb.EJB;
 import javax.inject.Inject;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.FormParam;
-import javax.ws.rs.GET;
-import javax.ws.rs.HeaderParam;
-import javax.ws.rs.NotFoundException;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
+
+import org.apache.commons.validator.routines.UrlValidator;
 import org.jaqpot.core.annotations.Jackson;
 import org.jaqpot.core.data.AlgorithmHandler;
+import org.jaqpot.core.data.DatasetHandler;
 import org.jaqpot.core.data.ModelHandler;
 import org.jaqpot.core.data.UserHandler;
 import org.jaqpot.core.data.serialize.JSONSerializer;
@@ -77,12 +70,15 @@ import org.jaqpot.core.model.MetaInfo;
 import org.jaqpot.core.model.Task;
 import org.jaqpot.core.model.User;
 import org.jaqpot.core.model.builder.AlgorithmBuilder;
+import org.jaqpot.core.model.dto.dataset.Dataset;
 import org.jaqpot.core.model.facades.UserFacade;
 import org.jaqpot.core.model.factory.ErrorReportFactory;
 import org.jaqpot.core.model.util.ROG;
 import org.jaqpot.core.service.annotations.Authorize;
 import org.jaqpot.core.service.data.TrainingService;
+import org.jaqpot.core.service.exceptions.parameter.*;
 import org.jaqpot.core.service.exceptions.QuotaExceededException;
+import org.jaqpot.core.service.validator.ParameterValidator;
 
 /**
  *
@@ -133,6 +129,9 @@ public class AlgorithmResource {
     @Context
     SecurityContext securityContext;
 
+    @EJB
+    DatasetHandler datasetHandler;
+
     @Context
     UriInfo uriInfo;
 
@@ -142,6 +141,9 @@ public class AlgorithmResource {
     @Inject
     @Jackson
     JSONSerializer serializer;
+
+    @Inject
+    ParameterValidator parameterValidator;
 
     @GET
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
@@ -235,7 +237,11 @@ public class AlgorithmResource {
     )
     public Response getAlgorithm(
             @ApiParam(value = "Authorization token") @HeaderParam("subjectid") String subjectId,
-            @PathParam("id") String algorithmId) {
+            @PathParam("id") String algorithmId) throws ParameterIsNullException {
+        if (algorithmId == null) {
+            throw new ParameterIsNullException("algorithmId");
+        }
+
         Algorithm algorithm = algorithmHandler.find(algorithmId);
         if (algorithm == null) {
             throw new NotFoundException("Could not find Algorithm with id:" + algorithmId);
@@ -252,35 +258,76 @@ public class AlgorithmResource {
     )
     @org.jaqpot.core.service.annotations.Task
     public Response trainModel(
-            @ApiParam(name = "title") @FormParam("title") String title,
-            @ApiParam(name = "description") @FormParam("description") String description,
+            @ApiParam(name = "title", required = true) @FormParam("title") String title,
+            @ApiParam(name = "description", required = true) @FormParam("description") String description,
             @ApiParam(name = "dataset_uri", defaultValue = DEFAULT_DATASET) @FormParam("dataset_uri") String datasetURI,
             @ApiParam(name = "prediction_feature", defaultValue = DEFAULT_PRED_FEATURE) @FormParam("prediction_feature") String predictionFeature,
             @FormParam("parameters") String parameters,
             @ApiParam(name = "transformations", defaultValue = DEFAULT_TRANSFORMATIONS) @FormParam("transformations") String transformations,
             @ApiParam(name = "scaling", defaultValue = STANDARIZATION) @FormParam("scaling") String scaling, //, allowableValues = SCALING + "," + STANDARIZATION
             @ApiParam(name = "doa", defaultValue = DEFAULT_DOA) @FormParam("doa") String doa,
-            @FormParam("visible") Boolean visible,
             @PathParam("id") String algorithmId,
-            @HeaderParam("subjectid") String subjectId) throws QuotaExceededException {
+            @HeaderParam("subjectid") String subjectId) throws QuotaExceededException, ParameterIsNullException, ParameterInvalidURIException, ParameterTypeException, ParameterRangeException, ParameterScopeException {
+        UrlValidator urlValidator = new UrlValidator();
 
-        if (visible != null && visible == true) {
-            User user = userHandler.find(securityContext.getUserPrincipal().getName());
-            long modelCount = modelHandler.countAllOfCreator(user.getId());
-            int maxAllowedModels = new UserFacade(user).getMaxModels();
+        Algorithm algorithm = algorithmHandler.find(algorithmId);
+        if (algorithm == null) {
+            throw new NotFoundException("Could not find Algorithm with id:" + algorithmId);
+        }
 
-            if (modelCount > maxAllowedModels) {
-                LOG.info(String.format("User %s has %d models while maximum is %d",
-                        user.getId(), modelCount, maxAllowedModels));
-                throw new QuotaExceededException("Dear " + user.getId()
-                        + ", your quota has been exceeded; you already have " + modelCount + " models. "
-                        + "No more than " + maxAllowedModels + " are allowed with your subscription.");
+        //Dataset validation should happen only in regression and classification algorithms
+        if (algorithm.getOntologicalClasses().contains("ot:Regression")
+                || algorithm.getOntologicalClasses().contains("ot:Classification")) {
+
+            if (datasetURI == null) {
+                throw new ParameterIsNullException("datasetURI");
+            }
+
+            if (!urlValidator.isValid(datasetURI)) {
+                throw new ParameterInvalidURIException("Not valid Dataset URI.");
+            }
+
+            String datasetId = datasetURI.split("dataset/")[1];
+            Dataset datasetMeta = datasetHandler.findMeta(datasetId);
+
+            if (datasetMeta.getTotalRows() != null && datasetMeta.getTotalRows() < 2) {
+                throw new BadRequestException("Cannot train model on dataset with less than 2 rows.");
             }
         }
 
+        //Prediction validation should not happen in enm:NoTarget  algorithms
+        if (algorithm.getOntologicalClasses().contains("enm:NoTarget")){
+            if (predictionFeature == null) {
+                throw new ParameterIsNullException("predictionFeature");
+            }
+            if (!urlValidator.isValid(predictionFeature)) {
+                throw new ParameterInvalidURIException("Not valid Prediction Feature URI.");
+            }
+        }
+
+
+        if (title == null) {
+            throw new ParameterIsNullException("title");
+        }
+        if (description == null) {
+            throw new ParameterIsNullException("description");
+        }
+
+        User user = userHandler.find(securityContext.getUserPrincipal().getName());
+        long modelCount = modelHandler.countAllOfCreator(user.getId());
+        int maxAllowedModels = new UserFacade(user).getMaxModels();
+
+        if (modelCount > maxAllowedModels) {
+            LOG.info(String.format("User %s has %d models while maximum is %d",
+                    user.getId(), modelCount, maxAllowedModels));
+            throw new QuotaExceededException("Dear " + user.getId()
+                    + ", your quota has been exceeded; you already have " + modelCount + " models. "
+                    + "No more than " + maxAllowedModels + " are allowed with your subscription.");
+        }
+
         Map<String, Object> options = new HashMap<>();
-        options.put("title", title != null ? title : "");
-        options.put("description", description != null ? description : "");
+        options.put("title", title);
+        options.put("description", description);
         options.put("dataset_uri", datasetURI);
         options.put("prediction_feature", predictionFeature);
         options.put("subjectid", subjectId);
@@ -288,7 +335,6 @@ public class AlgorithmResource {
         options.put("parameters", parameters);
         options.put("base_uri", uriInfo.getBaseUri().toString());
         options.put("creator", securityContext.getUserPrincipal().getName());
-        options.put("visible", visible != null ? visible : false);
 
         Map<String, String> transformationAlgorithms = new LinkedHashMap<>();
         if (transformations != null && !transformations.isEmpty()) {
@@ -306,6 +352,10 @@ public class AlgorithmResource {
             LOG.log(Level.INFO, "Transformations:{0}", transformationAlgorithmsString);
             options.put("transformations", transformationAlgorithmsString);
         }
+
+        parameterValidator.validate(parameters, algorithm.getParameters());
+
+        //return Response.ok().build();
         Task task = trainingService.initiateTraining(options, securityContext.getUserPrincipal().getName());
 
         return Response.ok(task).build();
@@ -326,7 +376,12 @@ public class AlgorithmResource {
     })
     public Response deleteAlgorithm(
             @ApiParam(value = "ID of the algorithm which is to be deleted.", required = true) @PathParam("id") String id,
-            @HeaderParam("subjectid") String subjectId) {
+            @HeaderParam("subjectid") String subjectId) throws ParameterIsNullException {
+
+        if (id == null) {
+            throw new ParameterIsNullException("id");
+        }
+
         Algorithm algorithm = algorithmHandler.find(id);
 
         String userName = securityContext.getUserPrincipal().getName();

@@ -4,12 +4,12 @@
     <parent>
         <artifactId>JaqpotQuattro</artifactId>
         <groupId>org.kinkydesign</groupId>
-        <version>4.0.1</version>
+        <version>4.0.2</version>
     </parent>
 
     <groupId>org.kinkydesign</groupId>
     <artifactId>JaqpotCoreServices</artifactId>
-    <version>4.0.1</version>
+    <version>4.0.2</version>
     <packaging>war</packaging>
 
     <name>JaqpotCoreServices</name>
@@ -63,13 +63,13 @@
         <dependency>
             <groupId>org.kinkydesign</groupId>
             <artifactId>JaqpotDB</artifactId>
-            <version>4.0.1</version>
+            <version>4.0.2</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.kinkydesign</groupId>
             <artifactId>JaqpotDomain</artifactId>
-            <version>4.0.1</version>
+            <version>4.0.2</version>
         </dependency>
         
         <!-- Jackson -->
@@ -144,6 +144,16 @@
             <groupId>commons-validator</groupId>
             <artifactId>commons-validator</artifactId>
             <version>1.5.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.itextpdf</groupId>
+            <artifactId>itextpdf</artifactId>
+            <version>5.5.9</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.4</version>
         </dependency>
     </dependencies>
 

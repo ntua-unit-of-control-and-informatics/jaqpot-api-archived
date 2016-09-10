@@ -4,12 +4,12 @@
     <parent>
         <artifactId>JaqpotQuattro</artifactId>
         <groupId>org.kinkydesign</groupId>
-        <version>4.0.1</version>
+        <version>4.0.2</version>
     </parent>
 
     <groupId>org.kinkydesign</groupId>
     <artifactId>JaqpotDB</artifactId>
-    <version>4.0.1</version>
+    <version>4.0.2</version>
     <packaging>ejb</packaging>
 
     <name>JaqpotDB</name>
@@ -45,7 +45,7 @@
         <dependency>
             <groupId>org.kinkydesign</groupId>
             <artifactId>JaqpotDomain</artifactId>
-            <version>4.0.1</version>
+            <version>4.0.2</version>
         </dependency>
         
         <!-- MONGODB DRIVER (with Javadoc) -->
@@ -93,7 +93,15 @@
             <artifactId>elasticsearch</artifactId>
             <version>1.4.2</version>
         </dependency>
-        
+
+        <!-- https://mvnrepository.com/artifact/org.jboss.resteasy/resteasy-validator-provider-11 -->
+        <dependency>
+            <groupId>org.jboss.resteasy</groupId>
+            <artifactId>resteasy-validator-provider-11</artifactId>
+            <version>3.0.4.Final</version>
+        </dependency>
+
+
         <!-- JSON-PATCH implements RFC 6902 (JSON Patch) and 
              RFC 7386 (JSON Merge Patch) and is used to PATCH
              JSON the standard way -->

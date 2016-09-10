@@ -25,25 +25,47 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  * Source code:
  * The source code of JAQPOT Quattro is available on github at:
  * https://github.com/KinkyDesign/JaqpotQuattro
  * All source files of JAQPOT Quattro that are stored on github are licensed
- * with the aforementioned licence. 
+ * with the aforementioned licence.
  */
-package org.jaqpot.core.service.exceptions;
+package org.jaqpot.core.service.filter.excmappers;
 
-/**
- *
- * @author chung
- */
-public class QuotaExceededException extends Exception {
+import org.jaqpot.core.model.ErrorReport;
+import org.jaqpot.core.model.factory.ErrorReportFactory;
 
-    public QuotaExceededException() {
-    }
+import javax.ejb.EJBException;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.ext.ExceptionMapper;
+import javax.ws.rs.ext.Provider;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-    public QuotaExceededException(String message) {
-        super(message);
+@Provider
+public class EJBExceptionMapper implements ExceptionMapper<EJBException> {
+
+    private static final Logger LOG = Logger.getLogger(EJBExceptionMapper.class.getName());
+
+    @Override
+    public Response toResponse(EJBException exception) {
+
+        LOG.log(Level.FINEST, "EJBException exception caught", exception);
+        
+        Exception cause = exception.getCausedByException();     
+        ErrorReport error;
+        if (cause instanceof java.lang. IllegalArgumentException) {
+            error = ErrorReportFactory.badRequest(cause, null);
+        } else {
+            error = ErrorReportFactory.internalServerError(cause, null);
+        }
+
+        return Response
+                .ok(error, MediaType.APPLICATION_JSON)
+                .status(error.getHttpStatus())
+                .build();
     }
 }

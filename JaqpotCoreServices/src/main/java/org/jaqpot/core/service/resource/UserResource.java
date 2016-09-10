@@ -110,7 +110,7 @@ public class UserResource {
                     + "therefore is not authorized to access this resource.", "AdministratorsOnly");
         }
 
-        List<User> users = userHandler.listOnlyIDs(start, max);
+        List<User> users = userHandler.listMeta(start, max);
         return Response
                 .ok(users)
                 .build();

@@ -134,17 +134,13 @@ public class CrossValidationProcedure extends AbstractJaqpotProcedure {
         }
 
         String taskId = (String) messageBody.get("taskId");
-//        String type = (String) messageBody.get("type");
         String subjectId = (String) messageBody.get("subjectId");
-//        String modelURI = (String) messageBody.get("model_uri");
         String algorithmURI = (String) messageBody.get("algorithm_uri");
         String datasetURI = (String) messageBody.get("dataset_uri");
         String predictionFeature = (String) messageBody.get("prediction_feature");
         String algorithmParams = (String) messageBody.get("algorithm_params");
         String trans = (String) messageBody.get("transformations");
         String creator = (String) messageBody.get("creator");
-//        String scaling = (String) messageBody.get("scaling");
-//        String baseUri = (String) messageBody.get("base_uri");
 
         Integer folds = (Integer) messageBody.get("folds");
         String stratify = (String) messageBody.get("stratify");
@@ -162,6 +158,7 @@ public class CrossValidationProcedure extends AbstractJaqpotProcedure {
                     .get(Algorithm.class)).orElseThrow(() -> new NotFoundException("Algorithm with URI:" + algorithmURI + " was not found."));
 
             progress(5f, "Algorithm retrieved successfully.");
+            checkCancelled();
 
             Dataset dataset = Optional.of(client.target(datasetURI)
                     .queryParam("stratify", stratify)
@@ -195,6 +192,7 @@ public class CrossValidationProcedure extends AbstractJaqpotProcedure {
                 });
                 transformations.putAll(newTransformations);
                 for (Algorithm transAlgorithm : transformationAlgorithms) {
+                    checkCancelled();
                     progress("-", "Starting transforming on algorithm:" + transAlgorithm.getId());
 
                     Map<String, Object> parameterMap = null;
@@ -268,6 +266,7 @@ public class CrossValidationProcedure extends AbstractJaqpotProcedure {
             }
 
             progress("Creating report...");
+            checkCancelled();
 
             TrainingRequest reportRequest = new TrainingRequest();
 
