@@ -8,6 +8,8 @@ package org.jaqpot.core.service.data;
 import com.itextpdf.text.*;
 import com.itextpdf.text.html.simpleparser.HTMLWorker;
 import com.itextpdf.text.pdf.*;
+import com.itextpdf.tool.xml.XMLWorkerHelper;
+import com.itextpdf.tool.xml.pipeline.WritableElement;
 import org.apache.commons.codec.binary.Base64;
 import org.jaqpot.core.model.ArrayCalculation;
 import org.jaqpot.core.model.Report;
@@ -16,6 +18,7 @@ import javax.inject.Named;
 import javax.ws.rs.InternalServerErrorException;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.StringReader;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
@@ -239,7 +242,22 @@ public class ReportService {
             ArrayCalculation ac = entry.getValue();
             PdfPTable table = new PdfPTable(ac.getColNames().size() + 1);
             for (Entry<String, List<Object>> row : ac.getValues().entrySet()) {
-                table.addCell(row.getKey());
+
+                try {
+                    XMLWorkerHelper.getInstance().parseXHtml(w -> {
+                        if (w instanceof WritableElement) {
+                            List<Element> elements = ((WritableElement) w).elements();
+                            for (Element element : elements) {
+                                PdfPCell pdfCell = new PdfPCell();
+                                pdfCell.addElement(element);
+                                table.addCell(pdfCell);
+                            }
+                        }
+                    },new StringReader(row.getKey()));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
                 for (Object o : row.getValue()) {
                     table.addCell(o.toString());
                 }
