@@ -34,11 +34,12 @@
  */
 package org.kinkydesign.jaqpotjanitor.tests;
 
-import java.io.IOException;
-import java.net.UnknownHostException;
-import java.util.ResourceBundle;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.jaqpot.core.model.Algorithm;
+import org.jaqpot.core.properties.PropertyManager;
+import org.kinkydesign.jaqpotjanitor.core.Testable;
+
+import javax.ejb.EJB;
+import javax.inject.Inject;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
@@ -47,9 +48,13 @@ import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.xml.bind.annotation.XmlRootElement;
-import org.jaqpot.core.model.Algorithm;
-import org.kinkydesign.jaqpotjanitor.core.Testable;
-import static org.kinkydesign.jaqpotjanitor.core.JanitorUtils.*;
+import java.io.IOException;
+import java.net.UnknownHostException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import static org.kinkydesign.jaqpotjanitor.core.JanitorUtils.assertEquals;
+import static org.kinkydesign.jaqpotjanitor.core.JanitorUtils.assertNotNull;
 
 /**
  *
@@ -63,16 +68,18 @@ public class BehaviouralTest {
 
     private String authToken = null;
 
-    private static final ResourceBundle resourceBundle = ResourceBundle.getBundle("config");
+    @Inject
+    PropertyManager propertyManager;
+
 
     public BehaviouralTest() {
         Client client = ClientBuilder.newClient();
         try {
-            String loginService = resourceBundle.getString("janitor.target") + "aa/login";
+            String loginService = propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_JANITOR_TARGET) + "aa/login";
             LOG.log(Level.FINEST, "Login service : {0}", loginService);
             MultivaluedMap<String, String> formData = new MultivaluedHashMap<>();
-            formData.putSingle("username", resourceBundle.getString("janitor.username"));
-            formData.putSingle("password", resourceBundle.getString("janitor.password"));
+            formData.putSingle("username",  propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_JANITOR_USERNAME));
+            formData.putSingle("password",  propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_JANITOR_PASSWORD));
             Response response = client.target(loginService)
                     .request()
                     .accept(MediaType.TEXT_PLAIN)
@@ -93,7 +100,7 @@ public class BehaviouralTest {
     public void validateToken() {
         Client client = ClientBuilder.newClient();
         try {
-            String validationService = resourceBundle.getString("janitor.target") + "aa/validate";
+            String validationService =  propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_JANITOR_TARGET) + "aa/validate";
             Response response = client.target(validationService)
                     .request()
                     .header("subjectid", authToken)
@@ -108,7 +115,7 @@ public class BehaviouralTest {
     public void testAuthorize() {
         Client client = ClientBuilder.newClient();
         try {
-            String authorizationService = resourceBundle.getString("janitor.target") + "aa/authorize";
+            String authorizationService =  propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_JANITOR_TARGET) + "aa/authorize";
             MultivaluedMap<String, String> formData = new MultivaluedHashMap<>();
             formData.putSingle("uri", "http://opentox.ntua.gr:8080/bibtex");
             formData.putSingle("method", "GET");
@@ -130,7 +137,7 @@ public class BehaviouralTest {
     public void getWekaAlgorithm() {
         Client client = ClientBuilder.newClient();
         try {
-            String wekaAlgorithm = resourceBundle.getString("janitor.target") + "algorithm/weka-mlr";
+            String wekaAlgorithm =  propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_JANITOR_TARGET) + "algorithm/weka-mlr";
             LOG.log(Level.FINER, "Weka algorithm URI : {0}", wekaAlgorithm);
             Response response = client.target(wekaAlgorithm)
                     .request()
@@ -163,7 +170,7 @@ public class BehaviouralTest {
     public void testListBibTeX() {
         Client client = ClientBuilder.newClient();
         try {
-            String uri = resourceBundle.getString("janitor.target") + "bibtex?start=0&max=20";
+            String uri = propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_JANITOR_TARGET) + "bibtex?start=0&max=20";
             Response response = client.target(uri)
                     .request()
                     .accept("text/uri-list")
@@ -179,7 +186,7 @@ public class BehaviouralTest {
     public void testListAlgorithms() {
         Client client = ClientBuilder.newClient();
         try {
-            String uri = resourceBundle.getString("janitor.target") + "algorithm?start=0&max=20";
+            String uri =  propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_JANITOR_TARGET) + "algorithm?start=0&max=20";
             Response response = client.target(uri)
                     .request()
                     .accept("text/uri-list")
@@ -195,7 +202,7 @@ public class BehaviouralTest {
     public void testListModels() {
         Client client = ClientBuilder.newClient();
         try {
-            String uri = resourceBundle.getString("janitor.target") + "model?start=0&max=20";
+            String uri =  propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_JANITOR_TARGET) + "model?start=0&max=20";
             Response response = client.target(uri)
                     .request()
                     .accept("text/uri-list")
@@ -211,7 +218,7 @@ public class BehaviouralTest {
     public void testListDatasets() {
         Client client = ClientBuilder.newClient();
         try {
-            String uri = resourceBundle.getString("janitor.target") + "dataset?start=0&max=20";
+            String uri =  propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_JANITOR_TARGET) + "dataset?start=0&max=20";
             Response response = client.target(uri)
                     .request()
                     .accept("text/uri-list")
@@ -227,7 +234,7 @@ public class BehaviouralTest {
     public void testListPmml() {
         Client client = ClientBuilder.newClient();
         try {
-            String uri = resourceBundle.getString("janitor.target") + "pmml?start=0&max=20";
+            String uri =  propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_JANITOR_TARGET) + "pmml?start=0&max=20";
             Response response = client.target(uri)
                     .request()
                     .accept("text/uri-list")
@@ -243,7 +250,7 @@ public class BehaviouralTest {
     public void testListFeatures() {
         Client client = ClientBuilder.newClient();
         try {
-            String uri = resourceBundle.getString("janitor.target") + "feature?start=0&max=20";
+            String uri =  propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_JANITOR_TARGET) + "feature?start=0&max=20";
             Response response = client.target(uri)
                     .request()
                     .accept("text/uri-list")
@@ -260,7 +267,7 @@ public class BehaviouralTest {
     public void testListTasks() {
         Client client = ClientBuilder.newClient();
         try {
-            String uri = resourceBundle.getString("janitor.target") + "task?start=0&max=1";
+            String uri =  propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_JANITOR_TARGET) + "task?start=0&max=1";
             Response response = client.target(uri)
                     .request()
                     .accept("text/uri-list")
@@ -279,7 +286,7 @@ public class BehaviouralTest {
     public void testCORS() {
         Client client = ClientBuilder.newClient();
         try {
-            String uri = resourceBundle.getString("janitor.target") + "algorithm?start=0&max=1";
+            String uri =  propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_JANITOR_TARGET) + "algorithm?start=0&max=1";
             Response response = client.target(uri)
                     .request()
                     .accept("text/uri-list")
@@ -298,7 +305,7 @@ public class BehaviouralTest {
     public void testLisUsers() {
         Client client = ClientBuilder.newClient();
         try {
-            String uri = resourceBundle.getString("janitor.target") + "user?start=0&max=20";
+            String uri =  propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_JANITOR_TARGET) + "user?start=0&max=20";
             Response response = client.target(uri)
                     .request()
                     .accept("text/uri-list")

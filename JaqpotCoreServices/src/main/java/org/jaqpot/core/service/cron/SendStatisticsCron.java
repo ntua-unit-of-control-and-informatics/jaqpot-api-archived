@@ -45,39 +45,24 @@ import com.microtripit.mandrillapp.lutung.model.MandrillApiError;
 import com.microtripit.mandrillapp.lutung.view.MandrillMessage;
 import com.microtripit.mandrillapp.lutung.view.MandrillMessageStatus;
 import com.microtripit.mandrillapp.lutung.view.MandrillUserInfo;
+import org.jaqpot.core.data.*;
+import org.jaqpot.core.model.Task;
+import org.jaqpot.core.properties.PropertyManager;
+
+import javax.ejb.EJB;
+import javax.inject.Inject;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.annotation.PostConstruct;
-import javax.ejb.EJB;
-import javax.ejb.Schedule;
-import javax.ejb.Stateless;
-import org.jaqpot.core.data.AlgorithmHandler;
-import org.jaqpot.core.data.BibTeXHandler;
-import org.jaqpot.core.data.DatasetHandler;
-import org.jaqpot.core.data.FeatureHandler;
-import org.jaqpot.core.data.ModelHandler;
-import org.jaqpot.core.data.PmmlHandler;
-import org.jaqpot.core.data.TaskHandler;
-import org.jaqpot.core.data.UserHandler;
-import org.jaqpot.core.model.Task;
 
 //@Stateless
 public class SendStatisticsCron {
 
     private static final Logger LOG = Logger.getLogger(SendStatisticsCron.class.getName());
-
-    private ResourceBundle configResourceBundle;
-
-    @PostConstruct
-    private void init() {
-        configResourceBundle = ResourceBundle.getBundle("config");
-    }
 
     @EJB
     TaskHandler taskHandler;
@@ -103,15 +88,18 @@ public class SendStatisticsCron {
     @EJB
     FeatureHandler featureHandler;
 
+    @Inject
+    PropertyManager propertyManager;
+
     // Every Sunday midnight a mail will be sent to the recipients defined in settings.xml
     // Check out the example settings.xml in JAQPOT_BASE/config
 //    @Schedule(dayOfWeek = "Sun", hour = "0", minute = "0", second = "0", info = "Mailer", persistent = false) 
     public void mailStatisticsWeekly() throws MandrillApiError, IOException {
-        String doSendMail = configResourceBundle.getString("jaqpot.mail.dosend");
+        String doSendMail = propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_MAIL_SEND);
         if (doSendMail == null || !"true".equals(doSendMail)) {
             return;
         }
-        String mandrillApiKey = configResourceBundle.getString("jaqpot.mail.mandrillApiKey");
+        String mandrillApiKey = propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_MAIL_MANDRILL_API_KEY);
 
         LOG.log(Level.INFO, "running every minute .. now it''s: {0}", new Date().toString());
         MandrillApi mandrill = new MandrillApi(mandrillApiKey);
@@ -160,17 +148,18 @@ public class SendStatisticsCron {
                 totalDatasets,
                 totalFeatures,
                 totalBibTeX,
-                configResourceBundle.getString("jaqpot.mail.fromName"));
+                propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_MAIL_FROM_NAME));
 
         MandrillMessage message = new MandrillMessage();
         message.setSubject("Jaqpot Statistics");
         message.setText(msgContent);
-        message.setFromEmail(configResourceBundle.getString("jaqpot.mail.fromMail"));
-        message.setFromName(configResourceBundle.getString("jaqpot.mail.fromName"));
+        message.setFromEmail(propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_MAIL_FROM_MAIL));
+        message.setFromName(propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_MAIL_FROM_NAME));
+
 
         List<MandrillMessage.Recipient> recipients = new ArrayList<>();
 
-        String admins = configResourceBundle.getString("jaqpot.mail.recipients");
+        String admins = propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_MAIL_RECIPIENTS);
         List<String> recipientsList = Arrays.asList(admins.split("\\s*,\\s*"));
 
         MandrillMessage.Recipient recipient;
@@ -199,6 +188,5 @@ public class SendStatisticsCron {
         if (!sendingSuccessful) {
             LOG.log(Level.SEVERE, "Email was rejected! (check logs for details)");
         }
-
     }
 }

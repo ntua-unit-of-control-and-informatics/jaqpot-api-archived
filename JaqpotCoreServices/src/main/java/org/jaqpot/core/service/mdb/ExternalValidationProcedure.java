@@ -8,6 +8,7 @@ import org.jaqpot.core.model.builder.MetaInfoBuilder;
 import org.jaqpot.core.model.dto.dataset.Dataset;
 import org.jaqpot.core.model.dto.jpdi.TrainingRequest;
 import org.jaqpot.core.model.util.ROG;
+import org.jaqpot.core.properties.PropertyManager;
 import org.jaqpot.core.service.annotations.Secure;
 import org.jaqpot.core.service.client.jpdi.JPDIClient;
 
@@ -63,6 +64,9 @@ public class ExternalValidationProcedure extends AbstractJaqpotProcedure {
 
     @Inject
     JPDIClient jpdiClient;
+
+    @Inject
+    PropertyManager propertyManager;
 
     @Inject
     @Secure
@@ -170,7 +174,7 @@ public class ExternalValidationProcedure extends AbstractJaqpotProcedure {
             progress(92f, "Validation info populated successfully");
             checkCancelled();
 
-            Report report = client.target(ResourceBundle.getBundle("config").getString("ValidationBasePath"))
+            Report report = client.target(propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_BASE_VALIDATION))
                     .request()
                     .header("Content-Type", MediaType.APPLICATION_JSON)
                     .accept(MediaType.APPLICATION_JSON)

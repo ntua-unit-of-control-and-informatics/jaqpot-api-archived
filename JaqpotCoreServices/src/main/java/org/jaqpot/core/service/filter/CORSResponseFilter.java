@@ -34,15 +34,17 @@
  */
 package org.jaqpot.core.service.filter;
 
-import java.io.IOException;
-import java.util.Date;
-import java.util.ResourceBundle;
-import java.util.logging.Logger;
-import javax.annotation.PostConstruct;
+import org.jaqpot.core.properties.PropertyManager;
+
+import javax.ejb.EJB;
+import javax.inject.Inject;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerResponseContext;
 import javax.ws.rs.container.ContainerResponseFilter;
 import javax.ws.rs.ext.Provider;
+import java.io.IOException;
+import java.util.Date;
+import java.util.logging.Logger;
 
 /**
  *
@@ -52,16 +54,12 @@ import javax.ws.rs.ext.Provider;
 public class CORSResponseFilter implements ContainerResponseFilter {
 
     private static final Logger LOG = Logger.getLogger(CORSResponseFilter.class.getName());
-    
-    private ResourceBundle configResourceBundle;
+
+    @Inject
+    PropertyManager propertyManager;
 
     public CORSResponseFilter() {
     }        
-    
-    @PostConstruct
-    private void init() {
-        configResourceBundle = ResourceBundle.getBundle("config");
-    }
     
     @Override
     public void filter(ContainerRequestContext requestContext, ContainerResponseContext responseContext) throws IOException {
@@ -74,7 +72,8 @@ public class CORSResponseFilter implements ContainerResponseFilter {
 
         
         // Add CORS headers
-        String allowOrigin = configResourceBundle.getString("jaqpot.cors.alloworigin");
+        String allowOrigin = propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_CORS_ALLOWORIGIN);
+
         if (allowOrigin==null){
             LOG.severe("Property jaqpot.cors.alloworigin is not set!");
         }

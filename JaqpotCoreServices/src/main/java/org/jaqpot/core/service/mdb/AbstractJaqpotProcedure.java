@@ -38,7 +38,6 @@ import java.util.Arrays;
 import java.util.concurrent.CancellationException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.jms.Message;
 import javax.jms.MessageListener;
 import javax.ws.rs.NotFoundException;
 import org.jaqpot.core.data.TaskHandler;

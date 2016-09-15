@@ -34,12 +34,18 @@
  */
 package org.jaqpot.core.properties;
 
-import java.util.ResourceBundle;
+
+import javax.ejb.Remote;
+import javax.ejb.Stateless;
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.Dependent;
+import javax.inject.Inject;
+import java.util.ResourceBundle;
 
 /**
  * @author Angelos Valsamis
  */
+
 @ApplicationScoped
 public class PropertyManager {
 
@@ -66,7 +72,12 @@ public class PropertyManager {
         JAQPOT_MAIL_MANDRILL_API_KEY("jaqpot.mail.mandrillApiKey", "mail", ""),
         JAQPOT_MAIL_FROM_MAIL("jaqpot.mail.fromMail", "mail", ""),
         JAQPOT_MAIL_FROM_NAME("jaqpot.mail.fromName", "mail", ""),
-        JAQPOT_MAIL_RECIPIENTS("jaqpot.mail.recipients", "mail", "");   
+        JAQPOT_MAIL_RECIPIENTS("jaqpot.mail.recipients", "mail", ""),
+
+        JAQPOT_JANITOR_TARGET("janitor.target", "janitor", ""),
+        JAQPOT_JANITOR_USERNAME("janitor.username", "janitor", ""),
+        JAQPOT_JANITOR_PASSWORD("janitor.password", "janitor", "");
+
 
         private final String value;
         private final String bundle;
@@ -90,6 +101,8 @@ public class PropertyManager {
             return this.defaultValue;
         }
     }
+    @Inject
+    public PropertyManager(){}
 
     public String getProperty(PropertyType propertyType) {
         String property = System.getenv(propertyType.getValue());

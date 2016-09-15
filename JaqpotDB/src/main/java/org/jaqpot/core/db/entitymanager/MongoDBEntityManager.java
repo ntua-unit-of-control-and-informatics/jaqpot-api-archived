@@ -54,6 +54,8 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.annotation.PostConstruct;
+import javax.ejb.EJB;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -85,7 +87,7 @@ public class MongoDBEntityManager implements JaqpotEntityManager {
     @Inject
     PropertyManager propertyManager;
 
-    private final MongoClient mongoClient;
+    private MongoClient mongoClient;
     private String database;
     private static Properties dbProperties = new Properties();
 
@@ -108,11 +110,15 @@ public class MongoDBEntityManager implements JaqpotEntityManager {
         }
     }
 
-    public MongoDBEntityManager() {
+    public MongoDBEntityManager() { }
+
+    //Move constructor logic in @PostConstruct in order to be able to use PropertyManager Injection
+    @PostConstruct
+    public void init(){
         LOG.log(Level.INFO, "Initializing MongoDB EntityManager");
 
-//        ClassLoader classLoader = this.getClass().getClassLoader();
-//        InputStream is = classLoader.getResourceAsStream("config/db.properties");
+        //ClassLoader classLoader = this.getClass().getClassLoader();
+        //InputStream is = classLoader.getResourceAsStream("config/db.properties");
         String dbName = "production"; // Default DB name in case no properties file is found!
         String dbHost = "localhost"; // Default DB host
         int dbPort = 27017; // Default DB port
@@ -129,7 +135,7 @@ public class MongoDBEntityManager implements JaqpotEntityManager {
             LOG.log(Level.SEVERE, errorMessage, ex); // Log the event (but use the default properties)
         } finally {
             database = dbName;
-            mongoClient = new MongoClient(dbHost, dbPort); // Connect to the DB  
+            mongoClient = new MongoClient(dbHost, dbPort); // Connect to the DB
             LOG.log(Level.INFO, "Database configured and connection established successfully!");
         }
 
