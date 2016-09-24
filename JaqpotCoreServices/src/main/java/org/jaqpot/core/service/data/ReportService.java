@@ -8,6 +8,8 @@ package org.jaqpot.core.service.data;
 import com.itextpdf.text.*;
 import com.itextpdf.text.html.simpleparser.HTMLWorker;
 import com.itextpdf.text.pdf.*;
+import com.itextpdf.tool.xml.XMLWorkerHelper;
+import com.itextpdf.tool.xml.pipeline.WritableElement;
 import org.apache.commons.codec.binary.Base64;
 import org.jaqpot.core.model.ArrayCalculation;
 import org.jaqpot.core.model.Report;
@@ -16,6 +18,7 @@ import javax.inject.Named;
 import javax.ws.rs.InternalServerErrorException;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.StringReader;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
@@ -179,7 +182,7 @@ public class ReportService {
         chapter.add(paragraph);
 
         /** report Description */
-        if (report.getMeta()!=null && report.getMeta().getDescriptions()!=null && !report.getMeta().getDescriptions().isEmpty() && report.getMeta().getDescriptions().toString().equalsIgnoreCase("null")) {
+        if (report.getMeta()!=null && report.getMeta().getDescriptions()!=null && !report.getMeta().getDescriptions().isEmpty() && !report.getMeta().getDescriptions().toString().equalsIgnoreCase("null")) {
             paragraph = new Paragraph();
             paragraph.add(new Chunk("Description: ", paragraphFontBold));
             paragraph.add(new Chunk(report.getMeta().getDescriptions().toString().replaceAll(":http", ": http"), paragraphFont));
@@ -188,7 +191,7 @@ public class ReportService {
         }
 
         /** report model, algorithm and/or dataset id */
-        if (report.getMeta()!=null && report.getMeta().getHasSources()!=null && !report.getMeta().getHasSources().isEmpty() && !report.getMeta().getDescriptions().isEmpty() && report.getMeta().getDescriptions().toString().equalsIgnoreCase("null")) {
+        if (report.getMeta()!=null && report.getMeta().getHasSources()!=null && !report.getMeta().getHasSources().isEmpty() && !report.getMeta().getDescriptions().isEmpty() && !report.getMeta().getDescriptions().toString().equalsIgnoreCase("null")) {
             Iterator<String> sources = report.getMeta().getHasSources().iterator();
             sources.forEachRemaining(o -> {
                 if (o!=null) {
@@ -239,7 +242,22 @@ public class ReportService {
             ArrayCalculation ac = entry.getValue();
             PdfPTable table = new PdfPTable(ac.getColNames().size() + 1);
             for (Entry<String, List<Object>> row : ac.getValues().entrySet()) {
-                table.addCell(row.getKey());
+
+                try {
+                    XMLWorkerHelper.getInstance().parseXHtml(w -> {
+                        if (w instanceof WritableElement) {
+                            List<Element> elements = ((WritableElement) w).elements();
+                            for (Element element : elements) {
+                                PdfPCell pdfCell = new PdfPCell();
+                                pdfCell.addElement(element);
+                                table.addCell(pdfCell);
+                            }
+                        }
+                    },new StringReader(row.getKey()));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
                 for (Object o : row.getValue()) {
                     table.addCell(o.toString());
                 }

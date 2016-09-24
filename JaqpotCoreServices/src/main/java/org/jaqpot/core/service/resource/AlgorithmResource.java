@@ -278,16 +278,13 @@ public class AlgorithmResource {
         //Dataset validation should happen only in regression and classification algorithms
         if (algorithm.getOntologicalClasses().contains("ot:Regression")
                 || algorithm.getOntologicalClasses().contains("ot:Classification")) {
+
             if (datasetURI == null) {
                 throw new ParameterIsNullException("datasetURI");
             }
 
             if (!urlValidator.isValid(datasetURI)) {
                 throw new ParameterInvalidURIException("Not valid Dataset URI.");
-            }
-
-            if (predictionFeature == null) {
-                throw new ParameterIsNullException("predictionFeature");
             }
 
             String datasetId = datasetURI.split("dataset/")[1];
@@ -298,15 +295,22 @@ public class AlgorithmResource {
             }
         }
 
+        //Prediction validation should not happen in enm:NoTarget  algorithms
+        if (algorithm.getOntologicalClasses().contains("enm:NoTarget")){
+            if (predictionFeature == null) {
+                throw new ParameterIsNullException("predictionFeature");
+            }
+            if (!urlValidator.isValid(predictionFeature)) {
+                throw new ParameterInvalidURIException("Not valid Prediction Feature URI.");
+            }
+        }
+
+
         if (title == null) {
             throw new ParameterIsNullException("title");
         }
         if (description == null) {
             throw new ParameterIsNullException("description");
-        }
-
-        if (!urlValidator.isValid(predictionFeature)) {
-            throw new ParameterInvalidURIException("Not valid Prediction Feature URI.");
         }
 
         User user = userHandler.find(securityContext.getUserPrincipal().getName());
