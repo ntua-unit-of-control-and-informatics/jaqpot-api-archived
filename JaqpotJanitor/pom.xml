@@ -64,13 +64,13 @@
                 <version>2.6</version>
                 <configuration>
                     <failOnMissingWebXml>false</failOnMissingWebXml>                               
-                    <webResources>
+                <!--    <webResources>
                         <resource>
                             <directory>src/main/resources</directory>
                             <filtering>true</filtering>
                             <targetPath>WEB-INF/classes</targetPath>
                         </resource>
-                    </webResources>
+                    </webResources>-->
                 </configuration>
             </plugin>
             <plugin>

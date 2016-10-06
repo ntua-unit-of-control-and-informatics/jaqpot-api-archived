@@ -185,11 +185,11 @@
                 <configuration>
                     <failOnMissingWebXml>false</failOnMissingWebXml>                               
                     <webResources>
-                        <resource>
+                       <!-- <resource>
                             <directory>src/main/resources</directory>
                             <filtering>true</filtering>
                             <targetPath>WEB-INF/classes</targetPath>
-                        </resource>
+                        </resource>-->
                         <resource>
                             <directory>src/main/webapp/swagger</directory>
                             <filtering>true</filtering>

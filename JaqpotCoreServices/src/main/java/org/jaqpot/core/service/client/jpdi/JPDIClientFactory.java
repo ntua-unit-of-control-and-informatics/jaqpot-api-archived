@@ -5,23 +5,6 @@
  */
 package org.jaqpot.core.service.client.jpdi;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.ResourceBundle;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.stream.Collectors;
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-import javax.ejb.EJB;
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Produces;
-import javax.inject.Inject;
-import javax.inject.Named;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.concurrent.FutureCallback;
@@ -30,6 +13,23 @@ import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;
 import org.jaqpot.core.annotations.Jackson;
 import org.jaqpot.core.data.FeatureHandler;
 import org.jaqpot.core.data.serialize.JSONSerializer;
+import org.jaqpot.core.properties.PropertyManager;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.ejb.EJB;
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Produces;
+import javax.inject.Inject;
+import javax.inject.Named;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -50,11 +50,14 @@ public class JPDIClientFactory {
     @EJB
     FeatureHandler featureHandler;
 
+    @Inject
+    PropertyManager propertyManager;
+
     @PostConstruct
     public void init() {
         CloseableHttpAsyncClient asyncClient = HttpAsyncClientBuilder.create()
                 .build();
-        this.client = new JPDIClientImpl(asyncClient, serializer, featureHandler, ResourceBundle.getBundle("config").getString("ServerBasePath"));
+        this.client = new JPDIClientImpl(asyncClient, serializer, featureHandler, propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_BASE_SERVICE));
     }
 
     @PreDestroy

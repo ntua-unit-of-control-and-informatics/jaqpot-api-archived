@@ -31,22 +31,6 @@ package org.jaqpot.core.service.resource;
 
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
-import java.util.HashMap;
-import java.util.ResourceBundle;
-import java.util.logging.Logger;
-import javax.ejb.EJB;
-import javax.inject.Inject;
-import javax.ws.rs.FormParam;
-import javax.ws.rs.HeaderParam;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.SecurityContext;
 import org.jaqpot.core.annotations.Jackson;
 import org.jaqpot.core.data.ReportHandler;
 import org.jaqpot.core.data.UserHandler;
@@ -58,9 +42,22 @@ import org.jaqpot.core.model.dto.dataset.Dataset;
 import org.jaqpot.core.model.dto.jpdi.TrainingRequest;
 import org.jaqpot.core.model.facades.UserFacade;
 import org.jaqpot.core.model.util.ROG;
+import org.jaqpot.core.properties.PropertyManager;
 import org.jaqpot.core.service.annotations.Authorize;
 import org.jaqpot.core.service.annotations.UnSecure;
 import org.jaqpot.core.service.exceptions.QuotaExceededException;
+
+import javax.ejb.EJB;
+import javax.inject.Inject;
+import javax.ws.rs.*;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.SecurityContext;
+import java.util.HashMap;
+import java.util.logging.Logger;
 
 /**
  *
@@ -88,6 +85,9 @@ public class InterLabTestingResource {
 
     @EJB
     UserHandler userHandler;
+
+    @Inject
+    PropertyManager propertyManager;
 
     @Context
     SecurityContext securityContext;
@@ -136,7 +136,7 @@ public class InterLabTestingResource {
             trainingRequest.setParameters(parameterMap);
         }
 
-        Report report = client.target(ResourceBundle.getBundle("config").getString("InterlabBasePath"))
+        Report report = client.target(propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_BASE_INTERLAB))
                 .request()
                 .header("Content-Type", MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)

@@ -38,39 +38,6 @@ import com.google.common.base.Charsets;
 import com.google.common.hash.HashCode;
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.ResourceBundle;
-import java.util.Set;
-import java.util.StringJoiner;
-import java.util.TreeMap;
-import java.util.UUID;
-import java.util.stream.Collectors;
-import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
-import javax.ejb.EJB;
-import javax.ejb.Stateless;
-import javax.inject.Inject;
-import javax.jms.JMSContext;
-import javax.jms.Topic;
-import javax.json.Json;
-import javax.json.JsonObject;
-import javax.json.JsonReader;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Form;
-import javax.ws.rs.core.GenericType;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import org.jaqpot.core.annotations.Jackson;
 import org.jaqpot.core.data.FeatureHandler;
 import org.jaqpot.core.data.TaskHandler;
@@ -89,7 +56,30 @@ import org.jaqpot.core.model.dto.study.Study;
 import org.jaqpot.core.model.dto.study.proteomics.Proteomics;
 import org.jaqpot.core.model.factory.TaskFactory;
 import org.jaqpot.core.model.util.ROG;
+import org.jaqpot.core.properties.PropertyManager;
 import org.jaqpot.core.service.annotations.UnSecure;
+
+import javax.annotation.Resource;
+import javax.ejb.EJB;
+import javax.ejb.Stateless;
+import javax.inject.Inject;
+import javax.jms.JMSContext;
+import javax.jms.Topic;
+import javax.json.Json;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Form;
+import javax.ws.rs.core.GenericType;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URLEncoder;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -108,6 +98,9 @@ public class ConjoinerService {
     @UnSecure
     Client client;
 
+    @Inject
+    PropertyManager propertyManager;
+
     @EJB
     TaskHandler taskHandler;
 
@@ -120,16 +113,9 @@ public class ConjoinerService {
     @Inject
     private JMSContext jmsContext;
 
-    private ResourceBundle configResourceBundle;
-
     private Set<org.jaqpot.core.model.dto.dataset.FeatureInfo> featureMap;
 
     private Set<Dataset.DescriptorCategory> usedDescriptors;
-
-    @PostConstruct
-    private void init() {
-        configResourceBundle = ResourceBundle.getBundle("config");
-    }
 
     public Task initiatePreparation(Map<String, Object> options, String userName) {
 
@@ -251,7 +237,8 @@ public class ConjoinerService {
                     if (!descriptors.contains(Dataset.DescriptorCategory.IMAGE.name())) {
                         continue;
                     }
-                    Response response = client.target(configResourceBundle.getString("ImageBasePath") + "analyze")
+
+                    Response response = client.target(propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_BASE_IMAGE) + "analyze")
                             .request()
                             .accept(MediaType.APPLICATION_JSON)
                             .post(Entity.entity(new Form("image", effect.getResult().getTextValue()), "application/x-www-form-urlencoded"));
@@ -270,7 +257,7 @@ public class ConjoinerService {
                                     Feature f = new Feature();
                                     f.setId(descriptorID);
                                     Number value = Double.parseDouble((String) entry.getValue());
-                                    String URI = configResourceBundle.getString("ServerBasePath")
+                                    String URI = propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_BASE_SERVICE)
                                             + "feature/" + f.getId();
                                     values.put(URI, value);
                                     FeatureInfo featureInfo = new FeatureInfo();
@@ -297,7 +284,7 @@ public class ConjoinerService {
                     } catch (URISyntaxException ex) {
                         continue;
                     }
-                    Response response = client.target(configResourceBundle.getString("AlgorithmsBasePath") + "mopac/calculate")
+                    Response response = client.target(propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_BASE_ALGORITHMS) + "mopac/calculate")
                             .request()
                             .accept(MediaType.APPLICATION_JSON)
                             .header("subjectid", subjectId)

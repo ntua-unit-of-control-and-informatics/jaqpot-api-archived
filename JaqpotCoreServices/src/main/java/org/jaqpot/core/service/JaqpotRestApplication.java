@@ -30,14 +30,19 @@
 package org.jaqpot.core.service;
 
 import com.wordnik.swagger.jaxrs.config.BeanConfig;
-import java.util.HashSet;
-import java.util.ResourceBundle;
-import java.util.Set;
+import org.jaqpot.core.properties.PropertyManager;
+import org.reflections.Reflections;
+
+import javax.annotation.PostConstruct;
+import javax.ejb.EJB;
+import javax.inject.Inject;
+import javax.persistence.PostLoad;
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.ext.Provider;
-import org.jaqpot.core.service.resource.AlgorithmResource;
-import org.reflections.Reflections;
+import java.util.HashSet;
+import java.util.Set;
+
 
 /**
  *
@@ -47,17 +52,25 @@ import org.reflections.Reflections;
  */
 @ApplicationPath("/services")
 public class JaqpotRestApplication extends Application {
+    BeanConfig beanConfig;
+
+    @Inject
+    PropertyManager propertyManager;
 
     public JaqpotRestApplication() {
-
-        ResourceBundle config = ResourceBundle.getBundle("config");
-        BeanConfig beanConfig = new BeanConfig();
+        beanConfig = new BeanConfig();
         beanConfig.setVersion("1.0.0");
-        beanConfig.setBasePath(config.getString("ServerBasePath"));
         beanConfig.setResourcePackage("org.jaqpot.core.service.resource");
         beanConfig.setScan(true);
         beanConfig.setTitle("Jaqpot Quattro");
         beanConfig.setDescription("Jaqpot Quattro");
+    }
+
+    //Move constructor logic in @PostConstruct in order to be able to use PropertyManager Injection
+    @PostConstruct
+    public void init() {
+        beanConfig.setBasePath(propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_BASE_SERVICE));
+
     }
 
     @Override

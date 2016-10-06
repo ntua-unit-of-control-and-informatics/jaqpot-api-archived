@@ -29,28 +29,29 @@
  */
 package org.jaqpot.core.service.filter;
 
-import java.io.IOException;
-import java.security.Principal;
-import java.util.ResourceBundle;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.annotation.PostConstruct;
+import org.jaqpot.core.data.UserHandler;
+import org.jaqpot.core.model.User;
+import org.jaqpot.core.model.factory.ErrorReportFactory;
+import org.jaqpot.core.model.factory.UserFactory;
+import org.jaqpot.core.properties.PropertyManager;
+import org.jaqpot.core.service.annotations.Authorize;
+import org.jaqpot.core.service.data.AAService;
+import org.jaqpot.core.service.security.SecurityContextImpl;
+import org.jaqpot.core.service.security.UserPrincipal;
+
 import javax.annotation.Priority;
 import javax.ejb.EJB;
+import javax.inject.Inject;
 import javax.ws.rs.Priorities;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.ext.Provider;
-import org.jaqpot.core.data.UserHandler;
-import org.jaqpot.core.model.User;
-import org.jaqpot.core.model.factory.ErrorReportFactory;
-import org.jaqpot.core.model.factory.UserFactory;
-import org.jaqpot.core.service.annotations.Authorize;
-import org.jaqpot.core.service.data.AAService;
-import org.jaqpot.core.service.security.SecurityContextImpl;
-import org.jaqpot.core.service.security.UserPrincipal;
+import java.io.IOException;
+import java.security.Principal;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -66,7 +67,8 @@ public class AuthorizationRequestFilter implements ContainerRequestFilter {
     @EJB
     AAService aaService;
 
-    private ResourceBundle configResourceBundle;
+    @Inject
+    PropertyManager propertyManager;
 
     @EJB
     UserHandler userHandler;
@@ -74,11 +76,6 @@ public class AuthorizationRequestFilter implements ContainerRequestFilter {
     private static final Logger LOG = Logger.getLogger(AuthorizationRequestFilter.class.getName());
 
     public AuthorizationRequestFilter() {
-    }
-
-    @PostConstruct
-    private void init() {
-        configResourceBundle = ResourceBundle.getBundle("config");
     }
 
     private void _handleAnonymous(ContainerRequestContext requestContext) {
@@ -106,7 +103,7 @@ public class AuthorizationRequestFilter implements ContainerRequestFilter {
     public void filter(ContainerRequestContext requestContext) throws IOException {
 
         // when AA is not enabled...
-        if ("false".equals(configResourceBundle.getString("jaqpot.aa"))) {
+        if ("false".equals(propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_AA))) {
             _handleAnonymous(requestContext);
             return;
         }

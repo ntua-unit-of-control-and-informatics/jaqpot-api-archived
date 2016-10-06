@@ -17,9 +17,34 @@
     <properties>
         <endorsed.dir>${project.build.directory}/endorsed</endorsed.dir>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        
+        <jaqpot.mail.dosend></jaqpot.mail.dosend>
+        <jaqpot.mail.mandrillApiKey></jaqpot.mail.mandrillApiKey>
+        <jaqpot.mail.fromMail></jaqpot.mail.fromMail>
+        <jaqpot.mail.fromName></jaqpot.mail.fromName>
+        <jaqpot.mail.recipients></jaqpot.mail.recipients>
+        
+        <jaqpot.db.name></jaqpot.db.name>
+        <jaqpot.db.host></jaqpot.db.host>
+        <jaqpot.db.port></jaqpot.db.port>
+        
+        <jaqpot.administrators></jaqpot.administrators>
+        <jaqpot.cors.alloworigin></jaqpot.cors.alloworigin>
+        <server.base></server.base>
+        <algorithms.base></algorithms.base>
+        <image.base></image.base>
+        <validation.base></validation.base>
+        <interlab.base></interlab.base>
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>javax</groupId>
+            <artifactId>javaee-api</artifactId>
+            <version>7.0</version>
+            <scope>provided</scope>
+        </dependency>
+        
         <!-- JUNIT -->
         <dependency>
             <groupId>junit</groupId>
@@ -37,6 +62,12 @@
     </dependencies>
 
     <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources/</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

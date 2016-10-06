@@ -29,32 +29,24 @@
  */
 package org.jaqpot.core.service.resource;
 
+import com.wordnik.swagger.annotations.*;
+import org.jaqpot.core.data.UserHandler;
+import org.jaqpot.core.model.User;
 import org.jaqpot.core.model.UserQuota;
-import com.wordnik.swagger.annotations.Api;
-import com.wordnik.swagger.annotations.ApiOperation;
-import com.wordnik.swagger.annotations.ApiParam;
-import com.wordnik.swagger.annotations.ApiResponse;
-import com.wordnik.swagger.annotations.ApiResponses;
-import java.util.Arrays;
-import java.util.List;
-import java.util.ResourceBundle;
-import javax.annotation.PostConstruct;
+import org.jaqpot.core.properties.PropertyManager;
+import org.jaqpot.core.service.annotations.Authorize;
+import org.jaqpot.core.service.data.QuotaService;
+import org.jaqpot.core.service.exceptions.JaqpotNotAuthorizedException;
+
 import javax.ejb.EJB;
-import javax.ws.rs.GET;
-import javax.ws.rs.HeaderParam;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
+import javax.inject.Inject;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
-import org.jaqpot.core.data.UserHandler;
-import org.jaqpot.core.model.User;
-import org.jaqpot.core.service.annotations.Authorize;
-import org.jaqpot.core.service.data.QuotaService;
-import org.jaqpot.core.service.exceptions.JaqpotNotAuthorizedException;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  *
@@ -74,15 +66,12 @@ public class UserResource {
     @EJB
     UserHandler userHandler;
 
-    private ResourceBundle configResourceBundle;
+    @Inject
+    PropertyManager propertyManager;
 
     @Context
     SecurityContext securityContext;
 
-    @PostConstruct
-    private void init() {
-        configResourceBundle = ResourceBundle.getBundle("config");
-    }
 
     @GET
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
@@ -102,7 +91,7 @@ public class UserResource {
             @ApiParam(value = "max", defaultValue = "10") @QueryParam("max") Integer max
     ) throws JaqpotNotAuthorizedException {
         // This resource can be accessed only by the system administrators
-        String admins = configResourceBundle.getString("jaqpot.administrators");
+        String admins = propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_ADMINISTRATORS);
         List<String> adminsList = Arrays.asList(admins.split("\\s*,\\s*"));
         String currentUserID = securityContext.getUserPrincipal().getName();
         if (!adminsList.contains(currentUserID)) {
@@ -134,7 +123,7 @@ public class UserResource {
             @ApiParam(value = "Clients need to authenticate in order to access this resource")
             @HeaderParam("subjectid") String subjectId) throws JaqpotNotAuthorizedException {
 
-        String admins = configResourceBundle.getString("jaqpot.administrators");
+        String admins = propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_ADMINISTRATORS);
         List<String> adminsList = Arrays.asList(admins.split("\\s*,\\s*"));
         String currentUserID = securityContext.getUserPrincipal().getName();
         if (!adminsList.contains(currentUserID) && !id.equals(currentUserID)) {
@@ -171,7 +160,7 @@ public class UserResource {
             @HeaderParam("subjectid") String subjectId) throws JaqpotNotAuthorizedException {
 
         String currentUserID = securityContext.getUserPrincipal().getName();
-        String admins = configResourceBundle.getString("jaqpot.administrators");
+        String admins = propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_ADMINISTRATORS);
         List<String> adminsList = Arrays.asList(admins.split("\\s*,\\s*"));
         if (!adminsList.contains(currentUserID) && !id.equals(currentUserID)) {
             throw new JaqpotNotAuthorizedException("User " + currentUserID + "is not authorized access "

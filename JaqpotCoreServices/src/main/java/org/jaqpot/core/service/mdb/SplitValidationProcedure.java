@@ -1,16 +1,20 @@
 package org.jaqpot.core.service.mdb;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.ResourceBundle;
-import java.util.concurrent.CancellationException;
-import java.util.concurrent.ExecutionException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.jaqpot.core.annotations.Jackson;
+import org.jaqpot.core.data.AlgorithmHandler;
+import org.jaqpot.core.data.ReportHandler;
+import org.jaqpot.core.data.TaskHandler;
+import org.jaqpot.core.data.serialize.JSONSerializer;
+import org.jaqpot.core.model.*;
+import org.jaqpot.core.model.builder.MetaInfoBuilder;
+import org.jaqpot.core.model.dto.dataset.Dataset;
+import org.jaqpot.core.model.dto.jpdi.TrainingRequest;
+import org.jaqpot.core.model.factory.DatasetFactory;
+import org.jaqpot.core.model.util.ROG;
+import org.jaqpot.core.properties.PropertyManager;
+import org.jaqpot.core.service.annotations.Secure;
+import org.jaqpot.core.service.client.jpdi.JPDIClient;
+
 import javax.ejb.ActivationConfigProperty;
 import javax.ejb.EJB;
 import javax.ejb.MessageDriven;
@@ -22,23 +26,11 @@ import javax.ws.rs.NotFoundException;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
-import org.jaqpot.core.annotations.Jackson;
-import org.jaqpot.core.data.AlgorithmHandler;
-import org.jaqpot.core.data.ReportHandler;
-import org.jaqpot.core.data.TaskHandler;
-import org.jaqpot.core.data.serialize.JSONSerializer;
-import org.jaqpot.core.model.Algorithm;
-import org.jaqpot.core.model.Model;
-import org.jaqpot.core.model.Report;
-import org.jaqpot.core.model.Task;
-import org.jaqpot.core.model.ValidationType;
-import org.jaqpot.core.model.builder.MetaInfoBuilder;
-import org.jaqpot.core.model.dto.dataset.Dataset;
-import org.jaqpot.core.model.dto.jpdi.TrainingRequest;
-import org.jaqpot.core.model.factory.DatasetFactory;
-import org.jaqpot.core.model.util.ROG;
-import org.jaqpot.core.service.annotations.Secure;
-import org.jaqpot.core.service.client.jpdi.JPDIClient;
+import java.util.*;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.ExecutionException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -70,6 +62,9 @@ public class SplitValidationProcedure extends AbstractJaqpotProcedure {
 
     @Inject
     JPDIClient jpdiClient;
+
+    @Inject
+    PropertyManager propertyManager;
 
     @Inject
     @Secure
@@ -224,7 +219,7 @@ public class SplitValidationProcedure extends AbstractJaqpotProcedure {
             validationParameters.put("type", validationType);
             reportRequest.setParameters(validationParameters);
 
-            Report report = client.target(ResourceBundle.getBundle("config").getString("ValidationBasePath"))
+            Report report = client.target(propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_BASE_VALIDATION))
                     .request()
                     .header("Content-Type", MediaType.APPLICATION_JSON)
                     .accept(MediaType.APPLICATION_JSON)
