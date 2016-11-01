@@ -51,6 +51,10 @@ public class PropertyManager {
         JAQPOT_AA("jaqpot.aa", "config", "true"),
         JAQPOT_CORS_ALLOWORIGIN("jaqpot.cors.alloworigin", "config", "*"),  
         
+        JAQPOT_HOST("jaqpot.host","config","localhost"),
+        JAQPOT_PORT("jaqpot.port","config","8080"),
+        JAQPOT_BASE("jaqpot.base","config","/jaqpot/services"),
+        
         JAQPOT_BASE_SERVICE("jaqpot.base.service", "config","http://localhost:8080/jaqpot/services/"),
         JAQPOT_BASE_ALGORITHMS("jaqpot.base.algorithms", "config", "http://localhost:8080/algorithms/service/"),
         JAQPOT_BASE_IMAGE("jaqpot.base.image", "config", "http://localhost:8880/imageAnalysis/service/"),
@@ -76,18 +80,18 @@ public class PropertyManager {
         JAQPOT_JANITOR_PASSWORD("janitor.password", "janitor", "");
 
 
-        private final String value;
+        private final String name;
         private final String bundle;
         private final String defaultValue;
 
         PropertyType(String value, String bundle, String defaultValue) {
-            this.value = value;
+            this.name = value;
             this.bundle = bundle;
             this.defaultValue = defaultValue;
         }
 
-        public String getValue() {
-            return this.value;
+        public String getName() {
+            return this.name;
         }
 
         public String getBundle() {
@@ -102,11 +106,11 @@ public class PropertyManager {
     public PropertyManager(){}
 
     public String getProperty(PropertyType propertyType) {
-        String property = System.getenv(propertyType.getValue());
+        String property = System.getenv(propertyType.getName());
         if (property == null || property.isEmpty()) {
             property = ResourceBundle
                     .getBundle(propertyType.getBundle())
-                    .getString(propertyType.getValue());
+                    .getString(propertyType.getName());
         }
         return property;
     }

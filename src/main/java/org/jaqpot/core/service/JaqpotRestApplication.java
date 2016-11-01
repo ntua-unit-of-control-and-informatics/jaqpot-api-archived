@@ -41,7 +41,6 @@ import javax.ws.rs.ext.Provider;
 import java.util.HashSet;
 import java.util.Set;
 
-
 /**
  *
  * @author Pantelis Sopasakis
@@ -50,6 +49,7 @@ import java.util.Set;
  */
 @ApplicationPath("/services")
 public class JaqpotRestApplication extends Application {
+
     BeanConfig beanConfig;
 
     @Inject
@@ -67,8 +67,10 @@ public class JaqpotRestApplication extends Application {
     //Move constructor logic in @PostConstruct in order to be able to use PropertyManager Injection
     @PostConstruct
     public void init() {
-        beanConfig.setBasePath(propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_BASE_SERVICE));
-
+        String host = propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_HOST);
+        String port = propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_PORT);
+        beanConfig.setHost(host + ":" + port);
+        beanConfig.setBasePath(propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_BASE));
     }
 
     @Override
@@ -97,7 +99,7 @@ public class JaqpotRestApplication extends Application {
 
         // Swagger-related stuff [Registered directly]
         resources.add(io.swagger.jaxrs.listing.ApiListingResource.class);
-        resources.add(io.swagger.jaxrs.listing.SwaggerSerializers.class);        
+        resources.add(io.swagger.jaxrs.listing.SwaggerSerializers.class);
 
         return resources;
     }
