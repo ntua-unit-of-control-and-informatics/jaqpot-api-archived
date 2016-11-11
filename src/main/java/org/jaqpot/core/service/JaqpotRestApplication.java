@@ -42,6 +42,8 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.ejb.Singleton;
+import javax.ejb.Startup;
 
 /**
  *
@@ -50,6 +52,8 @@ import java.util.logging.Logger;
  *
  */
 @ApplicationPath("/services")
+@Singleton
+@Startup
 public class JaqpotRestApplication extends Application {
 
     private static final Logger LOG = Logger.getLogger(JaqpotRestApplication.class.getName());
