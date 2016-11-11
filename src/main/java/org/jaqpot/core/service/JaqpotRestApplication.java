@@ -40,6 +40,8 @@ import javax.ws.rs.core.Application;
 import javax.ws.rs.ext.Provider;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -49,6 +51,8 @@ import java.util.Set;
  */
 @ApplicationPath("/services")
 public class JaqpotRestApplication extends Application {
+
+    private static final Logger LOG = Logger.getLogger(JaqpotRestApplication.class.getName());
 
     BeanConfig beanConfig;
 
@@ -64,6 +68,11 @@ public class JaqpotRestApplication extends Application {
     public void init() {
         String host = propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_HOST);
         String port = propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_PORT);
+        String basePath = propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_BASE);
+        LOG.log(Level.INFO, "Starting up Jaqpot API");
+        LOG.log(Level.INFO, "Host:{0}", host);
+        LOG.log(Level.INFO, "Port:{0}", port);
+        LOG.log(Level.INFO, "BasePath:{0}", basePath);
         beanConfig = new BeanConfig();
         beanConfig.setVersion("4.0.3");
         beanConfig.setResourcePackage("org.jaqpot.core.service.resource");
@@ -71,7 +80,7 @@ public class JaqpotRestApplication extends Application {
         beanConfig.setTitle("Jaqpot Quattro");
         beanConfig.setDescription("Jaqpot Quattro");
         beanConfig.setHost(host + ":" + port);
-        beanConfig.setBasePath(propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_BASE));
+        beanConfig.setBasePath(basePath);
     }
 
     @Override
