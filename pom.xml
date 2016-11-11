@@ -143,6 +143,28 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <failOnMissingWebXml>false</failOnMissingWebXml>
+        
+        <jaqpot.host></jaqpot.host>
+        <jaqpot.port></jaqpot.port>
+        <jaqpot.base></jaqpot.base>
+        
+        <jaqpot.mail.dosend></jaqpot.mail.dosend>
+        <jaqpot.mail.mandrillApiKey></jaqpot.mail.mandrillApiKey>
+        <jaqpot.mail.fromMail></jaqpot.mail.fromMail>
+        <jaqpot.mail.fromName></jaqpot.mail.fromName>
+        <jaqpot.mail.recipients></jaqpot.mail.recipients>
+        
+        <jaqpot.db.name></jaqpot.db.name>
+        <jaqpot.db.host></jaqpot.db.host>
+        <jaqpot.db.port></jaqpot.db.port>
+        
+        <jaqpot.administrators></jaqpot.administrators>
+        <jaqpot.cors.alloworigin></jaqpot.cors.alloworigin>
+        <server.base></server.base>
+        <algorithms.base></algorithms.base>
+        <image.base></image.base>
+        <validation.base></validation.base>
+        <interlab.base></interlab.base>
     </properties>
     
 </project>

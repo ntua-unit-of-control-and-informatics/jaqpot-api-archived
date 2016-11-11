@@ -103,10 +103,11 @@ public class PropertyManager {
         }
     }
     @Inject
-    public PropertyManager(){}
+    public PropertyManager() {
+    }
 
     public String getProperty(PropertyType propertyType) {
-        String property = System.getenv(propertyType.getName());
+        String property = System.getenv(propertyType.getName().toUpperCase().replaceAll("\\.", "_"));
         if (property == null || property.isEmpty()) {
             property = ResourceBundle
                     .getBundle(propertyType.getBundle())
@@ -114,7 +115,7 @@ public class PropertyManager {
         }
         return property;
     }
-    
+
     public String getPropertyOrDefault(PropertyType propertyType, String defaultValue) {
         String property = getProperty(propertyType);
         if (property == null || property.isEmpty()) {

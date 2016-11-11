@@ -56,21 +56,22 @@ public class JaqpotRestApplication extends Application {
     PropertyManager propertyManager;
 
     public JaqpotRestApplication() {
-        beanConfig = new BeanConfig();
-        beanConfig.setVersion("1.5.0");
-        beanConfig.setResourcePackage("org.jaqpot.core.service.resource");
-        beanConfig.setScan(true);
-        beanConfig.setTitle("Jaqpot Quattro");
-        beanConfig.setDescription("Jaqpot Quattro");
+
     }
 
     //Move constructor logic in @PostConstruct in order to be able to use PropertyManager Injection
     @PostConstruct
     public void init() {
-        String host = propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_HOST);
-        String port = propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_PORT);
+        String host = propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_HOST);
+        String port = propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_PORT);
+        beanConfig = new BeanConfig();
+        beanConfig.setVersion("4.0.3");
+        beanConfig.setResourcePackage("org.jaqpot.core.service.resource");
+        beanConfig.setScan(true);
+        beanConfig.setTitle("Jaqpot Quattro");
+        beanConfig.setDescription("Jaqpot Quattro");
         beanConfig.setHost(host + ":" + port);
-        beanConfig.setBasePath(propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_BASE));
+        beanConfig.setBasePath(propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_BASE));
     }
 
     @Override
