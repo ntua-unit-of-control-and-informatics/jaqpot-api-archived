@@ -79,13 +79,14 @@ public class JaqpotRestApplication extends Application {
         LOG.log(Level.INFO, "BasePath:{0}", basePath);
         beanConfig = new BeanConfig();
         beanConfig.setVersion("4.0.3");
-        beanConfig.setResourcePackage("org.jaqpot.core.service.resource");        
+        beanConfig.setResourcePackage("org.jaqpot.core.service.resource");
         beanConfig.setScan(true);
         beanConfig.setTitle("Jaqpot Quattro");
         beanConfig.setDescription("Jaqpot Quattro");
         beanConfig.setHost(host + ":" + port);
         beanConfig.setBasePath(basePath);
-        beanConfig.setPrettyPrint(true);        
+        beanConfig.setSchemes(new String[]{"http"});
+        beanConfig.setPrettyPrint(true);
     }
 
     @Override
