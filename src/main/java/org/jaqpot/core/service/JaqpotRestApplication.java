@@ -85,6 +85,7 @@ public class JaqpotRestApplication extends Application {
         beanConfig.setDescription("Jaqpot Quattro");
         beanConfig.setHost(host + ":" + port);
         beanConfig.setBasePath(basePath);
+        beanConfig.setPrettyPrint(true);        
     }
 
     @Override

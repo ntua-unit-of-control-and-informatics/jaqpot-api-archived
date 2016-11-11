@@ -78,26 +78,7 @@
         showRequestHeaders: false
       });
 
-      function addApiKeyAuthorization() {
-                    var key = $('#input_apiKey')[0].value;
-                    log("key: " + key);
-                    if (key && key.trim() != "") {
-                        log("added key " + key);
-                        // window.authorizations.add("api_key", new ApiKeyAuthorization("api_key", key, "query"));
-                        window.authorizations.add("key", new ApiKeyAuthorization("subjectid", key, "header"));
-                    }
-                }
-      $('#input_apiKey').change(function () {
-                    addApiKeyAuthorization();
-                });
-
       window.swaggerUi.load();
-
-      $.post("/jaqpot/services/aa/login", {username: "guest", password: "guest"}).
-                        done(function (data) {
-                            document.getElementById("input_apiKey").value = (data.authToken);
-                            window.authorizations.add("key", new ApiKeyAuthorization("subjectid", data.authToken, "header"));
-                        });
 
       function log() {
         if ('console' in window) {
@@ -111,7 +92,7 @@
 <body class="swagger-section">
 <div id='header'>
   <div class="swagger-ui-wrap">
-    <a id="logo" href="http://swagger.io"><img class="logo__img" alt="swagger" height="30" width="30" src="images/logo_small.png" /><span class="logo__title">swagger</span></a>
+    <a id="logo" href="http://www.jaqpot.org"><img class="logo__img" alt="swagger" height="30" width="30" src="images/logo_small.png" /><span class="logo__title">Jaqpot API</span></a>
     <form id='api_selector'>
       <div class='input'><input placeholder="http://example.com/api" id="input_baseUrl" name="baseUrl" type="text"/></div>
       <div id='auth_container'></div>
