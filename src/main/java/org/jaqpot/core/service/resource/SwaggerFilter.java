@@ -21,9 +21,9 @@ import io.swagger.models.auth.In;
 @SwaggerDefinition(
         info = @Info(
                 title = "Jaqpot API",
-                description = "JAQPOT Quattro is the 4th version of a YAQP, a RESTful web service which can be used to train machine learning models and use them to obtain toxicological predictions for given chemical compounds or engineered nano materials. The project is written in Java8 and JEE7.",
+                description = "Jaqpot v4 (Quattro) is the 4th version of a YAQP, a RESTful web service which can be used to train machine learning models and use them to obtain toxicological predictions for given chemical compounds or engineered nano materials. The project is written in Java8 and JEE7.",
                 version = "4.0.3",
-                contact = @Contact(name = "Charalampos Chomenidis", email = "hampos@me.com")
+                contact = @Contact(name = "Charalampos Chomenidis, Pantelis Sopasakis, Evangelia Anagnostopoulou, Angelos Valsamis, George Drakakis, Georgia Tsiliki, Philip Doganis, Haralambos Sarimveis", email = "hampos@me.com", url = "https://github.com/KinkyDesign/jaqpot-web/issues")
         )
 )
 public class SwaggerFilter implements ReaderListener {
