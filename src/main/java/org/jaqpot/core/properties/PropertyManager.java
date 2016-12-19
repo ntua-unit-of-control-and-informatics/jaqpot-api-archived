@@ -60,6 +60,7 @@ public class PropertyManager {
         JAQPOT_BASE_IMAGE("jaqpot.base.image", "config", "http://localhost:8880/imageAnalysis/service/"),
         JAQPOT_BASE_VALIDATION("jaqpot.base.validation", "config", "http://localhost:8092/pws/validation"),
         JAQPOT_BASE_INTERLAB("jaqpot.base.interlab", "config", "http://localhost:8091/pws/interlabtest"),
+
                 
         DEFAULT_DOA("default.doa", "config",""),
         DEFAULT_SCALING("default.scaling", "config", ""),
@@ -77,7 +78,9 @@ public class PropertyManager {
 
         JAQPOT_JANITOR_TARGET("janitor.target", "janitor", ""),
         JAQPOT_JANITOR_USERNAME("janitor.username", "janitor", ""),
-        JAQPOT_JANITOR_PASSWORD("janitor.password", "janitor", "");
+        JAQPOT_JANITOR_PASSWORD("janitor.password", "janitor", ""),
+
+        JAQPOT_AMBIT("jaqpot.base.ambit", "config", "https://apps.ideaconsult.net/enmtest/");
 
 
         private final String name;

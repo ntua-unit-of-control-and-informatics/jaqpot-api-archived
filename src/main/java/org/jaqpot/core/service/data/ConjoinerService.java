@@ -38,26 +38,23 @@ import com.google.common.base.Charsets;
 import com.google.common.hash.HashCode;
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
+import org.jaqpot.ambitclient.model.dataset.Dataset;
+import org.jaqpot.ambitclient.model.dataset.FeatureInfo;
+import org.jaqpot.ambitclient.model.dto.bundle.BundleProperties;
+import org.jaqpot.ambitclient.model.dto.bundle.BundleSubstances;
+import org.jaqpot.ambitclient.model.dto.study.Proteomics;
 import org.jaqpot.core.annotations.Jackson;
 import org.jaqpot.core.data.FeatureHandler;
 import org.jaqpot.core.data.TaskHandler;
 import org.jaqpot.core.data.serialize.JSONSerializer;
 import org.jaqpot.core.model.Feature;
 import org.jaqpot.core.model.Task;
-import org.jaqpot.core.model.dto.bundle.BundleProperties;
-import org.jaqpot.core.model.dto.bundle.BundleSubstances;
-import org.jaqpot.core.model.dto.dataset.DataEntry;
-import org.jaqpot.core.model.dto.dataset.Dataset;
-import org.jaqpot.core.model.dto.dataset.FeatureInfo;
-import org.jaqpot.core.model.dto.dataset.Substance;
-import org.jaqpot.core.model.dto.study.Effect;
-import org.jaqpot.core.model.dto.study.Studies;
-import org.jaqpot.core.model.dto.study.Study;
-import org.jaqpot.core.model.dto.study.proteomics.Proteomics;
 import org.jaqpot.core.model.factory.TaskFactory;
+import org.jaqpot.core.model.mapper.DatasetMapper;
 import org.jaqpot.core.model.util.ROG;
 import org.jaqpot.core.properties.PropertyManager;
 import org.jaqpot.core.service.annotations.UnSecure;
+import org.jaqpot.core.service.client.AmbitClientFactory;
 
 import javax.annotation.Resource;
 import javax.ejb.EJB;
@@ -79,6 +76,8 @@ import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 /**
@@ -110,10 +109,14 @@ public class ConjoinerService {
     @Resource(lookup = "java:jboss/exported/jms/topic/preparation")
     private Topic preparationQueue;
 
+
     @Inject
     private JMSContext jmsContext;
 
-    private Set<org.jaqpot.core.model.dto.dataset.FeatureInfo> featureMap;
+    @Inject
+    AmbitClientFactory ambitClientFactory;
+
+    private Set<FeatureInfo> featureMap;
 
     private Set<Dataset.DescriptorCategory> usedDescriptors;
 
@@ -131,36 +134,37 @@ public class ConjoinerService {
         return task;
     }
 
-    public Dataset prepareDataset(String bundleURI, String subjectId, Set<String> descriptors, Boolean intersectColumns, Boolean retainNullValues) {
+    public org.jaqpot.core.model.dto.dataset.Dataset prepareDataset(String bundleURI, String subjectId, Set<String> descriptors, Boolean intersectColumns, Boolean retainNullValues) throws RuntimeException, ExecutionException, InterruptedException {
 
-        String remoteServerBase = bundleURI.split("bundle")[0];
+        String bundleId = bundleURI.split("bundle/")[1];
 
-        BundleSubstances substances = client.target(bundleURI + "/substance")
-                .request()
-                .accept(MediaType.APPLICATION_JSON)
-                .header("subjectid", subjectId)
-                .get(BundleSubstances.class);
-        BundleProperties properties = client.target(bundleURI + "/property")
-                .request()
-                .accept(MediaType.APPLICATION_JSON)
-                .header("subjectid", subjectId)
-                .get(BundleProperties.class);
+        BundleSubstances substances;
+        BundleProperties properties;
 
-        Dataset dataset = new Dataset();
-        List<DataEntry> dataEntries = new ArrayList<>();
+        CompletableFuture<org.jaqpot.ambitclient.model.dto.bundle.BundleSubstances> substancesF = ambitClientFactory.getRestClient().getBundleSubstances(bundleId,subjectId);
+        substances = substancesF.get();
+
+
+        CompletableFuture<org.jaqpot.ambitclient.model.dto.bundle.BundleProperties> propertiesF = ambitClientFactory.getRestClient().getBundleProperties(bundleId,subjectId);
+        properties=propertiesF.get();
+
 
         featureMap = new HashSet<>();
         usedDescriptors = new HashSet<>();
+        List<org.jaqpot.ambitclient.model.dataset.DataEntry> dataEntries = new ArrayList<>();
 
-        for (Substance substance : substances.getSubstance()) {
-            Studies studies = client.target(substance.getURI() + "/study")
-                    .request()
-                    .accept(MediaType.APPLICATION_JSON)
-                    .header("subjectid", subjectId)
-                    .get(Studies.class);
-            DataEntry dataEntry = createDataEntry(substance, studies, properties.getFeature().keySet(), remoteServerBase, subjectId, descriptors, retainNullValues);
-            dataEntries.add(dataEntry);
+        if (substances != null) {
+            for (org.jaqpot.ambitclient.model.dataset.Substance substance : substances.getSubstance()) {
+                CompletableFuture<org.jaqpot.ambitclient.model.dto.study.Studies> studyF = ambitClientFactory.getRestClient().getSubstanceStudies(substance.getURI().split("substance")[1], subjectId);
+                org.jaqpot.ambitclient.model.dto.study.Studies study = null;
+                study = studyF.get();
+                if (study!=null) {
+                    org.jaqpot.ambitclient.model.dataset.DataEntry dataEntry = createDataEntry(substance, study,  propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_AMBIT), properties.getFeature().keySet(), subjectId, descriptors, retainNullValues);
+                    dataEntries.add(dataEntry);
+                }
+            }
         }
+        Dataset dataset = new Dataset();
 
         dataset.setFeatures(featureMap);
 
@@ -202,19 +206,19 @@ public class ConjoinerService {
             });
         }
 
-//        dataset.setTotalRows(dataset.getDataEntry().size());
-//        dataset.setTotalColumns(dataset.getDataEntry().stream().findFirst().get().getValues().size());
         dataset.setDescriptors(usedDescriptors);
         dataset.setVisible(Boolean.TRUE);
-        return dataset;
+
+        return DatasetMapper.INSTANCE.datasetToDataset(dataset);
 
     }
 
     //TODO: Handle multiple effects that map to the same property
-    public DataEntry createDataEntry(Substance substance, Studies studies, Set<String> propertyCategories, String remoteServerBase, String subjectId, Set<String> descriptors, Boolean retainNullValues) {
-        DataEntry dataEntry = new DataEntry();
+    public org.jaqpot.ambitclient.model.dataset.DataEntry createDataEntry(org.jaqpot.ambitclient.model.dataset.Substance substance, org.jaqpot.ambitclient.model.dto.study.Studies studies,String remoteServerBase, Set<String> propertyCategories, String subjectId, Set<String> descriptors, Boolean retainNullValues) {
+        org.jaqpot.ambitclient.model.dataset.DataEntry dataEntry = new org.jaqpot.ambitclient.model.dataset.DataEntry();
         TreeMap<String, Object> values = new TreeMap<>();
-        for (Study study : studies.getStudy()) {
+
+        for (org.jaqpot.ambitclient.model.dto.study.Study study : studies.getStudy()) {
             //Checks if the protocol category is present in the selection Set
             String code = study.getProtocol().getCategory().getCode();
             if (!propertyCategories.stream().filter(c -> c.contains(code)).findAny().isPresent()) {
@@ -232,7 +236,7 @@ public class ConjoinerService {
             }
 
             //Parses each effect of the study as a different property
-            for (Effect effect : study.getEffects()) {
+            for (org.jaqpot.ambitclient.model.dto.study.Effect effect : study.getEffects()) {
                 if (effect.getEndpoint().equals("IMAGE")) {
                     if (!descriptors.contains(Dataset.DescriptorCategory.IMAGE.name())) {
                         continue;
@@ -306,7 +310,7 @@ public class ConjoinerService {
                                 .getJsonObject(key)
                                 .getString("title");
                         featureResponse.close();
-                        FeatureInfo featureInfo = new org.jaqpot.core.model.dto.dataset.FeatureInfo(key, featureTitle);
+                        FeatureInfo featureInfo = new FeatureInfo(key, featureTitle);
                         featureInfo.setCategory(Dataset.DescriptorCategory.MOPAC);
                         featureMap.add(featureInfo);
                     });
@@ -361,7 +365,7 @@ public class ConjoinerService {
     }
 
     //TODO: Implement Dixon's q-test
-    public Object calculateValue(Effect effect) {
+    public Object calculateValue(org.jaqpot.ambitclient.model.dto.study.Effect effect) {
 
         Object currentValue = null; // return null if conditions not satisfied
 
@@ -404,7 +408,7 @@ public class ConjoinerService {
         return currentValue;
     }
 
-    public Map<String, Object> parseProteomics(Study study, String remoteServerBase) {
+    public Map<String, Object> parseProteomics(org.jaqpot.ambitclient.model.dto.study.Study study, String remoteServerBase) {
         Map<String, Object> values = new TreeMap<>();
         study.getEffects().stream().findFirst().ifPresent(effect -> {
             String textValue = effect.getResult().getTextValue();
@@ -422,7 +426,7 @@ public class ConjoinerService {
                 propertyURIJoiner.add(entry.getKey());
                 Object protValue = entry.getValue().getLoValue();
                 values.put(remoteServerBase + propertyURIJoiner.toString(), protValue);
-                FeatureInfo featureInfo = new org.jaqpot.core.model.dto.dataset.FeatureInfo(remoteServerBase + propertyURIJoiner.toString(), entry.getKey());
+                FeatureInfo featureInfo = new FeatureInfo(remoteServerBase + propertyURIJoiner.toString(), entry.getKey());
                 featureInfo.setCategory(Dataset.DescriptorCategory.EXPERIMENTAL);
                 featureMap.add(featureInfo);
             });

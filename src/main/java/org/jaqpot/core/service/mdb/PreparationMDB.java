@@ -31,6 +31,7 @@ package org.jaqpot.core.service.mdb;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Resource;
@@ -195,6 +196,8 @@ public class PreparationMDB extends RunningTaskMDB {
             LOG.log(Level.SEVERE, null, ex);
             task.setStatus(Task.Status.ERROR);
             task.setErrorReport(ErrorReportFactory.badRequest("Error while processing input.", ex.getMessage()));
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
         } finally {
             if (task != null && task.getId() != null) {
                 terminate(task.getId());
