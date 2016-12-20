@@ -32,7 +32,6 @@ package org.jaqpot.core.service.resource;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
-import org.jaqpot.ambitclient.AmbitClient;
 import org.jaqpot.ambitclient.model.BundleData;
 import org.jaqpot.core.annotations.Jackson;
 import org.jaqpot.core.data.DatasetHandler;
@@ -46,9 +45,8 @@ import org.jaqpot.core.model.dto.dataset.Dataset;
 import org.jaqpot.core.model.facades.UserFacade;
 import org.jaqpot.core.model.factory.ErrorReportFactory;
 import org.jaqpot.core.service.annotations.Authorize;
-import org.jaqpot.core.service.annotations.Secure;
 import org.jaqpot.core.service.annotations.UnSecure;
-import org.jaqpot.core.service.client.AmbitClientFactory;
+import org.jaqpot.core.service.client.ambit.Ambit;
 import org.jaqpot.core.service.data.ConjoinerService;
 import org.jaqpot.core.service.data.PredictionService;
 import org.jaqpot.core.service.data.TrainingService;
@@ -65,7 +63,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Logger;
 
@@ -111,7 +108,7 @@ public class EnanomapperResource {
     Client client;
 
     @Inject
-    AmbitClientFactory ambitClient;
+    Ambit ambitClient;
 
     @Inject
     @Jackson
@@ -259,7 +256,7 @@ public class EnanomapperResource {
     )
     public Response createBundle(
             @ApiParam(value = "Data for bundle creation", defaultValue = DEFAULT_BUNDLE_DATA, required = true) BundleData bundleData,
-            @HeaderParam("subjectid") String subjectId) {
+            @HeaderParam("subjectid") String subjectId) throws ExecutionException, InterruptedException {
 
         if (bundleData == null) {
             throw new BadRequestException("Post data cannot be empty");
@@ -272,20 +269,13 @@ public class EnanomapperResource {
 
         String userName = securityContext.getUserPrincipal().getName();
 
-        CompletableFuture<String> result = ambitClient.getRestClient().createBundle(bundleData,userName,subjectId);
-        String resultS;
-        try {
-            resultS = result.get();
-        } catch (InterruptedException | ExecutionException e) {
-            resultS=e.getLocalizedMessage();
-            e.printStackTrace();
-        }
+        String result = ambitClient.createBundle(bundleData,userName,subjectId);
 
        try {
-           return Response.created(new URI(resultS.replaceAll("\\s+",""))).entity(resultS).build();
+           return Response.created(new URI(result.replaceAll("\\s+",""))).entity(result).build();
         } catch (URISyntaxException ex) {
             return Response.status(Response.Status.BAD_GATEWAY)
-                    .entity(ErrorReportFactory.remoteError(resultS, ErrorReportFactory.internalServerError(), ex))
+                    .entity(ErrorReportFactory.remoteError(result, ErrorReportFactory.internalServerError(), ex))
                     .build();
         }
     }

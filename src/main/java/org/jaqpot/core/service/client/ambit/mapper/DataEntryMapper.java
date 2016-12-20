@@ -1,4 +1,4 @@
-package org.jaqpot.core.model.mapper;
+package org.jaqpot.core.service.client.ambit.mapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;

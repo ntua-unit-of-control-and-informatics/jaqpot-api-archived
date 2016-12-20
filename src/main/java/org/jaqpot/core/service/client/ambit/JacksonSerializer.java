@@ -33,7 +33,10 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector;
 import org.jaqpot.ambitclient.serialize.Serializer;
+import org.jaqpot.core.annotations.Jackson;
 
+import javax.enterprise.context.Dependent;
+import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -43,9 +46,17 @@ import java.io.Writer;
  * @author Angelos Valsamis
  * @author Charalampos Chomenidis
  */
+@Jackson
+@Dependent
 public class JacksonSerializer implements Serializer {
 
     private final ObjectMapper objectMapper;
+
+    public JacksonSerializer() {
+        this.objectMapper = new ObjectMapper();
+        this.objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+        this.objectMapper.setAnnotationIntrospector(new JaxbAnnotationIntrospector());
+    }
 
     public JacksonSerializer(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;

@@ -1,9 +1,13 @@
-package org.jaqpot.core.model.mapper;
+package org.jaqpot.core.service.client.ambit.mapper;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.jaqpot.core.model.MetaInfo;
 import org.jaqpot.core.model.dto.dataset.DataEntry;
 import org.jaqpot.core.model.dto.dataset.Dataset;
 import org.jaqpot.core.model.dto.dataset.FeatureInfo;
+import org.jaqpot.core.model.dto.dataset.Substance;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
 /**
@@ -16,9 +20,10 @@ public interface DatasetMapper {
 
     Dataset datasetToDataset  (org.jaqpot.ambitclient.model.dataset.Dataset dataset);
 
-    org.jaqpot.core.model.MetaInfo metaInfoToMetaInfo(org.jaqpot.ambitclient.model.MetaInfo metaInfo);
+    MetaInfo metaInfoToMetaInfo(org.jaqpot.ambitclient.model.MetaInfo metaInfo);
 
-    org.jaqpot.core.model.dto.dataset.Substance substanceToSubstance(org.jaqpot.ambitclient.model.dataset.Substance substance);
+    @JsonIgnore
+    Substance substanceToSubstance(org.jaqpot.ambitclient.model.dataset.Substance substance);
 
     DataEntry dataEntryToDataEntry(org.jaqpot.ambitclient.model.dataset.DataEntry dataEntry);
 
