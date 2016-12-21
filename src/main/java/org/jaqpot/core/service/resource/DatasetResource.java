@@ -90,6 +90,7 @@ import org.jaqpot.core.model.factory.DatasetFactory;
 import org.jaqpot.core.model.util.ROG;
 import org.jaqpot.core.service.annotations.Authorize;
 import org.jaqpot.core.service.annotations.UnSecure;
+import org.jaqpot.core.service.client.ambit.Ambit;
 import org.jaqpot.core.service.client.jpdi.JPDIClient;
 import org.jaqpot.core.service.exceptions.QuotaExceededException;
 
@@ -120,6 +121,9 @@ public class DatasetResource {
 
     @EJB
     ReportHandler reportHandler;
+
+    @Inject
+    Ambit ambitClient;
 
     @Inject
     @UnSecure
@@ -411,7 +415,7 @@ public class DatasetResource {
             @FormParam("substance_uri") String substanceURI,
             @FormParam("title") String title,
             @FormParam("description") String description
-    ) throws QuotaExceededException {
+    ) throws QuotaExceededException, ExecutionException, InterruptedException {
 
         User user = userHandler.find(securityContext.getUserPrincipal().getName());
         long reportCount = reportHandler.countAllOfCreator(user.getId());
@@ -489,11 +493,11 @@ public class DatasetResource {
 
         UrlValidator urlValidator = new UrlValidator();
         if (urlValidator.isValid(substanceURI)) {
-            Dataset structures = client.target(substanceURI + "/structures")
-                    .request()
-                    .accept(MediaType.APPLICATION_JSON)
-                    .header("subjectid", subjectId)
-                    .get(Dataset.class);
+
+            String substanceId = substanceURI.split("substance/")[1];
+
+            Dataset structures = ambitClient.getDatasetStructures(substanceId,subjectId);
+
             List<Map<String, String>> structuresList = structures.getDataEntry()
                     .stream()
                     .map(de -> {
