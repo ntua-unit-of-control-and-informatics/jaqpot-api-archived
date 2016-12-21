@@ -1,10 +1,8 @@
 package org.jaqpot.core.service.client.ambit.mapper;
 
-        import org.jaqpot.core.model.dto.study.*;
-        import org.mapstruct.Mapper;
+import org.jaqpot.core.model.dto.study.*;
+import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
-
-        import javax.ws.rs.Produces;
 
 /**
  * Created by Angelos Valsamis on 19/12/2016.
@@ -12,7 +10,7 @@ import org.mapstruct.factory.Mappers;
 @Mapper
 public interface StudiesMapper {
 
-    org.jaqpot.core.service.client.ambit.mapper.StudiesMapper INSTANCE = Mappers.getMapper( org.jaqpot.core.service.client.ambit.mapper.StudiesMapper.class );
+    StudiesMapper INSTANCE = Mappers.getMapper( org.jaqpot.core.service.client.ambit.mapper.StudiesMapper.class );
 
     Studies studiesToStudiesMapper(org.jaqpot.ambitclient.model.dto.study.Studies studies);
 
@@ -35,6 +33,5 @@ public interface StudiesMapper {
     Result resultToResultMapper(org.jaqpot.ambitclient.model.dto.study.Result result);
 
     Substance substanceToSubstanceMapper(org.jaqpot.ambitclient.model.dto.study.Substance substance);
-
 
 }

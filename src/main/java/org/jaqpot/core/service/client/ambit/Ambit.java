@@ -1,6 +1,5 @@
 package org.jaqpot.core.service.client.ambit;
 
-import org.jaqpot.ambitclient.AmbitClient;
 import org.jaqpot.ambitclient.model.BundleData;
 import org.jaqpot.core.model.dto.bundle.BundleProperties;
 import org.jaqpot.core.model.dto.bundle.BundleSubstances;
@@ -15,17 +14,17 @@ import java.util.concurrent.ExecutionException;
  */
 public interface Ambit extends Closeable{
 
-    public abstract Dataset generateMopacDescriptors(String var1, String var2) throws ExecutionException, InterruptedException;
+    Dataset generateMopacDescriptors(String var1, String var2) throws ExecutionException, InterruptedException;
 
-    public abstract Dataset getDataset(String var1, String var2) throws ExecutionException, InterruptedException;
+    Dataset getDataset(String var1, String var2) throws ExecutionException, InterruptedException;
 
-    public abstract Dataset getDatasetStructures(String var1, String var2) throws ExecutionException, InterruptedException;
+    Dataset getDatasetStructures(String var1, String var2) throws ExecutionException, InterruptedException;
 
-    public abstract BundleSubstances getBundleSubstances(String var1, String var2) throws ExecutionException, InterruptedException;
+    BundleSubstances getBundleSubstances(String var1, String var2) throws ExecutionException, InterruptedException;
 
-    public abstract BundleProperties getBundleProperties(String var1, String var2) throws ExecutionException, InterruptedException;
+    BundleProperties getBundleProperties(String var1, String var2) throws ExecutionException, InterruptedException;
 
-    public abstract Studies getSubstanceStudies(String var1, String var2) throws ExecutionException, InterruptedException;
+    Studies getSubstanceStudies(String var1, String var2) throws ExecutionException, InterruptedException;
 
-    public abstract String createBundle(BundleData var1, String var2, String var3) throws ExecutionException, InterruptedException;
+    String createBundle(BundleData var1, String var2, String var3) throws ExecutionException, InterruptedException;
 }

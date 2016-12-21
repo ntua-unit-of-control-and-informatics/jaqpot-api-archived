@@ -50,13 +50,13 @@ import org.jaqpot.core.model.dto.dataset.Dataset;
  */
 public interface JPDIClient extends Closeable {
 
-    public Future<Model> train(Dataset dataset, Algorithm algorithm, Map<String, Object> parameters, String predictionFeature, MetaInfo modelMeta, String taskId);
+    Future<Model> train(Dataset dataset, Algorithm algorithm, Map<String, Object> parameters, String predictionFeature, MetaInfo modelMeta, String taskId);
 
-    public Future<Dataset> predict(Dataset dataset, Model model, MetaInfo datasetMeta, String taskId);
+    Future<Dataset> predict(Dataset dataset, Model model, MetaInfo datasetMeta, String taskId);
 
-    public Future<Dataset> transform(Dataset dataset, Algorithm algorithm, Map<String, Object> parameters, String predictionFeature, MetaInfo datasetMeta, String taskId);
+    Future<Dataset> transform(Dataset dataset, Algorithm algorithm, Map<String, Object> parameters, String predictionFeature, MetaInfo datasetMeta, String taskId);
 
-    public Future<Report> report(Dataset dataset, Algorithm algorithm, Map<String, Object> parameters, MetaInfo reportMeta, String taskId);
+    Future<Report> report(Dataset dataset, Algorithm algorithm, Map<String, Object> parameters, MetaInfo reportMeta, String taskId);
 
-    public boolean cancel(String taskId);
+    boolean cancel(String taskId);
 }

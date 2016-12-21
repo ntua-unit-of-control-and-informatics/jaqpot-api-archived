@@ -3,9 +3,9 @@ package org.jaqpot.core.service.client.ambit;
 /**
  * Created by Angelos Valsamis on 20/12/2016.
  */
+
 import org.jaqpot.core.annotations.Jackson;
 import org.jaqpot.core.properties.PropertyManager;
-import org.jaqpot.core.service.annotations.UnSecure;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
