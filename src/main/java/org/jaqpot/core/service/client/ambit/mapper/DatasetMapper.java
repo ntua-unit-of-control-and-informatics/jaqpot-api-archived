@@ -11,7 +11,7 @@ import org.mapstruct.factory.Mappers;
 /**
  * Created by Angelos Valsamis on 12/12/2016.
  */
-@Mapper
+@Mapper(uses=DataEntryMapper.class)
 public interface DatasetMapper {
 
     DatasetMapper INSTANCE = Mappers.getMapper( DatasetMapper.class );
@@ -19,10 +19,6 @@ public interface DatasetMapper {
     Dataset datasetToDataset  (org.jaqpot.ambitclient.model.dataset.Dataset dataset);
 
     MetaInfo metaInfoToMetaInfo(org.jaqpot.ambitclient.model.MetaInfo metaInfo);
-
-    Substance substanceToSubstance(org.jaqpot.ambitclient.model.dataset.Substance substance);
-
-    DataEntry dataEntryToDataEntry(org.jaqpot.ambitclient.model.dataset.DataEntry dataEntry);
 
     FeatureInfo featureInfoToFeatureInfo (org.jaqpot.ambitclient.model.dataset.FeatureInfo featureInfo);
 

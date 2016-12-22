@@ -9,11 +9,9 @@ import org.mapstruct.factory.Mappers;
  * Created by Angelos Valsamis on 12/12/2016.
  */
 
-@Mapper
+@Mapper (uses=SubstanceMapper.class)
 public interface BundleSubstancesMapper {
     BundleSubstancesMapper INSTANCE = Mappers.getMapper( BundleSubstancesMapper.class );
 
     BundleSubstances bundleSubstancesToBundleSubstances (org.jaqpot.ambitclient.model.dto.bundle.BundleSubstances bundleSubstances);
-
-    Substance substanceListToSubstanceList(org.jaqpot.ambitclient.model.dataset.Substance substanceList);
 }
