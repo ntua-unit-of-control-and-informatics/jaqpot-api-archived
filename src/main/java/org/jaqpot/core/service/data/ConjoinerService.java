@@ -207,7 +207,7 @@ public class ConjoinerService {
     }
 
     //TODO: Handle multiple effects that map to the same property
-    public DataEntry createDataEntry(Substance substance, Studies studies, String remoteServerBase, Set<String> propertyCategories, String subjectId, Set<String> descriptors, Boolean retainNullValues) {
+    public DataEntry createDataEntry(Substance substance, Studies studies, String remoteServerBase, Set<String> propertyCategories, String subjectId, Set<String> descriptors, Boolean retainNullValues) throws ExecutionException, InterruptedException {
         DataEntry dataEntry = new DataEntry();
         TreeMap<String, Object> values = new TreeMap<>();
 
@@ -281,15 +281,14 @@ public class ConjoinerService {
                     } catch (URISyntaxException ex) {
                         continue;
                     }
-                    Response response = client.target(propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_BASE_ALGORITHMS) + "mopac/calculate")
-                            .request()
-                            .accept(MediaType.APPLICATION_JSON)
-                            .header("subjectid", subjectId)
-                            .post(Entity.form(new Form("pdbfile", effect.getResult().getTextValue())));
+
+                    Dataset dataset = ambitClient.generateMopacDescriptors( effect.getResult().getTextValue(),subjectId);
+
                     GenericType<Map<String, Object>> type = new GenericType<Map<String, Object>>() {
                     };
-                    Map<String, Object> mopacDescriptors = response.readEntity(type);
-                    response.close();
+
+                    Map<String, Object> mopacDescriptors = dataset.getDataEntry().get(0).getValues();
+
                     values.putAll(mopacDescriptors);
                     mopacDescriptors.keySet().forEach((key) -> {
                         Response featureResponse = client.target(key)
