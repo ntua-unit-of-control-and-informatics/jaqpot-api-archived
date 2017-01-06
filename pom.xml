@@ -1,53 +1,207 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <organization>
-        <name>National Technical University of Athens (NTUA)</name>
-        <url>http://www.ntua.gr</url>
-    </organization>
-    
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.kinkydesign</groupId>
-    <artifactId>JaqpotQuattro</artifactId>
-    <version>4.0.2</version>
-    <packaging>pom</packaging>
-    <name>JaqpotQuattro</name>
-    <modules>
-        <module>JaqpotEAR</module>
-        <module>JaqpotCoreServices</module>
-        <module>JaqpotDomain</module>
-        <module>JaqpotDB</module>
-        <module>JaqpotAlgorithmServices</module>
-        <module>JaqpotJanitor</module>
-    </modules>
+
+    <groupId>org.jaqpot</groupId>
+    <artifactId>jaqpot-api</artifactId>
+    <version>4.0.3</version>
+    <packaging>war</packaging>
+    
+    <dependencies>
+        
+        <!-- Java Web API -->
+        <dependency>
+            <groupId>javax</groupId>
+            <artifactId>javaee-web-api</artifactId>
+            <version>7.0</version>
+            <scope>provided</scope>
+        </dependency>
+        
+        <dependency>
+            <groupId>javax</groupId>
+            <artifactId>javaee-api</artifactId>
+            <version>7.0</version>
+            <scope>provided</scope>
+        </dependency>
+        
+        <!-- JMS -->
+        <dependency>
+            <groupId>javax.jms</groupId>
+            <artifactId>javax.jms-api</artifactId>
+            <version>2.0</version>
+            <scope>provided</scope>
+        </dependency>
+        
+        <!-- Jackson -->
+        <!--        <dependency>
+            <groupId>com.fasterxml.jackson.jaxrs</groupId>
+            <artifactId>jackson-jaxrs-json-provider</artifactId>
+            <version>2.5.4</version>
+            <scope>provided</scope>
+        </dependency>-->
+        
+        <dependency>
+            <groupId>org.jboss.resteasy</groupId>
+            <artifactId>resteasy-jackson2-provider</artifactId>
+            <version>3.0.10.Final</version>
+            <scope>provided</scope>
+        </dependency>
+        
+        <!-- SWAGGER FOR JAX-RS-->
+        <dependency>
+            <groupId>io.swagger</groupId>
+            <artifactId>swagger-jaxrs</artifactId>
+            <version>1.5.10</version>
+        </dependency>    
+        
+        <!-- JPMML (bin and javadoc) -->
+        <dependency>
+            <groupId>org.jpmml</groupId>
+            <artifactId>pmml-evaluator</artifactId>
+            <version>1.1.16</version>
+        </dependency>
+        
+        <!-- javamelody-core -->
+        <dependency>
+            <groupId>net.bull.javamelody</groupId>
+            <artifactId>javamelody-core</artifactId>
+            <version>1.55.0</version>
+        </dependency>
+        
+        <!-- Mandrill lutung (to send emails via Mandrill) -->
+        <!--        <dependency>
+            <groupId>com.mandrillapp.wrapper.lutung</groupId>
+            <artifactId>lutung</artifactId>
+            <version>0.0.5</version>
+        </dependency>      -->
+        
+        <!-- JSON-PATCH implements RFC 6902 (JSON Patch) and 
+        RFC 7386 (JSON Merge Patch) and is used to PATCH
+        JSON the standard way -->
+        <dependency>
+            <groupId>com.github.fge</groupId>
+            <artifactId>json-patch</artifactId>
+            <version>1.9</version>
+        </dependency> 
+        
+        <dependency>
+            <groupId>org.jboss.resteasy</groupId>
+            <artifactId>resteasy-client</artifactId>
+            <version>3.0.10.Final</version>
+            <scope>provided</scope>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpasyncclient</artifactId>
+            <version>4.1.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>4.5.2</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-validator</groupId>
+            <artifactId>commons-validator</artifactId>
+            <version>1.5.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.itextpdf</groupId>
+            <artifactId>itextpdf</artifactId>
+            <version>5.5.9</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.4</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/com.itextpdf.tool/xmlworker -->
+        <dependency>
+            <groupId>com.itextpdf.tool</groupId>
+            <artifactId>xmlworker</artifactId>
+            <version>5.5.6</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.mongodb</groupId>
+            <artifactId>mongo-java-driver</artifactId>
+            <version>3.3.0</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.jaqpot</groupId>
+            <artifactId>ambit-client</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct-jdk8</artifactId>
+            <version>1.1.0.Final</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <version>3.5.1</version>
+            <configuration>
+                <source>1.8</source> <!-- or higher, depending on your project -->
+                <target>1.8</target> <!-- or higher, depending on your project -->
+                <annotationProcessorPaths>
+                    <path>
+                        <groupId>org.mapstruct</groupId>
+                        <artifactId>mapstruct-processor</artifactId>
+                        <version>1.1.0.Final</version>
+                    </path>
+                </annotationProcessorPaths>
+            </configuration>
+        </plugin>
+        </plugins>
+        <finalName>jaqpot-api-${project.version}</finalName>
+        <resources>
+            <resource>
+                <directory>src/main/resources/</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
+    </build>
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
+        <failOnMissingWebXml>false</failOnMissingWebXml>
+        
+        <jaqpot.host></jaqpot.host>
+        <jaqpot.port></jaqpot.port>
+        <jaqpot.base></jaqpot.base>
+        
+        <jaqpot.mail.dosend></jaqpot.mail.dosend>
+        <jaqpot.mail.mandrillApiKey></jaqpot.mail.mandrillApiKey>
+        <jaqpot.mail.fromMail></jaqpot.mail.fromMail>
+        <jaqpot.mail.fromName></jaqpot.mail.fromName>
+        <jaqpot.mail.recipients></jaqpot.mail.recipients>
+        
+        <jaqpot.db.name></jaqpot.db.name>
+        <jaqpot.db.host></jaqpot.db.host>
+        <jaqpot.db.port></jaqpot.db.port>
+        
+        <jaqpot.administrators></jaqpot.administrators>
+        <jaqpot.cors.alloworigin></jaqpot.cors.alloworigin>
+        <server.base></server.base>
+        <ambit.base></ambit.base>
+        <algorithms.base></algorithms.base>
+        <image.base></image.base>
+        <validation.base></validation.base>
+        <interlab.base></interlab.base>
     </properties>
     
-    <licenses>
-        <license>
-            <name>GNU General Public License, version 3.0</name>
-            <url>https://www.gnu.org/licenses/gpl-3.0.txt</url>
-            <distribution>repo</distribution>
-            <comments>The GNU General Public License is a free, copyleft license for software and other kinds of works.</comments>
-        </license>
-    </licenses>
-    
-    <reporting>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-project-info-reports-plugin</artifactId>
-                <version>2.8</version>
-                <reportSets>
-                    <reportSet>
-                        <reports>
-                            <report>dependencies</report>
-                            <report>license</report>                            
-                        </reports>
-                    </reportSet>
-                </reportSets>
-            </plugin>
-        </plugins>
-    </reporting>
+    <repositories>
+        <repository>
+            <id>jaqpot-releases</id>
+            <url>http://app.jaqpot.org:8081/repository/maven-releases/</url>
+        </repository>
+    </repositories>
 </project>
