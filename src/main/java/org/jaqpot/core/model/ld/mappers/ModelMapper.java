@@ -53,7 +53,7 @@ public class ModelMapper extends BaseMapper implements IMapper<Model, ModelLD> {
     @Override
     public ModelLD map(Model input, String basePath) {
         String id = input.getId();
-        String url = basePath + "/model/" + id;
+        String url = basePath + "model/" + id;
 
         ModelLD model = new ModelLD(url);
         MetaInfo meta = input.getMeta();
@@ -66,7 +66,7 @@ public class ModelMapper extends BaseMapper implements IMapper<Model, ModelLD> {
         model.setLinkedModels(input.getLinkedModels());
 
         String algorithmId = input.getAlgorithm().getId();
-        String algorithmUrl = basePath + "/algorithm/" + algorithmId;
+        String algorithmUrl = basePath + "algorithm/" + algorithmId;
         model.setAlgorithm(algorithmUrl);
 
         if (input.getParameters() != null) {

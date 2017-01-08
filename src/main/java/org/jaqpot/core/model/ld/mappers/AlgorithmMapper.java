@@ -56,7 +56,7 @@ public class AlgorithmMapper extends BaseMapper implements IMapper<Algorithm, Al
     @Override
     public AlgorithmLD map(Algorithm input, String basePath) {
         String id = input.getId();
-        String url = basePath + "/algorithm/" + id;
+        String url = basePath + "algorithm/" + id;
 
         AlgorithmLD alg = new AlgorithmLD(url);
         MetaInfo meta = input.getMeta();
