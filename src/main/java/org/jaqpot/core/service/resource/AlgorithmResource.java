@@ -230,7 +230,7 @@ public class AlgorithmResource {
 
     @GET
     @Path("/{id}")
-    @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
+    @Produces({MediaType.APPLICATION_JSON, "text/uri-list", "application/ld+json"})
     @ApiOperation(value = "Finds Algorithm",
             notes = "Finds Algorithm with provided name",
             response = Algorithm.class
@@ -296,7 +296,7 @@ public class AlgorithmResource {
         }
 
         //Prediction validation should not happen in enm:NoTarget  algorithms
-        if (algorithm.getOntologicalClasses().contains("enm:NoTarget")){
+        if (algorithm.getOntologicalClasses().contains("enm:NoTarget")) {
             if (predictionFeature == null) {
                 throw new ParameterIsNullException("predictionFeature");
             }
@@ -304,7 +304,6 @@ public class AlgorithmResource {
                 throw new ParameterInvalidURIException("Not valid Prediction Feature URI.");
             }
         }
-
 
         if (title == null) {
             throw new ParameterIsNullException("title");
@@ -369,9 +368,12 @@ public class AlgorithmResource {
             + "requires authentication and assumes certain priviledges."
     )
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Algorithm deleted successfully"),
-        @ApiResponse(code = 401, message = "Wrong, missing or insufficient credentials. Error report is produced."),
-        @ApiResponse(code = 403, message = "This is a forbidden operation (do not attempt to repeat it)."),
+        @ApiResponse(code = 200, message = "Algorithm deleted successfully")
+        ,
+        @ApiResponse(code = 401, message = "Wrong, missing or insufficient credentials. Error report is produced.")
+        ,
+        @ApiResponse(code = 403, message = "This is a forbidden operation (do not attempt to repeat it).")
+        ,
         @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
     })
     public Response deleteAlgorithm(
@@ -404,9 +406,12 @@ public class AlgorithmResource {
             + "See https://tools.ietf.org/rfc/rfc6902.txt for details.",
             position = 5)
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Algorithm deleted successfully"),
-        @ApiResponse(code = 401, message = "Wrong, missing or insufficient credentials. Error report is produced."),
-        @ApiResponse(code = 403, message = "This is a forbidden operation (do not attempt to repeat it)."),
+        @ApiResponse(code = 200, message = "Algorithm deleted successfully")
+        ,
+        @ApiResponse(code = 401, message = "Wrong, missing or insufficient credentials. Error report is produced.")
+        ,
+        @ApiResponse(code = 403, message = "This is a forbidden operation (do not attempt to repeat it).")
+        ,
         @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
     })
     public Response modifyAlgorithm(
