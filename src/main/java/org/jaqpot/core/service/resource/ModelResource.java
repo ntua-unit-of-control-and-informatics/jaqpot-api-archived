@@ -78,6 +78,7 @@ import org.jaqpot.core.service.validator.ParameterValidator;
  */
 @Path("model")
 @Api(value = "/model", description = "Models API")
+@Produces({"application/json", "text/uri-list"})
 @Authorize
 public class ModelResource {
 
@@ -171,18 +172,18 @@ public class ModelResource {
     }
 
     @GET
-    @Produces({MediaType.APPLICATION_JSON, "text/uri-list", "application/ld+json"})
     @Path("/{id}")
+    @Produces({MediaType.APPLICATION_JSON, "text/uri-list", "application/ld+json"})      
     @ApiOperation(value = "Finds Model by Id",
             notes = "Finds specified Model",
             response = Model.class)
-    @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Model is found"),
-        @ApiResponse(code = 401, message = "You are not authorized to access this model"),
-        @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)"),
-        @ApiResponse(code = 404, message = "This model was not found."),
-        @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
-    })
+//    @ApiResponses(value = {
+//        @ApiResponse(code = 200, message = "Model is found"),
+//        @ApiResponse(code = 401, message = "You are not authorized to access this model"),
+//        @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)"),
+//        @ApiResponse(code = 404, message = "This model was not found."),
+//        @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
+//    })
     public Response getModel(
             @PathParam("id") String id,
             @ApiParam(value = "Clients need to authenticate in order to access models") @HeaderParam("subjectid") String subjectId) {
