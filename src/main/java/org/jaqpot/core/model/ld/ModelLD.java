@@ -71,7 +71,7 @@ public class ModelLD extends BaseLD {
         this.context.put("doaModel", new TypeLD("enm:ENM_8000076", "@id"));
         this.context.put("transformationModels", new TypeLD("enm:ENM_8000076", "@id"));
         this.context.put("linkedModels", new TypeLD("enm:ENM_8000076", "@id"));
-        this.context.put("parameters", "ot:parameters");
+        this.context.put("parameters", new TypeLD("enm:ENM_8000088", "@id"));
     }
 
     public List<String> getDependentFeatures() {
