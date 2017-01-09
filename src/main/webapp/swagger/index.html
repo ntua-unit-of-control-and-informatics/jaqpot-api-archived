@@ -49,10 +49,33 @@
       if(window.SwaggerTranslator) {
         window.SwaggerTranslator.translate();
       }
+
+
+
+      // if you have an apiKey you would like to pre-populate on the page for demonstration purposes...
+      /*
+       var apiKey = "myApiKeyXXXX123456789";
+       $('#input_apiKey').val(apiKey);
+       addApiKeyAuthorization();
+       */
+
+
+
       window.swaggerUi = new SwaggerUi({
         url: url,
         dom_id: "swagger-ui-container",
         supportedSubmitMethods: ['get', 'post', 'put', 'delete', 'patch'],
+        securityDefinitions: {
+          "my_token": {
+            "type": "subjectid",
+            "description": "Authorization Token",
+            "name": "my_token",
+            "in": "header"
+          }
+        },
+        "security": [
+          { "my_token": [] }
+        ],
         onComplete: function(swaggerApi, swaggerUi){
           if(typeof initOAuth == "function") {
             initOAuth({
@@ -80,6 +103,27 @@
 
       window.swaggerUi.load();
 
+      function addApiKeyAuthorization() {
+        var key = $('#input_apiKey')[0].value;
+        log("key: " + key);
+        if (key && key.trim() != "") {
+          log("added key " + key);
+          // window.authorizations.add("api_key", new ApiKeyAuthorization("api_key", key, "query"));
+          swaggerUi.api.clientAuthorizations.add("key", new SwaggerClient.ApiKeyAuthorization("subjectid", key, "header"));
+        }
+      }
+
+      $('#input_apiKey').change(function () {
+        addApiKeyAuthorization();
+      });
+
+      // This function executed on load and fetches a guest's token
+      $.post("/jaqpot/services/aa/login", {username: "guest", password: "guest"}).
+      done(function (data) {
+        document.getElementById("input_apiKey").value = (data.authToken);
+        swaggerUi.api.clientAuthorizations.add("key", new SwaggerClient.ApiKeyAuthorization("subjectid", data.authToken, "header"));
+      });
+
       function log() {
         if ('console' in window) {
           console.log.apply(console, arguments);
@@ -95,7 +139,9 @@
     <a id="logo" href="http://www.jaqpot.org"><img class="logo__img" alt="swagger" height="30" width="30" src="images/logo_small.png" /><span class="logo__title">Jaqpot API</span></a>
     <form id='api_selector'>
       <div class='input'><input placeholder="http://example.com/api" id="input_baseUrl" name="baseUrl" type="text"/></div>
-      <div id='auth_container'></div>
+      <!--<div id='auth_container'></div>-->
+      <div class='input'><input placeholder="subjectid" id="input_apiKey" name="apiKey" type="text"/></div>
+
       <div class='input'><a id="explore" class="header__btn" href="#" data-sw-translate>Explore</a></div>
     </form>
   </div>
