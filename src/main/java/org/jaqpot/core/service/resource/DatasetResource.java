@@ -100,7 +100,7 @@ import org.jaqpot.core.service.exceptions.QuotaExceededException;
  * @author Pantelis Sopasakis
  */
 @Path("dataset")
-@Api(value = "/dataset", description = "Dataset API")
+@Api(value = "dataset", description = "Dataset API")
 @Produces({"application/json", "text/uri-list"})
 @Authorize
 public class DatasetResource {
@@ -173,7 +173,8 @@ public class DatasetResource {
 
     @GET
     @Produces({"text/csv", MediaType.APPLICATION_JSON})
-    @Path("/{id}")
+
+    @Path("{id}")
     @ApiOperation(value = "Finds Dataset by Id",
             notes = "Finds specified Dataset",
             response = Dataset.class)
@@ -234,7 +235,7 @@ public class DatasetResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/{id}/features")
+    @Path("{id}/features")
     @ApiOperation(value = "Finds Dataset by Id",
             notes = "Finds specified Dataset",
             response = Dataset.class)
@@ -251,7 +252,7 @@ public class DatasetResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/{id}/meta")
+    @Path("{id}/meta")
     @ApiOperation(value = "Finds Dataset by Id",
             notes = "Finds specified Dataset",
             response = Dataset.class)
@@ -387,7 +388,7 @@ public class DatasetResource {
     }
 
     @DELETE
-    @Path("/{id}")
+    @Path("{id}")
     @ApiOperation("Deletes dataset")
     @Authorize
     public Response deleteDataset(
@@ -406,7 +407,7 @@ public class DatasetResource {
     }
 
     @POST
-    @Path("/{id}/qprf")
+    @Path("{id}/qprf")
     @ApiOperation("Creates QPRF Report")
     @Authorize
     public Response createQPRFReport(
@@ -581,7 +582,7 @@ public class DatasetResource {
     }
 
     @POST
-    @Path("/{id}/qprf-dummy")
+    @Path("{id}/qprf-dummy")
     @ApiOperation("Creates QPRF Report")
     @Authorize
     public Response createQPRFReportDummy(

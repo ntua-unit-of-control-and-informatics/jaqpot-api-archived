@@ -29,23 +29,17 @@
  */
 package org.jaqpot.core.service.resource;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
-import javax.ejb.EJB;
-import javax.ws.rs.FormParam;
-import javax.ws.rs.HeaderParam;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+import io.swagger.annotations.*;
+import org.jaqpot.core.model.ErrorReport;
 import org.jaqpot.core.model.dto.aa.AuthToken;
 import org.jaqpot.core.service.annotations.Authorize;
 import org.jaqpot.core.service.data.AAService;
 import org.jaqpot.core.service.exceptions.JaqpotNotAuthorizedException;
+
+import javax.ejb.EJB;
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 /**
  *
@@ -63,14 +57,15 @@ public class AAResource {
 
     @POST
     @Path("/login")
-    @Produces({MediaType.APPLICATION_JSON, "text/plain"})
+    @Consumes({MediaType.APPLICATION_FORM_URLENCODED})
+    @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @ApiOperation(
             value = "Creates Security Token",
-            notes = "Uses OpenAM server to get a security token.",
-            produces = "application/json")
+            notes = "Uses OpenAM server to get a security token."
+    )
     @ApiResponses(value = {
-        @ApiResponse(code = 401, message = "Wrong, missing or insufficient credentials. Error report is produced."),
-        @ApiResponse(code = 200, message = "Logged in - authentication token can be found in the response body (in JSON)")
+        @ApiResponse(code = 401, response = JaqpotNotAuthorizedException.class, message = "Wrong, missing or insufficient credentials. Error report is produced."),
+        @ApiResponse(code = 200, response=AuthToken.class, message = "Logged in - authentication token can be found in the response body (in JSON)")
     })
     public Response login(
             @ApiParam("Username") @FormParam("username") String username,
@@ -78,31 +73,30 @@ public class AAResource {
 
         AuthToken aToken;
         aToken = aaService.login(username, password);
-        return Response
-                .ok(aToken)
-                .status(Response.Status.OK)
+        return Response.ok(aToken)
                 .build();
     }
 
     @POST
     @Path("/logout")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes("text/plain")
     @Authorize
+    @Produces("application/json")
     @ApiOperation(
             value = "Logs out a user",
-            notes = "Invalidates a security token and logs out the corresponding user",
-            produces = "text/plain")
+            notes = "Invalidates a security token and logs out the corresponding user")
     @ApiResponses(value = {
-        @ApiResponse(code = 401, message = "Wrong, missing or insufficient credentials. Error report is produced."),
-        @ApiResponse(code = 200, message = "Logged out")
+        @ApiResponse(code = 403, response = ErrorReport.class , message = "Your authorization token is not valid."),
+        @ApiResponse(code = 401, response = JaqpotNotAuthorizedException.class , message = "Wrong, missing or insufficient credentials. Error report is produced."),
+        @ApiResponse(code = 200, response = String.class , message = "Logged out")
     })
     public Response logout(
             @HeaderParam("subjectid") String subjectId
     ) throws JaqpotNotAuthorizedException {
         boolean loggedOut = aaService.logout(subjectId);
         return Response
-                .ok(loggedOut ? "true" : "false", MediaType.APPLICATION_JSON)
-                .status(loggedOut ? Response.Status.OK : Response.Status.UNAUTHORIZED)
+                .ok(loggedOut, MediaType.APPLICATION_JSON)
+                .status(Response.Status.OK)
                 .build();
     }
 
@@ -112,15 +106,15 @@ public class AAResource {
     @Authorize
     @ApiOperation(
             value = "Validate authorization token",
-            notes = "Checks whether an authorization token is valid",
-            produces = "application/json")
+            notes = "Checks whether an authorization token is valid")
     @ApiResponses(value = {
-        @ApiResponse(code = 401, message = "Wrong, missing or insufficient credentials. Error report is produced."),
-        @ApiResponse(code = 200, message = "Logged out")
+        @ApiResponse(code = 403, response = ErrorReport.class , message = "Your authorization token is not valid."),
+        @ApiResponse(code = 401, response=JaqpotNotAuthorizedException.class , message = "Wrong, missing or insufficient credentials. Error report is produced."),
+        @ApiResponse(code = 200, response=String.class , message = "Your authorization token is valid")
     })
     public Response validate(
             @HeaderParam("subjectid") String subjectId
-    ) {
+    ) throws JaqpotNotAuthorizedException {
         boolean valid = aaService.validate(subjectId);
         return Response.ok(valid ? "true" : "false", MediaType.APPLICATION_JSON)
                 .status(valid ? Response.Status.OK : Response.Status.UNAUTHORIZED)
@@ -133,23 +127,22 @@ public class AAResource {
     @Authorize
     @ApiOperation(
             value = "Requests authorization from SSO",
-            notes = "Checks whether the client identified by the provided AA token can apply a method to a URI",
-            produces = "application/json")
+            notes = "Checks whether the client identified by the provided AA token can apply a method to a URI"
+            )
     @ApiResponses(value = {
-        @ApiResponse(code = 401, message = "Wrong, missing or insufficient credentials. Error report is produced."),
-        @ApiResponse(code = 200, message = "Logged out")
+        @ApiResponse(code = 403, response = ErrorReport.class , message = "Your authorization token is not valid."),
+        @ApiResponse(code = 401, response=JaqpotNotAuthorizedException.class , message = "Wrong, missing or insufficient credentials. Error report is produced."),
+        @ApiResponse(code = 200, message = "You have authorization for the given URI and HTTP method")
     })
     public Response authorize(
             @HeaderParam("subjectid") String subjectId,
             @ApiParam(value = "HTTP method", allowableValues = "GET,POST,PUT,DELETE", defaultValue = "GET") @FormParam("method") String method,
             @ApiParam(value = "URI") @FormParam("uri") String uri
-    ) {
-
+    ) throws JaqpotNotAuthorizedException {
         boolean valid = aaService.authorize(subjectId, method, uri);
         return Response.ok(valid ? "true" : "false", MediaType.APPLICATION_JSON)
                 .status(valid ? Response.Status.OK : Response.Status.FORBIDDEN)
                 .build();
-
     }
 
 }

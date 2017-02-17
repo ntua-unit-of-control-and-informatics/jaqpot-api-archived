@@ -36,6 +36,7 @@ import org.jaqpot.core.model.factory.UserFactory;
 import org.jaqpot.core.properties.PropertyManager;
 import org.jaqpot.core.service.annotations.Authorize;
 import org.jaqpot.core.service.data.AAService;
+import org.jaqpot.core.service.exceptions.JaqpotNotAuthorizedException;
 import org.jaqpot.core.service.security.SecurityContextImpl;
 import org.jaqpot.core.service.security.UserPrincipal;
 
@@ -110,9 +111,9 @@ public class AuthorizationRequestFilter implements ContainerRequestFilter {
 
         // Check whether there is an AA token...
         String token = requestContext.getHeaderString("subjectid");
-        if (token == null) {
+        if (token == null || token.isEmpty()) {
             token = requestContext.getUriInfo().getQueryParameters().getFirst("subjectid");
-            if (token == null) {
+            if (token == null || token.isEmpty()) {
                 requestContext.abortWith(Response
                         .ok(ErrorReportFactory.unauthorized("Please provide an authorization token in a subjectid header."))
                         .status(Response.Status.UNAUTHORIZED)
@@ -121,7 +122,15 @@ public class AuthorizationRequestFilter implements ContainerRequestFilter {
         }
 
         // is the token valid? if not: forbidden...
-        if (!aaService.validate(token)) {
+        try {
+            if (!aaService.validate(token)) {
+                requestContext.abortWith(Response.
+                        ok(ErrorReportFactory.unauthorized("Your authorization token is not valid."))
+                        .status(Response.Status.FORBIDDEN)
+                        .build());
+                return; // invalid token
+            }
+        } catch (JaqpotNotAuthorizedException e) {
             requestContext.abortWith(Response.
                     ok(ErrorReportFactory.unauthorized("Your authorization token is not valid."))
                     .status(Response.Status.FORBIDDEN)

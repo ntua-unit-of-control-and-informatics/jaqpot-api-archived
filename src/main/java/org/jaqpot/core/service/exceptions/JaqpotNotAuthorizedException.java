@@ -39,6 +39,7 @@ import org.jaqpot.core.model.factory.ErrorReportFactory;
  */
 public class JaqpotNotAuthorizedException extends JaqpotWebException {
 
+
     public JaqpotNotAuthorizedException(final String message) {
         super(ErrorReportFactory.unauthorized(message));
     }
@@ -46,5 +47,7 @@ public class JaqpotNotAuthorizedException extends JaqpotWebException {
     public JaqpotNotAuthorizedException(final String message, final String code) {
         super(ErrorReportFactory.unauthorized(message, code));
     }
+
+
 
 }
