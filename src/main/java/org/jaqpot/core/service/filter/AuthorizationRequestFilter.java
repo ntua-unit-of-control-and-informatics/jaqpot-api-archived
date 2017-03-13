@@ -122,18 +122,11 @@ public class AuthorizationRequestFilter implements ContainerRequestFilter {
         }
 
         // is the token valid? if not: forbidden...
-        try {
-            if (!aaService.validate(token)) {
-                requestContext.abortWith(Response.
-                        ok(ErrorReportFactory.unauthorized("Your authorization token is not valid."))
-                        .status(Response.Status.FORBIDDEN)
-                        .build());
-                return; // invalid token
-            }
-        } catch (JaqpotNotAuthorizedException e) {
+
+        if (!aaService.validate(token)) {
             requestContext.abortWith(Response.
                     ok(ErrorReportFactory.unauthorized("Your authorization token is not valid."))
-                    .status(Response.Status.FORBIDDEN)
+                    .status(Response.Status.UNAUTHORIZED)
                     .build());
             return; // invalid token
         }

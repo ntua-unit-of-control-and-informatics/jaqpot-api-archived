@@ -43,7 +43,9 @@ public class ErrorReportFactory {
 
     private final static String ERROR400 = "The request could not be understood by the server due to malformed syntax. "
             + "The client SHOULD NOT repeat the request without modifications.",
-            ERROR401 = "The request requires user authentication.",
+            ERROR401 = "The page you are trying to access cannot be loaded until you first log in with a valid user ID " +
+                    "and password. If you have just logged in and received the 401 Unauthorized error, it means that the " +
+                    "credentials you entered were invalid for some reason.",
             ERROR403 = "The server understood the request, but is refusing to fulfill it. "
             + "Authorization will not help and the request SHOULD NOT be repeated. "
             + "If the request method was not HEAD and the server wishes to make public why "
@@ -77,8 +79,31 @@ public class ErrorReportFactory {
         ErrorReport error = ErrorReportBuilder.builderRandomId()
                 .setActor("client")
                 .setMessage(message != null ? message : "You are not authorized to perform this operation.")
-                .setDetails(details != null ? details : ERROR403)
+                .setDetails(details != null ? details : ERROR401)
                 .setCode("Unauthorized" + (code != null ? "::" + code : ""))
+                .setHttpStatus(401)
+                .build();
+        return error;
+    }
+
+    public static ErrorReport forbidden() {
+        return ErrorReportFactory.forbidden(null, null, null);
+    }
+
+    public static ErrorReport forbidden(String message) {
+        return ErrorReportFactory.unauthorized(message, null, null);
+    }
+
+    public static ErrorReport forbidden(String message, String code) {
+        return ErrorReportFactory.unauthorized(message, code, null);
+    }
+
+    public static ErrorReport forbidden(String message, String code, String details) {
+        ErrorReport error = ErrorReportBuilder.builderRandomId()
+                .setActor("client")
+                .setMessage(message != null ? message : "You are forbidden from performing this operation.")
+                .setDetails(details != null ? details : ERROR403)
+                .setCode("Forbidden" + (code != null ? "::" + code : ""))
                 .setHttpStatus(403)
                 .build();
         return error;
@@ -164,7 +189,6 @@ public class ErrorReportFactory {
     /**
      * Generates an ISE error report.
      *
-     * @param code Error code (to identify errors of such type).
      * @param message Message that helps the client understand, in simple words,
      * the reason for this exceptional event.
      * @param details Details of the error to help debugging.
@@ -197,7 +221,6 @@ public class ErrorReportFactory {
      *
      * @param ex A Throwable that leads to this exceptional event for which this
      * report is generated. MUST NOT be <code>null</code>!
-     * @param code Error code (to identify errors of such type).
      * @param details Additional custom message to explain the situation. Set to
      * <code>null</code> if you don't want to specify an additional message.
      * @return Error report with HTTP status code 500.
