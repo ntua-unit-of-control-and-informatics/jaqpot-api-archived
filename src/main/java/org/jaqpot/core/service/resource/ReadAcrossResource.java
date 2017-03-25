@@ -69,7 +69,7 @@ public class ReadAcrossResource {
             response = Report.class
     )
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
-    public Response interLabTest(
+    public Response readAcrossReport(
             @FormParam("title") String title,
             @FormParam("descriptions") String description,
             @FormParam("dataset_uri") String datasetURI,

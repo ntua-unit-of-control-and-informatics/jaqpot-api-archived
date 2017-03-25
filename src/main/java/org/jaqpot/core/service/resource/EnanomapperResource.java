@@ -196,14 +196,14 @@ public class EnanomapperResource {
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/dataset")
-    @ApiOperation(value = "Creates Dataset",
+    @ApiOperation(value = "Creates Dataset By Study",
             notes = "Reads Studies from Bundle's Substances, creates Dateaset,"
             + "calculates Descriptors, returns Dataset",
             response = Task.class
 
     )
     @org.jaqpot.core.service.annotations.Task
-    public Response createDataset(
+    public Response createDatasetByStudy(
             @ApiParam(name = "data", defaultValue = DEFAULT_DATASET_DATA) DatasetData datasetData,
             @HeaderParam("subjectid") String subjectId) throws QuotaExceededException {
 
