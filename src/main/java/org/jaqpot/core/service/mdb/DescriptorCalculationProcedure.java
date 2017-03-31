@@ -1,7 +1,7 @@
 package org.jaqpot.core.service.mdb;
 
 /**
- * Created by root on 30/6/2016.
+ * Created by Angelos Valsamis on 31/3/2017.
  */
 
 import org.jaqpot.core.annotations.Jackson;
@@ -13,34 +13,38 @@ import org.jaqpot.core.model.Task;
 import org.jaqpot.core.model.builder.MetaInfoBuilder;
 import org.jaqpot.core.model.dto.dataset.Dataset;
 import org.jaqpot.core.service.annotations.UnSecure;
-import org.jaqpot.core.service.data.AAService;
-import org.jaqpot.core.service.data.ConjoinerService;
+import org.jaqpot.core.service.data.*;
 
 import javax.annotation.Resource;
-import javax.ejb.ActivationConfigProperty;
 import javax.ejb.EJB;
-import javax.ejb.MessageDriven;
 import javax.inject.Inject;
 import javax.jms.*;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.client.Client;
 import java.util.Map;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+
+
+/**
+ * Created by root on 30/6/2016.
+ */
+
+import org.jaqpot.core.service.data.AAService;
 
 /**
  *
  * @author Charalampos Chomenidis
  * @author Pantelis Sopasakis
  */
-@MessageDriven(activationConfig = {
+/*@MessageDriven(activationConfig = {
         @ActivationConfigProperty(propertyName = "destinationLookup",
-                propertyValue = "java:jboss/exported/jms/topic/preparation"),
+                propertyValue = "java:jboss/exported/jms/topic/descriptorspreparation"),
         @ActivationConfigProperty(propertyName = "destinationType",
                 propertyValue = "javax.jms.Topic")
-})
-public class PreparationProcedure extends AbstractJaqpotProcedure implements MessageListener {
+})*/
+public class DescriptorCalculationProcedure extends AbstractJaqpotProcedure implements MessageListener {
 
     private static final Logger LOG = Logger.getLogger(PreparationProcedure.class.getName());
     @Resource(lookup = "java:jboss/exported/jms/topic/training")
@@ -53,7 +57,7 @@ public class PreparationProcedure extends AbstractJaqpotProcedure implements Mes
     private JMSContext jmsContext;
 
     @EJB
-    ConjoinerService conjoinerService;
+    CalculationService smilesService;
 
     @EJB
     TaskHandler taskHandler;
@@ -71,12 +75,12 @@ public class PreparationProcedure extends AbstractJaqpotProcedure implements Mes
     @Inject
     @Jackson
     JSONSerializer serializer;
-    public PreparationProcedure() {
+    public DescriptorCalculationProcedure() {
         super(null);
     }
 
     @Inject
-    public PreparationProcedure(TaskHandler taskHandler) {
+    public DescriptorCalculationProcedure(TaskHandler taskHandler) {
         super(taskHandler);
     }
 
@@ -90,12 +94,10 @@ public class PreparationProcedure extends AbstractJaqpotProcedure implements Mes
             LOG.log(Level.SEVERE, "JMS message could not be read", ex);
             return;
         }
+
         String taskId = (String) messageBody.get("taskId");
-        String bundleUri = (String) messageBody.get("bundle_uri");
-        String subjectId = (String) messageBody.get("subjectid");
-        String descriptors = (String) messageBody.get("descriptors");
-        Boolean intersectColumns = (Boolean) messageBody.get("intersect_columns");
-        Boolean retainNullValues = (Boolean) messageBody.get("retain_null_values");
+        String subjectId = (String) messageBody.get("subjectId");
+        Byte[] file = (Byte[]) messageBody.get("bytes");
 
         try {
             init(taskId);
@@ -105,12 +107,12 @@ public class PreparationProcedure extends AbstractJaqpotProcedure implements Mes
             progress(5f, "Preparation Procedure is now running with ID " + Thread.currentThread().getName());
 
 
-            Set descriptorSet = serializer.parse(descriptors, Set.class);
+            //Set descriptorSet = serializer.parse(descriptors, Set.class);
 
             progress(10f, "Starting Dataset preparation...");
             checkCancelled();
 
-            Dataset dataset = conjoinerService.prepareDataset(bundleUri, subjectId, descriptorSet, intersectColumns, retainNullValues);
+            Dataset dataset = smilesService.prepareDataset(file);
 
             progress(50f, "Dataset ready.");
             progress("Saving to database...");
@@ -118,7 +120,6 @@ public class PreparationProcedure extends AbstractJaqpotProcedure implements Mes
             checkCancelled();
 
             MetaInfo datasetMeta = MetaInfoBuilder.builder()
-                    .addSources(bundleUri)
                     .addTitles((String) messageBody.get("title"))
                     .addDescriptions((String) messageBody.get("description"))
                     .addComments("Created by task " + taskId)
@@ -129,34 +130,13 @@ public class PreparationProcedure extends AbstractJaqpotProcedure implements Mes
 
             datasetHandler.create(dataset);
 
-            progress(80f, "Dataset saved successfully.");
+            progress(100f, "Dataset saved successfully.");
 
             checkCancelled();
 
-            String mode = (String) messageBody.get("mode");
-            String baseUri = (String) messageBody.get("base_uri");
-            String datasetUri = baseUri + dataset.getClass().getSimpleName().toLowerCase() + "/" + dataset.getId();
+            progress("Preparation Task is now completed.");
+            complete("dataset/" + dataset.getId());
 
-            switch (mode) {
-                case "TRAINING":
-                    progress(90f, "Preparation Task is now completed.");
-                    complete("Initiating Training Task...");
-                    messageBody.put("dataset_uri", datasetUri);
-                    jmsContext.createProducer().setDeliveryDelay(1000).send(trainingQueue, messageBody);
-
-                    break;
-                case "PREDICTION":
-                    progress(91f, "Preparation Task is now completed.");
-                    complete("Initiating Prediction Task...");
-                    messageBody.put("dataset_uri", datasetUri);
-                    jmsContext.createProducer().setDeliveryDelay(1000).send(predictionQueue, messageBody);
-                    break;
-
-                default:
-                    progress("Preparation Task is now completed.");
-                    complete("dataset/" + dataset.getId());
-                    break;
-            }
         } catch (BadRequestException ex) {
             errBadRequest(ex, "Error while processing input.");
             LOG.log(Level.SEVERE, null, ex);

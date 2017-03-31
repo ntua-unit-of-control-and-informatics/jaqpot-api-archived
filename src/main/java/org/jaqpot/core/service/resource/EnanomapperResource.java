@@ -246,6 +246,7 @@ public class EnanomapperResource {
         return Response.ok(task).build();
     }
 
+
     @POST
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @Consumes(MediaType.APPLICATION_JSON)
