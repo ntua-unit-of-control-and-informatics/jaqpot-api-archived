@@ -34,29 +34,6 @@
  */
 package org.jaqpot.core.service.client.jpdi;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-import javax.ws.rs.BadRequestException;
-import javax.ws.rs.InternalServerErrorException;
-import javax.ws.rs.NotFoundException;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.concurrent.FutureCallback;
@@ -65,21 +42,27 @@ import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
 import org.jaqpot.core.data.FeatureHandler;
 import org.jaqpot.core.data.serialize.JSONSerializer;
-import org.jaqpot.core.model.Algorithm;
-import org.jaqpot.core.model.Feature;
-import org.jaqpot.core.model.MetaInfo;
-import org.jaqpot.core.model.Model;
-import org.jaqpot.core.model.Report;
+import org.jaqpot.core.model.*;
 import org.jaqpot.core.model.builder.MetaInfoBuilder;
 import org.jaqpot.core.model.dto.dataset.DataEntry;
 import org.jaqpot.core.model.dto.dataset.Dataset;
 import org.jaqpot.core.model.dto.dataset.FeatureInfo;
-import org.jaqpot.core.model.dto.jpdi.PredictionRequest;
-import org.jaqpot.core.model.dto.jpdi.PredictionResponse;
-import org.jaqpot.core.model.dto.jpdi.TrainingRequest;
-import org.jaqpot.core.model.dto.jpdi.TrainingResponse;
+import org.jaqpot.core.model.dto.jpdi.*;
 import org.jaqpot.core.model.factory.DatasetFactory;
 import org.jaqpot.core.model.util.ROG;
+
+import javax.ws.rs.BadRequestException;
+import javax.ws.rs.InternalServerErrorException;
+import javax.ws.rs.NotFoundException;
+import java.io.*;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  *
@@ -89,8 +72,6 @@ import org.jaqpot.core.model.util.ROG;
 public class JPDIClientImpl implements JPDIClient {
     
     private static final Logger LOG = Logger.getLogger(JPDIClientImpl.class.getName());
-
-//    private final Client client;
     private final CloseableHttpAsyncClient client;
     private final JSONSerializer serializer;
     private final FeatureHandler featureHandler;
@@ -108,7 +89,94 @@ public class JPDIClientImpl implements JPDIClient {
         this.futureMap = new ConcurrentHashMap<>(20);
         this.randomStringGenerator = new ROG(true);
     }
-    
+
+    @Override
+    public Future<Dataset> compute(byte[] file, Algorithm algorithm, Map<String, Object> parameters, String taskId) {
+        CompletableFuture<Dataset> futureDataset = new CompletableFuture<>();
+
+        //TODO Create a calculateService for algorithms.
+        final HttpPost request = new HttpPost(algorithm.getReportService());
+
+        CalculateRequest calculateRequest= new CalculateRequest();
+        calculateRequest.setFile(file);
+        calculateRequest.setParameters(parameters);
+
+
+        PipedOutputStream out = new PipedOutputStream();
+        PipedInputStream in;
+        try {
+            in = new PipedInputStream(out);
+        } catch (IOException ex) {
+            futureDataset.completeExceptionally(ex);
+            return futureDataset;
+        }
+        InputStreamEntity entity = new InputStreamEntity(in, ContentType.APPLICATION_JSON);
+        entity.setChunked(true);
+
+        request.setEntity(entity);
+        request.addHeader("Accept", "application/json");
+
+        Future futureResponse = client.execute(request, new FutureCallback<HttpResponse>() {
+
+            @Override
+            public void completed(final HttpResponse response) {
+                futureMap.remove(taskId);
+                int status = response.getStatusLine().getStatusCode();
+                try {
+                    InputStream responseStream = response.getEntity().getContent();
+
+                    switch (status) {
+                        case 200:
+                        case 201:
+                            //TODO handle successful return of Dataset
+                            Dataset dataset = new Dataset();
+                            CalculateResponse calculateResponse = serializer.parse(responseStream, CalculateResponse.class);
+                            futureDataset.complete(calculateResponse.getDataset());
+                            break;
+                        case 400:
+                            String message = new BufferedReader(new InputStreamReader(responseStream))
+                                    .lines().collect(Collectors.joining("\n"));
+                            futureDataset.completeExceptionally(new BadRequestException(message));
+                            break;
+                        case 500:
+                            message = new BufferedReader(new InputStreamReader(responseStream))
+                                    .lines().collect(Collectors.joining("\n"));
+                            futureDataset.completeExceptionally(new InternalServerErrorException(message));
+                            break;
+                        default:
+                            message = new BufferedReader(new InputStreamReader(responseStream))
+                                    .lines().collect(Collectors.joining("\n"));
+                            futureDataset.completeExceptionally(new InternalServerErrorException(message));
+                    }
+                } catch (IOException | UnsupportedOperationException ex) {
+                    futureDataset.completeExceptionally(ex);
+                }
+            }
+
+            @Override
+            public void failed(final Exception ex) {
+                futureMap.remove(taskId);
+                futureDataset.completeExceptionally(ex);
+            }
+
+            @Override
+            public void cancelled() {
+                futureMap.remove(taskId);
+                futureDataset.cancel(true);
+            }
+
+        });
+        serializer.write(calculateRequest, out);
+        try {
+            out.close();
+        } catch (IOException ex) {
+            futureDataset.completeExceptionally(ex);
+        }
+
+        futureMap.put(taskId, futureResponse);
+        return futureDataset;
+    }
+
     @Override
     public Future<Model> train(Dataset dataset, Algorithm algorithm, Map<String, Object> parameters, String predictionFeature, MetaInfo modelMeta, String taskId) {
         
