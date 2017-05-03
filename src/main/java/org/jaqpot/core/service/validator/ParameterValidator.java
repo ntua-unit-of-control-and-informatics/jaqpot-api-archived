@@ -150,11 +150,11 @@ public class ParameterValidator {
                         break;
                     case NUMERIC_ARRAY:
                         if ((value instanceof Collection && getTypeOfCollection((Collection) value) == Type.NUMERIC_ARRAY)) {
-                            if (parameter.getAllowedValues() != null) {
-                                checkAllowedValues(parameterId, value, parameter.getAllowedValues());
-                            }
                             checkMinMaxSize(parameterId, (Collection) value, parameter.getMinArraySize(), parameter.getMaxArraySize());
                             for (Object o : (Collection) value) {
+                                if (parameter.getAllowedValues() != null) {
+                                    checkAllowedValues(parameterId, Collections.singletonList(o), parameter.getAllowedValues());
+                                }
                                 if (parameter.getMinValue() != null && isNumeric(parameter.getMinValue().toString())) {
                                     checkIsLessThan(parameterId, Double.parseDouble(o.toString()), (Double.parseDouble(parameter.getMinValue().toString())));
                                 }
@@ -168,11 +168,11 @@ public class ParameterValidator {
                         break;
                     case STRING_ARRAY:
                         if ((value instanceof Collection && getTypeOfCollection((Collection) value) == Type.STRING_ARRAY)) {
-                            if (parameter.getAllowedValues() != null) {
-                                checkAllowedValues(parameterId, value, parameter.getAllowedValues());
-                            }
                             checkMinMaxSize(parameterId, (Collection) value, parameter.getMinArraySize(), parameter.getMaxArraySize());
                             for (Object o : (Collection) value) {
+                                if (parameter.getAllowedValues() != null) {
+                                    checkAllowedValues(parameterId, Collections.singletonList(o), parameter.getAllowedValues());
+                                }
                                 if (parameter.getMinValue() != null && isNumeric(parameter.getMinValue().toString())) {
                                     checkIsLessThan(parameterId, o.toString(), parameter.getMinValue().toString());
                                 }

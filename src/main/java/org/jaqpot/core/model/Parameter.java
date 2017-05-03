@@ -126,7 +126,7 @@ public class Parameter extends JaqpotEntity {
         this.scope = scope;
     }
 
-    public List<Object> getAllowedValues() {
+    public List<Object>     getAllowedValues() {
         return allowedValues;
     }
 
