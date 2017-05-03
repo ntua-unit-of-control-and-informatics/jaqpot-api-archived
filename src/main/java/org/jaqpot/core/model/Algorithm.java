@@ -75,6 +75,7 @@ public class Algorithm extends JaqpotEntity {
         this.ranking = other.ranking;
         this.trainingService = other.trainingService;
         this.predictionService = other.predictionService;
+        this.reportService = other.reportService;
     }
 
     public Set<Parameter> getParameters() {
