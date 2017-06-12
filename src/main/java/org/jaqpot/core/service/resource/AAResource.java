@@ -32,6 +32,7 @@ package org.jaqpot.core.service.resource;
 import io.swagger.annotations.*;
 import org.jaqpot.core.model.ErrorReport;
 import org.jaqpot.core.model.dto.aa.AuthToken;
+import org.jaqpot.core.model.dto.dataset.Dataset;
 import org.jaqpot.core.service.annotations.Authorize;
 import org.jaqpot.core.service.data.AAService;
 import org.jaqpot.core.service.exceptions.JaqpotForbiddenException;
@@ -62,6 +63,7 @@ public class AAResource {
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @ApiOperation(
             value = "Creates Security Token",
+            response = AuthToken.class,
             notes = "Uses OpenAM server to get a security token."
     )
     @ApiResponses(value = {
@@ -76,6 +78,7 @@ public class AAResource {
         AuthToken aToken;
         aToken = aaService.login(username, password);
         return Response.ok(aToken)
+                .status(Response.Status.OK)
                 .build();
     }
 

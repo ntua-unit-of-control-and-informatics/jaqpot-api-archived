@@ -817,7 +817,7 @@ public class DatasetResource {
             @ApiImplicitParam(name = "title", value = "Title of dataset", required = true, dataType = "string", paramType = "formData"),
             @ApiImplicitParam(name = "description", value = "Description of dataset", required = true, dataType = "string", paramType = "formData")
     })
-    @ApiOperation(value = "Creates dummy dataset By .xls document",
+    @ApiOperation(value = "Creates dummy dataset By .csv document",
             notes = "Creates dummy features/substances, returns Dataset",
             response = Task.class
     )
@@ -839,14 +839,14 @@ public class DatasetResource {
                     + "No more than " + maxAllowedDatasets + " are allowed with your subscription.");
         }
 
-        byte[] bytes = new byte[0];
-        Map<String, List<InputPart>> uploadForm = input.getFormDataMap();
-        List<InputPart> inputParts = uploadForm.get("file");
+        /*byte[] bytes = new byte[0];
         String title = uploadForm.get("title").get(0).getBody(String.class, null);
         String description = uploadForm.get("description").get(0).getBody(String.class, null);
+        String filename="";*/
 
-        String filename="";
         Dataset dataset = null;
+        Map<String, List<InputPart>> uploadForm = input.getFormDataMap();
+        List<InputPart> inputParts = uploadForm.get("file");
         for (InputPart inputPart : inputParts) {
 
             try {
@@ -857,13 +857,13 @@ public class DatasetResource {
                 e.printStackTrace();
             }
         }
-        Map<String, Object> options = new HashMap<>();
+        /*Map<String, Object> options = new HashMap<>();
         options.put("title", title);
         options.put("description", description);
         options.put("subjectid", subjectId);
         options.put("file", bytes);
         options.put("filename",filename);
-        options.put("mode", "PREPARATION");
+        options.put("mode", "PREPARATION");*/
 
         ROG randomStringGenerator = new ROG(true);
         dataset.setId(randomStringGenerator.nextString(14));
