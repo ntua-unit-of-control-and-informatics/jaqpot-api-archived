@@ -811,7 +811,7 @@ public class DatasetResource {
     @POST
     @Authorize
     @Path("/createDummyDataset")
-    @Consumes("multipart/form-data")
+   // @Consumes("multipart/form-data")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "file", value = "xls[m,x] file", required = true, dataType = "file", paramType = "formData"),
             @ApiImplicitParam(name = "title", value = "Title of dataset", required = true, dataType = "string", paramType = "formData"),

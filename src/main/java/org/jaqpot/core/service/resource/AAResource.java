@@ -59,7 +59,7 @@ public class AAResource {
 
     @POST
     @Path("/login")
-    @Consumes({MediaType.APPLICATION_FORM_URLENCODED})
+    @Consumes({"application/x-www-form-urlencoded", MediaType.APPLICATION_FORM_URLENCODED})
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @ApiOperation(
             value = "Creates Security Token",
