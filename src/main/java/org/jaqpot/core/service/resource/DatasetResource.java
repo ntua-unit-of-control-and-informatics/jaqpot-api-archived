@@ -819,9 +819,8 @@ public class DatasetResource {
     })
     @ApiOperation(value = "Creates dummy dataset By .csv document",
             notes = "Creates dummy features/substances, returns Dataset",
-            response = Task.class
+            response = Dataset.class
     )
-    @org.jaqpot.core.service.annotations.Task
     public Response createDummyDataset(
             @HeaderParam("subjectid") String subjectId,
             @ApiParam(value = "multipartFormData input", hidden = true) MultipartFormDataInput input)
