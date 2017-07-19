@@ -63,7 +63,6 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
@@ -133,7 +132,7 @@ public class PredictionProcedure extends AbstractJaqpotProcedure implements Mess
         String modelId = (String) messageBody.get("modelId");
         String subjectId = (String) messageBody.get("subjectid");
         String creator = (String) messageBody.get("creator");
-
+        Model model = null;
         try {
             init(taskId);
             checkCancelled();
@@ -141,7 +140,7 @@ public class PredictionProcedure extends AbstractJaqpotProcedure implements Mess
 
             progress(5f, "Prediction Task is now running.");
 
-            Model model = modelHandler.find(modelId);
+            model = modelHandler.find(modelId);
             if (model == null) {
                 errNotFound("Model with id:" + modelId + " was not found.");
                 return;
@@ -216,6 +215,7 @@ public class PredictionProcedure extends AbstractJaqpotProcedure implements Mess
             dataset.setFeatured(Boolean.FALSE);
             dataset.setByModel(model.getId());
             datasetHandler.create(dataset);
+
             complete("dataset/" + dataset.getId());
             rabbitMQClient.sendMessage(creator,"Prediction:"+dataset.getId()+":"+model.getMeta().getTitles().iterator().next());
 
