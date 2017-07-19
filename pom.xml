@@ -141,7 +141,11 @@
             <version>1.1.0.Final</version>
         </dependency>
 
-
+        <dependency>
+            <groupId>com.rabbitmq</groupId>
+            <artifactId>amqp-client</artifactId>
+            <version>4.1.1</version>
+        </dependency>
 
 
     </dependencies>
@@ -192,7 +196,11 @@
         <jaqpot.db.name></jaqpot.db.name>
         <jaqpot.db.host></jaqpot.db.host>
         <jaqpot.db.port></jaqpot.db.port>
-        
+
+        <jaqpot.rabbitmq.host></jaqpot.rabbitmq.host>
+        <jaqpot.rabbitmq.username></jaqpot.rabbitmq.username>
+        <jaqpot.rabbitmq.password></jaqpot.rabbitmq.password>
+
         <jaqpot.administrators></jaqpot.administrators>
         <jaqpot.cors.alloworigin></jaqpot.cors.alloworigin>
         <server.base></server.base>
