@@ -76,7 +76,7 @@
         <dependency>
             <groupId>net.bull.javamelody</groupId>
             <artifactId>javamelody-core</artifactId>
-            <version>1.55.0</version>
+            <version>1.68.1</version>
         </dependency>
         
         <!-- Mandrill lutung (to send emails via Mandrill) -->
