@@ -61,9 +61,11 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
 import org.jaqpot.core.data.TaskHandler;
+import org.jaqpot.core.model.MetaInfo;
 import org.jaqpot.core.model.Task;
 import org.jaqpot.core.service.annotations.Authorize;
 import org.jaqpot.core.service.client.jpdi.JPDIClient;
+import org.jaqpot.core.service.exceptions.JaqpotForbiddenException;
 import org.jaqpot.core.service.mdb.ThreadReference;
 
 /**
@@ -187,12 +189,18 @@ public class TaskResource {
     })
     public Response deleteTask(
             @ApiParam(value = "ID of the task which is to be cancelled.", required = true) @PathParam("id") String id,
-            @HeaderParam("subjectid") String subjectId) {
+            @HeaderParam("subjectid") String subjectId) throws JaqpotForbiddenException {
 
         Task task = taskHandler.find(id);
         if (task == null) {
             throw new NotFoundException("Task with ID:" + id + " was not found on the server.");
         }
+
+        MetaInfo metaInfo = task.getMeta();
+        if (metaInfo.getLocked()) {
+            throw new JaqpotForbiddenException("You cannot delete a Task that is locked.");
+        }
+
         String userName = securityContext.getUserPrincipal().getName();
         if (!task.getMeta().getCreators().contains(userName)) {
             throw new ForbiddenException("You cannot cancel a Task not created by you.");

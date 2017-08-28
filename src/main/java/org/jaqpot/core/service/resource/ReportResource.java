@@ -61,11 +61,13 @@ import org.jaqpot.core.data.ReportHandler;
 import org.jaqpot.core.data.serialize.JSONSerializer;
 import org.jaqpot.core.model.BibTeX;
 import org.jaqpot.core.model.ErrorReport;
+import org.jaqpot.core.model.MetaInfo;
 import org.jaqpot.core.model.Report;
 import org.jaqpot.core.model.factory.ErrorReportFactory;
 import org.jaqpot.core.model.validator.BibTeXValidator;
 import org.jaqpot.core.service.annotations.Authorize;
 import org.jaqpot.core.service.data.ReportService;
+import org.jaqpot.core.service.exceptions.JaqpotForbiddenException;
 
 /**
  *
@@ -137,10 +139,15 @@ public class ReportResource {
     public Response removeReport(
             @ApiParam(value = "Authorization token") @HeaderParam("subjectid") String subjectId,
             @PathParam("id") String id
-    ) {
+    ) throws JaqpotForbiddenException {
         Report report = reportHandler.find(id);
         if (report == null) {
             throw new NotFoundException();
+        }
+
+        MetaInfo metaInfo = report.getMeta();
+        if (metaInfo.getLocked()) {
+            throw new JaqpotForbiddenException("You cannot delete a Report that is locked.");
         }
 
         String userName = securityContext.getUserPrincipal().getName();

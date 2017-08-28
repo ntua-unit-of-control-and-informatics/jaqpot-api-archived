@@ -89,6 +89,8 @@ import org.jaqpot.core.service.annotations.Authorize;
 import org.jaqpot.core.service.annotations.UnSecure;
 import org.jaqpot.core.service.client.ambit.Ambit;
 import org.jaqpot.core.service.client.jpdi.JPDIClient;
+import org.jaqpot.core.service.exceptions.JaqpotForbiddenException;
+import org.jaqpot.core.service.exceptions.JaqpotNotAuthorizedException;
 import org.jaqpot.core.service.exceptions.QuotaExceededException;
 
 /**
@@ -435,11 +437,17 @@ public class DatasetResource {
     })
     public Response deleteDataset(
             @ApiParam(value = "Authorization token") @HeaderParam("subjectid") String subjectId,
-            @PathParam("id") String id) {
+            @PathParam("id") String id) throws JaqpotForbiddenException {
         Dataset ds = datasetHandler.find(id);
         if (ds == null) {
             throw new NotFoundException("Dataset with id:" + id + " was not found on the server.");
         }
+
+        MetaInfo metaInfo = ds.getMeta();
+        if (metaInfo.getLocked()) {
+            throw new JaqpotForbiddenException("You cannot delete a Dataset that is locked.");
+        }
+
         String userName = securityContext.getUserPrincipal().getName();
         if (!ds.getMeta().getCreators().contains(userName)) {
             return Response.status(Response.Status.FORBIDDEN).entity("You cannot delete a Dataset that was not created by you.").build();

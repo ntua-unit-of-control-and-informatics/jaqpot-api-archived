@@ -55,6 +55,7 @@ import org.apache.commons.validator.routines.UrlValidator;
 import org.jaqpot.core.data.DatasetHandler;
 import org.jaqpot.core.data.ModelHandler;
 import org.jaqpot.core.data.UserHandler;
+import org.jaqpot.core.model.MetaInfo;
 import org.jaqpot.core.model.Model;
 import org.jaqpot.core.model.Task;
 import org.jaqpot.core.model.User;
@@ -65,6 +66,7 @@ import org.jaqpot.core.model.factory.ErrorReportFactory;
 import org.jaqpot.core.service.annotations.Authorize;
 import org.jaqpot.core.service.annotations.UnSecure;
 import org.jaqpot.core.service.data.PredictionService;
+import org.jaqpot.core.service.exceptions.JaqpotForbiddenException;
 import org.jaqpot.core.service.exceptions.parameter.ParameterInvalidURIException;
 import org.jaqpot.core.service.exceptions.parameter.ParameterIsNullException;
 import org.jaqpot.core.service.exceptions.QuotaExceededException;
@@ -445,11 +447,17 @@ public class ModelResource {
     public Response deleteModel(
             @ApiParam("Clients need to authenticate in order to create resources on the server") @HeaderParam("subjectid") String subjectId,
             @ApiParam(value = "ID of the Model.", required = true) @PathParam("id") String id
-    ) {
+    ) throws JaqpotForbiddenException {
         Model model = modelHandler.find(id);
         if (model == null) {
             throw new NotFoundException("The model with id:" + id + " was not found.");
         }
+
+        MetaInfo metaInfo = model.getMeta();
+        if (metaInfo.getLocked()) {
+            throw new JaqpotForbiddenException("You cannot delete a Model that is locked.");
+        }
+
         String userName = securityContext.getUserPrincipal().getName();
         if (!model.getMeta().getCreators().contains(userName)) {
             return Response.status(Response.Status.FORBIDDEN).entity("You cannot delete a Model that was not created by you.").build();

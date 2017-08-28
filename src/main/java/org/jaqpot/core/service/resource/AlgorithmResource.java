@@ -53,6 +53,7 @@ import org.jaqpot.core.model.factory.ErrorReportFactory;
 import org.jaqpot.core.model.util.ROG;
 import org.jaqpot.core.service.annotations.Authorize;
 import org.jaqpot.core.service.data.TrainingService;
+import org.jaqpot.core.service.exceptions.JaqpotForbiddenException;
 import org.jaqpot.core.service.exceptions.JaqpotNotAuthorizedException;
 import org.jaqpot.core.service.exceptions.QuotaExceededException;
 import org.jaqpot.core.service.exceptions.parameter.*;
@@ -385,13 +386,18 @@ public class AlgorithmResource {
     })
     public Response deleteAlgorithm(
             @ApiParam(value = "ID of the algorithm which is to be deleted.", required = true) @PathParam("id") String id,
-            @HeaderParam("subjectid") String subjectId) throws ParameterIsNullException {
+            @HeaderParam("subjectid") String subjectId) throws ParameterIsNullException, JaqpotForbiddenException {
 
         if (id == null) {
             throw new ParameterIsNullException("id");
         }
 
         Algorithm algorithm = algorithmHandler.find(id);
+
+        MetaInfo metaInfo = algorithm.getMeta();
+        if (metaInfo.getLocked()) {
+            throw new JaqpotForbiddenException("You cannot delete an Algorithm that is locked.");
+        }
 
         String userName = securityContext.getUserPrincipal().getName();
 

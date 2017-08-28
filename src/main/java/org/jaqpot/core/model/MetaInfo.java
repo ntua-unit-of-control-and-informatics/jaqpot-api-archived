@@ -62,6 +62,7 @@ public class MetaInfo {
     private Set<String> hasSources;
     private Set<String> doi;
     private Date date;
+    private boolean locked;
 
     public MetaInfo(MetaInfo other) {
         if (other == null) {
@@ -82,6 +83,7 @@ public class MetaInfo {
         this.titles = other.titles != null ? new HashSet<>(other.titles) : null;
         this.date = other.date != null ? (Date) other.date.clone() : null;
         this.doi = other.doi != null ? new HashSet<>(other.doi) : null;
+        this.locked=other.locked;
     }
 
     public MetaInfo() {}
@@ -206,4 +208,11 @@ public class MetaInfo {
         this.doi = doi;
     }
 
+    public boolean getLocked() {
+        return locked;
+    }
+
+    public void setLocked(boolean locked) {
+        this.locked = locked;
+    }
 }
