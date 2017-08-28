@@ -33,35 +33,26 @@ import com.mongodb.MongoClient;
 import com.mongodb.MongoWriteException;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
-import com.mongodb.client.model.Projections;
-import com.mongodb.util.JSON;
-import java.io.IOException;
-import java.io.InputStream;
-import static com.mongodb.client.model.Projections.*;
 import com.mongodb.client.model.Sorts;
-
-import org.bson.BsonDocument;
-import org.bson.codecs.configuration.CodecRegistry;
-import org.bson.conversions.Bson;
+import com.mongodb.util.JSON;
+import org.bson.Document;
 import org.jaqpot.core.annotations.MongoDB;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.jaqpot.core.data.serialize.JSONSerializer;
+import org.jaqpot.core.model.JaqpotEntity;
+import org.reflections.Reflections;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.xml.bind.annotation.XmlRootElement;
-import org.bson.Document;
-import org.jaqpot.core.data.serialize.JSONSerializer;
-import org.jaqpot.core.model.JaqpotEntity;
-import org.jaqpot.core.model.Model;
-import org.reflections.Reflections;
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.InvocationTargetException;
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import static com.mongodb.client.model.Projections.include;
 
 /**
  * A JaqpotEntityManager implementation for MongoDB.

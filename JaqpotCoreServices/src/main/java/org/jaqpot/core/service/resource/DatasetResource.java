@@ -394,6 +394,11 @@ public class DatasetResource {
             throw new NotFoundException("Dataset with id:" + id + " was not found on the server.");
         }
         String userName = securityContext.getUserPrincipal().getName();
+        MetaInfo metaInfo = ds.getMeta();
+
+        if (metaInfo.getLocked()) {
+            return Response.status(Response.Status.FORBIDDEN).entity("You cannot delete a Dataset that is locked.").build();
+        }
         if (!ds.getMeta().getCreators().contains(userName)) {
             return Response.status(Response.Status.FORBIDDEN).entity("You cannot delete a Dataset that was not created by you.").build();
         }
