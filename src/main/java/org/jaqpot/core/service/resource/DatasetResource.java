@@ -29,21 +29,15 @@
  */
 package org.jaqpot.core.service.resource;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.*;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
@@ -67,24 +61,24 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.SecurityContext;
+import javax.ws.rs.core.*;
+
+import org.apache.commons.collections.ArrayStack;
 import org.apache.commons.validator.routines.UrlValidator;
 import org.jaqpot.core.data.AlgorithmHandler;
 import org.jaqpot.core.data.DatasetHandler;
 import org.jaqpot.core.data.ModelHandler;
 import org.jaqpot.core.data.ReportHandler;
 import org.jaqpot.core.data.UserHandler;
-import org.jaqpot.core.model.MetaInfo;
-import org.jaqpot.core.model.Model;
-import org.jaqpot.core.model.Report;
-import org.jaqpot.core.model.User;
+import org.jaqpot.core.model.*;
+import org.jaqpot.core.model.Feature;
 import org.jaqpot.core.model.builder.MetaInfoBuilder;
 import org.jaqpot.core.model.dto.dataset.DataEntry;
 import org.jaqpot.core.model.dto.dataset.Dataset;
+import org.jaqpot.core.model.dto.dataset.FeatureInfo;
 import org.jaqpot.core.model.dto.jpdi.TrainingRequest;
+import org.jaqpot.core.model.dto.study.*;
+import org.jaqpot.core.model.dto.study.Substance;
 import org.jaqpot.core.model.facades.UserFacade;
 import org.jaqpot.core.model.factory.DatasetFactory;
 import org.jaqpot.core.model.util.ROG;
@@ -93,6 +87,11 @@ import org.jaqpot.core.service.annotations.UnSecure;
 import org.jaqpot.core.service.client.ambit.Ambit;
 import org.jaqpot.core.service.client.jpdi.JPDIClient;
 import org.jaqpot.core.service.exceptions.QuotaExceededException;
+import org.jaqpot.core.service.exceptions.parameter.*;
+import org.jboss.resteasy.plugins.providers.multipart.InputPart;
+import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput;
+
+import static org.jaqpot.core.util.CSVUtils.parseLine;
 
 /**
  *
@@ -100,7 +99,7 @@ import org.jaqpot.core.service.exceptions.QuotaExceededException;
  * @author Pantelis Sopasakis
  */
 @Path("dataset")
-@Api(value = "/dataset", description = "Dataset API")
+@Api(value = "dataset", description = "Dataset API")
 @Produces({"application/json", "text/uri-list"})
 @Authorize
 public class DatasetResource {
@@ -144,14 +143,13 @@ public class DatasetResource {
             + "and their ontological classes. The parameter max, which specifies the maximum number of IDs to be "
             + "listed is limited to 500; if the client specifies a larger value, an HTTP Warning Header will be "
             + "returned (RFC 2616) with code P670.",
-            response = Dataset.class,
-            responseContainer = "List",
             position = 1)
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Datasets found and are listed in the response body"),
-        @ApiResponse(code = 401, message = "You are not authorized to access this resource"),
-        @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)"),
-        @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
+        @ApiResponse(code = 200, response = Dataset.class, responseContainer = "List",
+                message = "Datasets found and are listed in the response body"),
+        @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to access this resource"),
+        @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)"),
+        @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
     })
     public Response listDatasets(
             @ApiParam(value = "Authorization token") @HeaderParam("subjectid") String subjectId,
@@ -173,10 +171,18 @@ public class DatasetResource {
 
     @GET
     @Produces({"text/csv", MediaType.APPLICATION_JSON})
-    @Path("/{id}")
+
+    @Path("{id}")
     @ApiOperation(value = "Finds Dataset by Id",
-            notes = "Finds specified Dataset",
-            response = Dataset.class)
+            notes = "Finds specified Dataset"
+            )
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, response = Dataset.class, message = "Dataset was found"),
+            @ApiResponse(code = 404, response = ErrorReport.class, message = "Dataset was not found in the system"),
+            @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to access this resource"),
+            @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)"),
+            @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
+    })
     public Response getDataset(
             @ApiParam(value = "Authorization token") @HeaderParam("subjectid") String subjectId,
             @PathParam("id") String id,
@@ -205,14 +211,12 @@ public class DatasetResource {
             + "and their ontological classes. The parameter max, which specifies the maximum number of IDs to be "
             + "listed is limited to 500; if the client specifies a larger value, an HTTP Warning Header will be "
             + "returned (RFC 2616) with code P670.",
-            response = Dataset.class,
-            responseContainer = "List",
             position = 1)
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Datasets found and are listed in the response body"),
-        @ApiResponse(code = 401, message = "You are not authorized to access this resource"),
-        @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)"),
-        @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
+        @ApiResponse(code = 200, response = Dataset.class, responseContainer = "List", message = "Datasets found and are listed in the response body"),
+        @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to access this resource"),
+        @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)"),
+        @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
     })
     public Response listFeaturedDatasets(
             @ApiParam(value = "Authorization token") @HeaderParam("subjectid") String subjectId,
@@ -234,10 +238,16 @@ public class DatasetResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/{id}/features")
-    @ApiOperation(value = "Finds Dataset by Id",
-            notes = "Finds specified Dataset",
-            response = Dataset.class)
+    @Path("{id}/features")
+    @ApiOperation(value = "Finds Features of Dataset by Id",
+            notes = "Finds specified Dataset's features")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, response = Dataset.class, message = "Dataset's features found and are listed in the response body"),
+            @ApiResponse(code = 404, response = ErrorReport.class, message = "Dataset was not found in the system"),
+            @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to access this resource"),
+            @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)"),
+            @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
+    })
     public Response getDatasetFeatures(
             @ApiParam(value = "Authorization token") @HeaderParam("subjectid") String subjectId,
             @PathParam("id") String id
@@ -251,10 +261,16 @@ public class DatasetResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/{id}/meta")
-    @ApiOperation(value = "Finds Dataset by Id",
-            notes = "Finds specified Dataset",
-            response = Dataset.class)
+    @Path("{id}/meta")
+    @ApiOperation(value = "Finds MetaData of Dataset by Id",
+            notes = "Finds specified Dataset's MetaData")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, response = Dataset.class, message = "Dataset's meta data found and are listed in the response body"),
+            @ApiResponse(code = 404, response = ErrorReport.class, message = "Dataset was not found in the system"),
+            @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to access this resource"),
+            @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)"),
+            @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
+    })
     public Response getDatasetMeta(
             @ApiParam(value = "Authorization token") @HeaderParam("subjectid") String subjectId,
             @PathParam("id") String id) {
@@ -263,6 +279,7 @@ public class DatasetResource {
         if (dataset == null) {
             throw new NotFoundException("Could not find Dataset with id:" + id);
         }
+
         return Response.ok(dataset).build();
     }
 
@@ -270,11 +287,17 @@ public class DatasetResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces({"text/uri-list", MediaType.APPLICATION_JSON})
     @ApiOperation(value = "Creates a new Dataset",
-            notes = "The new Dataset created will be assigned on a random generated Id",
-            response = Dataset.class)
+            notes = "The new Dataset created will be assigned on a random generated Id")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, response = Dataset.class, message = "Dataset was created succesfully"),
+            @ApiResponse(code = 403, response = ErrorReport.class, message="Dataset quota has been exceeded"),
+            @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to access this resource"),
+            @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)"),
+            @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
+    })
     public Response createDataset(
             @ApiParam(value = "Authorization token") @HeaderParam("subjectid") String subjectId,
-            Dataset dataset) throws URISyntaxException, QuotaExceededException {
+            Dataset dataset) throws QuotaExceededException, URISyntaxException {
 
         User user = userHandler.find(securityContext.getUserPrincipal().getName());
         long datasetCount = datasetHandler.countAllOfCreator(user.getId());
@@ -306,8 +329,14 @@ public class DatasetResource {
     @Path("/empty")
     @Produces({"text/uri-list", MediaType.APPLICATION_JSON})
     @ApiOperation(value = "Creates a new empty Dataset",
-            notes = "The new empty Dataset created will be assigned on a random generated Id",
-            response = Dataset.class)
+            notes = "The new empty Dataset created will be assigned on a random generated Id")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, response = Dataset.class, message = "Dataset was created succesfully"),
+            @ApiResponse(code = 403, response = ErrorReport.class, message="Dataset quota has been exceeded"),
+            @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to access this resource"),
+            @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)"),
+            @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
+    })
     public Response createEmptyDataset(
             @ApiParam(value = "Authorization token") @HeaderParam("subjectid") String subjectId,
             @FormParam("title") String title,
@@ -344,7 +373,15 @@ public class DatasetResource {
 
     @POST
     @Path("/merge")
-    @ApiOperation(value = "Merges Datasets")
+    @ApiOperation(value = "Merges Datasets",
+            notes = "The new intersected Dataset created will be assigned on a random generated Id")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, response = Dataset.class, message = "Dataset was created succesfully"),
+            @ApiResponse(code = 403, response = ErrorReport.class, message="Dataset quota has been exceeded"),
+            @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to access this resource"),
+            @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)"),
+            @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
+    })
     public Response mergeDatasets(
             @FormParam("dataset_uris") String datasetURIs,
             @HeaderParam("subjectid") String subjectId) throws URISyntaxException, QuotaExceededException {
@@ -387,9 +424,17 @@ public class DatasetResource {
     }
 
     @DELETE
-    @Path("/{id}")
-    @ApiOperation("Deletes dataset")
+    @Path("{id}")
     @Authorize
+    @ApiOperation("Deletes dataset")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Dataset was succesfully deleted"),
+            @ApiResponse(code = 404, response = ErrorReport.class, message = "Dataset was not found in the system"),
+            @ApiResponse(code = 403, response = ErrorReport.class, message="Dataset quota has been exceeded"),
+            @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to access this resource"),
+            @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)"),
+            @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
+    })
     public Response deleteDataset(
             @ApiParam(value = "Authorization token") @HeaderParam("subjectid") String subjectId,
             @PathParam("id") String id) {
@@ -406,9 +451,19 @@ public class DatasetResource {
     }
 
     @POST
-    @Path("/{id}/qprf")
-    @ApiOperation("Creates QPRF Report")
+    @Path("{id}/qprf")
     @Authorize
+    @ApiOperation("Creates QPRF Report")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Dataset was succesfully deleted"),
+            @ApiResponse(code = 400, response = ErrorReport.class, message = "Bad Request. More details can be found in details of ErrorReport"),
+            @ApiResponse(code = 404, response = ErrorReport.class, message = "Dataset was not found in the system"),
+            @ApiResponse(code = 403, response = ErrorReport.class, message="Dataset quota has been exceeded"),
+            @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to access this resource"),
+            @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)"),
+            @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
+    })
+
     public Response createQPRFReport(
             @ApiParam(value = "Authorization token") @HeaderParam("subjectid") String subjectId,
             @PathParam("id") String id,
@@ -581,9 +636,18 @@ public class DatasetResource {
     }
 
     @POST
-    @Path("/{id}/qprf-dummy")
-    @ApiOperation("Creates QPRF Report")
+    @Path("{id}/qprf-dummy")
     @Authorize
+    @ApiOperation("Creates QPRF Dummy Report")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Dataset was succesfully deleted"),
+            @ApiResponse(code = 400, response = ErrorReport.class, message = "Bad Request. More details can be found in details of ErrorReport"),
+            @ApiResponse(code = 404, response = ErrorReport.class, message = "Dataset was not found in the system"),
+            @ApiResponse(code = 403, response = ErrorReport.class, message="Dataset quota has been exceeded"),
+            @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to access this resource"),
+            @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)"),
+            @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
+    })
     public Response createQPRFReportDummy(
             @ApiParam(value = "Authorization token") @HeaderParam("subjectid") String subjectId,
             @PathParam("id") String id,
@@ -742,4 +806,122 @@ public class DatasetResource {
 //
 //        return Response.ok(report).build();
     }
+
+
+    @POST
+    @Authorize
+    @Path("/createDummyDataset")
+   // @Consumes("multipart/form-data")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "file", value = "xls[m,x] file", required = true, dataType = "file", paramType = "formData"),
+            @ApiImplicitParam(name = "title", value = "Title of dataset", required = true, dataType = "string", paramType = "formData"),
+            @ApiImplicitParam(name = "description", value = "Description of dataset", required = true, dataType = "string", paramType = "formData")
+    })
+    @ApiOperation(value = "Creates dummy dataset By .csv document",
+            notes = "Creates dummy features/substances, returns Dataset",
+            response = Dataset.class
+    )
+    public Response createDummyDataset(
+            @HeaderParam("subjectid") String subjectId,
+            @ApiParam(value = "multipartFormData input", hidden = true) MultipartFormDataInput input)
+            throws ParameterIsNullException, ParameterInvalidURIException, QuotaExceededException, IOException, ParameterScopeException, ParameterRangeException, ParameterTypeException, URISyntaxException {
+
+        User user = userHandler.find(securityContext.getUserPrincipal().getName());
+        long datasetCount = datasetHandler.countAllOfCreator(user.getId());
+        int maxAllowedDatasets = new UserFacade(user).getMaxDatasets();
+
+        if (datasetCount > maxAllowedDatasets) {
+            LOG.info(String.format("User %s has %d datasets while maximum is %d",
+                    user.getId(), datasetCount, maxAllowedDatasets));
+            throw new QuotaExceededException("Dear " + user.getId()
+                    + ", your quota has been exceeded; you already have " + datasetCount + " datasets. "
+                    + "No more than " + maxAllowedDatasets + " are allowed with your subscription.");
+        }
+
+        /*byte[] bytes = new byte[0];
+        String title = uploadForm.get("title").get(0).getBody(String.class, null);
+        String description = uploadForm.get("description").get(0).getBody(String.class, null);
+        String filename="";*/
+
+        Dataset dataset = null;
+        Map<String, List<InputPart>> uploadForm = input.getFormDataMap();
+        List<InputPart> inputParts = uploadForm.get("file");
+        for (InputPart inputPart : inputParts) {
+
+            try {
+                MultivaluedMap<String, String> header = inputPart.getHeaders();
+                InputStream inputStream = inputPart.getBody(InputStream.class, null);
+                dataset = calculateRowsAndColumns(inputStream);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        /*Map<String, Object> options = new HashMap<>();
+        options.put("title", title);
+        options.put("description", description);
+        options.put("subjectid", subjectId);
+        options.put("file", bytes);
+        options.put("filename",filename);
+        options.put("mode", "PREPARATION");*/
+
+        ROG randomStringGenerator = new ROG(true);
+        dataset.setId(randomStringGenerator.nextString(14));
+        dataset.setFeatured(Boolean.FALSE);
+        if (dataset.getMeta() == null) {
+            dataset.setMeta(new MetaInfo());
+        }
+        dataset.getMeta().setCreators(new HashSet<>(Arrays.asList(securityContext.getUserPrincipal().getName())));
+        dataset.setVisible(Boolean.TRUE);
+        datasetHandler.create(dataset);
+
+        return Response.created(new URI(dataset.getId())).entity(dataset).build();
+
+    }
+
+    private Dataset calculateRowsAndColumns(InputStream stream) {
+            Scanner scanner = new Scanner(stream);
+
+            Set<FeatureInfo> featureInfoList = new HashSet<>();
+            List<DataEntry> dataEntryList = new ArrayList<>();
+            List<String> feature = new LinkedList<>();
+            boolean firstLine=true;
+            int count=0;
+            while (scanner.hasNext()) {
+
+                List<String> line = parseLine(scanner.nextLine());
+                if (firstLine) {
+                    for (String l : line) {
+                        feature.add("/feature/"+l);
+                        featureInfoList.add(new FeatureInfo("/feature/" + l, l));
+                    }
+                    firstLine = false;
+                }
+                else
+                {
+                    Iterator<String> it1 = feature.iterator();
+                    Iterator<String> it2 = line.iterator();
+                    TreeMap<String, Object> values = new TreeMap<>();
+                    while (it1.hasNext() && it2.hasNext()) {
+                        values.put(it1.next(),it2.next());
+                    }
+                    org.jaqpot.core.model.dto.dataset.Substance substance = new org.jaqpot.core.model.dto.dataset.Substance();
+                    substance.setURI("/substance/"+count);
+                    substance.setName("row"+count);
+                    substance.setOwnerUUID("7da545dd-2544-43b0-b834-9ec02553f7f2");
+                    DataEntry dataEntry= new DataEntry();
+                    dataEntry.setValues(values);
+                    dataEntry.setCompound(substance);
+                    dataEntryList.add(dataEntry);
+                }
+                count++;
+            }
+            scanner.close();
+            Dataset dataset = new Dataset();
+            dataset.setFeatures(featureInfoList);
+            dataset.setDataEntry(dataEntryList);
+            return dataset;
+    }
+
 }
+
+

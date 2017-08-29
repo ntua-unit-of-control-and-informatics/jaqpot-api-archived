@@ -36,28 +36,8 @@ package org.jaqpot.core.service.resource;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.github.fge.jsonpatch.JsonPatchException;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.*;
 import io.swagger.jaxrs.PATCH;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.ejb.EJB;
-import javax.inject.Inject;
-import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.SecurityContext;
-import javax.ws.rs.core.UriInfo;
-
 import org.apache.commons.validator.routines.UrlValidator;
 import org.jaqpot.core.annotations.Jackson;
 import org.jaqpot.core.data.AlgorithmHandler;
@@ -65,10 +45,7 @@ import org.jaqpot.core.data.DatasetHandler;
 import org.jaqpot.core.data.ModelHandler;
 import org.jaqpot.core.data.UserHandler;
 import org.jaqpot.core.data.serialize.JSONSerializer;
-import org.jaqpot.core.model.Algorithm;
-import org.jaqpot.core.model.MetaInfo;
-import org.jaqpot.core.model.Task;
-import org.jaqpot.core.model.User;
+import org.jaqpot.core.model.*;
 import org.jaqpot.core.model.builder.AlgorithmBuilder;
 import org.jaqpot.core.model.dto.dataset.Dataset;
 import org.jaqpot.core.model.facades.UserFacade;
@@ -76,9 +53,18 @@ import org.jaqpot.core.model.factory.ErrorReportFactory;
 import org.jaqpot.core.model.util.ROG;
 import org.jaqpot.core.service.annotations.Authorize;
 import org.jaqpot.core.service.data.TrainingService;
-import org.jaqpot.core.service.exceptions.parameter.*;
+import org.jaqpot.core.service.exceptions.JaqpotNotAuthorizedException;
 import org.jaqpot.core.service.exceptions.QuotaExceededException;
+import org.jaqpot.core.service.exceptions.parameter.*;
 import org.jaqpot.core.service.validator.ParameterValidator;
+
+import javax.ejb.EJB;
+import javax.inject.Inject;
+import javax.ws.rs.*;
+import javax.ws.rs.core.*;
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -147,11 +133,16 @@ public class AlgorithmResource {
 
     @GET
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
-    @ApiOperation(value = "Finds all Algorithms",
-            notes = "Finds all Algorithms JaqpotQuattro supports",
-            response = Algorithm.class,
-            responseContainer = "List")
+    @ApiOperation(
+            value = "Finds all Algorithms",
+            notes = "Finds all Algorithms JaqpotQuattro supports"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(code = 401, response=  ErrorReport.class , message = "Wrong, missing or insufficient credentials. Error report is produced."),
+            @ApiResponse(code = 200,  response = Algorithm.class, responseContainer = "List" , message = "A list of algorithms in the Jaqpot framework"),
+            @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
 
+})
     public Response getAlgorithms(
             @ApiParam(value = "Authorization token") @HeaderParam("subjectid") String subjectId,
             @ApiParam(value = "class") @QueryParam("class") String ontologicalClass,
@@ -171,15 +162,22 @@ public class AlgorithmResource {
 
     @POST
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
-    @ApiOperation(value = "Creates Algorithm",
+    @ApiOperation(
+            value = "Creates Algorithm",
             notes = "Registers a new JPDI-compliant algorithm service. When registering a new JPDI-compliant algorithm web service "
-            + "it is crucial to propertly annotate your algorithm with appropriate ontological classes following the "
-            + "<a href=\"http://opentox.org/dev/apis/api-1.1/Algorithms\">OpenTox algorithms ontology</a>. For instance, a "
-            + "Clustering algorithm must be annotated with <code>ot:Clustering</code>. It is also important for "
-            + "discoverability to add tags to your algorithm using the <code>meta.subjects</code> field. An example is "
-            + "provided below.",
-            response = Algorithm.class
+                    + "it is crucial to propertly annotate your algorithm with appropriate ontological classes following the "
+                    + "<a href=\"http://opentox.org/dev/apis/api-1.1/Algorithms\">OpenTox algorithms ontology</a>. For instance, a "
+                    + "Clustering algorithm must be annotated with <code>ot:Clustering</code>. It is also important for "
+                    + "discoverability to add tags to your algorithm using the <code>meta.subjects</code> field. An example is "
+                    + "provided below."
     )
+    @ApiResponses(value = {
+            @ApiResponse(code = 403, response = ErrorReport.class, message="Algorithm quota has been exceeded"),
+            @ApiResponse(code = 401, response = ErrorReport.class , message = "Wrong, missing or insufficient credentials. Error report is produced."),
+            @ApiResponse(code = 200,  response = Algorithm.class, message = "Algorithm successfully registered in the system"),
+            @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
+
+})
     public Response createAlgorithm(
             @ApiParam(value = "Algorithm in JSON", defaultValue = DEFAULT_ALGORITHM, required = true) Algorithm algorithm,
             @ApiParam(value = "Authorization token") @HeaderParam("subjectid") String subjectId,
@@ -232,9 +230,14 @@ public class AlgorithmResource {
     @Path("/{id}")
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list", "application/ld+json"})
     @ApiOperation(value = "Finds Algorithm",
-            notes = "Finds Algorithm with provided name",
-            response = Algorithm.class
+            notes = "Finds Algorithm with provided name"
     )
+    @ApiResponses(value = {
+            @ApiResponse(code = 401, response=  ErrorReport.class , message = "Wrong, missing or insufficient credentials. Error report is produced."),
+            @ApiResponse(code = 404, response = ErrorReport.class , message = "Algorithm was not found"),
+            @ApiResponse(code = 200,  response = Algorithm.class, message = "Algorithm was found in the system"),
+            @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
+    })
     public Response getAlgorithm(
             @ApiParam(value = "Authorization token") @HeaderParam("subjectid") String subjectId,
             @PathParam("id") String algorithmId) throws ParameterIsNullException {
@@ -253,9 +256,16 @@ public class AlgorithmResource {
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @Path("/{id}")
     @ApiOperation(value = "Creates Model",
-            notes = "Applies Dataset and Parameters on Algorithm and creates Model.",
-            response = Task.class
+            notes = "Applies Dataset and Parameters on Algorithm and creates Model."
     )
+    @ApiResponses(value = {
+            @ApiResponse(code = 400, response=  ErrorReport.class , message = "Bad request. More info can be found in details of Error Report."),
+            @ApiResponse(code = 401, response=  ErrorReport.class , message = "Wrong, missing or insufficient credentials. Error report is produced."),
+            @ApiResponse(code = 404, response = ErrorReport.class , message = "Algorithm was not found."),
+            @ApiResponse(code = 200,  response = Task.class, message = "The process has successfully been started. A task URI is returned."),
+            @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
+
+})
     @org.jaqpot.core.service.annotations.Task
     public Response trainModel(
             @ApiParam(name = "title", required = true) @FormParam("title") String title,
@@ -368,13 +378,10 @@ public class AlgorithmResource {
             + "requires authentication and assumes certain priviledges."
     )
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Algorithm deleted successfully")
-        ,
-        @ApiResponse(code = 401, message = "Wrong, missing or insufficient credentials. Error report is produced.")
-        ,
-        @ApiResponse(code = 403, message = "This is a forbidden operation (do not attempt to repeat it).")
-        ,
-        @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
+        @ApiResponse(code = 200, message = "Algorithm deleted successfully"),
+        @ApiResponse(code = 401, response=  ErrorReport.class,message = "Wrong, missing or insufficient credentials. Error report is produced."),
+        @ApiResponse(code = 403, response=  ErrorReport.class,message = "This is a forbidden operation (do not attempt to repeat it)."),
+        @ApiResponse(code = 500, response=  ErrorReport.class, message = "Internal server error - this request cannot be served.")
     })
     public Response deleteAlgorithm(
             @ApiParam(value = "ID of the algorithm which is to be deleted.", required = true) @PathParam("id") String id,
@@ -406,13 +413,10 @@ public class AlgorithmResource {
             + "See https://tools.ietf.org/rfc/rfc6902.txt for details.",
             position = 5)
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Algorithm deleted successfully")
-        ,
-        @ApiResponse(code = 401, message = "Wrong, missing or insufficient credentials. Error report is produced.")
-        ,
-        @ApiResponse(code = 403, message = "This is a forbidden operation (do not attempt to repeat it).")
-        ,
-        @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
+        @ApiResponse(code = 200, response = Algorithm.class, message = "Algorithm patched successfully"),
+        @ApiResponse(code = 401, response = ErrorReport.class, message = "Wrong, missing or insufficient credentials. Error report is produced."),
+        @ApiResponse(code = 403, response = ErrorReport.class, message = "This is a forbidden operation (do not attempt to repeat it)."),
+        @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
     })
     public Response modifyAlgorithm(
             @ApiParam("Clients need to authenticate in order to create resources on the server") @HeaderParam("subjectid") String subjectId,
@@ -439,5 +443,4 @@ public class AlgorithmResource {
                 .ok(modifiedAsAlgorithm)
                 .build();
     }
-
 }

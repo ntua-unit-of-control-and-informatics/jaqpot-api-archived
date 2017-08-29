@@ -120,15 +120,13 @@ public class BibTeXResource {
     @GET
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @ApiOperation(value = "Finds all BibTeX entries",
-            notes = "Finds all BibTeX entries in the DB of Jaqpot and returns them in a list",
-            response = BibTeX.class,
-            responseContainer = "List",
-            position = 1)
+            notes = "Finds all BibTeX entries in the DB of Jaqpot and returns them in a list", position = 1)
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "BibTeX entries found and are listed in the response body"),
-        @ApiResponse(code = 401, message = "You are not authorized to access this resource"),
-        @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)"),
-        @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
+        @ApiResponse(code = 200, response = BibTeX.class, responseContainer = "List",
+                  message = "BibTeX entries found and are listed in the response body"),
+        @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to access this resource"),
+        @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)"),
+        @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
     })
     public Response listBibTeXs(
             @ApiParam(value = "BibTeX type of entry",
@@ -151,14 +149,13 @@ public class BibTeXResource {
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @ApiOperation(value = "Returns BibTeX entry",
             notes = "Finds and returns a BibTeX by ID",
-            response = BibTeX.class,
             position = 2)
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "BibTeX entries found and are listed in the response body"),
-        @ApiResponse(code = 401, message = "You are not authorized to access this user"),
-        @ApiResponse(code = 404, message = "No such bibtex entry on the server (not found)"),
-        @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)"),
-        @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
+        @ApiResponse(code = 200, response = BibTeX.class, message = "BibTeX entries found and are listed in the response body"),
+        @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to access this user"),
+        @ApiResponse(code = 404, response = ErrorReport.class, message = "No such bibtex entry on the server (not found)"),
+        @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)"),
+        @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
     })
     public Response getBibTeX(
             @ApiParam(value = "ID of the BibTeX", required = true) @PathParam("id") String id
@@ -177,15 +174,14 @@ public class BibTeXResource {
             notes = "Creates a new BibTeX entry which is assigned a random unique ID. "
             + "Clients are not allowed to specify a custom ID when using this method. "
             + "Clients should use PUT instead in such a case.",
-            response = BibTeX.class,
             position = 3)
     //TODO add code for user's quota exceeded
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "BibTeX entry was created successfully."),
-        @ApiResponse(code = 400, message = "Bad request: malformed bibtex (e.g., mandatory fields are missing)"),
-        @ApiResponse(code = 401, message = "You are not authorized to access this resource"),
-        @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)"),
-        @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
+        @ApiResponse(code = 200, response = BibTeX.class, message = "BibTeX entry was created successfully."),
+        @ApiResponse(code = 400, response = ErrorReport.class, message = "Bad request: malformed bibtex (e.g., mandatory fields are missing)"),
+        @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to access this resource"),
+        @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)"),
+        @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
     })
     @Authorize
     public Response createBibTeX(
@@ -232,15 +228,14 @@ public class BibTeXResource {
             + "it will be replaced. If, instead, no BibTeX is stored under the specified URI, a new "
             + "BibTeX entry will be created. Notice that authentication, authorization and accounting (quota) "
             + "restrictions may apply.",
-            response = BibTeX.class,
             position = 4)
     @Consumes(MediaType.APPLICATION_JSON)
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "BibTeX entry was created successfully."),
-        @ApiResponse(code = 400, message = "BibTeX entry was not created because the request was malformed"),
-        @ApiResponse(code = 401, message = "You are not authorized to create a bibtex on the server"),
-        @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)"),
-        @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
+        @ApiResponse(code = 200, response = BibTeX.class, message = "BibTeX entry was created successfully."),
+        @ApiResponse(code = 400, response = ErrorReport.class, message = "BibTeX entry was not created because the request was malformed"),
+        @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to create a bibtex on the server"),
+        @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)"),
+        @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
     })
     public Response createBibTeXGivenID(
             @ApiParam(value = "ID of the BibTeX.", required = true) @PathParam("id") String id,
@@ -286,9 +281,9 @@ public class BibTeXResource {
             position = 5)
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "BibTeX entry was deleted successfully."),
-        @ApiResponse(code = 401, message = "You are not authorized to delete this resource"),
-        @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)"),
-        @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
+        @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to delete this resource"),
+        @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)"),
+        @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
     })
     public Response deleteBibTeX(
             @ApiParam("Clients need to authenticate in order to create resources on the server") @HeaderParam("subjectid") String subjectId,
@@ -308,11 +303,11 @@ public class BibTeXResource {
             + "See https://tools.ietf.org/rfc/rfc6902.txt for details.",
             position = 5)
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "BibTeX entry was modified successfully."),
-        @ApiResponse(code = 404, message = "No such BibTeX - the patch will not be applied"),
-        @ApiResponse(code = 401, message = "You are not authorized to modify this resource"),
-        @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)"),
-        @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
+        @ApiResponse(code = 200, response = BibTeX.class, message = "BibTeX entry was modified successfully."),
+        @ApiResponse(code = 404, response = ErrorReport.class, message = "No such BibTeX - the patch will not be applied"),
+        @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to modify this resource"),
+        @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)"),
+        @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
     })
     public Response modifyBibTeX(
             @ApiParam("Clients need to authenticate in order to create resources on the server") @HeaderParam("subjectid") String subjectId,

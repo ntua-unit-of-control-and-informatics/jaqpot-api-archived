@@ -5,6 +5,9 @@
  */
 package org.jaqpot.core.model.dto.aa;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import org.jaqpot.core.model.JaqpotEntity;
+
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
@@ -14,6 +17,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  *
  */
 @XmlRootElement
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class AuthToken {
 
     private String userName;
@@ -37,6 +41,7 @@ public class AuthToken {
     public void setAuthToken(String authToken) {
         this.authToken = authToken;
     }
+
 
     @Override
     public String toString() {

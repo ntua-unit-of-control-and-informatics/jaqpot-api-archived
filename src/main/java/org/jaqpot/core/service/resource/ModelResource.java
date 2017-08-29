@@ -368,6 +368,7 @@ public class ModelResource {
     }
 
     @POST
+    @Consumes({MediaType.APPLICATION_FORM_URLENCODED})
     @Produces({MediaType.APPLICATION_JSON})
     @Path("/{id}")
     @ApiOperation(value = "Creates Prediction",
@@ -377,6 +378,7 @@ public class ModelResource {
     @org.jaqpot.core.service.annotations.Task
     public Response makePrediction(
             // defaultValue = DEFAULT_DATASET
+
             @ApiParam(name = "dataset_uri", required = true) @FormParam("dataset_uri") String datasetURI,
             @FormParam("visible") Boolean visible,
             @PathParam("id") String id,

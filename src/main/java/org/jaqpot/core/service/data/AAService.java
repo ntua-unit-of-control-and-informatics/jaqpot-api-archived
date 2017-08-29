@@ -30,7 +30,6 @@
 package org.jaqpot.core.service.data;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.logging.Level;
@@ -130,7 +129,7 @@ public class AAService {
         String responseValue = response.readEntity(String.class);
         response.close();
         if (response.getStatus() == 401) {
-            throw new JaqpotNotAuthorizedException("You cannot login - please, check your credentials.");
+            throw new JaqpotNotAuthorizedException("You cannot login - please, check your credentials.","401");
         } else {
             AuthToken aToken = new AuthToken();
             aToken.setAuthToken(responseValue.substring(9).replaceAll("\n", ""));
@@ -178,11 +177,11 @@ public class AAService {
                 .post(Entity.form(formData));
         if (200 != response.getStatus()) {
             response.close();
-            throw new JaqpotNotAuthorizedException("It seems your token is not valid");
+            throw new JaqpotNotAuthorizedException("It seems your token is not valid","401");
         }
-        response.close();
-        tokenMap.remove(token);
         int status = response.getStatus();
+        tokenMap.remove(token);
+        response.close();
         return status == 200;
     }
 
@@ -257,7 +256,7 @@ public class AAService {
         return user;
     }
 
-    public boolean authorize(String token, String httpMethod, String uri) {
+    public boolean authorize(String token, String httpMethod, String uri) throws JaqpotNotAuthorizedException {
         MultivaluedMap<String, String> formData = new MultivaluedHashMap<>();
         formData.putSingle("subjectid", token);
         formData.putSingle("uri", uri);
@@ -267,7 +266,12 @@ public class AAService {
                 .post(Entity.form(formData));
         String message = response.readEntity(String.class).trim();
         int status = response.getStatus();
-        response.close();
-        return "boolean=true".equals(message) && status == 200;
+        if (response.getStatus() == 401) {
+            response.close();
+            throw new JaqpotNotAuthorizedException("Invalid or out-of-date token - please, try to login again.");
+        } else {
+            response.close();
+            return "boolean=true".equals(message) && status == 200;
+        }
     }
 }

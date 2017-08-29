@@ -100,6 +100,11 @@ public class AlgorithmBuilder implements EntityBuilder<Algorithm> {
         return this;
     }
 
+    public AlgorithmBuilder setReportService(String reportService) {
+        algorithm.setReportService(reportService);
+        return this;
+    }
+
     private void initMeta() {
         if (algorithm.getMeta() == null) {
             algorithm.setMeta(new MetaInfo());

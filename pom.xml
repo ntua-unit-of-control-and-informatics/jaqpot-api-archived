@@ -46,13 +46,24 @@
             <version>3.0.10.Final</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>org.jboss.resteasy</groupId>
+            <artifactId>resteasy-multipart-provider</artifactId>
+            <version>3.0.10.Final</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.resteasy</groupId>
+            <artifactId>resteasy-client</artifactId>
+            <version>3.0.10.Final</version>
+        </dependency>
         
         <!-- SWAGGER FOR JAX-RS-->
         <dependency>
             <groupId>io.swagger</groupId>
             <artifactId>swagger-jaxrs</artifactId>
             <version>1.5.10</version>
-        </dependency>    
+        </dependency>
         
         <!-- JPMML (bin and javadoc) -->
         <dependency>
@@ -60,12 +71,12 @@
             <artifactId>pmml-evaluator</artifactId>
             <version>1.1.16</version>
         </dependency>
-        
+
         <!-- javamelody-core -->
         <dependency>
             <groupId>net.bull.javamelody</groupId>
             <artifactId>javamelody-core</artifactId>
-            <version>1.55.0</version>
+            <version>1.68.1</version>
         </dependency>
         
         <!-- Mandrill lutung (to send emails via Mandrill) -->
@@ -82,15 +93,7 @@
             <groupId>com.github.fge</groupId>
             <artifactId>json-patch</artifactId>
             <version>1.9</version>
-        </dependency> 
-        
-        <dependency>
-            <groupId>org.jboss.resteasy</groupId>
-            <artifactId>resteasy-client</artifactId>
-            <version>3.0.10.Final</version>
-            <scope>provided</scope>
         </dependency>
-        
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpasyncclient</artifactId>
@@ -116,13 +119,11 @@
             <artifactId>commons-lang3</artifactId>
             <version>3.4</version>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/com.itextpdf.tool/xmlworker -->
         <dependency>
             <groupId>com.itextpdf.tool</groupId>
             <artifactId>xmlworker</artifactId>
             <version>5.5.6</version>
         </dependency>
-
         <dependency>
             <groupId>org.mongodb</groupId>
             <artifactId>mongo-java-driver</artifactId>
@@ -138,7 +139,15 @@
             <groupId>org.mapstruct</groupId>
             <artifactId>mapstruct-jdk8</artifactId>
             <version>1.1.0.Final</version>
-        </dependency>        
+        </dependency>
+
+        <dependency>
+            <groupId>com.rabbitmq</groupId>
+            <artifactId>amqp-client</artifactId>
+            <version>4.1.1</version>
+        </dependency>
+
+
     </dependencies>
 
     <build>
@@ -187,7 +196,11 @@
         <jaqpot.db.name></jaqpot.db.name>
         <jaqpot.db.host></jaqpot.db.host>
         <jaqpot.db.port></jaqpot.db.port>
-        
+
+        <jaqpot.rabbitmq.host></jaqpot.rabbitmq.host>
+        <jaqpot.rabbitmq.username></jaqpot.rabbitmq.username>
+        <jaqpot.rabbitmq.password></jaqpot.rabbitmq.password>
+
         <jaqpot.administrators></jaqpot.administrators>
         <jaqpot.cors.alloworigin></jaqpot.cors.alloworigin>
         <server.base></server.base>

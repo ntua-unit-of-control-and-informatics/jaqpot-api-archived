@@ -168,7 +168,7 @@ public class PmmlResource {
             notes = "Creates a new PMML entry which is assigned a random unique ID",
             response = Pmml.class)
     @Authorize
-    public Response createPMML(
+    public Response createPMMLSelection(
             @ApiParam(value = "Authorization token") @HeaderParam("subjectid") String subjectId,
             @FormParam("features") String featuresString) {
         
