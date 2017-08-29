@@ -395,6 +395,12 @@ public class AlgorithmResource {
 
         String userName = securityContext.getUserPrincipal().getName();
 
+        MetaInfo metaInfo = algorithm.getMeta();
+
+        if (metaInfo.getLocked()) {
+            return Response.status(Response.Status.FORBIDDEN).entity("You cannot delete an Algorithm that is locked.").build();
+        }
+
         if (!algorithm.getMeta().getCreators().contains(userName)) {
             return Response.status(Response.Status.FORBIDDEN).entity("You cannot delete an Algorithm that was not created by you.").build();
         }

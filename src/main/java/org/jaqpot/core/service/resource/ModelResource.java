@@ -55,6 +55,7 @@ import org.apache.commons.validator.routines.UrlValidator;
 import org.jaqpot.core.data.DatasetHandler;
 import org.jaqpot.core.data.ModelHandler;
 import org.jaqpot.core.data.UserHandler;
+import org.jaqpot.core.model.MetaInfo;
 import org.jaqpot.core.model.Model;
 import org.jaqpot.core.model.Task;
 import org.jaqpot.core.model.User;
@@ -450,6 +451,13 @@ public class ModelResource {
         if (model == null) {
             throw new NotFoundException("The model with id:" + id + " was not found.");
         }
+
+        MetaInfo metaInfo = model.getMeta();
+
+        if (metaInfo.getLocked()) {
+            return Response.status(Response.Status.FORBIDDEN).entity("You cannot delete a Model that is locked.").build();
+        }
+
         String userName = securityContext.getUserPrincipal().getName();
         if (!model.getMeta().getCreators().contains(userName)) {
             return Response.status(Response.Status.FORBIDDEN).entity("You cannot delete a Model that was not created by you.").build();

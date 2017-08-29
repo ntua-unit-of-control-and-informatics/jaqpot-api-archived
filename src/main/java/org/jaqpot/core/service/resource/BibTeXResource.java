@@ -289,7 +289,14 @@ public class BibTeXResource {
             @ApiParam("Clients need to authenticate in order to create resources on the server") @HeaderParam("subjectid") String subjectId,
             @ApiParam(value = "ID of the BibTeX.", required = true) @PathParam("id") String id
     ) {
-        bibtexHandler.remove(new BibTeX(id));
+        BibTeX bibTeX = new BibTeX(id);
+        MetaInfo metaInfo = bibTeX.getMeta();
+
+        if (metaInfo.getLocked()) {
+            return Response.status(Response.Status.FORBIDDEN).entity("You cannot delete a BibTeX that is locked.").build();
+        }
+
+        bibtexHandler.remove(bibTeX);
         return Response.ok().build();
     }
     

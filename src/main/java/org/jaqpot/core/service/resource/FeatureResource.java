@@ -229,7 +229,14 @@ public class FeatureResource {
             @ApiParam("Clients need to authenticate in order to create resources on the server") @HeaderParam("subjectid") String subjectId,
             @ApiParam(value = "ID of the Model.", required = true) @PathParam("id") String id
     ) {
-        featureHandler.remove(new Feature(id));
+        Feature feature = new Feature(id);
+        MetaInfo metaInfo = feature.getMeta();
+
+        if (metaInfo.getLocked()) {
+            return Response.status(Response.Status.FORBIDDEN).entity("You cannot delete a Feature that is locked.").build();
+        }
+
+        featureHandler.remove(feature);
         return Response.ok().build();
     }
 

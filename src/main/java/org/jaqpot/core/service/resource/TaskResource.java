@@ -61,6 +61,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
 import org.jaqpot.core.data.TaskHandler;
+import org.jaqpot.core.model.MetaInfo;
 import org.jaqpot.core.model.Task;
 import org.jaqpot.core.service.annotations.Authorize;
 import org.jaqpot.core.service.client.jpdi.JPDIClient;
@@ -193,6 +194,13 @@ public class TaskResource {
         if (task == null) {
             throw new NotFoundException("Task with ID:" + id + " was not found on the server.");
         }
+
+        MetaInfo metaInfo = task.getMeta();
+
+        if (metaInfo.getLocked()) {
+            return Response.status(Response.Status.FORBIDDEN).entity("You cannot delete a Task that is locked.").build();
+        }
+
         String userName = securityContext.getUserPrincipal().getName();
         if (!task.getMeta().getCreators().contains(userName)) {
             throw new ForbiddenException("You cannot cancel a Task not created by you.");
