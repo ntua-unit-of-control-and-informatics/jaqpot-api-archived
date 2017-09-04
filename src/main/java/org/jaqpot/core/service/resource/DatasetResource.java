@@ -442,11 +442,9 @@ public class DatasetResource {
         if (ds == null) {
             throw new NotFoundException("Dataset with id:" + id + " was not found on the server.");
         }
-
         MetaInfo metaInfo = ds.getMeta();
-        if (metaInfo.getLocked()) {
+        if (metaInfo.getLocked())
             throw new JaqpotForbiddenException("You cannot delete a Dataset that is locked.");
-        }
 
         String userName = securityContext.getUserPrincipal().getName();
         if (!ds.getMeta().getCreators().contains(userName)) {

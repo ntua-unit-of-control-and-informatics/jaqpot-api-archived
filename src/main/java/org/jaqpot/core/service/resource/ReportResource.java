@@ -146,9 +146,8 @@ public class ReportResource {
         }
 
         MetaInfo metaInfo = report.getMeta();
-        if (metaInfo.getLocked()) {
+        if (metaInfo.getLocked())
             throw new JaqpotForbiddenException("You cannot delete a Report that is locked.");
-        }
 
         String userName = securityContext.getUserPrincipal().getName();
         if (!report.getMeta().getCreators().contains(userName)) {

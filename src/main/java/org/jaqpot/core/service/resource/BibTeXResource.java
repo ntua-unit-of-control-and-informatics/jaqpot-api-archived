@@ -293,9 +293,8 @@ public class BibTeXResource {
         BibTeX bibTeX = new BibTeX(id);
 
         MetaInfo metaInfo = bibTeX.getMeta();
-        if (metaInfo.getLocked()) {
+        if (metaInfo.getLocked())
             throw new JaqpotForbiddenException("You cannot delete a Bibtex that is locked.");
-        }
 
         bibtexHandler.remove(new BibTeX(id));
         return Response.ok().build();

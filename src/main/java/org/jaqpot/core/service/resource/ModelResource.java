@@ -175,7 +175,7 @@ public class ModelResource {
 
     @GET
     @Path("/{id}")
-    @Produces({MediaType.APPLICATION_JSON, "text/uri-list", "application/ld+json"})      
+    @Produces({MediaType.APPLICATION_JSON, "text/uri-list", "application/ld+json"})
     @ApiOperation(value = "Finds Model by Id",
             notes = "Finds specified Model",
             response = Model.class)
@@ -454,9 +454,9 @@ public class ModelResource {
         }
 
         MetaInfo metaInfo = model.getMeta();
-        if (metaInfo.getLocked()) {
+        if (metaInfo.getLocked())
             throw new JaqpotForbiddenException("You cannot delete a Model that is locked.");
-        }
+
 
         String userName = securityContext.getUserPrincipal().getName();
         if (!model.getMeta().getCreators().contains(userName)) {

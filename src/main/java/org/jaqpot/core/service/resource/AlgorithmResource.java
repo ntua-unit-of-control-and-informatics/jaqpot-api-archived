@@ -55,6 +55,8 @@ import org.jaqpot.core.service.annotations.Authorize;
 import org.jaqpot.core.service.data.TrainingService;
 import org.jaqpot.core.service.exceptions.JaqpotForbiddenException;
 import org.jaqpot.core.service.exceptions.JaqpotNotAuthorizedException;
+import org.jaqpot.core.service.exceptions.JaqpotForbiddenException;
+import org.jaqpot.core.service.exceptions.parameter.*;
 import org.jaqpot.core.service.exceptions.QuotaExceededException;
 import org.jaqpot.core.service.exceptions.parameter.*;
 import org.jaqpot.core.service.validator.ParameterValidator;
@@ -395,9 +397,8 @@ public class AlgorithmResource {
         Algorithm algorithm = algorithmHandler.find(id);
 
         MetaInfo metaInfo = algorithm.getMeta();
-        if (metaInfo.getLocked()) {
+        if (metaInfo.getLocked())
             throw new JaqpotForbiddenException("You cannot delete an Algorithm that is locked.");
-        }
 
         String userName = securityContext.getUserPrincipal().getName();
 

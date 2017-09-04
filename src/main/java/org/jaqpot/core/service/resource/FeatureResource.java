@@ -232,9 +232,9 @@ public class FeatureResource {
     ) throws JaqpotForbiddenException {
         Feature feature = new Feature(id);
         MetaInfo metaInfo = feature.getMeta();
-        if (metaInfo.getLocked()) {
+        if (metaInfo.getLocked())
             throw new JaqpotForbiddenException("You cannot delete a Feature that is locked.");
-        }
+
         featureHandler.remove(new Feature(id));
         return Response.ok().build();
     }

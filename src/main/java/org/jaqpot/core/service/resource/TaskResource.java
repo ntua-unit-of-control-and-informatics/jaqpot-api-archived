@@ -197,9 +197,8 @@ public class TaskResource {
         }
 
         MetaInfo metaInfo = task.getMeta();
-        if (metaInfo.getLocked()) {
+        if (metaInfo.getLocked())
             throw new JaqpotForbiddenException("You cannot delete a Task that is locked.");
-        }
 
         String userName = securityContext.getUserPrincipal().getName();
         if (!task.getMeta().getCreators().contains(userName)) {
