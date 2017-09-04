@@ -6,13 +6,13 @@
 package org.jaqpot.core.service.data;
 
 import com.itextpdf.text.*;
+import com.itextpdf.text.html.simpleparser.HTMLWorker;
 import com.itextpdf.text.pdf.*;
 import com.itextpdf.tool.xml.XMLWorkerHelper;
 import com.itextpdf.tool.xml.pipeline.WritableElement;
 import org.apache.commons.codec.binary.Base64;
 import org.jaqpot.core.model.ArrayCalculation;
 import org.jaqpot.core.model.Report;
-
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Named;
 import javax.ws.rs.InternalServerErrorException;

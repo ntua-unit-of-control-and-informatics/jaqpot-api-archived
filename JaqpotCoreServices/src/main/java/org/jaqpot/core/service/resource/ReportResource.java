@@ -61,7 +61,6 @@ import org.jaqpot.core.data.ReportHandler;
 import org.jaqpot.core.data.serialize.JSONSerializer;
 import org.jaqpot.core.model.BibTeX;
 import org.jaqpot.core.model.ErrorReport;
-import org.jaqpot.core.model.MetaInfo;
 import org.jaqpot.core.model.Report;
 import org.jaqpot.core.model.factory.ErrorReportFactory;
 import org.jaqpot.core.model.validator.BibTeXValidator;
@@ -142,12 +141,6 @@ public class ReportResource {
         Report report = reportHandler.find(id);
         if (report == null) {
             throw new NotFoundException();
-        }
-
-        MetaInfo metaInfo = report.getMeta();
-
-        if (metaInfo.getLocked()) {
-            return Response.status(Response.Status.FORBIDDEN).entity("You cannot delete a Report that is locked.").build();
         }
 
         String userName = securityContext.getUserPrincipal().getName();
