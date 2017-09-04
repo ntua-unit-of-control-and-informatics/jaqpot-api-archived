@@ -84,6 +84,29 @@ public class ErrorReportFactory {
         return error;
     }
 
+    public static ErrorReport forbidden() {
+        return ErrorReportFactory.forbidden(null, null, null);
+    }
+
+    public static ErrorReport forbidden(String message) {
+        return ErrorReportFactory.unauthorized(message, null, null);
+    }
+
+    public static ErrorReport forbidden(String message, String code) {
+        return ErrorReportFactory.unauthorized(message, code, null);
+    }
+
+    public static ErrorReport forbidden(String message, String code, String details) {
+        ErrorReport error = ErrorReportBuilder.builderRandomId()
+                .setActor("client")
+                .setMessage(message != null ? message : "You are forbidden from performing this operation.")
+                .setDetails(details != null ? details : ERROR403)
+                .setCode("Forbidden" + (code != null ? "::" + code : ""))
+                .setHttpStatus(403)
+                .build();
+        return error;
+    }
+
     public static ErrorReport alreadyInDatabase(String details) {
         ErrorReport error = ErrorReportBuilder.builderRandomId()
                 .setActor("server")

@@ -69,6 +69,7 @@ import org.jaqpot.core.model.util.ROG;
 import org.jaqpot.core.model.validator.BibTeXValidator;
 import org.jaqpot.core.service.annotations.Authorize;
 import org.jaqpot.core.service.data.AAService;
+import org.jaqpot.core.service.exceptions.JaqpotForbiddenException;
 import org.jaqpot.core.service.exceptions.JaqpotNotAuthorizedException;
 
 /**
@@ -293,7 +294,13 @@ public class BibTeXResource {
     public Response deleteBibTeX(
             @ApiParam("Clients need to authenticate in order to create resources on the server") @HeaderParam("subjectid") String subjectId,
             @ApiParam(value = "ID of the BibTeX.", required = true) @PathParam("id") String id
-    ) {
+    ) throws JaqpotForbiddenException {
+        BibTeX bibTeX = new BibTeX(id);
+
+        MetaInfo metaInfo = bibTeX.getMeta();
+        if (metaInfo.getLocked())
+            throw new JaqpotForbiddenException("You cannot delete a Bibtex that is locked.");
+
         bibtexHandler.remove(new BibTeX(id));
         return Response.ok().build();
     }
