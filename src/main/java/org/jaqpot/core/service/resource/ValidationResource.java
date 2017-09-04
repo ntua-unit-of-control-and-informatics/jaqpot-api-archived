@@ -320,7 +320,6 @@ public class ValidationResource {
         options.put("dataset_uri", datasetURI);
         options.put("algorithm_params", algorithmParameters);
         options.put("prediction_feature", predictionFeature);
-        options.put("transformations", transformations);
         options.put("scaling", scaling);
         options.put("split_ratio", splitRatio);
         options.put("stratify", stratify);
@@ -328,10 +327,23 @@ public class ValidationResource {
         options.put("type", "SPLIT");
         options.put("subjectId", subjectId);
 
-        taskHandler.create(task);
-        System.out.println(crossValidationQueue.getTopicName());
-        jmsContext.createProducer().setDeliveryDelay(1000).send(splitValidationQueue, options);
+        Map<String, String> transformationAlgorithms = new LinkedHashMap<>();
+        if (transformations != null && !transformations.isEmpty()) {
+            transformationAlgorithms.put(uriInfo.getBaseUri().toString() + "algorithm/pmml",
+                    "{\"transformations\" : \"" + transformations + "\"}");
+        }
+        if (scaling != null && !scaling.isEmpty()) {
+            transformationAlgorithms.put(scaling, "");
+        }
+        if (!transformationAlgorithms.isEmpty()) {
+            String transformationAlgorithmsString = serializer.write(transformationAlgorithms);
+            LOG.log(Level.INFO, "Transformations:{0}", transformationAlgorithmsString);
+            options.put("transformations", transformationAlgorithmsString);
+        }
 
+        taskHandler.create(task);
+        System.out.println(splitValidationQueue.getTopicName());
+        jmsContext.createProducer().setDeliveryDelay(1000).send(splitValidationQueue, options);
         return Response.ok(task).build();
     }
 
