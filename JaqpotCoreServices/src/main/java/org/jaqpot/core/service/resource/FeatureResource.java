@@ -62,6 +62,7 @@ import org.jaqpot.core.model.factory.ErrorReportFactory;
 import org.jaqpot.core.model.util.ROG;
 import org.jaqpot.core.service.annotations.Authorize;
 import org.jaqpot.core.service.data.AAService;
+import org.jaqpot.core.service.exceptions.JaqpotForbiddenException;
 import org.jaqpot.core.service.exceptions.JaqpotNotAuthorizedException;
 
 /**
@@ -228,7 +229,12 @@ public class FeatureResource {
     public Response deleteFeature(
             @ApiParam("Clients need to authenticate in order to create resources on the server") @HeaderParam("subjectid") String subjectId,
             @ApiParam(value = "ID of the Model.", required = true) @PathParam("id") String id
-    ) {
+    ) throws JaqpotForbiddenException {
+        Feature feature = new Feature(id);
+        MetaInfo metaInfo = feature.getMeta();
+        if (metaInfo.getLocked())
+            throw new JaqpotForbiddenException("You cannot delete a Feature that is locked.");
+
         featureHandler.remove(new Feature(id));
         return Response.ok().build();
     }
