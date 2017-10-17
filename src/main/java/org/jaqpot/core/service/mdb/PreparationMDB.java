@@ -29,22 +29,6 @@
  */
 package org.jaqpot.core.service.mdb;
 
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ExecutionException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.annotation.Resource;
-import javax.ejb.ActivationConfigProperty;
-import javax.ejb.EJB;
-import javax.ejb.MessageDriven;
-import javax.inject.Inject;
-import javax.jms.JMSContext;
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.Topic;
-import javax.ws.rs.BadRequestException;
-import javax.ws.rs.client.Client;
 import org.jaqpot.core.annotations.Jackson;
 import org.jaqpot.core.data.DatasetHandler;
 import org.jaqpot.core.data.TaskHandler;
@@ -52,11 +36,28 @@ import org.jaqpot.core.data.serialize.JSONSerializer;
 import org.jaqpot.core.model.MetaInfo;
 import org.jaqpot.core.model.Task;
 import org.jaqpot.core.model.builder.MetaInfoBuilder;
+import org.jaqpot.core.model.dto.bundle.BundleData;
 import org.jaqpot.core.model.dto.dataset.Dataset;
 import org.jaqpot.core.model.factory.ErrorReportFactory;
 import org.jaqpot.core.service.annotations.UnSecure;
 import org.jaqpot.core.service.data.AAService;
 import org.jaqpot.core.service.data.ConjoinerService;
+
+import javax.annotation.Resource;
+import javax.ejb.EJB;
+import javax.inject.Inject;
+import javax.jms.JMSContext;
+import javax.jms.JMSException;
+import javax.jms.Message;
+import javax.jms.Topic;
+import javax.ws.rs.BadRequestException;
+import javax.ws.rs.client.Client;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -122,7 +123,9 @@ public class PreparationMDB extends RunningTaskMDB {
             task.setPercentageCompleted(1.0f);
             taskHandler.edit(task);
 
-            String bundleUri = (String) messageBody.get("bundle_uri");
+            String substanceOwner= (String) messageBody.get("substance_owner");
+            List<String> substances = (List<String>) messageBody.get("substances");
+            Map<String, List<String>> properties = (Map<String, List<String>>) messageBody.get("properties");            //String bundleUri = (String) messageBody.get("bundle_uri");
             String subjectId = (String) messageBody.get("subjectid");
             String descriptors = (String) messageBody.get("descriptors");
             Boolean intersectColumns = (Boolean) messageBody.get("intersect_columns");
@@ -133,14 +136,15 @@ public class PreparationMDB extends RunningTaskMDB {
             task.getMeta().getComments().add("Starting Dataset preparation...");
             task.setPercentageCompleted(6.0f);
             taskHandler.edit(task);
-            Dataset dataset = conjoinerService.prepareDataset(bundleUri, subjectId, descriptorSet, intersectColumns, retainNullValues);
+            Dataset dataset = new Dataset();
+            //Dataset dataset = conjoinerService.prepareDataset(substanceOwner, subjectId, descriptorSet, intersectColumns, retainNullValues);
 
             task.getMeta().getComments().add("Dataset ready.");
             task.getMeta().getComments().add("Saving to database...");
             task.setPercentageCompleted(55.0f);
             taskHandler.edit(task);
             MetaInfo datasetMeta = MetaInfoBuilder.builder()
-                    .addSources(bundleUri)
+                    .addSources(substanceOwner)
                     .addTitles((String) messageBody.get("title"))
                     .addDescriptions((String) messageBody.get("description"))
                     .addComments("Created by task " + task.getId())
@@ -196,8 +200,6 @@ public class PreparationMDB extends RunningTaskMDB {
             LOG.log(Level.SEVERE, null, ex);
             task.setStatus(Task.Status.ERROR);
             task.setErrorReport(ErrorReportFactory.badRequest("Error while processing input.", ex.getMessage()));
-        } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
         } finally {
             if (task != null && task.getId() != null) {
                 terminate(task.getId());

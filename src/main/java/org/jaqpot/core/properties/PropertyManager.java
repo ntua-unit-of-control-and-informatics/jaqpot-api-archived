@@ -83,7 +83,8 @@ public class PropertyManager {
         JAQPOT_JANITOR_USERNAME("janitor.username", "janitor", ""),
         JAQPOT_JANITOR_PASSWORD("janitor.password", "janitor", ""),
 
-        JAQPOT_AMBIT("jaqpot.base.ambit", "config", "https://apps.ideaconsult.net/enmtest/");
+        JAQPOT_AMBIT("jaqpot.base.ambit", "config", "https://data.enanomapper.net/");
+
 
 
 

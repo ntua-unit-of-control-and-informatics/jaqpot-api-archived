@@ -44,6 +44,7 @@ import org.jaqpot.core.data.TaskHandler;
 import org.jaqpot.core.data.serialize.JSONSerializer;
 import org.jaqpot.core.model.Feature;
 import org.jaqpot.core.model.Task;
+import org.jaqpot.core.model.dto.bundle.BundleData;
 import org.jaqpot.core.model.dto.bundle.BundleProperties;
 import org.jaqpot.core.model.dto.bundle.BundleSubstances;
 import org.jaqpot.core.model.dto.dataset.DataEntry;
@@ -137,23 +138,26 @@ public class ConjoinerService {
         return task;
     }
 
-    public Dataset prepareDataset(String bundleURI, String subjectId, Set<String> descriptors, Boolean intersectColumns, Boolean retainNullValues) throws RuntimeException, ExecutionException, InterruptedException {
-
-        String bundleId = bundleURI.split("bundle/")[1];
-
-        BundleSubstances substances = ambitClient.getBundleSubstances(bundleId,subjectId);
-        BundleProperties properties = ambitClient.getBundleProperties(bundleId,subjectId);
+    public Dataset  prepareDataset(String substanceOwner, Set<String> substances, String subjectId, Set<String> descriptors,  Set<String> properties, Boolean intersectColumns, Boolean retainNullValues) throws RuntimeException, ExecutionException, InterruptedException {
+        retainNullValues = false;
+        BundleData ambitClientBundle = ambitClient.getSubstancesBySubstanceOwner(substanceOwner,subjectId);
 
         featureMap = new HashSet<>();
         usedDescriptors = new HashSet<>();
         List<DataEntry> dataEntries = new ArrayList<>();
 
-        if (substances != null) {
-            for (Substance substance : substances.getSubstance()) {
-                Studies studies = ambitClient.getSubstanceStudies(substance.getURI().split("substance")[1], subjectId);
-                if (studies!=null) {
-                    DataEntry dataEntry = createDataEntry(substance, studies,  propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_AMBIT), properties.getFeature().keySet(), subjectId, descriptors, retainNullValues);
-                    dataEntries.add(dataEntry);
+
+        //Set<String> arList = ambitClientBundle.getProperties().values().stream().flatMap(Collection::stream).collect(Collectors.toSet());
+
+        if (ambitClientBundle.getSubstances() != null) {
+
+            for (Substance substance : ambitClientBundle.getSubstances()) {
+                if (substances.contains(substance.getURI())) {
+                    Studies studies = ambitClient.getSubstanceStudies(substance.getURI().split("substance")[1], subjectId);
+                    if (studies != null) {
+                        DataEntry dataEntry = createDataEntry(substance, studies, propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_AMBIT), properties, subjectId, descriptors, retainNullValues);
+                        dataEntries.add(dataEntry);
+                    }
                 }
             }
         }
@@ -165,7 +169,7 @@ public class ConjoinerService {
         dataset.setId(rog.nextString(12));
         dataset.setDataEntry(dataEntries);
 
-        if (intersectColumns) {
+      if (intersectColumns) {
             //Takes the intersection of properties of all substances
             dataset.getDataEntry().stream().forEach(de -> {
                 dataset.getDataEntry().stream()
@@ -201,13 +205,13 @@ public class ConjoinerService {
 
         dataset.setDescriptors(usedDescriptors);
         dataset.setVisible(Boolean.TRUE);
-
         return dataset;
-
     }
 
+
+
     //TODO: Handle multiple effects that map to the same property
-    public DataEntry createDataEntry(Substance substance, Studies studies, String remoteServerBase, Set<String> propertyCategories, String subjectId, Set<String> descriptors, Boolean retainNullValues) throws ExecutionException, InterruptedException {
+    public DataEntry createDataEntry( Substance substance, Studies studies, String remoteServerBase, Set<String> propertyCategories, String subjectId, Set<String> descriptors, Boolean retainNullValues) throws ExecutionException, InterruptedException {
         DataEntry dataEntry = new DataEntry();
         TreeMap<String, Object> values = new TreeMap<>();
 

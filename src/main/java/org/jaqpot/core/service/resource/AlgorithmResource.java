@@ -278,7 +278,7 @@ public class AlgorithmResource {
             @ApiParam(name = "doa", defaultValue = DEFAULT_DOA) @FormParam("doa") String doa,
             @PathParam("id") String algorithmId,
             @HeaderParam("subjectid") String subjectId) throws QuotaExceededException, ParameterIsNullException, ParameterInvalidURIException, ParameterTypeException, ParameterRangeException, ParameterScopeException {
-        UrlValidator urlValidator = new UrlValidator();
+        UrlValidator urlValidator = new UrlValidator(UrlValidator.ALLOW_LOCAL_URLS);
 
         Algorithm algorithm = algorithmHandler.find(algorithmId);
         if (algorithm == null) {

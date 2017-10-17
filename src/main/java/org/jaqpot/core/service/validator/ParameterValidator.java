@@ -67,6 +67,7 @@ public class ParameterValidator {
     }
 
     public void validateDataset(Dataset dataset, List<String> requiredFeatures) {
+        //TODO avoid when model has transformations
         if (dataset.getFeatures() == null) {
             throw new IllegalArgumentException("Input dataset does not have features");
         }
