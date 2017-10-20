@@ -5,59 +5,56 @@ package org.jaqpot.core.service.mdb;
  */
 
 import org.jaqpot.core.annotations.Jackson;
+import org.jaqpot.core.data.AlgorithmHandler;
 import org.jaqpot.core.data.DatasetHandler;
 import org.jaqpot.core.data.TaskHandler;
 import org.jaqpot.core.data.serialize.JSONSerializer;
+import org.jaqpot.core.model.Algorithm;
 import org.jaqpot.core.model.MetaInfo;
 import org.jaqpot.core.model.Task;
 import org.jaqpot.core.model.builder.MetaInfoBuilder;
 import org.jaqpot.core.model.dto.dataset.Dataset;
-import org.jaqpot.core.service.annotations.UnSecure;
-import org.jaqpot.core.service.data.*;
+import org.jaqpot.core.service.client.jpdi.JPDIClient;
+import org.jaqpot.core.service.data.AAService;
 
-import javax.annotation.Resource;
+import javax.ejb.ActivationConfigProperty;
 import javax.ejb.EJB;
+import javax.ejb.MessageDriven;
 import javax.inject.Inject;
-import javax.jms.*;
+import javax.jms.JMSException;
+import javax.jms.Message;
+import javax.jms.MessageListener;
 import javax.ws.rs.BadRequestException;
-import javax.ws.rs.client.Client;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-
 
 /**
  * Created by root on 30/6/2016.
  */
-
-import org.jaqpot.core.service.data.AAService;
 
 /**
  *
  * @author Charalampos Chomenidis
  * @author Pantelis Sopasakis
  */
-/*@MessageDriven(activationConfig = {
+@MessageDriven(activationConfig = {
         @ActivationConfigProperty(propertyName = "destinationLookup",
                 propertyValue = "java:jboss/exported/jms/topic/descriptorspreparation"),
         @ActivationConfigProperty(propertyName = "destinationType",
                 propertyValue = "javax.jms.Topic")
-})*/
+})
 public class DescriptorCalculationProcedure extends AbstractJaqpotProcedure implements MessageListener {
 
     private static final Logger LOG = Logger.getLogger(PreparationProcedure.class.getName());
-    @Resource(lookup = "java:jboss/exported/jms/topic/training")
-    private Topic trainingQueue;
-
-    @Resource(lookup = "java:jboss/exported/jms/topic/prediction")
-    private Topic predictionQueue;
 
     @Inject
-    private JMSContext jmsContext;
+    JPDIClient jpdiClient;
 
     @EJB
-    CalculationService smilesService;
+    AlgorithmHandler algorithmHandler;
 
     @EJB
     TaskHandler taskHandler;
@@ -69,12 +66,9 @@ public class DescriptorCalculationProcedure extends AbstractJaqpotProcedure impl
     AAService aaService;
 
     @Inject
-    @UnSecure
-    Client client;
-
-    @Inject
     @Jackson
     JSONSerializer serializer;
+
     public DescriptorCalculationProcedure() {
         super(null);
     }
@@ -96,27 +90,41 @@ public class DescriptorCalculationProcedure extends AbstractJaqpotProcedure impl
         }
 
         String taskId = (String) messageBody.get("taskId");
-        String subjectId = (String) messageBody.get("subjectId");
-        Byte[] file = (Byte[]) messageBody.get("bytes");
+        String subjectId = (String) messageBody.get("subjectid");
+        byte[] file = (byte[]) messageBody.get("file");
+        String parameters = (String) messageBody.get("parameters");
+        String algorithmId = (String) messageBody.get("algorithmId");
 
         try {
             init(taskId);
             checkCancelled();
             start(Task.Type.PREPARATION);
 
-            progress(5f, "Preparation Procedure is now running with ID " + Thread.currentThread().getName());
-
-
-            //Set descriptorSet = serializer.parse(descriptors, Set.class);
-
-            progress(10f, "Starting Dataset preparation...");
+            progress(5f, "Calculation Procedure is now running with ID " + Thread.currentThread().getName());
+            progress(10f, "Starting calculation...");
             checkCancelled();
 
-            Dataset dataset = smilesService.prepareDataset(file);
+            Map<String, Object> parameterMap = null;
+            if (parameters != null && !parameters.isEmpty()) {
+                parameterMap = serializer.parse(parameters, new HashMap<String, Object>().getClass());
+            }
 
+            Algorithm algorithm = algorithmHandler.find(algorithmId);
+
+            if (algorithm == null) {
+                errNotFound("Algorithm with id:" + algorithmId + " was not found.");
+                return;
+            }
+
+            progress("Starting JPDI Training...");
+            checkCancelled();
+
+            Future<Dataset> futureDataset = jpdiClient.calculate(file,algorithm,parameterMap,taskId);
+            Dataset dataset = futureDataset.get();
+
+            progress("JPDI Training completed successfully.");
             progress(50f, "Dataset ready.");
             progress("Saving to database...");
-
             checkCancelled();
 
             MetaInfo datasetMeta = MetaInfoBuilder.builder()
@@ -128,22 +136,27 @@ public class DescriptorCalculationProcedure extends AbstractJaqpotProcedure impl
             dataset.setMeta(datasetMeta);
             dataset.setVisible(Boolean.TRUE);
 
-            datasetHandler.create(dataset);
+            if (dataset.getDataEntry() == null || dataset.getDataEntry().isEmpty())
+                throw new IllegalArgumentException("Resulting dataset is empty");
+            else
+                datasetHandler.create(dataset);
 
             progress(100f, "Dataset saved successfully.");
-
             checkCancelled();
-
-            progress("Preparation Task is now completed.");
+            progress("Calculation Task is now completed.");
             complete("dataset/" + dataset.getId());
-
-        } catch (BadRequestException ex) {
+        }
+        catch (IllegalArgumentException ex) {
+            LOG.log(Level.SEVERE, "Preparation procedure execution error", ex);
+            errInternalServerError(ex, "JPDI Preparation procedure error");
+        }
+        catch (BadRequestException ex) {
             errBadRequest(ex, "Error while processing input.");
             LOG.log(Level.SEVERE, null, ex);
         }
         catch (Exception ex) {
-            LOG.log(Level.SEVERE, "JPDI Validation procedure unknown error", ex);
-            errInternalServerError(ex, "JPDI Validation procedure unknown error");
+            LOG.log(Level.SEVERE, "JPDI Preparation procedure unknown error", ex);
+            errInternalServerError(ex, "JPDI Preparation procedure unknown error");
         }
     }
 }

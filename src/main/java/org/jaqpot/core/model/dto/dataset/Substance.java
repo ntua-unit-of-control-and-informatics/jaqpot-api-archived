@@ -45,6 +45,13 @@ public class Substance {
     String name;
     String ownerUUID;
 
+    public Substance(){}
+    public Substance(String URI, String name, String ownerUUID) {
+        this.URI = URI;
+        this.name = name;
+        this.ownerUUID = ownerUUID;
+    }
+
     @JsonProperty("URI")
     public String getURI() {
         return URI;

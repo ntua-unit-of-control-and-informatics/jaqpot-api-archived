@@ -91,7 +91,7 @@ public class JPDIClientImpl implements JPDIClient {
     }
 
     @Override
-    public Future<Dataset> compute(byte[] file, Algorithm algorithm, Map<String, Object> parameters, String taskId) {
+    public Future<Dataset> calculate(byte[] file, Algorithm algorithm, Map<String, Object> parameters, String taskId) {
         CompletableFuture<Dataset> futureDataset = new CompletableFuture<>();
 
         //TODO Create a calculateService for algorithms.
@@ -129,9 +129,13 @@ public class JPDIClientImpl implements JPDIClient {
                         case 200:
                         case 201:
                             //TODO handle successful return of Dataset
-                            Dataset dataset = new Dataset();
                             CalculateResponse calculateResponse = serializer.parse(responseStream, CalculateResponse.class);
-                            futureDataset.complete(calculateResponse.getDataset());
+                            Dataset entries = calculateResponse.getEntries();
+                            entries.setId(UUID.randomUUID().toString());
+                            entries.setVisible(Boolean.TRUE);
+                            ROG randomStringGenerator = new ROG(true);
+                            entries.setId(randomStringGenerator.nextString(14));
+                            futureDataset.complete(entries);
                             break;
                         case 400:
                             String message = new BufferedReader(new InputStreamReader(responseStream))

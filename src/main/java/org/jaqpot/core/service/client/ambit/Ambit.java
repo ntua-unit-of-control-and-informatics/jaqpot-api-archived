@@ -1,6 +1,6 @@
 package org.jaqpot.core.service.client.ambit;
 
-import org.jaqpot.ambitclient.model.BundleData;
+import org.jaqpot.core.model.dto.bundle.BundleData;
 import org.jaqpot.core.model.dto.bundle.BundleProperties;
 import org.jaqpot.core.model.dto.bundle.BundleSubstances;
 import org.jaqpot.core.model.dto.dataset.Dataset;
@@ -26,5 +26,5 @@ public interface Ambit extends Closeable{
 
     Studies getSubstanceStudies(String var1, String var2) throws ExecutionException, InterruptedException;
 
-    String createBundle(BundleData var1, String var2, String var3) throws ExecutionException, InterruptedException;
+    BundleData getSubstancesBySubstanceOwner(String var1, String var2) throws ExecutionException, InterruptedException;
 }
