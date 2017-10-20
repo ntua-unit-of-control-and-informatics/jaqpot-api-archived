@@ -41,7 +41,6 @@ import java.util.Map;
  * @author Charalampos Chomenidis
  */
 public class BundleData {
-
     private String bundleId;
     private String bundleUri;
     private String description;
