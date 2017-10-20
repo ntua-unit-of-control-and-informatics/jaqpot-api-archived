@@ -71,7 +71,7 @@ public class AmbitClientImpl implements Ambit {
     public org.jaqpot.core.model.dto.bundle.BundleProperties getBundleProperties(String var1, String var2) throws ExecutionException, InterruptedException {
         CompletableFuture<BundleProperties> bundlePropertiesFuture = ambit.getBundleProperties(var1,var2);
         BundleProperties bundleProperties = bundlePropertiesFuture.get();
-        return BundlePropertiesMapper.INSTANCE.bundlePropertiesToBundlePropertiesMapper(bundleProperties);
+        return BundlePropertiesMapper.INSTANCE.bundlePropertiesToBundleProperties(bundleProperties);
     }
 
     @Override
@@ -85,7 +85,7 @@ public class AmbitClientImpl implements Ambit {
     public org.jaqpot.core.model.dto.bundle.BundleData getSubstancesBySubstanceOwner(String var1, String var2) throws ExecutionException, InterruptedException {
         CompletableFuture<BundleData> bundleFuture = ambit.getSubstancesBySubstanceOwner(var1,var2);
         BundleData bundleData = bundleFuture.get();
-        return BundleDataMapper.INSTANCE.bundleDataToBundleDataMapper(bundleData);    }
+        return BundleDataMapper.INSTANCE.bundleDataToBundleData(bundleData);    }
 
     @Override
     public void close() throws IOException {

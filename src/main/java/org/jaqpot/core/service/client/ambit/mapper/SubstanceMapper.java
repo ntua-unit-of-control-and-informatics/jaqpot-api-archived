@@ -12,5 +12,5 @@ import org.mapstruct.factory.Mappers;
 public interface SubstanceMapper {
     SubstanceMapper INSTANCE = Mappers.getMapper( SubstanceMapper.class );
 
-    Substance substanceToSubastance (org.jaqpot.ambitclient.model.dataset.Substance Substance);
+    Substance substanceToSubstance (org.jaqpot.ambitclient.model.dataset.Substance Substance);
 }

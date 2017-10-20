@@ -13,9 +13,9 @@ import org.mapstruct.factory.Mappers;
 public interface BundleDataMapper {
     BundleDataMapper INSTANCE = Mappers.getMapper( BundleDataMapper.class );
 
-    BundleData bundleDataToBundleDataMapper (org.jaqpot.ambitclient.model.BundleData bundleData);
+    BundleData bundleDataToBundleData (org.jaqpot.ambitclient.model.BundleData bundleData);
 
-    Substance substanceToSubstanceMapper(org.jaqpot.ambitclient.model.dataset.Substance substance);
+    Substance substanceToSubstance(org.jaqpot.ambitclient.model.dataset.Substance substance);
 
 }
 
