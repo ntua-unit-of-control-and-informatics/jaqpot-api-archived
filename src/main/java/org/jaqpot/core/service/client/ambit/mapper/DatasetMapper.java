@@ -21,8 +21,6 @@ public interface DatasetMapper {
 
     Dataset datasetToDataset  (org.jaqpot.ambitclient.model.dataset.Dataset dataset);
 
-    List<DataEntry> dataEntrysToDataEntrys(List<org.jaqpot.ambitclient.model.dataset.DataEntry> dataEntry);
-
     DataEntry dataEntryToDataEntry(org.jaqpot.ambitclient.model.dataset.DataEntry dataEntry);
 
     Substance substanceToSubstance (org.jaqpot.ambitclient.model.dataset.Substance Substance);

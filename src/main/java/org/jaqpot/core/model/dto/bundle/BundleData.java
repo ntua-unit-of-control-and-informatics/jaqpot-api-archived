@@ -48,6 +48,8 @@ public class BundleData {
     private List<Substance> substances;
     private Map<String, List<String>> properties;
 
+    public BundleData(){}
+
     public String getBundleId() {
         return bundleId;
     }

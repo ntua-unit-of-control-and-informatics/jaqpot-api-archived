@@ -18,8 +18,6 @@ public interface BundleSubstancesMapper {
 
     BundleSubstances bundleSubstancesToBundleSubstances (org.jaqpot.ambitclient.model.dto.bundle.BundleSubstances bundleSubstances);
 
-    List<Substance> substancesToSubstances(List<org.jaqpot.ambitclient.model.dataset.Substance> substance);
-
     Substance substanceToSubstance(org.jaqpot.ambitclient.model.dataset.Substance substance);
 
 }
