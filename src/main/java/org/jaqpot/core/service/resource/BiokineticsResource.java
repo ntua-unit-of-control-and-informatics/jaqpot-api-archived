@@ -75,6 +75,7 @@ public class BiokineticsResource {
     @Path("/train")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "file", value = "xml[m,x] file", required = true, dataType = "file", paramType = "formData"),
+            @ApiImplicitParam(name = "dataset-uri", value = "Dataset uri to be trained upon", required =true, dataType = "string", paramType = "formData"),
             @ApiImplicitParam(name = "title", value = "Title of model", required = true, dataType = "string", paramType = "formData"),
             @ApiImplicitParam(name = "description", value = "Description of model", required = true, dataType = "string", paramType = "formData"),
             @ApiImplicitParam(name = "algorithm-uri", value = "Algorithm URI", required = true, dataType = "string", paramType = "formData"),
@@ -99,7 +100,8 @@ public class BiokineticsResource {
         String title = uploadForm.get("title").get(0).getBody(String.class, null);
         String description = uploadForm.get("description").get(0).getBody(String.class, null);
         String algorithmURI = uploadForm.get("algorithm-uri").get(0).getBody(String.class, null);
-
+        String datasetUri = uploadForm.get("dataset-uri").get(0).getBody(String.class, null);
+        
         User user = userHandler.find(securityContext.getUserPrincipal().getName());
         long modelCount = modelHandler.countAllOfCreator(user.getId());
         int maxAllowedModels = new UserFacade(user).getMaxModels();
@@ -158,6 +160,7 @@ public class BiokineticsResource {
         options.put("subjectid", subjectId);
         options.put("parameters", parameters);
         options.put("base_uri", uriInfo.getBaseUri().toString());
+        options.put("dataset_uri", datasetUri);
         options.put("algorithmId", algorithmId);
         options.put("creator", securityContext.getUserPrincipal().getName());
         Task task = trainingService.initiateTraining(options, securityContext.getUserPrincipal().getName());
