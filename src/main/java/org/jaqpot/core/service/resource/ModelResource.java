@@ -55,10 +55,7 @@ import org.apache.commons.validator.routines.UrlValidator;
 import org.jaqpot.core.data.DatasetHandler;
 import org.jaqpot.core.data.ModelHandler;
 import org.jaqpot.core.data.UserHandler;
-import org.jaqpot.core.model.MetaInfo;
-import org.jaqpot.core.model.Model;
-import org.jaqpot.core.model.Task;
-import org.jaqpot.core.model.User;
+import org.jaqpot.core.model.*;
 import org.jaqpot.core.model.dto.dataset.Dataset;
 import org.jaqpot.core.model.dto.dataset.FeatureInfo;
 import org.jaqpot.core.model.facades.UserFacade;
@@ -207,14 +204,14 @@ public class ModelResource {
             response = Model.class)
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "Model is found"),
-        @ApiResponse(code = 401, message = "You are not authorized to access this model"),
-        @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)"),
-        @ApiResponse(code = 404, message = "This model was not found."),
-        @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
+        @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to access this model"),
+        @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)"),
+        @ApiResponse(code = 404, response = ErrorReport.class, message = "This model was not found."),
+        @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
     })
     public Response getModelPmml(
             @PathParam("id") String id,
-            @ApiParam(value = "Clients need to authenticate in order to access models") @HeaderParam("subjectid") String subjectId) throws Throwable {
+            @ApiParam(value = "Clients need to authenticate in order to access models") @HeaderParam("subjectid") String subjectId) throws NotFoundException {
         Model model = modelHandler.findModelPmml(id);
         if (model == null || model.getPmmlModel() == null) {
             throw new NotFoundException("The requested model was not found on the server.");
@@ -222,11 +219,13 @@ public class ModelResource {
 
         Object pmmlObj = model.getPmmlModel();
         if (pmmlObj == null || pmmlObj.toString().isEmpty()) {
-            return Response.status(Response.Status.NOT_FOUND).entity("This model does not have a PMML representation.").build();
+            throw new NotFoundException("This model does not have a PMML representation.");
         }
         if (pmmlObj instanceof List) {
             List pmmlObjList = (List) pmmlObj;
-            Object pmml = pmmlObjList.stream().findFirst().orElseThrow(() -> new NotFoundException("This model does not have a PMML representation."));
+            Object pmml = pmmlObjList.stream().findFirst();
+            if (pmml==null)
+                throw new NotFoundException("This model does not have a PMML representation.");
             return Response
                     .ok(pmml.toString(), MediaType.APPLICATION_XML)
                     .build();
@@ -393,7 +392,7 @@ public class ModelResource {
             throw new ParameterIsNullException("id");
         }
 
-        UrlValidator urlValidator = new UrlValidator();
+        UrlValidator urlValidator = new UrlValidator(UrlValidator.ALLOW_LOCAL_URLS);
         if (!urlValidator.isValid(datasetURI)) {
             throw new ParameterInvalidURIException("Not valid dataset URI.");
         }

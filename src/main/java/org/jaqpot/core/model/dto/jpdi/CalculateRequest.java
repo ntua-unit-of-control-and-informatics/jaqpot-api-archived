@@ -3,11 +3,10 @@ package org.jaqpot.core.model.dto.jpdi;
 import java.util.Map;
 
 /**
- * Created by Angelos Valsamis on 3/4/2017.
+ * Created by Angelos Valsamis on 3/5/2017.
  */
 public class CalculateRequest {
-
-    private byte[] file;
+    byte[] file;
     private Map<String, Object> parameters;
 
     public byte[] getFile() {

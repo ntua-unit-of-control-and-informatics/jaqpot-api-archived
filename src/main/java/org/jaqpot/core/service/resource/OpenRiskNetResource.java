@@ -30,30 +30,32 @@ package org.jaqpot.core.service.resource;
  */
 
 import io.swagger.annotations.*;
-import org.apache.commons.io.IOUtils;
+import org.apache.commons.validator.routines.UrlValidator;
 import org.jaqpot.core.annotations.Jackson;
+import org.jaqpot.core.data.AlgorithmHandler;
 import org.jaqpot.core.data.DatasetHandler;
-import org.jaqpot.core.data.ModelHandler;
 import org.jaqpot.core.data.UserHandler;
 import org.jaqpot.core.data.serialize.JSONSerializer;
+import org.jaqpot.core.model.Algorithm;
 import org.jaqpot.core.model.Task;
 import org.jaqpot.core.model.User;
 import org.jaqpot.core.model.facades.UserFacade;
 import org.jaqpot.core.service.annotations.Authorize;
-import org.jaqpot.core.service.annotations.UnSecure;
-import org.jaqpot.core.service.client.ambit.Ambit;
-import org.jaqpot.core.service.data.PredictionService;
 import org.jaqpot.core.service.data.CalculationService;
-import org.jaqpot.core.service.data.TrainingService;
 import org.jaqpot.core.service.exceptions.QuotaExceededException;
+import org.jaqpot.core.service.exceptions.parameter.*;
+import org.jaqpot.core.service.validator.ParameterValidator;
 import org.jboss.resteasy.plugins.providers.multipart.InputPart;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput;
 
 import javax.ejb.EJB;
 import javax.inject.Inject;
 import javax.ws.rs.*;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.core.*;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.SecurityContext;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
@@ -64,23 +66,15 @@ import java.util.logging.Logger;
 
 @Path("openrisknet")
 @Api(value = "/openrisknet", description = "OpenRiskNet API")
-@Authorize
 public class OpenRiskNetResource {
 
     private static final Logger LOG = Logger.getLogger(EnanomapperResource.class.getName());
-    public static final String UPLOADED_FILE_PARAMETER_NAME = "file";
 
     @EJB
     CalculationService smilesService;
 
     @EJB
-    TrainingService trainingService;
-
-    @EJB
-    PredictionService predictionService;
-
-    @EJB
-    ModelHandler modelHandler;
+    AlgorithmHandler algorithmHandler;
 
     @EJB
     DatasetHandler datasetHandler;
@@ -89,83 +83,16 @@ public class OpenRiskNetResource {
     UserHandler userHandler;
 
     @Context
-    UriInfo uriInfo;
-
-    @Context
     SecurityContext securityContext;
 
     @Inject
-    @UnSecure
-    Client client;
-
-    @Inject
-    Ambit ambitClient;
+    ParameterValidator parameterValidator;
 
     @Inject
     @Jackson
     JSONSerializer serializer;
 
-    @POST
-    @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
-    @Consumes({MediaType.MULTIPART_FORM_DATA})
-    @Path("/dataset")
-    @ApiOperation(value = "Creates Dataset By SMILES document",
-            notes = "Calculates descriptors from SMILES document, returns Dataset",
-            response = Task.class
-    )
 
-    @org.jaqpot.core.service.annotations.Task
-    @ApiImplicitParams(
-            @ApiImplicitParam(dataType = "file", name = "file", value = "File to be uploaded", paramType = "formData")
-    )
-    public Response createDatasetBySmilesDocument(
-            @HeaderParam("subjectid") String subjectId,
-            MultipartFormDataInput file,
-            @FormParam("title") String title,
-            @FormParam("description") String description
-
-    ) throws QuotaExceededException {
-        Task task = null;
-        User user = userHandler.find(securityContext.getUserPrincipal().getName());
-        long datasetCount = datasetHandler.countAllOfCreator(user.getId());
-        int maxAllowedDatasets = new UserFacade(user).getMaxDatasets();
-
-        if (datasetCount > maxAllowedDatasets) {
-            LOG.info(String.format("User %s has %d datasets while maximum is %d",
-                    user.getId(), datasetCount, maxAllowedDatasets));
-            throw new QuotaExceededException("Dear " + user.getId()
-                    + ", your quota has been exceeded; you already have " + datasetCount + " datasets. "
-                    + "No more than " + maxAllowedDatasets + " are allowed with your subscription.");
-        }
-
-        Map<String, List<InputPart>> uploadForm = file.getFormDataMap();
-        List<InputPart> inputParts = uploadForm.get(UPLOADED_FILE_PARAMETER_NAME);
-
-        for (InputPart inputPart : inputParts) {
-            MultivaluedMap<String, String> headers = inputPart.getHeaders();
-            try {
-                InputStream inputStream = inputPart.getBody(InputStream.class, null);
-                byte[] bytes = IOUtils.toByteArray(inputStream);
-                String filename = getFileName(headers);
-                System.out.println(filename);
-                String str = new String(bytes);
-                System.out.println(str);
-
-                Map<String, Object> options = new HashMap<>();
-                options.put("title", title);
-                options.put("description", description);
-                options.put("subjectid", subjectId);
-                options.put("file", bytes);
-                options.put("mode", "PREPARATION");
-                //task = smilesService.initiatePreparation(options, securityContext.getUserPrincipal().getName());
-
-            } catch (IOException e) {
-                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build();
-            }
-        }
-        return Response.ok(task).build();
-
-    }
     private String getFileName(MultivaluedMap<String, String> headers) {
         String[] contentDisposition = headers.getFirst("Content-Disposition").split(";");
 
@@ -184,22 +111,110 @@ public class OpenRiskNetResource {
     private String sanitizeFilename(String s) {
         return s.trim().replaceAll("\"", "");
     }
-}
 
+    @POST
+    @Authorize
+    @Path("/upload")
+    @Consumes("multipart/form-data")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "file", value = "xls[m,x] file", required = true, dataType = "file", paramType = "formData"),
+            @ApiImplicitParam(name = "title", value = "Title of dataset", required = true, dataType = "string", paramType = "formData"),
+            @ApiImplicitParam(name = "description", value = "Description of dataset", required = true, dataType = "string", paramType = "formData"),
+            @ApiImplicitParam(name = "algorithm-uri", value = "Algorithm URI", required = true, dataType = "string", paramType = "formData"),
+            @ApiImplicitParam(name = "parameters", value = "Parameters for algorithm", required = false, dataType = "string", paramType = "formData")
 
-      /*  Map<String, Object> options = new HashMap<>();
-        options.put("bundle_uri", bundleURI);
-        options.put("title", datasetData.getTitle());
-        options.put("description", datasetData.getDescription());
-        options.put("descriptors", descriptorsString);
-        options.put("intersect_columns", datasetData.getIntersectColumns() != null ? datasetData.getIntersectColumns() : true);
+    })
+    @ApiOperation(value = "Creates Dataset By SMILES document",
+            notes = "Calculates descriptors from SMILES document, returns Dataset",
+            response = Task.class
+    )
+    @org.jaqpot.core.service.annotations.Task
+    public Response uploadFile(
+            @HeaderParam("subjectid") String subjectId,
+            @ApiParam(value = "multipartFormData input", hidden = true) MultipartFormDataInput input)
+            throws ParameterIsNullException, ParameterInvalidURIException, QuotaExceededException, IOException, ParameterScopeException, ParameterRangeException, ParameterTypeException {
+        UrlValidator urlValidator = new UrlValidator();
+
+        User user = userHandler.find(securityContext.getUserPrincipal().getName());
+        long datasetCount = datasetHandler.countAllOfCreator(user.getId());
+        int maxAllowedDatasets = new UserFacade(user).getMaxDatasets();
+
+        if (datasetCount > maxAllowedDatasets) {
+            LOG.info(String.format("User %s has %d datasets while maximum is %d",
+                    user.getId(), datasetCount, maxAllowedDatasets));
+            throw new QuotaExceededException("Dear " + user.getId()
+                    + ", your quota has been exceeded; you already have " + datasetCount + " datasets. "
+                    + "No more than " + maxAllowedDatasets + " are allowed with your subscription.");
+        }
+
+        byte[] bytes = new byte[0];
+        Map<String, List<InputPart>> uploadForm = input.getFormDataMap();
+        List<InputPart> inputParts = uploadForm.get("file");
+        String title = uploadForm.get("title").get(0).getBody(String.class, null);
+        String description = uploadForm.get("description").get(0).getBody(String.class, null);
+        String algorithmURI = uploadForm.get("algorithm-uri").get(0).getBody(String.class, null);
+
+        String parameters =null;
+        if(uploadForm.get("parameters")!=null)
+            parameters = uploadForm.get("parameters").get(0).getBody(String.class, null);
+
+        if (algorithmURI == null) {
+            throw new ParameterIsNullException("algorithmURI");
+        }
+
+        if (!urlValidator.isValid(algorithmURI)) {
+            throw new ParameterInvalidURIException("Not valid Algorithm URI.");
+        }
+        String algorithmId = algorithmURI.split("algorithm/")[1];
+
+        Algorithm algorithm = algorithmHandler.find(algorithmId);
+        if (algorithm == null) {
+            throw new NotFoundException("Could not find Algorithm with id:" + algorithmId);
+        }
+
+        parameterValidator.validate(parameters, algorithm.getParameters());
+
+        String filename="";
+
+        for (InputPart inputPart : inputParts) {
+
+            try {
+                MultivaluedMap<String, String> header = inputPart.getHeaders();
+                filename = getFileName(header);
+
+                //convert the uploaded file to inputstream
+                InputStream inputStream = inputPart.getBody(InputStream.class, null);
+                bytes = getBytesFromInputStream(inputStream);
+                String str = new String(bytes, "UTF-8"); // for UTF-8 encoding
+
+                System.out.println(str);
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        Map<String, Object> options = new HashMap<>();
+        options.put("title", title);
+        options.put("description", description);
         options.put("subjectid", subjectId);
-        options.put("base_uri", uriInfo.getBaseUri().toString());
+        options.put("file", bytes);
+        options.put("filename",filename);
         options.put("mode", "PREPARATION");
-        options.put("retain_null_values", datasetData.getRetainNullValues() != null ? datasetData.getRetainNullValues() : false);
-        return Response.ok().build();//task
+        options.put("parameters", parameters);
+        options.put("algorithmId", algorithmId);
+
+        Task task = smilesService.initiatePreparation(options, securityContext.getUserPrincipal().getName());
+
+        return Response.ok(task).build();
+
+    }
+    private static byte[] getBytesFromInputStream(InputStream is) throws IOException {
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        byte[] buffer = new byte[0xFFFF];
+        for (int len; (len = is.read(buffer)) != -1;)
+            os.write(buffer, 0, len);
+        os.flush();
+        return os.toByteArray();
     }
 
-
-
-*/
+}

@@ -47,6 +47,7 @@ import org.jaqpot.core.model.dto.dataset.Dataset;
 import org.jaqpot.core.model.factory.DatasetFactory;
 import org.jaqpot.core.service.annotations.Secure;
 import org.jaqpot.core.service.client.jpdi.JPDIClient;
+import org.jaqpot.core.service.messaging.RabbitMQ;
 
 import javax.ejb.ActivationConfigProperty;
 import javax.ejb.EJB;
@@ -58,12 +59,13 @@ import javax.jms.MessageListener;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.core.MediaType;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ejb.EJBTransactionRolledbackException;
@@ -94,6 +96,9 @@ public class PredictionProcedure extends AbstractJaqpotProcedure implements Mess
 
     @EJB
     DatasetHandler datasetHandler;
+
+    @Inject
+    RabbitMQ rabbitMQClient;
 
     @Inject
     @Jackson
@@ -132,7 +137,7 @@ public class PredictionProcedure extends AbstractJaqpotProcedure implements Mess
         String modelId = (String) messageBody.get("modelId");
         String subjectId = (String) messageBody.get("subjectid");
         String creator = (String) messageBody.get("creator");
-
+        Model model = null;
         try {
             init(taskId);
             checkCancelled();
@@ -140,7 +145,7 @@ public class PredictionProcedure extends AbstractJaqpotProcedure implements Mess
 
             progress(5f, "Prediction Task is now running.");
 
-            Model model = modelHandler.find(modelId);
+            model = modelHandler.find(modelId);
             if (model == null) {
                 errNotFound("Model with id:" + modelId + " was not found.");
                 return;
@@ -217,23 +222,38 @@ public class PredictionProcedure extends AbstractJaqpotProcedure implements Mess
             datasetHandler.create(dataset);
 
             complete("dataset/" + dataset.getId());
+            rabbitMQClient.sendMessage(creator,"Prediction:"+dataset.getId()+":"+model.getMeta().getTitles().iterator().next());
+
         } catch (InterruptedException ex) {
             LOG.log(Level.SEVERE, "JPDI Prediction procedure interupted", ex);
             errInternalServerError(ex, "JPDI Prediction procedure interupted");
+            sendException(creator,"Error while applying model "+ model.getMeta().getTitles().iterator().next() +". Interrupted Error.");
         } catch (ExecutionException ex) {
             LOG.log(Level.SEVERE, "Prediction procedure execution error", ex.getCause());
             errInternalServerError(ex.getCause(), "JPDI Training procedure error");
+            sendException(creator,"Error while applying model "+ model.getMeta().getTitles().iterator().next() +". Execution Error.");
         } catch (CancellationException ex) {
             LOG.log(Level.INFO, "Task with id:{0} was cancelled", taskId);
+            sendException(creator,"Error while applying model "+ model.getMeta().getTitles().iterator().next() +". Cancel Error.");
             cancel();
         } catch (BadRequestException | IllegalArgumentException ex) {
             errBadRequest(ex, "null");
         } catch (EJBTransactionRolledbackException ex) {
             LOG.log(Level.SEVERE, "Task with id:{0} was canceled due to Ejb rollback exception", taskId);
             errInternalServerError(ex.getCause(), "JPDI could not create dataset");
+            errBadRequest(ex, null);
+            sendException(creator,"Error while applying model "+ model.getMeta().getTitles().iterator().next() +". Bad Request.");
         } catch (Exception ex) {
             LOG.log(Level.SEVERE, "JPDI Prediction procedure unknown error", ex);
             errInternalServerError(ex, "JPDI Prediction procedure unknown error");
+            sendException(creator,"Error while applying model "+ model.getMeta().getTitles().iterator().next() +". Unknown Error.");
+        }
+    }
+    private void sendException(String topic,String message) {
+        try {
+            rabbitMQClient.sendMessage(topic,message);
+        } catch (IOException | TimeoutException e) {
+            e.printStackTrace();
         }
     }
 }

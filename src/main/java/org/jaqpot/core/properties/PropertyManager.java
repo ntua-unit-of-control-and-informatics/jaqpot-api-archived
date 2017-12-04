@@ -60,6 +60,9 @@ public class PropertyManager {
         JAQPOT_BASE_IMAGE("jaqpot.base.image", "config", "http://localhost:8880/imageAnalysis/service/"),
         JAQPOT_BASE_VALIDATION("jaqpot.base.validation", "config", "http://localhost:8092/pws/validation"),
         JAQPOT_BASE_INTERLAB("jaqpot.base.interlab", "config", "http://localhost:8091/pws/interlabtest"),
+        JAQPOT_RABBITMQ_HOST("jaqpot.rabbitmq.host","config",""),
+        JAQPOT_RABBITMQ_USERNAME("jaqpot.rabbitmq.username","config",""),
+        JAQPOT_RABBITMQ_PASSWORD("jaqpot.rabbitmq.password","config",""),
 
                 
         DEFAULT_DOA("default.doa", "config",""),
@@ -80,7 +83,9 @@ public class PropertyManager {
         JAQPOT_JANITOR_USERNAME("janitor.username", "janitor", ""),
         JAQPOT_JANITOR_PASSWORD("janitor.password", "janitor", ""),
 
-        JAQPOT_AMBIT("jaqpot.base.ambit", "config", "https://apps.ideaconsult.net/enmtest/");
+        JAQPOT_AMBIT("jaqpot.base.ambit", "config", "https://data.enanomapper.net/");
+
+
 
 
         private final String name;

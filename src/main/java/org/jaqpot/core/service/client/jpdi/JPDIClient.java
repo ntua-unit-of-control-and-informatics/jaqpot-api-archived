@@ -50,7 +50,7 @@ import org.jaqpot.core.model.dto.dataset.Dataset;
  */
 public interface JPDIClient extends Closeable {
 
-    Future<Dataset> compute(byte[] file, Algorithm algorithm, Map<String, Object> parameters, String taskId);
+    Future<Dataset> calculate(byte[] file, Algorithm algorithm, Map<String, Object> parameters, String taskId);
 
     Future<Model> train(Dataset dataset, Algorithm algorithm, Map<String, Object> parameters, String predictionFeature, MetaInfo modelMeta, String taskId);
 

@@ -12,6 +12,6 @@ import org.mapstruct.factory.Mappers;
 public interface BundlePropertiesMapper {
     BundlePropertiesMapper INSTANCE = Mappers.getMapper( BundlePropertiesMapper.class );
 
-    BundleProperties bundlePropertiesToBundlePropertiesMapper (org.jaqpot.ambitclient.model.dto.bundle.BundleProperties bundleProperties);
+    BundleProperties bundlePropertiesToBundleProperties (org.jaqpot.ambitclient.model.dto.bundle.BundleProperties bundleProperties);
 }
 

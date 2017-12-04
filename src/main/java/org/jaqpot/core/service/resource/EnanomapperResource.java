@@ -32,7 +32,6 @@ package org.jaqpot.core.service.resource;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
-import org.jaqpot.ambitclient.model.BundleData;
 import org.jaqpot.core.annotations.Jackson;
 import org.jaqpot.core.data.DatasetHandler;
 import org.jaqpot.core.data.ModelHandler;
@@ -43,7 +42,6 @@ import org.jaqpot.core.model.User;
 import org.jaqpot.core.model.dto.ambit.ProtocolCategory;
 import org.jaqpot.core.model.dto.dataset.Dataset;
 import org.jaqpot.core.model.facades.UserFacade;
-import org.jaqpot.core.model.factory.ErrorReportFactory;
 import org.jaqpot.core.service.annotations.Authorize;
 import org.jaqpot.core.service.annotations.UnSecure;
 import org.jaqpot.core.service.client.ambit.Ambit;
@@ -57,14 +55,10 @@ import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.core.*;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -106,6 +100,7 @@ public class EnanomapperResource {
     @Inject
     @UnSecure
     Client client;
+
 
     @Inject
     Ambit ambitClient;
@@ -197,15 +192,15 @@ public class EnanomapperResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/dataset")
     @ApiOperation(value = "Creates Dataset By Study",
-            notes = "Reads Studies from Bundle's Substances, creates Dateaset,"
+            notes = "Reads Studies from Bundle's Substances, creates Dataset,"
             + "calculates Descriptors, returns Dataset",
             response = Task.class
 
     )
     @org.jaqpot.core.service.annotations.Task
     public Response createDatasetByStudy(
-            @ApiParam(name = "data", defaultValue = DEFAULT_DATASET_DATA) DatasetData datasetData,
-            @HeaderParam("subjectid") String subjectId) throws QuotaExceededException {
+            @ApiParam(name = "Data for dataset creation ", defaultValue = DEFAULT_DATASET_DATA) DatasetData datasetData,
+            @HeaderParam("subjectid") String subjectId) throws QuotaExceededException, ExecutionException, InterruptedException {
 
         User user = userHandler.find(securityContext.getUserPrincipal().getName());
         long datasetCount = datasetHandler.countAllOfCreator(user.getId());
@@ -219,24 +214,31 @@ public class EnanomapperResource {
                     + "No more than " + maxAllowedDatasets + " are allowed with your subscription.");
         }
 
-        String bundleURI = datasetData.getBundle();
-        if (bundleURI == null || bundleURI.isEmpty()) {
-            throw new BadRequestException("Bundle URI cannot be empty.");
-        }
-
         List<String> descriptors = datasetData.getDescriptors();
         String descriptorsString;
+
         if (descriptors != null) {
             descriptorsString = serializer.write(descriptors);
         } else {
             descriptorsString = serializer.write(new ArrayList<>());
         }
+        String substancesString;
+        if (datasetData.getSubstances() != null) {
+            substancesString = serializer.write(datasetData.getSubstances());
+        } else {
+            substancesString = serializer.write(new ArrayList<>());
+        }
+
+        String propertiesString = serializer.write(datasetData.getProperties().values().stream().flatMap(Collection::stream).collect(Collectors.toSet()));
+
 
         Map<String, Object> options = new HashMap<>();
-        options.put("bundle_uri", bundleURI);
+        options.put("substance_owner", datasetData.getSubstanceOwner().split("substanceowner/")[1]);
+        options.put("substances", substancesString);
         options.put("title", datasetData.getTitle());
         options.put("description", datasetData.getDescription());
         options.put("descriptors", descriptorsString);
+        options.put("properties", propertiesString);
         options.put("intersect_columns", datasetData.getIntersectColumns() != null ? datasetData.getIntersectColumns() : true);
         options.put("subjectid", subjectId);
         options.put("base_uri", uriInfo.getBaseUri().toString());
@@ -246,8 +248,7 @@ public class EnanomapperResource {
         return Response.ok(task).build();
     }
 
-
-    @POST
+  /*@POST
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/bundle")
@@ -279,7 +280,7 @@ public class EnanomapperResource {
                     .entity(ErrorReportFactory.remoteError(result, ErrorReportFactory.internalServerError(), ex))
                     .build();
         }
-    }
+    }*/
 
     @GET
     @Path("/property/categories")
@@ -387,10 +388,36 @@ public class EnanomapperResource {
 
         private String title;
         private String description;
-        private String bundle;
+        private String substanceOwner;
+        private List<String> substances;
+        private Map<String, List<String>> properties;
         private List<String> descriptors;
         private Boolean intersectColumns;
         private Boolean retainNullValues;
+
+        public String getSubstanceOwner() {
+            return substanceOwner;
+        }
+
+        public void setSubstanceOwner(String substanceOwner) {
+            this.substanceOwner = substanceOwner;
+        }
+
+        public List<String> getSubstances() {
+            return substances;
+        }
+
+        public void setSubstances(List<String> substances) {
+            this.substances = substances;
+        }
+
+        public Map<String, List<String>> getProperties() {
+            return properties;
+        }
+
+        public void setProperties(Map<String, List<String>> properties) {
+            this.properties = properties;
+        }
 
         public String getTitle() {
             return title;
@@ -406,14 +433,6 @@ public class EnanomapperResource {
 
         public void setDescription(String description) {
             this.description = description;
-        }
-
-        public String getBundle() {
-            return bundle;
-        }
-
-        public void setBundle(String bundle) {
-            this.bundle = bundle;
         }
 
         public List<String> getDescriptors() {

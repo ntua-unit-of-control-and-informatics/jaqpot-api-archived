@@ -4,6 +4,8 @@ import org.jaqpot.core.model.dto.study.*;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
+import java.util.List;
+
 /**
  * Created by Angelos Valsamis on 19/12/2016.
  */
@@ -14,9 +16,13 @@ public interface StudiesMapper {
 
     Studies studiesToStudiesMapper(org.jaqpot.ambitclient.model.dto.study.Studies studies);
 
+    List<Study> studysToStudysMapper(List<org.jaqpot.ambitclient.model.dto.study.Study> study);
+
     Study studyToStudyMapper(org.jaqpot.ambitclient.model.dto.study.Study study);
 
     Owner ownerToOwnerMapper(org.jaqpot.ambitclient.model.dto.study.Owner owner);
+
+    List<Effect> effectsToEffectsMapper(List<org.jaqpot.ambitclient.model.dto.study.Effect> effect);
 
     Effect effectToEffectMapper(org.jaqpot.ambitclient.model.dto.study.Effect effect);
 

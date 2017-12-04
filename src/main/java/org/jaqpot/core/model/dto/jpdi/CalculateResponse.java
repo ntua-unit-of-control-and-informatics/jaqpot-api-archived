@@ -8,13 +8,13 @@ import org.jaqpot.core.model.dto.dataset.Dataset;
  */
 public class CalculateResponse {
 
-    Dataset dataset;
+    Dataset entries;
 
-    public Dataset getDataset() {
-        return dataset;
+    public Dataset getEntries() {
+        return entries;
     }
 
-    public void setDataset(Dataset dataset) {
-        this.dataset = dataset;
+    public void setEntries(Dataset entries) {
+        this.entries = entries;
     }
 }
