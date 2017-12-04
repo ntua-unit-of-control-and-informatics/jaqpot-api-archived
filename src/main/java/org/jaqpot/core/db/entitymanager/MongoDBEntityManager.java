@@ -30,6 +30,7 @@
 package org.jaqpot.core.db.entitymanager;
 
 import com.mongodb.MongoClient;
+import com.mongodb.MongoClientURI;
 import com.mongodb.MongoWriteException;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
@@ -135,7 +136,9 @@ public class MongoDBEntityManager implements JaqpotEntityManager {
             LOG.log(Level.SEVERE, errorMessage, ex); // Log the event (but use the default properties)
         } finally {
             database = dbName;
-            mongoClient = new MongoClient(dbHost, dbPort); // Connect to the DB
+            String mongoUri = "mongodb://" + dbHost + ":" + dbPort + "/" + dbName;
+            mongoClient = new MongoClient(new MongoClientURI(mongoUri));
+//            mongoClient = new MongoClient(dbHost, dbPort); // Connect to the DB
             LOG.log(Level.INFO, "Database configured and connection established successfully!");
         }
 
