@@ -68,6 +68,9 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.ejb.EJBTransactionRolledbackException;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
 
 /**
  * @author Angelos Valsamis
@@ -76,7 +79,8 @@ import java.util.logging.Logger;
  */
 @MessageDriven(activationConfig = {
     @ActivationConfigProperty(propertyName = "destinationLookup",
-            propertyValue = "java:jboss/exported/jms/topic/prediction"),
+            propertyValue = "java:jboss/exported/jms/topic/prediction")
+    ,
     @ActivationConfigProperty(propertyName = "destinationType",
             propertyValue = "javax.jms.Topic")
 })
@@ -118,6 +122,7 @@ public class PredictionProcedure extends AbstractJaqpotProcedure implements Mess
     }
 
     @Override
+    @TransactionAttribute(value = TransactionAttributeType.REQUIRES_NEW)
     public void onMessage(Message msg) {
         Map<String, Object> messageBody;
         try {
@@ -232,6 +237,10 @@ public class PredictionProcedure extends AbstractJaqpotProcedure implements Mess
             sendException(creator,"Error while applying model "+ model.getMeta().getTitles().iterator().next() +". Cancel Error.");
             cancel();
         } catch (BadRequestException | IllegalArgumentException ex) {
+            errBadRequest(ex, "null");
+        } catch (EJBTransactionRolledbackException ex) {
+            LOG.log(Level.SEVERE, "Task with id:{0} was canceled due to Ejb rollback exception", taskId);
+            errInternalServerError(ex.getCause(), "JPDI could not create dataset");
             errBadRequest(ex, null);
             sendException(creator,"Error while applying model "+ model.getMeta().getTitles().iterator().next() +". Bad Request.");
         } catch (Exception ex) {
