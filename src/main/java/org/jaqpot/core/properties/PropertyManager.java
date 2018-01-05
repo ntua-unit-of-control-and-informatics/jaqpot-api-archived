@@ -60,7 +60,6 @@ public class PropertyManager {
         JAQPOT_PORT("jaqpot.port", "config", "8080"),
         JAQPOT_BASE("jaqpot.base", "config", "/jaqpot/services"),
         JAQPOT_BASE_SERVICE("jaqpot.base.service", "config", "http://localhost:8080/jaqpot/services/"),
-        JAQPOT_BASE_ALGORITHMS("jaqpot.base.algorithms", "config", "http://localhost:8080/algorithms/service/"),
         JAQPOT_BASE_IMAGE("jaqpot.base.image", "config", "http://localhost:8880/imageAnalysis/service/"),
         JAQPOT_BASE_VALIDATION("jaqpot.base.validation", "config", "http://localhost:8092/pws/validation"),
         JAQPOT_BASE_INTERLAB("jaqpot.base.interlab", "config", "http://localhost:8091/pws/interlabtest"),
@@ -81,8 +80,13 @@ public class PropertyManager {
         JAQPOT_JANITOR_TARGET("janitor.target", "janitor", ""),
         JAQPOT_JANITOR_USERNAME("janitor.username", "janitor", ""),
         JAQPOT_JANITOR_PASSWORD("janitor.password", "janitor", ""),
-        JAQPOT_AMBIT("jaqpot.base.ambit", "config", "https://data.enanomapper.net/");
-
+        JAQPOT_AMBIT("jaqpot.base.ambit", "config", "https://data.enanomapper.net/"),
+        JAQPOT_PYTHON_ALGORITHMS_HOST("python.algorithms.host", "config", "http://localhost:8080/"),
+        JAQPOT_EXPERIMENTAL_DESIGNS_HOST("exp.design.host", "config", "http://localhost:8080/"),
+        JAQPOT_BASE_ALGORITHMS("jaqpot.base.algorithms", "config", "http://localhost:8080/algorithms/service/"),
+        JAQPOT_READACROSS("jaqpot.readacross", "config", "http://147.102.82.32:8095"),
+        PKSIM_BASE("pksim.base", "config", "http://147.102.86.129:9999/");
+        
         private final String name;
         private final String bundle;
         private final String defaultValue;

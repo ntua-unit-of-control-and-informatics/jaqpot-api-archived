@@ -73,11 +73,11 @@
         </dependency>
 
         <!-- javamelody-core -->
-        <dependency>
+<!--        <dependency>
             <groupId>net.bull.javamelody</groupId>
             <artifactId>javamelody-core</artifactId>
             <version>1.68.1</version>
-        </dependency>
+        </dependency>-->
         
         <!-- Mandrill lutung (to send emails via Mandrill) -->
         <!--        <dependency>
@@ -210,9 +210,13 @@
         <server.base></server.base>
         <ambit.base></ambit.base>
         <algorithms.base></algorithms.base>
+        <python.algorithms.host></python.algorithms.host>
+        <exp.design.host></exp.design.host>
         <image.base></image.base>
         <validation.base></validation.base>
         <interlab.base></interlab.base>
+        <jaqpot.readacross></jaqpot.readacross>
+        <pksim.base></pksim.base>
     </properties>
     
     <repositories>

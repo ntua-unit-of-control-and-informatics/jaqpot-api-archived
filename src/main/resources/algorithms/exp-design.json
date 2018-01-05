@@ -1,0 +1,533 @@
+[
+    {
+        "meta": {
+            "descriptions": [
+                "Experimental Design No XY"
+            ],
+            "titles": [
+                "Experimental Design No XY"
+            ],
+            "subjects": [
+                "experimentaldesign"
+            ],
+            "creators": [
+                "hampos"
+            ],
+            "date": "2016-07-05T07:23:47.521+0000",
+            "locked": false
+        },
+        "ontologicalClasses": [
+            "ot:Algorithm",
+            "ot:ExperimentalDesign"
+        ],
+        "parameters": [
+            {
+                "name": "Optimal Design Criterion",
+                "value": [
+                    "D"
+                ],
+                "scope": "MANDATORY",
+                "allowedValues": [
+                    [
+                        "D"
+                    ],
+                    [
+                        "A"
+                    ],
+                    [
+                        "I"
+                    ]
+                ],
+                "_id": "criterion"
+            },
+            {
+                "name": "Number of trials",
+                "value": [
+                    0
+                ],
+                "scope": "MANDATORY",
+                "minValue": 0,
+                "maxValue": "Length of Y",
+                "_id": "nTrials"
+            },
+            {
+                "name": "Levels of variables",
+                "value": [
+                    3
+                ],
+                "scope": "MANDATORY",
+                "_id": "levels"
+            },
+            {
+                "name": "Design's formula",
+                "value": [
+                    "linear"
+                ],
+                "scope": "MANDATORY",
+                "allowedValues": [
+                    [
+                        "linear"
+                    ],
+                    [
+                        "quadratic"
+                    ],
+                    [
+                        "cubic"
+                    ],
+                    [
+                        "cubicS"
+                    ]
+                ],
+                "_id": "formula"
+            },
+            {
+                "name": "Names of variables",
+                "value": [
+                    "a",
+                    "b",
+                    "c"
+                ],
+                "scope": "MANDATORY",
+                "_id": "varNames"
+            },
+            {
+                "name": "Number of variables",
+                "value": [
+                    3
+                ],
+                "scope": "MANDATORY",
+                "_id": "nVars"
+            },
+            {
+                "name": "Factors",
+                "value": [
+                    "null"
+                ],
+                "scope": "MANDATORY",
+                "_id": "factors"
+            }
+        ],
+        "ranking": 1,
+        "trainingService": "http://147.102.82.32:8004/ocpu/library/ExpDesignPkg3.0/R/exp.design.noxy/json",
+        "predictionService": "http://147.102.82.32:8004/ocpu/library/ExpDesignPkg3.0/R/suggest.trials.noxy/json",
+        "_id": "ocpu-expdesign-noxy"
+    },
+    {
+        "meta": {
+            "descriptions": [
+                "Experimental Design XY"
+            ],
+            "titles": [
+                "Experimental Design XY"
+            ],
+            "subjects": [
+                "experimentaldesign"
+            ],
+            "creators": [
+                "hampos"
+            ],
+            "date": "2016-07-05T07:26:31.342+0000",
+            "locked": false
+        },
+        "ontologicalClasses": [
+            "ot:Algorithm",
+            "ot:ExperimentalDesign"
+        ],
+        "parameters": [
+            {
+                "name": "Number of Trials",
+                "value": [
+                    11
+                ],
+                "scope": "MANDATORY",
+                "minValue": "5",
+                "maxValue": "Number of substances in dataset",
+                "_id": "nTrials"
+            },
+            {
+                "name": "Optimal design criterion",
+                "value": [
+                    "D"
+                ],
+                "scope": "MANDATORY",
+                "allowedValues": [
+                    [
+                        "D"
+                    ],
+                    [
+                        "A"
+                    ],
+                    [
+                        "I"
+                    ]
+                ],
+                "_id": "criterion"
+            },
+            {
+                "name": "R squared threshold",
+                "value": [
+                    0.9
+                ],
+                "scope": "MANDATORY",
+                "_id": "r2.threshold"
+            },
+            {
+                "name": "Design's formula",
+                "value": [
+                    "linear"
+                ],
+                "scope": "MANDATORY",
+                "allowedValues": [
+                    [
+                        "linear"
+                    ],
+                    [
+                        "quadratic"
+                    ],
+                    [
+                        "cubic"
+                    ],
+                    [
+                        "cubicS"
+                    ]
+                ],
+                "_id": "formula"
+            }
+        ],
+        "ranking": 1,
+        "trainingService": "http://147.102.82.32:8004/ocpu/library/ExpDesignPkg3.0/R/exp.design.xy/json",
+        "predictionService": "http://147.102.82.32:8004/ocpu/library/ExpDesignPkg3.0/R/suggest.trials.xy/json",
+        "_id": "ocpu-expdesign-xy"
+    },
+    {
+        "meta": {
+            "descriptions": [
+                "Experimental Design X"
+            ],
+            "titles": [
+                "Experimental Design X"
+            ],
+            "subjects": [
+                "experimentaldesign"
+            ],
+            "creators": [
+                "hampos"
+            ],
+            "date": "2016-07-05T07:29:01.290+0000",
+            "locked": false
+        },
+        "ontologicalClasses": [
+            "ot:Algorithm",
+            "ot:ExperimentalDesign"
+        ],
+        "parameters": [
+            {
+                "name": "Number of Trials",
+                "value": [
+                    11
+                ],
+                "scope": "MANDATORY",
+                "minValue": "5",
+                "maxValue": "Number of substances in dataset",
+                "_id": "nTrials"
+            },
+            {
+                "name": "Optimal design criterion",
+                "value": [
+                    "D"
+                ],
+                "scope": "MANDATORY",
+                "allowedValues": [
+                    [
+                        "D"
+                    ],
+                    [
+                        "A"
+                    ],
+                    [
+                        "I"
+                    ]
+                ],
+                "_id": "criterion"
+            },
+            {
+                "name": "R squared threshold",
+                "value": [
+                    0.9
+                ],
+                "scope": "MANDATORY",
+                "_id": "r2.threshold"
+            },
+            {
+                "name": "Design's formula",
+                "value": [
+                    "linear"
+                ],
+                "scope": "MANDATORY",
+                "allowedValues": [
+                    [
+                        "linear"
+                    ],
+                    [
+                        "quadratic"
+                    ],
+                    [
+                        "cubic"
+                    ],
+                    [
+                        "cubicS"
+                    ]
+                ],
+                "description": "cubicS function produces a non-singular representation of a cubic model",
+                "_id": "formula"
+            },
+            {
+                "name": "New Dependent Variable",
+                "value": "New Y",
+                "scope": "MANDATORY",
+                "_id": "newY"
+            }
+        ],
+        "ranking": 1,
+        "trainingService": "http://147.102.82.32:8004/ocpu/library/ExpDesignPkg/R/exp.design.xy/json",
+        "predictionService": "http://147.102.82.32:8004/ocpu/library/ExpDesignPkg/R/suggest.trials.xy/json?na=null",
+        "_id": "ocpu-expdesign-x"
+    },
+    {
+        "meta": {
+            "descriptions": [
+                "Experimental Design X - v2"
+            ],
+            "titles": [
+                "Iterative experimental design"
+            ],
+            "subjects": [
+                "experimentaldesign"
+            ],
+            "creators": [
+                "guest"
+            ],
+            "date": "2016-09-08T20:39:41.409+0000",
+            "locked": false
+        },
+        "ontologicalClasses": [
+            "ot:Algorithm",
+            "ot:ExperimentalDesign",
+            "enm:NoTarget"
+        ],
+        "parameters": [
+            {
+                "name": "Number of Trials",
+                "value": [
+                    11
+                ],
+                "scope": "MANDATORY",
+                "minValue": "5",
+                "maxValue": "Number of substances in dataset",
+                "_id": "nTrials"
+            },
+            {
+                "name": "Optimal design criterion",
+                "value": [
+                    "D"
+                ],
+                "scope": "MANDATORY",
+                "allowedValues": [
+                    [
+                        "D"
+                    ],
+                    [
+                        "A"
+                    ],
+                    [
+                        "I"
+                    ]
+                ],
+                "_id": "criterion"
+            },
+            {
+                "name": "R² threshold",
+                "value": [
+                    0.9
+                ],
+                "scope": "MANDATORY",
+                "_id": "r2.threshold"
+            },
+            {
+                "name": "Design's formula",
+                "value": [
+                    "linear"
+                ],
+                "scope": "MANDATORY",
+                "allowedValues": [
+                    [
+                        "linear"
+                    ],
+                    [
+                        "quadratic"
+                    ],
+                    [
+                        "cubic"
+                    ],
+                    [
+                        "cubicS"
+                    ]
+                ],
+                "description": "cubicS function produces a non-singular representation of a cubic model",
+                "_id": "form"
+            },
+            {
+                "name": "New Dependent Variable",
+                "value": "New Y",
+                "scope": "MANDATORY",
+                "_id": "newY"
+            }
+        ],
+        "ranking": 1,
+        "trainingService": "http://147.102.86.129:8004/ocpu/library/ExpDesignPkg3.0/R/exp.design.xy/json",
+        "predictionService": "http://147.102.86.129:8004/ocpu/library/ExpDesignPkg3.0/R/suggest.trials.xy/json?na=null",
+        "_id": "ocpu-expdesign2-x"
+    },
+    {
+        "meta": {
+            "descriptions": [
+                "Experimental Design No XY - v2"
+            ],
+            "titles": [
+                "Experimental Design No XY - v2"
+            ],
+            "subjects": [
+                "experimentaldesign"
+            ],
+            "creators": [
+                "guest"
+            ],
+            "date": "2016-10-04T11:34:14.974+0000",
+            "locked": false
+        },
+        "ontologicalClasses": [
+            "ot:Algorithm",
+            "ot:ExperimentalDesign",
+            "enm:NoTarget"
+        ],
+        "parameters": [
+            {
+                "name": "Optimal Design Criterion",
+                "value": [
+                    "D"
+                ],
+                "scope": "MANDATORY",
+                "allowedValues": [
+                    [
+                        "D"
+                    ],
+                    [
+                        "A"
+                    ],
+                    [
+                        "I"
+                    ]
+                ],
+                "_id": "criterion"
+            },
+            {
+                "name": "Number of trials",
+                "value": [
+                    0
+                ],
+                "scope": "MANDATORY",
+                "minValue": 0,
+                "maxValue": "Length of Y",
+                "_id": "nTrials"
+            },
+            {
+                "name": "Levels of variables",
+                "value": {
+                    "a": [
+                        30,
+                        40
+                    ],
+                    "b": [
+                        10,
+                        20,
+                        30
+                    ],
+                    "c": [
+                        1,
+                        2,
+                        3
+                    ],
+                    "d": [
+                        100,
+                        200,
+                        300
+                    ]
+                },
+                "scope": "MANDATORY",
+                "_id": "levels"
+            },
+            {
+                "name": "Design formula",
+                "value": [
+                    "linear"
+                ],
+                "scope": "MANDATORY",
+                "allowedValues": [
+                    [
+                        "linear"
+                    ],
+                    [
+                        "quadratic"
+                    ],
+                    [
+                        "cubic"
+                    ],
+                    [
+                        "cubicS"
+                    ]
+                ],
+                "_id": "form"
+            },
+            {
+                "name": "New Y",
+                "value": [
+                    "CA"
+                ],
+                "scope": "MANDATORY",
+                "_id": "newY"
+            },
+            {
+                "name": "Names of variables",
+                "value": [
+                    "a",
+                    "b",
+                    "c",
+                    "d"
+                ],
+                "scope": "MANDATORY",
+                "_id": "varNames"
+            },
+            {
+                "name": "Number of variables",
+                "value": [
+                    4
+                ],
+                "scope": "MANDATORY",
+                "_id": "nVars"
+            },
+            {
+                "name": "Factors",
+                "value": [
+                    "0"
+                ],
+                "scope": "MANDATORY",
+                "minValue": "0",
+                "_id": "factors"
+            }
+        ],
+        "ranking": 1,
+        "trainingService": "http://147.102.86.129:8004/ocpu/library/ExpDesignPkg3.0/R/exp.design.noxy/json",
+        "predictionService": "http://147.102.86.129:8004/ocpu/library/ExpDesignPkg3.0/R/suggest.trials.noxy/json",
+        "_id": "ocpu-expdesign2-noxy"
+    }
+]

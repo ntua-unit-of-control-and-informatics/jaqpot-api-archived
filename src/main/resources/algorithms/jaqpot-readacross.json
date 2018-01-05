@@ -1,0 +1,60 @@
+[
+    {
+        "meta": {
+            "descriptions": [
+                "Readacross python algorithm."
+            ],
+            "titles": [
+                "Readacross"
+            ],
+            "subjects": [
+                "readacross"
+            ],
+            "creators": [
+                "hampos"
+            ],
+            "date": "2017-07-10T09:08:33.543+0000",
+            "locked": false
+        },
+        "ontologicalClasses": [
+            "ot:Algorithm",
+            "ot:Regression",
+            "ot:SupervisedLearning"
+        ],
+        "parameters": [
+            {
+                "name": "Confidence",
+                "value": 1,
+                "scope": "MANDATORY",
+                "allowedValues": [
+                    0,
+                    1
+                ],
+                "_id": "confidence"
+            },
+            {
+                "name": "Distance",
+                "value": "euclidean",
+                "scope": "MANDATORY",
+                "allowedValues": [
+                    "euclidean",
+                    "manhattan",
+                    "ensemble"
+                ],
+                "_id": "distance"
+            },
+            {
+                "name": "Threshold",
+                "value": 0.5,
+                "scope": "MANDATORY",
+                "minValue": 0,
+                "maxValue": 1,
+                "_id": "threshold"
+            }
+        ],
+        "ranking": 1,
+        "trainingService": "http://147.102.82.32:8095/pws/readacross/train",
+        "predictionService": "http://147.102.82.32:8095/pws/readacross/test",
+        "_id": "python-readacross"
+    }
+]

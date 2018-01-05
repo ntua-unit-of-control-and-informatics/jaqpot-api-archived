@@ -1,0 +1,279 @@
+[
+    {
+        "meta": {
+            "descriptions": [
+                "Id3 with MCI python algorithm."
+            ],
+            "titles": [
+                "Id3 - with MCI"
+            ],
+            "subjects": [
+                "decision_tree",
+                "classification"
+            ],
+            "locked": false
+        },
+        "ontologicalClasses": [
+            "ot:Algorithm",
+            "ot:Classification",
+            "ot:SupervisedLearning"
+        ],
+        "parameters": [
+            {
+                "name": "logBase",
+                "value": 10,
+                "scope": "MANDATORY",
+                "minValue": 1,
+                "maxValue": 100,
+                "_id": "logBase"
+            }
+        ],
+        "ranking": 2,
+        "trainingService": "http://147.102.82.32:8089/pws/mci/train",
+        "predictionService": "http://147.102.82.32:8089/pws/mci/test",
+        "_id": "python-id3-mci"
+    },
+    {
+        "meta": {
+            "descriptions": [
+                "Linear Regression by Scikit Learn python library."
+            ],
+            "titles": [
+                "Linear Regression"
+            ],
+            "subjects": [
+                "linear",
+                "regression"
+            ],
+            "locked": false
+        },
+        "ontologicalClasses": [
+            "ot:Algorithm",
+            "ot:Regression",
+            "ot:SupervisedLearning"
+        ],
+        "ranking": 2,
+        "trainingService": "http://147.102.82.32:8089/pws/lm/train",
+        "predictionService": "http://147.102.82.32:8089/pws/lm/test",
+        "_id": "python-lm"
+    },
+      {
+    "meta": {
+      "descriptions": [
+        "Lasso Regression by Scikit Learn python library."
+      ],
+      "titles": [
+        "Lasso Regression"
+      ],
+      "subjects": [
+        "lasso",
+        "regression"
+      ],
+      "locked": false
+    },
+    "ontologicalClasses": [
+      "ot:Algorithm",
+      "ot:Regression",
+      "ot:SupervisedLearning"
+    ],
+    "parameters": [
+      {
+        "name": "Alpha",
+        "value": 1,
+        "scope": "MANDATORY",
+        "minValue": 0,
+        "maxValue": 1,
+        "description": "Constant that multiplies the L1 term (prior used as regularizer). Defaults to 1.0. alpha = 0 is equivalent to an ordinary least square, solved by the LinearRegression object. For numerical reasons, using alpha = 0 is with the Lasso object is not advised.",
+        "_id": "alpha"
+      }
+    ],
+    "ranking": 2,
+    "trainingService": "http://147.102.82.32:8089/pws/lasso/train",
+    "predictionService": "http://147.102.82.32:8089/pws/lasso/test",
+    "_id": "python-lasso"
+  },
+    {
+    "meta": {
+      "descriptions": [
+        "Decision Tree with ID3 method by Quinlan."
+      ],
+      "titles": [
+        "ID3 Decision Tree"
+      ],
+      "subjects": [
+        "id3",
+        "classification"
+      ],
+      "locked": false
+    },
+    "ontologicalClasses": [
+      "ot:Algorithm",
+      "ot:Classification",
+      "ot:SupervisedLearning"
+    ],
+    "parameters": [
+      {
+        "name": "Log Base",
+        "value": 2,
+        "scope": "MANDATORY",
+        "minValue": 2,
+        "maxValue": "Number of classes on class variable.",
+        "description": "Log base is specified for the entropy function (information gain). Base allows information to correspond to the number of bits required to encode a message.",
+        "_id": "logBase"
+      }
+    ],
+    "ranking": 1,
+    "trainingService": "http://147.102.82.32:8089/pws/id3/train",
+    "predictionService": "http://147.102.82.32:8089/pws/id3/test",
+    "_id": "python-id3"
+  },
+    {
+    "meta": {
+      "descriptions": [
+        "Decision Tree with splitting criterion: Conditional Mutual Information."
+      ],
+      "titles": [
+        "CMI Decision Tree"
+      ],
+      "subjects": [
+        "classification",
+        "cmi"
+      ],
+      "locked": false
+    },
+    "ontologicalClasses": [
+      "ot:Algorithm",
+      "ot:Classification",
+      "ot:SupervisedLearning"
+    ],
+    "parameters": [
+      {
+        "name": "Log Base",
+        "value": 2,
+        "scope": "MANDATORY",
+        "minValue": 2,
+        "maxValue": "Number of classes on class variable.",
+        "description": "Log base is specified for the entropy function (information gain). Base allows information to correspond to the number of bits required to encode a message.",
+        "_id": "logBase"
+      }
+    ],
+    "ranking": 1,
+    "trainingService": "http://147.102.82.32:8089/pws/mci/train",
+    "predictionService": "http://147.102.82.32:8089/pws/mci/test",
+    "_id": "python-cmi"
+  },
+    {
+    "meta": {
+      "descriptions": [
+        "Generalised Naive Bayes by Scikit Learn python library."
+      ],
+      "titles": [
+        "Generalised Naive Bayes"
+      ],
+      "subjects": [
+        "bayes",
+        "gnb",
+        "classification"
+      ],
+      "locked": false
+    },
+    "ontologicalClasses": [
+      "ot:Algorithm",
+      "ot:Classification",
+      "ot:SupervisedLearning"
+    ],
+    "ranking": 1,
+    "trainingService": "http://147.102.82.32:8089/pws/gnb/train",
+    "predictionService": "http://147.102.82.32:8089/pws/gnb/test",
+    "_id": "python-gnb"
+  },
+    {
+    "meta": {
+      "descriptions": [
+        "Multinomial Naive Bayes by Scikit Learn python library."
+      ],
+      "titles": [
+        "Multinomial Naive Bayes"
+      ],
+      "subjects": [
+        "mnb",
+        "bayes",
+        "classification"
+      ],
+      "locked": false
+    },
+    "ontologicalClasses": [
+      "ot:Algorithm",
+      "ot:Classification",
+      "ot:SupervisedLearning"
+    ],
+    "ranking": 1,
+    "trainingService": "http://147.102.82.32:8089/pws/mnb/train",
+    "predictionService": "http://147.102.82.32:8089/pws/mnb/test",
+    "_id": "python-mnb"
+  },
+    {
+    "meta": {
+      "descriptions": [
+        "Bernoulli Naive Bayes by Scikit Learn python library."
+      ],
+      "titles": [
+        "Bernoulli Naive Bayes"
+      ],
+      "subjects": [
+        "bnb",
+        "bayes",
+        "classification"
+      ],
+      "locked": false
+    },
+    "ontologicalClasses": [
+      "ot:Algorithm",
+      "ot:Classification",
+      "ot:SupervisedLearning"
+    ],
+    "ranking": 1,
+    "trainingService": "http://147.102.82.32:8089/pws/bnb/train",
+    "predictionService": "http://147.102.82.32:8089/pws/bnb/test",
+    "_id": "python-bnb"
+  },
+    {
+    "meta": {
+      "descriptions": [
+        "PLS with VIP scores python algorithm."
+      ],
+      "titles": [
+        "PLS - with VIP scores"
+      ],
+      "subjects": [
+        "pls",
+        "regression"
+      ],
+      "creators": [
+        "hampos"
+      ],
+      "date": "2016-09-23T10:02:47.057+0000",
+      "locked": false
+    },
+    "ontologicalClasses": [
+      "ot:Algorithm",
+      "ot:Regression",
+      "ot:SupervisedLearning"
+    ],
+    "parameters": [
+      {
+        "name": "Latent Variables",
+        "value": 10,
+        "scope": "MANDATORY",
+        "minValue": "1",
+        "maxValue": "Columns - 1",
+        "_id": "latentVariables"
+      }
+    ],
+    "ranking": 2,
+    "trainingService": "http://147.102.82.32:8089/pws/vip/train",
+    "predictionService": "http://147.102.82.32:8089/pws/vip/test",
+    "_id": "python-pls-vip"
+  }
+]
+

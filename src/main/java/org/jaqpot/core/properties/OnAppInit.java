@@ -34,58 +34,330 @@
  */
 package org.jaqpot.core.properties;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.File;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import javax.annotation.PostConstruct;
 import javax.ejb.DependsOn;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
 import javax.inject.Inject;
+import javax.ws.rs.InternalServerErrorException;
+import org.apache.commons.io.IOUtils;
+import org.jaqpot.core.data.AlgorithmHandler;
 import org.jaqpot.core.data.UserHandler;
+import org.jaqpot.core.model.Algorithm;
 import org.jaqpot.core.model.User;
 
 /**
  *
  * @author pantelispanka
  */
-
 @Startup
 @Singleton
 @DependsOn("MongoDBEntityManager")
 public class OnAppInit {
-    
+
+    @Inject
+    PropertyManager propertyManager;
+
     @Inject
     UserHandler userHandler;
 
+    @Inject
+    AlgorithmHandler algoHandler;
+
     @PostConstruct
-    void init(){
-        
+    void init() {
+
         String userToSearch = "guest";
         User user = userHandler.find(userToSearch);
-        if(user == null){
-            User initialUser = new User();
-            initialUser.setId("guest");
-            initialUser.setName("guest");
-            Map<String, Integer> cap = new HashMap<>();
-            cap.put("models", 180);
-            cap.put("reports", 180);
-            cap.put("algorithms", 200);
-            cap.put("tasksParallel", 80);
-            cap.put("substances" , 3000);
-            cap.put("bibtex", 200);
-            cap.put("datasets", 220);
-            initialUser.setCapabilities(cap);
-            Map<String, Integer> pub = new HashMap<>();
-            pub.put( "models" , 100);
-            pub.put("algorithms" , 10);
-            pub.put("substances" , 100);
-            pub.put("bibtex" , 100);
-            initialUser.setPublicationRatePerWeek(pub);
+        if (user == null) {
+            User initialUser = this.firstUser();
             userHandler.create(initialUser);
         }
-        
-        
+        Algorithm algo = algoHandler.find("weka-svm");
+        if (algo == null) {
+            List<Algorithm> algos = this.readAlgorithms();
+
+            for (Algorithm alg : algos) {
+                algoHandler.create(alg);
+            }
+        }
+
     }
-    
-    
+
+    public User firstUser() {
+        User initialUser = new User();
+        initialUser.setId("guest");
+        initialUser.setName("guest");
+        Map<String, Integer> cap = new HashMap<>();
+        cap.put("models", 180);
+        cap.put("reports", 180);
+        cap.put("algorithms", 200);
+        cap.put("tasksParallel", 80);
+        cap.put("substances", 3000);
+        cap.put("bibtex", 200);
+        cap.put("datasets", 220);
+        initialUser.setCapabilities(cap);
+        Map<String, Integer> pub = new HashMap<>();
+        pub.put("models", 100);
+        pub.put("algorithms", 10);
+        pub.put("substances", 100);
+        pub.put("bibtex", 100);
+        initialUser.setPublicationRatePerWeek(pub);
+        return initialUser;
+    }
+
+    public List<Algorithm> readAlgorithms() {
+
+        List<Algorithm> algos = new ArrayList<>();
+        algos.addAll(this.wekaAlgorithms());
+        algos.addAll(this.pythonAlgorithms());
+        algos.addAll(this.experimentalDesigns());
+        algos.addAll(this.readacross());
+        algos.addAll(this.pksim());
+        return algos;
+    }
+
+    private String getFile(String filename) {
+        String result = "";
+        ClassLoader classLoader = getClass().getClassLoader();
+        try {
+            result = IOUtils.toString(classLoader.getResourceAsStream(filename));
+        } catch (IOException e) {
+            throw new InternalServerErrorException(e);
+        }
+        return result;
+    }
+
+    private List<Algorithm> wekaAlgorithms() {
+
+        ObjectMapper mapper = new ObjectMapper();
+        TypeReference<List<Algorithm>> algoListType = new TypeReference<List<Algorithm>>() {
+        };
+        List<Algorithm> algos = new ArrayList<>();
+        try {
+            String result = this.getFile("algorithms/jaqpot-algorithms.json");
+            algos = mapper.readValue(result, algoListType);
+            for (Algorithm algo : algos) {
+                String trainingUri = algo.getTrainingService();
+                if (trainingUri != null) {
+                    URI trainUriFromFile = new URI(trainingUri);
+                    String pathFromFile = trainUriFromFile.getPath();
+                    String wekalgohost = propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_BASE_ALGORITHMS);
+                    URI hostUrl = new URI(wekalgohost);
+                    URI wekaAlgoTrainingService = hostUrl.resolve(pathFromFile);
+                    algo.setTrainingService(wekaAlgoTrainingService.toString());
+                }
+                String predictingUri = algo.getTrainingService();
+                if (predictingUri != null) {
+                    URI predictUriFromFile = new URI(trainingUri);
+                    String pathFromFile = predictUriFromFile.getPath();
+                    String wekalgohost = propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_BASE_ALGORITHMS);
+                    URI hostUrl = new URI(wekalgohost);
+                    URI wekaAlgoPredictingService = hostUrl.resolve(pathFromFile);
+                    algo.setTrainingService(wekaAlgoPredictingService.toString());
+                }
+                String reportingUri = algo.getReportService();
+                if (reportingUri != null) {
+                    URI reportingUriFromFile = new URI(reportingUri);
+                    String pathFromFile = reportingUriFromFile.getPath();
+                    String wekalgohost = propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_BASE_ALGORITHMS);
+                    URI hostUrl = new URI(wekalgohost);
+                    URI wekaAlgoReportingService = hostUrl.resolve(pathFromFile);
+                    algo.setReportService(wekaAlgoReportingService.toString());
+                }
+            }
+        } catch (IOException | URISyntaxException e) {
+            throw new InternalServerErrorException(e);
+        }
+        return algos;
+
+    }
+
+    private List<Algorithm> pythonAlgorithms() {
+
+        ObjectMapper mapper = new ObjectMapper();
+        TypeReference<List<Algorithm>> algoListType = new TypeReference<List<Algorithm>>() {
+        };
+        List<Algorithm> algos = new ArrayList<>();
+        try {
+            String result = this.getFile("algorithms/python-algorithms.json");
+            algos = mapper.readValue(result, algoListType);
+            for (Algorithm algo : algos) {
+                String trainingUri = algo.getTrainingService();
+                if (trainingUri != null) {
+                    URI trainUriFromFile = new URI(trainingUri);
+                    String pathFromFile = trainUriFromFile.getPath();
+                    String pythonalgohost = propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_PYTHON_ALGORITHMS_HOST);
+                    URI hostUrl = new URI(pythonalgohost);
+                    URI pythonAlgoTrainingService = hostUrl.resolve(pathFromFile);
+                    algo.setTrainingService(pythonAlgoTrainingService.toString());
+                }
+                String predictingUri = algo.getTrainingService();
+                if (predictingUri != null) {
+                    URI predictUriFromFile = new URI(trainingUri);
+                    String pathFromFile = predictUriFromFile.getPath();
+                    String pythonalgohost = propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_PYTHON_ALGORITHMS_HOST);
+                    URI hostUrl = new URI(pythonalgohost);
+                    URI pythonAlgoPredictingService = hostUrl.resolve(pathFromFile);
+                    algo.setTrainingService(pythonAlgoPredictingService.toString());
+                }
+                String reportingUri = algo.getReportService();
+                if (reportingUri != null) {
+                    URI reportingUriFromFile = new URI(reportingUri);
+                    String pathFromFile = reportingUriFromFile.getPath();
+                    String pythonalgohost = propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_PYTHON_ALGORITHMS_HOST);
+                    URI hostUrl = new URI(pythonalgohost);
+                    URI pythonAlgoReportingService = hostUrl.resolve(pathFromFile);
+                    algo.setReportService(pythonAlgoReportingService.toString());
+                }
+            }
+        } catch (IOException | URISyntaxException e) {
+            throw new InternalServerErrorException(e);
+        }
+        return algos;
+    }
+
+    private List<Algorithm> experimentalDesigns() {
+
+        ObjectMapper mapper = new ObjectMapper();
+        TypeReference<List<Algorithm>> algoListType = new TypeReference<List<Algorithm>>() {
+        };
+        List<Algorithm> algos = new ArrayList<>();
+        try {
+            String result = this.getFile("algorithms/exp-design.json");
+            algos = mapper.readValue(result, algoListType);
+            for (Algorithm algo : algos) {
+                String trainingUri = algo.getTrainingService();
+                if (trainingUri != null) {
+                    URI trainUriFromFile = new URI(trainingUri);
+                    String pathFromFile = trainUriFromFile.getPath();
+                    String expDesHost = propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_EXPERIMENTAL_DESIGNS_HOST);
+                    URI hostUrl = new URI(expDesHost);
+                    URI expDesTrainingService = hostUrl.resolve(pathFromFile);
+                    algo.setTrainingService(expDesTrainingService.toString());
+                }
+                String predictingUri = algo.getTrainingService();
+                if (predictingUri != null) {
+                    URI predictUriFromFile = new URI(trainingUri);
+                    String pathFromFile = predictUriFromFile.getPath();
+                    String expDesHost = propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_EXPERIMENTAL_DESIGNS_HOST);
+                    URI hostUrl = new URI(expDesHost);
+                    URI expDesPredictingService = hostUrl.resolve(pathFromFile);
+                    algo.setTrainingService(expDesPredictingService.toString());
+                }
+                String reportingUri = algo.getReportService();
+                if (reportingUri != null) {
+                    URI reportingUriFromFile = new URI(reportingUri);
+                    String pathFromFile = reportingUriFromFile.getPath();
+                    String expDesHost = propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_EXPERIMENTAL_DESIGNS_HOST);
+                    URI hostUrl = new URI(expDesHost);
+                    URI expDesReportingService = hostUrl.resolve(pathFromFile);
+                    algo.setReportService(expDesReportingService.toString());
+                }
+            }
+        } catch (IOException | URISyntaxException e) {
+            throw new InternalServerErrorException(e);
+        }
+        return algos;
+    }
+
+    private List<Algorithm> readacross() {
+
+        ObjectMapper mapper = new ObjectMapper();
+        TypeReference<List<Algorithm>> algoListType = new TypeReference<List<Algorithm>>() {
+        };
+        List<Algorithm> algos = new ArrayList<>();
+        try {
+            String result = this.getFile("algorithms/jaqpot-readacross.json");
+            algos = mapper.readValue(result, algoListType);
+            for (Algorithm algo : algos) {
+                String trainingUri = algo.getTrainingService();
+                if (trainingUri != null) {
+                    URI trainUriFromFile = new URI(trainingUri);
+                    String pathFromFile = trainUriFromFile.getPath();
+                    String jaqReadHost = propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_READACROSS);
+                    URI hostUrl = new URI(jaqReadHost);
+                    URI readAcrTrainingService = hostUrl.resolve(pathFromFile);
+                    algo.setTrainingService(readAcrTrainingService.toString());
+                }
+                String predictingUri = algo.getTrainingService();
+                if (predictingUri != null) {
+                    URI predictUriFromFile = new URI(trainingUri);
+                    String pathFromFile = predictUriFromFile.getPath();
+                    String jaqReadHost = propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_READACROSS);
+                    URI hostUrl = new URI(jaqReadHost);
+                    URI readAcrPredictingService = hostUrl.resolve(pathFromFile);
+                    algo.setTrainingService(readAcrPredictingService.toString());
+                }
+                String reportingUri = algo.getReportService();
+                if (reportingUri != null) {
+                    URI reportingUriFromFile = new URI(reportingUri);
+                    String pathFromFile = reportingUriFromFile.getPath();
+                    String jaqReadHost = propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_READACROSS);
+                    URI hostUrl = new URI(jaqReadHost);
+                    URI expDesReportingService = hostUrl.resolve(pathFromFile);
+                    algo.setReportService(expDesReportingService.toString());
+                }
+            }
+        } catch (IOException | URISyntaxException e) {
+            throw new InternalServerErrorException(e);
+        }
+        return algos;
+
+    }
+
+    private List<Algorithm> pksim() {
+        ObjectMapper mapper = new ObjectMapper();
+        TypeReference<List<Algorithm>> algoListType = new TypeReference<List<Algorithm>>() {
+        };
+        List<Algorithm> algos = new ArrayList<>();
+        try {
+            String result = this.getFile("algorithms/pk-sim.json");
+            algos = mapper.readValue(result, algoListType);
+            for (Algorithm algo : algos) {
+                String trainingUri = algo.getTrainingService();
+                if (trainingUri != null) {
+                    URI trainUriFromFile = new URI(trainingUri);
+                    String pathFromFile = trainUriFromFile.getPath();
+                    String pkHost = propertyManager.getProperty(PropertyManager.PropertyType.PKSIM_BASE);
+                    URI hostUrl = new URI(pkHost);
+                    URI pkTrainingService = hostUrl.resolve(pathFromFile);
+                    algo.setTrainingService(pkTrainingService.toString());
+                }
+                String predictingUri = algo.getTrainingService();
+                if (predictingUri != null) {
+                    URI predictUriFromFile = new URI(trainingUri);
+                    String pathFromFile = predictUriFromFile.getPath();
+                    String pkHost = propertyManager.getProperty(PropertyManager.PropertyType.PKSIM_BASE);
+                    URI hostUrl = new URI(pkHost);
+                    URI pkPredictingService = hostUrl.resolve(pathFromFile);
+                    algo.setTrainingService(pkPredictingService.toString());
+                }
+                String reportingUri = algo.getReportService();
+                if (reportingUri != null) {
+                    URI reportingUriFromFile = new URI(reportingUri);
+                    String pathFromFile = reportingUriFromFile.getPath();
+                    String pkHost = propertyManager.getProperty(PropertyManager.PropertyType.PKSIM_BASE);
+                    URI hostUrl = new URI(pkHost);
+                    URI pkReportingService = hostUrl.resolve(pathFromFile);
+                    algo.setReportService(pkReportingService.toString());
+                }
+            }
+        } catch (IOException | URISyntaxException e) {
+            throw new InternalServerErrorException(e);
+        }
+        return algos;
+    }
+
 }

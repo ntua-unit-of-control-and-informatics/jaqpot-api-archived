@@ -1,0 +1,438 @@
+[
+    {
+        "meta": {
+            "descriptions": [
+                "Scaling"
+            ],
+            "titles": [
+                "Scaling"
+            ],
+            "subjects": [
+                "scaling"
+            ],
+            "locked": false
+        },
+        "ontologicalClasses": [
+            "ot:Algorithm",
+            "ot:Scaling",
+            "ot:Transformation"
+        ],
+        "ranking": 0,
+        "trainingService": "http://test.jaqpot.org:8090/algorithms/scaling/training",
+        "predictionService": "http://test.jaqpot.org:8090/algorithms/scaling/prediction",
+        "_id": "scaling"
+    },
+    {
+        "meta": {
+            "descriptions": [
+                "Standarization"
+            ],
+            "titles": [
+                "Standarization"
+            ],
+            "subjects": [
+                "standarization"
+            ],
+            "locked": false
+        },
+        "ontologicalClasses": [
+            "ot:Algorithm",
+            "ot:Scaling",
+            "ot:Transformation"
+        ],
+        "ranking": 0,
+        "trainingService": "http://test.jaqpot.org:8090/algorithms/std/training",
+        "predictionService": "http://test.jaqpot.org:8090/algorithms/std/prediction",
+        "_id": "standarization"
+    },
+    {
+        "meta": {
+            "descriptions": [
+                "PMML Transformation algorithm."
+            ],
+            "titles": [
+                "PMML - Transformer"
+            ],
+            "subjects": [
+                "transformation"
+            ],
+            "locked": false
+        },
+        "ontologicalClasses": [
+            "ot:Algorithm",
+            "ot:Transformation"
+        ],
+        "ranking": 2,
+        "trainingService": "http://test.jaqpot.org:8090/algorithms/pmml/training",
+        "predictionService": "http://test.jaqpot.org:8090/algorithms/pmml/prediction",
+        "_id": "pmml"
+    },
+    {
+        "meta": {
+            "descriptions": [
+                "DoA calculation"
+            ],
+            "titles": [
+                "Leverage"
+            ],
+            "subjects": [
+                "doa"
+            ],
+            "locked": false
+        },
+        "ontologicalClasses": [
+            "ot:Algorithm",
+            "ot:ApplicabilityDomain",
+            "ot:Leverage"
+        ],
+        "ranking": 0,
+        "trainingService": "http://test.jaqpot.org:8090/algorithms/leverage/training",
+        "predictionService": "http://test.jaqpot.org:8090/algorithms/leverage/prediction",
+        "_id": "leverage"
+    },
+    {
+        "meta": {
+            "descriptions": [
+                "An MLR algorithm by Weka"
+            ],
+            "titles": [
+                "MLR - Weka Implementation"
+            ],
+            "subjects": [
+                "mlr",
+                "linear",
+                "regression"
+            ],
+            "locked": false
+        },
+        "ontologicalClasses": [
+            "ot:Algorithm",
+            "ot:Regression",
+            "ot:SupervisedLearning"
+        ],
+        "ranking": 2,
+        "trainingService": "http://test.jaqpot.org:8090/algorithms/mlr/training",
+        "predictionService": "http://test.jaqpot.org:8090/algorithms/mlr/prediction",
+        "_id": "weka-mlr"
+    },
+    {
+        "meta": {
+            "descriptions": [
+                "LibSVM implementation for training a support vector classifier."
+            ],
+            "titles": [
+                "SVM - Weka (LibSVM) Implementation"
+            ],
+            "subjects": [
+                "regression",
+                "svm"
+            ],
+            "locked": false
+        },
+        "ontologicalClasses": [
+            "ot:Algorithm",
+            "ot:Regression",
+            "ot:SupervisedLearning"
+        ],
+        "parameters": [
+            {
+                "name": "cost",
+                "value": 100,
+                "scope": "OPTIONAL",
+                "_id": "cost"
+            },
+            {
+                "name": "gamma",
+                "value": 1.5,
+                "scope": "OPTIONAL",
+                "_id": "gamma"
+            },
+            {
+                "name": "epsilon",
+                "value": 0.1,
+                "scope": "OPTIONAL",
+                "_id": "epsilon"
+            },
+            {
+                "name": "coeff0",
+                "value": 0,
+                "scope": "OPTIONAL",
+                "_id": "coeff0"
+            },
+            {
+                "name": "cacheSize",
+                "value": 25007,
+                "scope": "OPTIONAL",
+                "_id": "cacheSize"
+            },
+            {
+                "name": "kernel",
+                "value": "RBF",
+                "scope": "OPTIONAL",
+                "_id": "kernel"
+            },
+            {
+                "name": "loss",
+                "value": 0.1,
+                "scope": "OPTIONAL",
+                "_id": "loss"
+            },
+            {
+                "name": "nu",
+                "value": 0.5,
+                "scope": "OPTIONAL",
+                "_id": "nu"
+            },
+            {
+                "name": "degree",
+                "value": 3,
+                "scope": "OPTIONAL",
+                "_id": "degree"
+            },
+            {
+                "name": "type",
+                "value": "NU_SVR",
+                "scope": "OPTIONAL",
+                "_id": "type"
+            }
+        ],
+        "ranking": 1,
+        "trainingService": "http://test.jaqpot.org:8090/algorithms/svm/training",
+        "predictionService": "http://test.jaqpot.org:8090/algorithms/svm/prediction",
+        "_id": "weka-svm"
+    },
+    {
+        "meta": {
+            "descriptions": [
+                "Weka PLS filter wrapped as a classifier."
+            ],
+            "titles": [
+                "PLS - Weka Implementation"
+            ],
+            "subjects": [
+                "regression",
+                "pls",
+                "classification"
+            ],
+            "creators": [
+                "hampos"
+            ],
+            "date": "2016-07-06T07:46:22.790+0000",
+            "locked": false
+        },
+        "ontologicalClasses": [
+            "ot:Algorithm",
+            "ot:Regression",
+            "ot:SupervisedLearning"
+        ],
+        "parameters": [
+            {
+                "name": "algorithm",
+                "value": "PLS1",
+                "scope": "OPTIONAL",
+                "allowedValues": [
+                    "PLS1",
+                    "SIMPLS"
+                ],
+                "_id": "algorithm"
+            },
+            {
+                "name": "components",
+                "value": 20,
+                "scope": "OPTIONAL",
+                "minValue": "1",
+                "maxValue": "Number of columns - 1",
+                "_id": "components"
+            }
+        ],
+        "ranking": 2,
+        "trainingService": "http://test.jaqpot.org:8090/algorithms/pls/training",
+        "predictionService": "http://test.jaqpot.org:8090/algorithms/pls/prediction",
+        "_id": "weka-pls"
+    },
+    {
+        "meta": {
+            "descriptions": [
+                "LibSVM implementation for training a support vector classifier."
+            ],
+            "titles": [
+                "SVM - Weka (LibSVM) Implementation"
+            ],
+            "subjects": [
+                "svm",
+                "classification"
+            ],
+            "creators": [
+                "guest"
+            ],
+            "date": "2016-09-02T13:32:53.796+0000",
+            "locked": false
+        },
+        "ontologicalClasses": [
+            "ot:Algorithm",
+            "ot:Classification",
+            "ot:SupervisedLearning"
+        ],
+        "parameters": [
+            {
+                "name": "cost",
+                "value": 100,
+                "scope": "OPTIONAL",
+                "_id": "cost"
+            },
+            {
+                "name": "gamma",
+                "value": 1.5,
+                "scope": "OPTIONAL",
+                "_id": "gamma"
+            },
+            {
+                "name": "epsilon",
+                "value": 0.1,
+                "scope": "OPTIONAL",
+                "_id": "epsilon"
+            },
+            {
+                "name": "coeff0",
+                "value": 0,
+                "scope": "OPTIONAL",
+                "_id": "coeff0"
+            },
+            {
+                "name": "cacheSize",
+                "value": 25007,
+                "scope": "OPTIONAL",
+                "_id": "cacheSize"
+            },
+            {
+                "name": "kernel",
+                "value": "RBF",
+                "scope": "OPTIONAL",
+                "allowedValues": [
+                    "rbf",
+                    "polynomial",
+                    "linear",
+                    "sigmoid"
+                ],
+                "_id": "kernel"
+            },
+            {
+                "name": "loss",
+                "value": 0.1,
+                "scope": "OPTIONAL",
+                "_id": "loss"
+            },
+            {
+                "name": "nu",
+                "value": 0.5,
+                "scope": "OPTIONAL",
+                "_id": "nu"
+            },
+            {
+                "name": "degree",
+                "value": 3,
+                "scope": "OPTIONAL",
+                "_id": "degree"
+            },
+            {
+                "name": "type",
+                "value": "NU_SVR",
+                "scope": "OPTIONAL",
+                "allowedValues": [
+                    "NU_SVC",
+                    "C_SVC",
+                    "ONE_CLASS_SVM"
+                ],
+                "_id": "type"
+            }
+        ],
+        "ranking": 1,
+        "trainingService": "http://test.jaqpot.org:8090/algorithms/svm/training",
+        "predictionService": "http://test.jaqpot.org:8090/algorithms/svm/prediction",
+        "_id": "weka-svm-class"
+    },
+    {
+        "meta": {
+            "descriptions": [
+                "An MLR algorithm by Weka"
+            ],
+            "titles": [
+                "MLR 2 - Weka Implementation"
+            ],
+            "subjects": [
+                "mlr",
+                "linear",
+                "regression"
+            ],
+            "creators": [
+                "hampos"
+            ],
+            "date": "2016-10-08T13:06:41.088+0000",
+            "locked": false
+        },
+        "ontologicalClasses": [
+            "ot:Algorithm",
+            "ot:Regression",
+            "ot:SupervisedLearning"
+        ],
+        "ranking": 2,
+        "trainingService": "http://test.jaqpot.org:8090/algorithms/mlr/training",
+        "predictionService": "http://test.jaqpot.org:8090/algorithms/mlr/prediction",
+        "_id": "weka-mlr2"
+    },
+    {
+        "meta": {
+            "descriptions": [
+                "Smiles desc"
+            ],
+            "titles": [
+                "Smiles title"
+            ],
+            "subjects": [
+                "Smiles subject"
+            ],
+            "creators": [
+                "guest"
+            ],
+            "date": "2017-10-17T13:31:12.108+0000",
+            "locked": false
+        },
+        "ontologicalClasses": [
+            "ot:Smiles",
+            "ot:Algorithm"
+        ],
+        "parameters": [
+            {
+                "name": "Categories",
+                "value": [
+                    "all"
+                ],
+                "scope": "MANDATORY",
+                "allowedValues": [
+                    [
+                        "all"
+                    ],
+                    [
+                        "topological"
+                    ],
+                    [
+                        "hybrid"
+                    ],
+                    [
+                        "geometrical"
+                    ],
+                    [
+                        "constitutional"
+                    ],
+                    [
+                        "electronic"
+                    ]
+                ],
+                "_id": "categories"
+            }
+        ],
+        "ranking": 0,
+        "reportService": "http://test.jaqpot.org:8090/algorithms/smiles/calculate",
+        "_id": "smiles"
+    }
+]
