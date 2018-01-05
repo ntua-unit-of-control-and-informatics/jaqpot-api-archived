@@ -56,7 +56,10 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.PostConstruct;
+import javax.ejb.DependsOn;
 import javax.ejb.EJB;
+import javax.ejb.Singleton;
+import javax.ejb.Startup;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -75,7 +78,10 @@ import org.reflections.Reflections;
  *
  */
 @MongoDB
-@ApplicationScoped
+//@ApplicationScoped
+@Startup
+@Singleton
+@DependsOn("PropertyManager")
 public class MongoDBEntityManager implements JaqpotEntityManager {
 
     private static final Logger LOG = Logger.getLogger(MongoDBEntityManager.class.getName());

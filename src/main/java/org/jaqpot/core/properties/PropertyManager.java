@@ -34,60 +34,59 @@
  */
 package org.jaqpot.core.properties;
 
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.util.ResourceBundle;
+import javax.annotation.PostConstruct;
+import javax.ejb.Singleton;
+import javax.ejb.Startup;
+import org.bson.types.ObjectId;
+import org.jaqpot.core.data.UserHandler;
+import org.jaqpot.core.model.User;
 
 /**
  * @author Angelos Valsamis
  */
-
-@ApplicationScoped
+@Startup
+@Singleton
+//@ApplicationScoped
 public class PropertyManager {
 
     public enum PropertyType {
-        JAQPOT_ADMINISTRATORS("jaqpot.administrators", "config","admin"),
+        JAQPOT_ADMINISTRATORS("jaqpot.administrators", "config", "admin"),
         JAQPOT_AA("jaqpot.aa", "config", "true"),
-        JAQPOT_CORS_ALLOWORIGIN("jaqpot.cors.alloworigin", "config", "*"),  
-        
-        JAQPOT_HOST("jaqpot.host","config","localhost"),
-        JAQPOT_PORT("jaqpot.port","config","8080"),
-        JAQPOT_BASE("jaqpot.base","config","/jaqpot/services"),
-        
-        JAQPOT_BASE_SERVICE("jaqpot.base.service", "config","http://localhost:8080/jaqpot/services/"),
-        JAQPOT_BASE_ALGORITHMS("jaqpot.base.algorithms", "config", "http://localhost:8080/algorithms/service/"),
+        JAQPOT_CORS_ALLOWORIGIN("jaqpot.cors.alloworigin", "config", "*"),
+        JAQPOT_HOST("jaqpot.host", "config", "localhost"),
+        JAQPOT_PORT("jaqpot.port", "config", "8080"),
+        JAQPOT_BASE("jaqpot.base", "config", "/jaqpot/services"),
+        JAQPOT_BASE_SERVICE("jaqpot.base.service", "config", "http://localhost:8080/jaqpot/services/"),
         JAQPOT_BASE_IMAGE("jaqpot.base.image", "config", "http://localhost:8880/imageAnalysis/service/"),
         JAQPOT_BASE_VALIDATION("jaqpot.base.validation", "config", "http://localhost:8092/pws/validation"),
         JAQPOT_BASE_INTERLAB("jaqpot.base.interlab", "config", "http://localhost:8091/pws/interlabtest"),
-        JAQPOT_RABBITMQ_HOST("jaqpot.rabbitmq.host","config",""),
-        JAQPOT_RABBITMQ_USERNAME("jaqpot.rabbitmq.username","config",""),
-        JAQPOT_RABBITMQ_PASSWORD("jaqpot.rabbitmq.password","config",""),
-
-                
-        DEFAULT_DOA("default.doa", "config",""),
+        JAQPOT_RABBITMQ_HOST("jaqpot.rabbitmq.host", "config", ""),
+        JAQPOT_RABBITMQ_USERNAME("jaqpot.rabbitmq.username", "config", ""),
+        JAQPOT_RABBITMQ_PASSWORD("jaqpot.rabbitmq.password", "config", ""),
+        DEFAULT_DOA("default.doa", "config", ""),
         DEFAULT_SCALING("default.scaling", "config", ""),
         DEFAULT_STANDARIZATION("default.standarization", "config", ""),
-        
-        JAQPOT_DB_NAME("jaqpot.db.name", "db","production"),
+        JAQPOT_DB_NAME("jaqpot.db.name", "db", "production"),
         JAQPOT_DB_HOST("jaqpot.db.host", "db", "localhost"),
         JAQPOT_DB_PORT("jaqpot.db.port", "db", "22012"),
-
-        JAQPOT_MAIL_SEND("jaqpot.mail.dosend", "mail","false"),
+        JAQPOT_MAIL_SEND("jaqpot.mail.dosend", "mail", "false"),
         JAQPOT_MAIL_MANDRILL_API_KEY("jaqpot.mail.mandrillApiKey", "mail", ""),
         JAQPOT_MAIL_FROM_MAIL("jaqpot.mail.fromMail", "mail", ""),
         JAQPOT_MAIL_FROM_NAME("jaqpot.mail.fromName", "mail", ""),
         JAQPOT_MAIL_RECIPIENTS("jaqpot.mail.recipients", "mail", ""),
-
         JAQPOT_JANITOR_TARGET("janitor.target", "janitor", ""),
         JAQPOT_JANITOR_USERNAME("janitor.username", "janitor", ""),
         JAQPOT_JANITOR_PASSWORD("janitor.password", "janitor", ""),
-
-        JAQPOT_AMBIT("jaqpot.base.ambit", "config", "https://data.enanomapper.net/");
-
-
-
-
+        JAQPOT_AMBIT("jaqpot.base.ambit", "config", "https://data.enanomapper.net/"),
+        JAQPOT_PYTHON_ALGORITHMS_HOST("python.algorithms.host", "config", "http://localhost:8080/"),
+        JAQPOT_EXPERIMENTAL_DESIGNS_HOST("exp.design.host", "config", "http://localhost:8080/"),
+        JAQPOT_BASE_ALGORITHMS("jaqpot.base.algorithms", "config", "http://localhost:8080/algorithms/service/"),
+        JAQPOT_READACROSS("jaqpot.readacross", "config", "http://147.102.82.32:8095"),
+        PKSIM_BASE("pksim.base", "config", "http://147.102.86.129:9999/");
+        
         private final String name;
         private final String bundle;
         private final String defaultValue;
@@ -105,11 +104,12 @@ public class PropertyManager {
         public String getBundle() {
             return this.bundle;
         }
-        
-        public String getDefaultValue(){
+
+        public String getDefaultValue() {
             return this.defaultValue;
         }
     }
+
     @Inject
     public PropertyManager() {
     }

@@ -1,0 +1,202 @@
+[
+    {
+        "meta": {
+            "descriptions": [
+                "PKSim desc"
+            ],
+            "titles": [
+                "PKSim title"
+            ],
+            "subjects": [
+                "PKSim subject"
+            ],
+            "creators": [
+                "guest"
+            ],
+            "date": "2017-11-10T14:14:17.291+0000",
+            "locked": false
+        },
+        "ontologicalClasses": [
+            "ot:Algorithm",
+            "ot:PKSim"
+        ],
+        "parameters": [
+            {
+                "name": "Calculation Method",
+                "value": [
+                    "organ vascularization"
+                ],
+                "scope": "OPTIONAL",
+                "allowedValues": [
+                    [
+                        "organ vascularization"
+                    ],
+                    [
+                        "blood flow"
+                    ]
+                ],
+                "_id": "calculationMethod"
+            },
+            {
+                "name": "Age unit",
+                "value": [
+                    "years"
+                ],
+                "scope": "MANDATORY",
+                "allowedValues": [
+                    [
+                        "years"
+                    ],
+                    [
+                        "months"
+                    ],
+                    [
+                        "weeks"
+                    ],
+                    [
+                        "days"
+                    ]
+                ],
+                "_id": "ageUnit"
+            },
+            {
+                "name": "Species",
+                "value": [
+                    "kg"
+                ],
+                "scope": "OPTIONAL",
+                "allowedValues": [
+                    [
+                        "Human"
+                    ],
+                    [
+                        "Monkey"
+                    ],
+                    [
+                        "Beagle"
+                    ],
+                    [
+                        "Dog"
+                    ],
+                    [
+                        "Minipig"
+                    ],
+                    [
+                        "Rat"
+                    ],
+                    [
+                        "Mouse"
+                    ]
+                ],
+                "_id": "species"
+            },
+            {
+                "name": "Individual",
+                "value": [
+                    "1"
+                ],
+                "scope": "MANDATORY",
+                "_id": "individual"
+            },
+            {
+                "name": "Gender",
+                "value": [
+                    "male"
+                ],
+                "scope": "OPTIONAL",
+                "allowedValues": [
+                    [
+                        "male"
+                    ],
+                    [
+                        "female"
+                    ]
+                ],
+                "_id": "gender"
+            },
+            {
+                "name": "Xml file",
+                "value": [
+                    "xml_file"
+                ],
+                "scope": "OPTIONAL",
+                "_id": "xml"
+            },
+            {
+                "name": "Height unit",
+                "value": [
+                    "m"
+                ],
+                "scope": "MANDATORY",
+                "allowedValues": [
+                    [
+                        "cm"
+                    ],
+                    [
+                        "m"
+                    ]
+                ],
+                "_id": "heightUnit"
+            },
+            {
+                "name": "Population",
+                "value": [
+                    "European"
+                ],
+                "scope": "OPTIONAL",
+                "allowedValues": [
+                    [
+                        "Asian"
+                    ],
+                    [
+                        "Black American"
+                    ],
+                    [
+                        "European"
+                    ],
+                    [
+                        "Mexican American -White"
+                    ],
+                    [
+                        "White American"
+                    ],
+                    [
+                        "Japanese"
+                    ],
+                    [
+                        "Preterm"
+                    ]
+                ],
+                "_id": "population"
+            },
+            {
+                "name": "Weight unit",
+                "value": [
+                    "kg"
+                ],
+                "scope": "MANDATORY",
+                "allowedValues": [
+                    [
+                        "kg"
+                    ],
+                    [
+                        "g"
+                    ]
+                ],
+                "_id": "weightUnit"
+            },
+            {
+                "name": "Drug",
+                "value": [
+                    "drug name "
+                ],
+                "scope": "MANDATORY",
+                "_id": "drug"
+            }
+        ],
+        "ranking": 0,
+        "trainingService": "http://147.102.86.129:9999/pksim/api/services/train",
+        "predictionService": "http://147.102.86.129:9999/pksim/api/services/predict",
+        "_id": "pk-sim"
+    }
+]

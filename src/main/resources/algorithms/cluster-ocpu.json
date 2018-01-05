@@ -1,0 +1,49 @@
+[
+    {
+        "meta": {
+            "descriptions": [
+                "GO descriptors derived from -omics and GO database"
+            ],
+            "titles": [
+                "GO descriptor calculation"
+            ],
+            "subjects": [
+                "GO descriptor calculation"
+            ],
+            "locked": false
+        },
+        "ontologicalClasses": [
+            "ot:Algorithm",
+            "ot:Clustering",
+            "ot:Transformation"
+        ],
+        "ranking": 0,
+        "trainingService": "http://test.jaqpot.org:8004/ocpu/library/GOdescrCalculus/R/generate.param.model/json",
+        "predictionService": "http://test.jaqpot.org:8004/ocpu/library/GOdescrCalculus/R/generate.descr.biclust/json",
+        "_id": "ocpu-go"
+    },
+    {
+        "meta": {
+            "descriptions": [
+                "GO descriptors derived from -omics and GO database"
+            ],
+            "titles": [
+                "GO descriptor calculation"
+            ],
+            "subjects": [
+                "GO descriptor calculation"
+            ],
+            "locked": false
+        },
+        "ontologicalClasses": [
+            "ot:Algorithm",
+            "ot:Clustering",
+            "ot:Transformation"
+        ],
+        "ranking": 0,
+        "trainingService": "http://test.jaqpot.org:8005/ocpu/library/GOdescrCalculus/R/generate.param.model/json",
+        "predictionService": "http://test.jaqpot.org:8005/ocpu/library/GOdescrCalculus/R/generate.descr.biclust/json",
+        "_id": "ocpu-go2"
+    }
+]
+
