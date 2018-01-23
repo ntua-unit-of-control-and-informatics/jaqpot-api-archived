@@ -84,7 +84,7 @@ public class PropertyManager {
         JAQPOT_PYTHON_ALGORITHMS_HOST("python.algorithms.host", "config", "http://localhost:8080/"),
         JAQPOT_EXPERIMENTAL_DESIGNS_HOST("exp.design.host", "config", "http://localhost:8080/"),
         JAQPOT_BASE_ALGORITHMS("jaqpot.base.algorithms", "config", "http://localhost:8080/algorithms/service/"),
-        JAQPOT_READACROSS("jaqpot.readacross", "config", "http://147.102.82.32:8095"),
+        JAQPOT_READACROSS("jaqpot.readacross", "config", "http://147.102.82.32:8095/"),
         PKSIM_BASE("pksim.base", "config", "http://147.102.86.129:9999/");
         
         private final String name;
