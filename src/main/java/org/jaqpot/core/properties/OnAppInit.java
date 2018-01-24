@@ -165,7 +165,7 @@ public class OnAppInit {
                     String wekalgohost = propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_BASE_ALGORITHMS);
                     URI hostUrl = new URI(wekalgohost);
                     URI wekaAlgoPredictingService = hostUrl.resolve(pathFromFile);
-                    algo.setTrainingService(wekaAlgoPredictingService.toString());
+                    algo.setPredictionService(wekaAlgoPredictingService.toString());
                 }
                 String reportingUri = algo.getReportService();
                 if (reportingUri != null) {
@@ -210,7 +210,7 @@ public class OnAppInit {
                     String pythonalgohost = propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_PYTHON_ALGORITHMS_HOST);
                     URI hostUrl = new URI(pythonalgohost);
                     URI pythonAlgoPredictingService = hostUrl.resolve(pathFromFile);
-                    algo.setTrainingService(pythonAlgoPredictingService.toString());
+                    algo.setPredictionService(pythonAlgoPredictingService.toString());
                 }
                 String reportingUri = algo.getReportService();
                 if (reportingUri != null) {
@@ -254,7 +254,7 @@ public class OnAppInit {
                     String expDesHost = propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_EXPERIMENTAL_DESIGNS_HOST);
                     URI hostUrl = new URI(expDesHost);
                     URI expDesPredictingService = hostUrl.resolve(pathFromFile);
-                    algo.setTrainingService(expDesPredictingService.toString());
+                    algo.setPredictionService(expDesPredictingService.toString());
                 }
                 String reportingUri = algo.getReportService();
                 if (reportingUri != null) {
@@ -298,7 +298,7 @@ public class OnAppInit {
                     String jaqReadHost = propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_READACROSS);
                     URI hostUrl = new URI(jaqReadHost);
                     URI readAcrPredictingService = hostUrl.resolve(pathFromFile);
-                    algo.setTrainingService(readAcrPredictingService.toString());
+                    algo.setPredictionService(readAcrPredictingService.toString());
                 }
                 String reportingUri = algo.getReportService();
                 if (reportingUri != null) {
@@ -342,7 +342,7 @@ public class OnAppInit {
                     String pkHost = propertyManager.getProperty(PropertyManager.PropertyType.PKSIM_BASE);
                     URI hostUrl = new URI(pkHost);
                     URI pkPredictingService = hostUrl.resolve(pathFromFile);
-                    algo.setTrainingService(pkPredictingService.toString());
+                    algo.setPredictionService(pkPredictingService.toString());
                 }
                 String reportingUri = algo.getReportService();
                 if (reportingUri != null) {
