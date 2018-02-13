@@ -55,9 +55,6 @@ public class FeatureInfo {
         this.name = name;
     }
 
-    
-    
-    
     public String getOnt() {
         return ont;
     }
