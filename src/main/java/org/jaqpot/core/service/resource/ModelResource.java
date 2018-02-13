@@ -118,7 +118,19 @@ public class ModelResource {
             + "and reliability of the models will be returned. "
             + "Use the parameters start and max to get paginated results.",
             response = Model.class,
-            responseContainer = "List")
+            responseContainer = "List",
+            extensions = {
+                @Extension(properties = {
+                    @ExtensionProperty(name = "orn-@type", value = "x-orn:JapotModelList"),
+                    }
+                ),
+                @Extension(name = "orn:expects",properties={
+                    @ExtensionProperty(name = "x-orn-@id", value = "x-orn:AccessToken")
+                }),
+                @Extension(name = "orn:returns",properties={
+                    @ExtensionProperty(name = "x-orn-@id", value = "x-orn:ModelList")
+                })
+            })
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "Models found and are listed in the response body"),
         @ApiResponse(code = 204, message = "No content: The request succeeded, but there are no models "
@@ -149,7 +161,19 @@ public class ModelResource {
             + "and reliability of the models will be returned. "
             + "Use the parameters start and max to get paginated results.",
             response = Model.class,
-            responseContainer = "List")
+            responseContainer = "List",
+            extensions = {
+                @Extension(properties = {
+                    @ExtensionProperty(name = "orn-@type", value = "x-orn:JaqpotModelList"),
+                    }
+                ),
+                @Extension(name = "orn:expects",properties={
+                    @ExtensionProperty(name = "x-orn-@id", value = "x-orn:AccessToken")
+                }),
+                @Extension(name = "orn:returns",properties={
+                    @ExtensionProperty(name = "x-orn-@id", value = "x-orn:JapotModelList")
+                })
+            })
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "Models found and are listed in the response body"),
         @ApiResponse(code = 204, message = "No content: The request succeeded, but there are no models "
@@ -175,7 +199,20 @@ public class ModelResource {
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list", "application/ld+json"})
     @ApiOperation(value = "Finds Model by Id",
             notes = "Finds specified Model",
-            response = Model.class)
+            response = Model.class,
+            extensions = {
+                @Extension(properties = {
+                    @ExtensionProperty(name = "orn-@type", value = "x-orn:Model"),
+                    }
+                ),
+                @Extension(name = "orn:expects",properties={
+                    @ExtensionProperty(name = "x-orn-@id", value = "x-orn:AcessToken"),
+                    @ExtensionProperty(name = "x-orn-@id", value = "x-orn:JaqpotModelId")
+                }),
+                @Extension(name = "orn:returns",properties={
+                    @ExtensionProperty(name = "x-orn-@id", value = "x-orn:JaqpotModel")
+                })
+            })
 //    @ApiResponses(value = {
 //        @ApiResponse(code = 200, message = "Model is found"),
 //        @ApiResponse(code = 401, message = "You are not authorized to access this model"),
@@ -374,7 +411,21 @@ public class ModelResource {
     @Path("/{id}")
     @ApiOperation(value = "Creates Prediction",
             notes = "Creates Prediction",
-            response = Task.class
+            response = Task.class,
+            extensions = {
+                @Extension(properties = {
+                    @ExtensionProperty(name = "orn-@type", value = "x-orn:JaqpotPredictionTaskId"),
+                    }
+                ),
+                @Extension(name = "orn:expects",properties={
+                    @ExtensionProperty(name = "x-orn-@id", value = "x-orn:AcessToken"),
+                    @ExtensionProperty(name = "x-orn-@id", value = "x-orn:JaqpotModelId"),
+                    @ExtensionProperty(name = "x-orn-@id", value = "x-orn:Dataset")
+                }),
+                @Extension(name = "orn:returns",properties={
+                    @ExtensionProperty(name = "x-orn-@id", value = "x-orn:JaqpotPredictionTaskId")
+                })
+            }
     )
     @org.jaqpot.core.service.annotations.Task
     public Response makePrediction(
@@ -436,7 +487,20 @@ public class ModelResource {
             notes = "Deletes a Model of a given ID. The method is idempondent, that is it can be used more than once without "
             + "triggering an exception/error. If the Model does not exist, the method will return without errors. "
             + "Authentication and authorization requirements apply, so clients that are not authenticated with a "
-            + "valid token or do not have sufficient priviledges will not be able to delete Models using this method.")
+            + "valid token or do not have sufficient priviledges will not be able to delete Models using this method.",
+            extensions = {
+                @Extension(properties = {
+                    @ExtensionProperty(name = "orn-@type", value = "x-orn:DeleteJaqpotModel"),
+                    }
+                ),
+                @Extension(name = "orn:expects",properties={
+                    @ExtensionProperty(name = "x-orn-@id", value = "x-orn:AcessToken"),
+                    @ExtensionProperty(name = "x-orn-@id", value = "x-orn:JaqpotModelId")
+                }),
+                @Extension(name = "orn:returns",properties={
+                    @ExtensionProperty(name = "x-orn-@id", value = "x-orn:HttpStatus")
+                })
+            })
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "Model entry was deleted successfully (if found)."),
         @ApiResponse(code = 401, message = "You are not authorized to delete this resource"),

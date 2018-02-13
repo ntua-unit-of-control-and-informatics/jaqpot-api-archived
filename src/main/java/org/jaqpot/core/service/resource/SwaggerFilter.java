@@ -13,6 +13,7 @@ import io.swagger.jaxrs.config.ReaderListener;
 import io.swagger.models.Swagger;
 import io.swagger.models.auth.ApiKeyAuthDefinition;
 import io.swagger.models.auth.In;
+import javax.enterprise.context.ApplicationScoped;
 
 /**
  *

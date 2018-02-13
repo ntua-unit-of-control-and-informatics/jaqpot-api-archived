@@ -55,6 +55,7 @@ public class FeatureValue extends JaqpotEntity {
         this.stdError = other.stdError;
         this.stringValue = other.stringValue;
         this.value = other.value;
+        this.ont = other.ont;
     }
 
     public FeatureValue(String id) {
@@ -100,6 +101,9 @@ public class FeatureValue extends JaqpotEntity {
      */
     private String createdBy;
 
+    
+    private String ont;
+    
     public String getCreatedBy() {
         return createdBy;
     }
@@ -162,6 +166,14 @@ public class FeatureValue extends JaqpotEntity {
 
     public void setBibtex(String bibtex) {
         this.bibtex = bibtex;
+    }
+
+    public String getOntology() {
+        return ont;
+    }
+
+    public void setOntology(String ontology) {
+        this.ont = ontology;
     }
 
 }
