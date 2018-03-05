@@ -158,7 +158,7 @@ public class OnAppInit {
                     URI wekaAlgoTrainingService = hostUrl.resolve(pathFromFile);
                     algo.setTrainingService(wekaAlgoTrainingService.toString());
                 }
-                String predictingUri = algo.getTrainingService();
+                String predictingUri = algo.getPredictionService();
                 if (predictingUri != null) {
                     URI predictUriFromFile = new URI(predictingUri);
                     String pathFromFile = predictUriFromFile.getPath();
@@ -203,7 +203,7 @@ public class OnAppInit {
                     URI pythonAlgoTrainingService = hostUrl.resolve(pathFromFile);
                     algo.setTrainingService(pythonAlgoTrainingService.toString());
                 }
-                String predictingUri = algo.getTrainingService();
+                String predictingUri = algo.getPredictionService();
                 if (predictingUri != null) {
                     URI predictUriFromFile = new URI(predictingUri);
                     String pathFromFile = predictUriFromFile.getPath();
@@ -247,7 +247,7 @@ public class OnAppInit {
                     URI expDesTrainingService = hostUrl.resolve(pathFromFile);
                     algo.setTrainingService(expDesTrainingService.toString());
                 }
-                String predictingUri = algo.getTrainingService();
+                String predictingUri = algo.getPredictionService();
                 if (predictingUri != null) {
                     URI predictUriFromFile = new URI(predictingUri);
                     String pathFromFile = predictUriFromFile.getPath();
@@ -291,7 +291,7 @@ public class OnAppInit {
                     URI readAcrTrainingService = hostUrl.resolve(pathFromFile);
                     algo.setTrainingService(readAcrTrainingService.toString());
                 }
-                String predictingUri = algo.getTrainingService();
+                String predictingUri = algo.getPredictionService();
                 if (predictingUri != null) {
                     URI predictUriFromFile = new URI(predictingUri);
                     String pathFromFile = predictUriFromFile.getPath();
@@ -335,7 +335,7 @@ public class OnAppInit {
                     URI pkTrainingService = hostUrl.resolve(pathFromFile);
                     algo.setTrainingService(pkTrainingService.toString());
                 }
-                String predictingUri = algo.getTrainingService();
+                String predictingUri = algo.getPredictionService();
                 if (predictingUri != null) {
                     URI predictUriFromFile = new URI(predictingUri);
                     String pathFromFile = predictUriFromFile.getPath();
