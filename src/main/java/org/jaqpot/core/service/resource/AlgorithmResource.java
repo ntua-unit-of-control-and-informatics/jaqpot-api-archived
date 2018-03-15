@@ -139,7 +139,16 @@ public class AlgorithmResource {
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @ApiOperation(
             value = "Finds all Algorithms",
-            notes = "Finds all Algorithms JaqpotQuattro supports"
+            notes = "Finds all Algorithms JaqpotQuattro supports",
+            extensions = {
+                @Extension(properties = {
+                    @ExtensionProperty(name = "orn-@type", value = "x-orn:Algorithm"),
+                    }
+                ),
+                @Extension(name = "orn:returns",properties={
+                    @ExtensionProperty(name = "x-orn-@id", value = "x-orn:AlgorithmList")
+                })
+            }
     )
     @ApiResponses(value = {
             @ApiResponse(code = 401, response=  ErrorReport.class , message = "Wrong, missing or insufficient credentials. Error report is produced."),
@@ -173,7 +182,19 @@ public class AlgorithmResource {
                     + "<a href=\"http://opentox.org/dev/apis/api-1.1/Algorithms\">OpenTox algorithms ontology</a>. For instance, a "
                     + "Clustering algorithm must be annotated with <code>ot:Clustering</code>. It is also important for "
                     + "discoverability to add tags to your algorithm using the <code>meta.subjects</code> field. An example is "
-                    + "provided below."
+                    + "provided below.",
+            extensions = {
+                @Extension(properties = {
+                    @ExtensionProperty(name = "orn-@type", value = "x-orn:Algorithm"),
+                    }
+                ),
+                @Extension(name = "orn:expects",properties={
+                    @ExtensionProperty(name = "x-orn-@id", value = "x-orn:Algorithm")
+                }),
+                @Extension(name = "orn:returns",properties={
+                    @ExtensionProperty(name = "x-orn-@id", value = "x-orn:Status")
+                })
+            }
     )
     @ApiResponses(value = {
             @ApiResponse(code = 403, response = ErrorReport.class, message="Algorithm quota has been exceeded"),
@@ -234,7 +255,19 @@ public class AlgorithmResource {
     @Path("/{id}")
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list", "application/ld+json"})
     @ApiOperation(value = "Finds Algorithm",
-            notes = "Finds Algorithm with provided name"
+            notes = "Finds Algorithm with provided name",
+            extensions = {
+                @Extension(properties = {
+                    @ExtensionProperty(name = "orn-@type", value = "x-orn:Algorithm"),
+                    }
+                ),
+                @Extension(name = "orn:expects",properties={
+                    @ExtensionProperty(name = "x-orn-@id", value = "x-orn:AlgorithmId")
+                }),
+                @Extension(name = "orn:returns",properties={
+                    @ExtensionProperty(name = "x-orn-@id", value = "x-orn:Algorithm")
+                })
+            }
     )
     @ApiResponses(value = {
             @ApiResponse(code = 401, response=  ErrorReport.class , message = "Wrong, missing or insufficient credentials. Error report is produced."),
@@ -260,7 +293,20 @@ public class AlgorithmResource {
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @Path("/{id}")
     @ApiOperation(value = "Creates Model",
-            notes = "Applies Dataset and Parameters on Algorithm and creates Model."
+            notes = "Applies Dataset and Parameters on Algorithm and creates Model.",
+            extensions = {
+                @Extension(properties = {
+                    @ExtensionProperty(name = "orn-@type", value = "x-orn:Model"),
+                    }
+                ),
+                @Extension(name = "orn:expects",properties={
+                    @ExtensionProperty(name = "x-orn-@id", value = "x-orn:AlgorithmId"),
+                    @ExtensionProperty(name = "x-orn-@id", value = "x-orn:OperrationParameters")
+                }),
+                @Extension(name = "orn:returns",properties={
+                    @ExtensionProperty(name = "x-orn-@id", value = "x-orn:JaqpotModelingTaskId")
+                })
+            }
     )
     @ApiResponses(value = {
             @ApiResponse(code = 400, response=  ErrorReport.class , message = "Bad request. More info can be found in details of Error Report."),
@@ -379,7 +425,21 @@ public class AlgorithmResource {
     @Path("/{id}")
     @ApiOperation(value = "Unregisters an algorithm of given ID",
             notes = "Deletes an algorithm of given ID. The application of this method "
-            + "requires authentication and assumes certain priviledges."
+            + "requires authentication and assumes certain priviledges.",
+            extensions = {
+                @Extension(properties = {
+                    @ExtensionProperty(name = "orn-@type", value = "x-orn:DeletesAlgorithm"),
+                    }
+                ),
+                @Extension(name = "orn:expects",properties={
+                    @ExtensionProperty(name = "x-orn-@id", value = "x-orn:AlgorithmId"),
+                    @ExtensionProperty(name = "x-orn-@id", value = "x-orn:OperrationParameters")
+                }),
+                @Extension(name = "orn:returns",properties={
+                    @ExtensionProperty(name = "x-orn-@id", value = "x-orn:HttpStatus")
+                })
+            }
+            
     )
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "Algorithm deleted successfully"),

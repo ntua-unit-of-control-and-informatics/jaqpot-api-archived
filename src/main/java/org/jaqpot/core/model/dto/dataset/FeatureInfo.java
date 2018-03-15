@@ -45,6 +45,7 @@ public class FeatureInfo {
     private String units;
     private Map<String, Object> conditions;
     private Dataset.DescriptorCategory category;
+    private String ont;
 
     public FeatureInfo() {
     }
@@ -52,6 +53,14 @@ public class FeatureInfo {
     public FeatureInfo(String URI, String name) {
         this.URI = URI;
         this.name = name;
+    }
+
+    public String getOnt() {
+        return ont;
+    }
+
+    public void setOnt(String ont) {
+        this.ont = ont;
     }
 
     public String getURI() {
