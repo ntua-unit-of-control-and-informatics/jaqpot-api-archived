@@ -97,8 +97,8 @@ public class PredictionProcedure extends AbstractJaqpotProcedure implements Mess
     @EJB
     DatasetHandler datasetHandler;
 
-    @Inject
-    RabbitMQ rabbitMQClient;
+//    @Inject
+//    RabbitMQ rabbitMQClient;
 
     @Inject
     @Jackson
@@ -222,19 +222,19 @@ public class PredictionProcedure extends AbstractJaqpotProcedure implements Mess
             datasetHandler.create(dataset);
 
             complete("dataset/" + dataset.getId());
-            rabbitMQClient.sendMessage(creator,"Prediction:"+dataset.getId()+":"+model.getMeta().getTitles().iterator().next());
+//            rabbitMQClient.sendMessage(creator,"Prediction:"+dataset.getId()+":"+model.getMeta().getTitles().iterator().next());
 
         } catch (InterruptedException ex) {
             LOG.log(Level.SEVERE, "JPDI Prediction procedure interupted", ex);
             errInternalServerError(ex, "JPDI Prediction procedure interupted");
-            sendException(creator,"Error while applying model "+ model.getMeta().getTitles().iterator().next() +". Interrupted Error.");
+//            sendException(creator,"Error while applying model "+ model.getMeta().getTitles().iterator().next() +". Interrupted Error.");
         } catch (ExecutionException ex) {
             LOG.log(Level.SEVERE, "Prediction procedure execution error", ex.getCause());
             errInternalServerError(ex.getCause(), "JPDI Training procedure error");
-            sendException(creator,"Error while applying model "+ model.getMeta().getTitles().iterator().next() +". Execution Error.");
+//            sendException(creator,"Error while applying model "+ model.getMeta().getTitles().iterator().next() +". Execution Error.");
         } catch (CancellationException ex) {
             LOG.log(Level.INFO, "Task with id:{0} was cancelled", taskId);
-            sendException(creator,"Error while applying model "+ model.getMeta().getTitles().iterator().next() +". Cancel Error.");
+//            sendException(creator,"Error while applying model "+ model.getMeta().getTitles().iterator().next() +". Cancel Error.");
             cancel();
         } catch (BadRequestException | IllegalArgumentException ex) {
             errBadRequest(ex, "null");
@@ -242,18 +242,18 @@ public class PredictionProcedure extends AbstractJaqpotProcedure implements Mess
             LOG.log(Level.SEVERE, "Task with id:{0} was canceled due to Ejb rollback exception", taskId);
             errInternalServerError(ex.getCause(), "JPDI could not create dataset");
             errBadRequest(ex, null);
-            sendException(creator,"Error while applying model "+ model.getMeta().getTitles().iterator().next() +". Bad Request.");
+//            sendException(creator,"Error while applying model "+ model.getMeta().getTitles().iterator().next() +". Bad Request.");
         } catch (Exception ex) {
             LOG.log(Level.SEVERE, "JPDI Prediction procedure unknown error", ex);
             errInternalServerError(ex, "JPDI Prediction procedure unknown error");
-            sendException(creator,"Error while applying model "+ model.getMeta().getTitles().iterator().next() +". Unknown Error.");
+//            sendException(creator,"Error while applying model "+ model.getMeta().getTitles().iterator().next() +". Unknown Error.");
         }
     }
-    private void sendException(String topic,String message) {
-        try {
-            rabbitMQClient.sendMessage(topic,message);
-        } catch (IOException | TimeoutException e) {
-            e.printStackTrace();
-        }
-    }
+//    private void sendException(String topic,String message) {
+//        try {
+//            rabbitMQClient.sendMessage(topic,message);
+//        } catch (IOException | TimeoutException e) {
+//            e.printStackTrace();
+//        }
+//    }
 }

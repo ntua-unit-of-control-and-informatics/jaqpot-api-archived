@@ -85,8 +85,8 @@ public class TrainingProcedure extends AbstractJaqpotProcedure implements Messag
 
     private static final Logger LOG = Logger.getLogger(TrainingProcedure.class.getName());
 
-    @Inject
-    RabbitMQ rabbitMQClient;
+//    @Inject
+//    RabbitMQ rabbitMQClient;
 
     @EJB
     AlgorithmHandler algorithmHandler;
@@ -279,40 +279,40 @@ public class TrainingProcedure extends AbstractJaqpotProcedure implements Messag
             );
             modelHandler.create(model);
             complete("model/" + model.getId());
-            rabbitMQClient.sendMessage(creator,"Training procedure for model "+ modelTitle +" was completed successfully!");
+//            rabbitMQClient.sendMessage(creator,"Training procedure for model "+ modelTitle +" was completed successfully!");
 
         } catch (InterruptedException ex) {
             LOG.log(Level.SEVERE, "JPDI Training procedure interrupted", ex);
             errInternalServerError(ex, "JPDI Training procedure interrupted");
-            sendException(creator,"Error while creating model "+ modelTitle +". Interrupted.");
+//            sendException(creator,"Error while creating model "+ modelTitle +". Interrupted.");
         } catch (ExecutionException ex) {
             LOG.log(Level.SEVERE, "Training procedure execution error", ex.getCause());
             errInternalServerError(ex.getCause(), "JPDI Training procedure error");
-            sendException(creator,"Error while creating model "+ modelTitle +". Internal Error. ");
+//            sendException(creator,"Error while creating model "+ modelTitle +". Internal Error. ");
         } catch (CancellationException ex) {
             LOG.log(Level.INFO, "Task with id:{0} was cancelled", taskId);
-            sendException(creator,"Error while creating model "+ modelTitle +". Task was cancelled");
+//            sendException(creator,"Error while creating model "+ modelTitle +". Task was cancelled");
             cancel();
         } catch (BadRequestException | IllegalArgumentException ex) {
             errBadRequest(ex, null);
-            sendException(creator,"Error while creating model "+ modelTitle +". Bad Request.");
+//            sendException(creator,"Error while creating model "+ modelTitle +". Bad Request.");
         } catch (NotFoundException ex) {
             errNotFound(ex);
-            sendException(creator,"Error while creating model "+ modelTitle +". Not Found");
+//            sendException(creator,"Error while creating model "+ modelTitle +". Not Found");
 
         } catch (Exception ex) {
             LOG.log(Level.SEVERE, "JPDI Training procedure unknown error", ex);
             errInternalServerError(ex, "JPDI Training procedure unknown error");
-            sendException(creator,"Error while creating model "+ modelTitle +". Unknown Error.");
+//            sendException(creator,"Error while creating model "+ modelTitle +". Unknown Error.");
         }
 
     }
-    private void sendException(String topic,String message) {
-        try {
-            rabbitMQClient.sendMessage(topic,message);
-        } catch (IOException | TimeoutException e) {
-            e.printStackTrace();
-        }
-    }
+//    private void sendException(String topic,String message) {
+//        try {
+//            rabbitMQClient.sendMessage(topic,message);
+//        } catch (IOException | TimeoutException e) {
+//            e.printStackTrace();
+//        }
+//    }
 
 }
