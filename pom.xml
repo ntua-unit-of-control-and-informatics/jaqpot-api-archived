@@ -223,6 +223,8 @@
         <interlab.base></interlab.base>
         <jaqpot.readacross></jaqpot.readacross>
         <pksim.base></pksim.base>
+        
+        <jaqpot.qprf></jaqpot.qprf>
     </properties>
     
     <repositories>

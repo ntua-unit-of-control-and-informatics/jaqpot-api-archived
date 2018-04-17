@@ -82,6 +82,7 @@ import org.jaqpot.core.model.dto.study.Substance;
 import org.jaqpot.core.model.facades.UserFacade;
 import org.jaqpot.core.model.factory.DatasetFactory;
 import org.jaqpot.core.model.util.ROG;
+import org.jaqpot.core.properties.PropertyManager;
 import org.jaqpot.core.service.annotations.Authorize;
 import org.jaqpot.core.service.annotations.UnSecure;
 import org.jaqpot.core.service.client.ambit.Ambit;
@@ -132,6 +133,9 @@ public class DatasetResource {
 
     @Inject
     JPDIClient jpdiClient;
+    
+    @Inject
+    PropertyManager properyManager;
 
     @Context
     SecurityContext securityContext;
@@ -622,7 +626,7 @@ public class DatasetResource {
                 .findFirst()
                 .orElseThrow(() -> new BadRequestException("Model does not have a valid prediction feature")));
 
-        Report report = client.target("http://147.102.82.32:8094/pws/qprf")
+        Report report = client.target(properyManager.getProperty(PropertyManager.PropertyType.JAQPOT_QPRF))
                 .request()
                 .header("Content-Type", MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
