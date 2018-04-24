@@ -80,10 +80,10 @@ public class ErrorReportBuilder implements EntityBuilder<ErrorReport> {
         return this;
     }
 
-    public ErrorReportBuilder setTrace(ErrorReport trace) {
-        errorReport.setTrace(trace);
-        return this;
-    }
+//    public ErrorReportBuilder setTrace(ErrorReport trace) {
+//        errorReport.setTrace(trace);
+//        return this;
+//    }
 
     @Override
     public ErrorReport build() {

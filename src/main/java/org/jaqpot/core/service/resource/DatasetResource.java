@@ -29,6 +29,7 @@
  */
 package org.jaqpot.core.service.resource;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.*;
 
 import java.io.ByteArrayOutputStream;
@@ -133,7 +134,7 @@ public class DatasetResource {
 
     @Inject
     JPDIClient jpdiClient;
-    
+
     @Inject
     PropertyManager properyManager;
 
@@ -152,9 +153,12 @@ public class DatasetResource {
             position = 1)
     @ApiResponses(value = {
         @ApiResponse(code = 200, response = Dataset.class, responseContainer = "List",
-                message = "Datasets found and are listed in the response body"),
-        @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to access this resource"),
-        @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)"),
+                message = "Datasets found and are listed in the response body")
+        ,
+        @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to access this resource")
+        ,
+        @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)")
+        ,
         @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
     })
     public Response listDatasets(
@@ -181,12 +185,16 @@ public class DatasetResource {
     @Path("{id}")
     @ApiOperation(value = "Finds Dataset by Id",
             notes = "Finds specified Dataset"
-            )
+    )
     @ApiResponses(value = {
-            @ApiResponse(code = 200, response = Dataset.class, message = "Dataset was found"),
-            @ApiResponse(code = 404, response = ErrorReport.class, message = "Dataset was not found in the system"),
-            @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to access this resource"),
-            @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)"),
+        @ApiResponse(code = 200, response = Dataset.class, message = "Dataset was found")
+        ,
+            @ApiResponse(code = 404, response = ErrorReport.class, message = "Dataset was not found in the system")
+        ,
+            @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to access this resource")
+        ,
+            @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)")
+        ,
             @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
     })
     public Response getDataset(
@@ -219,9 +227,12 @@ public class DatasetResource {
             + "returned (RFC 2616) with code P670.",
             position = 1)
     @ApiResponses(value = {
-        @ApiResponse(code = 200, response = Dataset.class, responseContainer = "List", message = "Datasets found and are listed in the response body"),
-        @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to access this resource"),
-        @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)"),
+        @ApiResponse(code = 200, response = Dataset.class, responseContainer = "List", message = "Datasets found and are listed in the response body")
+        ,
+        @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to access this resource")
+        ,
+        @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)")
+        ,
         @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
     })
     public Response listFeaturedDatasets(
@@ -248,10 +259,14 @@ public class DatasetResource {
     @ApiOperation(value = "Finds Features of Dataset by Id",
             notes = "Finds specified Dataset's features")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, response = Dataset.class, message = "Dataset's features found and are listed in the response body"),
-            @ApiResponse(code = 404, response = ErrorReport.class, message = "Dataset was not found in the system"),
-            @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to access this resource"),
-            @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)"),
+        @ApiResponse(code = 200, response = Dataset.class, message = "Dataset's features found and are listed in the response body")
+        ,
+            @ApiResponse(code = 404, response = ErrorReport.class, message = "Dataset was not found in the system")
+        ,
+            @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to access this resource")
+        ,
+            @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)")
+        ,
             @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
     })
     public Response getDatasetFeatures(
@@ -271,10 +286,14 @@ public class DatasetResource {
     @ApiOperation(value = "Finds MetaData of Dataset by Id",
             notes = "Finds specified Dataset's MetaData")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, response = Dataset.class, message = "Dataset's meta data found and are listed in the response body"),
-            @ApiResponse(code = 404, response = ErrorReport.class, message = "Dataset was not found in the system"),
-            @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to access this resource"),
-            @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)"),
+        @ApiResponse(code = 200, response = Dataset.class, message = "Dataset's meta data found and are listed in the response body")
+        ,
+            @ApiResponse(code = 404, response = ErrorReport.class, message = "Dataset was not found in the system")
+        ,
+            @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to access this resource")
+        ,
+            @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)")
+        ,
             @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
     })
     public Response getDatasetMeta(
@@ -295,10 +314,14 @@ public class DatasetResource {
     @ApiOperation(value = "Creates a new Dataset",
             notes = "The new Dataset created will be assigned on a random generated Id")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, response = Dataset.class, message = "Dataset was created succesfully"),
-            @ApiResponse(code = 403, response = ErrorReport.class, message="Dataset quota has been exceeded"),
-            @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to access this resource"),
-            @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)"),
+        @ApiResponse(code = 200, response = Dataset.class, message = "Dataset was created succesfully")
+        ,
+            @ApiResponse(code = 403, response = ErrorReport.class, message = "Dataset quota has been exceeded")
+        ,
+            @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to access this resource")
+        ,
+            @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)")
+        ,
             @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
     })
     public Response createDataset(
@@ -337,10 +360,14 @@ public class DatasetResource {
     @ApiOperation(value = "Creates a new empty Dataset",
             notes = "The new empty Dataset created will be assigned on a random generated Id")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, response = Dataset.class, message = "Dataset was created succesfully"),
-            @ApiResponse(code = 403, response = ErrorReport.class, message="Dataset quota has been exceeded"),
-            @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to access this resource"),
-            @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)"),
+        @ApiResponse(code = 200, response = Dataset.class, message = "Dataset was created succesfully")
+        ,
+            @ApiResponse(code = 403, response = ErrorReport.class, message = "Dataset quota has been exceeded")
+        ,
+            @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to access this resource")
+        ,
+            @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)")
+        ,
             @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
     })
     public Response createEmptyDataset(
@@ -382,10 +409,14 @@ public class DatasetResource {
     @ApiOperation(value = "Merges Datasets",
             notes = "The new intersected Dataset created will be assigned on a random generated Id")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, response = Dataset.class, message = "Dataset was created succesfully"),
-            @ApiResponse(code = 403, response = ErrorReport.class, message="Dataset quota has been exceeded"),
-            @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to access this resource"),
-            @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)"),
+        @ApiResponse(code = 200, response = Dataset.class, message = "Dataset was created succesfully")
+        ,
+            @ApiResponse(code = 403, response = ErrorReport.class, message = "Dataset quota has been exceeded")
+        ,
+            @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to access this resource")
+        ,
+            @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)")
+        ,
             @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
     })
     public Response mergeDatasets(
@@ -434,11 +465,16 @@ public class DatasetResource {
     @Authorize
     @ApiOperation("Deletes dataset")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Dataset was succesfully deleted"),
-            @ApiResponse(code = 404, response = ErrorReport.class, message = "Dataset was not found in the system"),
-            @ApiResponse(code = 403, response = ErrorReport.class, message="Dataset quota has been exceeded"),
-            @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to access this resource"),
-            @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)"),
+        @ApiResponse(code = 200, message = "Dataset was succesfully deleted")
+        ,
+            @ApiResponse(code = 404, response = ErrorReport.class, message = "Dataset was not found in the system")
+        ,
+            @ApiResponse(code = 403, response = ErrorReport.class, message = "Dataset quota has been exceeded")
+        ,
+            @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to access this resource")
+        ,
+            @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)")
+        ,
             @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
     })
     public Response deleteDataset(
@@ -449,8 +485,9 @@ public class DatasetResource {
             throw new NotFoundException("Dataset with id:" + id + " was not found on the server.");
         }
         MetaInfo metaInfo = ds.getMeta();
-        if (metaInfo.getLocked())
+        if (metaInfo.getLocked()) {
             throw new JaqpotForbiddenException("You cannot delete a Dataset that is locked.");
+        }
 
         String userName = securityContext.getUserPrincipal().getName();
         if (!ds.getMeta().getCreators().contains(userName)) {
@@ -465,12 +502,18 @@ public class DatasetResource {
     @Authorize
     @ApiOperation("Creates QPRF Report")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Dataset was succesfully deleted"),
-            @ApiResponse(code = 400, response = ErrorReport.class, message = "Bad Request. More details can be found in details of ErrorReport"),
-            @ApiResponse(code = 404, response = ErrorReport.class, message = "Dataset was not found in the system"),
-            @ApiResponse(code = 403, response = ErrorReport.class, message="Dataset quota has been exceeded"),
-            @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to access this resource"),
-            @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)"),
+        @ApiResponse(code = 200, message = "Dataset was succesfully deleted")
+        ,
+            @ApiResponse(code = 400, response = ErrorReport.class, message = "Bad Request. More details can be found in details of ErrorReport")
+        ,
+            @ApiResponse(code = 404, response = ErrorReport.class, message = "Dataset was not found in the system")
+        ,
+            @ApiResponse(code = 403, response = ErrorReport.class, message = "Dataset quota has been exceeded")
+        ,
+            @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to access this resource")
+        ,
+            @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)")
+        ,
             @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
     })
 
@@ -561,7 +604,7 @@ public class DatasetResource {
 
             String substanceId = substanceURI.split("substance/")[1];
 
-            Dataset structures = ambitClient.getDatasetStructures(substanceId,subjectId);
+            Dataset structures = ambitClient.getDatasetStructures(substanceId, subjectId);
 
             List<Map<String, String>> structuresList = structures.getDataEntry()
                     .stream()
@@ -586,6 +629,18 @@ public class DatasetResource {
                         return structuresMap;
                     })
                     .collect(Collectors.toList());
+            if (structuresList.isEmpty()) {
+                Map<String, String> structuresMap = new HashMap<>();
+                structuresMap.put("Compound", "");
+                structuresMap.put("CasRN", "");
+                structuresMap.put("EC number", "");
+                structuresMap.put("REACH registration date", "");
+                structuresMap.put("IUCLID 5 Reference substance UUID", "");
+                structuresMap.put("Std. InChI", "");
+                structuresMap.put("IUPAC name", "");
+                structuresList.add(structuresMap);
+                parameters.put("structures", structuresList);
+            }
             parameters.put("structures", structuresList);
         } else {
             List<Map<String, String>> structuresList = new ArrayList<>();
@@ -603,10 +658,10 @@ public class DatasetResource {
 
         parameters.put("predictedFeature",
                 model
-                .getPredictedFeatures()
-                .stream()
-                .findFirst()
-                .orElseThrow(() -> new BadRequestException("Model does not have a valid predicted feature")));
+                        .getPredictedFeatures()
+                        .stream()
+                        .findFirst()
+                        .orElseThrow(() -> new BadRequestException("Model does not have a valid predicted feature")));
 
         parameters.put("algorithm", algorithmHandler.find(model.getAlgorithm().getId()));
         parameters.put("substanceURI", substanceURI);
@@ -625,8 +680,9 @@ public class DatasetResource {
                 .stream()
                 .findFirst()
                 .orElseThrow(() -> new BadRequestException("Model does not have a valid prediction feature")));
+        String qprfHost = properyManager.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_QPRF);
 
-        Report report = client.target(properyManager.getProperty(PropertyManager.PropertyType.JAQPOT_QPRF))
+        Report report = client.target(qprfHost)
                 .request()
                 .header("Content-Type", MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
@@ -650,12 +706,18 @@ public class DatasetResource {
     @Authorize
     @ApiOperation("Creates QPRF Dummy Report")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Dataset was succesfully deleted"),
-            @ApiResponse(code = 400, response = ErrorReport.class, message = "Bad Request. More details can be found in details of ErrorReport"),
-            @ApiResponse(code = 404, response = ErrorReport.class, message = "Dataset was not found in the system"),
-            @ApiResponse(code = 403, response = ErrorReport.class, message="Dataset quota has been exceeded"),
-            @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to access this resource"),
-            @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)"),
+        @ApiResponse(code = 200, message = "Dataset was succesfully deleted")
+        ,
+            @ApiResponse(code = 400, response = ErrorReport.class, message = "Bad Request. More details can be found in details of ErrorReport")
+        ,
+            @ApiResponse(code = 404, response = ErrorReport.class, message = "Dataset was not found in the system")
+        ,
+            @ApiResponse(code = 403, response = ErrorReport.class, message = "Dataset quota has been exceeded")
+        ,
+            @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to access this resource")
+        ,
+            @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)")
+        ,
             @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
     })
     public Response createQPRFReportDummy(
@@ -774,10 +836,10 @@ public class DatasetResource {
 
         parameters.put("predictedFeature",
                 model
-                .getPredictedFeatures()
-                .stream()
-                .findFirst()
-                .orElseThrow(() -> new BadRequestException("Model does not have a valid predicted feature")));
+                        .getPredictedFeatures()
+                        .stream()
+                        .findFirst()
+                        .orElseThrow(() -> new BadRequestException("Model does not have a valid predicted feature")));
 
         parameters.put("algorithm", algorithmHandler.find(model.getAlgorithm().getId()));
         parameters.put("substanceURI", substanceURI);
@@ -817,14 +879,15 @@ public class DatasetResource {
 //        return Response.ok(report).build();
     }
 
-
     @POST
     @Authorize
     @Path("/createDummyDataset")
-   // @Consumes("multipart/form-data")
+    // @Consumes("multipart/form-data")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "file", value = "xls[m,x] file", required = true, dataType = "file", paramType = "formData"),
-            @ApiImplicitParam(name = "title", value = "Title of dataset", required = true, dataType = "string", paramType = "formData"),
+        @ApiImplicitParam(name = "file", value = "xls[m,x] file", required = true, dataType = "file", paramType = "formData")
+        ,
+            @ApiImplicitParam(name = "title", value = "Title of dataset", required = true, dataType = "string", paramType = "formData")
+        ,
             @ApiImplicitParam(name = "description", value = "Description of dataset", required = true, dataType = "string", paramType = "formData")
     })
     @ApiOperation(value = "Creates dummy dataset By .csv document",
@@ -852,7 +915,6 @@ public class DatasetResource {
         String title = uploadForm.get("title").get(0).getBody(String.class, null);
         String description = uploadForm.get("description").get(0).getBody(String.class, null);
         String filename="";*/
-
         Dataset dataset = null;
         Map<String, List<InputPart>> uploadForm = input.getFormDataMap();
         List<InputPart> inputParts = uploadForm.get("file");
@@ -889,49 +951,45 @@ public class DatasetResource {
     }
 
     private Dataset calculateRowsAndColumns(InputStream stream) {
-            Scanner scanner = new Scanner(stream);
+        Scanner scanner = new Scanner(stream);
 
-            Set<FeatureInfo> featureInfoList = new HashSet<>();
-            List<DataEntry> dataEntryList = new ArrayList<>();
-            List<String> feature = new LinkedList<>();
-            boolean firstLine=true;
-            int count=0;
-            while (scanner.hasNext()) {
+        Set<FeatureInfo> featureInfoList = new HashSet<>();
+        List<DataEntry> dataEntryList = new ArrayList<>();
+        List<String> feature = new LinkedList<>();
+        boolean firstLine = true;
+        int count = 0;
+        while (scanner.hasNext()) {
 
-                List<String> line = parseLine(scanner.nextLine());
-                if (firstLine) {
-                    for (String l : line) {
-                        feature.add("/feature/"+l);
-                        featureInfoList.add(new FeatureInfo("/feature/" + l, l));
-                    }
-                    firstLine = false;
+            List<String> line = parseLine(scanner.nextLine());
+            if (firstLine) {
+                for (String l : line) {
+                    feature.add("/feature/" + l);
+                    featureInfoList.add(new FeatureInfo("/feature/" + l, l));
                 }
-                else
-                {
-                    Iterator<String> it1 = feature.iterator();
-                    Iterator<String> it2 = line.iterator();
-                    TreeMap<String, Object> values = new TreeMap<>();
-                    while (it1.hasNext() && it2.hasNext()) {
-                        values.put(it1.next(),it2.next());
-                    }
-                    org.jaqpot.core.model.dto.dataset.Substance substance = new org.jaqpot.core.model.dto.dataset.Substance();
-                    substance.setURI("/substance/"+count);
-                    substance.setName("row"+count);
-                    substance.setOwnerUUID("7da545dd-2544-43b0-b834-9ec02553f7f2");
-                    DataEntry dataEntry= new DataEntry();
-                    dataEntry.setValues(values);
-                    dataEntry.setCompound(substance);
-                    dataEntryList.add(dataEntry);
+                firstLine = false;
+            } else {
+                Iterator<String> it1 = feature.iterator();
+                Iterator<String> it2 = line.iterator();
+                TreeMap<String, Object> values = new TreeMap<>();
+                while (it1.hasNext() && it2.hasNext()) {
+                    values.put(it1.next(), it2.next());
                 }
-                count++;
+                org.jaqpot.core.model.dto.dataset.Substance substance = new org.jaqpot.core.model.dto.dataset.Substance();
+                substance.setURI("/substance/" + count);
+                substance.setName("row" + count);
+                substance.setOwnerUUID("7da545dd-2544-43b0-b834-9ec02553f7f2");
+                DataEntry dataEntry = new DataEntry();
+                dataEntry.setValues(values);
+                dataEntry.setCompound(substance);
+                dataEntryList.add(dataEntry);
             }
-            scanner.close();
-            Dataset dataset = new Dataset();
-            dataset.setFeatures(featureInfoList);
-            dataset.setDataEntry(dataEntryList);
-            return dataset;
+            count++;
+        }
+        scanner.close();
+        Dataset dataset = new Dataset();
+        dataset.setFeatures(featureInfoList);
+        dataset.setDataEntry(dataEntryList);
+        return dataset;
     }
 
 }
-
-

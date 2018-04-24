@@ -73,8 +73,8 @@ public class ErrorReport extends JaqpotEntity {
     /**
      * Trace error report.
      */
-    @ApiModelProperty(value = "Trace error report.")
-    private ErrorReport trace;
+//    @ApiModelProperty(value = "Trace error report.")
+//    private ErrorReport trace;
 
     public ErrorReport() {
     }
@@ -90,7 +90,7 @@ public class ErrorReport extends JaqpotEntity {
         this.details = other.details;
         this.httpStatus = other.httpStatus;
         this.message = other.message;
-        this.trace = new ErrorReport(other.trace);
+//        this.trace = new ErrorReport(other.trace);
     } 
 
     public String getCode() {
@@ -133,13 +133,13 @@ public class ErrorReport extends JaqpotEntity {
         this.httpStatus = httpStatus;
     }
 
-    public ErrorReport getTrace() {
-        return trace;
-    }
-
-    public void setTrace(ErrorReport trace) {
-        this.trace = trace;
-    }
+//    public ErrorReport getTrace() {
+//        return trace;
+//    }
+//
+//    public void setTrace(ErrorReport trace) {
+//        this.trace = trace;
+//    }
     
     
 }

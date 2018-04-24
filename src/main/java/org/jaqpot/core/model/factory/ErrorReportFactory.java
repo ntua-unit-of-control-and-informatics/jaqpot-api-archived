@@ -305,25 +305,25 @@ public class ErrorReportFactory {
                 build();
     }
 
-    public static ErrorReport remoteError(
-            String remoteUri,
-            ErrorReport remoteException,
-            Throwable ex) {
-        String details = null;
-        if (ex != null) {
-            StringWriter sw = new StringWriter();
-            PrintWriter pw = new PrintWriter(sw);
-            ex.printStackTrace(pw);
-            details = sw.toString();
-        }
-        return ErrorReportBuilder.builderRandomId().
-                setActor(remoteUri).
-                setCode("RemoteInvocationError").
-                setMessage(ERROR502).
-                setDetails(details).
-                setHttpStatus(502).
-                setTrace(remoteException).
-                build();
-    }
+//    public static ErrorReport remoteError(
+//            String remoteUri,
+//            ErrorReport remoteException,
+//            Throwable ex) {
+//        String details = null;
+//        if (ex != null) {
+//            StringWriter sw = new StringWriter();
+//            PrintWriter pw = new PrintWriter(sw);
+//            ex.printStackTrace(pw);
+//            details = sw.toString();
+//        }
+//        return ErrorReportBuilder.builderRandomId().
+//                setActor(remoteUri).
+//                setCode("RemoteInvocationError").
+//                setMessage(ERROR502).
+//                setDetails(details).
+//                setHttpStatus(502).
+//                setTrace(remoteException).
+//                build();
+//    }
 
 }
