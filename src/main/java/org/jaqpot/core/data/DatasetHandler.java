@@ -105,7 +105,7 @@ public class DatasetHandler extends AbstractHandler<Dataset> {
             HashSet<String> entryFeatures = new HashSet<>(dataEntry.getValues().keySet());
             if (!entryFeatures.equals(features)) {
                 throw new IllegalArgumentException("Invalid Dataset - DataEntry URIs do not match with Feature URIs. "
-                        + " Problem was found when parsing " + dataEntry.getCompound());
+                        + " Problem was found when parsing " + dataEntry.getCompound() + "On dataset" + dataset.getId());
             }
         }
         getEntityManager().merge(dataset);

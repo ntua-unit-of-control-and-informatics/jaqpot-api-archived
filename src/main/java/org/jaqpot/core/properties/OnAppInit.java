@@ -36,15 +36,15 @@ package org.jaqpot.core.properties;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.annotation.PostConstruct;
 import javax.ejb.DependsOn;
 import javax.ejb.Singleton;
@@ -52,10 +52,13 @@ import javax.ejb.Startup;
 import javax.inject.Inject;
 import javax.ws.rs.InternalServerErrorException;
 import org.apache.commons.io.IOUtils;
+import org.jaqpot.core.model.dto.dataset.Dataset;
 import org.jaqpot.core.data.AlgorithmHandler;
+import org.jaqpot.core.data.DatasetHandler;
 import org.jaqpot.core.data.UserHandler;
 import org.jaqpot.core.model.Algorithm;
 import org.jaqpot.core.model.User;
+import org.jaqpot.core.service.resource.DatasetResource;
 
 /**
  *
@@ -66,6 +69,8 @@ import org.jaqpot.core.model.User;
 @DependsOn("MongoDBEntityManager")
 public class OnAppInit {
 
+    private static final Logger LOG = Logger.getLogger(OnAppInit.class.getName());
+    
     @Inject
     PropertyManager propertyManager;
 
@@ -74,6 +79,9 @@ public class OnAppInit {
 
     @Inject
     AlgorithmHandler algoHandler;
+
+    @Inject
+    DatasetHandler datasetHandler;
 
     @PostConstruct
     void init() {
@@ -88,9 +96,15 @@ public class OnAppInit {
         if (algo == null) {
             List<Algorithm> algos = this.readAlgorithms();
 
-            for (Algorithm alg : algos) {
+            algos.forEach((alg) -> {
                 algoHandler.create(alg);
-            }
+            });
+        }
+
+        Long counted = datasetHandler.countAll();
+
+        if (counted.intValue() == 0) {
+            this.restoreDatasets();
         }
 
     }
@@ -125,6 +139,7 @@ public class OnAppInit {
         algos.addAll(this.experimentalDesigns());
         algos.addAll(this.readacross());
         algos.addAll(this.pksim());
+        algos.addAll(this.ocpu_lm());
         return algos;
     }
 
@@ -137,6 +152,52 @@ public class OnAppInit {
             throw new InternalServerErrorException(e);
         }
         return result;
+    }
+
+    private void restoreDatasets() {
+        ObjectMapper mapper = new ObjectMapper();
+        List<Dataset> datasets = new ArrayList<>();
+        String datasetString = null;
+        try {
+            datasetString = this.getFile("datasets/Gajewicz_10_29.json");
+            datasets.add(mapper.readValue(datasetString, Dataset.class));
+            datasetString = this.getFile("datasets/Gajewicz_10_29_class.json");
+            datasets.add(mapper.readValue(datasetString, Dataset.class));
+            datasetString = this.getFile("datasets/Gajewicz_18_29.json");
+            datasets.add(mapper.readValue(datasetString, Dataset.class));
+            datasetString = this.getFile("datasets/Gajewicz_18_29_class.json");
+            datasets.add(mapper.readValue(datasetString, Dataset.class));
+            datasetString = this.getFile("datasets/Gajewicz_8_29.json");
+            datasets.add(mapper.readValue(datasetString, Dataset.class));
+            datasetString = this.getFile("datasets/Gajewicz_8_29_class.json");
+            datasets.add(mapper.readValue(datasetString, Dataset.class));
+            datasetString = this.getFile("datasets/Walkey_28_25.json");
+            datasets.add(mapper.readValue(datasetString, Dataset.class));
+            datasetString = this.getFile("datasets/Walkey_28_76.json");
+            datasets.add(mapper.readValue(datasetString, Dataset.class));
+            datasetString = this.getFile("datasets/Walkey_56_25.json");
+            datasets.add(mapper.readValue(datasetString, Dataset.class));
+            datasetString = this.getFile("datasets/Walkey_56_76.json");
+            datasets.add(mapper.readValue(datasetString, Dataset.class));
+            datasetString = this.getFile("datasets/Walkey_84_25.json");
+            datasets.add(mapper.readValue(datasetString, Dataset.class));
+            datasetString = this.getFile("datasets/Walkey_84_76.json");
+            datasets.add(mapper.readValue(datasetString, Dataset.class));
+            datasetString = this.getFile("datasets/corona-exp.json");
+            datasets.add(mapper.readValue(datasetString, Dataset.class));
+            datasetString = this.getFile("datasets/interlab-dummy.json");
+            datasets.add(mapper.readValue(datasetString, Dataset.class));
+        } catch (IOException e) {
+            throw new InternalServerErrorException(e);
+        }
+        datasets.forEach((dataset) -> {
+            try{
+                datasetHandler.create(dataset);
+            }catch(IllegalArgumentException e){
+                LOG.log(Level.SEVERE, e.getMessage());
+            }
+            
+        });
     }
 
     private List<Algorithm> wekaAlgorithms() {
@@ -153,7 +214,7 @@ public class OnAppInit {
                 if (trainingUri != null) {
                     URI trainUriFromFile = new URI(trainingUri);
                     String pathFromFile = trainUriFromFile.getPath();
-                    String wekalgohost = propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_BASE_ALGORITHMS);
+                    String wekalgohost = propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_BASE_ALGORITHMS);
                     URI hostUrl = new URI(wekalgohost);
                     URI wekaAlgoTrainingService = hostUrl.resolve(pathFromFile);
                     algo.setTrainingService(wekaAlgoTrainingService.toString());
@@ -162,7 +223,7 @@ public class OnAppInit {
                 if (predictingUri != null) {
                     URI predictUriFromFile = new URI(predictingUri);
                     String pathFromFile = predictUriFromFile.getPath();
-                    String wekalgohost = propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_BASE_ALGORITHMS);
+                    String wekalgohost = propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_BASE_ALGORITHMS);
                     URI hostUrl = new URI(wekalgohost);
                     URI wekaAlgoPredictingService = hostUrl.resolve(pathFromFile);
                     algo.setPredictionService(wekaAlgoPredictingService.toString());
@@ -171,7 +232,7 @@ public class OnAppInit {
                 if (reportingUri != null) {
                     URI reportingUriFromFile = new URI(reportingUri);
                     String pathFromFile = reportingUriFromFile.getPath();
-                    String wekalgohost = propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_BASE_ALGORITHMS);
+                    String wekalgohost = propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_BASE_ALGORITHMS);
                     URI hostUrl = new URI(wekalgohost);
                     URI wekaAlgoReportingService = hostUrl.resolve(pathFromFile);
                     algo.setReportService(wekaAlgoReportingService.toString());
@@ -198,7 +259,7 @@ public class OnAppInit {
                 if (trainingUri != null) {
                     URI trainUriFromFile = new URI(trainingUri);
                     String pathFromFile = trainUriFromFile.getPath();
-                    String pythonalgohost = propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_PYTHON_ALGORITHMS_HOST);
+                    String pythonalgohost = propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_PYTHON_ALGORITHMS_HOST);
                     URI hostUrl = new URI(pythonalgohost);
                     URI pythonAlgoTrainingService = hostUrl.resolve(pathFromFile);
                     algo.setTrainingService(pythonAlgoTrainingService.toString());
@@ -207,7 +268,7 @@ public class OnAppInit {
                 if (predictingUri != null) {
                     URI predictUriFromFile = new URI(predictingUri);
                     String pathFromFile = predictUriFromFile.getPath();
-                    String pythonalgohost = propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_PYTHON_ALGORITHMS_HOST);
+                    String pythonalgohost = propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_PYTHON_ALGORITHMS_HOST);
                     URI hostUrl = new URI(pythonalgohost);
                     URI pythonAlgoPredictingService = hostUrl.resolve(pathFromFile);
                     algo.setPredictionService(pythonAlgoPredictingService.toString());
@@ -216,7 +277,7 @@ public class OnAppInit {
                 if (reportingUri != null) {
                     URI reportingUriFromFile = new URI(reportingUri);
                     String pathFromFile = reportingUriFromFile.getPath();
-                    String pythonalgohost = propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_PYTHON_ALGORITHMS_HOST);
+                    String pythonalgohost = propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_PYTHON_ALGORITHMS_HOST);
                     URI hostUrl = new URI(pythonalgohost);
                     URI pythonAlgoReportingService = hostUrl.resolve(pathFromFile);
                     algo.setReportService(pythonAlgoReportingService.toString());
@@ -242,7 +303,7 @@ public class OnAppInit {
                 if (trainingUri != null) {
                     URI trainUriFromFile = new URI(trainingUri);
                     String pathFromFile = trainUriFromFile.getPath();
-                    String expDesHost = propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_EXPERIMENTAL_DESIGNS_HOST);
+                    String expDesHost = propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_EXPERIMENTAL_DESIGNS_HOST);
                     URI hostUrl = new URI(expDesHost);
                     URI expDesTrainingService = hostUrl.resolve(pathFromFile);
                     algo.setTrainingService(expDesTrainingService.toString());
@@ -251,7 +312,7 @@ public class OnAppInit {
                 if (predictingUri != null) {
                     URI predictUriFromFile = new URI(predictingUri);
                     String pathFromFile = predictUriFromFile.getPath();
-                    String expDesHost = propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_EXPERIMENTAL_DESIGNS_HOST);
+                    String expDesHost = propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_EXPERIMENTAL_DESIGNS_HOST);
                     URI hostUrl = new URI(expDesHost);
                     URI expDesPredictingService = hostUrl.resolve(pathFromFile);
                     algo.setPredictionService(expDesPredictingService.toString());
@@ -260,7 +321,7 @@ public class OnAppInit {
                 if (reportingUri != null) {
                     URI reportingUriFromFile = new URI(reportingUri);
                     String pathFromFile = reportingUriFromFile.getPath();
-                    String expDesHost = propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_EXPERIMENTAL_DESIGNS_HOST);
+                    String expDesHost = propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_EXPERIMENTAL_DESIGNS_HOST);
                     URI hostUrl = new URI(expDesHost);
                     URI expDesReportingService = hostUrl.resolve(pathFromFile);
                     algo.setReportService(expDesReportingService.toString());
@@ -286,28 +347,28 @@ public class OnAppInit {
                 if (trainingUri != null) {
                     URI trainUriFromFile = new URI(trainingUri);
                     String pathFromFile = trainUriFromFile.getPath();
-                    String jaqReadHost = propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_READACROSS);
+                    String jaqReadHost = propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_READACROSS);
                     URI hostUrl = new URI(jaqReadHost);
-                    URI readAcrTrainingService = hostUrl.resolve(pathFromFile);
-                    algo.setTrainingService(readAcrTrainingService.toString());
+                    URI readaccrTrainingService = hostUrl.resolve(pathFromFile);
+                    algo.setTrainingService(readaccrTrainingService.toString());
                 }
                 String predictingUri = algo.getPredictionService();
                 if (predictingUri != null) {
                     URI predictUriFromFile = new URI(predictingUri);
                     String pathFromFile = predictUriFromFile.getPath();
-                    String jaqReadHost = propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_READACROSS);
+                    String jaqReadHost = propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_READACROSS);
                     URI hostUrl = new URI(jaqReadHost);
-                    URI readAcrPredictingService = hostUrl.resolve(pathFromFile);
-                    algo.setPredictionService(readAcrPredictingService.toString());
+                    URI readaccrPredictingService = hostUrl.resolve(pathFromFile);
+                    algo.setPredictionService(readaccrPredictingService.toString());
                 }
                 String reportingUri = algo.getReportService();
                 if (reportingUri != null) {
                     URI reportingUriFromFile = new URI(reportingUri);
                     String pathFromFile = reportingUriFromFile.getPath();
-                    String jaqReadHost = propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_READACROSS);
+                    String jaqReadHost = propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_READACROSS);
                     URI hostUrl = new URI(jaqReadHost);
-                    URI expDesReportingService = hostUrl.resolve(pathFromFile);
-                    algo.setReportService(expDesReportingService.toString());
+                    URI readaccrReportingService = hostUrl.resolve(pathFromFile);
+                    algo.setReportService(readaccrReportingService.toString());
                 }
             }
         } catch (IOException | URISyntaxException e) {
@@ -330,7 +391,7 @@ public class OnAppInit {
                 if (trainingUri != null) {
                     URI trainUriFromFile = new URI(trainingUri);
                     String pathFromFile = trainUriFromFile.getPath();
-                    String pkHost = propertyManager.getProperty(PropertyManager.PropertyType.PKSIM_BASE);
+                    String pkHost = propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.PKSIM_BASE);
                     URI hostUrl = new URI(pkHost);
                     URI pkTrainingService = hostUrl.resolve(pathFromFile);
                     algo.setTrainingService(pkTrainingService.toString());
@@ -339,7 +400,7 @@ public class OnAppInit {
                 if (predictingUri != null) {
                     URI predictUriFromFile = new URI(predictingUri);
                     String pathFromFile = predictUriFromFile.getPath();
-                    String pkHost = propertyManager.getProperty(PropertyManager.PropertyType.PKSIM_BASE);
+                    String pkHost = propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.PKSIM_BASE);
                     URI hostUrl = new URI(pkHost);
                     URI pkPredictingService = hostUrl.resolve(pathFromFile);
                     algo.setPredictionService(pkPredictingService.toString());
@@ -348,10 +409,53 @@ public class OnAppInit {
                 if (reportingUri != null) {
                     URI reportingUriFromFile = new URI(reportingUri);
                     String pathFromFile = reportingUriFromFile.getPath();
-                    String pkHost = propertyManager.getProperty(PropertyManager.PropertyType.PKSIM_BASE);
+                    String pkHost = propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.PKSIM_BASE);
                     URI hostUrl = new URI(pkHost);
                     URI pkReportingService = hostUrl.resolve(pathFromFile);
                     algo.setReportService(pkReportingService.toString());
+                }
+            }
+        } catch (IOException | URISyntaxException e) {
+            throw new InternalServerErrorException(e);
+        }
+        return algos;
+    }
+
+    private List<Algorithm> ocpu_lm() {
+        ObjectMapper mapper = new ObjectMapper();
+        TypeReference<List<Algorithm>> algoListType = new TypeReference<List<Algorithm>>() {
+        };
+        List<Algorithm> algos = new ArrayList<>();
+        String result = this.getFile("algorithms/ocpu_lm.json");
+        try {
+            algos = mapper.readValue(result, algoListType);
+            for (Algorithm algo : algos) {
+                String trainingUri = algo.getTrainingService();
+                if (trainingUri != null) {
+                    URI trainUriFromFile = new URI(trainingUri);
+                    String pathFromFile = trainUriFromFile.getPath();
+                    String ocpu_lmhost = propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.OCPU_LM_BASE);
+                    URI hostUrl = new URI(ocpu_lmhost);
+                    URI ocpuTrainingService = hostUrl.resolve(pathFromFile);
+                    algo.setTrainingService(ocpuTrainingService.toString());
+                }
+                String predictingUri = algo.getPredictionService();
+                if (predictingUri != null) {
+                    URI predictUriFromFile = new URI(predictingUri);
+                    String pathFromFile = predictUriFromFile.getPath();
+                    String ocpu_lmhost = propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.OCPU_LM_BASE);
+                    URI hostUrl = new URI(ocpu_lmhost);
+                    URI ocpuPredictingService = hostUrl.resolve(pathFromFile);
+                    algo.setPredictionService(ocpuPredictingService.toString());
+                }
+                String reportingUri = algo.getReportService();
+                if (reportingUri != null) {
+                    URI reportingUriFromFile = new URI(reportingUri);
+                    String pathFromFile = reportingUriFromFile.getPath();
+                    String ocpu_lmhost = propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.OCPU_LM_BASE);
+                    URI hostUrl = new URI(ocpu_lmhost);
+                    URI ocpuReportingService = hostUrl.resolve(pathFromFile);
+                    algo.setReportService(ocpuReportingService.toString());
                 }
             }
         } catch (IOException | URISyntaxException e) {

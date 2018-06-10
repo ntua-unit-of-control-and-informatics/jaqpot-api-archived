@@ -86,7 +86,8 @@ public class PropertyManager {
         JAQPOT_BASE_ALGORITHMS("jaqpot.base.algorithms", "config", "http://localhost:8080/algorithms/service/"),
         JAQPOT_READACROSS("jaqpot.readacross", "config", "http://147.102.82.32:8095/"),
         JAQPOT_QPRF("jaqpot.qprf", "config", "http://147.102.82.32:8094/pws/qprf"),
-        PKSIM_BASE("pksim.base", "config", "http://147.102.86.129:9999/");
+        PKSIM_BASE("pksim.base", "config", "http://147.102.86.129:9999/"),
+        OCPU_LM_BASE("ocpulm.base", "config", "http://test.jaqpot.org:8004/");
         
         private final String name;
         private final String bundle;

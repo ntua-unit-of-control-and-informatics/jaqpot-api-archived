@@ -1,0 +1,25 @@
+[
+    {
+        "meta" : {
+            "descriptions" : [ 
+                "Linear Model by R under OpenCPU"
+            ],
+            "titles" : [ 
+                "R LM Algorithm"
+            ],
+            "subjects" : [ 
+                "linear", 
+                "regression"
+            ]
+        },
+        "ontologicalClasses" : [ 
+            "ot:Algorithm", 
+            "ot:Regression", 
+            "ot:SupervisedLearning"
+        ],
+        "ranking" : 1,
+        "trainingService" : "http://test.jaqpot.org:8004/ocpu/library/PLMplusPMMLpkg/R/lm.funct/json",
+        "predictionService" : "http://test.jaqpot.org:8004/ocpu/library/PLMplusPMMLpkg/R/pred.funct/json",
+        "_id": "ocpu-lm"
+    }
+]

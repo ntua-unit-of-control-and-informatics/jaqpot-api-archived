@@ -1,0 +1,218 @@
+{
+    "_id" : "interlab-dummy",
+    "dataEntry" : [ 
+        {
+            "compound" : {
+                "name" : "G15.AC_5",
+                "ownerUUID" : "FCSV-8b479138-4775-3aba-b9cc-f01cc967d42b",
+                "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-8b479138-4775-3aba-b9cc-f01cc967d42b"
+            },
+            "values" : {
+                "https://apps.ideaconsult.net/enmtest/property/TOX/UNKNOWN_TOXICITY_SECTION/Log2+transformed+uncertainties/94D664CFE4929A0F400A5AD8CA733B52E049A688/3ed642f9-1b42-387a-9966-dea5b91e5f8a" : [ 
+                    20.0
+                ],
+                "https://apps.ideaconsult.net/enmtest/property/TOX/UNKNOWN_TOXICITY_SECTION/Log2+transformed/94D664CFE4929A0F400A5AD8CA733B52E049A688/3ed642f9-1b42-387a-9966-dea5b91e5f8a" : [ 
+                    180.0, 
+                    175.0, 
+                    178.0
+                ]
+            }
+        }, 
+        {
+            "compound" : {
+                "name" : "G15.AC_5",
+                "ownerUUID" : "FCSV-8b479138-4775-3aba-b9cc-fasdfasdfasdf",
+                "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-0e1a05ec-6045-3419-89e5-6e48e1c62e3c"
+            },
+            "values" : {
+                "https://apps.ideaconsult.net/enmtest/property/TOX/UNKNOWN_TOXICITY_SECTION/Log2+transformed+uncertainties/94D664CFE4929A0F400A5AD8CA733B52E049A688/3ed642f9-1b42-387a-9966-dea5b91e5f8a" : [ 
+                    0.0
+                ],
+                "https://apps.ideaconsult.net/enmtest/property/TOX/UNKNOWN_TOXICITY_SECTION/Log2+transformed/94D664CFE4929A0F400A5AD8CA733B52E049A688/3ed642f9-1b42-387a-9966-dea5b91e5f8a" : [ 
+                    203.0, 
+                    203.0, 
+                    203.0
+                ]
+            }
+        }, 
+        {
+            "compound" : {
+                "name" : "G15.AC_5",
+                "ownerUUID" : "FCSV-8b479138-4775-3aba-b9cc-f01certyertye",
+                "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-eb7472d1-a32b-3d11-ac85-3d91f5f7a816"
+            },
+            "values" : {
+                "https://apps.ideaconsult.net/enmtest/property/TOX/UNKNOWN_TOXICITY_SECTION/Log2+transformed+uncertainties/94D664CFE4929A0F400A5AD8CA733B52E049A688/3ed642f9-1b42-387a-9966-dea5b91e5f8a" : [ 
+                    30.0
+                ],
+                "https://apps.ideaconsult.net/enmtest/property/TOX/UNKNOWN_TOXICITY_SECTION/Log2+transformed/94D664CFE4929A0F400A5AD8CA733B52E049A688/3ed642f9-1b42-387a-9966-dea5b91e5f8a" : [ 
+                    170.0, 
+                    175.0, 
+                    168.0
+                ]
+            }
+        }, 
+        {
+            "compound" : {
+                "name" : "G15.AC_5",
+                "ownerUUID" : "FCSV-8b479138-4775-3aba-b9cc-f01cfghjfrty",
+                "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-9915a0af-9066-3a92-a3ce-bcb8146625a0"
+            },
+            "values" : {
+                "https://apps.ideaconsult.net/enmtest/property/TOX/UNKNOWN_TOXICITY_SECTION/Log2+transformed+uncertainties/94D664CFE4929A0F400A5AD8CA733B52E049A688/3ed642f9-1b42-387a-9966-dea5b91e5f8a" : [ 
+                    22.0
+                ],
+                "https://apps.ideaconsult.net/enmtest/property/TOX/UNKNOWN_TOXICITY_SECTION/Log2+transformed/94D664CFE4929A0F400A5AD8CA733B52E049A688/3ed642f9-1b42-387a-9966-dea5b91e5f8a" : [ 
+                    182.0, 
+                    181.0, 
+                    181.0
+                ]
+            }
+        }, 
+        {
+            "compound" : {
+                "name" : "G15.AC_5",
+                "ownerUUID" : "FCSV-8b479138-4775-3aba-b9cc-56j5j5j5j56",
+                "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-07ae6d94-6005-361b-a71b-b6f6aa0443d2"
+            },
+            "values" : {
+                "https://apps.ideaconsult.net/enmtest/property/TOX/UNKNOWN_TOXICITY_SECTION/Log2+transformed+uncertainties/94D664CFE4929A0F400A5AD8CA733B52E049A688/3ed642f9-1b42-387a-9966-dea5b91e5f8a" : [ 
+                    12.0
+                ],
+                "https://apps.ideaconsult.net/enmtest/property/TOX/UNKNOWN_TOXICITY_SECTION/Log2+transformed/94D664CFE4929A0F400A5AD8CA733B52E049A688/3ed642f9-1b42-387a-9966-dea5b91e5f8a" : [ 
+                    182.0, 
+                    167.0, 
+                    151.0
+                ]
+            }
+        }, 
+        {
+            "compound" : {
+                "name" : "G15.AC_5",
+                "ownerUUID" : "FCSV-8b479138-4775-3aba-b9cc-f01w4thfh45jtjh",
+                "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-30c932cc-f944-399f-9ad4-cd99924a0e01"
+            },
+            "values" : {
+                "https://apps.ideaconsult.net/enmtest/property/TOX/UNKNOWN_TOXICITY_SECTION/Log2+transformed+uncertainties/94D664CFE4929A0F400A5AD8CA733B52E049A688/3ed642f9-1b42-387a-9966-dea5b91e5f8a" : [ 
+                    0.0
+                ],
+                "https://apps.ideaconsult.net/enmtest/property/TOX/UNKNOWN_TOXICITY_SECTION/Log2+transformed/94D664CFE4929A0F400A5AD8CA733B52E049A688/3ed642f9-1b42-387a-9966-dea5b91e5f8a" : [ 
+                    190.0, 
+                    185.0, 
+                    194.0
+                ]
+            }
+        }, 
+        {
+            "compound" : {
+                "name" : "G15.AC_5",
+                "ownerUUID" : "FCSV-8b479138-4775-3aba-b9cc-f04hw24hh46u6i88l",
+                "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-1620ca10-293f-3ca4-89bc-e3f574547221"
+            },
+            "values" : {
+                "https://apps.ideaconsult.net/enmtest/property/TOX/UNKNOWN_TOXICITY_SECTION/Log2+transformed+uncertainties/94D664CFE4929A0F400A5AD8CA733B52E049A688/3ed642f9-1b42-387a-9966-dea5b91e5f8a" : [ 
+                    32.0
+                ],
+                "https://apps.ideaconsult.net/enmtest/property/TOX/UNKNOWN_TOXICITY_SECTION/Log2+transformed/94D664CFE4929A0F400A5AD8CA733B52E049A688/3ed642f9-1b42-387a-9966-dea5b91e5f8a" : [ 
+                    163.0, 
+                    160.0, 
+                    154.0
+                ]
+            }
+        }, 
+        {
+            "compound" : {
+                "name" : "G15.AC_5",
+                "ownerUUID" : "FCSV-8b479138-4775-3aba-b9cc-f344g4g4yj77j7j44",
+                "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-95517dfc-f248-3e3e-ba26-8a71efdc3853"
+            },
+            "values" : {
+                "https://apps.ideaconsult.net/enmtest/property/TOX/UNKNOWN_TOXICITY_SECTION/Log2+transformed+uncertainties/94D664CFE4929A0F400A5AD8CA733B52E049A688/3ed642f9-1b42-387a-9966-dea5b91e5f8a" : [ 
+                    20.0
+                ],
+                "https://apps.ideaconsult.net/enmtest/property/TOX/UNKNOWN_TOXICITY_SECTION/Log2+transformed/94D664CFE4929A0F400A5AD8CA733B52E049A688/3ed642f9-1b42-387a-9966-dea5b91e5f8a" : [ 
+                    175.0, 
+                    120.0, 
+                    191.0
+                ]
+            }
+        }, 
+        {
+            "compound" : {
+                "name" : "G15.AC_5",
+                "ownerUUID" : "FCSV-8b479138-4775-3aba-b9cc-f034334y3h3h3h3h77hjhkuiui",
+                "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-428b3b32-a261-3ff2-93f4-af6319bf374a"
+            },
+            "values" : {
+                "https://apps.ideaconsult.net/enmtest/property/TOX/UNKNOWN_TOXICITY_SECTION/Log2+transformed+uncertainties/94D664CFE4929A0F400A5AD8CA733B52E049A688/3ed642f9-1b42-387a-9966-dea5b91e5f8a" : [ 
+                    8.0
+                ],
+                "https://apps.ideaconsult.net/enmtest/property/TOX/UNKNOWN_TOXICITY_SECTION/Log2+transformed/94D664CFE4929A0F400A5AD8CA733B52E049A688/3ed642f9-1b42-387a-9966-dea5b91e5f8a" : [ 
+                    190.0, 
+                    188.0, 
+                    195.0
+                ]
+            }
+        }, 
+        {
+            "compound" : {
+                "name" : "G15.AC_5",
+                "ownerUUID" : "FCSV-8b479138-4775-3aba-b9cc-f33f3f3fnhhnyht6gbdsdwo9o",
+                "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-b9d1776a-26ee-372a-b41b-2d49ba2ff0be"
+            },
+            "values" : {
+                "https://apps.ideaconsult.net/enmtest/property/TOX/UNKNOWN_TOXICITY_SECTION/Log2+transformed+uncertainties/94D664CFE4929A0F400A5AD8CA733B52E049A688/3ed642f9-1b42-387a-9966-dea5b91e5f8a" : [ 
+                    21.0
+                ],
+                "https://apps.ideaconsult.net/enmtest/property/TOX/UNKNOWN_TOXICITY_SECTION/Log2+transformed/94D664CFE4929A0F400A5AD8CA733B52E049A688/3ed642f9-1b42-387a-9966-dea5b91e5f8a" : [ 
+                    160.0, 
+                    170.0, 
+                    180.0
+                ]
+            }
+        }
+    ],
+    "descriptors" : [ 
+        "EXPERIMENTAL"
+    ],
+    "featured" : true,
+    "features" : [ 
+        {
+            "name" : "Log2 transformed",
+            "units" : "",
+            "conditions" : {
+                "Cell" : "A549"
+            },
+            "category" : "EXPERIMENTAL",
+            "uri" : "https://apps.ideaconsult.net/enmtest/property/TOX/UNKNOWN_TOXICITY_SECTION/Log2+transformed/94D664CFE4929A0F400A5AD8CA733B52E049A688/3ed642f9-1b42-387a-9966-dea5b91e5f8a"
+        }, 
+        {
+            "name" : "Log2 transformed uncertainties",
+            "units" : "",
+            "conditions" : {
+                "Cell" : "A549"
+            },
+            "category" : "EXPERIMENTAL",
+            "uri" : "https://apps.ideaconsult.net/enmtest/property/TOX/UNKNOWN_TOXICITY_SECTION/Log2+transformed+uncertainties/94D664CFE4929A0F400A5AD8CA733B52E049A688/3ed642f9-1b42-387a-9966-dea5b91e5f8a"
+        }
+    ],
+    "meta" : {
+        "comments" : [ 
+            "Created for interlab testing"
+        ],
+        "creators" : [ 
+            "admin"
+        ],
+        "descriptions" : [ 
+            "This dataset contains data for interlab testing (3 measurements + uncertainty)"
+        ],
+        "hasSources" : [],
+        "locked" : true,
+        "titles" : [ 
+            "Interlab testing dataset"
+        ]
+    },
+    "totalColumns" : 2,
+    "totalRows" : 10,
+    "visible" : true
+}

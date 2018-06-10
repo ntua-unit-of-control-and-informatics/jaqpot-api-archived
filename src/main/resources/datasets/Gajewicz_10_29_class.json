@@ -1,0 +1,976 @@
+{
+    "_id" : "Gajewicz_10_29_class",
+    "meta" : {
+        "comments" : [ 
+            "Created by task TSK9OkphghugWPc"
+        ],
+        "descriptions" : [ 
+            "8 MeOx NPs with 29 descriptors, used for predicting HaCaT toxicity."
+        ],
+        "titles" : [ 
+            "Gajewicz et al - 18 Metal Oxide NPs"
+        ],
+        "subjects" : [ 
+            "toxicity", 
+            "nanoparticles", 
+            "nano-metal oxides", 
+            "nano-QSAR", 
+            "HaCaT"
+        ],
+        "publishers" : [ 
+            "http://informahealthcare.com/nan", 
+            "Nanotoxicology", 
+            "informa healthcare"
+        ],
+        "creators" : [ 
+            "guest"
+        ],
+        "contributors" : [ 
+            "Danuta Leszczynska", 
+            "Agnieszka Gajewicz", 
+            "Jerzy Leszczynski", 
+            "Nicole Schaeublin", 
+            "Saber Hussain", 
+            "Bakhtiyor Rasulev", 
+            "Tomasz Puzyn"
+        ],
+        "hasSources" : [ 
+            "https://apps.ideaconsult.net/enmtest/bundle/113"
+        ],
+        "doi" : [ 
+            "10.3109/17435390.2014.930195"
+        ],
+        "locked" : false
+    },
+    "visible" : true,
+    "featured" : true,
+    "dataEntry" : [ 
+        {
+            "compound" : {
+                "name" : "Al2O3",
+                "ownerUUID" : null,
+                "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-07f477ba-44d7-3058-ba0b-e6e5432d04e3"
+            },
+            "values" : {
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/CRYSTALLITE_AND_GRAIN_SIZE_SECTION/Particle+size+in+media/806461C5DF4FF1824166FB42EDD20CC6B1E22651/2ced6b25-4648-3217-87eb-70595145c4b1" : 17.9,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Area/46A5BA6A138AEEDB00A8DC533E6E2CF8A93E2B04/2ced6b25-4648-3217-87eb-70595145c4b1" : 1110000000.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Aspect+ratio+X/31F19F972E9739D9D52B6ED7D229D0C846E6144B/2ced6b25-4648-3217-87eb-70595145c4b1" : 0.568,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Aspect+ratio+Y/B608EF4AD8FB07F2040FFBA1DE5F5F3716BE8DC4/2ced6b25-4648-3217-87eb-70595145c4b1" : 0.072,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Chemical+hardness/FEB0ABB5DC40584E651A27FD4A1814C4C3D1FF18/2ced6b25-4648-3217-87eb-70595145c4b1" : -5.09,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Circularity/64833D0F0EE2ABFDC45399F6F6E29EBE3908D4DD/2ced6b25-4648-3217-87eb-70595145c4b1" : 0.004,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Conduction+band+EC/6A9D1B6DEBF7611102CFCD0AA0E640B02F9B5062/2ced6b25-4648-3217-87eb-70595145c4b1" : -8.53,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Core+core+repulsion+energy+Core/BCA0B35C3521ADAD7B1ECFD00B4CF4CCD680BBDB/2ced6b25-4648-3217-87eb-70595145c4b1" : 9242.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Electronic+chemical+potential/8AA262A89743633734D499F36D70A60F3969B3AD/2ced6b25-4648-3217-87eb-70595145c4b1" : -3.44,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/HOMO+HOMO/0DDBCC41F4C107DE3DEC4CC532F262B64EE61193/2ced6b25-4648-3217-87eb-70595145c4b1" : -8.53,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/HOMO+LUMO+energy+gap+Eg/50917C444AA4EFF0CBE54F31B6C6AF062A67AC20/2ced6b25-4648-3217-87eb-70595145c4b1" : -10.18,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/LUMO+LUMO/719F2D72A78009AD553824717E1340E528785146/2ced6b25-4648-3217-87eb-70595145c4b1" : 1.66,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Mullikens+electronegativity+xc/6A7B9D8FDDF6F29876EE916755D89A8E4168F127/2ced6b25-4648-3217-87eb-70595145c4b1" : 3.44,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Parr+and+Poples+absolute+hardness+Hard/74A933D8DD4684C4C5C294546D82A2E5CB15EC8B/2ced6b25-4648-3217-87eb-70595145c4b1" : 5.09,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Polarizability+derived+from+the+dipole+moment+Ad/D530109DD4FE6DA665A88504550AAB09EF7993AD/2ced6b25-4648-3217-87eb-70595145c4b1" : 17.79,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Polarizability+derived+from+the+heat+of+formation+Ahof/85B7FAC881B90A3E40845C22E3346BC5E3DC8A18/2ced6b25-4648-3217-87eb-70595145c4b1" : 17.83,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Schuurmann+MO+shift+alpha+Shift/89B2EEBB5F54B69E09B76E28EB819E2B6DD0246A/2ced6b25-4648-3217-87eb-70595145c4b1" : -3.44,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Sphericity/0795D09155019D11DB9AC6208210096B04006356/2ced6b25-4648-3217-87eb-70595145c4b1" : 0.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Standard+enthalpy+of+formation+of+metal+oxide+nanocluster+DHcf/C4AC86FC9BD45F5BD01137FF9D7CA44588DE2340/2ced6b25-4648-3217-87eb-70595145c4b1" : -600.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Surface+diameter/05D50FCC02538DB94F615F3E15109371590848BE/2ced6b25-4648-3217-87eb-70595145c4b1" : 18800.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Total+softness+S/076A8757D38CCD9253C43F98C460697EAB1E714D/2ced6b25-4648-3217-87eb-70595145c4b1" : -0.1,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Valance+band+EV/B0CFF7B250A4E029B9A1073CB3F7D22EBEAEC097/2ced6b25-4648-3217-87eb-70595145c4b1" : 1.66,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Volume+mass+diameter/8E26FCEF5A95B3D368D140159CD33E3235C88C10/2ced6b25-4648-3217-87eb-70595145c4b1" : 153.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Volume+surface+diameter/808F53B21F0690F7409AE36836ABE741B6A38282/2ced6b25-4648-3217-87eb-70595145c4b1" : 0.01,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Volume/FE93D5FDC88CF107DD7DAE8DE03DFE57F0324FA7/2ced6b25-4648-3217-87eb-70595145c4b1" : 1860000.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/POROSITY_SECTION/Porosity+X/414486970E1933938A175194AF2BA429E38CF0D9/2ced6b25-4648-3217-87eb-70595145c4b1" : 51500.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/POROSITY_SECTION/Porosity+Y/80E514BB6F9D01A2259CFF8547D20A963D04F7F1/2ced6b25-4648-3217-87eb-70595145c4b1" : -316000.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/ZETA_POTENTIAL_SECTION/ZETA+POTENTIAL/AF8AF3EB18CC3E7715223DC6D728F79F4AE46C5F/2ced6b25-4648-3217-87eb-70595145c4b1" : 5.2,
+                "https://apps.ideaconsult.net/enmtest/property/TOX/UNKNOWN_TOXICITY_SECTION/logLC50/63A6D4C95CE54B1630770EB000899C3EECE8DFDF/2ced6b25-4648-3217-87eb-70595145c4b1" : "LOW"
+            }
+        }, 
+        {
+            "compound" : {
+                "name" : "Cr2O3",
+                "ownerUUID" : null,
+                "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-5ce3cffa-d919-31bb-ae67-092df5ac6fbb"
+            },
+            "values" : {
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/CRYSTALLITE_AND_GRAIN_SIZE_SECTION/Particle+size+in+media/806461C5DF4FF1824166FB42EDD20CC6B1E22651/2ced6b25-4648-3217-87eb-70595145c4b1" : 118.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Area/46A5BA6A138AEEDB00A8DC533E6E2CF8A93E2B04/2ced6b25-4648-3217-87eb-70595145c4b1" : 870000000.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Aspect+ratio+X/31F19F972E9739D9D52B6ED7D229D0C846E6144B/2ced6b25-4648-3217-87eb-70595145c4b1" : 0.263,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Aspect+ratio+Y/B608EF4AD8FB07F2040FFBA1DE5F5F3716BE8DC4/2ced6b25-4648-3217-87eb-70595145c4b1" : 0.06,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Chemical+hardness/FEB0ABB5DC40584E651A27FD4A1814C4C3D1FF18/2ced6b25-4648-3217-87eb-70595145c4b1" : -3.89,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Circularity/64833D0F0EE2ABFDC45399F6F6E29EBE3908D4DD/2ced6b25-4648-3217-87eb-70595145c4b1" : 0.005,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Conduction+band+EC/6A9D1B6DEBF7611102CFCD0AA0E640B02F9B5062/2ced6b25-4648-3217-87eb-70595145c4b1" : -8.25,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Core+core+repulsion+energy+Core/BCA0B35C3521ADAD7B1ECFD00B4CF4CCD680BBDB/2ced6b25-4648-3217-87eb-70595145c4b1" : 7520.4,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Electronic+chemical+potential/8AA262A89743633734D499F36D70A60F3969B3AD/2ced6b25-4648-3217-87eb-70595145c4b1" : -4.36,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/HOMO+HOMO/0DDBCC41F4C107DE3DEC4CC532F262B64EE61193/2ced6b25-4648-3217-87eb-70595145c4b1" : -8.25,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/HOMO+LUMO+energy+gap+Eg/50917C444AA4EFF0CBE54F31B6C6AF062A67AC20/2ced6b25-4648-3217-87eb-70595145c4b1" : -7.79,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/LUMO+LUMO/719F2D72A78009AD553824717E1340E528785146/2ced6b25-4648-3217-87eb-70595145c4b1" : -0.46,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Mullikens+electronegativity+xc/6A7B9D8FDDF6F29876EE916755D89A8E4168F127/2ced6b25-4648-3217-87eb-70595145c4b1" : 4.36,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Parr+and+Poples+absolute+hardness+Hard/74A933D8DD4684C4C5C294546D82A2E5CB15EC8B/2ced6b25-4648-3217-87eb-70595145c4b1" : 3.89,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Polarizability+derived+from+the+dipole+moment+Ad/D530109DD4FE6DA665A88504550AAB09EF7993AD/2ced6b25-4648-3217-87eb-70595145c4b1" : 16.02,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Polarizability+derived+from+the+heat+of+formation+Ahof/85B7FAC881B90A3E40845C22E3346BC5E3DC8A18/2ced6b25-4648-3217-87eb-70595145c4b1" : 16.35,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Schuurmann+MO+shift+alpha+Shift/89B2EEBB5F54B69E09B76E28EB819E2B6DD0246A/2ced6b25-4648-3217-87eb-70595145c4b1" : -4.36,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Sphericity/0795D09155019D11DB9AC6208210096B04006356/2ced6b25-4648-3217-87eb-70595145c4b1" : 0.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Standard+enthalpy+of+formation+of+metal+oxide+nanocluster+DHcf/C4AC86FC9BD45F5BD01137FF9D7CA44588DE2340/2ced6b25-4648-3217-87eb-70595145c4b1" : -235.3,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Surface+diameter/05D50FCC02538DB94F615F3E15109371590848BE/2ced6b25-4648-3217-87eb-70595145c4b1" : 16700.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Total+softness+S/076A8757D38CCD9253C43F98C460697EAB1E714D/2ced6b25-4648-3217-87eb-70595145c4b1" : -0.13,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Valance+band+EV/B0CFF7B250A4E029B9A1073CB3F7D22EBEAEC097/2ced6b25-4648-3217-87eb-70595145c4b1" : -0.46,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Volume+mass+diameter/8E26FCEF5A95B3D368D140159CD33E3235C88C10/2ced6b25-4648-3217-87eb-70595145c4b1" : 143.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Volume+surface+diameter/808F53B21F0690F7409AE36836ABE741B6A38282/2ced6b25-4648-3217-87eb-70595145c4b1" : 0.01,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Volume/FE93D5FDC88CF107DD7DAE8DE03DFE57F0324FA7/2ced6b25-4648-3217-87eb-70595145c4b1" : 1520000.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/POROSITY_SECTION/Porosity+X/414486970E1933938A175194AF2BA429E38CF0D9/2ced6b25-4648-3217-87eb-70595145c4b1" : -342000.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/POROSITY_SECTION/Porosity+Y/80E514BB6F9D01A2259CFF8547D20A963D04F7F1/2ced6b25-4648-3217-87eb-70595145c4b1" : -551000.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/ZETA_POTENTIAL_SECTION/ZETA+POTENTIAL/AF8AF3EB18CC3E7715223DC6D728F79F4AE46C5F/2ced6b25-4648-3217-87eb-70595145c4b1" : 3.6,
+                "https://apps.ideaconsult.net/enmtest/property/TOX/UNKNOWN_TOXICITY_SECTION/logLC50/63A6D4C95CE54B1630770EB000899C3EECE8DFDF/2ced6b25-4648-3217-87eb-70595145c4b1" : "LOW"
+            }
+        }, 
+        {
+            "compound" : {
+                "name" : "Fe2O3",
+                "ownerUUID" : null,
+                "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-2f7a7c5e-66b5-330a-9c0a-dc30f8ef0539"
+            },
+            "values" : {
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/CRYSTALLITE_AND_GRAIN_SIZE_SECTION/Particle+size+in+media/806461C5DF4FF1824166FB42EDD20CC6B1E22651/2ced6b25-4648-3217-87eb-70595145c4b1" : 6.9,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Area/46A5BA6A138AEEDB00A8DC533E6E2CF8A93E2B04/2ced6b25-4648-3217-87eb-70595145c4b1" : 1090000000.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Aspect+ratio+X/31F19F972E9739D9D52B6ED7D229D0C846E6144B/2ced6b25-4648-3217-87eb-70595145c4b1" : 0.446,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Aspect+ratio+Y/B608EF4AD8FB07F2040FFBA1DE5F5F3716BE8DC4/2ced6b25-4648-3217-87eb-70595145c4b1" : 0.066,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Chemical+hardness/FEB0ABB5DC40584E651A27FD4A1814C4C3D1FF18/2ced6b25-4648-3217-87eb-70595145c4b1" : -4.12,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Circularity/64833D0F0EE2ABFDC45399F6F6E29EBE3908D4DD/2ced6b25-4648-3217-87eb-70595145c4b1" : 0.004,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Conduction+band+EC/6A9D1B6DEBF7611102CFCD0AA0E640B02F9B5062/2ced6b25-4648-3217-87eb-70595145c4b1" : -8.33,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Core+core+repulsion+energy+Core/BCA0B35C3521ADAD7B1ECFD00B4CF4CCD680BBDB/2ced6b25-4648-3217-87eb-70595145c4b1" : 10170.7,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Electronic+chemical+potential/8AA262A89743633734D499F36D70A60F3969B3AD/2ced6b25-4648-3217-87eb-70595145c4b1" : -4.21,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/HOMO+HOMO/0DDBCC41F4C107DE3DEC4CC532F262B64EE61193/2ced6b25-4648-3217-87eb-70595145c4b1" : -8.33,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/HOMO+LUMO+energy+gap+Eg/50917C444AA4EFF0CBE54F31B6C6AF062A67AC20/2ced6b25-4648-3217-87eb-70595145c4b1" : -8.24,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/LUMO+LUMO/719F2D72A78009AD553824717E1340E528785146/2ced6b25-4648-3217-87eb-70595145c4b1" : -0.09,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Mullikens+electronegativity+xc/6A7B9D8FDDF6F29876EE916755D89A8E4168F127/2ced6b25-4648-3217-87eb-70595145c4b1" : 4.21,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Parr+and+Poples+absolute+hardness+Hard/74A933D8DD4684C4C5C294546D82A2E5CB15EC8B/2ced6b25-4648-3217-87eb-70595145c4b1" : 4.44,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Polarizability+derived+from+the+dipole+moment+Ad/D530109DD4FE6DA665A88504550AAB09EF7993AD/2ced6b25-4648-3217-87eb-70595145c4b1" : 12.32,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Polarizability+derived+from+the+heat+of+formation+Ahof/85B7FAC881B90A3E40845C22E3346BC5E3DC8A18/2ced6b25-4648-3217-87eb-70595145c4b1" : 12.33,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Schuurmann+MO+shift+alpha+Shift/89B2EEBB5F54B69E09B76E28EB819E2B6DD0246A/2ced6b25-4648-3217-87eb-70595145c4b1" : -4.57,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Sphericity/0795D09155019D11DB9AC6208210096B04006356/2ced6b25-4648-3217-87eb-70595145c4b1" : 0.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Standard+enthalpy+of+formation+of+metal+oxide+nanocluster+DHcf/C4AC86FC9BD45F5BD01137FF9D7CA44588DE2340/2ced6b25-4648-3217-87eb-70595145c4b1" : -378.5,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Surface+diameter/05D50FCC02538DB94F615F3E15109371590848BE/2ced6b25-4648-3217-87eb-70595145c4b1" : 18600.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Total+softness+S/076A8757D38CCD9253C43F98C460697EAB1E714D/2ced6b25-4648-3217-87eb-70595145c4b1" : -0.12,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Valance+band+EV/B0CFF7B250A4E029B9A1073CB3F7D22EBEAEC097/2ced6b25-4648-3217-87eb-70595145c4b1" : -0.09,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Volume+mass+diameter/8E26FCEF5A95B3D368D140159CD33E3235C88C10/2ced6b25-4648-3217-87eb-70595145c4b1" : 150.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Volume+surface+diameter/808F53B21F0690F7409AE36836ABE741B6A38282/2ced6b25-4648-3217-87eb-70595145c4b1" : 0.01,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Volume/FE93D5FDC88CF107DD7DAE8DE03DFE57F0324FA7/2ced6b25-4648-3217-87eb-70595145c4b1" : 1780000.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/POROSITY_SECTION/Porosity+X/414486970E1933938A175194AF2BA429E38CF0D9/2ced6b25-4648-3217-87eb-70595145c4b1" : -118000.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/POROSITY_SECTION/Porosity+Y/80E514BB6F9D01A2259CFF8547D20A963D04F7F1/2ced6b25-4648-3217-87eb-70595145c4b1" : -318000.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/ZETA_POTENTIAL_SECTION/ZETA+POTENTIAL/AF8AF3EB18CC3E7715223DC6D728F79F4AE46C5F/2ced6b25-4648-3217-87eb-70595145c4b1" : 7.4,
+                "https://apps.ideaconsult.net/enmtest/property/TOX/UNKNOWN_TOXICITY_SECTION/logLC50/63A6D4C95CE54B1630770EB000899C3EECE8DFDF/2ced6b25-4648-3217-87eb-70595145c4b1" : "LOW"
+            }
+        }, 
+        {
+            "compound" : {
+                "name" : "La2O3",
+                "ownerUUID" : null,
+                "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-90c88f44-1c87-3ae3-a0ee-94eb7c33af11"
+            },
+            "values" : {
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/CRYSTALLITE_AND_GRAIN_SIZE_SECTION/Particle+size+in+media/806461C5DF4FF1824166FB42EDD20CC6B1E22651/2ced6b25-4648-3217-87eb-70595145c4b1" : 79.1,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Area/46A5BA6A138AEEDB00A8DC533E6E2CF8A93E2B04/2ced6b25-4648-3217-87eb-70595145c4b1" : 1100000000.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Aspect+ratio+X/31F19F972E9739D9D52B6ED7D229D0C846E6144B/2ced6b25-4648-3217-87eb-70595145c4b1" : 0.524,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Aspect+ratio+Y/B608EF4AD8FB07F2040FFBA1DE5F5F3716BE8DC4/2ced6b25-4648-3217-87eb-70595145c4b1" : 0.072,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Chemical+hardness/FEB0ABB5DC40584E651A27FD4A1814C4C3D1FF18/2ced6b25-4648-3217-87eb-70595145c4b1" : -4.45,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Circularity/64833D0F0EE2ABFDC45399F6F6E29EBE3908D4DD/2ced6b25-4648-3217-87eb-70595145c4b1" : 0.004,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Conduction+band+EC/6A9D1B6DEBF7611102CFCD0AA0E640B02F9B5062/2ced6b25-4648-3217-87eb-70595145c4b1" : -10.91,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Core+core+repulsion+energy+Core/BCA0B35C3521ADAD7B1ECFD00B4CF4CCD680BBDB/2ced6b25-4648-3217-87eb-70595145c4b1" : 6116.2,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Electronic+chemical+potential/8AA262A89743633734D499F36D70A60F3969B3AD/2ced6b25-4648-3217-87eb-70595145c4b1" : -6.45,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/HOMO+HOMO/0DDBCC41F4C107DE3DEC4CC532F262B64EE61193/2ced6b25-4648-3217-87eb-70595145c4b1" : -10.91,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/HOMO+LUMO+energy+gap+Eg/50917C444AA4EFF0CBE54F31B6C6AF062A67AC20/2ced6b25-4648-3217-87eb-70595145c4b1" : -8.9,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/LUMO+LUMO/719F2D72A78009AD553824717E1340E528785146/2ced6b25-4648-3217-87eb-70595145c4b1" : -2.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Mullikens+electronegativity+xc/6A7B9D8FDDF6F29876EE916755D89A8E4168F127/2ced6b25-4648-3217-87eb-70595145c4b1" : 6.45,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Parr+and+Poples+absolute+hardness+Hard/74A933D8DD4684C4C5C294546D82A2E5CB15EC8B/2ced6b25-4648-3217-87eb-70595145c4b1" : 4.45,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Polarizability+derived+from+the+dipole+moment+Ad/D530109DD4FE6DA665A88504550AAB09EF7993AD/2ced6b25-4648-3217-87eb-70595145c4b1" : 4.95,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Polarizability+derived+from+the+heat+of+formation+Ahof/85B7FAC881B90A3E40845C22E3346BC5E3DC8A18/2ced6b25-4648-3217-87eb-70595145c4b1" : 4.95,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Schuurmann+MO+shift+alpha+Shift/89B2EEBB5F54B69E09B76E28EB819E2B6DD0246A/2ced6b25-4648-3217-87eb-70595145c4b1" : -6.45,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Sphericity/0795D09155019D11DB9AC6208210096B04006356/2ced6b25-4648-3217-87eb-70595145c4b1" : 0.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Standard+enthalpy+of+formation+of+metal+oxide+nanocluster+DHcf/C4AC86FC9BD45F5BD01137FF9D7CA44588DE2340/2ced6b25-4648-3217-87eb-70595145c4b1" : -157.7,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Surface+diameter/05D50FCC02538DB94F615F3E15109371590848BE/2ced6b25-4648-3217-87eb-70595145c4b1" : 18700.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Total+softness+S/076A8757D38CCD9253C43F98C460697EAB1E714D/2ced6b25-4648-3217-87eb-70595145c4b1" : -0.11,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Valance+band+EV/B0CFF7B250A4E029B9A1073CB3F7D22EBEAEC097/2ced6b25-4648-3217-87eb-70595145c4b1" : -2.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Volume+mass+diameter/8E26FCEF5A95B3D368D140159CD33E3235C88C10/2ced6b25-4648-3217-87eb-70595145c4b1" : 154.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Volume+surface+diameter/808F53B21F0690F7409AE36836ABE741B6A38282/2ced6b25-4648-3217-87eb-70595145c4b1" : 0.01,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Volume/FE93D5FDC88CF107DD7DAE8DE03DFE57F0324FA7/2ced6b25-4648-3217-87eb-70595145c4b1" : 1910000.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/POROSITY_SECTION/Porosity+X/414486970E1933938A175194AF2BA429E38CF0D9/2ced6b25-4648-3217-87eb-70595145c4b1" : 13300.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/POROSITY_SECTION/Porosity+Y/80E514BB6F9D01A2259CFF8547D20A963D04F7F1/2ced6b25-4648-3217-87eb-70595145c4b1" : -287000.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/ZETA_POTENTIAL_SECTION/ZETA+POTENTIAL/AF8AF3EB18CC3E7715223DC6D728F79F4AE46C5F/2ced6b25-4648-3217-87eb-70595145c4b1" : 1.3,
+                "https://apps.ideaconsult.net/enmtest/property/TOX/UNKNOWN_TOXICITY_SECTION/logLC50/63A6D4C95CE54B1630770EB000899C3EECE8DFDF/2ced6b25-4648-3217-87eb-70595145c4b1" : "HIGH"
+            }
+        }, 
+        {
+            "compound" : {
+                "name" : "NiO",
+                "ownerUUID" : null,
+                "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-bdd7706f-0640-35f2-bd7c-dba6302cb6fd"
+            },
+            "values" : {
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/CRYSTALLITE_AND_GRAIN_SIZE_SECTION/Particle+size+in+media/806461C5DF4FF1824166FB42EDD20CC6B1E22651/2ced6b25-4648-3217-87eb-70595145c4b1" : 33.2,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Area/46A5BA6A138AEEDB00A8DC533E6E2CF8A93E2B04/2ced6b25-4648-3217-87eb-70595145c4b1" : 1190000000.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Aspect+ratio+X/31F19F972E9739D9D52B6ED7D229D0C846E6144B/2ced6b25-4648-3217-87eb-70595145c4b1" : 0.596,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Aspect+ratio+Y/B608EF4AD8FB07F2040FFBA1DE5F5F3716BE8DC4/2ced6b25-4648-3217-87eb-70595145c4b1" : 0.068,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Chemical+hardness/FEB0ABB5DC40584E651A27FD4A1814C4C3D1FF18/2ced6b25-4648-3217-87eb-70595145c4b1" : -3.31,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Circularity/64833D0F0EE2ABFDC45399F6F6E29EBE3908D4DD/2ced6b25-4648-3217-87eb-70595145c4b1" : 0.004,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Conduction+band+EC/6A9D1B6DEBF7611102CFCD0AA0E640B02F9B5062/2ced6b25-4648-3217-87eb-70595145c4b1" : -7.78,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Core+core+repulsion+energy+Core/BCA0B35C3521ADAD7B1ECFD00B4CF4CCD680BBDB/2ced6b25-4648-3217-87eb-70595145c4b1" : 18093.2,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Electronic+chemical+potential/8AA262A89743633734D499F36D70A60F3969B3AD/2ced6b25-4648-3217-87eb-70595145c4b1" : -4.47,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/HOMO+HOMO/0DDBCC41F4C107DE3DEC4CC532F262B64EE61193/2ced6b25-4648-3217-87eb-70595145c4b1" : -7.78,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/HOMO+LUMO+energy+gap+Eg/50917C444AA4EFF0CBE54F31B6C6AF062A67AC20/2ced6b25-4648-3217-87eb-70595145c4b1" : -6.62,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/LUMO+LUMO/719F2D72A78009AD553824717E1340E528785146/2ced6b25-4648-3217-87eb-70595145c4b1" : -1.16,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Mullikens+electronegativity+xc/6A7B9D8FDDF6F29876EE916755D89A8E4168F127/2ced6b25-4648-3217-87eb-70595145c4b1" : 4.47,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Parr+and+Poples+absolute+hardness+Hard/74A933D8DD4684C4C5C294546D82A2E5CB15EC8B/2ced6b25-4648-3217-87eb-70595145c4b1" : 3.04,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Polarizability+derived+from+the+dipole+moment+Ad/D530109DD4FE6DA665A88504550AAB09EF7993AD/2ced6b25-4648-3217-87eb-70595145c4b1" : 21.23,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Polarizability+derived+from+the+heat+of+formation+Ahof/85B7FAC881B90A3E40845C22E3346BC5E3DC8A18/2ced6b25-4648-3217-87eb-70595145c4b1" : 21.35,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Schuurmann+MO+shift+alpha+Shift/89B2EEBB5F54B69E09B76E28EB819E2B6DD0246A/2ced6b25-4648-3217-87eb-70595145c4b1" : -4.37,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Sphericity/0795D09155019D11DB9AC6208210096B04006356/2ced6b25-4648-3217-87eb-70595145c4b1" : 0.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Standard+enthalpy+of+formation+of+metal+oxide+nanocluster+DHcf/C4AC86FC9BD45F5BD01137FF9D7CA44588DE2340/2ced6b25-4648-3217-87eb-70595145c4b1" : 68.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Surface+diameter/05D50FCC02538DB94F615F3E15109371590848BE/2ced6b25-4648-3217-87eb-70595145c4b1" : 19500.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Total+softness+S/076A8757D38CCD9253C43F98C460697EAB1E714D/2ced6b25-4648-3217-87eb-70595145c4b1" : -0.15,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Valance+band+EV/B0CFF7B250A4E029B9A1073CB3F7D22EBEAEC097/2ced6b25-4648-3217-87eb-70595145c4b1" : -1.16,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Volume+mass+diameter/8E26FCEF5A95B3D368D140159CD33E3235C88C10/2ced6b25-4648-3217-87eb-70595145c4b1" : 155.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Volume+surface+diameter/808F53B21F0690F7409AE36836ABE741B6A38282/2ced6b25-4648-3217-87eb-70595145c4b1" : 0.01,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Volume/FE93D5FDC88CF107DD7DAE8DE03DFE57F0324FA7/2ced6b25-4648-3217-87eb-70595145c4b1" : 1960000.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/POROSITY_SECTION/Porosity+X/414486970E1933938A175194AF2BA429E38CF0D9/2ced6b25-4648-3217-87eb-70595145c4b1" : 6550.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/POROSITY_SECTION/Porosity+Y/80E514BB6F9D01A2259CFF8547D20A963D04F7F1/2ced6b25-4648-3217-87eb-70595145c4b1" : -311000.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/ZETA_POTENTIAL_SECTION/ZETA+POTENTIAL/AF8AF3EB18CC3E7715223DC6D728F79F4AE46C5F/2ced6b25-4648-3217-87eb-70595145c4b1" : 2.1,
+                "https://apps.ideaconsult.net/enmtest/property/TOX/UNKNOWN_TOXICITY_SECTION/logLC50/63A6D4C95CE54B1630770EB000899C3EECE8DFDF/2ced6b25-4648-3217-87eb-70595145c4b1" : "LOW"
+            }
+        }, 
+        {
+            "compound" : {
+                "name" : "SnO2",
+                "ownerUUID" : null,
+                "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-f4eee017-b97d-372c-9e7d-eb82a1c30b32"
+            },
+            "values" : {
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/CRYSTALLITE_AND_GRAIN_SIZE_SECTION/Particle+size+in+media/806461C5DF4FF1824166FB42EDD20CC6B1E22651/2ced6b25-4648-3217-87eb-70595145c4b1" : 64.9,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Area/46A5BA6A138AEEDB00A8DC533E6E2CF8A93E2B04/2ced6b25-4648-3217-87eb-70595145c4b1" : 930000000.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Aspect+ratio+X/31F19F972E9739D9D52B6ED7D229D0C846E6144B/2ced6b25-4648-3217-87eb-70595145c4b1" : 0.408,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Aspect+ratio+Y/B608EF4AD8FB07F2040FFBA1DE5F5F3716BE8DC4/2ced6b25-4648-3217-87eb-70595145c4b1" : 0.078,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Chemical+hardness/FEB0ABB5DC40584E651A27FD4A1814C4C3D1FF18/2ced6b25-4648-3217-87eb-70595145c4b1" : -2.4,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Circularity/64833D0F0EE2ABFDC45399F6F6E29EBE3908D4DD/2ced6b25-4648-3217-87eb-70595145c4b1" : 0.004,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Conduction+band+EC/6A9D1B6DEBF7611102CFCD0AA0E640B02F9B5062/2ced6b25-4648-3217-87eb-70595145c4b1" : -6.97,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Core+core+repulsion+energy+Core/BCA0B35C3521ADAD7B1ECFD00B4CF4CCD680BBDB/2ced6b25-4648-3217-87eb-70595145c4b1" : 14202.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Electronic+chemical+potential/8AA262A89743633734D499F36D70A60F3969B3AD/2ced6b25-4648-3217-87eb-70595145c4b1" : -4.57,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/HOMO+HOMO/0DDBCC41F4C107DE3DEC4CC532F262B64EE61193/2ced6b25-4648-3217-87eb-70595145c4b1" : -6.97,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/HOMO+LUMO+energy+gap+Eg/50917C444AA4EFF0CBE54F31B6C6AF062A67AC20/2ced6b25-4648-3217-87eb-70595145c4b1" : -4.79,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/LUMO+LUMO/719F2D72A78009AD553824717E1340E528785146/2ced6b25-4648-3217-87eb-70595145c4b1" : -2.18,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Mullikens+electronegativity+xc/6A7B9D8FDDF6F29876EE916755D89A8E4168F127/2ced6b25-4648-3217-87eb-70595145c4b1" : 4.57,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Parr+and+Poples+absolute+hardness+Hard/74A933D8DD4684C4C5C294546D82A2E5CB15EC8B/2ced6b25-4648-3217-87eb-70595145c4b1" : 2.4,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Polarizability+derived+from+the+dipole+moment+Ad/D530109DD4FE6DA665A88504550AAB09EF7993AD/2ced6b25-4648-3217-87eb-70595145c4b1" : 34.14,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Polarizability+derived+from+the+heat+of+formation+Ahof/85B7FAC881B90A3E40845C22E3346BC5E3DC8A18/2ced6b25-4648-3217-87eb-70595145c4b1" : 34.22,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Schuurmann+MO+shift+alpha+Shift/89B2EEBB5F54B69E09B76E28EB819E2B6DD0246A/2ced6b25-4648-3217-87eb-70595145c4b1" : -4.57,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Sphericity/0795D09155019D11DB9AC6208210096B04006356/2ced6b25-4648-3217-87eb-70595145c4b1" : 0.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Standard+enthalpy+of+formation+of+metal+oxide+nanocluster+DHcf/C4AC86FC9BD45F5BD01137FF9D7CA44588DE2340/2ced6b25-4648-3217-87eb-70595145c4b1" : -266.6,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Surface+diameter/05D50FCC02538DB94F615F3E15109371590848BE/2ced6b25-4648-3217-87eb-70595145c4b1" : 17200.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Total+softness+S/076A8757D38CCD9253C43F98C460697EAB1E714D/2ced6b25-4648-3217-87eb-70595145c4b1" : -0.21,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Valance+band+EV/B0CFF7B250A4E029B9A1073CB3F7D22EBEAEC097/2ced6b25-4648-3217-87eb-70595145c4b1" : -2.18,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Volume+mass+diameter/8E26FCEF5A95B3D368D140159CD33E3235C88C10/2ced6b25-4648-3217-87eb-70595145c4b1" : 148.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Volume+surface+diameter/808F53B21F0690F7409AE36836ABE741B6A38282/2ced6b25-4648-3217-87eb-70595145c4b1" : 0.011,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Volume/FE93D5FDC88CF107DD7DAE8DE03DFE57F0324FA7/2ced6b25-4648-3217-87eb-70595145c4b1" : 1680000.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/POROSITY_SECTION/Porosity+X/414486970E1933938A175194AF2BA429E38CF0D9/2ced6b25-4648-3217-87eb-70595145c4b1" : -62300.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/POROSITY_SECTION/Porosity+Y/80E514BB6F9D01A2259CFF8547D20A963D04F7F1/2ced6b25-4648-3217-87eb-70595145c4b1" : -428000.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/ZETA_POTENTIAL_SECTION/ZETA+POTENTIAL/AF8AF3EB18CC3E7715223DC6D728F79F4AE46C5F/2ced6b25-4648-3217-87eb-70595145c4b1" : 1.1,
+                "https://apps.ideaconsult.net/enmtest/property/TOX/UNKNOWN_TOXICITY_SECTION/logLC50/63A6D4C95CE54B1630770EB000899C3EECE8DFDF/2ced6b25-4648-3217-87eb-70595145c4b1" : "HIGH"
+            }
+        }, 
+        {
+            "compound" : {
+                "name" : "WO3",
+                "ownerUUID" : null,
+                "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-e3986e91-2f88-3bd4-a40c-a570dd302afa"
+            },
+            "values" : {
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/CRYSTALLITE_AND_GRAIN_SIZE_SECTION/Particle+size+in+media/806461C5DF4FF1824166FB42EDD20CC6B1E22651/2ced6b25-4648-3217-87eb-70595145c4b1" : 63.2,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Area/46A5BA6A138AEEDB00A8DC533E6E2CF8A93E2B04/2ced6b25-4648-3217-87eb-70595145c4b1" : 980000000.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Aspect+ratio+X/31F19F972E9739D9D52B6ED7D229D0C846E6144B/2ced6b25-4648-3217-87eb-70595145c4b1" : 0.409,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Aspect+ratio+Y/B608EF4AD8FB07F2040FFBA1DE5F5F3716BE8DC4/2ced6b25-4648-3217-87eb-70595145c4b1" : 0.067,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Chemical+hardness/FEB0ABB5DC40584E651A27FD4A1814C4C3D1FF18/2ced6b25-4648-3217-87eb-70595145c4b1" : -0.11,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Circularity/64833D0F0EE2ABFDC45399F6F6E29EBE3908D4DD/2ced6b25-4648-3217-87eb-70595145c4b1" : 0.004,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Conduction+band+EC/6A9D1B6DEBF7611102CFCD0AA0E640B02F9B5062/2ced6b25-4648-3217-87eb-70595145c4b1" : -6.84,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Core+core+repulsion+energy+Core/BCA0B35C3521ADAD7B1ECFD00B4CF4CCD680BBDB/2ced6b25-4648-3217-87eb-70595145c4b1" : 17439.9,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Electronic+chemical+potential/8AA262A89743633734D499F36D70A60F3969B3AD/2ced6b25-4648-3217-87eb-70595145c4b1" : -6.73,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/HOMO+HOMO/0DDBCC41F4C107DE3DEC4CC532F262B64EE61193/2ced6b25-4648-3217-87eb-70595145c4b1" : -6.84,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/HOMO+LUMO+energy+gap+Eg/50917C444AA4EFF0CBE54F31B6C6AF062A67AC20/2ced6b25-4648-3217-87eb-70595145c4b1" : -0.23,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/LUMO+LUMO/719F2D72A78009AD553824717E1340E528785146/2ced6b25-4648-3217-87eb-70595145c4b1" : -6.61,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Mullikens+electronegativity+xc/6A7B9D8FDDF6F29876EE916755D89A8E4168F127/2ced6b25-4648-3217-87eb-70595145c4b1" : 6.73,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Parr+and+Poples+absolute+hardness+Hard/74A933D8DD4684C4C5C294546D82A2E5CB15EC8B/2ced6b25-4648-3217-87eb-70595145c4b1" : 0.11,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Polarizability+derived+from+the+dipole+moment+Ad/D530109DD4FE6DA665A88504550AAB09EF7993AD/2ced6b25-4648-3217-87eb-70595145c4b1" : 39.79,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Polarizability+derived+from+the+heat+of+formation+Ahof/85B7FAC881B90A3E40845C22E3346BC5E3DC8A18/2ced6b25-4648-3217-87eb-70595145c4b1" : 40.16,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Schuurmann+MO+shift+alpha+Shift/89B2EEBB5F54B69E09B76E28EB819E2B6DD0246A/2ced6b25-4648-3217-87eb-70595145c4b1" : -6.73,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Sphericity/0795D09155019D11DB9AC6208210096B04006356/2ced6b25-4648-3217-87eb-70595145c4b1" : 0.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Standard+enthalpy+of+formation+of+metal+oxide+nanocluster+DHcf/C4AC86FC9BD45F5BD01137FF9D7CA44588DE2340/2ced6b25-4648-3217-87eb-70595145c4b1" : -715.4,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Surface+diameter/05D50FCC02538DB94F615F3E15109371590848BE/2ced6b25-4648-3217-87eb-70595145c4b1" : 17600.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Total+softness+S/076A8757D38CCD9253C43F98C460697EAB1E714D/2ced6b25-4648-3217-87eb-70595145c4b1" : -4.41,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Valance+band+EV/B0CFF7B250A4E029B9A1073CB3F7D22EBEAEC097/2ced6b25-4648-3217-87eb-70595145c4b1" : -6.61,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Volume+mass+diameter/8E26FCEF5A95B3D368D140159CD33E3235C88C10/2ced6b25-4648-3217-87eb-70595145c4b1" : 149.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Volume+surface+diameter/808F53B21F0690F7409AE36836ABE741B6A38282/2ced6b25-4648-3217-87eb-70595145c4b1" : 0.011,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Volume/FE93D5FDC88CF107DD7DAE8DE03DFE57F0324FA7/2ced6b25-4648-3217-87eb-70595145c4b1" : 1720000.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/POROSITY_SECTION/Porosity+X/414486970E1933938A175194AF2BA429E38CF0D9/2ced6b25-4648-3217-87eb-70595145c4b1" : -167000.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/POROSITY_SECTION/Porosity+Y/80E514BB6F9D01A2259CFF8547D20A963D04F7F1/2ced6b25-4648-3217-87eb-70595145c4b1" : -430000.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/ZETA_POTENTIAL_SECTION/ZETA+POTENTIAL/AF8AF3EB18CC3E7715223DC6D728F79F4AE46C5F/2ced6b25-4648-3217-87eb-70595145c4b1" : 2.0,
+                "https://apps.ideaconsult.net/enmtest/property/TOX/UNKNOWN_TOXICITY_SECTION/logLC50/63A6D4C95CE54B1630770EB000899C3EECE8DFDF/2ced6b25-4648-3217-87eb-70595145c4b1" : "HIGH"
+            }
+        }, 
+        {
+            "compound" : {
+                "name" : "Y2O3",
+                "ownerUUID" : null,
+                "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-b2a6a8e9-a7d4-349c-9fcc-df05356a508d"
+            },
+            "values" : {
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/CRYSTALLITE_AND_GRAIN_SIZE_SECTION/Particle+size+in+media/806461C5DF4FF1824166FB42EDD20CC6B1E22651/2ced6b25-4648-3217-87eb-70595145c4b1" : 351.7,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Area/46A5BA6A138AEEDB00A8DC533E6E2CF8A93E2B04/2ced6b25-4648-3217-87eb-70595145c4b1" : 1280000000.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Aspect+ratio+X/31F19F972E9739D9D52B6ED7D229D0C846E6144B/2ced6b25-4648-3217-87eb-70595145c4b1" : 0.633,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Aspect+ratio+Y/B608EF4AD8FB07F2040FFBA1DE5F5F3716BE8DC4/2ced6b25-4648-3217-87eb-70595145c4b1" : 0.058,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Chemical+hardness/FEB0ABB5DC40584E651A27FD4A1814C4C3D1FF18/2ced6b25-4648-3217-87eb-70595145c4b1" : -1.84,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Circularity/64833D0F0EE2ABFDC45399F6F6E29EBE3908D4DD/2ced6b25-4648-3217-87eb-70595145c4b1" : 0.003,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Conduction+band+EC/6A9D1B6DEBF7611102CFCD0AA0E640B02F9B5062/2ced6b25-4648-3217-87eb-70595145c4b1" : -5.19,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Core+core+repulsion+energy+Core/BCA0B35C3521ADAD7B1ECFD00B4CF4CCD680BBDB/2ced6b25-4648-3217-87eb-70595145c4b1" : 6991.3,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Electronic+chemical+potential/8AA262A89743633734D499F36D70A60F3969B3AD/2ced6b25-4648-3217-87eb-70595145c4b1" : -3.35,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/HOMO+HOMO/0DDBCC41F4C107DE3DEC4CC532F262B64EE61193/2ced6b25-4648-3217-87eb-70595145c4b1" : -5.19,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/HOMO+LUMO+energy+gap+Eg/50917C444AA4EFF0CBE54F31B6C6AF062A67AC20/2ced6b25-4648-3217-87eb-70595145c4b1" : -3.68,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/LUMO+LUMO/719F2D72A78009AD553824717E1340E528785146/2ced6b25-4648-3217-87eb-70595145c4b1" : -1.51,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Mullikens+electronegativity+xc/6A7B9D8FDDF6F29876EE916755D89A8E4168F127/2ced6b25-4648-3217-87eb-70595145c4b1" : 3.35,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Parr+and+Poples+absolute+hardness+Hard/74A933D8DD4684C4C5C294546D82A2E5CB15EC8B/2ced6b25-4648-3217-87eb-70595145c4b1" : 1.84,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Polarizability+derived+from+the+dipole+moment+Ad/D530109DD4FE6DA665A88504550AAB09EF7993AD/2ced6b25-4648-3217-87eb-70595145c4b1" : 106.98,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Polarizability+derived+from+the+heat+of+formation+Ahof/85B7FAC881B90A3E40845C22E3346BC5E3DC8A18/2ced6b25-4648-3217-87eb-70595145c4b1" : 107.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Schuurmann+MO+shift+alpha+Shift/89B2EEBB5F54B69E09B76E28EB819E2B6DD0246A/2ced6b25-4648-3217-87eb-70595145c4b1" : -3.35,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Sphericity/0795D09155019D11DB9AC6208210096B04006356/2ced6b25-4648-3217-87eb-70595145c4b1" : 0.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Standard+enthalpy+of+formation+of+metal+oxide+nanocluster+DHcf/C4AC86FC9BD45F5BD01137FF9D7CA44588DE2340/2ced6b25-4648-3217-87eb-70595145c4b1" : -135.3,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Surface+diameter/05D50FCC02538DB94F615F3E15109371590848BE/2ced6b25-4648-3217-87eb-70595145c4b1" : 20200.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Total+softness+S/076A8757D38CCD9253C43F98C460697EAB1E714D/2ced6b25-4648-3217-87eb-70595145c4b1" : -0.27,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Valance+band+EV/B0CFF7B250A4E029B9A1073CB3F7D22EBEAEC097/2ced6b25-4648-3217-87eb-70595145c4b1" : -1.51,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Volume+mass+diameter/8E26FCEF5A95B3D368D140159CD33E3235C88C10/2ced6b25-4648-3217-87eb-70595145c4b1" : 163.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Volume+surface+diameter/808F53B21F0690F7409AE36836ABE741B6A38282/2ced6b25-4648-3217-87eb-70595145c4b1" : 0.011,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Volume/FE93D5FDC88CF107DD7DAE8DE03DFE57F0324FA7/2ced6b25-4648-3217-87eb-70595145c4b1" : 2260000.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/POROSITY_SECTION/Porosity+X/414486970E1933938A175194AF2BA429E38CF0D9/2ced6b25-4648-3217-87eb-70595145c4b1" : 10200.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/POROSITY_SECTION/Porosity+Y/80E514BB6F9D01A2259CFF8547D20A963D04F7F1/2ced6b25-4648-3217-87eb-70595145c4b1" : -189000.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/ZETA_POTENTIAL_SECTION/ZETA+POTENTIAL/AF8AF3EB18CC3E7715223DC6D728F79F4AE46C5F/2ced6b25-4648-3217-87eb-70595145c4b1" : 1.5,
+                "https://apps.ideaconsult.net/enmtest/property/TOX/UNKNOWN_TOXICITY_SECTION/logLC50/63A6D4C95CE54B1630770EB000899C3EECE8DFDF/2ced6b25-4648-3217-87eb-70595145c4b1" : "LOW"
+            }
+        }, 
+        {
+            "compound" : {
+                "name" : "Bi2O3",
+                "ownerUUID" : null,
+                "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-8a5cc9f2-eb7a-3602-ab88-c2c16a7d33ec"
+            },
+            "values" : {
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/CRYSTALLITE_AND_GRAIN_SIZE_SECTION/Particle+size+in+media/806461C5DF4FF1824166FB42EDD20CC6B1E22651/2ced6b25-4648-3217-87eb-70595145c4b1" : 150.7,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Area/46A5BA6A138AEEDB00A8DC533E6E2CF8A93E2B04/2ced6b25-4648-3217-87eb-70595145c4b1" : 980000000.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Aspect+ratio+X/31F19F972E9739D9D52B6ED7D229D0C846E6144B/2ced6b25-4648-3217-87eb-70595145c4b1" : 0.402,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Aspect+ratio+Y/B608EF4AD8FB07F2040FFBA1DE5F5F3716BE8DC4/2ced6b25-4648-3217-87eb-70595145c4b1" : 0.055,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Chemical+hardness/FEB0ABB5DC40584E651A27FD4A1814C4C3D1FF18/2ced6b25-4648-3217-87eb-70595145c4b1" : -4.09,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Circularity/64833D0F0EE2ABFDC45399F6F6E29EBE3908D4DD/2ced6b25-4648-3217-87eb-70595145c4b1" : 0.003,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Conduction+band+EC/6A9D1B6DEBF7611102CFCD0AA0E640B02F9B5062/2ced6b25-4648-3217-87eb-70595145c4b1" : -9.43,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Core+core+repulsion+energy+Core/BCA0B35C3521ADAD7B1ECFD00B4CF4CCD680BBDB/2ced6b25-4648-3217-87eb-70595145c4b1" : 8378.4,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Electronic+chemical+potential/8AA262A89743633734D499F36D70A60F3969B3AD/2ced6b25-4648-3217-87eb-70595145c4b1" : -5.34,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/HOMO+HOMO/0DDBCC41F4C107DE3DEC4CC532F262B64EE61193/2ced6b25-4648-3217-87eb-70595145c4b1" : -9.43,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/HOMO+LUMO+energy+gap+Eg/50917C444AA4EFF0CBE54F31B6C6AF062A67AC20/2ced6b25-4648-3217-87eb-70595145c4b1" : -8.18,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/LUMO+LUMO/719F2D72A78009AD553824717E1340E528785146/2ced6b25-4648-3217-87eb-70595145c4b1" : -1.25,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Mullikens+electronegativity+xc/6A7B9D8FDDF6F29876EE916755D89A8E4168F127/2ced6b25-4648-3217-87eb-70595145c4b1" : 5.34,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Parr+and+Poples+absolute+hardness+Hard/74A933D8DD4684C4C5C294546D82A2E5CB15EC8B/2ced6b25-4648-3217-87eb-70595145c4b1" : 4.09,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Polarizability+derived+from+the+dipole+moment+Ad/D530109DD4FE6DA665A88504550AAB09EF7993AD/2ced6b25-4648-3217-87eb-70595145c4b1" : 19.84,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Polarizability+derived+from+the+heat+of+formation+Ahof/85B7FAC881B90A3E40845C22E3346BC5E3DC8A18/2ced6b25-4648-3217-87eb-70595145c4b1" : 19.92,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Schuurmann+MO+shift+alpha+Shift/89B2EEBB5F54B69E09B76E28EB819E2B6DD0246A/2ced6b25-4648-3217-87eb-70595145c4b1" : -5.34,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Sphericity/0795D09155019D11DB9AC6208210096B04006356/2ced6b25-4648-3217-87eb-70595145c4b1" : 0.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Standard+enthalpy+of+formation+of+metal+oxide+nanocluster+DHcf/C4AC86FC9BD45F5BD01137FF9D7CA44588DE2340/2ced6b25-4648-3217-87eb-70595145c4b1" : -148.5,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Surface+diameter/05D50FCC02538DB94F615F3E15109371590848BE/2ced6b25-4648-3217-87eb-70595145c4b1" : 17700.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Total+softness+S/076A8757D38CCD9253C43F98C460697EAB1E714D/2ced6b25-4648-3217-87eb-70595145c4b1" : -0.12,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Valance+band+EV/B0CFF7B250A4E029B9A1073CB3F7D22EBEAEC097/2ced6b25-4648-3217-87eb-70595145c4b1" : -1.25,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Volume+mass+diameter/8E26FCEF5A95B3D368D140159CD33E3235C88C10/2ced6b25-4648-3217-87eb-70595145c4b1" : 158.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Volume+surface+diameter/808F53B21F0690F7409AE36836ABE741B6A38282/2ced6b25-4648-3217-87eb-70595145c4b1" : 0.012,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Volume/FE93D5FDC88CF107DD7DAE8DE03DFE57F0324FA7/2ced6b25-4648-3217-87eb-70595145c4b1" : 2050000.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/POROSITY_SECTION/Porosity+X/414486970E1933938A175194AF2BA429E38CF0D9/2ced6b25-4648-3217-87eb-70595145c4b1" : -286000.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/POROSITY_SECTION/Porosity+Y/80E514BB6F9D01A2259CFF8547D20A963D04F7F1/2ced6b25-4648-3217-87eb-70595145c4b1" : -180000.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/ZETA_POTENTIAL_SECTION/ZETA+POTENTIAL/AF8AF3EB18CC3E7715223DC6D728F79F4AE46C5F/2ced6b25-4648-3217-87eb-70595145c4b1" : 1.8,
+                "https://apps.ideaconsult.net/enmtest/property/TOX/UNKNOWN_TOXICITY_SECTION/logLC50/63A6D4C95CE54B1630770EB000899C3EECE8DFDF/2ced6b25-4648-3217-87eb-70595145c4b1" : "HIGH"
+            }
+        }, 
+        {
+            "compound" : {
+                "name" : "CoO",
+                "ownerUUID" : null,
+                "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-d3e48cef-d53c-36be-92cc-430823bfcbb0"
+            },
+            "values" : {
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/CRYSTALLITE_AND_GRAIN_SIZE_SECTION/Particle+size+in+media/806461C5DF4FF1824166FB42EDD20CC6B1E22651/2ced6b25-4648-3217-87eb-70595145c4b1" : 11.9,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Area/46A5BA6A138AEEDB00A8DC533E6E2CF8A93E2B04/2ced6b25-4648-3217-87eb-70595145c4b1" : 1140000000.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Aspect+ratio+X/31F19F972E9739D9D52B6ED7D229D0C846E6144B/2ced6b25-4648-3217-87eb-70595145c4b1" : 0.429,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Aspect+ratio+Y/B608EF4AD8FB07F2040FFBA1DE5F5F3716BE8DC4/2ced6b25-4648-3217-87eb-70595145c4b1" : 0.061,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Chemical+hardness/FEB0ABB5DC40584E651A27FD4A1814C4C3D1FF18/2ced6b25-4648-3217-87eb-70595145c4b1" : -1.77,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Circularity/64833D0F0EE2ABFDC45399F6F6E29EBE3908D4DD/2ced6b25-4648-3217-87eb-70595145c4b1" : 0.003,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Conduction+band+EC/6A9D1B6DEBF7611102CFCD0AA0E640B02F9B5062/2ced6b25-4648-3217-87eb-70595145c4b1" : -9.21,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Core+core+repulsion+energy+Core/BCA0B35C3521ADAD7B1ECFD00B4CF4CCD680BBDB/2ced6b25-4648-3217-87eb-70595145c4b1" : 40088.5,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Electronic+chemical+potential/8AA262A89743633734D499F36D70A60F3969B3AD/2ced6b25-4648-3217-87eb-70595145c4b1" : -7.44,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/HOMO+HOMO/0DDBCC41F4C107DE3DEC4CC532F262B64EE61193/2ced6b25-4648-3217-87eb-70595145c4b1" : -9.21,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/HOMO+LUMO+energy+gap+Eg/50917C444AA4EFF0CBE54F31B6C6AF062A67AC20/2ced6b25-4648-3217-87eb-70595145c4b1" : -3.55,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/LUMO+LUMO/719F2D72A78009AD553824717E1340E528785146/2ced6b25-4648-3217-87eb-70595145c4b1" : -5.67,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Mullikens+electronegativity+xc/6A7B9D8FDDF6F29876EE916755D89A8E4168F127/2ced6b25-4648-3217-87eb-70595145c4b1" : 7.44,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Parr+and+Poples+absolute+hardness+Hard/74A933D8DD4684C4C5C294546D82A2E5CB15EC8B/2ced6b25-4648-3217-87eb-70595145c4b1" : 1.5,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Polarizability+derived+from+the+dipole+moment+Ad/D530109DD4FE6DA665A88504550AAB09EF7993AD/2ced6b25-4648-3217-87eb-70595145c4b1" : 45.5,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Polarizability+derived+from+the+heat+of+formation+Ahof/85B7FAC881B90A3E40845C22E3346BC5E3DC8A18/2ced6b25-4648-3217-87eb-70595145c4b1" : 45.5,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Schuurmann+MO+shift+alpha+Shift/89B2EEBB5F54B69E09B76E28EB819E2B6DD0246A/2ced6b25-4648-3217-87eb-70595145c4b1" : -8.25,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Sphericity/0795D09155019D11DB9AC6208210096B04006356/2ced6b25-4648-3217-87eb-70595145c4b1" : 0.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Standard+enthalpy+of+formation+of+metal+oxide+nanocluster+DHcf/C4AC86FC9BD45F5BD01137FF9D7CA44588DE2340/2ced6b25-4648-3217-87eb-70595145c4b1" : -786.8,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Surface+diameter/05D50FCC02538DB94F615F3E15109371590848BE/2ced6b25-4648-3217-87eb-70595145c4b1" : 19000.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Total+softness+S/076A8757D38CCD9253C43F98C460697EAB1E714D/2ced6b25-4648-3217-87eb-70595145c4b1" : -0.28,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Valance+band+EV/B0CFF7B250A4E029B9A1073CB3F7D22EBEAEC097/2ced6b25-4648-3217-87eb-70595145c4b1" : -5.67,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Volume+mass+diameter/8E26FCEF5A95B3D368D140159CD33E3235C88C10/2ced6b25-4648-3217-87eb-70595145c4b1" : 160.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Volume+surface+diameter/808F53B21F0690F7409AE36836ABE741B6A38282/2ced6b25-4648-3217-87eb-70595145c4b1" : 0.011,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Volume/FE93D5FDC88CF107DD7DAE8DE03DFE57F0324FA7/2ced6b25-4648-3217-87eb-70595145c4b1" : 2140000.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/POROSITY_SECTION/Porosity+X/414486970E1933938A175194AF2BA429E38CF0D9/2ced6b25-4648-3217-87eb-70595145c4b1" : 21100.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/POROSITY_SECTION/Porosity+Y/80E514BB6F9D01A2259CFF8547D20A963D04F7F1/2ced6b25-4648-3217-87eb-70595145c4b1" : -242000.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/ZETA_POTENTIAL_SECTION/ZETA+POTENTIAL/AF8AF3EB18CC3E7715223DC6D728F79F4AE46C5F/2ced6b25-4648-3217-87eb-70595145c4b1" : 1.1,
+                "https://apps.ideaconsult.net/enmtest/property/TOX/UNKNOWN_TOXICITY_SECTION/logLC50/63A6D4C95CE54B1630770EB000899C3EECE8DFDF/2ced6b25-4648-3217-87eb-70595145c4b1" : "HIGH"
+            }
+        }, 
+        {
+            "compound" : {
+                "name" : "In2O3",
+                "ownerUUID" : null,
+                "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-91bc33a8-8c7b-3bbb-a4c8-ecd4c3f64399"
+            },
+            "values" : {
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/CRYSTALLITE_AND_GRAIN_SIZE_SECTION/Particle+size+in+media/806461C5DF4FF1824166FB42EDD20CC6B1E22651/2ced6b25-4648-3217-87eb-70595145c4b1" : 63.1,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Area/46A5BA6A138AEEDB00A8DC533E6E2CF8A93E2B04/2ced6b25-4648-3217-87eb-70595145c4b1" : 1070000000.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Aspect+ratio+X/31F19F972E9739D9D52B6ED7D229D0C846E6144B/2ced6b25-4648-3217-87eb-70595145c4b1" : 0.499,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Aspect+ratio+Y/B608EF4AD8FB07F2040FFBA1DE5F5F3716BE8DC4/2ced6b25-4648-3217-87eb-70595145c4b1" : 0.065,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Chemical+hardness/FEB0ABB5DC40584E651A27FD4A1814C4C3D1FF18/2ced6b25-4648-3217-87eb-70595145c4b1" : -3.84,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Circularity/64833D0F0EE2ABFDC45399F6F6E29EBE3908D4DD/2ced6b25-4648-3217-87eb-70595145c4b1" : 0.003,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Conduction+band+EC/6A9D1B6DEBF7611102CFCD0AA0E640B02F9B5062/2ced6b25-4648-3217-87eb-70595145c4b1" : -10.62,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Core+core+repulsion+energy+Core/BCA0B35C3521ADAD7B1ECFD00B4CF4CCD680BBDB/2ced6b25-4648-3217-87eb-70595145c4b1" : 4124.1,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Electronic+chemical+potential/8AA262A89743633734D499F36D70A60F3969B3AD/2ced6b25-4648-3217-87eb-70595145c4b1" : -6.78,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/HOMO+HOMO/0DDBCC41F4C107DE3DEC4CC532F262B64EE61193/2ced6b25-4648-3217-87eb-70595145c4b1" : -10.62,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/HOMO+LUMO+energy+gap+Eg/50917C444AA4EFF0CBE54F31B6C6AF062A67AC20/2ced6b25-4648-3217-87eb-70595145c4b1" : -7.68,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/LUMO+LUMO/719F2D72A78009AD553824717E1340E528785146/2ced6b25-4648-3217-87eb-70595145c4b1" : -2.95,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Mullikens+electronegativity+xc/6A7B9D8FDDF6F29876EE916755D89A8E4168F127/2ced6b25-4648-3217-87eb-70595145c4b1" : 6.78,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Parr+and+Poples+absolute+hardness+Hard/74A933D8DD4684C4C5C294546D82A2E5CB15EC8B/2ced6b25-4648-3217-87eb-70595145c4b1" : 3.84,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Polarizability+derived+from+the+dipole+moment+Ad/D530109DD4FE6DA665A88504550AAB09EF7993AD/2ced6b25-4648-3217-87eb-70595145c4b1" : 12.43,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Polarizability+derived+from+the+heat+of+formation+Ahof/85B7FAC881B90A3E40845C22E3346BC5E3DC8A18/2ced6b25-4648-3217-87eb-70595145c4b1" : 12.44,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Schuurmann+MO+shift+alpha+Shift/89B2EEBB5F54B69E09B76E28EB819E2B6DD0246A/2ced6b25-4648-3217-87eb-70595145c4b1" : -6.78,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Sphericity/0795D09155019D11DB9AC6208210096B04006356/2ced6b25-4648-3217-87eb-70595145c4b1" : 0.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Standard+enthalpy+of+formation+of+metal+oxide+nanocluster+DHcf/C4AC86FC9BD45F5BD01137FF9D7CA44588DE2340/2ced6b25-4648-3217-87eb-70595145c4b1" : -52.1,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Surface+diameter/05D50FCC02538DB94F615F3E15109371590848BE/2ced6b25-4648-3217-87eb-70595145c4b1" : 18500.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Total+softness+S/076A8757D38CCD9253C43F98C460697EAB1E714D/2ced6b25-4648-3217-87eb-70595145c4b1" : -0.13,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Valance+band+EV/B0CFF7B250A4E029B9A1073CB3F7D22EBEAEC097/2ced6b25-4648-3217-87eb-70595145c4b1" : -2.95,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Volume+mass+diameter/8E26FCEF5A95B3D368D140159CD33E3235C88C10/2ced6b25-4648-3217-87eb-70595145c4b1" : 157.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Volume+surface+diameter/808F53B21F0690F7409AE36836ABE741B6A38282/2ced6b25-4648-3217-87eb-70595145c4b1" : 0.011,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Volume/FE93D5FDC88CF107DD7DAE8DE03DFE57F0324FA7/2ced6b25-4648-3217-87eb-70595145c4b1" : 2040000.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/POROSITY_SECTION/Porosity+X/414486970E1933938A175194AF2BA429E38CF0D9/2ced6b25-4648-3217-87eb-70595145c4b1" : -16800.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/POROSITY_SECTION/Porosity+Y/80E514BB6F9D01A2259CFF8547D20A963D04F7F1/2ced6b25-4648-3217-87eb-70595145c4b1" : -281000.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/ZETA_POTENTIAL_SECTION/ZETA+POTENTIAL/AF8AF3EB18CC3E7715223DC6D728F79F4AE46C5F/2ced6b25-4648-3217-87eb-70595145c4b1" : 1.5,
+                "https://apps.ideaconsult.net/enmtest/property/TOX/UNKNOWN_TOXICITY_SECTION/logLC50/63A6D4C95CE54B1630770EB000899C3EECE8DFDF/2ced6b25-4648-3217-87eb-70595145c4b1" : "HIGH"
+            }
+        }, 
+        {
+            "compound" : {
+                "name" : "Mn2O3",
+                "ownerUUID" : null,
+                "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-29ff321b-e874-3a99-850b-4582573c9d1c"
+            },
+            "values" : {
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/CRYSTALLITE_AND_GRAIN_SIZE_SECTION/Particle+size+in+media/806461C5DF4FF1824166FB42EDD20CC6B1E22651/2ced6b25-4648-3217-87eb-70595145c4b1" : 7.5,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Area/46A5BA6A138AEEDB00A8DC533E6E2CF8A93E2B04/2ced6b25-4648-3217-87eb-70595145c4b1" : 1090000000.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Aspect+ratio+X/31F19F972E9739D9D52B6ED7D229D0C846E6144B/2ced6b25-4648-3217-87eb-70595145c4b1" : 0.479,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Aspect+ratio+Y/B608EF4AD8FB07F2040FFBA1DE5F5F3716BE8DC4/2ced6b25-4648-3217-87eb-70595145c4b1" : 0.064,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Chemical+hardness/FEB0ABB5DC40584E651A27FD4A1814C4C3D1FF18/2ced6b25-4648-3217-87eb-70595145c4b1" : -0.02,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Circularity/64833D0F0EE2ABFDC45399F6F6E29EBE3908D4DD/2ced6b25-4648-3217-87eb-70595145c4b1" : 0.003,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Conduction+band+EC/6A9D1B6DEBF7611102CFCD0AA0E640B02F9B5062/2ced6b25-4648-3217-87eb-70595145c4b1" : -5.02,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Core+core+repulsion+energy+Core/BCA0B35C3521ADAD7B1ECFD00B4CF4CCD680BBDB/2ced6b25-4648-3217-87eb-70595145c4b1" : 29505.4,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Electronic+chemical+potential/8AA262A89743633734D499F36D70A60F3969B3AD/2ced6b25-4648-3217-87eb-70595145c4b1" : -5.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/HOMO+HOMO/0DDBCC41F4C107DE3DEC4CC532F262B64EE61193/2ced6b25-4648-3217-87eb-70595145c4b1" : -5.02,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/HOMO+LUMO+energy+gap+Eg/50917C444AA4EFF0CBE54F31B6C6AF062A67AC20/2ced6b25-4648-3217-87eb-70595145c4b1" : -0.04,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/LUMO+LUMO/719F2D72A78009AD553824717E1340E528785146/2ced6b25-4648-3217-87eb-70595145c4b1" : -4.98,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Mullikens+electronegativity+xc/6A7B9D8FDDF6F29876EE916755D89A8E4168F127/2ced6b25-4648-3217-87eb-70595145c4b1" : 5.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Parr+and+Poples+absolute+hardness+Hard/74A933D8DD4684C4C5C294546D82A2E5CB15EC8B/2ced6b25-4648-3217-87eb-70595145c4b1" : 0.02,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Polarizability+derived+from+the+dipole+moment+Ad/D530109DD4FE6DA665A88504550AAB09EF7993AD/2ced6b25-4648-3217-87eb-70595145c4b1" : 40.97,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Polarizability+derived+from+the+heat+of+formation+Ahof/85B7FAC881B90A3E40845C22E3346BC5E3DC8A18/2ced6b25-4648-3217-87eb-70595145c4b1" : 734.03,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Schuurmann+MO+shift+alpha+Shift/89B2EEBB5F54B69E09B76E28EB819E2B6DD0246A/2ced6b25-4648-3217-87eb-70595145c4b1" : -5.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Sphericity/0795D09155019D11DB9AC6208210096B04006356/2ced6b25-4648-3217-87eb-70595145c4b1" : 0.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Standard+enthalpy+of+formation+of+metal+oxide+nanocluster+DHcf/C4AC86FC9BD45F5BD01137FF9D7CA44588DE2340/2ced6b25-4648-3217-87eb-70595145c4b1" : -96.3,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Surface+diameter/05D50FCC02538DB94F615F3E15109371590848BE/2ced6b25-4648-3217-87eb-70595145c4b1" : 18600.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Total+softness+S/076A8757D38CCD9253C43F98C460697EAB1E714D/2ced6b25-4648-3217-87eb-70595145c4b1" : -27.78,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Valance+band+EV/B0CFF7B250A4E029B9A1073CB3F7D22EBEAEC097/2ced6b25-4648-3217-87eb-70595145c4b1" : -4.98,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Volume+mass+diameter/8E26FCEF5A95B3D368D140159CD33E3235C88C10/2ced6b25-4648-3217-87eb-70595145c4b1" : 157.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Volume+surface+diameter/808F53B21F0690F7409AE36836ABE741B6A38282/2ced6b25-4648-3217-87eb-70595145c4b1" : 0.011,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Volume/FE93D5FDC88CF107DD7DAE8DE03DFE57F0324FA7/2ced6b25-4648-3217-87eb-70595145c4b1" : 2040000.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/POROSITY_SECTION/Porosity+X/414486970E1933938A175194AF2BA429E38CF0D9/2ced6b25-4648-3217-87eb-70595145c4b1" : 75700.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/POROSITY_SECTION/Porosity+Y/80E514BB6F9D01A2259CFF8547D20A963D04F7F1/2ced6b25-4648-3217-87eb-70595145c4b1" : -246000.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/ZETA_POTENTIAL_SECTION/ZETA+POTENTIAL/AF8AF3EB18CC3E7715223DC6D728F79F4AE46C5F/2ced6b25-4648-3217-87eb-70595145c4b1" : 2.3,
+                "https://apps.ideaconsult.net/enmtest/property/TOX/UNKNOWN_TOXICITY_SECTION/logLC50/63A6D4C95CE54B1630770EB000899C3EECE8DFDF/2ced6b25-4648-3217-87eb-70595145c4b1" : "HIGH"
+            }
+        }, 
+        {
+            "compound" : {
+                "name" : "Sb2O3",
+                "ownerUUID" : null,
+                "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-07d43c7c-86b8-3297-8b55-de634de389c7"
+            },
+            "values" : {
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/CRYSTALLITE_AND_GRAIN_SIZE_SECTION/Particle+size+in+media/806461C5DF4FF1824166FB42EDD20CC6B1E22651/2ced6b25-4648-3217-87eb-70595145c4b1" : 77.9,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Area/46A5BA6A138AEEDB00A8DC533E6E2CF8A93E2B04/2ced6b25-4648-3217-87eb-70595145c4b1" : 960000000.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Aspect+ratio+X/31F19F972E9739D9D52B6ED7D229D0C846E6144B/2ced6b25-4648-3217-87eb-70595145c4b1" : 0.241,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Aspect+ratio+Y/B608EF4AD8FB07F2040FFBA1DE5F5F3716BE8DC4/2ced6b25-4648-3217-87eb-70595145c4b1" : 0.055,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Chemical+hardness/FEB0ABB5DC40584E651A27FD4A1814C4C3D1FF18/2ced6b25-4648-3217-87eb-70595145c4b1" : -3.5,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Circularity/64833D0F0EE2ABFDC45399F6F6E29EBE3908D4DD/2ced6b25-4648-3217-87eb-70595145c4b1" : 0.004,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Conduction+band+EC/6A9D1B6DEBF7611102CFCD0AA0E640B02F9B5062/2ced6b25-4648-3217-87eb-70595145c4b1" : -7.96,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Core+core+repulsion+energy+Core/BCA0B35C3521ADAD7B1ECFD00B4CF4CCD680BBDB/2ced6b25-4648-3217-87eb-70595145c4b1" : 8251.5,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Electronic+chemical+potential/8AA262A89743633734D499F36D70A60F3969B3AD/2ced6b25-4648-3217-87eb-70595145c4b1" : -4.46,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/HOMO+HOMO/0DDBCC41F4C107DE3DEC4CC532F262B64EE61193/2ced6b25-4648-3217-87eb-70595145c4b1" : -7.96,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/HOMO+LUMO+energy+gap+Eg/50917C444AA4EFF0CBE54F31B6C6AF062A67AC20/2ced6b25-4648-3217-87eb-70595145c4b1" : -7.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/LUMO+LUMO/719F2D72A78009AD553824717E1340E528785146/2ced6b25-4648-3217-87eb-70595145c4b1" : -0.96,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Mullikens+electronegativity+xc/6A7B9D8FDDF6F29876EE916755D89A8E4168F127/2ced6b25-4648-3217-87eb-70595145c4b1" : 4.46,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Parr+and+Poples+absolute+hardness+Hard/74A933D8DD4684C4C5C294546D82A2E5CB15EC8B/2ced6b25-4648-3217-87eb-70595145c4b1" : 3.5,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Polarizability+derived+from+the+dipole+moment+Ad/D530109DD4FE6DA665A88504550AAB09EF7993AD/2ced6b25-4648-3217-87eb-70595145c4b1" : 23.12,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Polarizability+derived+from+the+heat+of+formation+Ahof/85B7FAC881B90A3E40845C22E3346BC5E3DC8A18/2ced6b25-4648-3217-87eb-70595145c4b1" : 23.21,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Schuurmann+MO+shift+alpha+Shift/89B2EEBB5F54B69E09B76E28EB819E2B6DD0246A/2ced6b25-4648-3217-87eb-70595145c4b1" : -4.46,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Sphericity/0795D09155019D11DB9AC6208210096B04006356/2ced6b25-4648-3217-87eb-70595145c4b1" : 0.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Standard+enthalpy+of+formation+of+metal+oxide+nanocluster+DHcf/C4AC86FC9BD45F5BD01137FF9D7CA44588DE2340/2ced6b25-4648-3217-87eb-70595145c4b1" : -206.7,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Surface+diameter/05D50FCC02538DB94F615F3E15109371590848BE/2ced6b25-4648-3217-87eb-70595145c4b1" : 17400.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Total+softness+S/076A8757D38CCD9253C43F98C460697EAB1E714D/2ced6b25-4648-3217-87eb-70595145c4b1" : -0.14,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Valance+band+EV/B0CFF7B250A4E029B9A1073CB3F7D22EBEAEC097/2ced6b25-4648-3217-87eb-70595145c4b1" : -0.96,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Volume+mass+diameter/8E26FCEF5A95B3D368D140159CD33E3235C88C10/2ced6b25-4648-3217-87eb-70595145c4b1" : 151.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Volume+surface+diameter/808F53B21F0690F7409AE36836ABE741B6A38282/2ced6b25-4648-3217-87eb-70595145c4b1" : 0.011,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Volume/FE93D5FDC88CF107DD7DAE8DE03DFE57F0324FA7/2ced6b25-4648-3217-87eb-70595145c4b1" : 1800000.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/POROSITY_SECTION/Porosity+X/414486970E1933938A175194AF2BA429E38CF0D9/2ced6b25-4648-3217-87eb-70595145c4b1" : 349000.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/POROSITY_SECTION/Porosity+Y/80E514BB6F9D01A2259CFF8547D20A963D04F7F1/2ced6b25-4648-3217-87eb-70595145c4b1" : -372000.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/ZETA_POTENTIAL_SECTION/ZETA+POTENTIAL/AF8AF3EB18CC3E7715223DC6D728F79F4AE46C5F/2ced6b25-4648-3217-87eb-70595145c4b1" : 0.8,
+                "https://apps.ideaconsult.net/enmtest/property/TOX/UNKNOWN_TOXICITY_SECTION/logLC50/63A6D4C95CE54B1630770EB000899C3EECE8DFDF/2ced6b25-4648-3217-87eb-70595145c4b1" : "LOW"
+            }
+        }, 
+        {
+            "compound" : {
+                "name" : "SiO2",
+                "ownerUUID" : null,
+                "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-214f4d13-3158-3210-af4f-bd2c40ce3153"
+            },
+            "values" : {
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/CRYSTALLITE_AND_GRAIN_SIZE_SECTION/Particle+size+in+media/806461C5DF4FF1824166FB42EDD20CC6B1E22651/2ced6b25-4648-3217-87eb-70595145c4b1" : 97.4,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Area/46A5BA6A138AEEDB00A8DC533E6E2CF8A93E2B04/2ced6b25-4648-3217-87eb-70595145c4b1" : 970000000.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Aspect+ratio+X/31F19F972E9739D9D52B6ED7D229D0C846E6144B/2ced6b25-4648-3217-87eb-70595145c4b1" : 0.421,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Aspect+ratio+Y/B608EF4AD8FB07F2040FFBA1DE5F5F3716BE8DC4/2ced6b25-4648-3217-87eb-70595145c4b1" : 0.065,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Chemical+hardness/FEB0ABB5DC40584E651A27FD4A1814C4C3D1FF18/2ced6b25-4648-3217-87eb-70595145c4b1" : -4.09,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Circularity/64833D0F0EE2ABFDC45399F6F6E29EBE3908D4DD/2ced6b25-4648-3217-87eb-70595145c4b1" : 0.004,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Conduction+band+EC/6A9D1B6DEBF7611102CFCD0AA0E640B02F9B5062/2ced6b25-4648-3217-87eb-70595145c4b1" : -7.9,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Core+core+repulsion+energy+Core/BCA0B35C3521ADAD7B1ECFD00B4CF4CCD680BBDB/2ced6b25-4648-3217-87eb-70595145c4b1" : 7437.6,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Electronic+chemical+potential/8AA262A89743633734D499F36D70A60F3969B3AD/2ced6b25-4648-3217-87eb-70595145c4b1" : -3.81,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/HOMO+HOMO/0DDBCC41F4C107DE3DEC4CC532F262B64EE61193/2ced6b25-4648-3217-87eb-70595145c4b1" : -7.9,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/HOMO+LUMO+energy+gap+Eg/50917C444AA4EFF0CBE54F31B6C6AF062A67AC20/2ced6b25-4648-3217-87eb-70595145c4b1" : -8.18,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/LUMO+LUMO/719F2D72A78009AD553824717E1340E528785146/2ced6b25-4648-3217-87eb-70595145c4b1" : 0.28,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Mullikens+electronegativity+xc/6A7B9D8FDDF6F29876EE916755D89A8E4168F127/2ced6b25-4648-3217-87eb-70595145c4b1" : 3.81,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Parr+and+Poples+absolute+hardness+Hard/74A933D8DD4684C4C5C294546D82A2E5CB15EC8B/2ced6b25-4648-3217-87eb-70595145c4b1" : 4.09,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Polarizability+derived+from+the+dipole+moment+Ad/D530109DD4FE6DA665A88504550AAB09EF7993AD/2ced6b25-4648-3217-87eb-70595145c4b1" : 31.54,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Polarizability+derived+from+the+heat+of+formation+Ahof/85B7FAC881B90A3E40845C22E3346BC5E3DC8A18/2ced6b25-4648-3217-87eb-70595145c4b1" : 31.58,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Schuurmann+MO+shift+alpha+Shift/89B2EEBB5F54B69E09B76E28EB819E2B6DD0246A/2ced6b25-4648-3217-87eb-70595145c4b1" : -3.81,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Sphericity/0795D09155019D11DB9AC6208210096B04006356/2ced6b25-4648-3217-87eb-70595145c4b1" : 0.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Standard+enthalpy+of+formation+of+metal+oxide+nanocluster+DHcf/C4AC86FC9BD45F5BD01137FF9D7CA44588DE2340/2ced6b25-4648-3217-87eb-70595145c4b1" : -618.3,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Surface+diameter/05D50FCC02538DB94F615F3E15109371590848BE/2ced6b25-4648-3217-87eb-70595145c4b1" : 17600.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Total+softness+S/076A8757D38CCD9253C43F98C460697EAB1E714D/2ced6b25-4648-3217-87eb-70595145c4b1" : -0.12,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Valance+band+EV/B0CFF7B250A4E029B9A1073CB3F7D22EBEAEC097/2ced6b25-4648-3217-87eb-70595145c4b1" : 0.28,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Volume+mass+diameter/8E26FCEF5A95B3D368D140159CD33E3235C88C10/2ced6b25-4648-3217-87eb-70595145c4b1" : 15.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Volume+surface+diameter/808F53B21F0690F7409AE36836ABE741B6A38282/2ced6b25-4648-3217-87eb-70595145c4b1" : 0.011,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Volume/FE93D5FDC88CF107DD7DAE8DE03DFE57F0324FA7/2ced6b25-4648-3217-87eb-70595145c4b1" : 1810000.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/POROSITY_SECTION/Porosity+X/414486970E1933938A175194AF2BA429E38CF0D9/2ced6b25-4648-3217-87eb-70595145c4b1" : 125000.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/POROSITY_SECTION/Porosity+Y/80E514BB6F9D01A2259CFF8547D20A963D04F7F1/2ced6b25-4648-3217-87eb-70595145c4b1" : -413000.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/ZETA_POTENTIAL_SECTION/ZETA+POTENTIAL/AF8AF3EB18CC3E7715223DC6D728F79F4AE46C5F/2ced6b25-4648-3217-87eb-70595145c4b1" : 1.0,
+                "https://apps.ideaconsult.net/enmtest/property/TOX/UNKNOWN_TOXICITY_SECTION/logLC50/63A6D4C95CE54B1630770EB000899C3EECE8DFDF/2ced6b25-4648-3217-87eb-70595145c4b1" : "LOW"
+            }
+        }, 
+        {
+            "compound" : {
+                "name" : "TiO2",
+                "ownerUUID" : null,
+                "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-80b69a12-be6a-3789-ac03-d86d2dad3f57"
+            },
+            "values" : {
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/CRYSTALLITE_AND_GRAIN_SIZE_SECTION/Particle+size+in+media/806461C5DF4FF1824166FB42EDD20CC6B1E22651/2ced6b25-4648-3217-87eb-70595145c4b1" : 313.7,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Area/46A5BA6A138AEEDB00A8DC533E6E2CF8A93E2B04/2ced6b25-4648-3217-87eb-70595145c4b1" : 920000000.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Aspect+ratio+X/31F19F972E9739D9D52B6ED7D229D0C846E6144B/2ced6b25-4648-3217-87eb-70595145c4b1" : 0.408,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Aspect+ratio+Y/B608EF4AD8FB07F2040FFBA1DE5F5F3716BE8DC4/2ced6b25-4648-3217-87eb-70595145c4b1" : 0.078,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Chemical+hardness/FEB0ABB5DC40584E651A27FD4A1814C4C3D1FF18/2ced6b25-4648-3217-87eb-70595145c4b1" : -2.18,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Circularity/64833D0F0EE2ABFDC45399F6F6E29EBE3908D4DD/2ced6b25-4648-3217-87eb-70595145c4b1" : 0.004,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Conduction+band+EC/6A9D1B6DEBF7611102CFCD0AA0E640B02F9B5062/2ced6b25-4648-3217-87eb-70595145c4b1" : -7.08,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Core+core+repulsion+energy+Core/BCA0B35C3521ADAD7B1ECFD00B4CF4CCD680BBDB/2ced6b25-4648-3217-87eb-70595145c4b1" : 9902.2,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Electronic+chemical+potential/8AA262A89743633734D499F36D70A60F3969B3AD/2ced6b25-4648-3217-87eb-70595145c4b1" : -4.91,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/HOMO+HOMO/0DDBCC41F4C107DE3DEC4CC532F262B64EE61193/2ced6b25-4648-3217-87eb-70595145c4b1" : -7.08,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/HOMO+LUMO+energy+gap+Eg/50917C444AA4EFF0CBE54F31B6C6AF062A67AC20/2ced6b25-4648-3217-87eb-70595145c4b1" : -4.36,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/LUMO+LUMO/719F2D72A78009AD553824717E1340E528785146/2ced6b25-4648-3217-87eb-70595145c4b1" : -2.73,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Mullikens+electronegativity+xc/6A7B9D8FDDF6F29876EE916755D89A8E4168F127/2ced6b25-4648-3217-87eb-70595145c4b1" : 4.91,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Parr+and+Poples+absolute+hardness+Hard/74A933D8DD4684C4C5C294546D82A2E5CB15EC8B/2ced6b25-4648-3217-87eb-70595145c4b1" : 2.14,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Polarizability+derived+from+the+dipole+moment+Ad/D530109DD4FE6DA665A88504550AAB09EF7993AD/2ced6b25-4648-3217-87eb-70595145c4b1" : 24.94,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Polarizability+derived+from+the+heat+of+formation+Ahof/85B7FAC881B90A3E40845C22E3346BC5E3DC8A18/2ced6b25-4648-3217-87eb-70595145c4b1" : 49.54,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Schuurmann+MO+shift+alpha+Shift/89B2EEBB5F54B69E09B76E28EB819E2B6DD0246A/2ced6b25-4648-3217-87eb-70595145c4b1" : -4.33,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Sphericity/0795D09155019D11DB9AC6208210096B04006356/2ced6b25-4648-3217-87eb-70595145c4b1" : 0.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Standard+enthalpy+of+formation+of+metal+oxide+nanocluster+DHcf/C4AC86FC9BD45F5BD01137FF9D7CA44588DE2340/2ced6b25-4648-3217-87eb-70595145c4b1" : -1492.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Surface+diameter/05D50FCC02538DB94F615F3E15109371590848BE/2ced6b25-4648-3217-87eb-70595145c4b1" : 17100.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Total+softness+S/076A8757D38CCD9253C43F98C460697EAB1E714D/2ced6b25-4648-3217-87eb-70595145c4b1" : -0.23,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Valance+band+EV/B0CFF7B250A4E029B9A1073CB3F7D22EBEAEC097/2ced6b25-4648-3217-87eb-70595145c4b1" : -2.73,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Volume+mass+diameter/8E26FCEF5A95B3D368D140159CD33E3235C88C10/2ced6b25-4648-3217-87eb-70595145c4b1" : 150.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Volume+surface+diameter/808F53B21F0690F7409AE36836ABE741B6A38282/2ced6b25-4648-3217-87eb-70595145c4b1" : 0.012,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Volume/FE93D5FDC88CF107DD7DAE8DE03DFE57F0324FA7/2ced6b25-4648-3217-87eb-70595145c4b1" : 1770000.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/POROSITY_SECTION/Porosity+X/414486970E1933938A175194AF2BA429E38CF0D9/2ced6b25-4648-3217-87eb-70595145c4b1" : 9790.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/POROSITY_SECTION/Porosity+Y/80E514BB6F9D01A2259CFF8547D20A963D04F7F1/2ced6b25-4648-3217-87eb-70595145c4b1" : -398000.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/ZETA_POTENTIAL_SECTION/ZETA+POTENTIAL/AF8AF3EB18CC3E7715223DC6D728F79F4AE46C5F/2ced6b25-4648-3217-87eb-70595145c4b1" : 0.2,
+                "https://apps.ideaconsult.net/enmtest/property/TOX/UNKNOWN_TOXICITY_SECTION/logLC50/63A6D4C95CE54B1630770EB000899C3EECE8DFDF/2ced6b25-4648-3217-87eb-70595145c4b1" : "LOW"
+            }
+        }, 
+        {
+            "compound" : {
+                "name" : "V2O3",
+                "ownerUUID" : null,
+                "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-8cbc6e82-425a-38ea-ac85-b4e07d3a13a5"
+            },
+            "values" : {
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/CRYSTALLITE_AND_GRAIN_SIZE_SECTION/Particle+size+in+media/806461C5DF4FF1824166FB42EDD20CC6B1E22651/2ced6b25-4648-3217-87eb-70595145c4b1" : 40.1,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Area/46A5BA6A138AEEDB00A8DC533E6E2CF8A93E2B04/2ced6b25-4648-3217-87eb-70595145c4b1" : 1300000000.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Aspect+ratio+X/31F19F972E9739D9D52B6ED7D229D0C846E6144B/2ced6b25-4648-3217-87eb-70595145c4b1" : 0.569,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Aspect+ratio+Y/B608EF4AD8FB07F2040FFBA1DE5F5F3716BE8DC4/2ced6b25-4648-3217-87eb-70595145c4b1" : 0.059,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Chemical+hardness/FEB0ABB5DC40584E651A27FD4A1814C4C3D1FF18/2ced6b25-4648-3217-87eb-70595145c4b1" : -2.58,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Circularity/64833D0F0EE2ABFDC45399F6F6E29EBE3908D4DD/2ced6b25-4648-3217-87eb-70595145c4b1" : 0.003,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Conduction+band+EC/6A9D1B6DEBF7611102CFCD0AA0E640B02F9B5062/2ced6b25-4648-3217-87eb-70595145c4b1" : -5.81,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Core+core+repulsion+energy+Core/BCA0B35C3521ADAD7B1ECFD00B4CF4CCD680BBDB/2ced6b25-4648-3217-87eb-70595145c4b1" : 5455.8,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Electronic+chemical+potential/8AA262A89743633734D499F36D70A60F3969B3AD/2ced6b25-4648-3217-87eb-70595145c4b1" : -3.24,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/HOMO+HOMO/0DDBCC41F4C107DE3DEC4CC532F262B64EE61193/2ced6b25-4648-3217-87eb-70595145c4b1" : -5.81,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/HOMO+LUMO+energy+gap+Eg/50917C444AA4EFF0CBE54F31B6C6AF062A67AC20/2ced6b25-4648-3217-87eb-70595145c4b1" : -5.15,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/LUMO+LUMO/719F2D72A78009AD553824717E1340E528785146/2ced6b25-4648-3217-87eb-70595145c4b1" : -0.66,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Mullikens+electronegativity+xc/6A7B9D8FDDF6F29876EE916755D89A8E4168F127/2ced6b25-4648-3217-87eb-70595145c4b1" : 3.24,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Parr+and+Poples+absolute+hardness+Hard/74A933D8DD4684C4C5C294546D82A2E5CB15EC8B/2ced6b25-4648-3217-87eb-70595145c4b1" : 2.58,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Polarizability+derived+from+the+dipole+moment+Ad/D530109DD4FE6DA665A88504550AAB09EF7993AD/2ced6b25-4648-3217-87eb-70595145c4b1" : 26.22,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Polarizability+derived+from+the+heat+of+formation+Ahof/85B7FAC881B90A3E40845C22E3346BC5E3DC8A18/2ced6b25-4648-3217-87eb-70595145c4b1" : 26.36,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Schuurmann+MO+shift+alpha+Shift/89B2EEBB5F54B69E09B76E28EB819E2B6DD0246A/2ced6b25-4648-3217-87eb-70595145c4b1" : -3.24,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Sphericity/0795D09155019D11DB9AC6208210096B04006356/2ced6b25-4648-3217-87eb-70595145c4b1" : 0.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Standard+enthalpy+of+formation+of+metal+oxide+nanocluster+DHcf/C4AC86FC9BD45F5BD01137FF9D7CA44588DE2340/2ced6b25-4648-3217-87eb-70595145c4b1" : -139.5,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Surface+diameter/05D50FCC02538DB94F615F3E15109371590848BE/2ced6b25-4648-3217-87eb-70595145c4b1" : 20300.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Total+softness+S/076A8757D38CCD9253C43F98C460697EAB1E714D/2ced6b25-4648-3217-87eb-70595145c4b1" : -0.19,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Valance+band+EV/B0CFF7B250A4E029B9A1073CB3F7D22EBEAEC097/2ced6b25-4648-3217-87eb-70595145c4b1" : -0.66,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Volume+mass+diameter/8E26FCEF5A95B3D368D140159CD33E3235C88C10/2ced6b25-4648-3217-87eb-70595145c4b1" : 161.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Volume+surface+diameter/808F53B21F0690F7409AE36836ABE741B6A38282/2ced6b25-4648-3217-87eb-70595145c4b1" : 0.01,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Volume/FE93D5FDC88CF107DD7DAE8DE03DFE57F0324FA7/2ced6b25-4648-3217-87eb-70595145c4b1" : 2200000.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/POROSITY_SECTION/Porosity+X/414486970E1933938A175194AF2BA429E38CF0D9/2ced6b25-4648-3217-87eb-70595145c4b1" : -5810.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/POROSITY_SECTION/Porosity+Y/80E514BB6F9D01A2259CFF8547D20A963D04F7F1/2ced6b25-4648-3217-87eb-70595145c4b1" : -220000.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/ZETA_POTENTIAL_SECTION/ZETA+POTENTIAL/AF8AF3EB18CC3E7715223DC6D728F79F4AE46C5F/2ced6b25-4648-3217-87eb-70595145c4b1" : 0.0,
+                "https://apps.ideaconsult.net/enmtest/property/TOX/UNKNOWN_TOXICITY_SECTION/logLC50/63A6D4C95CE54B1630770EB000899C3EECE8DFDF/2ced6b25-4648-3217-87eb-70595145c4b1" : "LOW"
+            }
+        }, 
+        {
+            "compound" : {
+                "name" : "ZnO",
+                "ownerUUID" : null,
+                "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-96890ce5-c856-3200-82d1-ba92fec42d9f"
+            },
+            "values" : {
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/CRYSTALLITE_AND_GRAIN_SIZE_SECTION/Particle+size+in+media/806461C5DF4FF1824166FB42EDD20CC6B1E22651/2ced6b25-4648-3217-87eb-70595145c4b1" : 37.2,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Area/46A5BA6A138AEEDB00A8DC533E6E2CF8A93E2B04/2ced6b25-4648-3217-87eb-70595145c4b1" : 1110000000.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Aspect+ratio+X/31F19F972E9739D9D52B6ED7D229D0C846E6144B/2ced6b25-4648-3217-87eb-70595145c4b1" : 0.535,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Aspect+ratio+Y/B608EF4AD8FB07F2040FFBA1DE5F5F3716BE8DC4/2ced6b25-4648-3217-87eb-70595145c4b1" : 0.071,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Chemical+hardness/FEB0ABB5DC40584E651A27FD4A1814C4C3D1FF18/2ced6b25-4648-3217-87eb-70595145c4b1" : -3.03,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Circularity/64833D0F0EE2ABFDC45399F6F6E29EBE3908D4DD/2ced6b25-4648-3217-87eb-70595145c4b1" : 0.004,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Conduction+band+EC/6A9D1B6DEBF7611102CFCD0AA0E640B02F9B5062/2ced6b25-4648-3217-87eb-70595145c4b1" : -11.36,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Core+core+repulsion+energy+Core/BCA0B35C3521ADAD7B1ECFD00B4CF4CCD680BBDB/2ced6b25-4648-3217-87eb-70595145c4b1" : 1901.5,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Electronic+chemical+potential/8AA262A89743633734D499F36D70A60F3969B3AD/2ced6b25-4648-3217-87eb-70595145c4b1" : -8.33,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/HOMO+HOMO/0DDBCC41F4C107DE3DEC4CC532F262B64EE61193/2ced6b25-4648-3217-87eb-70595145c4b1" : -11.36,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/HOMO+LUMO+energy+gap+Eg/50917C444AA4EFF0CBE54F31B6C6AF062A67AC20/2ced6b25-4648-3217-87eb-70595145c4b1" : -6.07,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/LUMO+LUMO/719F2D72A78009AD553824717E1340E528785146/2ced6b25-4648-3217-87eb-70595145c4b1" : -5.3,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Mullikens+electronegativity+xc/6A7B9D8FDDF6F29876EE916755D89A8E4168F127/2ced6b25-4648-3217-87eb-70595145c4b1" : 8.33,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Parr+and+Poples+absolute+hardness+Hard/74A933D8DD4684C4C5C294546D82A2E5CB15EC8B/2ced6b25-4648-3217-87eb-70595145c4b1" : 3.03,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Polarizability+derived+from+the+dipole+moment+Ad/D530109DD4FE6DA665A88504550AAB09EF7993AD/2ced6b25-4648-3217-87eb-70595145c4b1" : 9.07,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Polarizability+derived+from+the+heat+of+formation+Ahof/85B7FAC881B90A3E40845C22E3346BC5E3DC8A18/2ced6b25-4648-3217-87eb-70595145c4b1" : 9.09,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Schuurmann+MO+shift+alpha+Shift/89B2EEBB5F54B69E09B76E28EB819E2B6DD0246A/2ced6b25-4648-3217-87eb-70595145c4b1" : -8.33,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Sphericity/0795D09155019D11DB9AC6208210096B04006356/2ced6b25-4648-3217-87eb-70595145c4b1" : 0.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Standard+enthalpy+of+formation+of+metal+oxide+nanocluster+DHcf/C4AC86FC9BD45F5BD01137FF9D7CA44588DE2340/2ced6b25-4648-3217-87eb-70595145c4b1" : -449.4,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Surface+diameter/05D50FCC02538DB94F615F3E15109371590848BE/2ced6b25-4648-3217-87eb-70595145c4b1" : 18800.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Total+softness+S/076A8757D38CCD9253C43F98C460697EAB1E714D/2ced6b25-4648-3217-87eb-70595145c4b1" : -0.16,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Valance+band+EV/B0CFF7B250A4E029B9A1073CB3F7D22EBEAEC097/2ced6b25-4648-3217-87eb-70595145c4b1" : -5.3,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Volume+mass+diameter/8E26FCEF5A95B3D368D140159CD33E3235C88C10/2ced6b25-4648-3217-87eb-70595145c4b1" : 155.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Volume+surface+diameter/808F53B21F0690F7409AE36836ABE741B6A38282/2ced6b25-4648-3217-87eb-70595145c4b1" : 0.01,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Volume/FE93D5FDC88CF107DD7DAE8DE03DFE57F0324FA7/2ced6b25-4648-3217-87eb-70595145c4b1" : 1950000.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/POROSITY_SECTION/Porosity+X/414486970E1933938A175194AF2BA429E38CF0D9/2ced6b25-4648-3217-87eb-70595145c4b1" : 1830.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/POROSITY_SECTION/Porosity+Y/80E514BB6F9D01A2259CFF8547D20A963D04F7F1/2ced6b25-4648-3217-87eb-70595145c4b1" : -304000.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/ZETA_POTENTIAL_SECTION/ZETA+POTENTIAL/AF8AF3EB18CC3E7715223DC6D728F79F4AE46C5F/2ced6b25-4648-3217-87eb-70595145c4b1" : 1.5,
+                "https://apps.ideaconsult.net/enmtest/property/TOX/UNKNOWN_TOXICITY_SECTION/logLC50/63A6D4C95CE54B1630770EB000899C3EECE8DFDF/2ced6b25-4648-3217-87eb-70595145c4b1" : "HIGH"
+            }
+        }, 
+        {
+            "compound" : {
+                "name" : "ZrO2",
+                "ownerUUID" : null,
+                "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-8c8c4713-618f-37b2-b209-5ef44a45fa7c"
+            },
+            "values" : {
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/CRYSTALLITE_AND_GRAIN_SIZE_SECTION/Particle+size+in+media/806461C5DF4FF1824166FB42EDD20CC6B1E22651/2ced6b25-4648-3217-87eb-70595145c4b1" : 14.4,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Area/46A5BA6A138AEEDB00A8DC533E6E2CF8A93E2B04/2ced6b25-4648-3217-87eb-70595145c4b1" : 1200000000.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Aspect+ratio+X/31F19F972E9739D9D52B6ED7D229D0C846E6144B/2ced6b25-4648-3217-87eb-70595145c4b1" : 0.508,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Aspect+ratio+Y/B608EF4AD8FB07F2040FFBA1DE5F5F3716BE8DC4/2ced6b25-4648-3217-87eb-70595145c4b1" : 0.059,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Chemical+hardness/FEB0ABB5DC40584E651A27FD4A1814C4C3D1FF18/2ced6b25-4648-3217-87eb-70595145c4b1" : -5.97,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Circularity/64833D0F0EE2ABFDC45399F6F6E29EBE3908D4DD/2ced6b25-4648-3217-87eb-70595145c4b1" : 0.003,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Conduction+band+EC/6A9D1B6DEBF7611102CFCD0AA0E640B02F9B5062/2ced6b25-4648-3217-87eb-70595145c4b1" : -10.92,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Core+core+repulsion+energy+Core/BCA0B35C3521ADAD7B1ECFD00B4CF4CCD680BBDB/2ced6b25-4648-3217-87eb-70595145c4b1" : 2179.4,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Electronic+chemical+potential/8AA262A89743633734D499F36D70A60F3969B3AD/2ced6b25-4648-3217-87eb-70595145c4b1" : -4.95,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/HOMO+HOMO/0DDBCC41F4C107DE3DEC4CC532F262B64EE61193/2ced6b25-4648-3217-87eb-70595145c4b1" : -10.92,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/HOMO+LUMO+energy+gap+Eg/50917C444AA4EFF0CBE54F31B6C6AF062A67AC20/2ced6b25-4648-3217-87eb-70595145c4b1" : -11.95,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/LUMO+LUMO/719F2D72A78009AD553824717E1340E528785146/2ced6b25-4648-3217-87eb-70595145c4b1" : 1.03,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Mullikens+electronegativity+xc/6A7B9D8FDDF6F29876EE916755D89A8E4168F127/2ced6b25-4648-3217-87eb-70595145c4b1" : 4.95,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Parr+and+Poples+absolute+hardness+Hard/74A933D8DD4684C4C5C294546D82A2E5CB15EC8B/2ced6b25-4648-3217-87eb-70595145c4b1" : 5.97,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Polarizability+derived+from+the+dipole+moment+Ad/D530109DD4FE6DA665A88504550AAB09EF7993AD/2ced6b25-4648-3217-87eb-70595145c4b1" : 10.71,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Polarizability+derived+from+the+heat+of+formation+Ahof/85B7FAC881B90A3E40845C22E3346BC5E3DC8A18/2ced6b25-4648-3217-87eb-70595145c4b1" : 10.74,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Schuurmann+MO+shift+alpha+Shift/89B2EEBB5F54B69E09B76E28EB819E2B6DD0246A/2ced6b25-4648-3217-87eb-70595145c4b1" : -4.95,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Sphericity/0795D09155019D11DB9AC6208210096B04006356/2ced6b25-4648-3217-87eb-70595145c4b1" : 0.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Standard+enthalpy+of+formation+of+metal+oxide+nanocluster+DHcf/C4AC86FC9BD45F5BD01137FF9D7CA44588DE2340/2ced6b25-4648-3217-87eb-70595145c4b1" : -638.1,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Surface+diameter/05D50FCC02538DB94F615F3E15109371590848BE/2ced6b25-4648-3217-87eb-70595145c4b1" : 19500.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Total+softness+S/076A8757D38CCD9253C43F98C460697EAB1E714D/2ced6b25-4648-3217-87eb-70595145c4b1" : -0.08,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Valance+band+EV/B0CFF7B250A4E029B9A1073CB3F7D22EBEAEC097/2ced6b25-4648-3217-87eb-70595145c4b1" : 1.03,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Volume+mass+diameter/8E26FCEF5A95B3D368D140159CD33E3235C88C10/2ced6b25-4648-3217-87eb-70595145c4b1" : 162.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Volume+surface+diameter/808F53B21F0690F7409AE36836ABE741B6A38282/2ced6b25-4648-3217-87eb-70595145c4b1" : 0.011,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Volume/FE93D5FDC88CF107DD7DAE8DE03DFE57F0324FA7/2ced6b25-4648-3217-87eb-70595145c4b1" : 2220000.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/POROSITY_SECTION/Porosity+X/414486970E1933938A175194AF2BA429E38CF0D9/2ced6b25-4648-3217-87eb-70595145c4b1" : 9680.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/POROSITY_SECTION/Porosity+Y/80E514BB6F9D01A2259CFF8547D20A963D04F7F1/2ced6b25-4648-3217-87eb-70595145c4b1" : -219000.0,
+                "https://apps.ideaconsult.net/enmtest/property/P-CHEM/ZETA_POTENTIAL_SECTION/ZETA+POTENTIAL/AF8AF3EB18CC3E7715223DC6D728F79F4AE46C5F/2ced6b25-4648-3217-87eb-70595145c4b1" : 1.1,
+                "https://apps.ideaconsult.net/enmtest/property/TOX/UNKNOWN_TOXICITY_SECTION/logLC50/63A6D4C95CE54B1630770EB000899C3EECE8DFDF/2ced6b25-4648-3217-87eb-70595145c4b1" : "LOW"
+            }
+        }
+    ],
+    "features" : [ 
+        {
+            "name" : "Polarizability derived from the heat of formation Ahof",
+            "units" : "eV",
+            "conditions" : {},
+            "category" : "EXPERIMENTAL",
+            "ont" : null,
+            "uri" : "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Polarizability+derived+from+the+heat+of+formation+Ahof/85B7FAC881B90A3E40845C22E3346BC5E3DC8A18/2ced6b25-4648-3217-87eb-70595145c4b1"
+        }, 
+        {
+            "name" : "Porosity X",
+            "units" : "eV",
+            "conditions" : {},
+            "category" : "EXPERIMENTAL",
+            "ont" : null,
+            "uri" : "https://apps.ideaconsult.net/enmtest/property/P-CHEM/POROSITY_SECTION/Porosity+X/414486970E1933938A175194AF2BA429E38CF0D9/2ced6b25-4648-3217-87eb-70595145c4b1"
+        }, 
+        {
+            "name" : "Aspect ratio X",
+            "units" : "eV",
+            "conditions" : {},
+            "category" : "EXPERIMENTAL",
+            "ont" : null,
+            "uri" : "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Aspect+ratio+X/31F19F972E9739D9D52B6ED7D229D0C846E6144B/2ced6b25-4648-3217-87eb-70595145c4b1"
+        }, 
+        {
+            "name" : "Conduction band EC",
+            "units" : "eV",
+            "conditions" : {},
+            "category" : "EXPERIMENTAL",
+            "ont" : null,
+            "uri" : "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Conduction+band+EC/6A9D1B6DEBF7611102CFCD0AA0E640B02F9B5062/2ced6b25-4648-3217-87eb-70595145c4b1"
+        }, 
+        {
+            "name" : "Polarizability derived from the dipole moment Ad",
+            "units" : "eV",
+            "conditions" : {},
+            "category" : "EXPERIMENTAL",
+            "ont" : null,
+            "uri" : "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Polarizability+derived+from+the+dipole+moment+Ad/D530109DD4FE6DA665A88504550AAB09EF7993AD/2ced6b25-4648-3217-87eb-70595145c4b1"
+        }, 
+        {
+            "name" : "Valance band EV",
+            "units" : "eV",
+            "conditions" : {},
+            "category" : "EXPERIMENTAL",
+            "ont" : null,
+            "uri" : "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Valance+band+EV/B0CFF7B250A4E029B9A1073CB3F7D22EBEAEC097/2ced6b25-4648-3217-87eb-70595145c4b1"
+        }, 
+        {
+            "name" : "Particle size in media",
+            "units" : "eV",
+            "conditions" : {},
+            "category" : "EXPERIMENTAL",
+            "ont" : null,
+            "uri" : "https://apps.ideaconsult.net/enmtest/property/P-CHEM/CRYSTALLITE_AND_GRAIN_SIZE_SECTION/Particle+size+in+media/806461C5DF4FF1824166FB42EDD20CC6B1E22651/2ced6b25-4648-3217-87eb-70595145c4b1"
+        }, 
+        {
+            "name" : "Mullikens electronegativity xc",
+            "units" : "eV",
+            "conditions" : {},
+            "category" : "EXPERIMENTAL",
+            "ont" : null,
+            "uri" : "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Mullikens+electronegativity+xc/6A7B9D8FDDF6F29876EE916755D89A8E4168F127/2ced6b25-4648-3217-87eb-70595145c4b1"
+        }, 
+        {
+            "name" : "Volume mass diameter",
+            "units" : "eV",
+            "conditions" : {},
+            "category" : "EXPERIMENTAL",
+            "ont" : null,
+            "uri" : "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Volume+mass+diameter/8E26FCEF5A95B3D368D140159CD33E3235C88C10/2ced6b25-4648-3217-87eb-70595145c4b1"
+        }, 
+        {
+            "name" : "Volume",
+            "units" : "eV",
+            "conditions" : {},
+            "category" : "EXPERIMENTAL",
+            "ont" : null,
+            "uri" : "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Volume/FE93D5FDC88CF107DD7DAE8DE03DFE57F0324FA7/2ced6b25-4648-3217-87eb-70595145c4b1"
+        }, 
+        {
+            "name" : "Surface diameter",
+            "units" : "eV",
+            "conditions" : {},
+            "category" : "EXPERIMENTAL",
+            "ont" : null,
+            "uri" : "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Surface+diameter/05D50FCC02538DB94F615F3E15109371590848BE/2ced6b25-4648-3217-87eb-70595145c4b1"
+        }, 
+        {
+            "name" : "Area",
+            "units" : "eV",
+            "conditions" : {},
+            "category" : "EXPERIMENTAL",
+            "ont" : null,
+            "uri" : "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Area/46A5BA6A138AEEDB00A8DC533E6E2CF8A93E2B04/2ced6b25-4648-3217-87eb-70595145c4b1"
+        }, 
+        {
+            "name" : "Standard enthalpy of formation of metal oxide nanocluster DHcf",
+            "units" : "kcal/mol",
+            "conditions" : {},
+            "category" : "EXPERIMENTAL",
+            "ont" : null,
+            "uri" : "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Standard+enthalpy+of+formation+of+metal+oxide+nanocluster+DHcf/C4AC86FC9BD45F5BD01137FF9D7CA44588DE2340/2ced6b25-4648-3217-87eb-70595145c4b1"
+        }, 
+        {
+            "name" : "Total softness S",
+            "units" : "eV",
+            "conditions" : {},
+            "category" : "EXPERIMENTAL",
+            "ont" : null,
+            "uri" : "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Total+softness+S/076A8757D38CCD9253C43F98C460697EAB1E714D/2ced6b25-4648-3217-87eb-70595145c4b1"
+        }, 
+        {
+            "name" : "HOMO LUMO energy gap Eg",
+            "units" : "eV",
+            "conditions" : {},
+            "category" : "EXPERIMENTAL",
+            "ont" : null,
+            "uri" : "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/HOMO+LUMO+energy+gap+Eg/50917C444AA4EFF0CBE54F31B6C6AF062A67AC20/2ced6b25-4648-3217-87eb-70595145c4b1"
+        }, 
+        {
+            "name" : "Volume surface diameter",
+            "units" : "eV",
+            "conditions" : {},
+            "category" : "EXPERIMENTAL",
+            "ont" : null,
+            "uri" : "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Volume+surface+diameter/808F53B21F0690F7409AE36836ABE741B6A38282/2ced6b25-4648-3217-87eb-70595145c4b1"
+        }, 
+        {
+            "name" : "HOMO HOMO",
+            "units" : "eV",
+            "conditions" : {},
+            "category" : "EXPERIMENTAL",
+            "ont" : null,
+            "uri" : "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/HOMO+HOMO/0DDBCC41F4C107DE3DEC4CC532F262B64EE61193/2ced6b25-4648-3217-87eb-70595145c4b1"
+        }, 
+        {
+            "name" : "Circularity",
+            "units" : "eV",
+            "conditions" : {},
+            "category" : "EXPERIMENTAL",
+            "ont" : null,
+            "uri" : "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Circularity/64833D0F0EE2ABFDC45399F6F6E29EBE3908D4DD/2ced6b25-4648-3217-87eb-70595145c4b1"
+        }, 
+        {
+            "name" : "Parr and Poples absolute hardness Hard",
+            "units" : "eV",
+            "conditions" : {},
+            "category" : "EXPERIMENTAL",
+            "ont" : null,
+            "uri" : "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Parr+and+Poples+absolute+hardness+Hard/74A933D8DD4684C4C5C294546D82A2E5CB15EC8B/2ced6b25-4648-3217-87eb-70595145c4b1"
+        }, 
+        {
+            "name" : "Porosity Y",
+            "units" : "eV",
+            "conditions" : {},
+            "category" : "EXPERIMENTAL",
+            "ont" : null,
+            "uri" : "https://apps.ideaconsult.net/enmtest/property/P-CHEM/POROSITY_SECTION/Porosity+Y/80E514BB6F9D01A2259CFF8547D20A963D04F7F1/2ced6b25-4648-3217-87eb-70595145c4b1"
+        }, 
+        {
+            "name" : "Sphericity",
+            "units" : "eV",
+            "conditions" : {},
+            "category" : "EXPERIMENTAL",
+            "ont" : null,
+            "uri" : "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Sphericity/0795D09155019D11DB9AC6208210096B04006356/2ced6b25-4648-3217-87eb-70595145c4b1"
+        }, 
+        {
+            "name" : "Electronic chemical potential",
+            "units" : "eV",
+            "conditions" : {},
+            "category" : "EXPERIMENTAL",
+            "ont" : null,
+            "uri" : "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Electronic+chemical+potential/8AA262A89743633734D499F36D70A60F3969B3AD/2ced6b25-4648-3217-87eb-70595145c4b1"
+        }, 
+        {
+            "name" : "ZETA POTENTIAL",
+            "units" : "eV",
+            "conditions" : {
+                "MEDIUM" : null,
+                "Remark" : null,
+                "pH" : null
+            },
+            "category" : "EXPERIMENTAL",
+            "ont" : null,
+            "uri" : "https://apps.ideaconsult.net/enmtest/property/P-CHEM/ZETA_POTENTIAL_SECTION/ZETA+POTENTIAL/AF8AF3EB18CC3E7715223DC6D728F79F4AE46C5F/2ced6b25-4648-3217-87eb-70595145c4b1"
+        }, 
+        {
+            "name" : "Aspect ratio Y",
+            "units" : "eV",
+            "conditions" : {},
+            "category" : "EXPERIMENTAL",
+            "ont" : null,
+            "uri" : "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Aspect+ratio+Y/B608EF4AD8FB07F2040FFBA1DE5F5F3716BE8DC4/2ced6b25-4648-3217-87eb-70595145c4b1"
+        }, 
+        {
+            "name" : "Chemical hardness",
+            "units" : "eV",
+            "conditions" : {},
+            "category" : "EXPERIMENTAL",
+            "ont" : null,
+            "uri" : "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Chemical+hardness/FEB0ABB5DC40584E651A27FD4A1814C4C3D1FF18/2ced6b25-4648-3217-87eb-70595145c4b1"
+        }, 
+        {
+            "name" : "logLC50",
+            "units" : "eV",
+            "conditions" : {},
+            "category" : "EXPERIMENTAL",
+            "ont" : null,
+            "uri" : "https://apps.ideaconsult.net/enmtest/property/TOX/UNKNOWN_TOXICITY_SECTION/logLC50/63A6D4C95CE54B1630770EB000899C3EECE8DFDF/2ced6b25-4648-3217-87eb-70595145c4b1"
+        }, 
+        {
+            "name" : "Core core repulsion energy Core",
+            "units" : "eV",
+            "conditions" : {},
+            "category" : "EXPERIMENTAL",
+            "ont" : null,
+            "uri" : "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Core+core+repulsion+energy+Core/BCA0B35C3521ADAD7B1ECFD00B4CF4CCD680BBDB/2ced6b25-4648-3217-87eb-70595145c4b1"
+        }, 
+        {
+            "name" : "Schuurmann MO shift alpha Shift",
+            "units" : "eV",
+            "conditions" : {},
+            "category" : "EXPERIMENTAL",
+            "ont" : null,
+            "uri" : "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/Schuurmann+MO+shift+alpha+Shift/89B2EEBB5F54B69E09B76E28EB819E2B6DD0246A/2ced6b25-4648-3217-87eb-70595145c4b1"
+        }, 
+        {
+            "name" : "LUMO LUMO",
+            "units" : "eV",
+            "conditions" : {},
+            "category" : "EXPERIMENTAL",
+            "ont" : null,
+            "uri" : "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_UNKNOWN_SECTION/LUMO+LUMO/719F2D72A78009AD553824717E1340E528785146/2ced6b25-4648-3217-87eb-70595145c4b1"
+        }
+    ],
+    "totalRows" : 18,
+    "totalColumns" : 29,
+    "descriptors" : [ 
+        "EXPERIMENTAL"
+    ]
+}

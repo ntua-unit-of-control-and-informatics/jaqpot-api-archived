@@ -34,6 +34,7 @@
  */
 package org.jaqpot.core.service.client.jpdi;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.concurrent.FutureCallback;
@@ -63,6 +64,7 @@ import java.util.concurrent.Future;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import org.apache.http.Header;
 
 /**
  *
@@ -189,8 +191,9 @@ public class JPDIClientImpl implements JPDIClient {
         TrainingRequest trainingRequest = new TrainingRequest();
         trainingRequest.setDataset(dataset);
         trainingRequest.setParameters(parameters);
-        trainingRequest.setPredictionFeature(predictionFeature);
+        trainingRequest.setPredictionFeature(predictionFeature);        
 //        String trainingRequestString = serializer.write(trainingRequest);
+//        System.out.println(trainingRequestString);
 
         final HttpPost request = new HttpPost(algorithm.getTrainingService());
         

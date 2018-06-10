@@ -681,7 +681,7 @@ public class DatasetResource {
                 .findFirst()
                 .orElseThrow(() -> new BadRequestException("Model does not have a valid prediction feature")));
         String qprfHost = properyManager.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_QPRF);
-
+        LOG.log(Level.INFO, qprfHost);
         Report report = client.target(qprfHost)
                 .request()
                 .header("Content-Type", MediaType.APPLICATION_JSON)

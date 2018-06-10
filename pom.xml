@@ -223,6 +223,7 @@
         <interlab.base></interlab.base>
         <jaqpot.readacross></jaqpot.readacross>
         <pksim.base></pksim.base>
+        <ocpulm.base></ocpulm.base>
         
         <jaqpot.qprf></jaqpot.qprf>
     </properties>
@@ -230,7 +231,7 @@
     <repositories>
         <repository>
             <id>jaqpot-releases</id>
-            <url>http://app.jaqpot.org:8081/repository/maven-releases/</url>
+            <url>https://nexus.jaqpot.org/repository/maven-releases/</url>
         </repository>
     </repositories>
 </project>

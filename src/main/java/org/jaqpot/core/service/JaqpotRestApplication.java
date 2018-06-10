@@ -83,7 +83,12 @@ public class JaqpotRestApplication extends Application {
         beanConfig.setScan(true);
         beanConfig.setTitle("Jaqpot Quattro");
         beanConfig.setDescription("Jaqpot Quattro");
-        beanConfig.setHost(host + ":" + port);
+        if(!"80".equals(port)){
+            beanConfig.setHost(host + ":" + port);
+        }
+        else{
+            beanConfig.setHost(host);
+        }
         beanConfig.setBasePath(basePath);
         beanConfig.setSchemes(new String[]{"http","https"});
         beanConfig.setPrettyPrint(true);
