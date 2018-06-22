@@ -51,6 +51,8 @@ import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
 import org.jaqpot.core.properties.PropertyManager;
+import org.jaqpot.core.service.annotations.TokenSecured;
+import org.jaqpot.core.service.authenitcation.RoleEnum;
 import org.jaqpot.core.service.httphandlers.SwaggerLdHandler;
 
 /**

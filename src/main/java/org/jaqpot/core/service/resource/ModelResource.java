@@ -61,7 +61,9 @@ import org.jaqpot.core.model.dto.dataset.FeatureInfo;
 import org.jaqpot.core.model.facades.UserFacade;
 import org.jaqpot.core.model.factory.ErrorReportFactory;
 import org.jaqpot.core.service.annotations.Authorize;
+import org.jaqpot.core.service.annotations.TokenSecured;
 import org.jaqpot.core.service.annotations.UnSecure;
+import org.jaqpot.core.service.authenitcation.RoleEnum;
 import org.jaqpot.core.service.data.PredictionService;
 import org.jaqpot.core.service.exceptions.JaqpotForbiddenException;
 import org.jaqpot.core.service.exceptions.parameter.ParameterInvalidURIException;
@@ -111,6 +113,7 @@ public class ModelResource {
     ParameterValidator parameterValidator;
 
     @GET
+    @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @ApiOperation(value = "Finds all Models",
             notes = "Finds all Models from Jaqpot Dataset. The response will list all models and will return either a URI list "
@@ -138,7 +141,7 @@ public class ModelResource {
         @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
     })
     public Response listModels(
-            @ApiParam(value = "Authorization token") @HeaderParam("subjectid") String subjectId,
+            @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key,
             @ApiParam(value = "start", defaultValue = "0") @QueryParam("start") Integer start,
             @ApiParam(value = "max - the server imposes an upper limit of 500 on this "
                     + "parameter.", defaultValue = "20") @QueryParam("max") Integer max
@@ -153,6 +156,7 @@ public class ModelResource {
     }
 
     @GET
+    @TokenSecured({RoleEnum.DEFAULT_USER})
     @Path("/featured")
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @ApiOperation(value = "Finds all Models",
@@ -181,7 +185,7 @@ public class ModelResource {
         @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
     })
     public Response listFeaturedModels(
-            @ApiParam(value = "Authorization token") @HeaderParam("subjectid") String subjectId,
+            @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key,
             @ApiParam(value = "start", defaultValue = "0") @QueryParam("start") Integer start,
             @ApiParam(value = "max - the server imposes an upper limit of 500 on this "
                     + "parameter.", defaultValue = "20") @QueryParam("max") Integer max
@@ -195,6 +199,7 @@ public class ModelResource {
     }
 
     @GET
+    @TokenSecured({RoleEnum.DEFAULT_USER})
     @Path("/{id}")
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list", "application/ld+json"})
     @ApiOperation(value = "Finds Model by Id",
@@ -222,7 +227,9 @@ public class ModelResource {
 //    })
     public Response getModel(
             @PathParam("id") String id,
-            @ApiParam(value = "Clients need to authenticate in order to access models") @HeaderParam("subjectid") String subjectId) {
+            @ApiParam(value = "Clients need to authenticate in order to access models") @HeaderParam("Authorization") String api_key) {
+        String[] apiA = api_key.split("\\s+");
+        String apiKey = apiA[1];
         Model model = modelHandler.findModel(id);
         if (model == null) {
             return Response
@@ -234,6 +241,7 @@ public class ModelResource {
     }
 
     @GET
+    @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces(MediaType.APPLICATION_XML)
     @Path("/{id}/pmml")
     @ApiOperation(value = "Finds Model by Id",
@@ -248,7 +256,9 @@ public class ModelResource {
     })
     public Response getModelPmml(
             @PathParam("id") String id,
-            @ApiParam(value = "Clients need to authenticate in order to access models") @HeaderParam("subjectid") String subjectId) throws NotFoundException {
+            @ApiParam(value = "Clients need to authenticate in order to access models") @HeaderParam("Authorization") String api_key) throws NotFoundException {
+        String[] apiA = api_key.split("\\s+");
+        String apiKey = apiA[1];
         Model model = modelHandler.findModelPmml(id);
         if (model == null || model.getPmmlModel() == null) {
             throw new NotFoundException("The requested model was not found on the server.");
@@ -274,6 +284,7 @@ public class ModelResource {
     }
 
     @GET
+    @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces({"text/uri-list"})
     @Path("/{id}/independent")
     @ApiOperation(value = "Lists the independent features of a Model",
@@ -289,8 +300,9 @@ public class ModelResource {
     })
     public Response listModelIndependentFeatures(
             @PathParam("id") String id,
-            @ApiParam(value = "Clients need to authenticate in order to access models") @HeaderParam("subjectid") String subjectId) {
-
+            @ApiParam(value = "Clients need to authenticate in order to access models") @HeaderParam("Authorization") String api_key) {
+        String[] apiA = api_key.split("\\s+");
+        String apiKey = apiA[1];
         Model foundModel = modelHandler.findModelIndependentFeatures(id);
         if (foundModel == null) {
             throw new NotFoundException("The requested model was not found on the server.");
@@ -299,6 +311,7 @@ public class ModelResource {
     }
 
     @GET
+    @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces({"text/uri-list"})
     @Path("/{id}/dependent")
     @ApiOperation(value = "Lists the dependent features of a Model",
@@ -314,7 +327,9 @@ public class ModelResource {
     })
     public Response listModelDependentFeatures(
             @PathParam("id") String id,
-            @ApiParam(value = "Clients need to authenticate in order to access models") @HeaderParam("subjectid") String subjectId) {
+            @ApiParam(value = "Clients need to authenticate in order to access models") @HeaderParam("Authorization") String api_key) {
+        String[] apiA = api_key.split("\\s+");
+        String apiKey = apiA[1];
         Model foundModel = modelHandler.findModelIndependentFeatures(id);
         if (foundModel == null) {
             throw new NotFoundException("The requested model was not found on the server.");
@@ -323,6 +338,7 @@ public class ModelResource {
     }
 
     @GET
+    @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces({"text/uri-list"})
     @Path("/{id}/predicted")
     @ApiOperation(value = "Lists the dependent features of a Model",
@@ -338,8 +354,9 @@ public class ModelResource {
     })
     public Response listModelPredictedFeatures(
             @PathParam("id") String id,
-            @ApiParam(value = "Clients need to authenticate in order to access models") @HeaderParam("subjectid") String subjectId) {
-
+            @ApiParam(value = "Clients need to authenticate in order to access models") @HeaderParam("Authorization") String api_key) {
+        String[] apiA = api_key.split("\\s+");
+        String apiKey = apiA[1];
         Model foundModel = modelHandler.findModel(id);
         if (foundModel == null) {
             throw new NotFoundException("The requested model was not found on the server.");
@@ -358,6 +375,7 @@ public class ModelResource {
     }
 
     @GET
+    @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/{id}/required")
     @ApiOperation(value = "Lists the required features of a Model",
@@ -366,7 +384,9 @@ public class ModelResource {
             responseContainer = "List")
     public Response listModelRequiredFeatures(
             @PathParam("id") String id,
-            @HeaderParam("subjectId") String subjectId) {
+            @HeaderParam("Authorization") String api_key) {
+        String[] apiA = api_key.split("\\s+");
+        String apiKey = apiA[1];
         Model model = modelHandler.find(id);
         if (model == null) {
             return Response.status(Response.Status.NOT_FOUND).build();
@@ -378,7 +398,7 @@ public class ModelResource {
             Model firstTransformation = client.target(model.getTransformationModels().get(0))
                     .request()
                     .accept(MediaType.APPLICATION_JSON)
-                    .header("subjectId", subjectId)
+                    .header("Authorization", "Bearer " + apiKey)
                     .get(Model.class);
             requiredFeatures = firstTransformation.getIndependentFeatures();
             datasetURI = firstTransformation.getDatasetUri();
@@ -391,7 +411,7 @@ public class ModelResource {
             featureSet = client.target(datasetURI.split("\\?")[0] + "/features")
                     .request()
                     .accept(MediaType.APPLICATION_JSON)
-                    .header("subjectId", subjectId)
+                    .header("Authorization", "Bearer " + apiKey)
                     .get(new GenericType<Set<FeatureInfo>>() {
                     });
         } else {
@@ -406,6 +426,7 @@ public class ModelResource {
     }
 
     @POST
+    @TokenSecured({RoleEnum.DEFAULT_USER})
     @Consumes({MediaType.APPLICATION_FORM_URLENCODED})
     @Produces({MediaType.APPLICATION_JSON})
     @Path("/{id}")
@@ -434,8 +455,9 @@ public class ModelResource {
             @ApiParam(name = "dataset_uri", required = true) @FormParam("dataset_uri") String datasetURI,
             @FormParam("visible") Boolean visible,
             @PathParam("id") String id,
-            @HeaderParam("subjectid") String subjectId) throws GeneralSecurityException, QuotaExceededException, ParameterIsNullException, ParameterInvalidURIException {
-
+            @HeaderParam("Authorization") String api_key) throws GeneralSecurityException, QuotaExceededException, ParameterIsNullException, ParameterInvalidURIException {
+        String[] apiA = api_key.split("\\s+");
+        String apiKey = apiA[1];
         if (datasetURI == null) {
             throw new ParameterIsNullException("datasetURI");
         }
@@ -472,7 +494,7 @@ public class ModelResource {
 
         Map<String, Object> options = new HashMap<>();
         options.put("dataset_uri", datasetURI);
-        options.put("subjectid", subjectId);
+        options.put("api_key", apiKey);
         options.put("modelId", id);
         options.put("creator", securityContext.getUserPrincipal().getName());
         options.put("base_uri", uriInfo.getBaseUri().toString());
@@ -481,6 +503,7 @@ public class ModelResource {
     }
 
     @DELETE
+    @TokenSecured({RoleEnum.DEFAULT_USER})
     @Path("/{id}")
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @ApiOperation(value = "Deletes a particular Model resource",
@@ -508,9 +531,11 @@ public class ModelResource {
         @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
     })
     public Response deleteModel(
-            @ApiParam("Clients need to authenticate in order to create resources on the server") @HeaderParam("subjectid") String subjectId,
+            @ApiParam("Clients need to authenticate in order to create resources on the server") @HeaderParam("Authorization") String api_key,
             @ApiParam(value = "ID of the Model.", required = true) @PathParam("id") String id
     ) throws JaqpotForbiddenException {
+        String[] apiA = api_key.split("\\s+");
+        String apiKey = apiA[1];
         Model model = modelHandler.find(id);
         if (model == null) {
             throw new NotFoundException("The model with id:" + id + " was not found.");

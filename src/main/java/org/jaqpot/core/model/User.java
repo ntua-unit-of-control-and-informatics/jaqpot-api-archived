@@ -32,9 +32,11 @@ package org.jaqpot.core.model;
 import java.util.Map;
 import javax.xml.bind.annotation.XmlRootElement;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import java.util.List;
 
 /**
- * User of  Jaqpot.
+ * User of Jaqpot.
+ *
  * @author Pantelis Sopasakis
  * @author Charalampos Chomenidis
  *
@@ -56,18 +58,19 @@ public class User extends JaqpotEntity {
      */
     private String hashedPass;
     /**
-     * Storage capabilities of the user.
-     * E.g., number of models, algorithms, etc, that the user
-     * can create.
+     * Storage capabilities of the user. E.g., number of models, algorithms,
+     * etc, that the user can create.
      */
-    private Map<String, Integer> capabilities;   
+    private Map<String, Integer> capabilities;
     /**
-     * Weekly publication capabilities of the user.
-     * How many resources the user can publish per week.
-     * 
+     * Weekly publication capabilities of the user. How many resources the user
+     * can publish per week.
+     *
      * @see UserFacade
      */
     private Map<String, Integer> publicationRatePerWeek;
+
+    private List<String> groups;
 
     public User() {
     }
@@ -75,7 +78,8 @@ public class User extends JaqpotEntity {
     public User(String id) {
         super(id);
     }
-    public User(User other){
+
+    public User(User other) {
         super(other);
         this.capabilities = other.capabilities;
         this.hashedPass = other.hashedPass;
@@ -122,6 +126,14 @@ public class User extends JaqpotEntity {
 
     public void setPublicationRatePerWeek(Map<String, Integer> publicationRatePerWeek) {
         this.publicationRatePerWeek = publicationRatePerWeek;
-    }        
+    }
+
+    public List<String> getGroups() {
+        return groups;
+    }
+
+    public void setGroups(List<String> groups) {
+        this.groups = groups;
+    }
 
 }

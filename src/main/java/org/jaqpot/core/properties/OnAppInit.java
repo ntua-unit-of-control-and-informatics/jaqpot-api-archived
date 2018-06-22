@@ -463,5 +463,39 @@ public class OnAppInit {
         }
         return algos;
     }
+    
+        private List<Algorithm> httk() {
+        ObjectMapper mapper = new ObjectMapper();
+        TypeReference<List<Algorithm>> algoListType = new TypeReference<List<Algorithm>>() {
+        };
+        List<Algorithm> algos = new ArrayList<>();
+        String result = this.getFile("algorithms/httk.json");
+        try {
+            algos = mapper.readValue(result, algoListType);
+            for (Algorithm algo : algos) {
+                String trainingUri = algo.getTrainingService();
+                if (trainingUri != null) {
+                    URI trainUriFromFile = new URI(trainingUri);
+                    String pathFromFile = trainUriFromFile.getPath();
+                    String httk_host = propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.HTTK_BASE);
+                    URI hostUrl = new URI(httk_host);
+                    URI ocpuTrainingService = hostUrl.resolve(pathFromFile);
+                    algo.setTrainingService(ocpuTrainingService.toString());
+                }
+                String predictingUri = algo.getPredictionService();
+                if (predictingUri != null) {
+                    URI predictUriFromFile = new URI(predictingUri);
+                    String pathFromFile = predictUriFromFile.getPath();
+                    String httk_host = propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.HTTK_BASE);
+                    URI hostUrl = new URI(httk_host);
+                    URI ocpuPredictingService = hostUrl.resolve(pathFromFile);
+                    algo.setPredictionService(ocpuPredictingService.toString());
+                }
+            }
+        } catch (IOException | URISyntaxException e) {
+            throw new InternalServerErrorException(e);
+        }
+        return algos;
+    }
 
 }

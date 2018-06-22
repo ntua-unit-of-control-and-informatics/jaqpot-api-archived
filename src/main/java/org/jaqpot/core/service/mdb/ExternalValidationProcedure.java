@@ -96,7 +96,7 @@ public class ExternalValidationProcedure extends AbstractJaqpotProcedure {
         String taskId = (String) messageBody.get("taskId");
         String dataset_uri = (String) messageBody.get("dataset_uri");
         String model_uri = (String) messageBody.get("model_uri");
-        String subjectId = (String) messageBody.get("subjectId");
+        String apiKey = (String) messageBody.get("api_key");
         String creator = (String) messageBody.get("creator");
 
         try {
@@ -117,7 +117,7 @@ public class ExternalValidationProcedure extends AbstractJaqpotProcedure {
             Dataset dataset = Optional.of(client.target(dataset_uri)
                     .request()
                     .accept(MediaType.APPLICATION_JSON)
-                    .header("subjectId", subjectId)
+                    .header("Authorization", "Bearer " + apiKey)
                     .get(Dataset.class)).orElseThrow(() -> new NotFoundException("Dataset with URI:" + dataset_uri + " was not found."));
             progress(10f, "Dataset retrieved successfully.");
             checkCancelled();

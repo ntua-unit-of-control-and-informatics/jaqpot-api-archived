@@ -40,7 +40,7 @@ import org.jaqpot.core.model.dto.bundle.BundleData;
 import org.jaqpot.core.model.dto.dataset.Dataset;
 import org.jaqpot.core.model.factory.ErrorReportFactory;
 import org.jaqpot.core.service.annotations.UnSecure;
-import org.jaqpot.core.service.data.AAService;
+import org.jaqpot.core.service.authenitcation.AAService;
 import org.jaqpot.core.service.data.ConjoinerService;
 
 import javax.annotation.Resource;
@@ -58,6 +58,7 @@ import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.jaqpot.core.service.exceptions.JaqpotNotAuthorizedException;
 
 /**
  *
@@ -126,7 +127,7 @@ public class PreparationMDB extends RunningTaskMDB {
             String substanceOwner= (String) messageBody.get("substance_owner");
             List<String> substances = (List<String>) messageBody.get("substances");
             Map<String, List<String>> properties = (Map<String, List<String>>) messageBody.get("properties");            //String bundleUri = (String) messageBody.get("bundle_uri");
-            String subjectId = (String) messageBody.get("subjectid");
+            String apiKey = (String) messageBody.get("api_key");
             String descriptors = (String) messageBody.get("descriptors");
             Boolean intersectColumns = (Boolean) messageBody.get("intersect_columns");
             Boolean retainNullValues = (Boolean) messageBody.get("retain_null_values");
@@ -148,7 +149,7 @@ public class PreparationMDB extends RunningTaskMDB {
                     .addTitles((String) messageBody.get("title"))
                     .addDescriptions((String) messageBody.get("description"))
                     .addComments("Created by task " + task.getId())
-                    .addCreators(aaService.getUserFromSSO(subjectId).getId())
+                    .addCreators(aaService.getUserFromSSO(apiKey).getId())
                     .build();
             dataset.setMeta(datasetMeta);
             dataset.setVisible(Boolean.TRUE);
@@ -196,7 +197,7 @@ public class PreparationMDB extends RunningTaskMDB {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
             task.setStatus(Task.Status.ERROR);
             task.setErrorReport(ErrorReportFactory.internalServerError(ex, "Error Accessing JMS asynchronous queues."));
-        } catch (BadRequestException ex) {
+        } catch (BadRequestException |  JaqpotNotAuthorizedException ex) {
             LOG.log(Level.SEVERE, null, ex);
             task.setStatus(Task.Status.ERROR);
             task.setErrorReport(ErrorReportFactory.badRequest("Error while processing input.", ex.getMessage()));

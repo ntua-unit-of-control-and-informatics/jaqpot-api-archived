@@ -12,7 +12,7 @@ import org.jaqpot.core.model.Task;
 import org.jaqpot.core.model.User;
 import org.jaqpot.core.model.facades.UserFacade;
 import org.jaqpot.core.service.annotations.Authorize;
-import org.jaqpot.core.service.data.AAService;
+import org.jaqpot.core.service.authenitcation.AAService;
 import org.jaqpot.core.service.data.TrainingService;
 import org.jaqpot.core.service.exceptions.QuotaExceededException;
 import org.jaqpot.core.service.exceptions.parameter.*;
@@ -37,6 +37,8 @@ import org.jaqpot.core.data.DatasetHandler;
 import org.jaqpot.core.model.ErrorReport;
 import org.jaqpot.core.model.Model;
 import org.jaqpot.core.model.dto.dataset.Dataset;
+import org.jaqpot.core.service.annotations.TokenSecured;
+import org.jaqpot.core.service.authenitcation.RoleEnum;
 import org.jaqpot.core.service.data.PredictionService;
 
 /**
@@ -86,6 +88,7 @@ public class BiokineticsResource {
     private static final Logger LOG = Logger.getLogger(BiokineticsResource.class.getName());
 
     @POST
+    @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @Path("/pksim/createmodel")
     @ApiImplicitParams({
@@ -189,6 +192,7 @@ public class BiokineticsResource {
     }
 
     @POST
+    @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @Path("httk/createmodel")
     @ApiOperation(value = "Creates an httk biocinetics Model",
@@ -281,6 +285,7 @@ public class BiokineticsResource {
     }
 
     @POST
+    @TokenSecured({RoleEnum.DEFAULT_USER})
     @Consumes({MediaType.APPLICATION_FORM_URLENCODED})
     @Produces({MediaType.APPLICATION_JSON})
     @Path("httk/model/{id}")

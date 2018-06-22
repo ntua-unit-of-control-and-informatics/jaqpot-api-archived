@@ -65,7 +65,7 @@
             <version>1.5.10</version>
         </dependency>
         
-<!--        <dependency>
+        <!--        <dependency>
             <groupId>io.swagger</groupId>
             <artifactId>swagger-jaxrs2</artifactId>
             <version>2.0.0-rc1</version>
@@ -151,10 +151,16 @@
             <version>1.2.0.Final</version>
         </dependency>
         
-        <dependency>
+        <!--        <dependency>
             <groupId>com.rabbitmq</groupId>
             <artifactId>amqp-client</artifactId>
             <version>4.1.1</version>
+        </dependency>-->
+        
+        <dependency>
+            <groupId>com.nimbusds</groupId>
+            <artifactId>oauth2-oidc-sdk</artifactId>
+            <version>5.62</version>
         </dependency>
 
 
@@ -216,14 +222,21 @@
         <server.base></server.base>
         <ambit.base></ambit.base>
         <algorithms.base></algorithms.base>
-        <python.algorithms.host></python.algorithms.host>
+        <jaqpot.python.algorithms.host></jaqpot.python.algorithms.host>
         <exp.design.host></exp.design.host>
         <image.base></image.base>
         <validation.base></validation.base>
         <interlab.base></interlab.base>
         <jaqpot.readacross></jaqpot.readacross>
         <pksim.base></pksim.base>
+        <httk.base></httk.base>
+
         <ocpulm.base></ocpulm.base>
+        
+        <oidc.issuer></oidc.issuer>
+        <oidc.client.id></oidc.client.id>
+        <oidc.client.pass></oidc.client.pass>
+        <oidc.provider.conf></oidc.provider.conf>
         
         <jaqpot.qprf></jaqpot.qprf>
     </properties>

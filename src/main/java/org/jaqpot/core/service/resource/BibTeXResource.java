@@ -68,7 +68,9 @@ import org.jaqpot.core.model.factory.ErrorReportFactory;
 import org.jaqpot.core.model.util.ROG;
 import org.jaqpot.core.model.validator.BibTeXValidator;
 import org.jaqpot.core.service.annotations.Authorize;
-import org.jaqpot.core.service.data.AAService;
+import org.jaqpot.core.service.annotations.TokenSecured;
+import org.jaqpot.core.service.authenitcation.AAService;
+import org.jaqpot.core.service.authenitcation.RoleEnum;
 import org.jaqpot.core.service.exceptions.JaqpotForbiddenException;
 import org.jaqpot.core.service.exceptions.JaqpotNotAuthorizedException;
 
@@ -119,6 +121,7 @@ public class BibTeXResource {
     BibTeXHandler bibtexHandler;
     
     @GET
+    @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @ApiOperation(value = "Finds all BibTeX entries",
             notes = "Finds all BibTeX entries in the DB of Jaqpot and returns them in a list", position = 1)
@@ -147,6 +150,7 @@ public class BibTeXResource {
     
     @GET
     @Path("/{id}")
+    @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @ApiOperation(value = "Returns BibTeX entry",
             notes = "Finds and returns a BibTeX by ID",
@@ -169,6 +173,7 @@ public class BibTeXResource {
     }
     
     @POST
+    @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @Consumes(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Creates a new BibTeX entry",
@@ -222,6 +227,7 @@ public class BibTeXResource {
     }
     
     @PUT
+    @TokenSecured({RoleEnum.DEFAULT_USER})
     @Path("/{id}")
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @ApiOperation(value = "Places a new BibTeX entry at a particular URI",
@@ -272,6 +278,7 @@ public class BibTeXResource {
     }
     
     @DELETE
+    @TokenSecured({RoleEnum.DEFAULT_USER})
     @Path("/{id}")
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @ApiOperation(value = "Deletes a particular BibTeX resource",
@@ -301,6 +308,7 @@ public class BibTeXResource {
     }
     
     @PATCH
+    @TokenSecured({RoleEnum.DEFAULT_USER})
     @Path("/{id}")
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @Consumes("application/json-patch+json")

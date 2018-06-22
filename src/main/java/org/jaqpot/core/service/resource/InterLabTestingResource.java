@@ -67,7 +67,6 @@ import java.util.logging.Logger;
 @Path("interlab")
 @Api(value = "/interlab", description = "Interlab Testing API")
 @Produces(MediaType.APPLICATION_JSON)
-@Authorize
 public class InterLabTestingResource {
 
     private static final Logger LOG = Logger.getLogger(InterLabTestingResource.class.getName());
@@ -105,9 +104,11 @@ public class InterLabTestingResource {
             @FormParam("dataset_uri") String datasetURI,
             @FormParam("prediction_feature") String predictionFeature,
             @FormParam("parameters") String parameters,
-            @HeaderParam("subjectid") String subjectId
+            @HeaderParam("Authorization") String api_key
     ) throws QuotaExceededException {
 
+        String[] apiA = api_key.split("\\s+");
+        String apiKey = apiA[1];
         User user = userHandler.find(securityContext.getUserPrincipal().getName());
         long reportCount = reportHandler.countAllOfCreator(user.getId());
         int maxAllowedReports = new UserFacade(user).getMaxReports();
@@ -122,7 +123,7 @@ public class InterLabTestingResource {
 
         Dataset dataset = client.target(datasetURI)
                 .request()
-                .header("subjectid", subjectId)
+                .header("Authorization", "Bearer " + apiKey)
                 .accept(MediaType.APPLICATION_JSON)
                 .get(Dataset.class);
         dataset.setDatasetURI(datasetURI);

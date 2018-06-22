@@ -15,7 +15,7 @@ import org.jaqpot.core.model.Task;
 import org.jaqpot.core.model.builder.MetaInfoBuilder;
 import org.jaqpot.core.model.dto.dataset.Dataset;
 import org.jaqpot.core.service.client.jpdi.JPDIClient;
-import org.jaqpot.core.service.data.AAService;
+import org.jaqpot.core.service.authenitcation.AAService;
 
 import javax.ejb.ActivationConfigProperty;
 import javax.ejb.EJB;
@@ -90,7 +90,7 @@ public class DescriptorCalculationProcedure extends AbstractJaqpotProcedure impl
         }
 
         String taskId = (String) messageBody.get("taskId");
-        String subjectId = (String) messageBody.get("subjectid");
+        String apiKey = (String) messageBody.get("api_key");
         byte[] file = (byte[]) messageBody.get("file");
         String parameters = (String) messageBody.get("parameters");
         String algorithmId = (String) messageBody.get("algorithmId");
@@ -131,7 +131,7 @@ public class DescriptorCalculationProcedure extends AbstractJaqpotProcedure impl
                     .addTitles((String) messageBody.get("title"))
                     .addDescriptions((String) messageBody.get("description"))
                     .addComments("Created by task " + taskId)
-                    .addCreators(aaService.getUserFromSSO(subjectId).getId())
+                    .addCreators(aaService.getUserFromSSO(apiKey).getId())
                     .build();
             dataset.setMeta(datasetMeta);
             dataset.setVisible(Boolean.TRUE);

@@ -66,10 +66,10 @@
         dom_id: "swagger-ui-container",
         supportedSubmitMethods: ['get', 'post', 'put', 'delete', 'patch'],
         securityDefinitions: {
-          "my_token": {
-            "type": "subjectid",
+          "Bearer": {
+            "type": "apiKey",
             "description": "Authorization Token",
-            "name": "my_token",
+            "name": "Authorization",
             "in": "header"
           }
         },
@@ -108,8 +108,10 @@
         log("key: " + key);
         if (key && key.trim() != "") {
           log("added key " + key);
+          var apiKeyAuth = new SwaggerClient.ApiKeyAuthorization("Authorization", "Bearer " + key, "header");
+          window.swaggerUi.api.clientAuthorizations.add("bearer", apiKeyAuth);
           // window.authorizations.add("api_key", new ApiKeyAuthorization("api_key", key, "query"));
-          swaggerUi.api.clientAuthorizations.add("key", new SwaggerClient.ApiKeyAuthorization("subjectid", key, "header"));
+//          swaggerUi.api.clientAuthorizations.add("key", new SwaggerClient.ApiKeyAuthorization("subjectid", key, "header"));
         }
       }
 
@@ -121,7 +123,7 @@
       $.post("/jaqpot/services/aa/login", {username: "guest", password: "guest"}).
       done(function (data) {
         document.getElementById("input_apiKey").value = (data.authToken);
-        swaggerUi.api.clientAuthorizations.add("key", new SwaggerClient.ApiKeyAuthorization("subjectid", data.authToken, "header"));
+        swaggerUi.api.clientAuthorizations.add("key", new SwaggerClient.ApiKeyAuthorization("Authorization", data.authToken, "header"));
       });
 
       function log() {

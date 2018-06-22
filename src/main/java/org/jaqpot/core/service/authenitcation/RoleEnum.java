@@ -32,42 +32,15 @@
  * All source files of JAQPOT Quattro that are stored on github are licensed
  * with the aforementioned licence. 
  */
-package org.jaqpot.core.service.security;
-
-import java.security.Principal;
-import javax.ws.rs.core.SecurityContext;
+package org.jaqpot.core.service.authenitcation;
 
 /**
  *
- * @author Charalampos Chomenidis
- * @author Pantelis Sopasakis
+ * @author pantelispanka
  */
-public class SecurityContextImpl implements SecurityContext {
+public enum RoleEnum {
 
-    Principal userPrincipal;
-
-    public SecurityContextImpl(Principal userPrincipal) {
-        this.userPrincipal = userPrincipal;
-    }
-
-    @Override
-    public Principal getUserPrincipal() {
-        return userPrincipal;
-    }
-
-    @Override
-    public boolean isUserInRole(String role) {
-        return false;
-    }
-
-    @Override
-    public boolean isSecure() {
-        return true;
-    }
-
-    @Override
-    public String getAuthenticationScheme() {
-        return "subjectid";
-    }
+    ADMNISTRATOR,
+    DEFAULT_USER
 
 }

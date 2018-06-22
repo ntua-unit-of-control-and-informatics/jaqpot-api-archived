@@ -47,6 +47,8 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import java.util.Arrays;
 import java.util.List;
+import org.jaqpot.core.service.annotations.TokenSecured;
+import org.jaqpot.core.service.authenitcation.RoleEnum;
 
 /**
  *
@@ -57,7 +59,6 @@ import java.util.List;
 @Path("user")
 @Api(value = "/user", description = "Users API", position = 1)
 @Produces({"application/json", "text/uri-list"})
-@Authorize
 public class UserResource {
 
     @EJB
@@ -74,6 +75,7 @@ public class UserResource {
 
 
     @GET
+    @TokenSecured({RoleEnum.ADMNISTRATOR})
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @ApiOperation(value = "Lists all Users (admins only)",
             notes = "Lists all Users of Jaqpot Quattro. This operation can only be performed by the system administrators.",
@@ -86,7 +88,7 @@ public class UserResource {
         @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
     })
     public Response listUsers(
-            @ApiParam(value = "Clients need to authenticate in order to access models") @HeaderParam("subjectid") String subjectId,
+            @ApiParam(value = "Clients need to authenticate in order to access models") @HeaderParam("Authorization") String api_key,
             @ApiParam(value = "start", defaultValue = "0") @QueryParam("start") Integer start,
             @ApiParam(value = "max", defaultValue = "10") @QueryParam("max") Integer max
     ) throws JaqpotNotAuthorizedException {
@@ -107,6 +109,7 @@ public class UserResource {
 
     @GET
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
+    @TokenSecured({RoleEnum.DEFAULT_USER})
     @Path("/{id}")
     @ApiOperation(value = "Finds User by Id",
             notes = "Finds specified user",
@@ -121,7 +124,7 @@ public class UserResource {
     public Response getUser(
             @PathParam("id") String id,
             @ApiParam(value = "Clients need to authenticate in order to access this resource")
-            @HeaderParam("subjectid") String subjectId) throws JaqpotNotAuthorizedException {
+            @HeaderParam("Authorization") String api_key) throws JaqpotNotAuthorizedException {
 
         String admins = propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_ADMINISTRATORS);
         List<String> adminsList = Arrays.asList(admins.split("\\s*,\\s*"));
@@ -141,6 +144,7 @@ public class UserResource {
     }
 
     @GET
+    @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces({MediaType.APPLICATION_JSON})
     @Path("/{id}/quota")
     @ApiOperation(value = "Retrieves user's quota",
@@ -157,7 +161,7 @@ public class UserResource {
     public Response getUserQuota(
             @PathParam("id") String id,
             @ApiParam(value = "Clients need to authenticate in order to access this resource")
-            @HeaderParam("subjectid") String subjectId) throws JaqpotNotAuthorizedException {
+            @HeaderParam("Authorization") String api_key) throws JaqpotNotAuthorizedException {
 
         String currentUserID = securityContext.getUserPrincipal().getName();
         String admins = propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_ADMINISTRATORS);

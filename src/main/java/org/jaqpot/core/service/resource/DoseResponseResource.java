@@ -57,6 +57,8 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import java.util.HashMap;
 import java.util.logging.Logger;
+import org.jaqpot.core.service.annotations.TokenSecured;
+import org.jaqpot.core.service.authenitcation.RoleEnum;
 
 /**
  *
@@ -66,7 +68,6 @@ import java.util.logging.Logger;
 @Path("doseresponse")
 @Api(value = "/doseresponse", description = "Dose Response API")
 @Produces(MediaType.APPLICATION_JSON)
-@Authorize
 public class DoseResponseResource {
 
     private static final Logger LOG = Logger.getLogger(DoseResponseResource.class.getName());
@@ -89,6 +90,7 @@ public class DoseResponseResource {
     SecurityContext securityContext;
 
     @POST
+    @TokenSecured({RoleEnum.DEFAULT_USER})
 //    @Path("/test")
     @ApiOperation(value = "Creates Dose Response Report",
             notes = "Creates Dose Response Report",
@@ -101,7 +103,7 @@ public class DoseResponseResource {
             @FormParam("dataset_uri") String datasetURI,
             @FormParam("prediction_feature") String predictionFeature,
             @FormParam("parameters") String parameters,
-            @HeaderParam("subjectid") String subjectId
+            @HeaderParam("Authorization") String api_key
     ) throws QuotaExceededException {
 
         User user = userHandler.find(securityContext.getUserPrincipal().getName());
@@ -115,10 +117,13 @@ public class DoseResponseResource {
                     + ", your quota has been exceeded; you already have " + reportCount + " reports. "
                     + "No more than " + maxAllowedReports + " are allowed with your subscription.");
         }
-
+        
+        String[] apiA = api_key.split("\\s+");
+        String apiKey = apiA[1];
+        
         Dataset dataset = client.target(datasetURI)
                 .request()
-                .header("subjectid", subjectId)
+                .header("Authorization", "Bearer " + apiKey)
                 .accept(MediaType.APPLICATION_JSON)
                 .get(Dataset.class);
         dataset.setDatasetURI(datasetURI);

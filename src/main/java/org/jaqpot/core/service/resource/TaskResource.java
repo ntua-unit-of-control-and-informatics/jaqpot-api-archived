@@ -64,6 +64,8 @@ import org.jaqpot.core.data.TaskHandler;
 import org.jaqpot.core.model.MetaInfo;
 import org.jaqpot.core.model.Task;
 import org.jaqpot.core.service.annotations.Authorize;
+import org.jaqpot.core.service.annotations.TokenSecured;
+import org.jaqpot.core.service.authenitcation.RoleEnum;
 import org.jaqpot.core.service.client.jpdi.JPDIClient;
 import org.jaqpot.core.service.exceptions.JaqpotForbiddenException;
 import org.jaqpot.core.service.mdb.ThreadReference;
@@ -76,7 +78,6 @@ import org.jaqpot.core.service.mdb.ThreadReference;
  */
 @Path("task")
 @Api(value = "/task", description = "Tasks API")
-@Authorize
 public class TaskResource {
 
     @Context
@@ -96,6 +97,7 @@ public class TaskResource {
 
     @GET
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
+    @TokenSecured({RoleEnum.DEFAULT_USER})
     @ApiOperation(value = "Finds all Tasks",
             notes = "Finds all Tasks from Jaqpot Dataset. One may specify various "
             + "search criteria such as the task creator of the task status.",
@@ -106,7 +108,7 @@ public class TaskResource {
         @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
     })
     public Response listTasks(
-            @ApiParam(value = "Authorization token") @HeaderParam("subjectid") String subjectId,
+            @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key,
             @ApiParam(value = "Status of the task", allowableValues = "RUNNING,QUEUED,COMPLETED,ERROR,CANCELLED,REJECTED") @QueryParam("status") String status,
             @ApiParam(value = "start", defaultValue = "0") @QueryParam("start") Integer start,
             @ApiParam(value = "max - the server imposes an upper limit of 500 on this "
@@ -137,6 +139,7 @@ public class TaskResource {
     }
 
     @GET
+    @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @Path("/{id}")
     @ApiOperation(value = "Finds Task by Id",
@@ -170,6 +173,7 @@ public class TaskResource {
     }
 
     @DELETE
+    @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/{id}")
     @ApiOperation(value = "Deletes a Task of given ID",
@@ -225,11 +229,12 @@ public class TaskResource {
 
     @GET
     @Path("/{id}/poll")
+    @TokenSecured({RoleEnum.DEFAULT_USER})
     @ApiOperation(value = "Poll Task by Id",
             notes = "Implements long polling",
             response = Task.class)
     public void poll(
-            @ApiParam(value = "Authorization token") @HeaderParam("subjectid") String subjectId,
+            @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key,
             @Suspended final AsyncResponse asyncResponse,
             @PathParam("id") String id) {
 

@@ -87,7 +87,12 @@ public class PropertyManager {
         JAQPOT_READACROSS("jaqpot.readacross", "config", "http://147.102.82.32:8095/"),
         JAQPOT_QPRF("jaqpot.qprf", "config", "http://147.102.82.32:8094/pws/qprf"),
         PKSIM_BASE("pksim.base", "config", "http://147.102.86.129:9999/"),
-        OCPU_LM_BASE("ocpulm.base", "config", "http://test.jaqpot.org:8004/");
+        OCPU_LM_BASE("ocpulm.base", "config", "http://test.jaqpot.org:8004/"),
+        HTTK_BASE("httk.base", "config", "http://jaqpot.org:8011/"),
+        OIDC_ISSUER("oidc.issuer", "config", "http://login.jaqpot.org/auth/realms/jaqpot/"),
+        OIDC_CLIENT_ID("oidc.client.id", "config", "jaqpot-api"),
+        OICD_CLIENT_PASS("oidc.client.pass", "config", "9fdb3efe-5a90-4d2f-b0ae-5655b332c586"),
+        OIDC_PROVIDER_CONF("oidc.provider.conf", "config", ".well-known/openid-configuration");
         
         private final String name;
         private final String bundle;

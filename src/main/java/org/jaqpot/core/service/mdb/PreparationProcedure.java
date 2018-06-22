@@ -14,7 +14,7 @@ import org.jaqpot.core.model.builder.MetaInfoBuilder;
 import org.jaqpot.core.model.dto.dataset.Dataset;
 
 import org.jaqpot.core.service.annotations.UnSecure;
-import org.jaqpot.core.service.data.AAService;
+import org.jaqpot.core.service.authenitcation.AAService;
 import org.jaqpot.core.service.data.ConjoinerService;
 
 import javax.annotation.Resource;
@@ -95,7 +95,7 @@ public class PreparationProcedure extends AbstractJaqpotProcedure implements Mes
         String substanceOwner= (String) messageBody.get("substance_owner");
         String taskId = (String) messageBody.get("taskId");
         String bundleUri = (String) messageBody.get("bundle_uri");
-        String subjectId = (String) messageBody.get("subjectid");
+        String apiKey = (String) messageBody.get("api_key");
         String substances = (String) messageBody.get("substances");
         String properties = (String) messageBody.get("properties");
         String descriptors = (String) messageBody.get("descriptors");
@@ -116,7 +116,7 @@ public class PreparationProcedure extends AbstractJaqpotProcedure implements Mes
             progress(10f, "Starting Dataset preparation...");
             checkCancelled();
 
-            Dataset dataset = conjoinerService.prepareDataset(substanceOwner, substancesSet, subjectId, descriptorSet, propertiesSet, intersectColumns, retainNullValues);
+            Dataset dataset = conjoinerService.prepareDataset(substanceOwner, substancesSet, apiKey, descriptorSet, propertiesSet, intersectColumns, retainNullValues);
 
             progress(50f, "Dataset ready.");
             progress("Saving to database...");
@@ -128,7 +128,7 @@ public class PreparationProcedure extends AbstractJaqpotProcedure implements Mes
                     .addTitles((String) messageBody.get("title"))
                     .addDescriptions((String) messageBody.get("description"))
                     .addComments("Created by task " + taskId)
-                    .addCreators(aaService.getUserFromSSO(subjectId).getId())
+                    .addCreators(aaService.getUserFromSSO(apiKey).getId())
                     .build();
             dataset.setMeta(datasetMeta);
             dataset.setVisible(Boolean.TRUE);

@@ -135,7 +135,7 @@ public class PredictionProcedure extends AbstractJaqpotProcedure implements Mess
         String taskId = (String) messageBody.get("taskId");
         String dataset_uri = (String) messageBody.get("dataset_uri");
         String modelId = (String) messageBody.get("modelId");
-        String subjectId = (String) messageBody.get("subjectid");
+        String apiKey = (String) messageBody.get("api_key");
         String creator = (String) messageBody.get("creator");
         Model model = null;
         try {
@@ -158,7 +158,7 @@ public class PredictionProcedure extends AbstractJaqpotProcedure implements Mess
                 progress("Attempting to download dataset...");
                 dataset = client.target(dataset_uri)
                         .request()
-                        .header("subjectid", subjectId)
+                        .header("Authorization", "Bearer " + apiKey)
                         .accept(MediaType.APPLICATION_JSON)
                         .get(Dataset.class);
                 dataset.setDatasetURI(dataset_uri);

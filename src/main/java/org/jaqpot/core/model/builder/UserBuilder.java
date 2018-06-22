@@ -29,7 +29,9 @@
  */
 package org.jaqpot.core.model.builder;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import org.jaqpot.core.model.User;
 import org.jaqpot.core.model.validator.EmailValidator;
 
@@ -152,6 +154,13 @@ public class UserBuilder implements EntityBuilder<User> {
 
     public UserBuilder setHashedPassword(String hashedPassword) {
         user.setHashedPass(hashedPassword);
+        return this;
+    }
+    
+    public UserBuilder setBaseGroup(String group){
+        List<String> groupIn = new ArrayList<>();
+        groupIn.add(group);
+        user.setGroups(groupIn);
         return this;
     }
 

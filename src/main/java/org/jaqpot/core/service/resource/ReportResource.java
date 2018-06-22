@@ -66,6 +66,8 @@ import org.jaqpot.core.model.Report;
 import org.jaqpot.core.model.factory.ErrorReportFactory;
 import org.jaqpot.core.model.validator.BibTeXValidator;
 import org.jaqpot.core.service.annotations.Authorize;
+import org.jaqpot.core.service.annotations.TokenSecured;
+import org.jaqpot.core.service.authenitcation.RoleEnum;
 import org.jaqpot.core.service.data.ReportService;
 import org.jaqpot.core.service.exceptions.JaqpotForbiddenException;
 
@@ -77,7 +79,6 @@ import org.jaqpot.core.service.exceptions.JaqpotForbiddenException;
 @Path("report")
 @Api(value = "/report", description = "Report API")
 @Produces(MediaType.APPLICATION_JSON)
-@Authorize
 public class ReportResource {
     
     private static final String DEFAULT_PATCH = "[\n"
@@ -103,8 +104,9 @@ public class ReportResource {
 
     @GET
     @ApiOperation(value = "Retrieves Reports of User")
+    @TokenSecured({RoleEnum.DEFAULT_USER})
     public Response getReports(
-            @ApiParam(value = "Authorization token") @HeaderParam("subjectid") String subjectId,
+            @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key,
             @ApiParam(value = "start", defaultValue = "0") @QueryParam("start") Integer start,
             @ApiParam(value = "max - the server imposes an upper limit of 500 on this "
                     + "parameter.", defaultValue = "20") @QueryParam("max") Integer max
@@ -121,9 +123,10 @@ public class ReportResource {
 
     @GET
     @Path("/{id}")
+    @TokenSecured({RoleEnum.DEFAULT_USER})
     @ApiOperation(value = "Retrieves Report by id")
     public Response getReport(
-            @ApiParam(value = "Authorization token") @HeaderParam("subjectid") String subjectId,
+            @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key,
             @PathParam("id") String id) {
 
         Report report = reportHandler.find(id);
@@ -135,9 +138,10 @@ public class ReportResource {
 
     @DELETE
     @Path("/{id}")
+    @TokenSecured({RoleEnum.DEFAULT_USER})
     @ApiOperation(value = "Removes Report by id")
     public Response removeReport(
-            @ApiParam(value = "Authorization token") @HeaderParam("subjectid") String subjectId,
+            @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key,
             @PathParam("id") String id
     ) throws JaqpotForbiddenException {
         Report report = reportHandler.find(id);
@@ -159,10 +163,11 @@ public class ReportResource {
 
     @GET
     @Path("/{id}/pdf")
+    @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces("application/json; charset=UTF-8")
     @ApiOperation(value = "Creates PDF from report")
     public Response createPDF(
-            @ApiParam(value = "Authorization token") @HeaderParam("subjectid") String subjectId,
+            @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key,
             @PathParam("id") String id) {
         Report report = reportHandler.find(id);
         if (report == null) {
@@ -184,6 +189,7 @@ public class ReportResource {
     
     @PATCH
     @Path("/{id}")
+    @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @Consumes("application/json-patch+json")
     @ApiOperation(value = "Modifies a particular Report resource",
@@ -199,7 +205,7 @@ public class ReportResource {
         @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
     })
     public Response modifyReport(
-            @ApiParam("Clients need to authenticate in order to create resources on the server") @HeaderParam("subjectid") String subjectId,
+            @ApiParam("Clients need to authenticate in order to create resources on the server") @HeaderParam("Authorization") String api_key,
             @ApiParam(value = "ID of an existing Report.", required = true) @PathParam("id") String id,
             @ApiParam(value = "The patch in JSON according to the RFC 6902 specs", required = true, defaultValue = DEFAULT_PATCH) String patch
     ) throws JsonPatchException, JsonProcessingException {

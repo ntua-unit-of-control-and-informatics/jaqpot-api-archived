@@ -32,7 +32,7 @@
  * All source files of JAQPOT Quattro that are stored on github are licensed
  * with the aforementioned licence. 
  */
-package org.jaqpot.core.service.security;
+package org.jaqpot.core.service.authenitcation;
 
 import java.security.Principal;
 
@@ -53,5 +53,6 @@ public class UserPrincipal implements Principal {
     public String getName() {
         return name;
     }
+
 
 }

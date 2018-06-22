@@ -66,6 +66,8 @@ import org.jaqpot.core.model.builder.MetaInfoBuilder;
 import org.jaqpot.core.model.facades.UserFacade;
 import org.jaqpot.core.model.util.ROG;
 import org.jaqpot.core.service.annotations.Authorize;
+import org.jaqpot.core.service.annotations.TokenSecured;
+import org.jaqpot.core.service.authenitcation.RoleEnum;
 import org.jaqpot.core.service.exceptions.parameter.ParameterInvalidURIException;
 import org.jaqpot.core.service.exceptions.parameter.ParameterIsNullException;
 import org.jaqpot.core.service.exceptions.QuotaExceededException;
@@ -141,6 +143,7 @@ public class ValidationResource {
 
     @POST
     @Path("/training_test_cross")
+    @TokenSecured({RoleEnum.DEFAULT_USER})
     @ApiOperation(value = "Creates Validation Report",
             notes = "Creates Validation Report",
             response = Task.class
@@ -156,7 +159,7 @@ public class ValidationResource {
             @FormParam("folds") Integer folds,
             @FormParam("stratify") String stratify,
             @FormParam("seed") Integer seed,
-            @HeaderParam("subjectId") String subjectId
+            @HeaderParam("Authorization") String api_key
     ) throws QuotaExceededException, JMSException, ParameterInvalidURIException, ParameterIsNullException {
         if (algorithmURI==null)
             throw new ParameterIsNullException("algorithmURI");
@@ -164,7 +167,9 @@ public class ValidationResource {
             throw new ParameterIsNullException("datasetURI");
         if (folds==null)
             throw new ParameterIsNullException("folds");
-
+        
+        String[] apiA = api_key.split("\\s+");
+        String apiKey = apiA[1];
         User user = userHandler.find(securityContext.getUserPrincipal().getName());
         long reportCount = reportHandler.countAllOfCreator(user.getId());
         int maxAllowedReports = new UserFacade(user).getMaxReports();
@@ -220,7 +225,7 @@ public class ValidationResource {
         options.put("stratify", stratify);
         options.put("seed", seed);
         options.put("creator", user.getId());
-        options.put("subjectId", subjectId);
+        options.put("api_key", apiKey);
 
         Map<String, String> transformationAlgorithms = new LinkedHashMap<>();
         if (transformations != null && !transformations.isEmpty()) {
@@ -244,6 +249,7 @@ public class ValidationResource {
     }
 
     @POST
+    @TokenSecured({RoleEnum.DEFAULT_USER})
     @Path("/training_test_split")
     @ApiOperation(value = "Creates Validation Report",
             notes = "Creates Validation Report",
@@ -260,7 +266,7 @@ public class ValidationResource {
             @ApiParam(name = "split_ratio",required = true) @FormParam("split_ratio") Double splitRatio,
             @FormParam("stratify") String stratify,
             @FormParam("seed") Integer seed,
-            @HeaderParam("subjectId") String subjectId
+            @HeaderParam("Authorization") String api_key
     ) throws QuotaExceededException, JMSException, ParameterInvalidURIException, ParameterIsNullException {
         if (algorithmURI==null)
             throw new ParameterIsNullException("algorithmURI");
@@ -268,7 +274,8 @@ public class ValidationResource {
             throw new ParameterIsNullException("datasetURI");
         if (splitRatio==null)
             throw new ParameterIsNullException("splitRatio");
-
+        String[] apiA = api_key.split("\\s+");
+        String apiKey = apiA[1];
         User user = userHandler.find(securityContext.getUserPrincipal().getName());
         long reportCount = reportHandler.countAllOfCreator(user.getId());
         int maxAllowedReports = new UserFacade(user).getMaxReports();
@@ -325,7 +332,7 @@ public class ValidationResource {
         options.put("stratify", stratify);
         options.put("seed", seed);
         options.put("type", "SPLIT");
-        options.put("subjectId", subjectId);
+        options.put("api_key", apiKey);
 
         Map<String, String> transformationAlgorithms = new LinkedHashMap<>();
         if (transformations != null && !transformations.isEmpty()) {
@@ -349,6 +356,7 @@ public class ValidationResource {
 
     @POST
     @Path("/test_set_validation")
+    @TokenSecured({RoleEnum.DEFAULT_USER})
     @ApiOperation(value = "Creates Validation Report",
             notes = "Creates Validation Report",
             response = Task.class
@@ -357,13 +365,14 @@ public class ValidationResource {
     public Response externalValidateAlgorithm(
             @FormParam("model_uri") String modelURI,
             @FormParam("test_dataset_uri") String datasetURI,
-            @HeaderParam("subjectId") String subjectId
+            @HeaderParam("Authorization") String api_key
     ) throws QuotaExceededException, ParameterIsNullException, ParameterInvalidURIException {
         if (modelURI==null)
             throw new ParameterIsNullException("modelURI");
         if (datasetURI==null)
             throw new ParameterIsNullException("datasetURI");
-
+        String[] apiA = api_key.split("\\s+");
+        String apiKey = apiA[1];
         User user = userHandler.find(securityContext.getUserPrincipal().getName());
         long reportCount = reportHandler.countAllOfCreator(user.getId());
         int maxAllowedReports = new UserFacade(user).getMaxReports();
@@ -400,11 +409,11 @@ public class ValidationResource {
         Map<String, Object> options = new HashMap<>();
         options.put("taskId", task.getId());
         options.put("model_uri", modelURI);
-        options.put("subjectId",subjectId);
+        options.put("api_key", apiKey);
         options.put("dataset_uri", datasetURI);
         options.put("base_uri", uriInfo.getBaseUri().toString());
         options.put("type", "EXTERNAL");
-        options.put("subjectId", subjectId);
+        options.put("api_key", apiKey);
         options.put("creator", user.getId());
 
 

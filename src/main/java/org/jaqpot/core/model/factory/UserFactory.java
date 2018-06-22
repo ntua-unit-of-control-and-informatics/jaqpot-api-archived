@@ -86,6 +86,7 @@ public class UserFactory {
                 .setMaxWeeklyPublishedSubstances(10)
                 .setMaxWeeklyPublishedBibTeX(10)
                 .setMaxWeeklyPublishedAlgorithms(1)
+                .setBaseGroup("AllUsers")
                 .build();
     }
 
