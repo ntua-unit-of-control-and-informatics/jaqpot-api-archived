@@ -199,6 +199,8 @@
         <maven.compiler.target>1.8</maven.compiler.target>
         <failOnMissingWebXml>false</failOnMissingWebXml>
         
+        <jaqpot.local.ip></jaqpot.local.ip>
+        <jaqpot.schema></jaqpot.schema>
         <jaqpot.host></jaqpot.host>
         <jaqpot.port></jaqpot.port>
         <jaqpot.base></jaqpot.base>

@@ -47,8 +47,10 @@ import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
 import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.security.NoSuchAlgorithmException;
 import java.security.interfaces.RSAPublicKey;
@@ -57,12 +59,14 @@ import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.PostConstruct;
+import javax.ejb.DependsOn;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
 import javax.inject.Inject;
 import javax.ws.rs.InternalServerErrorException;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
+import org.apache.commons.io.IOUtils;
 import org.jaqpot.core.properties.OnAppInit;
 import org.jaqpot.core.properties.PropertyManager;
 
@@ -72,6 +76,7 @@ import org.jaqpot.core.properties.PropertyManager;
  */
 @Startup
 @Singleton
+@DependsOn("PropertyManager")
 public class OpenIdServiceConfiguration {
 
     private static final Logger LOG = Logger.getLogger(OpenIdServiceConfiguration.class.getName());
@@ -104,21 +109,28 @@ public class OpenIdServiceConfiguration {
             LOG.log(Level.INFO, "Starting OIDC configuration on well Known endpoints: {0}", issuerURI + issuerConf);
             this.issuerUri = new URL(issuerURI);
             this.providerConfUrl = new URL(issuerUri, issuerConf);
+//            LOG.log(Level.INFO, "OIDC configured on well Known endpoints: {0}", this.providerConfUrl.getHost());
         } catch (MalformedURLException e) {
-            throw new InternalServerErrorException("OpenIdService Endpoints coulf not be configured");
+            throw new InternalServerErrorException("OpenIdService Endpoints could not be configured");
         }
     }
 
+    
     private void createProviderConf() {
         try {
+            
             InputStream stream = this.providerConfUrl.openStream();
+            
             String providerInfo = null;
             try (java.util.Scanner s = new java.util.Scanner(stream)) {
+                LOG.log(Level.INFO, "providerConf: {0}", this.providerConfUrl.toURI().toString());
                 providerInfo = s.useDelimiter("\\A").hasNext() ? s.next() : "";
+                LOG.log(Level.INFO, "reads: {0}", s.toString());
+                LOG.log(Level.INFO, "provider info: {0}", providerInfo);
                 this.providerMetadata = OIDCProviderMetadata.parse(providerInfo);
             }
-        } catch (ParseException | IOException e) {
-            throw new InternalServerErrorException("OpenIdService provider metadatacould not be configured");
+        } catch (ParseException | IOException | URISyntaxException e) {
+            throw new InternalServerErrorException("OpenIdService provider metadatacould not be configured " + e.getMessage());
         }
 
     }
@@ -166,7 +178,7 @@ public class OpenIdServiceConfiguration {
 
     private void setUpClient() {
         String clientIDProp = propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.OIDC_CLIENT_ID);
-        String clientIDPass = propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.OICD_CLIENT_PASS);
+        String clientIDPass = propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.OIDC_CLIENT_PASS);
         ClientID clientID = new ClientID(clientIDProp);
         Secret clientSecret = new Secret(clientIDPass);
         this.oidcClient = new ClientSecretBasic(clientID, clientSecret);

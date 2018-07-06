@@ -35,25 +35,32 @@
 package org.jaqpot.core.service.resource;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.SwaggerDefinition;
 import io.swagger.models.Swagger;
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.jaqpot.core.properties.PropertyManager;
 import org.jaqpot.core.service.annotations.TokenSecured;
 import org.jaqpot.core.service.authenitcation.RoleEnum;
 import org.jaqpot.core.service.httphandlers.SwaggerLdHandler;
+import org.jaqpot.core.service.mdb.TrainingProcedure;
 
 /**
  *
@@ -63,6 +70,8 @@ import org.jaqpot.core.service.httphandlers.SwaggerLdHandler;
 @Api(value = "/swaggerld")
 @SwaggerDefinition
 public class SwaggerLdResource {
+
+    private static final Logger LOG = Logger.getLogger(SwaggerLdResource.class.getName());
 
     @Inject
     PropertyManager pm;
@@ -75,11 +84,30 @@ public class SwaggerLdResource {
     @ApiOperation(value = "Get the swagger.json with the Ld annotations",
             notes = "Implements long polling",
             response = Swagger.class)
+    @Produces({MediaType.APPLICATION_JSON})
     public Response getSwaggerLd() {
-        String jaqBase = pm.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_BASE);
-        String port = pm.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_PORT);
-        String host = pm.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_HOST);
-        String swagUri = "http://" + host + ":" + port + jaqBase + "/swagger.json";
+
+//        String jaqpot_uri_l = pm.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_LOCAL_IP);
+//        
+//        String schema = pm.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_SCHEMA);
+//        String jaqBase = pm.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_BASE);
+//        String port = pm.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_PORT);
+//        String host = pm.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_HOST);
+//        String swagUri = null;
+//        if(!jaqpot_uri_l.equals("null")){
+//            swagUri = jaqpot_uri_l + jaqBase + "/swagger.json";
+//        }
+//        else if(port.equals("80")){
+//            swagUri = schema + "://" + host + jaqBase + "/swagger.json";
+//        }else{
+//            swagUri = schema + "://" + host + ":" + port + jaqBase + "/swagger.json";
+//        }
+        String swagUri = "http://localhost:8080/jaqpot/services/swagger.json";
+//        LOG.log(Level.INFO, "Fetched schema : {0}", schema);
+//        LOG.log(Level.INFO, "Fetched jaqBase : {0}", jaqBase);
+//        LOG.log(Level.INFO, "Fetched port : {0}", port);
+//        LOG.log(Level.INFO, "Fetched host : {0}", host);
+//        LOG.log(Level.INFO, "uri  created: {0}", swagUri);
 
         URL url = null;
         HttpURLConnection con = null;
@@ -107,6 +135,50 @@ public class SwaggerLdResource {
         JsonNode swaggerLd = shndl.test(swagS);
 
         return Response.ok(swaggerLd).build();
+
+    }
+
+    @GET
+    @Path("/ld/oct")
+    @ApiOperation(value = "Get the swagger.json with the Ld annotations as octet stream",
+            notes = "Implements long polling",
+            response = Swagger.class)
+    @Produces({MediaType.APPLICATION_OCTET_STREAM})
+    public Response getSwaggerLdOct() throws IOException {
+
+        String swagUri = "http://localhost:8080/jaqpot/services/swagger.json";
+
+        URL url = null;
+        HttpURLConnection con = null;
+        InputStream response = null;
+        StringBuffer respString = new StringBuffer();
+        try {
+            url = new URL(swagUri);
+            con = (HttpURLConnection) url.openConnection();
+            con.setRequestMethod("GET");
+            response = con.getInputStream();
+            BufferedReader in = new BufferedReader(
+                    new InputStreamReader(response));
+            String inputLine;
+
+            while ((inputLine = in.readLine()) != null) {
+                respString.append(inputLine);
+            }
+
+            in.close();
+        } catch (IOException e) {
+            throw new InternalServerErrorException("Mallformed url, or io connection");
+        }
+
+        String swagS = respString.toString();
+        JsonNode swaggerLd = shndl.test(swagS);
+//        String swagtxt = swaggerLd.asText();
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        byte[] swagbyt = objectMapper.writeValueAsBytes(swaggerLd);
+        InputStream targetStream = new ByteArrayInputStream(swagbyt);
+
+        return Response.ok(targetStream).build();
 
     }
 

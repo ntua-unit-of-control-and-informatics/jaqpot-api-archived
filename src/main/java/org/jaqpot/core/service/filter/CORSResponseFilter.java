@@ -72,10 +72,11 @@ public class CORSResponseFilter implements ContainerResponseFilter {
 
         
         // Add CORS headers
-        String allowOrigin = propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_CORS_ALLOWORIGIN);
+        String allowOrigin = propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_CORS_ALLOWORIGIN, "*");
 
         if (allowOrigin==null){
             LOG.severe("Property jaqpot.cors.alloworigin is not set!");
+            
         }
         responseContext.getHeaders().add("Access-Control-Allow-Origin", allowOrigin);
         responseContext.getHeaders().add("Access-Control-Allow-Methods", "GET, POST, DELETE, PUT, PATCH, OPTIONS");

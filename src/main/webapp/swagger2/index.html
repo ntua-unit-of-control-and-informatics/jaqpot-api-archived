@@ -71,10 +71,16 @@
 <script src="./swagger-ui-standalone-preset.js"> </script>
 <script>
 window.onload = function() {
-  
+  var url = window.location.search.match(/url=([^&]+)/);
+      if (url && url.length > 1) {
+        url = decodeURIComponent(url[1]);
+      } else {
+        var base_url = window.location.origin;
+        url = base_url + "/jaqpot/services/swagger.json";
+      }
   // Build a system
   const ui = SwaggerUIBundle({
-    url: "http://petstore.swagger.io/v2/swagger.json",
+    url: url,
     dom_id: '#swagger-ui',
     presets: [
       SwaggerUIBundle.presets.apis,

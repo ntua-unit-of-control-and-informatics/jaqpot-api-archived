@@ -123,7 +123,6 @@ public class AAResource {
 //        })
 //            }
 //    )
-
 //    @ApiResponses(value = {
 //        @ApiResponse(code = 401, response = ErrorReport.class, message = "Wrong, missing or insufficient credentials. Error report is produced.")
 //        ,
@@ -140,7 +139,6 @@ public class AAResource {
 //                .status(Response.Status.OK)
 //                .build();
 //    }
-
 //    @POST
 //    @Path("/validate")
 //    @Produces(MediaType.APPLICATION_JSON)
@@ -176,7 +174,6 @@ public class AAResource {
 //                .status(valid ? Response.Status.OK : Response.Status.UNAUTHORIZED)
 //                .build();
 //    }
-
     @POST
     @Path("/validate/accesstoken")
     @Produces(MediaType.APPLICATION_JSON)
@@ -252,8 +249,6 @@ public class AAResource {
 //                .status(valid ? Response.Status.OK : Response.Status.FORBIDDEN)
 //                .build();
 //    }
-    
-    
     @GET
     @Path("/claims")
     @Produces(MediaType.APPLICATION_JSON)
@@ -286,28 +281,45 @@ public class AAResource {
     public Response getClaims(
             @ApiParam(value = "Authorization token") @QueryParam("accessToken") String accessToken
     ) throws JaqpotNotAuthorizedException {
-       JWTClaimsSet claims = aaService.getClaimsFromAccessToken(accessToken);
+        JWTClaimsSet claims = aaService.getClaimsFromAccessToken(accessToken);
         return Response.ok(claims)
                 .build();
     }
 
-    @GET
-    @Path("/checkcap")
+    @POST
+    @Path("/login/swag")
     @Produces(MediaType.APPLICATION_JSON)
-    @Authorize
-    @ApiOperation(
-            value = "Requests authorization from SSO",
-            notes = "Checks whether the client identified by the provided AA token can apply a method to a URI"
-    )
-    @ApiResponses(value = {
-        @ApiResponse(code = 200, response = String.class, message = "You have authorization for the given URI and HTTP method")
-    })
-    public Response checkCreation(
-            @ApiParam(value = "Authorization token") @QueryParam("accessToken") String accessToken
-    ) throws JaqpotNotAuthorizedException {
-        User user = aaService.getUserFromSSO(accessToken);
-        aaService.isAdmin(accessToken);
-        return Response.ok(user)
+    public Response swaggerLogin(
+            @ApiParam(value = "Username", required = true) @FormParam("username") String username,
+            @ApiParam(value = "Password", required = true) @FormParam("password") String password) throws JaqpotNotAuthorizedException {
+
+        AccessToken aToken;
+        aToken = aaService.getAccessToken(username, password);
+        AuthToken auToken = new AuthToken();
+        auToken.setAuthToken(aToken.getValue());
+        User user = aaService.getUserFromSSO(aToken.getValue());
+        auToken.setUserName(user.getName());
+        return Response.ok(auToken)
+                .status(Response.Status.OK)
                 .build();
     }
-}
+//    @GET
+//    @Path("/checkcap")
+//    @Produces(MediaType.APPLICATION_JSON)
+//    @Authorize
+//    @ApiOperation(
+//            value = "Requests authorization from SSO",
+//            notes = "Checks whether the client identified by the provided AA token can apply a method to a URI"
+//    )
+//    @ApiResponses(value = {
+//        @ApiResponse(code = 200, response = String.class, message = "You have authorization for the given URI and HTTP method")
+//    })
+//    public Response checkCreation(
+//            @ApiParam(value = "Authorization token") @QueryParam("accessToken") String accessToken
+//    ) throws JaqpotNotAuthorizedException {
+//        User user = aaService.getUserFromSSO(accessToken);
+//        aaService.isAdmin(accessToken);
+//        return Response.ok(user)
+//                .build();
+//    }
+    }

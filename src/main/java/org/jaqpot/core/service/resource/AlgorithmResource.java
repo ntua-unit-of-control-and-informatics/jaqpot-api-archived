@@ -139,6 +139,7 @@ public class AlgorithmResource {
     ParameterValidator parameterValidator;
 
     @GET
+    @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @ApiOperation(
             value = "Finds all Algorithms",

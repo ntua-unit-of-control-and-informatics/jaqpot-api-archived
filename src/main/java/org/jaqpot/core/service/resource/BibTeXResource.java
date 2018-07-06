@@ -191,8 +191,7 @@ public class BibTeXResource {
     })
     @Authorize
     public Response createBibTeX(
-            @ApiParam(value = "Clients need to authenticate in order to create resources on the server")
-            @HeaderParam("subjectid") String subjectId,
+            @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key,
             @ApiParam(value = "BibTeX in JSON representation compliant with the BibTeX specifications. "
                     + "Malformed BibTeX entries with missing fields will not be accepted.", required = true,
                     defaultValue = DEFAULT_BIBTEX) BibTeX bib
@@ -247,7 +246,7 @@ public class BibTeXResource {
     public Response createBibTeXGivenID(
             @ApiParam(value = "ID of the BibTeX.", required = true) @PathParam("id") String id,
             @ApiParam(value = "BibTeX in JSON", defaultValue = DEFAULT_BIBTEX, required = true) BibTeX bib,
-            @ApiParam("Clients need to authenticate in order to create resources on the server") @HeaderParam("subjectid") String subjectId
+            @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key
     ) {
         if (bib == null) {
             ErrorReport report = ErrorReportFactory.badRequest("No bibtex provided; check out the API specs",
@@ -294,7 +293,7 @@ public class BibTeXResource {
         @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
     })
     public Response deleteBibTeX(
-            @ApiParam("Clients need to authenticate in order to create resources on the server") @HeaderParam("subjectid") String subjectId,
+            @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key,
             @ApiParam(value = "ID of the BibTeX.", required = true) @PathParam("id") String id
     ) throws JaqpotForbiddenException {
         BibTeX bibTeX = new BibTeX(id);
@@ -325,7 +324,7 @@ public class BibTeXResource {
         @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
     })
     public Response modifyBibTeX(
-            @ApiParam("Clients need to authenticate in order to create resources on the server") @HeaderParam("subjectid") String subjectId,
+            @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key,
             @ApiParam(value = "ID of an existing BibTeX.", required = true) @PathParam("id") String id,
             @ApiParam(value = "The patch in JSON according to the RFC 6902 specs", required = true, defaultValue = DEFAULT_BIBTEX_PATCH) String patch
     ) throws JsonPatchException, JsonProcessingException {

@@ -99,7 +99,7 @@ public class AAService {
     @UnSecure
     Client client;
 
-    public AccessToken getAccessToken(String username, String password) {
+    public AccessToken getAccessToken(String username, String password) throws JaqpotNotAuthorizedException {
 
         Secret pass = new Secret(password);
         AuthorizationGrant passwordGrant = new ResourceOwnerPasswordCredentialsGrant(username, pass);
@@ -115,7 +115,9 @@ public class AAService {
             throw new InternalServerErrorException("");
         }
         if (!response.indicatesSuccess()) {
-            TokenErrorResponse errorResponse = (TokenErrorResponse) response.toErrorResponse();
+            TokenErrorResponse errorResponse = response.toErrorResponse();
+            
+            throw new JaqpotNotAuthorizedException("Problems while getting access token" + errorResponse.getErrorObject().getDescription());
         }
         AccessTokenResponse successResponse = (AccessTokenResponse) response;
         AccessToken accessToken = successResponse.getTokens().getAccessToken();

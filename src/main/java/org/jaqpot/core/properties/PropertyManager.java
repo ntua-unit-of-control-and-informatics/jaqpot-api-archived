@@ -53,9 +53,11 @@ import org.jaqpot.core.model.User;
 public class PropertyManager {
 
     public enum PropertyType {
+        JAQPOT_LOCAL_IP("jaqpot.local.ip", "config", "null"),
         JAQPOT_ADMINISTRATORS("jaqpot.administrators", "config", "admin"),
         JAQPOT_AA("jaqpot.aa", "config", "true"),
         JAQPOT_CORS_ALLOWORIGIN("jaqpot.cors.alloworigin", "config", "*"),
+        JAQPOT_SCHEMA("jaqpot.schema", "config", "http"),
         JAQPOT_HOST("jaqpot.host", "config", "localhost"),
         JAQPOT_PORT("jaqpot.port", "config", "8080"),
         JAQPOT_BASE("jaqpot.base", "config", "/jaqpot/services"),
@@ -81,7 +83,7 @@ public class PropertyManager {
         JAQPOT_JANITOR_USERNAME("janitor.username", "janitor", ""),
         JAQPOT_JANITOR_PASSWORD("janitor.password", "janitor", ""),
         JAQPOT_AMBIT("jaqpot.base.ambit", "config", "https://data.enanomapper.net/"),
-        JAQPOT_PYTHON_ALGORITHMS_HOST("python.algorithms.host", "config", "http://localhost:8080/"),
+        PYTHON_ALGORITHMS_HOST("python.algorithms.host", "config", "http://localhost:8080/"),
         JAQPOT_EXPERIMENTAL_DESIGNS_HOST("exp.design.host", "config", "http://localhost:8080/"),
         JAQPOT_BASE_ALGORITHMS("jaqpot.base.algorithms", "config", "http://localhost:8080/algorithms/service/"),
         JAQPOT_READACROSS("jaqpot.readacross", "config", "http://147.102.82.32:8095/"),
@@ -89,9 +91,9 @@ public class PropertyManager {
         PKSIM_BASE("pksim.base", "config", "http://147.102.86.129:9999/"),
         OCPU_LM_BASE("ocpulm.base", "config", "http://test.jaqpot.org:8004/"),
         HTTK_BASE("httk.base", "config", "http://jaqpot.org:8011/"),
-        OIDC_ISSUER("oidc.issuer", "config", "http://login.jaqpot.org/auth/realms/jaqpot/"),
+        OIDC_ISSUER("oidc.issuer", "config", "https://login.jaqpot.org/auth/realms/jaqpot/"),
         OIDC_CLIENT_ID("oidc.client.id", "config", "jaqpot-api"),
-        OICD_CLIENT_PASS("oidc.client.pass", "config", "9fdb3efe-5a90-4d2f-b0ae-5655b332c586"),
+        OIDC_CLIENT_PASS("oidc.client.pass", "config", "9dccac19-23c6-49be-83be-8f07859d263f"),
         OIDC_PROVIDER_CONF("oidc.provider.conf", "config", ".well-known/openid-configuration");
         
         private final String name;

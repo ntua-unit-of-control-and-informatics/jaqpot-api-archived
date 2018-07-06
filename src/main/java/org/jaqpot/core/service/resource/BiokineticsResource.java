@@ -111,9 +111,12 @@ public class BiokineticsResource {
     )
     @org.jaqpot.core.service.annotations.Task
     public Response trainBiokineticsModel(
-            @HeaderParam("subjectid") String subjectId,
+            @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key,
             @ApiParam(value = "multipartFormData input", hidden = true) MultipartFormDataInput input)
             throws ParameterIsNullException, ParameterInvalidURIException, QuotaExceededException, IOException, ParameterScopeException, ParameterRangeException, ParameterTypeException {
+
+        String[] apiA = api_key.split("\\s+");
+        String apiKey = apiA[1];
 
         UrlValidator urlValidator = new UrlValidator(UrlValidator.ALLOW_LOCAL_URLS);
 
@@ -181,7 +184,7 @@ public class BiokineticsResource {
         Map<String, Object> options = new HashMap<>();
         options.put("title", title);
         options.put("description", description);
-        options.put("subjectid", subjectId);
+        options.put("api_key", apiKey);
         options.put("parameters", parameters);
         options.put("base_uri", uriInfo.getBaseUri().toString());
         options.put("dataset_uri", datasetUri);
@@ -228,10 +231,13 @@ public class BiokineticsResource {
             @ApiParam(name = "title", required = true) @FormParam("title") String title,
             @ApiParam(name = "description", required = true) @FormParam("description") String description,
             @FormParam("parameters") String parameters,
-//            @ApiParam(name = "algorithmId", required = true) @FormParam("algorithmId") String algorithmId,
-            @HeaderParam("subjectid") String subjectId) throws QuotaExceededException, ParameterIsNullException, ParameterInvalidURIException, ParameterTypeException, ParameterRangeException, ParameterScopeException {
+            //            @ApiParam(name = "algorithmId", required = true) @FormParam("algorithmId") String algorithmId,
+            @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key) throws QuotaExceededException, ParameterIsNullException, ParameterInvalidURIException, ParameterTypeException, ParameterRangeException, ParameterScopeException {
         UrlValidator urlValidator = new UrlValidator(UrlValidator.ALLOW_LOCAL_URLS);
-
+        
+        String[] apiA = api_key.split("\\s+");
+        String apiKey = apiA[1];        
+        
         String algorithmId = "httk";
         Algorithm algorithm = algorithmHandler.find(algorithmId);
         if (algorithm == null) {
@@ -262,7 +268,7 @@ public class BiokineticsResource {
         options.put("description", description);
         options.put("dataset_uri", null);
         options.put("prediction_feature", null);
-        options.put("subjectid", subjectId);
+        options.put("api_key", apiKey);
         options.put("algorithmId", algorithmId);
         options.put("parameters", parameters);
         options.put("base_uri", uriInfo.getBaseUri().toString());
@@ -312,12 +318,15 @@ public class BiokineticsResource {
     public Response makeHttkPrediction(
             @FormParam("visible") Boolean visible,
             @PathParam("id") String id,
-            @HeaderParam("subjectid") String subjectId) throws GeneralSecurityException, QuotaExceededException, ParameterIsNullException, ParameterInvalidURIException {
+            @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key) throws GeneralSecurityException, QuotaExceededException, ParameterIsNullException, ParameterInvalidURIException {
 
         if (id == null) {
             throw new ParameterIsNullException("id");
         }
 
+        String[] apiA = api_key.split("\\s+");
+        String apiKey = apiA[1];         
+        
         UrlValidator urlValidator = new UrlValidator(UrlValidator.ALLOW_LOCAL_URLS);
 
         User user = userHandler.find(securityContext.getUserPrincipal().getName());
@@ -336,7 +345,7 @@ public class BiokineticsResource {
         if (model == null) {
             throw new NotFoundException("Model not found.");
         }
-        if (!model.getAlgorithm().getId().equals("httk")){
+        if (!model.getAlgorithm().getId().equals("httk")) {
             throw new NotFoundException("Model is not created from httk");
         }
 
@@ -344,7 +353,7 @@ public class BiokineticsResource {
 
         Map<String, Object> options = new HashMap<>();
         options.put("dataset_uri", null);
-        options.put("subjectid", subjectId);
+        options.put("api_key", apiKey);
         options.put("modelId", id);
         options.put("creator", securityContext.getUserPrincipal().getName());
         options.put("base_uri", uriInfo.getBaseUri().toString());

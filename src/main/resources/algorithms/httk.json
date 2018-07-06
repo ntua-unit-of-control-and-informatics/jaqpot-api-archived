@@ -1,80 +1,82 @@
-{
-    "_id" : "httk",
-    "meta" : {
-        "descriptions" : [ 
-            "Algorithm that produces an httk model"
-        ],
-        "titles" : [ 
-            "Httk"
-        ],
-        "subjects" : [ 
-            "Creates a biokinetics model with the httk R package "
-        ],
-        "creators" : [ 
-            "guest"
-        ],
-        "locked" : true
-    },
-    "ontologicalClasses" : [ 
-        "ot:Httk", 
-        "ot:Algorithm"
-    ],
-    "parameters" : [ 
-        {
-            "name" : "dose",
-            "scope" : "OPTIONAL",
-            "value" : [ 
-                1
+[
+    {
+        "_id": "httk",
+        "meta": {
+            "descriptions": [ 
+                "Algorithm that produces an httk model"
             ],
-            "description" : "The dose in  mg/kg",
-            "_id" : "dose"
-        }, 
-        {
-            "name" : "Species",
-            "value" : [ 
-                "Human"
+            "titles": [ 
+                "Httk"
             ],
-            "scope" : "OPTIONAL",
-            "allowedValues" : [ 
-                [ 
-                    "Rat"
-                ], 
-                [ 
-                    "Rabbit"
-                ], 
-                [ 
-                    "Dog"
-                ], 
-                [ 
-                    "Mouse"
-                ], 
-                [ 
+            "subjects": [ 
+                "Creates a biokinetics model with the httk R package "
+            ],
+            "creators": [ 
+                "guest"
+            ],
+            "locked": true
+        },
+        "ontologicalClasses": [ 
+            "ot:Httk", 
+            "ot:Algorithm"
+        ],
+        "parameters": [ 
+            {
+                "name": "dose",
+                "scope": "OPTIONAL",
+                "value": [ 
+                    1
+                ],
+                "description": "The dose in  mg/kg",
+                "_id": "dose"
+            }, 
+            {
+                "name": "Species",
+                "value": [ 
                     "Human"
-                ]
-            ],
-            "description" : "The species on witch the compount will predict it's concentration",
-            "_id" : "species"
-        }, 
-        {
-            "name" : "days",
-            "value" : [ 
-                "10"
-            ],
-            "scope" : "OPTIONAL",
-            "description" : "The days of the concentration that we wish to predict ",
-            "_id" : "days"
-        }, 
-        {
-            "name" : "Chem name",
-            "value" : [ 
-                "imazalil"
-            ],
-            "scope" : "OPTIONAL",
-            "description" : "The compount name that we wish to see how it reacts. Should be a valid cas for Httk",
-            "_id" : "chem.name"
-        }
-    ],
-    "ranking" : 0,
-    "trainingService" : "http://jaqpot.org:8011/ocpu/library/httkInt2/R/httk.fun/json",
-    "predictionService" : "http://jaqpot.org:8011/ocpu/library/httkInt2/R/suggest.httk/json"
-}
+                ],
+                "scope": "OPTIONAL",
+                "allowedValues": [ 
+                    [ 
+                        "Rat"
+                    ], 
+                    [ 
+                        "Rabbit"
+                    ], 
+                    [ 
+                        "Dog"
+                    ], 
+                    [ 
+                        "Mouse"
+                    ], 
+                    [ 
+                        "Human"
+                    ]
+                ],
+                "description": "The species on witch the compount will predict it's concentration",
+                "_id": "species"
+            }, 
+            {
+                "name": "days",
+                "value": [ 
+                    "10"
+                ],
+                "scope": "OPTIONAL",
+                "description": "The days of the concentration that we wish to predict ",
+                "_id": "days"
+            }, 
+            {
+                "name": "Chem name",
+                "value": [ 
+                    "imazalil"
+                ],
+                "scope": "OPTIONAL",
+                "description": "The compount name that we wish to see how it reacts. Should be a valid cas for Httk",
+                "_id": "chem.name"
+            }
+        ],
+        "ranking": 0,
+        "trainingService": "http://jaqpot.org:8011/ocpu/library/httkInt2/R/httk.fun/json",
+        "predictionService": "http://jaqpot.org:8011/ocpu/library/httkInt2/R/suggest.httk/json"
+    }
+]

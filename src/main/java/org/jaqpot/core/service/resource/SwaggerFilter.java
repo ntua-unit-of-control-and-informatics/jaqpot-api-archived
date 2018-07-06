@@ -39,8 +39,8 @@ public class SwaggerFilter implements ReaderListener {
         ApiKeyAuthDefinition apiKeyDefinition = new ApiKeyAuthDefinition();
         apiKeyDefinition.setName("Authorization");
         apiKeyDefinition.setIn(In.HEADER);
-        apiKeyDefinition.setType("bearer");
-        swgr.addSecurityDefinition("subjectid", apiKeyDefinition);
+        apiKeyDefinition.setType("apiKey");
+        swgr.addSecurityDefinition("apiKey", apiKeyDefinition);
     }
 
 }

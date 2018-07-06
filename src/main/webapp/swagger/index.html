@@ -120,10 +120,10 @@
       });
 
       // This function executed on load and fetches a guest's token
-      $.post("/jaqpot/services/aa/login", {username: "guest", password: "guest"}).
+      $.post("/jaqpot/services/aa/login/swag", {username: "guest", password: "guest"}).
       done(function (data) {
         document.getElementById("input_apiKey").value = (data.authToken);
-        swaggerUi.api.clientAuthorizations.add("key", new SwaggerClient.ApiKeyAuthorization("Authorization", data.authToken, "header"));
+        swaggerUi.api.clientAuthorizations.add("key", new SwaggerClient.ApiKeyAuthorization("Authorization", "Bearer " + data.authToken, "header"));
       });
 
       function log() {
@@ -142,7 +142,7 @@
     <form id='api_selector'>
       <div class='input'><input placeholder="http://example.com/api" id="input_baseUrl" name="baseUrl" type="text"/></div>
       <!--<div id='auth_container'></div>-->
-      <div class='input'><input placeholder="subjectid" id="input_apiKey" name="apiKey" type="text"/></div>
+      <div class='input'><input placeholder="apiKey" id="input_apiKey" name="apiKey" type="text"/></div>
 
       <div class='input'><a id="explore" class="header__btn" href="#" data-sw-translate>Explore</a></div>
     </form>

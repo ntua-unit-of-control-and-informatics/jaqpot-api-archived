@@ -104,7 +104,7 @@ public class TokenRequestFilter implements ContainerRequestFilter, Serializable 
             requestContext.abortWith(Response
                     .status(Response.Status.UNAUTHORIZED).entity(error)
                     .build());
-        }
+        } 
 
     }
 
@@ -113,10 +113,7 @@ public class TokenRequestFilter implements ContainerRequestFilter, Serializable 
             return new ArrayList<>();
         } else {
             TokenSecured secured = annotatedElement.getAnnotation(TokenSecured.class);
-            Annotation[] an = annotatedElement.getAnnotations();
-            for (Annotation an1 : an) {
-                System.out.println(an1);
-            }
+//            Annotation[] an = annotatedElement.getAnnotations();
             if (secured == null) {
                 return new ArrayList<>();
             } else {

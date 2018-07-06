@@ -469,6 +469,63 @@ public class DatasetResource {
         return Response.created(new URI(dataset.getId())).entity(dataset).build();
 
     }
+    
+    @POST
+    @TokenSecured({RoleEnum.DEFAULT_USER})
+    @Path("/merge/features")
+    @ApiOperation(value = "Merges the features of two or more Datasets",
+            notes = "The new intersected Dataset created will be assigned on a random generated Id")
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, response = Dataset.class, message = "Dataset was created succesfully")
+        ,
+            @ApiResponse(code = 403, response = ErrorReport.class, message = "Dataset quota has been exceeded")
+        ,
+            @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to access this resource")
+        ,
+            @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
+    })
+    public Response mergeFeaturesDatasets(
+            @FormParam("dataset_uris") String datasetURIs,
+            @HeaderParam("Authorization") String api_key) throws URISyntaxException, QuotaExceededException {
+
+        String[] apiA = api_key.split("\\s+");
+        String apiKey = apiA[1];
+        User user = userHandler.find(securityContext.getUserPrincipal().getName());
+        long datasetCount = datasetHandler.countAllOfCreator(user.getId());
+        int maxAllowedDatasets = new UserFacade(user).getMaxDatasets();
+
+        if (datasetCount > maxAllowedDatasets) {
+            LOG.info(String.format("User %s has %d datasets while maximum is %d",
+                    user.getId(), datasetCount, maxAllowedDatasets));
+            throw new QuotaExceededException("Dear " + user.getId()
+                    + ", your quota has been exceeded; you already have " + datasetCount + " datasets. "
+                    + "No more than " + maxAllowedDatasets + " are allowed with your subscription.");
+        }
+
+        String[] datasets = datasetURIs.split(",");
+        Dataset dataset = null;
+        for (String datasetURI : datasets) {
+            Dataset d = client.target(datasetURI)
+                    .request()
+                    .accept(MediaType.APPLICATION_JSON)
+                    .header("Authorization", "Bearer " + apiKey)
+                    .get(Dataset.class);
+            dataset = DatasetFactory.mergeColumns(dataset, d);
+        }
+        ROG randomStringGenerator = new ROG(true);
+        dataset.setId(randomStringGenerator.nextString(14));
+        dataset.setFeatured(Boolean.FALSE);
+        dataset.setVisible(true);
+        if (dataset.getMeta() == null) {
+            dataset.setMeta(new MetaInfo());
+        }
+        dataset.getMeta().setCreators(new HashSet<>(Arrays.asList(securityContext.getUserPrincipal().getName())));
+
+        datasetHandler.create(dataset);
+
+        return Response.created(new URI(dataset.getId())).entity(dataset).build();
+
+    }
 
     @DELETE
     @TokenSecured({RoleEnum.DEFAULT_USER})
