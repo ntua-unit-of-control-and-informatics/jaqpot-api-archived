@@ -64,7 +64,9 @@ import java.util.concurrent.Future;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import javax.ws.rs.client.Entity;
 import org.apache.http.Header;
+import org.jaqpot.core.model.dto.models.QuickPredictionNeeds;
 
 /**
  *
@@ -72,16 +74,16 @@ import org.apache.http.Header;
  * @author Pantelis Sopasakis
  */
 public class JPDIClientImpl implements JPDIClient {
-    
+
     private static final Logger LOG = Logger.getLogger(JPDIClientImpl.class.getName());
     private final CloseableHttpAsyncClient client;
     private final JSONSerializer serializer;
     private final FeatureHandler featureHandler;
     private final String baseURI;
     private final ROG randomStringGenerator;
-    
+
     private final Map<String, Future> futureMap;
-    
+
     public JPDIClientImpl(CloseableHttpAsyncClient client, JSONSerializer serializer, FeatureHandler featureHandler, String baseURI) {
         this.client = client;
         client.start();
@@ -99,10 +101,9 @@ public class JPDIClientImpl implements JPDIClient {
         //TODO Create a calculateService for algorithms.
         final HttpPost request = new HttpPost(algorithm.getReportService());
 
-        CalculateRequest calculateRequest= new CalculateRequest();
+        CalculateRequest calculateRequest = new CalculateRequest();
         calculateRequest.setFile(file);
         calculateRequest.setParameters(parameters);
-
 
         PipedOutputStream out = new PipedOutputStream();
         PipedInputStream in;
@@ -185,18 +186,18 @@ public class JPDIClientImpl implements JPDIClient {
 
     @Override
     public Future<Model> train(Dataset dataset, Algorithm algorithm, Map<String, Object> parameters, String predictionFeature, MetaInfo modelMeta, String taskId) {
-        
+
         CompletableFuture<Model> futureModel = new CompletableFuture<>();
-        
+
         TrainingRequest trainingRequest = new TrainingRequest();
         trainingRequest.setDataset(dataset);
         trainingRequest.setParameters(parameters);
-        trainingRequest.setPredictionFeature(predictionFeature);        
+        trainingRequest.setPredictionFeature(predictionFeature);
 //        String trainingRequestString = serializer.write(trainingRequest);
 //        System.out.println(trainingRequestString);
 
         final HttpPost request = new HttpPost(algorithm.getTrainingService());
-        
+
         PipedOutputStream out = new PipedOutputStream();
         PipedInputStream in;
         try {
@@ -207,19 +208,19 @@ public class JPDIClientImpl implements JPDIClient {
         }
         InputStreamEntity entity = new InputStreamEntity(in, ContentType.APPLICATION_JSON);
         entity.setChunked(true);
-        
+
         request.setEntity(entity);
         request.addHeader("Accept", "application/json");
-        
+
         Future futureResponse = client.execute(request, new FutureCallback<HttpResponse>() {
-            
+
             @Override
             public void completed(final HttpResponse response) {
                 futureMap.remove(taskId);
                 int status = response.getStatusLine().getStatusCode();
                 try {
                     InputStream responseStream = response.getEntity().getContent();
-                    
+
                     switch (status) {
                         case 200:
                         case 201:
@@ -234,20 +235,22 @@ public class JPDIClientImpl implements JPDIClient {
                             model.setDatasetUri(dataset != null ? dataset.getDatasetURI() : null);
 
                             //Check if independedFeatures of model exist in dataset
-                            List<String> filteredIndependedFeatures= new ArrayList<String>();
+                            List<String> filteredIndependedFeatures = new ArrayList<String>();
 
-                            if (dataset!=null && dataset.getFeatures()!=null && trainingResponse.getIndependentFeatures()!=null)
-                            for (String feature:trainingResponse.getIndependentFeatures()){
-                                for (FeatureInfo featureInfo: dataset.getFeatures()){
-                                    if (feature.equals(featureInfo.getURI()))
-                                        filteredIndependedFeatures.add(feature);
+                            if (dataset != null && dataset.getFeatures() != null && trainingResponse.getIndependentFeatures() != null) {
+                                for (String feature : trainingResponse.getIndependentFeatures()) {
+                                    for (FeatureInfo featureInfo : dataset.getFeatures()) {
+                                        if (feature.equals(featureInfo.getURI())) {
+                                            filteredIndependedFeatures.add(feature);
+                                        }
+                                    }
                                 }
                             }
 
                             model.setIndependentFeatures(filteredIndependedFeatures);
                             model.setDependentFeatures(Arrays.asList(predictionFeature));
                             model.setMeta(modelMeta);
-                            
+
                             List<String> predictedFeatures = new ArrayList<>();
                             for (String featureTitle : trainingResponse.getPredictedFeatures()) {
                                 Feature predictionFeatureResource = featureHandler.findByTitleAndSource(featureTitle, "algorithm/" + algorithm.getId());
@@ -293,40 +296,40 @@ public class JPDIClientImpl implements JPDIClient {
                     futureModel.completeExceptionally(ex);
                 }
             }
-            
+
             @Override
             public void failed(final Exception ex) {
                 futureMap.remove(taskId);
                 futureModel.completeExceptionally(ex);
             }
-            
+
             @Override
             public void cancelled() {
                 futureMap.remove(taskId);
                 futureModel.cancel(true);
             }
-            
+
         });
-        
+
         serializer.write(trainingRequest, out);
         try {
             out.close();
         } catch (IOException ex) {
             futureModel.completeExceptionally(ex);
         }
-        
+
         futureMap.put(taskId, futureResponse);
         return futureModel;
     }
-    
+
     @Override
     public Future<Dataset> predict(Dataset inputDataset, Model model, MetaInfo datasetMeta, String taskId) {
-        
+
         CompletableFuture<Dataset> futureDataset = new CompletableFuture<>();
-        
+
         Dataset dataset = DatasetFactory.copy(inputDataset);
         Dataset tempWithDependentFeatures = DatasetFactory.copy(dataset, new HashSet<>(model.getDependentFeatures()));
-        
+
         dataset.getDataEntry().parallelStream()
                 .forEach(dataEntry -> {
                     dataEntry.getValues().keySet().retainAll(model.getIndependentFeatures());
@@ -335,11 +338,11 @@ public class JPDIClientImpl implements JPDIClient {
         predictionRequest.setDataset(dataset);
         predictionRequest.setRawModel(model.getActualModel());
         predictionRequest.setAdditionalInfo(model.getAdditionalInfo());
-        
+
         final HttpPost request = new HttpPost(model.getAlgorithm().getPredictionService());
         request.addHeader("Accept", "application/json");
         request.addHeader("Content-Type", "application/json");
-        
+
         PipedOutputStream out = new PipedOutputStream();
         PipedInputStream in;
         try {
@@ -349,22 +352,22 @@ public class JPDIClientImpl implements JPDIClient {
             return futureDataset;
         }
         request.setEntity(new InputStreamEntity(in, ContentType.APPLICATION_JSON));
-        
+
         Future futureResponse = client.execute(request, new FutureCallback<HttpResponse>() {
-            
+
             @Override
             public void completed(final HttpResponse response) {
                 futureMap.remove(taskId);
                 int status = response.getStatusLine().getStatusCode();
                 try {
                     InputStream responseStream = response.getEntity().getContent();
-                    
+
                     switch (status) {
                         case 200:
                         case 201:
                             try {
                                 PredictionResponse predictionResponse = serializer.parse(responseStream, PredictionResponse.class);
-                                
+
                                 List<LinkedHashMap<String, Object>> predictions = predictionResponse.getPredictions();
                                 if (dataset.getDataEntry().isEmpty()) {
                                     DatasetFactory.addEmptyRows(dataset, predictions.size());
@@ -429,13 +432,13 @@ public class JPDIClientImpl implements JPDIClient {
                     futureDataset.completeExceptionally(ex);
                 }
             }
-            
+
             @Override
             public void failed(final Exception ex) {
                 futureMap.remove(taskId);
                 futureDataset.completeExceptionally(new InternalServerErrorException(ex));
             }
-            
+
             @Override
             public void cancelled() {
                 futureMap.remove(taskId);
@@ -451,7 +454,7 @@ public class JPDIClientImpl implements JPDIClient {
         futureMap.put(taskId, futureResponse);
         return futureDataset;
     }
-    
+
     @Override
     public Future<Dataset> transform(Dataset dataset, Algorithm algorithm, Map<String, Object> parameters, String predictionFeature, MetaInfo datasetMeta, String taskId) {
         try {
@@ -463,12 +466,12 @@ public class JPDIClientImpl implements JPDIClient {
             throw new RuntimeException("Error while transforming Dataset:" + dataset.getId() + " with Algorithm:" + algorithm.getId(), ex.getCause());
         }
     }
-    
+
     @Override
     public Future<Report> report(Dataset dataset, Algorithm algorithm, Map<String, Object> parameters, MetaInfo reportMeta, String taskId) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
-    
+
     @Override
     public boolean cancel(String taskId) {
         Future future = futureMap.get(taskId);
@@ -478,10 +481,10 @@ public class JPDIClientImpl implements JPDIClient {
         }
         return false;
     }
-    
+
     @Override
     public void close() throws IOException {
         client.close();
     }
-    
+
 }

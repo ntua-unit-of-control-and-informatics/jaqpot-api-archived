@@ -52,6 +52,8 @@ public class Model extends JaqpotEntity {
      * List of dependent features of the model.
      */
     private List<String> dependentFeatures;
+
+//    private List<String> linkedIndependendFeatures;
     /**
      * List of independent features.
      */
@@ -104,6 +106,22 @@ public class Model extends JaqpotEntity {
 
     private List<String> linkedModels;
 
+    private Boolean pretrained;
+
+    /**
+     * The language that the model is implemented with
+     */
+    private String implementedIn;
+
+    /**
+     * The library that the model is implemented with
+     */
+    private String implementedWith;
+    /**
+     * The algorithm a pre trained model is created ad given by the user
+     */
+    private String algorithmForPretrained;
+
     public Model() {
     }
 
@@ -147,6 +165,14 @@ public class Model extends JaqpotEntity {
         this.dependentFeatures = dependentFeatures;
     }
 
+//    public List<String> getLinkedIndependendFeatures() {
+//        return linkedIndependendFeatures;
+//    }
+//
+//    public void setLinkedIndependendFeatures(List<String> linkedIndependendFeatures) {
+//        this.linkedIndependendFeatures = linkedIndependendFeatures;
+//    }
+//    
     public List<String> getIndependentFeatures() {
         return independentFeatures;
     }
@@ -257,6 +283,38 @@ public class Model extends JaqpotEntity {
 
     public void setLinkedModels(List<String> linkedModels) {
         this.linkedModels = linkedModels;
+    }
+
+    public Boolean getPretrained() {
+        return pretrained;
+    }
+
+    public void setPretrained(Boolean pretrained) {
+        this.pretrained = pretrained;
+    }
+
+    public String getImplementedIn() {
+        return implementedIn;
+    }
+
+    public void setImplementedIn(String implementedIn) {
+        this.implementedIn = implementedIn;
+    }
+
+    public String getImplementedWith() {
+        return implementedWith;
+    }
+
+    public void setImplementedWith(String implementedWith) {
+        this.implementedWith = implementedWith;
+    }
+
+    public String getAlgorithmForPretrained() {
+        return algorithmForPretrained;
+    }
+
+    public void setAlgorithmForPretrained(String algorithmForPretrained) {
+        this.algorithmForPretrained = algorithmForPretrained;
     }
 
 }

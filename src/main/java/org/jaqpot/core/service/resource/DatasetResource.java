@@ -659,7 +659,7 @@ public class DatasetResource {
                 });
 
         DataEntry dataEntry = ds.getDataEntry().stream()
-                .filter(de -> de.getCompound().getURI().equals(substanceURI))
+                .filter(de -> de.getEntryId().getURI().equals(substanceURI))
                 .findFirst()
                 .orElseThrow(() -> new BadRequestException(""));
 
@@ -678,7 +678,7 @@ public class DatasetResource {
             List<Map<String, String>> structuresList = structures.getDataEntry()
                     .stream()
                     .map(de -> {
-                        String compound = de.getCompound().getURI();
+                        String compound = de.getEntryId().getURI();
                         String casrn = Optional.ofNullable(de.getValues().get("https://apps.ideaconsult.net/enmtest/feature/http%3A%2F%2Fwww.opentox.org%2Fapi%2F1.1%23CASRNDefault")).orElse("").toString();
                         String einecs = Optional.ofNullable(de.getValues().get("https://apps.ideaconsult.net/enmtest/feature/http%3A%2F%2Fwww.opentox.org%2Fapi%2F1.1%23EINECSDefault")).orElse("").toString();
                         String iuclid5 = Optional.ofNullable(de.getValues().get("https://apps.ideaconsult.net/enmtest/feature/http%3A%2F%2Fwww.opentox.org%2Fapi%2F1.1%23IUCLID5_UUIDDefault")).orElse("").toString();
@@ -852,7 +852,7 @@ public class DatasetResource {
                 });
 
         DataEntry dataEntry = ds.getDataEntry().stream()
-                .filter(de -> de.getCompound().getURI().equals(substanceURI))
+                .filter(de -> de.getEntryId().getURI().equals(substanceURI))
                 .findFirst()
                 .orElseThrow(() -> new BadRequestException(""));
 
@@ -870,7 +870,7 @@ public class DatasetResource {
             List<Map<String, String>> structuresList = structures.getDataEntry()
                     .stream()
                     .map(de -> {
-                        String compound = de.getCompound().getURI();
+                        String compound = de.getEntryId().getURI();
                         String casrn = Optional.ofNullable(de.getValues().get("https://apps.ideaconsult.net/enmtest/feature/http%3A%2F%2Fwww.opentox.org%2Fapi%2F1.1%23CASRNDefault")).orElse("").toString();
                         String einecs = Optional.ofNullable(de.getValues().get("https://apps.ideaconsult.net/enmtest/feature/http%3A%2F%2Fwww.opentox.org%2Fapi%2F1.1%23EINECSDefault")).orElse("").toString();
                         String iuclid5 = Optional.ofNullable(de.getValues().get("https://apps.ideaconsult.net/enmtest/feature/http%3A%2F%2Fwww.opentox.org%2Fapi%2F1.1%23IUCLID5_UUIDDefault")).orElse("").toString();
@@ -1045,13 +1045,13 @@ public class DatasetResource {
                 while (it1.hasNext() && it2.hasNext()) {
                     values.put(it1.next(), it2.next());
                 }
-                org.jaqpot.core.model.dto.dataset.Substance substance = new org.jaqpot.core.model.dto.dataset.Substance();
+                org.jaqpot.core.model.dto.dataset.EntryId substance = new org.jaqpot.core.model.dto.dataset.EntryId();
                 substance.setURI("/substance/" + count);
                 substance.setName("row" + count);
                 substance.setOwnerUUID("7da545dd-2544-43b0-b834-9ec02553f7f2");
                 DataEntry dataEntry = new DataEntry();
                 dataEntry.setValues(values);
-                dataEntry.setCompound(substance);
+                dataEntry.setEntryId(substance);
                 dataEntryList.add(dataEntry);
             }
             count++;

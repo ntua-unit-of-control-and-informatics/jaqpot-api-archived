@@ -36,12 +36,15 @@ package org.jaqpot.core.service.client.jpdi;
 
 import java.io.Closeable;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 import org.jaqpot.core.model.Algorithm;
 import org.jaqpot.core.model.MetaInfo;
 import org.jaqpot.core.model.Model;
 import org.jaqpot.core.model.Report;
 import org.jaqpot.core.model.dto.dataset.Dataset;
+import org.jaqpot.core.model.dto.jpdi.PredictionResponse;
+import org.jaqpot.core.model.dto.models.QuickPredictionNeeds;
 
 /**
  *
@@ -59,6 +62,6 @@ public interface JPDIClient extends Closeable {
     Future<Dataset> transform(Dataset dataset, Algorithm algorithm, Map<String, Object> parameters, String predictionFeature, MetaInfo datasetMeta, String taskId);
 
     Future<Report> report(Dataset dataset, Algorithm algorithm, Map<String, Object> parameters, MetaInfo reportMeta, String taskId);
-
+    
     boolean cancel(String taskId);
 }

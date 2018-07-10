@@ -1,7 +1,7 @@
 package org.jaqpot.core.service.client.ambit.mapper;
 
 import org.jaqpot.core.model.dto.dataset.DataEntry;
-import org.jaqpot.core.model.dto.dataset.Substance;
+import org.jaqpot.core.model.dto.dataset.EntryId;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
@@ -15,5 +15,5 @@ public interface DataEntryMapper {
 
     DataEntry dataEntryToDataEntry(org.jaqpot.ambitclient.model.dataset.DataEntry dataEntry);
 
-    Substance substanceToSubstance(org.jaqpot.ambitclient.model.dataset.Substance substance);
+    EntryId substanceToSubstance(org.jaqpot.ambitclient.model.dataset.Substance substance);
 }

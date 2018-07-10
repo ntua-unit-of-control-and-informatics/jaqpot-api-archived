@@ -30,9 +30,7 @@
 package org.jaqpot.core.model.dto.dataset;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import java.util.Map;
-import java.util.TreeMap;
-import javax.xml.bind.annotation.XmlRootElement;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  *
@@ -40,33 +38,49 @@ import javax.xml.bind.annotation.XmlRootElement;
  * @author Charalampos Chomenidis
  *
  */
-@XmlRootElement
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class DataEntry {
+public class EntryId {
 
-    EntryId entryId;
+    String URI;
+    String name;
+    String ownerUUID;
 
-    TreeMap<String, Object> values;
-
-    public EntryId getEntryId() {
-        return entryId;
+    public EntryId(){}
+    public EntryId(String URI, String name, String ownerUUID) {
+        this.URI = URI;
+        this.name = name;
+        this.ownerUUID = ownerUUID;
     }
 
-    public void setEntryId(EntryId compound) {
-        this.entryId = compound;
+    @JsonProperty("URI")
+    public String getURI() {
+        return URI;
     }
 
-    public Map<String, Object> getValues() {
-        return values;
+    @JsonProperty("URI")
+    public void setURI(String URI) {
+        this.URI = URI;
     }
 
-    public void setValues(TreeMap<String, Object> values) {
-        this.values = values;
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getOwnerUUID() {
+        return ownerUUID;
+    }
+
+    public void setOwnerUUID(String ownerUUID) {
+        this.ownerUUID = ownerUUID;
     }
 
     @Override
     public String toString() {
-        return "DataEntry{" + "entryId=" + entryId + ", values=" + values + '}';
+        return "Substance{" + "URI=" + URI + '}';
     }
 
 }

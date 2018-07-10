@@ -2,7 +2,12 @@
  *
  * JAQPOT Quattro
  *
- * JAQPOT Quattro and the components shipped with it (web applications and beans)
+ * JAQPOT Quattro and the components shipped with it, in particular:
+ * (i)   JaqpotCoreServices
+ * (ii)  JaqpotAlgorithmServices
+ * (iii) JaqpotDB
+ * (iv)  JaqpotDomain
+ * (v)   JaqpotEAR
  * are licensed by GPL v3 as specified hereafter. Additional components may ship
  * with some other licence as will be specified therein.
  *
@@ -27,46 +32,24 @@
  * All source files of JAQPOT Quattro that are stored on github are licensed
  * with the aforementioned licence. 
  */
-package org.jaqpot.core.model.dto.dataset;
-
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import java.util.Map;
-import java.util.TreeMap;
-import javax.xml.bind.annotation.XmlRootElement;
+package org.jaqpot.core.model.dto.models;
 
 /**
  *
- * @author Pantelis Sopasakis
- * @author Charalampos Chomenidis
- *
+ * @author pantelispanka
  */
-@XmlRootElement
-@JsonIgnoreProperties(ignoreUnknown = true)
-public class DataEntry {
+public class ModelId {
+    
+    private String modelId;
 
-    EntryId entryId;
-
-    TreeMap<String, Object> values;
-
-    public EntryId getEntryId() {
-        return entryId;
+    public String getModelId() {
+        return modelId;
     }
 
-    public void setEntryId(EntryId compound) {
-        this.entryId = compound;
+    public void setModelId(String modelId) {
+        this.modelId = modelId;
     }
-
-    public Map<String, Object> getValues() {
-        return values;
-    }
-
-    public void setValues(TreeMap<String, Object> values) {
-        this.values = values;
-    }
-
-    @Override
-    public String toString() {
-        return "DataEntry{" + "entryId=" + entryId + ", values=" + values + '}';
-    }
-
+    
+    
+    
 }

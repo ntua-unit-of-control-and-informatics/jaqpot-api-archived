@@ -50,7 +50,7 @@ import org.jaqpot.core.model.dto.bundle.BundleSubstances;
 import org.jaqpot.core.model.dto.dataset.DataEntry;
 import org.jaqpot.core.model.dto.dataset.Dataset;
 import org.jaqpot.core.model.dto.dataset.FeatureInfo;
-import org.jaqpot.core.model.dto.dataset.Substance;
+import org.jaqpot.core.model.dto.dataset.EntryId;
 import org.jaqpot.core.model.dto.study.Effect;
 import org.jaqpot.core.model.dto.study.Studies;
 import org.jaqpot.core.model.dto.study.Study;
@@ -151,7 +151,7 @@ public class ConjoinerService {
 
         if (ambitClientBundle.getSubstances() != null) {
 
-            for (Substance substance : ambitClientBundle.getSubstances()) {
+            for (EntryId substance : ambitClientBundle.getSubstances()) {
                 if (substances.contains(substance.getURI())) {
                     Studies studies = ambitClient.getSubstanceStudies(substance.getURI().split("substance")[1], subjectId);
                     if (studies != null) {
@@ -211,7 +211,7 @@ public class ConjoinerService {
 
 
     //TODO: Handle multiple effects that map to the same property
-    public DataEntry createDataEntry( Substance substance, Studies studies, String remoteServerBase, Set<String> propertyCategories, String subjectId, Set<String> descriptors, Boolean retainNullValues) throws ExecutionException, InterruptedException {
+    public DataEntry createDataEntry( EntryId substance, Studies studies, String remoteServerBase, Set<String> propertyCategories, String subjectId, Set<String> descriptors, Boolean retainNullValues) throws ExecutionException, InterruptedException {
         DataEntry dataEntry = new DataEntry();
         TreeMap<String, Object> values = new TreeMap<>();
 
@@ -354,7 +354,7 @@ public class ConjoinerService {
                 }
             }
         }
-        dataEntry.setCompound(substance);
+        dataEntry.setEntryId(substance);
         dataEntry.setValues(values);
 
         return dataEntry;

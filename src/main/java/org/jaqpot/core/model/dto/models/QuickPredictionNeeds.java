@@ -2,7 +2,12 @@
  *
  * JAQPOT Quattro
  *
- * JAQPOT Quattro and the components shipped with it (web applications and beans)
+ * JAQPOT Quattro and the components shipped with it, in particular:
+ * (i)   JaqpotCoreServices
+ * (ii)  JaqpotAlgorithmServices
+ * (iii) JaqpotDB
+ * (iv)  JaqpotDomain
+ * (v)   JaqpotEAR
  * are licensed by GPL v3 as specified hereafter. Additional components may ship
  * with some other licence as will be specified therein.
  *
@@ -27,60 +32,33 @@
  * All source files of JAQPOT Quattro that are stored on github are licensed
  * with the aforementioned licence. 
  */
-package org.jaqpot.core.model.dto.dataset;
+package org.jaqpot.core.model.dto.models;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.HashMap;
 
 /**
  *
- * @author Pantelis Sopasakis
- * @author Charalampos Chomenidis
- *
+ * @author pantelispanka
  */
-@JsonIgnoreProperties(ignoreUnknown = true)
-public class Substance {
+public class QuickPredictionNeeds {
+    
+    private String id;
+    private HashMap independentFeatures;
 
-    String URI;
-    String name;
-    String ownerUUID;
-
-    public Substance(){}
-    public Substance(String URI, String name, String ownerUUID) {
-        this.URI = URI;
-        this.name = name;
-        this.ownerUUID = ownerUUID;
+    public String getId() {
+        return id;
     }
 
-    @JsonProperty("URI")
-    public String getURI() {
-        return URI;
+    public void setId(String id) {
+        this.id = id;
     }
 
-    @JsonProperty("URI")
-    public void setURI(String URI) {
-        this.URI = URI;
+    public HashMap getIndependentFeatures() {
+        return independentFeatures;
     }
 
-    public String getName() {
-        return name;
+    public void setIndependentFeatures(HashMap independentFeatures) {
+        this.independentFeatures = independentFeatures;
     }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getOwnerUUID() {
-        return ownerUUID;
-    }
-
-    public void setOwnerUUID(String ownerUUID) {
-        this.ownerUUID = ownerUUID;
-    }
-
-    @Override
-    public String toString() {
-        return "Substance{" + "URI=" + URI + '}';
-    }
-
+     
 }

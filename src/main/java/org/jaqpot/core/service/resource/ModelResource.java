@@ -33,6 +33,7 @@ import io.swagger.annotations.*;
 
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -52,14 +53,22 @@ import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.validator.routines.UrlValidator;
+import org.jaqpot.core.data.AlgorithmHandler;
 import org.jaqpot.core.data.DatasetHandler;
+import org.jaqpot.core.data.FeatureHandler;
 import org.jaqpot.core.data.ModelHandler;
 import org.jaqpot.core.data.UserHandler;
 import org.jaqpot.core.model.*;
+import org.jaqpot.core.model.builder.MetaInfoBuilder;
 import org.jaqpot.core.model.dto.dataset.Dataset;
 import org.jaqpot.core.model.dto.dataset.FeatureInfo;
+import org.jaqpot.core.model.dto.jpdi.TrainingResponse;
+import org.jaqpot.core.model.dto.models.ModelId;
+import org.jaqpot.core.model.dto.models.PretrainedModel;
+import org.jaqpot.core.model.dto.models.QuickPredictionNeeds;
 import org.jaqpot.core.model.facades.UserFacade;
 import org.jaqpot.core.model.factory.ErrorReportFactory;
+import org.jaqpot.core.model.util.ROG;
 import org.jaqpot.core.service.annotations.Authorize;
 import org.jaqpot.core.service.annotations.TokenSecured;
 import org.jaqpot.core.service.annotations.UnSecure;
@@ -80,12 +89,13 @@ import org.jaqpot.core.service.validator.ParameterValidator;
 @Path("model")
 @Api(value = "/model", description = "Models API")
 @Produces({"application/json", "text/uri-list"})
-@Authorize
 public class ModelResource {
 
     private static final Logger LOG = Logger.getLogger(ModelResource.class.getName());
 
     private static final String DEFAULT_DATASET = "http://app.jaqpot.org:8080/jaqpot/services/dataset/corona";
+
+    private final ROG randomStringGenerator = new ROG(true);
 
     @Context
     UriInfo uriInfo;
@@ -102,13 +112,19 @@ public class ModelResource {
     @EJB
     PredictionService predictionService;
 
+    @EJB
+    FeatureHandler featureHandler;
+
+    @EJB
+    AlgorithmHandler algoHandler;
+
     @Context
     SecurityContext securityContext;
 
     @Inject
     @UnSecure
     Client client;
-    
+
     @Inject
     ParameterValidator parameterValidator;
 
@@ -124,20 +140,23 @@ public class ModelResource {
             responseContainer = "List",
             extensions = {
                 @Extension(properties = {
-                    @ExtensionProperty(name = "orn-@type", value = "x-orn:JapotModelList"),
-                    }
-                ),
-                @Extension(name = "orn:expects",properties={
-                    @ExtensionProperty(name = "x-orn-@id", value = "x-orn:AccessToken")
-                }),
-                @Extension(name = "orn:returns",properties={
-                    @ExtensionProperty(name = "x-orn-@id", value = "x-orn:ModelList")
-                })
+            @ExtensionProperty(name = "orn-@type", value = "x-orn:JapotModelList"),}
+                )
+                ,
+                @Extension(name = "orn:expects", properties = {
+            @ExtensionProperty(name = "x-orn-@id", value = "x-orn:AccessToken")
+        })
+                ,
+                @Extension(name = "orn:returns", properties = {
+            @ExtensionProperty(name = "x-orn-@id", value = "x-orn:ModelList")
+        })
             })
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Models found and are listed in the response body"),
+        @ApiResponse(code = 200, message = "Models found and are listed in the response body")
+        ,
         @ApiResponse(code = 204, message = "No content: The request succeeded, but there are no models "
-                + "matching your search criteria."),
+                + "matching your search criteria.")
+        ,
         @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
     })
     public Response listModels(
@@ -168,20 +187,23 @@ public class ModelResource {
             responseContainer = "List",
             extensions = {
                 @Extension(properties = {
-                    @ExtensionProperty(name = "orn-@type", value = "x-orn:JaqpotModelList"),
-                    }
-                ),
-                @Extension(name = "orn:expects",properties={
-                    @ExtensionProperty(name = "x-orn-@id", value = "x-orn:AccessToken")
-                }),
-                @Extension(name = "orn:returns",properties={
-                    @ExtensionProperty(name = "x-orn-@id", value = "x-orn:JapotModelList")
-                })
+            @ExtensionProperty(name = "orn-@type", value = "x-orn:JaqpotModelList"),}
+                )
+                ,
+                @Extension(name = "orn:expects", properties = {
+            @ExtensionProperty(name = "x-orn-@id", value = "x-orn:AccessToken")
+        })
+                ,
+                @Extension(name = "orn:returns", properties = {
+            @ExtensionProperty(name = "x-orn-@id", value = "x-orn:JapotModelList")
+        })
             })
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Models found and are listed in the response body"),
+        @ApiResponse(code = 200, message = "Models found and are listed in the response body")
+        ,
         @ApiResponse(code = 204, message = "No content: The request succeeded, but there are no models "
-                + "matching your search criteria."),
+                + "matching your search criteria.")
+        ,
         @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
     })
     public Response listFeaturedModels(
@@ -207,16 +229,18 @@ public class ModelResource {
             response = Model.class,
             extensions = {
                 @Extension(properties = {
-                    @ExtensionProperty(name = "orn-@type", value = "x-orn:Model"),
-                    }
-                ),
-                @Extension(name = "orn:expects",properties={
-                    @ExtensionProperty(name = "x-orn-@id", value = "x-orn:AcessToken"),
+            @ExtensionProperty(name = "orn-@type", value = "x-orn:Model"),}
+                )
+                ,
+                @Extension(name = "orn:expects", properties = {
+            @ExtensionProperty(name = "x-orn-@id", value = "x-orn:AcessToken")
+            ,
                     @ExtensionProperty(name = "x-orn-@id", value = "x-orn:JaqpotModelId")
-                }),
-                @Extension(name = "orn:returns",properties={
-                    @ExtensionProperty(name = "x-orn-@id", value = "x-orn:JaqpotModel")
-                })
+        })
+                ,
+                @Extension(name = "orn:returns", properties = {
+            @ExtensionProperty(name = "x-orn-@id", value = "x-orn:JaqpotModel")
+        })
             })
 //    @ApiResponses(value = {
 //        @ApiResponse(code = 200, message = "Model is found"),
@@ -248,10 +272,14 @@ public class ModelResource {
             notes = "Finds specified Model",
             response = Model.class)
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Model is found"),
-        @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to access this model"),
-        @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)"),
-        @ApiResponse(code = 404, response = ErrorReport.class, message = "This model was not found."),
+        @ApiResponse(code = 200, message = "Model is found")
+        ,
+        @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to access this model")
+        ,
+        @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)")
+        ,
+        @ApiResponse(code = 404, response = ErrorReport.class, message = "This model was not found.")
+        ,
         @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
     })
     public Response getModelPmml(
@@ -271,8 +299,9 @@ public class ModelResource {
         if (pmmlObj instanceof List) {
             List pmmlObjList = (List) pmmlObj;
             Object pmml = pmmlObjList.stream().findFirst();
-            if (pmml==null)
+            if (pmml == null) {
                 throw new NotFoundException("This model does not have a PMML representation.");
+            }
             return Response
                     .ok(pmml.toString(), MediaType.APPLICATION_XML)
                     .build();
@@ -285,17 +314,21 @@ public class ModelResource {
 
     @GET
     @TokenSecured({RoleEnum.DEFAULT_USER})
-    @Produces({"text/uri-list"})
+    @Produces({MediaType.APPLICATION_JSON})
     @Path("/{id}/independent")
     @ApiOperation(value = "Lists the independent features of a Model",
             notes = "Lists the independent features of a Model. The result is available as a URI list.",
             response = String.class,
             responseContainer = "List")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Model is found and its independent features are listed in the response body."),
-        @ApiResponse(code = 401, message = "You are not authorized to access this model"),
-        @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)"),
-        @ApiResponse(code = 404, message = "This model was not found."),
+        @ApiResponse(code = 200, message = "Model is found and its independent features are listed in the response body.")
+        ,
+        @ApiResponse(code = 401, message = "You are not authorized to access this model")
+        ,
+        @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)")
+        ,
+        @ApiResponse(code = 404, message = "This model was not found.")
+        ,
         @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
     })
     public Response listModelIndependentFeatures(
@@ -303,26 +336,39 @@ public class ModelResource {
             @ApiParam(value = "Clients need to authenticate in order to access models") @HeaderParam("Authorization") String api_key) {
         String[] apiA = api_key.split("\\s+");
         String apiKey = apiA[1];
-        Model foundModel = modelHandler.findModelIndependentFeatures(id);
+        Model foundModel = modelHandler.find(id);
         if (foundModel == null) {
             throw new NotFoundException("The requested model was not found on the server.");
         }
-        return Response.ok(foundModel.getIndependentFeatures()).build();
+
+        List<Feature> independentFeatures = new ArrayList();
+        List<String> features = foundModel.getIndependentFeatures();
+        features.forEach(feat -> {
+            String[] featSplited = feat.split("/");
+            Feature feature = featureHandler.find(featSplited[featSplited.length - 1]);
+            independentFeatures.add(feature);
+        });
+
+        return Response.ok(independentFeatures).build();
     }
 
     @GET
     @TokenSecured({RoleEnum.DEFAULT_USER})
-    @Produces({"text/uri-list"})
+    @Produces({MediaType.APPLICATION_JSON})
     @Path("/{id}/dependent")
     @ApiOperation(value = "Lists the dependent features of a Model",
             notes = "Lists the dependent features of a Model identified by its ID. The result is available as a URI list.",
             response = String.class,
             responseContainer = "List")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Model is found and its independent features are listed in the response body."),
-        @ApiResponse(code = 401, message = "You are not authorized to access this model"),
-        @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)"),
-        @ApiResponse(code = 404, message = "This model was not found."),
+        @ApiResponse(code = 200, message = "Model is found and its independent features are listed in the response body.")
+        ,
+        @ApiResponse(code = 401, message = "You are not authorized to access this model")
+        ,
+        @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)")
+        ,
+        @ApiResponse(code = 404, message = "This model was not found.")
+        ,
         @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
     })
     public Response listModelDependentFeatures(
@@ -330,26 +376,39 @@ public class ModelResource {
             @ApiParam(value = "Clients need to authenticate in order to access models") @HeaderParam("Authorization") String api_key) {
         String[] apiA = api_key.split("\\s+");
         String apiKey = apiA[1];
-        Model foundModel = modelHandler.findModelIndependentFeatures(id);
+        Model foundModel = modelHandler.find(id);
         if (foundModel == null) {
             throw new NotFoundException("The requested model was not found on the server.");
         }
-        return Response.ok(foundModel.getDependentFeatures()).build();
+
+        List<Feature> dependentFeatures = new ArrayList();
+        List<String> features = foundModel.getDependentFeatures();
+        features.forEach(feat -> {
+            String[] featSplited = feat.split("/");
+            Feature feature = featureHandler.find(featSplited[featSplited.length - 1]);
+            dependentFeatures.add(feature);
+        });
+
+        return Response.ok(dependentFeatures).build();
     }
 
     @GET
     @TokenSecured({RoleEnum.DEFAULT_USER})
-    @Produces({"text/uri-list"})
+    @Produces({MediaType.APPLICATION_JSON})
     @Path("/{id}/predicted")
     @ApiOperation(value = "Lists the dependent features of a Model",
             notes = "Lists the predicted features of a Model identified by its ID. The result is available as a URI list.",
             response = String.class,
             responseContainer = "List")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Model is found and its independent features are listed in the response body."),
-        @ApiResponse(code = 401, message = "You are not authorized to access this model"),
-        @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)"),
-        @ApiResponse(code = 404, message = "This model was not found."),
+        @ApiResponse(code = 200, message = "Model is found and its independent features are listed in the response body.")
+        ,
+        @ApiResponse(code = 401, message = "You are not authorized to access this model")
+        ,
+        @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)")
+        ,
+        @ApiResponse(code = 404, message = "This model was not found.")
+        ,
         @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
     })
     public Response listModelPredictedFeatures(
@@ -361,14 +420,24 @@ public class ModelResource {
         if (foundModel == null) {
             throw new NotFoundException("The requested model was not found on the server.");
         }
-        List<String> predictedFeatures = new ArrayList<>();
-        predictedFeatures.addAll(foundModel.getPredictedFeatures());
+        List<Feature> predictedFeatures = new ArrayList<>();
+        foundModel.getPredictedFeatures().forEach(feat -> {
+            String[] featSpl = feat.split("/");
+            Feature predFeat = featureHandler.find(featSpl[featSpl.length - 1]);
+            predictedFeatures.add(predFeat);
+        });
+
         if (foundModel.getLinkedModels() != null) {
             foundModel.getLinkedModels().stream()
                     .map(m -> m.split("model/")[1])
                     .forEach(mid -> {
                         Model linkedModel = modelHandler.findModel(mid);
-                        predictedFeatures.addAll(linkedModel.getPredictedFeatures());
+                        linkedModel.getPredictedFeatures().forEach((feat) -> {
+                            String[] featSpl = feat.split("/");
+                            Feature predFeat = featureHandler.find(featSpl[featSpl.length - 1]);
+                            predictedFeatures.add(predFeat);
+                        });
+
                     });
         }
         return Response.ok(predictedFeatures).build();
@@ -435,23 +504,24 @@ public class ModelResource {
             response = Task.class,
             extensions = {
                 @Extension(properties = {
-                    @ExtensionProperty(name = "orn-@type", value = "x-orn:JaqpotPredictionTaskId"),
-                    }
-                ),
-                @Extension(name = "orn:expects",properties={
-                    @ExtensionProperty(name = "x-orn-@id", value = "x-orn:AcessToken"),
-                    @ExtensionProperty(name = "x-orn-@id", value = "x-orn:JaqpotModelId"),
+            @ExtensionProperty(name = "orn-@type", value = "x-orn:JaqpotPredictionTaskId"),}
+                )
+                ,
+                @Extension(name = "orn:expects", properties = {
+            @ExtensionProperty(name = "x-orn-@id", value = "x-orn:AcessToken")
+            ,
+                    @ExtensionProperty(name = "x-orn-@id", value = "x-orn:JaqpotModelId")
+            ,
                     @ExtensionProperty(name = "x-orn-@id", value = "x-orn:Dataset")
-                }),
-                @Extension(name = "orn:returns",properties={
-                    @ExtensionProperty(name = "x-orn-@id", value = "x-orn:JaqpotPredictionTaskId")
-                })
+        })
+                ,
+                @Extension(name = "orn:returns", properties = {
+            @ExtensionProperty(name = "x-orn-@id", value = "x-orn:JaqpotPredictionTaskId")
+        })
             }
     )
     @org.jaqpot.core.service.annotations.Task
     public Response makePrediction(
-            // defaultValue = DEFAULT_DATASET
-
             @ApiParam(name = "dataset_uri", required = true) @FormParam("dataset_uri") String datasetURI,
             @FormParam("visible") Boolean visible,
             @PathParam("id") String id,
@@ -489,7 +559,7 @@ public class ModelResource {
         String datasetId = datasetURI.split("dataset/")[1];
         Dataset datasetMeta = datasetHandler.findMeta(datasetId);
         List<String> requiredFeatures = retrieveRequiredFeatures(model);
-        
+
         parameterValidator.validateDataset(datasetMeta, requiredFeatures);
 
         Map<String, Object> options = new HashMap<>();
@@ -500,6 +570,168 @@ public class ModelResource {
         options.put("base_uri", uriInfo.getBaseUri().toString());
         Task task = predictionService.initiatePrediction(options);
         return Response.ok(task).build();
+    }
+
+    @POST
+    @TokenSecured({RoleEnum.DEFAULT_USER})
+    @Consumes({MediaType.APPLICATION_JSON})
+    @Produces({MediaType.APPLICATION_JSON})
+    @Path("/")
+    @ApiOperation(value = "Stores a pretrained model",
+            notes = "Stores a pretrained model",
+            //            response = Task.class,
+            extensions = {
+                @Extension(properties = {
+            @ExtensionProperty(name = "orn-@type", value = "x-orn:JaqpotPredictionTaskId"),}
+                )
+                ,
+                @Extension(name = "orn:expects", properties = {
+            @ExtensionProperty(name = "x-orn-@id", value = "x-orn:AcessToken")
+            ,
+                    @ExtensionProperty(name = "x-orn-@id", value = "x-orn:PretrainedModel"),})
+                ,
+                @Extension(name = "orn:returns", properties = {
+            @ExtensionProperty(name = "x-orn-@id", value = "x-orn:ModelId")
+        })
+            }
+    )
+    @org.jaqpot.core.service.annotations.Task
+    public Response storePretrained(
+            PretrainedModel pretrainedModelRequest,
+            @HeaderParam("Authorization") String api_key) throws GeneralSecurityException, QuotaExceededException, ParameterIsNullException, ParameterInvalidURIException {
+        String[] apiA = api_key.split("\\s+");
+        String apiKey = apiA[1];
+
+        User user = userHandler.find(securityContext.getUserPrincipal().getName());
+
+        long modelCount = modelHandler.countAllOfCreator(user.getId());
+        int maxAllowedModels = new UserFacade(user).getMaxModels();
+
+        if (modelCount > maxAllowedModels) {
+            LOG.info(String.format("User %s has %d models while maximum is %d",
+                    user.getId(), modelCount, maxAllowedModels));
+            throw new QuotaExceededException("Dear " + user.getId()
+                    + ", your quota has been exceeded; you already have " + modelCount + " models. "
+                    + "No more than " + maxAllowedModels + " are allowed with your subscription.");
+        }
+
+//        TrainingResponse trainingResponse = serializer.parse(responseStream, TrainingResponse.class);
+        Model model = new Model();
+        model.setId(randomStringGenerator.nextString(20));
+        model.setActualModel(pretrainedModelRequest.getRawModel());
+        model.setPmmlModel(pretrainedModelRequest.getPmmlModel());
+
+        model.setImplementedIn(pretrainedModelRequest.getImplementedIn().get(0));
+        model.setImplementedWith(pretrainedModelRequest.getImplementedWith().get(0));
+
+        String implementedIn = pretrainedModelRequest.getImplementedIn().get(0);
+        String algoId = implementedIn + "-pretrained";
+        Algorithm algo = algoHandler.find(algoId);
+        model.setAlgorithm(algo);
+
+        MetaInfo mf = new MetaInfo();
+        Set<String> titles = new HashSet();
+        Set<String> descriptions = new HashSet();
+        Set<String> creators = new HashSet();
+        creators.add(user.getId());
+        if (pretrainedModelRequest.getTitle().get(0) != null) {
+            titles.add(pretrainedModelRequest.getTitle().get(0));
+        }
+        if (pretrainedModelRequest.getDiscription().get(0) != null) {
+            descriptions.add(pretrainedModelRequest.getDiscription().get(0));
+        }
+
+        mf.setTitles(titles);
+        mf.setDescriptions(descriptions);
+        mf.setCreators(creators);
+        model.setMeta(mf);
+
+        List<String> pretrainedIndependentFeatures = new ArrayList();
+
+        pretrainedModelRequest.getIndependentFeatures().forEach(indf -> {
+            String linkedFeatID = randomStringGenerator.nextString(12);
+            Feature pretrainedIndF = new Feature();
+            pretrainedIndF.setId(linkedFeatID);
+            pretrainedIndF.setVisible(Boolean.TRUE);
+            MetaInfo featMetaInf = new MetaInfo();
+            featMetaInf.setCreators(creators);
+            Set<String> featDescr = new HashSet();
+            featDescr.add("Feature created to link to independent feature of model " + model.getId());
+            featMetaInf.setDescriptions(featDescr);
+            Set<String> hasSources = new HashSet();
+            hasSources.add("model/" + model.getId());
+            featMetaInf.setHasSources(hasSources);
+            Set<String> featTitles = new HashSet();
+            featTitles.add(indf);
+            featMetaInf.setTitles(featTitles);
+            pretrainedIndF.setMeta(featMetaInf);
+            pretrainedIndF.setFromPretrained(Boolean.TRUE);
+            pretrainedIndF.setActualIndependentFeatureName(indf);
+
+            featureHandler.create(pretrainedIndF);
+            pretrainedIndependentFeatures.add("/jaqpot/services/feature/" + linkedFeatID);
+        });
+        model.setIndependentFeatures(pretrainedIndependentFeatures);
+
+        List<String> pretrainedDependentFeatures = new ArrayList();
+
+        pretrainedModelRequest.getDependentFeatures().forEach(depenf -> {
+            String linkedFeatID = randomStringGenerator.nextString(12);
+            Feature pretrainedDepF = new Feature();
+            pretrainedDepF.setId(linkedFeatID);
+            pretrainedDepF.setVisible(Boolean.TRUE);
+            MetaInfo featMetaInf = new MetaInfo();
+            featMetaInf.setCreators(creators);
+            Set<String> featDescr = new HashSet();
+            featDescr.add("Feature created to link to independent feature of model " + model.getId());
+            featMetaInf.setDescriptions(featDescr);
+            Set<String> hasSources = new HashSet();
+            hasSources.add("model/" + model.getId());
+            featMetaInf.setHasSources(hasSources);
+            Set<String> featTitles = new HashSet();
+            featTitles.add(depenf);
+            featMetaInf.setTitles(featTitles);
+            pretrainedDepF.setMeta(featMetaInf);
+            pretrainedDepF.setFromPretrained(Boolean.TRUE);
+            pretrainedDepF.setActualIndependentFeatureName(depenf);
+
+            featureHandler.create(pretrainedDepF);
+            pretrainedDependentFeatures.add("/jaqpot/services/feature/" + linkedFeatID);
+        });
+
+        model.setDependentFeatures(pretrainedDependentFeatures);
+
+        List<String> pretrainedPredictedFeatures = new ArrayList<>();
+        for (String featureTitle : pretrainedModelRequest.getPredictedFeatures()) {
+            Feature predictionFeatureResource = featureHandler.find(featureTitle);
+            if (predictionFeatureResource == null) {
+                String predFeatID = randomStringGenerator.nextString(12);
+                predictionFeatureResource = new Feature();
+                predictionFeatureResource.setId(predFeatID);
+
+                predictionFeatureResource.setMeta(MetaInfoBuilder
+                        .builder()
+                        .addSources(/*messageBody.get("base_uri") + */"model/" + model.getId())
+                        .addComments("Feature created to hold predictions for model with ID " + model.getId())
+                        .addTitles(featureTitle)
+                        //                        .addSeeAlso(predictionFeature)
+                        .addCreators(user.getId())
+                        .build());
+                /* Create feature */
+                predictionFeatureResource.setActualIndependentFeatureName(featureTitle);
+                predictionFeatureResource.setFromPretrained(Boolean.TRUE);
+                featureHandler.create(predictionFeatureResource);
+            }
+            pretrainedPredictedFeatures.add("/jaqpot/services/feature/" + predictionFeatureResource.getId());
+        }
+        model.setPredictedFeatures(pretrainedPredictedFeatures);
+        model.setPretrained(Boolean.TRUE);
+
+        modelHandler.create(model);
+
+        ModelId mi = new ModelId();
+        mi.setModelId(model.getId());
+        return Response.ok(mi).build();
     }
 
     @DELETE
@@ -513,21 +745,26 @@ public class ModelResource {
             + "valid token or do not have sufficient priviledges will not be able to delete Models using this method.",
             extensions = {
                 @Extension(properties = {
-                    @ExtensionProperty(name = "orn-@type", value = "x-orn:DeleteJaqpotModel"),
-                    }
-                ),
-                @Extension(name = "orn:expects",properties={
-                    @ExtensionProperty(name = "x-orn-@id", value = "x-orn:AcessToken"),
+            @ExtensionProperty(name = "orn-@type", value = "x-orn:DeleteJaqpotModel"),}
+                )
+                ,
+                @Extension(name = "orn:expects", properties = {
+            @ExtensionProperty(name = "x-orn-@id", value = "x-orn:AcessToken")
+            ,
                     @ExtensionProperty(name = "x-orn-@id", value = "x-orn:JaqpotModelId")
-                }),
-                @Extension(name = "orn:returns",properties={
-                    @ExtensionProperty(name = "x-orn-@id", value = "x-orn:HttpStatus")
-                })
+        })
+                ,
+                @Extension(name = "orn:returns", properties = {
+            @ExtensionProperty(name = "x-orn-@id", value = "x-orn:HttpStatus")
+        })
             })
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Model entry was deleted successfully (if found)."),
-        @ApiResponse(code = 401, message = "You are not authorized to delete this resource"),
-        @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)"),
+        @ApiResponse(code = 200, message = "Model entry was deleted successfully (if found).")
+        ,
+        @ApiResponse(code = 401, message = "You are not authorized to delete this resource")
+        ,
+        @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)")
+        ,
         @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
     })
     public Response deleteModel(
@@ -542,9 +779,9 @@ public class ModelResource {
         }
 
         MetaInfo metaInfo = model.getMeta();
-        if (metaInfo.getLocked())
+        if (metaInfo.getLocked()) {
             throw new JaqpotForbiddenException("You cannot delete a Model that is locked.");
-
+        }
 
         String userName = securityContext.getUserPrincipal().getName();
         if (!model.getMeta().getCreators().contains(userName)) {
@@ -573,5 +810,48 @@ public class ModelResource {
             }
         }
         return model.getIndependentFeatures();
+    }
+
+    @GET
+    @TokenSecured({RoleEnum.DEFAULT_USER})
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/{id}/dataset")
+    @ApiOperation(value = "Gets a dataset of a Model",
+            notes = "Geth the dataset of a model upon the criteria given",
+            response = Dataset.class)
+    public Response getModelDataset(
+            @PathParam("id") String id,
+            @ApiParam(value = "description for the dataset", required = true, allowableValues = "TRAINEDUPON,ALLEMPTY,EMPTYPREDICTION") @QueryParam("modeldataset") String modeldataset,
+            @HeaderParam("Authorization") String api_key) {
+        String[] apiA = api_key.split("\\s+");
+        String apiKey = apiA[1];
+        Model model = modelHandler.find(id);
+        if (model == null) {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+
+        Dataset dataset = new Dataset();
+
+        switch (modeldataset) {
+            case "TRAINEDUPON":
+                if (model.getDatasetUri() != null) {
+                    String uri = model.getDatasetUri();
+                    String[] urisplitted = uri.split("/");
+                    String dataset_id = urisplitted[urisplitted.length - 1];
+                    dataset = datasetHandler.find(dataset_id);
+                    if(dataset == null){
+                        throw new NotFoundException(String.format("Dataset with id %s"
+                                + " not found. Please contact admins", dataset_id));
+                    }
+                } else {
+                    throw new BadRequestException("The specific model does not have a"
+                            + " dataset trained upon. Propably a pretrained or a live model");
+                }
+                break;
+            case "ALLEMPTY":
+                model.getDependentFeatures();
+        }
+
+        return Response.status(Response.Status.OK).entity(dataset).build();
     }
 }

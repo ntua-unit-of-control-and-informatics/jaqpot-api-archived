@@ -42,7 +42,7 @@ import org.jaqpot.core.model.builder.MetaInfoBuilder;
 import org.jaqpot.core.model.dto.dataset.DataEntry;
 import org.jaqpot.core.model.dto.dataset.Dataset;
 import org.jaqpot.core.model.dto.dataset.FeatureInfo;
-import org.jaqpot.core.model.dto.dataset.Substance;
+import org.jaqpot.core.model.dto.dataset.EntryId;
 import org.jaqpot.core.model.util.ROG;
 
 /**
@@ -58,10 +58,10 @@ public class DatasetFactory {
                 .mapToObj(i -> {
                     DataEntry de = new DataEntry();
                     de.setValues(new TreeMap<>());
-                    Substance s = new Substance();
+                    EntryId s = new EntryId();
                     s.setName(Integer.toString(i));
                     s.setURI("/substance/" + i);
-                    de.setCompound(s);
+                    de.setEntryId(s);
                     return de;
                 }).collect(Collectors.toList());
         dataset.setDataEntry(dataEntries);
@@ -84,10 +84,10 @@ public class DatasetFactory {
                 .mapToObj(i -> {
                     DataEntry de = new DataEntry();
                     de.setValues(new TreeMap<>());
-                    Substance s = new Substance();
+                    EntryId s = new EntryId();
                     s.setName(Integer.toString(i));
                     s.setURI("/substance/" + i);
-                    de.setCompound(s);
+                    de.setEntryId(s);
                     return de;
                 }).collect(Collectors.toList());
         dataset.setDataEntry(dataEntries);
@@ -102,7 +102,7 @@ public class DatasetFactory {
                 .parallelStream()
                 .map(dataEntry -> {
                     DataEntry newEntry = new DataEntry();
-                    newEntry.setCompound(dataEntry.getCompound());
+                    newEntry.setEntryId(dataEntry.getEntryId());
                     newEntry.setValues(new TreeMap<>(dataEntry.getValues()));
                     return newEntry;
                 })
@@ -128,7 +128,7 @@ public class DatasetFactory {
                 .limit(rowMax)
                 .map(dataEntry -> {
                     DataEntry newEntry = new DataEntry();
-                    newEntry.setCompound(dataEntry.getCompound());
+                    newEntry.setEntryId(dataEntry.getEntryId());
                     newEntry.setValues(new TreeMap<>(dataEntry.getValues()));
                     return newEntry;
                 })
@@ -152,7 +152,7 @@ public class DatasetFactory {
                 .parallelStream()
                 .map(dataEntry -> {
                     DataEntry newEntry = new DataEntry();
-                    newEntry.setCompound(dataEntry.getCompound());
+                    newEntry.setEntryId(dataEntry.getEntryId());
                     TreeMap<String, Object> values = new TreeMap<>();
                     dataEntry.getValues()
                             .keySet()

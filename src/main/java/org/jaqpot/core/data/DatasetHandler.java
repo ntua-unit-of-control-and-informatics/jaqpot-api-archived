@@ -78,7 +78,7 @@ public class DatasetHandler extends AbstractHandler<Dataset> {
             HashSet<String> entryFeatures = new HashSet<>(dataEntry.getValues().keySet());
             if (!entryFeatures.equals(features)) {
                 throw new IllegalArgumentException("Invalid Dataset - DataEntry URIs do not match with Feature URIs. "
-                        + " Problem was found when parsing " + dataEntry.getCompound());
+                        + " Problem was found when parsing " + dataEntry.getEntryId());
             }
         }
         dataset.setTotalRows(dataset.getDataEntry().size());
@@ -105,7 +105,7 @@ public class DatasetHandler extends AbstractHandler<Dataset> {
             HashSet<String> entryFeatures = new HashSet<>(dataEntry.getValues().keySet());
             if (!entryFeatures.equals(features)) {
                 throw new IllegalArgumentException("Invalid Dataset - DataEntry URIs do not match with Feature URIs. "
-                        + " Problem was found when parsing " + dataEntry.getCompound() + "On dataset" + dataset.getId());
+                        + " Problem was found when parsing " + dataEntry.getEntryId() + "On dataset" + dataset.getId());
             }
         }
         getEntityManager().merge(dataset);
@@ -175,8 +175,8 @@ public class DatasetHandler extends AbstractHandler<Dataset> {
                 it.next();
                 it.remove();
             }
-            if (de.getCompound().getName() == null) {
-                de.getCompound().setName(Integer.toString(j+1));
+            if (de.getEntryId().getName() == null) {
+                de.getEntryId().setName(Integer.toString(j+1));
             }
         }
 //        DataEntry blank = new DataEntry();

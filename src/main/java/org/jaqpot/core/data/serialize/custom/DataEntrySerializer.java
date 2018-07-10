@@ -52,7 +52,7 @@ public class DataEntrySerializer extends JsonSerializer<DataEntry> {
     @Override
     public void serialize(DataEntry value, JsonGenerator gen, SerializerProvider serializers) throws IOException, JsonProcessingException {
         gen.writeStartObject();
-        gen.writeObjectField("compound", value.getCompound());
+        gen.writeObjectField("entryId", value.getEntryId());
         gen.writeObjectFieldStart("values");
         for (Entry<String, Object> entry : value.getValues().entrySet()) {
             gen.writeObjectField(entry.getKey().replaceAll("\\.", "\\(DOT\\)"), entry.getValue());

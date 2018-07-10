@@ -1,7 +1,7 @@
 package org.jaqpot.core.service.client.ambit.mapper;
 
 import org.jaqpot.core.model.dto.bundle.BundleData;
-import org.jaqpot.core.model.dto.dataset.Substance;
+import org.jaqpot.core.model.dto.dataset.EntryId;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
@@ -15,7 +15,7 @@ public interface BundleDataMapper {
 
     BundleData bundleDataToBundleData (org.jaqpot.ambitclient.model.BundleData bundleData);
 
-    Substance substanceToSubstance (org.jaqpot.ambitclient.model.dataset.Substance Substance);
+    EntryId substanceToSubstance (org.jaqpot.ambitclient.model.dataset.Substance Substance);
 
 }
 

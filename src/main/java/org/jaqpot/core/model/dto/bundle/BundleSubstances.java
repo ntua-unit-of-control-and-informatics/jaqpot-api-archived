@@ -7,7 +7,7 @@ package org.jaqpot.core.model.dto.bundle;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.List;
-import org.jaqpot.core.model.dto.dataset.Substance;
+import org.jaqpot.core.model.dto.dataset.EntryId;
 
 /**
  *
@@ -18,13 +18,13 @@ import org.jaqpot.core.model.dto.dataset.Substance;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class BundleSubstances {
 
-    List<Substance> substance;
+    List<EntryId> substance;
 
-    public List<Substance> getSubstance() {
+    public List<EntryId> getSubstance() {
         return substance;
     }
 
-    public void setSubstance(List<Substance> substance) {
+    public void setSubstance(List<EntryId> substance) {
         this.substance = substance;
     }
 
