@@ -114,11 +114,21 @@ public class ExternalValidationProcedure extends AbstractJaqpotProcedure {
             progress(10f, "Model retrieved successfully.");
             checkCancelled();
 
-            Dataset dataset = Optional.of(client.target(dataset_uri)
-                    .request()
-                    .accept(MediaType.APPLICATION_JSON)
-                    .header("Authorization", "Bearer " + apiKey)
-                    .get(Dataset.class)).orElseThrow(() -> new NotFoundException("Dataset with URI:" + dataset_uri + " was not found."));
+            Dataset dataset = null;
+            if (dataset_uri != null && !dataset_uri.isEmpty()) {
+                progress("Attempting to download dataset...");
+                try{
+                    dataset = client.target(dataset_uri)
+                        .request()
+                        .header("Authorization", "Bearer " + apiKey)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .get(Dataset.class);
+                }catch(NotFoundException e){
+                    String[] splitted = dataset_uri.split("/");
+                    dataset = datasetHandler.find(splitted[splitted.length -1]);
+                }
+                dataset.setDatasetURI(dataset_uri);
+            }
             progress(10f, "Dataset retrieved successfully.");
             checkCancelled();
 

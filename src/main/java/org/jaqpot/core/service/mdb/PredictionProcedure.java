@@ -71,6 +71,7 @@ import java.util.logging.Logger;
 import javax.ejb.EJBTransactionRolledbackException;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
+import javax.ws.rs.NotFoundException;
 
 /**
  * @author Angelos Valsamis
@@ -156,11 +157,16 @@ public class PredictionProcedure extends AbstractJaqpotProcedure implements Mess
             Dataset dataset;
             if (dataset_uri != null && !dataset_uri.isEmpty()) {
                 progress("Attempting to download dataset...");
-                dataset = client.target(dataset_uri)
+                try{
+                    dataset = client.target(dataset_uri)
                         .request()
                         .header("Authorization", "Bearer " + apiKey)
                         .accept(MediaType.APPLICATION_JSON)
                         .get(Dataset.class);
+                }catch(NotFoundException e){
+                    String[] splitted = dataset_uri.split("/");
+                    dataset = datasetHandler.find(splitted[splitted.length -1]);
+                }
                 dataset.setDatasetURI(dataset_uri);
                 progress("Dataset has been retrieved.");
             } else {

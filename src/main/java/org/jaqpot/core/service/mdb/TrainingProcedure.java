@@ -70,6 +70,7 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.NotFoundException;
+import org.jaqpot.core.data.DatasetHandler;
 
 /**
  * @author Charalampos Chomenidis
@@ -93,6 +94,9 @@ public class TrainingProcedure extends AbstractJaqpotProcedure implements Messag
 
     @EJB
     ModelHandler modelHandler;
+    
+    @EJB
+    DatasetHandler datasetHandler;
 
     @Inject
     @Jackson
@@ -155,11 +159,17 @@ public class TrainingProcedure extends AbstractJaqpotProcedure implements Messag
             if (dataset_uri != null && !dataset_uri.isEmpty()) {
                 progress("Training dataset URI is:" + dataset_uri,
                         "Attempting to download dataset...");
-                dataset = client.target(dataset_uri)
+                try{
+                    dataset = client.target(dataset_uri)
                         .request()
                         .header("Authorization", "Bearer " + apiKey)
                         .accept(MediaType.APPLICATION_JSON)
                         .get(Dataset.class);
+                }catch(NotFoundException e){
+                    String[] splitted = dataset_uri.split("/");
+                    dataset = datasetHandler.find(splitted[splitted.length -1]);
+                }
+                
                 dataset.setDatasetURI(dataset_uri);
                 progress("Dataset has been retrieved.");
             }

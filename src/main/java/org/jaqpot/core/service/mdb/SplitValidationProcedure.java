@@ -31,6 +31,7 @@ import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.jaqpot.core.data.DatasetHandler;
 
 /**
  *
@@ -42,7 +43,8 @@ import java.util.logging.Logger;
  */
 @MessageDriven(activationConfig = {
     @ActivationConfigProperty(propertyName = "destinationLookup",
-            propertyValue = "java:jboss/exported/jms/topic/validationSplit"),
+            propertyValue = "java:jboss/exported/jms/topic/validationSplit")
+    ,
     @ActivationConfigProperty(propertyName = "destinationType",
             propertyValue = "javax.jms.Topic")
 })
@@ -55,7 +57,10 @@ public class SplitValidationProcedure extends AbstractJaqpotProcedure {
 
     @EJB
     ReportHandler reportHandler;
-
+    
+    @EJB
+    DatasetHandler datasetHandler;
+    
     @Inject
     @Jackson
     JSONSerializer serializer;
@@ -108,24 +113,36 @@ public class SplitValidationProcedure extends AbstractJaqpotProcedure {
             start(Task.Type.VALIDATION);
 
             progress(1f, "Split validation procedure initiated.");
+            Algorithm algorithm = null;
 
-            Algorithm algorithm = Optional.of(client.target(algorithmURI)
-                    .request()
-                    .accept(MediaType.APPLICATION_JSON)
-                    .header("Authorization", "Bearer " + apiKey)
-                    .get(Algorithm.class)).orElseThrow(() -> new NotFoundException("Algorithm with URI:" + algorithmURI + " was not found."));
+            try {
+                algorithm = client.target(algorithmURI)
+                        .request()
+                        .accept(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + apiKey)
+                        .get(Algorithm.class);
+            } catch (NotFoundException e) {
+                String[] algoUriS = algorithmURI.split("/");
+                algorithm = algorithmHandler.find(algoUriS[algoUriS.length - 1]);
+            }
 
             progress(5f, "Algorithm retrieved successfully.");
             checkCancelled();
 
-            Dataset dataset = Optional.of(client.target(datasetURI)
+            Dataset dataset = null;
+            try{
+                dataset = client.target(datasetURI)
                     .queryParam("stratify", stratify)
                     .queryParam("splitRatio", splitRatio)
                     .queryParam("seed", seed)
                     .request()
                     .accept(MediaType.APPLICATION_JSON)
                     .header("Authorization", "Bearer " + apiKey)
-                    .get(Dataset.class)).orElseThrow(() -> new NotFoundException("Dataset with URI:" + datasetURI + " was not found."));
+                    .get(Dataset.class);
+            }catch(NotFoundException e){
+                String[] datasetSlit = datasetURI.split("/");
+                dataset = datasetHandler.find(datasetSlit[datasetSlit.length - 1], null, null, null, null, stratify, seed.longValue(), null, null);
+            }
             progress(10f, "Dataset retrieved successfully.");
             checkCancelled();
 

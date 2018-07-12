@@ -66,6 +66,7 @@ import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.jaqpot.core.data.DatasetHandler;
 
 /**
  * @author Charalampos Chomenidis
@@ -89,6 +90,9 @@ public class CrossValidationProcedure extends AbstractJaqpotProcedure {
     @EJB
     ReportHandler reportHandler;
 
+    @EJB
+    DatasetHandler datasetHandler;
+    
     @Inject
     @Jackson
     JSONSerializer serializer;
@@ -141,25 +145,40 @@ public class CrossValidationProcedure extends AbstractJaqpotProcedure {
             checkCancelled();
             start(Task.Type.VALIDATION);
 
-            Algorithm algorithm = Optional.of(client.target(algorithmURI)
-                    .request()
-                    .accept(MediaType.APPLICATION_JSON)
-                    .header("Authorization", "Bearer " + apiKey)
-                    .get(Algorithm.class)).orElseThrow(() -> new NotFoundException("Algorithm with URI:" + algorithmURI + " was not found."));
+            Algorithm algorithm = null;
+
+            try {
+                algorithm = client.target(algorithmURI)
+                        .request()
+                        .accept(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + apiKey)
+                        .get(Algorithm.class);
+            } catch (NotFoundException e) {
+                String[] algoUriS = algorithmURI.split("/");
+                algorithm = algorithmHandler.find(algoUriS[algoUriS.length - 1]);
+            }
 
             progress(5f, "Algorithm retrieved successfully.");
             checkCancelled();
 
-            Dataset dataset = Optional.of(client.target(datasetURI)
-                    .queryParam("stratify", stratify)
-                    .queryParam("folds", folds)
-                    .queryParam("seed", seed)
-                    .request()
-                    .accept(MediaType.APPLICATION_JSON)
-                    .header("Authorization", "Bearer " + apiKey)
-                    .get(Dataset.class)).orElseThrow(() -> new NotFoundException("Dataset with URI:" + datasetURI + " was not found."));
-            progress(10f, "Dataset retrieved successfully.");
-            checkCancelled();
+            Dataset dataset = null;
+            if (datasetURI != null && !datasetURI.isEmpty()) {
+                progress("Attempting to download dataset...");
+                try{
+                    dataset = client.target(datasetURI)
+                        .request()
+                        .header("Authorization", "Bearer " + apiKey)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .get(Dataset.class);
+                }catch(NotFoundException e){
+                    String[] datasetSlit = datasetURI.split("/");
+                    dataset = datasetHandler.find(datasetSlit[datasetSlit.length - 1], null, null, null, null, stratify, seed.longValue(), null, null);
+                }
+                dataset.setDatasetURI(datasetURI);
+                progress(10f, "Dataset retrieved successfully.");
+            }
+            
+            
 
             LinkedHashMap<String, String> transformations = new LinkedHashMap<>();
             List<Algorithm> transformationAlgorithms = new ArrayList<>();
