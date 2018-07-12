@@ -93,18 +93,28 @@ public class TokenRequestFilter implements ContainerRequestFilter, Serializable 
             String authorizationHeader
                     = requestContext.getHeaderString(HttpHeaders.AUTHORIZATION);
             String[] apiA = authorizationHeader.split("\\s+");
+
             api_key = apiA[1];
 //            api_key = api_key.substring(1, api_key.length() - 1);
             aaService.validateAccessToken(api_key);
             this.validateRole(api_key, resourceMethod);
             this.handleSecurityContext(api_key, requestContext);
-            
+
+        } catch (NullPointerException e) {
+            ErrorReport error = new ErrorReport();
+            error.setCode("Authorization header not provided. Please provide header and token");
+            error.setMessage("Authorization header not provided. Please provide header and token");
+            error.setHttpStatus(401);
+            error.setDetails(Arrays.toString(e.getStackTrace()));
+            requestContext.abortWith(Response
+                    .status(Response.Status.UNAUTHORIZED).entity(error)
+                    .build());
         } catch (JaqpotNotAuthorizedException e) {
             ErrorReport error = e.getError();
             requestContext.abortWith(Response
                     .status(Response.Status.UNAUTHORIZED).entity(error)
                     .build());
-        } 
+        }
 
     }
 
@@ -122,10 +132,10 @@ public class TokenRequestFilter implements ContainerRequestFilter, Serializable 
             }
         }
     }
-    
-    public void validateRole(String api_key, Method resourceMethod) throws JaqpotNotAuthorizedException{
+
+    public void validateRole(String api_key, Method resourceMethod) throws JaqpotNotAuthorizedException {
         List<RoleEnum> role = this.extractRoles(resourceMethod);
-        if(role.contains(RoleEnum.ADMNISTRATOR) && !aaService.isAdmin(api_key)){
+        if (role.contains(RoleEnum.ADMNISTRATOR) && !aaService.isAdmin(api_key)) {
             throw new JaqpotNotAuthorizedException("Only admins have access");
         }
     }
@@ -136,5 +146,5 @@ public class TokenRequestFilter implements ContainerRequestFilter, Serializable 
         SecurityContext securityContext = new SecurityContextImpl(userPrincipal);
         requestContext.setSecurityContext(securityContext);
     }
-    
+
 }

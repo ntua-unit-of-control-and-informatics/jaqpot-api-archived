@@ -6,7 +6,12 @@ EXPOSE 8080
 EXPOSE 9990
 
 COPY certs/login.jaqpot.org.cer $JAVA_HOME/jre/lib/security
+COPY certs/api.jaqpot.org.cer $JAVA_HOME/jre/lib/security
 COPY certs/*.prod.openrisknet.org.cer $JAVA_HOME/jre/lib/security
+
+RUN \
+    cd $JAVA_HOME/jre/lib/security \
+    && keytool -keystore cacerts -storepass changeit -noprompt -trustcacerts -importcert -alias apijaqpot -file api.jaqpot.org.cer
 
 RUN \
     cd $JAVA_HOME/jre/lib/security \

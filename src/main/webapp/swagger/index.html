@@ -120,7 +120,7 @@
       });
 
       // This function executed on load and fetches a guest's token
-      $.post("/jaqpot/services/aa/login/swag", {username: "guest", password: "guest"}).
+      $.post("/jaqpot/services/aa/login", {username: "guest", password: "guest"}).
       done(function (data) {
         document.getElementById("input_apiKey").value = (data.authToken);
         swaggerUi.api.clientAuthorizations.add("key", new SwaggerClient.ApiKeyAuthorization("Authorization", "Bearer " + data.authToken, "header"));
