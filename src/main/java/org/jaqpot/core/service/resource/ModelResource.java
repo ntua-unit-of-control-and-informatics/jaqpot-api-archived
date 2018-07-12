@@ -63,7 +63,7 @@ import org.jaqpot.core.model.factory.ErrorReportFactory;
 import org.jaqpot.core.service.annotations.Authorize;
 import org.jaqpot.core.service.annotations.TokenSecured;
 import org.jaqpot.core.service.annotations.UnSecure;
-import org.jaqpot.core.service.authenitcation.RoleEnum;
+import org.jaqpot.core.service.authentication.RoleEnum;
 import org.jaqpot.core.service.data.PredictionService;
 import org.jaqpot.core.service.exceptions.JaqpotForbiddenException;
 import org.jaqpot.core.service.exceptions.parameter.ParameterInvalidURIException;

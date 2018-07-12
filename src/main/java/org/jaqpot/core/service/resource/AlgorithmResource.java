@@ -70,7 +70,7 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.jaqpot.core.service.annotations.TokenSecured;
-import org.jaqpot.core.service.authenitcation.RoleEnum;
+import org.jaqpot.core.service.authentication.RoleEnum;
 
 /**
  *

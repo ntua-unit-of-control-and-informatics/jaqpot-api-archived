@@ -14,7 +14,7 @@ import org.jaqpot.core.model.builder.MetaInfoBuilder;
 import org.jaqpot.core.model.dto.dataset.Dataset;
 
 import org.jaqpot.core.service.annotations.UnSecure;
-import org.jaqpot.core.service.authenitcation.AAService;
+import org.jaqpot.core.service.authentication.AAService;
 import org.jaqpot.core.service.data.ConjoinerService;
 
 import javax.annotation.Resource;

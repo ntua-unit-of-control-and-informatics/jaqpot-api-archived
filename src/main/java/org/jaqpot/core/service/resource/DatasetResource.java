@@ -87,7 +87,7 @@ import org.jaqpot.core.properties.PropertyManager;
 import org.jaqpot.core.service.annotations.Authorize;
 import org.jaqpot.core.service.annotations.TokenSecured;
 import org.jaqpot.core.service.annotations.UnSecure;
-import org.jaqpot.core.service.authenitcation.RoleEnum;
+import org.jaqpot.core.service.authentication.RoleEnum;
 import org.jaqpot.core.service.client.ambit.Ambit;
 import org.jaqpot.core.service.client.jpdi.JPDIClient;
 import org.jaqpot.core.service.exceptions.JaqpotForbiddenException;

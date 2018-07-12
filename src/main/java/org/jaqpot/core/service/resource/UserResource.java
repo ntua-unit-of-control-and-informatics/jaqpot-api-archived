@@ -48,7 +48,7 @@ import javax.ws.rs.core.SecurityContext;
 import java.util.Arrays;
 import java.util.List;
 import org.jaqpot.core.service.annotations.TokenSecured;
-import org.jaqpot.core.service.authenitcation.RoleEnum;
+import org.jaqpot.core.service.authentication.RoleEnum;
 
 /**
  *

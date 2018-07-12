@@ -60,7 +60,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import org.jaqpot.core.service.annotations.TokenSecured;
-import org.jaqpot.core.service.authenitcation.RoleEnum;
+import org.jaqpot.core.service.authentication.RoleEnum;
 
 /**
  *

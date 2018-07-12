@@ -58,7 +58,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.jaqpot.core.properties.PropertyManager;
 import org.jaqpot.core.service.annotations.TokenSecured;
-import org.jaqpot.core.service.authenitcation.RoleEnum;
+import org.jaqpot.core.service.authentication.RoleEnum;
 import org.jaqpot.core.service.httphandlers.SwaggerLdHandler;
 import org.jaqpot.core.service.mdb.TrainingProcedure;
 
