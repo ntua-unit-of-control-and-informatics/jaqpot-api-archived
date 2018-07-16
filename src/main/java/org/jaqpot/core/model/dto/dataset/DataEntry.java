@@ -52,8 +52,8 @@ public class DataEntry {
         return entryId;
     }
 
-    public void setEntryId(EntryId compound) {
-        this.entryId = compound;
+    public void setEntryId(EntryId entryId) {
+        this.entryId = entryId;
     }
 
     public Map<String, Object> getValues() {

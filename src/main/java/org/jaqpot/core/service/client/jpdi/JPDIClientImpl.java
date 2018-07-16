@@ -337,8 +337,8 @@ public class JPDIClientImpl implements JPDIClient {
         PredictionRequest predictionRequest = new PredictionRequest();
         predictionRequest.setDataset(dataset);
         predictionRequest.setRawModel(model.getActualModel());
-        predictionRequest.setAdditionalInfo(model.getAdditionalInfo());
-
+        predictionRequest.setAdditionalInfo(model.getAdditionalInfo());        
+        
         final HttpPost request = new HttpPost(model.getAlgorithm().getPredictionService());
         request.addHeader("Accept", "application/json");
         request.addHeader("Content-Type", "application/json");
@@ -372,16 +372,25 @@ public class JPDIClientImpl implements JPDIClient {
                                 if (dataset.getDataEntry().isEmpty()) {
                                     DatasetFactory.addEmptyRows(dataset, predictions.size());
                                 }
-                                List<Feature> features = featureHandler.findBySource("algorithm/" + model.getAlgorithm().getId());
+                                List<String> depFeats = model.getPredictedFeatures();
+                                List<Feature> features = new ArrayList();
+                                depFeats.forEach((String feat) -> {
+                                    String[] splF = feat.split("/");
+                                    String id = splF[splF.length - 1];
+                                    features.add(featureHandler.find(id));
+                                });
+                                
+//                                features = featureHandler.findBySource("algorithm/" + model.getAlgorithm().getId());
                                 IntStream.range(0, dataset.getDataEntry().size())
                                         // .parallel()
                                         .forEach(i -> {
                                             Map<String, Object> row = predictions.get(i);
                                             DataEntry dataEntry = dataset.getDataEntry().get(i);
                                             if (model.getAlgorithm().getOntologicalClasses().contains("ot:Scaling")
-                                                    || model.getAlgorithm().getOntologicalClasses().contains("ot:Transformation")) {
+                                                     || model.getAlgorithm().getOntologicalClasses().contains("ot:Transformation")) {
                                                 dataEntry.getValues().clear();
                                                 dataset.getFeatures().clear();
+                                                
                                             }
                                             row.entrySet()
                                                     .stream()

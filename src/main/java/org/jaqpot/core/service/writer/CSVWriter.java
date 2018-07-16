@@ -79,7 +79,7 @@ public class CSVWriter implements MessageBodyWriter<JaqpotEntity> {
         Dataset dataset = (Dataset) entity;
 
         Set<String> attributes = dataset.getDataEntry().get(0).getValues().keySet();
-        String headers = "\"Substance\"," + attributes.stream()
+        String headers = "\"EntryId\"," + attributes.stream()
                 .map(a -> "\"" + dataset.getFeatures().stream()
                         .filter(f -> f.getURI().equals(a))
                         .findFirst()

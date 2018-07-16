@@ -60,46 +60,46 @@ public class AAResource {
     @EJB
     AAService aaService;
 
-    @POST
-    @Path("/login")
-    @Consumes({"application/x-www-form-urlencoded", MediaType.APPLICATION_FORM_URLENCODED})
-    @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
-    @ApiOperation(
-            value = "Creates Security Token",
-            response = AuthToken.class,
-            notes = "Uses OpenAM server to get a security token.",
-            extensions = {
-                @Extension(properties = {
-            @ExtensionProperty(name = "orn-@type", value = "x-orn:Authentication"),}
-                )
-                ,
-                @Extension(name = "orn:expects", properties = {
-            @ExtensionProperty(name = "x-orn-@id", value = "x-orn:Credentials")
-        })
-                ,
-                @Extension(name = "orn:returns", properties = {
-            @ExtensionProperty(name = "x-orn-@id", value = "x-orn:AccessToken")
-        })
-            }
-    )
-    @ApiResponses(value = {
-        @ApiResponse(code = 401, response = ErrorReport.class, message = "Wrong, missing or insufficient credentials. Error report is produced.")
-        ,        @ApiResponse(code = 200, response = AccessToken.class, message = "Logged in - authentication token can be found in the response body (in JSON)")
-        ,
-        @ApiResponse(code = 200, response = AuthToken.class, message = "Successfully log in")
-        ,
-        @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
-    })
-    public Response login(
-            @ApiParam(value = "Username", required = true) @FormParam("username") String username,
-            @ApiParam(value = "Password", required = true) @FormParam("password") String password) throws JaqpotNotAuthorizedException {
-
-        AccessToken aToken;
-        aToken = aaService.getAccessToken(username, password);
-        return Response.ok(aToken)
-                .status(Response.Status.OK)
-                .build();
-    }
+//    @POST
+//    @Path("/login")
+//    @Consumes({"application/x-www-form-urlencoded", MediaType.APPLICATION_FORM_URLENCODED})
+//    @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
+//    @ApiOperation(
+//            value = "Creates Security Token",
+//            response = AuthToken.class,
+//            notes = "Uses OpenAM server to get a security token.",
+//            extensions = {
+//                @Extension(properties = {
+//            @ExtensionProperty(name = "orn-@type", value = "x-orn:Authentication"),}
+//                )
+//                ,
+//                @Extension(name = "orn:expects", properties = {
+//            @ExtensionProperty(name = "x-orn-@id", value = "x-orn:Credentials")
+//        })
+//                ,
+//                @Extension(name = "orn:returns", properties = {
+//            @ExtensionProperty(name = "x-orn-@id", value = "x-orn:AccessToken")
+//        })
+//            }
+//    )
+//    @ApiResponses(value = {
+//        @ApiResponse(code = 401, response = ErrorReport.class, message = "Wrong, missing or insufficient credentials. Error report is produced.")
+//        ,        @ApiResponse(code = 200, response = AccessToken.class, message = "Logged in - authentication token can be found in the response body (in JSON)")
+//        ,
+//        @ApiResponse(code = 200, response = AuthToken.class, message = "Successfully log in")
+//        ,
+//        @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
+//    })
+//    public Response login(
+//            @ApiParam(value = "Username", required = true) @FormParam("username") String username,
+//            @ApiParam(value = "Password", required = true) @FormParam("password") String password) throws JaqpotNotAuthorizedException {
+//
+//        AccessToken aToken;
+//        aToken = aaService.getAccessToken(username, password);
+//        return Response.ok(aToken)
+//                .status(Response.Status.OK)
+//                .build();
+//    }
 
 //    @POST
 //    @Path("/logout")
@@ -287,7 +287,7 @@ public class AAResource {
     }
 
     @POST
-    @Path("/login/swag")
+    @Path("/login")
     @Produces(MediaType.APPLICATION_JSON)
     public Response swaggerLogin(
             @ApiParam(value = "Username", required = true) @FormParam("username") String username,

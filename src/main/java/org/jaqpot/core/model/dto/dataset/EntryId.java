@@ -80,7 +80,7 @@ public class EntryId {
 
     @Override
     public String toString() {
-        return "Substance{" + "URI=" + URI + '}';
+        return "EntryId{" + "URI=" + URI + '}';
     }
 
 }

@@ -67,8 +67,11 @@ import org.jaqpot.core.model.dto.models.ModelId;
 import org.jaqpot.core.model.dto.models.PretrainedModel;
 import org.jaqpot.core.model.dto.models.QuickPredictionNeeds;
 import org.jaqpot.core.model.facades.UserFacade;
+import org.jaqpot.core.model.factory.DatasetFactory;
 import org.jaqpot.core.model.factory.ErrorReportFactory;
+import org.jaqpot.core.model.factory.FeatureFactory;
 import org.jaqpot.core.model.util.ROG;
+import org.jaqpot.core.properties.PropertyManager;
 import org.jaqpot.core.service.annotations.Authorize;
 import org.jaqpot.core.service.annotations.TokenSecured;
 import org.jaqpot.core.service.annotations.UnSecure;
@@ -117,6 +120,9 @@ public class ModelResource {
 
     @EJB
     AlgorithmHandler algoHandler;
+
+    @EJB
+    PropertyManager propertyManager;
 
     @Context
     SecurityContext securityContext;
@@ -617,6 +623,7 @@ public class ModelResource {
 
 //        TrainingResponse trainingResponse = serializer.parse(responseStream, TrainingResponse.class);
         Model model = new Model();
+
         model.setId(randomStringGenerator.nextString(20));
         model.setActualModel(pretrainedModelRequest.getRawModel());
         model.setPmmlModel(pretrainedModelRequest.getPmmlModel());
@@ -646,6 +653,9 @@ public class ModelResource {
         mf.setCreators(creators);
         model.setMeta(mf);
 
+        HashMap additionalInfo = new HashMap();
+        HashMap independentFeaturesForAdd = new HashMap();
+
         List<String> pretrainedIndependentFeatures = new ArrayList();
 
         pretrainedModelRequest.getIndependentFeatures().forEach(indf -> {
@@ -669,8 +679,11 @@ public class ModelResource {
             pretrainedIndF.setActualIndependentFeatureName(indf);
 
             featureHandler.create(pretrainedIndF);
-            pretrainedIndependentFeatures.add("/jaqpot/services/feature/" + linkedFeatID);
+            String featURI = propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_BASE_SERVICE) + "feature/" + linkedFeatID;
+            pretrainedIndependentFeatures.add(featURI);
+            independentFeaturesForAdd.put(featURI, indf);
         });
+        additionalInfo.put("independentFeatures", independentFeaturesForAdd);
         model.setIndependentFeatures(pretrainedIndependentFeatures);
 
         List<String> pretrainedDependentFeatures = new ArrayList();
@@ -696,11 +709,14 @@ public class ModelResource {
             pretrainedDepF.setActualIndependentFeatureName(depenf);
 
             featureHandler.create(pretrainedDepF);
-            pretrainedDependentFeatures.add("/jaqpot/services/feature/" + linkedFeatID);
+            String depDeatURI = propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_BASE_SERVICE) + "feature/" + linkedFeatID;
+            pretrainedDependentFeatures.add(depDeatURI);
+//            additionalInfo.put(depDeatURI, depenf);
         });
 
         model.setDependentFeatures(pretrainedDependentFeatures);
 
+        HashMap predictedFeaturesForAdd = new HashMap();
         List<String> pretrainedPredictedFeatures = new ArrayList<>();
         for (String featureTitle : pretrainedModelRequest.getPredictedFeatures()) {
             Feature predictionFeatureResource = featureHandler.find(featureTitle);
@@ -722,11 +738,61 @@ public class ModelResource {
                 predictionFeatureResource.setFromPretrained(Boolean.TRUE);
                 featureHandler.create(predictionFeatureResource);
             }
-            pretrainedPredictedFeatures.add("/jaqpot/services/feature/" + predictionFeatureResource.getId());
+            String predictFeat = propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_BASE_SERVICE) + "feature/" + predictionFeatureResource.getId();
+            pretrainedPredictedFeatures.add(predictFeat);
+            predictedFeaturesForAdd.put(predictFeat, featureTitle);
+
         }
+        additionalInfo.put("predictedFeatures", predictedFeaturesForAdd);
+        List<String> m = new ArrayList();
+        model.setLinkedModels(m);
         model.setPredictedFeatures(pretrainedPredictedFeatures);
+        model.setAdditionalInfo(additionalInfo);
         model.setPretrained(Boolean.TRUE);
 
+        Dataset datasetForPretrained = DatasetFactory.createEmpty(0);
+        ROG randomStringGenerator = new ROG(true);
+        datasetForPretrained.setId(randomStringGenerator.nextString(14));
+        datasetForPretrained.setFeatured(Boolean.FALSE);
+        datasetForPretrained.setMeta(MetaInfoBuilder.builder()
+                .addTitles("Dataset for pretrained model " + model.getId())
+                .addDescriptions("Dataset created to hold the independent and predictes features for "
+                        + "the pretrained model " + model.getId())
+                .addCreators(apiA)
+                .build()
+        );
+
+        datasetForPretrained.getMeta().setCreators(new HashSet<>(Arrays.asList(securityContext.getUserPrincipal().getName())));
+        datasetForPretrained.setVisible(Boolean.TRUE);
+        datasetForPretrained = DatasetFactory.addNullFeaturesFromPretrained(datasetForPretrained, pretrainedIndependentFeatures, pretrainedPredictedFeatures);
+
+        Set<FeatureInfo> featureInfos = new HashSet();
+        for (String indFeat : model.getIndependentFeatures()) {
+            String[] indFs = indFeat.split("/");
+            Feature feature = featureHandler.find(indFs[indFs.length - 1]);
+            FeatureInfo featInfo = new FeatureInfo();
+            featInfo.setName(feature.getMeta().getTitles().toArray()[0].toString());
+            String featureURI = propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_BASE_SERVICE) + "feature/" + feature.getId();
+            featInfo.setURI(featureURI);
+            featureInfos.add(featInfo);
+        }
+        for (String depFeat : model.getPredictedFeatures()) {
+            String[] indFs = depFeat.split("/");
+            Feature feature = featureHandler.find(indFs[indFs.length - 1]);
+            FeatureInfo featInfo = new FeatureInfo();
+            featInfo.setName(feature.getMeta().getTitles().toArray()[0].toString());
+            String featureURI = propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_BASE_SERVICE) + "feature/" + feature.getId();
+            featInfo.setURI(featureURI);
+            featureInfos.add(featInfo);
+        }
+
+        datasetForPretrained.setFeatures(featureInfos);
+
+        datasetHandler.create(datasetForPretrained);
+
+
+        String datasetURI = propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_BASE_SERVICE) + "dataset/" + datasetForPretrained.getId();
+        model.setDatasetUri(datasetURI);
         modelHandler.create(model);
 
         ModelId mi = new ModelId();
@@ -839,7 +905,7 @@ public class ModelResource {
                     String[] urisplitted = uri.split("/");
                     String dataset_id = urisplitted[urisplitted.length - 1];
                     dataset = datasetHandler.find(dataset_id);
-                    if(dataset == null){
+                    if (dataset == null) {
                         throw new NotFoundException(String.format("Dataset with id %s"
                                 + " not found. Please contact admins", dataset_id));
                     }

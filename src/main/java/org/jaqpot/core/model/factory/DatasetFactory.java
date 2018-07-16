@@ -60,7 +60,7 @@ public class DatasetFactory {
                     de.setValues(new TreeMap<>());
                     EntryId s = new EntryId();
                     s.setName(Integer.toString(i));
-                    s.setURI("/substance/" + i);
+                    s.setURI("/entryId/" + i);
                     de.setEntryId(s);
                     return de;
                 }).collect(Collectors.toList());
@@ -86,7 +86,7 @@ public class DatasetFactory {
                     de.setValues(new TreeMap<>());
                     EntryId s = new EntryId();
                     s.setName(Integer.toString(i));
-                    s.setURI("/substance/" + i);
+                    s.setURI("/entryId/" + i);
                     de.setEntryId(s);
                     return de;
                 }).collect(Collectors.toList());
@@ -247,4 +247,24 @@ public class DatasetFactory {
         }
 
     }
+    
+    public static Dataset addNullFeaturesFromPretrained(Dataset dataset, List<String> independentFeatures, List<String> predictedFeatures){
+        DataEntry de = new DataEntry();
+        EntryId entryId = new EntryId();
+        entryId.setOwnerUUID(dataset.getMeta().getCreators().toArray()[0].toString());
+        de.setEntryId(entryId);
+        
+        TreeMap<String, Object> values = new TreeMap();
+        independentFeatures.forEach((indFeat) -> {
+            values.put(indFeat, null);
+        });
+        predictedFeatures.forEach(predFeat -> {
+            values.put(predFeat, null);
+        });
+        de.setValues(values);
+        dataset.getDataEntry().add(de);
+        
+        return dataset;
+    }
+    
 }
