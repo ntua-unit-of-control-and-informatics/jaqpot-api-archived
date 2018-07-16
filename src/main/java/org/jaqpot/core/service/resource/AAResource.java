@@ -36,7 +36,7 @@ import org.jaqpot.core.model.ErrorReport;
 import org.jaqpot.core.model.dto.aa.AuthToken;
 import org.jaqpot.core.model.dto.dataset.Dataset;
 import org.jaqpot.core.service.annotations.Authorize;
-import org.jaqpot.core.service.authenitcation.AAService;
+import org.jaqpot.core.service.authentication.AAService;
 import org.jaqpot.core.service.exceptions.JaqpotForbiddenException;
 import org.jaqpot.core.service.exceptions.JaqpotNotAuthorizedException;
 

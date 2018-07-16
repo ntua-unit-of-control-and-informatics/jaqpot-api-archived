@@ -44,7 +44,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
-import org.jaqpot.core.service.authenitcation.TokenRequestFilter;
+import org.jaqpot.core.service.authentication.TokenRequestFilter;
 
 /**
  *

@@ -81,8 +81,8 @@ import org.jaqpot.core.model.factory.ErrorReportFactory;
 import org.jaqpot.core.model.util.ROG;
 import org.jaqpot.core.service.annotations.Authorize;
 import org.jaqpot.core.service.annotations.TokenSecured;
-import org.jaqpot.core.service.authenitcation.AAService;
-import org.jaqpot.core.service.authenitcation.RoleEnum;
+import org.jaqpot.core.service.authentication.AAService;
+import org.jaqpot.core.service.authentication.RoleEnum;
 import org.jaqpot.core.service.exceptions.JaqpotNotAuthorizedException;
 import org.jpmml.model.JAXBUtil;
 

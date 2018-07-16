@@ -15,7 +15,7 @@ import org.jaqpot.core.model.Task;
 import org.jaqpot.core.model.builder.MetaInfoBuilder;
 import org.jaqpot.core.model.dto.dataset.Dataset;
 import org.jaqpot.core.service.client.jpdi.JPDIClient;
-import org.jaqpot.core.service.authenitcation.AAService;
+import org.jaqpot.core.service.authentication.AAService;
 
 import javax.ejb.ActivationConfigProperty;
 import javax.ejb.EJB;

@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Swagger UI</title>
+  <title>Jaqpot API</title>
   <link rel="icon" type="image/png" href="images/favicon-32x32.png" sizes="32x32" />
   <link rel="icon" type="image/png" href="images/favicon-16x16.png" sizes="16x16" />
   <link href='css/typography.css' media='screen' rel='stylesheet' type='text/css'/>
@@ -120,7 +120,7 @@
       });
 
       // This function executed on load and fetches a guest's token
-      $.post("/jaqpot/services/aa/login/swag", {username: "guest", password: "guest"}).
+      $.post("/jaqpot/services/aa/login", {username: "guest", password: "guest"}).
       done(function (data) {
         document.getElementById("input_apiKey").value = (data.authToken);
         swaggerUi.api.clientAuthorizations.add("key", new SwaggerClient.ApiKeyAuthorization("Authorization", "Bearer " + data.authToken, "header"));

@@ -48,7 +48,7 @@ import javax.ws.rs.core.SecurityContext;
 import java.util.Arrays;
 import java.util.List;
 import org.jaqpot.core.service.annotations.TokenSecured;
-import org.jaqpot.core.service.authenitcation.RoleEnum;
+import org.jaqpot.core.service.authentication.RoleEnum;
 
 /**
  *
@@ -73,7 +73,6 @@ public class UserResource {
     @Context
     SecurityContext securityContext;
 
-
     @GET
     @TokenSecured({RoleEnum.ADMNISTRATOR})
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
@@ -82,9 +81,12 @@ public class UserResource {
             response = User.class,
             responseContainer = "List")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Users found and are listed in the response body"),
-        @ApiResponse(code = 401, message = "You are not authorized to access this user"),
-        @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)"),
+        @ApiResponse(code = 200, message = "Users found and are listed in the response body")
+        ,
+        @ApiResponse(code = 401, message = "You are not authorized to access this user")
+        ,
+        @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)")
+        ,
         @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
     })
     public Response listUsers(
@@ -109,16 +111,20 @@ public class UserResource {
 
     @GET
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
-    @TokenSecured({RoleEnum.DEFAULT_USER})
+    @TokenSecured({RoleEnum.ADMNISTRATOR})
     @Path("/{id}")
     @ApiOperation(value = "Finds User by Id",
             notes = "Finds specified user",
             response = User.class)
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "User is found"),
-        @ApiResponse(code = 401, message = "You are not authorized to access this user"),
-        @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)"),
-        @ApiResponse(code = 404, message = "This user was not found."),
+        @ApiResponse(code = 200, message = "User is found")
+        ,
+        @ApiResponse(code = 401, message = "You are not authorized to access this user")
+        ,
+        @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)")
+        ,
+        @ApiResponse(code = 404, message = "This user was not found.")
+        ,
         @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
     })
     public Response getUser(
@@ -126,13 +132,13 @@ public class UserResource {
             @ApiParam(value = "Clients need to authenticate in order to access this resource")
             @HeaderParam("Authorization") String api_key) throws JaqpotNotAuthorizedException {
 
-        String admins = propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_ADMINISTRATORS);
-        List<String> adminsList = Arrays.asList(admins.split("\\s*,\\s*"));
+//        String admins = propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_ADMINISTRATORS);
+//        List<String> adminsList = Arrays.asList(admins.split("\\s*,\\s*"));
         String currentUserID = securityContext.getUserPrincipal().getName();
-        if (!adminsList.contains(currentUserID) && !id.equals(currentUserID)) {
-            throw new JaqpotNotAuthorizedException("User " + currentUserID + "is not authorized access "
-                    + "this resource (/user/" + id + ")", "Unauthorized");
-        }
+//        if (!adminsList.contains(currentUserID) && !id.equals(currentUserID)) {
+//            throw new JaqpotNotAuthorizedException("User " + currentUserID + "is not authorized access "
+//                    + "this resource (/user/" + id + ")", "Unauthorized");
+//        }
         User user = userHandler.find(id);
         if (user == null) {
             return Response.status(Response.Status.NOT_FOUND).entity("Could not find User with id:" + id).build();
@@ -152,10 +158,14 @@ public class UserResource {
             + "Jaqpot administrators can access the quota of all Jaqpot users.",
             response = UserQuota.class)
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "User is found and quota are retrieved"),
-        @ApiResponse(code = 401, message = "You are not authorized to access this user's quota"),
-        @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)"),
-        @ApiResponse(code = 404, message = "This user was not found."),
+        @ApiResponse(code = 200, message = "User is found and quota are retrieved")
+        ,
+        @ApiResponse(code = 401, message = "You are not authorized to access this user's quota")
+        ,
+        @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)")
+        ,
+        @ApiResponse(code = 404, message = "This user was not found.")
+        ,
         @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
     })
     public Response getUserQuota(
@@ -172,7 +182,7 @@ public class UserResource {
         }
 
         UserQuota userQuota = quotaService.getUserQuota(currentUserID);
-        
+
         return Response.ok(userQuota).build();
     }
 

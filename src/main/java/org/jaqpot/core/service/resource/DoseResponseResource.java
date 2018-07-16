@@ -58,7 +58,7 @@ import javax.ws.rs.core.SecurityContext;
 import java.util.HashMap;
 import java.util.logging.Logger;
 import org.jaqpot.core.service.annotations.TokenSecured;
-import org.jaqpot.core.service.authenitcation.RoleEnum;
+import org.jaqpot.core.service.authentication.RoleEnum;
 
 /**
  *

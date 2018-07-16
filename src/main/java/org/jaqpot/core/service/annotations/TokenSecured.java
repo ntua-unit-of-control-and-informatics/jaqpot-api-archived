@@ -40,7 +40,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 //import javax.management.relation.Role;
 import javax.ws.rs.NameBinding;
-import org.jaqpot.core.service.authenitcation.RoleEnum;
+import org.jaqpot.core.service.authentication.RoleEnum;
 /**
  *
  * @author pantelispanka
