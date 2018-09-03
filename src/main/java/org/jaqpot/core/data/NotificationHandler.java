@@ -2,7 +2,12 @@
  *
  * JAQPOT Quattro
  *
- * JAQPOT Quattro and the components shipped with it (web applications and beans)
+ * JAQPOT Quattro and the components shipped with it, in particular:
+ * (i)   JaqpotCoreServices
+ * (ii)  JaqpotAlgorithmServices
+ * (iii) JaqpotDB
+ * (iv)  JaqpotDomain
+ * (v)   JaqpotEAR
  * are licensed by GPL v3 as specified hereafter. Additional components may ship
  * with some other licence as will be specified therein.
  *
@@ -29,7 +34,7 @@
  */
 package org.jaqpot.core.data;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,23 +42,21 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 import org.jaqpot.core.annotations.MongoDB;
 import org.jaqpot.core.db.entitymanager.JaqpotEntityManager;
-import org.jaqpot.core.model.User;
+import org.jaqpot.core.model.Notification;
 
 /**
  *
- * @author Pantelis Sopasakis
- * @author Charalampos Chomenidis
- *
+ * @author pantelispanka
  */
 @Stateless
-public class UserHandler extends AbstractHandler<User> {
+public class NotificationHandler extends AbstractHandler<Notification> {
 
     @Inject
     @MongoDB
     JaqpotEntityManager em;
 
-    public UserHandler() {
-        super(User.class);
+    public NotificationHandler() {
+        super(Notification.class);
     }
 
     @Override
@@ -61,41 +64,19 @@ public class UserHandler extends AbstractHandler<User> {
         return em;
     }
 
-    public List<User> findAllWithPattern(Map<String, Object> searchFor) {
+    public Long countAllOfOwners(String owner){
         Map<String, Object> properties = new HashMap<>();
-        searchFor.keySet().forEach((key) -> {
-            Object pattern = ".*" + searchFor.get(key) + ".*";
-            properties.put(key, pattern);
-        });
-
-        List<String> fields = new ArrayList<>();
-        fields.add("_id");
-
-        return em.findAllWithReqexp(User.class, properties, fields, 0, Integer.MAX_VALUE);
-    }
-
-    public User getProfPic(String id) {
-        List<String> fields = new ArrayList<>();
-        fields.add("profilePic");
-        return em.find(User.class, id, fields);
-    }
-
-    public User getOccupation(String id) {
-        List<String> fields = new ArrayList<>();
-        fields.add("occupation");
-        return em.find(User.class, id, fields);
-    }
-
-    public User getOccupationAt(String id) {
-        List<String> fields = new ArrayList<>();
-        fields.add("occupationAt");
-        return em.find(User.class, id, fields);
+        properties.put("owner", owner);
+        return em.count(Notification.class, properties);
     }
     
-    public User getName(String id) {
-        List<String> fields = new ArrayList<>();
-        fields.add("name");
-        return em.find(User.class, id, fields);
+    public List<Notification> getOwnersNotifs(String owner,String query, int start, int end) {
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("owner", owner);
+        if(query.equals("UNREAD")){
+            properties.put("viewed", false);
+        }
+        return em.find(Notification.class, properties, start, end);
     }
 
 }

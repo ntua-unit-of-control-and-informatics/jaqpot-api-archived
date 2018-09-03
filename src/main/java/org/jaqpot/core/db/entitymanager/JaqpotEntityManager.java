@@ -144,7 +144,22 @@ public interface JaqpotEntityManager extends Closeable {
      * @return the total of entity instances that match the given properties
      */
     public <T extends JaqpotEntity> List<T> find(Class<T> entityClass, Map<String, Object> properties, List<String> fields, Integer start, Integer max);
-
+   
+    /**
+     * Find all entities. Searches for all entities of the specified class with keys to search.
+     *
+     * This method has paging capability.
+     *
+     * @param <T>
+     * @param entityClass entity class
+     * @param start the position of the first result to retrieve
+     * @param max the maximum number of results to retrieve
+     * @param properties the properties upon to search
+     * @return a list with all entity instances of given class
+     */
+    public <T extends JaqpotEntity> List<T> findAllWithReqexp(Class<T> entityClass, Map<String, Object> properties, List<String> fields, Integer start, Integer max);
+    
+    
     /**
      * Find all entities. Searches for all entities of the specified class.
      *

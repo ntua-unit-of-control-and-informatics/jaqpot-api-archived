@@ -34,7 +34,6 @@ import org.jaqpot.core.data.UserHandler;
 import org.jaqpot.core.model.User;
 import org.jaqpot.core.model.UserQuota;
 import org.jaqpot.core.properties.PropertyManager;
-import org.jaqpot.core.service.annotations.Authorize;
 import org.jaqpot.core.service.data.QuotaService;
 import org.jaqpot.core.service.exceptions.JaqpotNotAuthorizedException;
 
@@ -46,7 +45,9 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.jaqpot.core.service.annotations.TokenSecured;
 import org.jaqpot.core.service.authentication.RoleEnum;
 
@@ -111,7 +112,7 @@ public class UserResource {
 
     @GET
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
-    @TokenSecured({RoleEnum.ADMNISTRATOR})
+    @TokenSecured({RoleEnum.DEFAULT_USER})
     @Path("/{id}")
     @ApiOperation(value = "Finds User by Id",
             notes = "Finds specified user",
@@ -150,6 +151,86 @@ public class UserResource {
     }
 
     @GET
+    @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
+    @TokenSecured({RoleEnum.DEFAULT_USER})
+    @Path("/ids")
+    @ApiOperation(value = "Finds User from partial given username",
+            notes = "Finds all users queried")
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "Users found")
+        ,
+        @ApiResponse(code = 401, message = "You are not authorized to access this user")
+        ,
+        @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)")
+        ,
+        @ApiResponse(code = 404, message = "No user was not found.")
+        ,
+        @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
+    })
+    public Response getAllUser(
+            @QueryParam("name") String name,
+            @QueryParam("mail") String mail,
+            @ApiParam(value = "Clients need to authenticate in order to access this resource")
+            @HeaderParam("Authorization") String api_key) throws JaqpotNotAuthorizedException {
+
+        String currentUserID = securityContext.getUserPrincipal().getName();
+        Map<String, Object> search = new HashMap();
+        if(name != null){
+            search.put("name", name.toLowerCase());
+        }
+        if(mail != null){
+            search.put("mail", mail.toLowerCase());
+        }
+        
+        List<User> users = userHandler.findAllWithPattern(search);
+
+        return Response.ok(users).build();
+    }
+    
+    @PUT
+    @Produces({MediaType.APPLICATION_JSON})
+    @Consumes({MediaType.APPLICATION_JSON})
+    @TokenSecured({RoleEnum.DEFAULT_USER})
+    @Path("/{id}")
+    @ApiOperation(value = "Updates User by Id",
+            notes = "Updates specified user",
+            response = User.class)
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "User is found")
+        ,
+        @ApiResponse(code = 401, message = "You are not authorized to access this user")
+        ,
+        @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)")
+        ,
+        @ApiResponse(code = 404, message = "This user was not found.")
+        ,
+        @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
+    })
+    public Response updateUser(
+            @PathParam("id") String id,
+            @ApiParam(value = "Clients need to authenticate in order to access this resource")
+            @HeaderParam("Authorization") String api_key,
+            User userForUpadate) throws JaqpotNotAuthorizedException {
+
+        String currentUserID = securityContext.getUserPrincipal().getName();
+
+        User userById = userHandler.find(currentUserID);
+
+        if (!userForUpadate.getId().equals(userById.getId())) {
+            throw new JaqpotNotAuthorizedException("Only the actual user can update its resources");
+        }
+        if (userById == null) {
+            return Response.status(Response.Status.NOT_FOUND).entity("Could not find User with id:" + id).build();
+        } else {
+            // Hide the hashed password!
+            userById.setHashedPass(null);
+        }
+        userHandler.edit(userForUpadate);
+        User userUpdated = userHandler.find(currentUserID);
+        return Response.ok(userUpdated).build();
+    }
+
+    @GET
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces({MediaType.APPLICATION_JSON})
     @Path("/{id}/quota")
@@ -182,8 +263,148 @@ public class UserResource {
         }
 
         UserQuota userQuota = quotaService.getUserQuota(currentUserID);
-
+        
         return Response.ok(userQuota).build();
     }
+    
+    
+    @GET
+    @Produces({MediaType.APPLICATION_JSON})
+    @TokenSecured({RoleEnum.DEFAULT_USER})
+    @Path("/{id}/profilepic")
+    @ApiOperation(value = "Finds Users profile pic by Id",
+            notes = "Finds specified users profile pic",
+            response = User.class)
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "User is found")
+        ,
+        @ApiResponse(code = 401, message = "You are not authorized to access this user")
+        ,
+        @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)")
+        ,
+        @ApiResponse(code = 404, message = "This user was not found.")
+        ,
+        @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
+    })
+    public Response getUserPic(
+            @PathParam("id") String id,
+            @ApiParam(value = "Clients need to authenticate in order to access this resource")
+            @HeaderParam("Authorization") String api_key) throws JaqpotNotAuthorizedException {
 
+        String currentUserID = securityContext.getUserPrincipal().getName();
+        User user = userHandler.getProfPic(id);
+        if (user == null) {
+            return Response.status(Response.Status.NOT_FOUND).entity("Could not find User with id:" + id).build();
+        } else {
+            // Hide the hashed password!
+            user.setHashedPass(null);
+        }
+        return Response.ok(user).build();
+    }
+    
+    
+    @GET
+    @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
+    @TokenSecured({RoleEnum.DEFAULT_USER})
+    @Path("/{id}/occupation")
+    @ApiOperation(value = "Finds User occupation by Id",
+            notes = "Finds specified users occupation",
+            response = User.class)
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "User is found")
+        ,
+        @ApiResponse(code = 401, message = "You are not authorized to access this user")
+        ,
+        @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)")
+        ,
+        @ApiResponse(code = 404, message = "This user was not found.")
+        ,
+        @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
+    })
+    public Response getUserOccupation(
+            @PathParam("id") String id,
+            @ApiParam(value = "Clients need to authenticate in order to access this resource")
+            @HeaderParam("Authorization") String api_key) throws JaqpotNotAuthorizedException {
+
+        String currentUserID = securityContext.getUserPrincipal().getName();
+        User user = userHandler.getOccupation(id);
+        if (user == null) {
+            return Response.status(Response.Status.NOT_FOUND).entity("Could not find User with id:" + id).build();
+        } else {
+            // Hide the hashed password!
+            user.setHashedPass(null);
+        }
+        return Response.ok(user).build();
+    }
+    
+    
+    @GET
+    @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
+    @TokenSecured({RoleEnum.DEFAULT_USER})
+    @Path("/{id}/occupationat")
+    @ApiOperation(value = "Finds User occupation place by Id",
+            notes = "Finds specified users occupation organization",
+            response = User.class)
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "User is found")
+        ,
+        @ApiResponse(code = 401, message = "You are not authorized to access this user")
+        ,
+        @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)")
+        ,
+        @ApiResponse(code = 404, message = "This user was not found.")
+        ,
+        @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
+    })
+    public Response getUserOccupationAt(
+            @PathParam("id") String id,
+            @ApiParam(value = "Clients need to authenticate in order to access this resource")
+            @HeaderParam("Authorization") String api_key) throws JaqpotNotAuthorizedException {
+
+        String currentUserID = securityContext.getUserPrincipal().getName();
+        User user = userHandler.getOccupationAt(id);
+        if (user == null) {
+            return Response.status(Response.Status.NOT_FOUND).entity("Could not find User with id:" + id).build();
+        } else {
+            // Hide the hashed password!
+            user.setHashedPass(null);
+        }
+        return Response.ok(user).build();
+    }
+    
+    @GET
+    @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
+    @TokenSecured({RoleEnum.DEFAULT_USER})
+    @Path("/{id}/name")
+    @ApiOperation(value = "Finds User occupation place by Id",
+            notes = "Finds specified users occupation organization",
+            response = User.class)
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "User is found")
+        ,
+        @ApiResponse(code = 401, message = "You are not authorized to access this user")
+        ,
+        @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)")
+        ,
+        @ApiResponse(code = 404, message = "This user was not found.")
+        ,
+        @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
+    })
+    public Response getUserName(
+            @PathParam("id") String id,
+            @ApiParam(value = "Clients need to authenticate in order to access this resource")
+            @HeaderParam("Authorization") String api_key) throws JaqpotNotAuthorizedException {
+
+        String currentUserID = securityContext.getUserPrincipal().getName();
+        User user = userHandler.getName(id);
+        if (user == null) {
+            return Response.status(Response.Status.NOT_FOUND).entity("Could not find User with id:" + id).build();
+        } else {
+            // Hide the hashed password!
+            user.setHashedPass(null);
+        }
+        return Response.ok(user).build();
+    }
+
+    
 }

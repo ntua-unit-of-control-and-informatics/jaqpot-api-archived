@@ -62,6 +62,7 @@ public class UserFactory {
                 .setMaxBibTeX(100)
                 .setMaxModels(20)
                 .setMaxAlgorithms(0)
+                .setMaxOrganizations(3)
                 .setMaxParallelTasks(5)
                 .setMaxSubstances(1000)
                 .setMaxDatasets(20)
@@ -70,6 +71,7 @@ public class UserFactory {
                 .setMaxWeeklyPublishedSubstances(10)
                 .setMaxWeeklyPublishedBibTeX(10)
                 .setMaxWeeklyPublishedAlgorithms(1)
+                .setBaseOrganization("Jaqpot")
                 .build();
     }
 
@@ -82,11 +84,12 @@ public class UserFactory {
                 .setMaxSubstances(1000)
                 .setMaxDatasets(20)
                 .setMaxReports(20)
+                .setMaxOrganizations(3)
                 .setMaxWeeklyPublishedModels(10)
                 .setMaxWeeklyPublishedSubstances(10)
                 .setMaxWeeklyPublishedBibTeX(10)
                 .setMaxWeeklyPublishedAlgorithms(1)
-                .setBaseGroup("AllUsers")
+                .setBaseOrganization("Jaqpot")
                 .build();
     }
 

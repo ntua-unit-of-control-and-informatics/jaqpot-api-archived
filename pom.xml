@@ -224,7 +224,7 @@
         <server.base></server.base>
         <ambit.base></ambit.base>
         <algorithms.base></algorithms.base>
-        <jaqpot.python.algorithms.host></jaqpot.python.algorithms.host>
+        <python.algorithms.host></python.algorithms.host>
         <exp.design.host></exp.design.host>
         <image.base></image.base>
         <validation.base></validation.base>

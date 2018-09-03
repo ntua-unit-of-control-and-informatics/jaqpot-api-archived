@@ -127,5 +127,9 @@ public class UserFacade {
     public int getMaxPublishedAlgorithmsPerWeek() {
         return getMaxWeeklyPublicationRate("algorithms");
     }
+    
+    public int getMaxOrganizationsCreator(){
+        return getMaxCapability("organizations");
+    }
 
 }

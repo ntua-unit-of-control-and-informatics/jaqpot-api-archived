@@ -119,6 +119,10 @@ public class UserBuilder implements EntityBuilder<User> {
     public UserBuilder setMaxSubstances(int maxSubstances) {
         return setMaxCapability("substances", maxSubstances);
     }
+    
+    public UserBuilder setMaxOrganizations(int maxOrganizations){
+        return setMaxCapability("organizations", maxOrganizations );
+    }
 
     public UserBuilder setMaxWeeklyPublishedModels(int maxModels) {
         return setMaxWeeklyCapability("models", maxModels);
@@ -157,10 +161,10 @@ public class UserBuilder implements EntityBuilder<User> {
         return this;
     }
     
-    public UserBuilder setBaseGroup(String group){
-        List<String> groupIn = new ArrayList<>();
-        groupIn.add(group);
-        user.setGroups(groupIn);
+    public UserBuilder setBaseOrganization(String group){
+        List<String> organizationIn = new ArrayList<>();
+        organizationIn.add(group);
+        user.setOrganizations(organizationIn);
         return this;
     }
 

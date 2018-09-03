@@ -70,7 +70,29 @@ public class User extends JaqpotEntity {
      */
     private Map<String, Integer> publicationRatePerWeek;
 
-    private List<String> groups;
+    private List<String> organizations;
+
+    private String profilePic;
+
+    private String occupation;
+
+    private String occupationAt;
+
+    private String github;
+
+    private String linkedin;
+
+    private String website;
+
+    private String twitter;
+
+    private String cv;
+
+    private String about;
+
+    private String livesAtCity;
+
+    private String livesAtCountry;
 
     public User() {
     }
@@ -128,12 +150,100 @@ public class User extends JaqpotEntity {
         this.publicationRatePerWeek = publicationRatePerWeek;
     }
 
-    public List<String> getGroups() {
-        return groups;
+    public List<String> getOrganizations() {
+        return organizations;
     }
 
-    public void setGroups(List<String> groups) {
-        this.groups = groups;
+    public void setOrganizations(List<String> organizations) {
+        this.organizations = organizations;
+    }
+
+    public String getProfilePic() {
+        return profilePic;
+    }
+
+    public void setProfilePic(String profilePic) {
+        this.profilePic = profilePic;
+    }
+
+    public String getOccupation() {
+        return occupation;
+    }
+
+    public void setOccupation(String occupation) {
+        this.occupation = occupation;
+    }
+
+    public String getOccupationAt() {
+        return occupationAt;
+    }
+
+    public void setOccupationAt(String occupationAt) {
+        this.occupationAt = occupationAt;
+    }
+
+    public String getGithub() {
+        return github;
+    }
+
+    public void setGithub(String github) {
+        this.github = github;
+    }
+
+    public String getLinkedin() {
+        return linkedin;
+    }
+
+    public void setLinkedin(String linkedIn) {
+        this.linkedin = linkedIn;
+    }
+
+    public String getWebsite() {
+        return website;
+    }
+
+    public void setWebsite(String website) {
+        this.website = website;
+    }
+
+    public String getTwitter() {
+        return twitter;
+    }
+
+    public void setTwitter(String twitter) {
+        this.twitter = twitter;
+    }
+
+    public String getCv() {
+        return cv;
+    }
+
+    public void setCv(String cv) {
+        this.cv = cv;
+    }
+
+    public String getAbout() {
+        return about;
+    }
+
+    public void setAbout(String about) {
+        this.about = about;
+    }
+
+    public String getLivesAtCity() {
+        return livesAtCity;
+    }
+
+    public void setLivesAtCity(String livesAtCity) {
+        this.livesAtCity = livesAtCity;
+    }
+
+    public String getLivesAtCountry() {
+        return livesAtCountry;
+    }
+
+    public void setLivesAtCountry(String livesAtCountry) {
+        this.livesAtCountry = livesAtCountry;
     }
 
 }

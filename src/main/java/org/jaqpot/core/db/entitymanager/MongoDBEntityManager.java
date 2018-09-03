@@ -29,21 +29,16 @@
  */
 package org.jaqpot.core.db.entitymanager;
 
+import com.mongodb.BasicDBObject;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
 import com.mongodb.MongoWriteException;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
-import com.mongodb.client.model.Projections;
 import com.mongodb.util.JSON;
-import java.io.IOException;
-import java.io.InputStream;
 import static com.mongodb.client.model.Projections.*;
 import com.mongodb.client.model.Sorts;
 
-import org.bson.BsonDocument;
-import org.bson.codecs.configuration.CodecRegistry;
-import org.bson.conversions.Bson;
 import org.jaqpot.core.annotations.MongoDB;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
@@ -57,16 +52,13 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.PostConstruct;
 import javax.ejb.DependsOn;
-import javax.ejb.EJB;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
-import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.xml.bind.annotation.XmlRootElement;
 import org.bson.Document;
 import org.jaqpot.core.data.serialize.JSONSerializer;
 import org.jaqpot.core.model.JaqpotEntity;
-import org.jaqpot.core.model.Model;
 import org.jaqpot.core.properties.PropertyManager;
 import org.reflections.Reflections;
 
@@ -445,6 +437,29 @@ public class MongoDBEntityManager implements JaqpotEntityManager {
         return result;
     }
 
+    @Override
+    public <T extends JaqpotEntity> List<T> findAllWithReqexp(Class<T> entityClass, Map<String, Object> properties, List<String> fields, Integer start, Integer max) {
+        MongoDatabase db = mongoClient.getDatabase(database);
+        MongoCollection<Document> collection = db.getCollection(collectionNames.get(entityClass));
+        BasicDBObject regexQuery = new BasicDBObject();
+        properties.entrySet().forEach((key) -> {
+            regexQuery.put(key.getKey(), 
+		new BasicDBObject("$regex", properties.get(key.getKey())));
+        });
+        
+        Document filter = new Document();
+        fields.stream().forEach(f -> filter.put(f, 1));
+        List<T> result = new ArrayList<>();
+        collection.find(regexQuery)
+                .projection(filter)
+                .skip(start != null ? start : 0)
+                .limit(max != null ? max : DEFAULT_PAGE_SIZE)
+                .map(document -> serializer.parse(JSON.serialize(document), entityClass))
+                .into(result);
+        return result;
+    }
+    
+    
     @Override
     public <T extends JaqpotEntity> List<T> findAll(Class<T> entityClass, Integer start, Integer max) {
         MongoDatabase db = mongoClient.getDatabase(database);

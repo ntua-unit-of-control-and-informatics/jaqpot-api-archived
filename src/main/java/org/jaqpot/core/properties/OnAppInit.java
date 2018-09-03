@@ -55,9 +55,14 @@ import org.apache.commons.io.IOUtils;
 import org.jaqpot.core.model.dto.dataset.Dataset;
 import org.jaqpot.core.data.AlgorithmHandler;
 import org.jaqpot.core.data.DatasetHandler;
+import org.jaqpot.core.data.OrganizationHandler;
 import org.jaqpot.core.data.UserHandler;
 import org.jaqpot.core.model.Algorithm;
+import org.jaqpot.core.model.MetaInfo;
+import org.jaqpot.core.model.Organization;
 import org.jaqpot.core.model.User;
+import org.jaqpot.core.model.builder.MetaInfoBuilder;
+import org.jaqpot.core.model.factory.OrganizationFactory;
 import org.jaqpot.core.service.resource.DatasetResource;
 
 /**
@@ -70,7 +75,7 @@ import org.jaqpot.core.service.resource.DatasetResource;
 public class OnAppInit {
 
     private static final Logger LOG = Logger.getLogger(OnAppInit.class.getName());
-    
+
     @Inject
     PropertyManager propertyManager;
 
@@ -83,15 +88,18 @@ public class OnAppInit {
     @Inject
     DatasetHandler datasetHandler;
 
+    @Inject
+    OrganizationHandler orgHandler;
+
     @PostConstruct
     void init() {
 
-        String userToSearch = "guest";
-        User user = userHandler.find(userToSearch);
-        if (user == null) {
-            User initialUser = this.firstUser();
-            userHandler.create(initialUser);
+        Organization org = orgHandler.find("Jaqpot");
+        if (org == null) {
+            Organization organ = this.jaqpotOrganization();
+            orgHandler.create(organ);
         }
+
         Algorithm algo = algoHandler.find("weka-svm");
         if (algo == null) {
             List<Algorithm> algos = this.readAlgorithms();
@@ -129,6 +137,36 @@ public class OnAppInit {
         pub.put("bibtex", 100);
         initialUser.setPublicationRatePerWeek(pub);
         return initialUser;
+    }
+
+    public Organization jaqpotOrganization() {
+        Organization org = null;
+        try {
+            org = OrganizationFactory.buildJaqpotOrg();
+//            String pic = this.getFile("jaqpot/jaqpotpng");
+            org.setCity("Athens");
+            org.setCountry("Greece");
+            org.setVisible(Boolean.TRUE);
+            org.setAbout("Jaqpot organization is created for all users."
+                    + " Once a user is created is automatically added to"
+                    + " this organization. A model or a dataset shared "
+                    + "on this organization will "
+                    + "automatically be shared with all the users of Jaqpot application");
+            org.setWebsite("https://app.jaqpot.org");
+            org.setContact("pantelispanka@gmail.com");
+            MetaInfo mf = MetaInfoBuilder
+                    .builder()
+                    .addDescriptions()
+                    .addSubjects()
+                    .addAudiences()
+                    .addComments().build();
+            org.setMeta(mf);
+//            org.setOrganizationPic(pic);
+        } catch (Exception e) {
+            LOG.log(Level.SEVERE, e.getMessage());
+        }
+
+        return org;
     }
 
     public List<Algorithm> readAlgorithms() {
@@ -192,12 +230,12 @@ public class OnAppInit {
             throw new InternalServerErrorException(e);
         }
         datasets.forEach((dataset) -> {
-            try{
+            try {
                 datasetHandler.create(dataset);
-            }catch(IllegalArgumentException e){
+            } catch (IllegalArgumentException e) {
                 LOG.log(Level.SEVERE, e.getMessage());
             }
-            
+
         });
     }
 
@@ -464,8 +502,8 @@ public class OnAppInit {
         }
         return algos;
     }
-    
-        private List<Algorithm> httk() {
+
+    private List<Algorithm> httk() {
         ObjectMapper mapper = new ObjectMapper();
         TypeReference<List<Algorithm>> algoListType = new TypeReference<List<Algorithm>>() {
         };
