@@ -29,11 +29,37 @@
  */
 package org.jaqpot.core.service.resource;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.*;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.validator.routines.UrlValidator;
+import org.jaqpot.core.data.*;
+import org.jaqpot.core.model.*;
+import org.jaqpot.core.model.Feature;
+import org.jaqpot.core.model.builder.MetaInfoBuilder;
+import org.jaqpot.core.model.dto.dataset.DataEntry;
+import org.jaqpot.core.model.dto.dataset.Dataset;
+import org.jaqpot.core.model.dto.dataset.FeatureInfo;
+import org.jaqpot.core.model.dto.jpdi.TrainingRequest;
+import org.jaqpot.core.model.facades.UserFacade;
+import org.jaqpot.core.model.factory.DatasetFactory;
+import org.jaqpot.core.model.util.ROG;
+import org.jaqpot.core.properties.PropertyManager;
+import org.jaqpot.core.service.annotations.Authorize;
+import org.jaqpot.core.service.annotations.UnSecure;
+import org.jaqpot.core.service.client.ambit.Ambit;
+import org.jaqpot.core.service.client.jpdi.JPDIClient;
+import org.jaqpot.core.service.exceptions.JaqpotForbiddenException;
+import org.jaqpot.core.service.exceptions.QuotaExceededException;
+import org.jaqpot.core.service.exceptions.parameter.*;
+import org.jboss.resteasy.plugins.providers.multipart.InputPart;
+import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
+import javax.ejb.EJB;
+import javax.inject.Inject;
+import javax.ws.rs.*;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -44,56 +70,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-import javax.ejb.EJB;
-import javax.inject.Inject;
-import javax.validation.constraints.NotNull;
-import javax.ws.rs.BadRequestException;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.FormParam;
-import javax.ws.rs.GET;
-import javax.ws.rs.HeaderParam;
-import javax.ws.rs.InternalServerErrorException;
-import javax.ws.rs.NotFoundException;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.*;
-
-import org.apache.commons.collections.ArrayStack;
-import org.apache.commons.validator.routines.UrlValidator;
-import org.jaqpot.core.data.AlgorithmHandler;
-import org.jaqpot.core.data.DatasetHandler;
-import org.jaqpot.core.data.ModelHandler;
-import org.jaqpot.core.data.ReportHandler;
-import org.jaqpot.core.data.UserHandler;
-import org.jaqpot.core.model.*;
-import org.jaqpot.core.model.Feature;
-import org.jaqpot.core.model.builder.MetaInfoBuilder;
-import org.jaqpot.core.model.dto.dataset.DataEntry;
-import org.jaqpot.core.model.dto.dataset.Dataset;
-import org.jaqpot.core.model.dto.dataset.FeatureInfo;
-import org.jaqpot.core.model.dto.jpdi.TrainingRequest;
-import org.jaqpot.core.model.dto.study.*;
-import org.jaqpot.core.model.dto.study.Substance;
-import org.jaqpot.core.model.facades.UserFacade;
-import org.jaqpot.core.model.factory.DatasetFactory;
-import org.jaqpot.core.model.util.ROG;
-import org.jaqpot.core.properties.PropertyManager;
-import org.jaqpot.core.service.annotations.Authorize;
-import org.jaqpot.core.service.annotations.UnSecure;
-import org.jaqpot.core.service.client.ambit.Ambit;
-import org.jaqpot.core.service.client.jpdi.JPDIClient;
-import org.jaqpot.core.service.exceptions.JaqpotForbiddenException;
-import org.jaqpot.core.service.exceptions.JaqpotNotAuthorizedException;
-import org.jaqpot.core.service.exceptions.QuotaExceededException;
-import org.jaqpot.core.service.exceptions.parameter.*;
-import org.jboss.resteasy.plugins.providers.multipart.InputPart;
-import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput;
 
 import static org.jaqpot.core.util.CSVUtils.parseLine;
 
@@ -114,7 +90,13 @@ public class DatasetResource {
     DatasetHandler datasetHandler;
 
     @EJB
+    FeatureHandler featureHandler;
+
+    @EJB
     UserHandler userHandler;
+
+    @Context
+    UriInfo uriInfo;
 
     @EJB
     ModelHandler modelHandler;
@@ -882,7 +864,6 @@ public class DatasetResource {
     @POST
     @Authorize
     @Path("/createDummyDataset")
-    // @Consumes("multipart/form-data")
     @ApiImplicitParams({
         @ApiImplicitParam(name = "file", value = "xls[m,x] file", required = true, dataType = "file", paramType = "formData")
         ,
@@ -911,30 +892,26 @@ public class DatasetResource {
                     + "No more than " + maxAllowedDatasets + " are allowed with your subscription.");
         }
 
-        /*byte[] bytes = new byte[0];
-        String title = uploadForm.get("title").get(0).getBody(String.class, null);
-        String description = uploadForm.get("description").get(0).getBody(String.class, null);
-        String filename="";*/
-        Dataset dataset = null;
+        Dataset dataset = new Dataset();
         Map<String, List<InputPart>> uploadForm = input.getFormDataMap();
+        dataset.setFeatured(Boolean.FALSE);
+        dataset.setMeta(MetaInfoBuilder.builder()
+                .addTitles(uploadForm.get("title").get(0).getBodyAsString())
+                .addDescriptions(uploadForm.get("description").get(0).getBodyAsString())
+                .build()
+        );
+
         List<InputPart> inputParts = uploadForm.get("file");
         for (InputPart inputPart : inputParts) {
 
             try {
                 MultivaluedMap<String, String> header = inputPart.getHeaders();
                 InputStream inputStream = inputPart.getBody(InputStream.class, null);
-                dataset = calculateRowsAndColumns(inputStream);
+                calculateRowsAndColumns(dataset, inputStream);
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
-        /*Map<String, Object> options = new HashMap<>();
-        options.put("title", title);
-        options.put("description", description);
-        options.put("subjectid", subjectId);
-        options.put("file", bytes);
-        options.put("filename",filename);
-        options.put("mode", "PREPARATION");*/
 
         ROG randomStringGenerator = new ROG(true);
         dataset.setId(randomStringGenerator.nextString(14));
@@ -950,7 +927,7 @@ public class DatasetResource {
 
     }
 
-    private Dataset calculateRowsAndColumns(InputStream stream) {
+    private void calculateRowsAndColumns(Dataset dataset, InputStream stream) {
         Scanner scanner = new Scanner(stream);
 
         Set<FeatureInfo> featureInfoList = new HashSet<>();
@@ -963,8 +940,9 @@ public class DatasetResource {
             List<String> line = parseLine(scanner.nextLine());
             if (firstLine) {
                 for (String l : line) {
-                    feature.add("/feature/" + l);
-                    featureInfoList.add(new FeatureInfo("/feature/" + l, l));
+                   String pseudoURL = ("/feature/" + l).replaceAll(" ","_"); //uriInfo.getBaseUri().toString()+
+                    feature.add(pseudoURL);
+                    featureInfoList.add(new FeatureInfo(pseudoURL, l,"NA",new HashMap<>(),Dataset.DescriptorCategory.EXPERIMENTAL));
                 }
                 firstLine = false;
             } else {
@@ -972,7 +950,11 @@ public class DatasetResource {
                 Iterator<String> it2 = line.iterator();
                 TreeMap<String, Object> values = new TreeMap<>();
                 while (it1.hasNext() && it2.hasNext()) {
-                    values.put(it1.next(), it2.next());
+                    String it = it2.next();
+                    if (!StringUtils.isNumeric(it))
+                        values.put(it1.next(), it);
+                    else
+                        values.put(it1.next(),Float.parseFloat(it));
                 }
                 org.jaqpot.core.model.dto.dataset.Substance substance = new org.jaqpot.core.model.dto.dataset.Substance();
                 substance.setURI("/substance/" + count);
@@ -986,10 +968,7 @@ public class DatasetResource {
             count++;
         }
         scanner.close();
-        Dataset dataset = new Dataset();
         dataset.setFeatures(featureInfoList);
         dataset.setDataEntry(dataEntryList);
-        return dataset;
     }
-
 }
