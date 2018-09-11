@@ -31,6 +31,7 @@ package org.jaqpot.core.service.resource;
 
 import io.swagger.annotations.*;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.validator.routines.UrlValidator;
 import org.jaqpot.core.data.*;
 import org.jaqpot.core.model.*;
@@ -895,6 +896,7 @@ public class DatasetResource {
         Dataset dataset = new Dataset();
         Map<String, List<InputPart>> uploadForm = input.getFormDataMap();
         dataset.setFeatured(Boolean.FALSE);
+
         dataset.setMeta(MetaInfoBuilder.builder()
                 .addTitles(uploadForm.get("title").get(0).getBodyAsString())
                 .addDescriptions(uploadForm.get("description").get(0).getBodyAsString())
@@ -951,7 +953,7 @@ public class DatasetResource {
                 TreeMap<String, Object> values = new TreeMap<>();
                 while (it1.hasNext() && it2.hasNext()) {
                     String it = it2.next();
-                    if (!StringUtils.isNumeric(it))
+                    if (!NumberUtils.isParsable(it))
                         values.put(it1.next(), it);
                     else
                         values.put(it1.next(),Float.parseFloat(it));
