@@ -36,6 +36,20 @@ package org.jaqpot.core.properties;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.io.IOUtils;
+import org.jaqpot.core.data.AlgorithmHandler;
+import org.jaqpot.core.data.DatasetHandler;
+import org.jaqpot.core.data.UserHandler;
+import org.jaqpot.core.model.Algorithm;
+import org.jaqpot.core.model.User;
+import org.jaqpot.core.model.dto.dataset.Dataset;
+
+import javax.annotation.PostConstruct;
+import javax.ejb.DependsOn;
+import javax.ejb.Singleton;
+import javax.ejb.Startup;
+import javax.inject.Inject;
+import javax.ws.rs.InternalServerErrorException;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -45,20 +59,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.annotation.PostConstruct;
-import javax.ejb.DependsOn;
-import javax.ejb.Singleton;
-import javax.ejb.Startup;
-import javax.inject.Inject;
-import javax.ws.rs.InternalServerErrorException;
-import org.apache.commons.io.IOUtils;
-import org.jaqpot.core.model.dto.dataset.Dataset;
-import org.jaqpot.core.data.AlgorithmHandler;
-import org.jaqpot.core.data.DatasetHandler;
-import org.jaqpot.core.data.UserHandler;
-import org.jaqpot.core.model.Algorithm;
-import org.jaqpot.core.model.User;
-import org.jaqpot.core.service.resource.DatasetResource;
 
 /**
  *
