@@ -20,6 +20,7 @@ import org.jaqpot.core.model.facades.UserFacade;
 import org.jaqpot.core.model.util.ROG;
 import org.jaqpot.core.service.annotations.Authorize;
 import org.jaqpot.core.service.annotations.UnSecure;
+import org.jaqpot.core.service.exceptions.JaqpotDocumentSizeExceededException;
 import org.jaqpot.core.service.exceptions.QuotaExceededException;
 
 import javax.ejb.EJB;
@@ -76,7 +77,7 @@ public class ReadAcrossResource {
             @FormParam("prediction_feature") String predictionFeature,
             @FormParam("parameters") String parameters,
             @HeaderParam("subjectid") String subjectId
-    ) throws QuotaExceededException {
+    ) throws QuotaExceededException, JaqpotDocumentSizeExceededException {
 
         User user = userHandler.find(securityContext.getUserPrincipal().getName());
         long reportCount = reportHandler.countAllOfCreator(user.getId());

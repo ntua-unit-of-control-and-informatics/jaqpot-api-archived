@@ -81,6 +81,7 @@ import org.jaqpot.core.model.factory.ErrorReportFactory;
 import org.jaqpot.core.model.util.ROG;
 import org.jaqpot.core.service.annotations.Authorize;
 import org.jaqpot.core.service.data.AAService;
+import org.jaqpot.core.service.exceptions.JaqpotDocumentSizeExceededException;
 import org.jaqpot.core.service.exceptions.JaqpotNotAuthorizedException;
 import org.jpmml.model.JAXBUtil;
 
@@ -128,7 +129,7 @@ public class PmmlResource {
             @ApiParam(value = "PMML in JSON representation.", required = true) String pmmlString,
             @ApiParam(value = "title") @FormParam("title") String title,
             @ApiParam(value = "description") @FormParam("description") String description
-    ) throws JaqpotNotAuthorizedException {
+    ) throws JaqpotNotAuthorizedException, JaqpotDocumentSizeExceededException {
         // First check the subjectid:
         if (subjectId == null || !aaService.validate(subjectId)) {
             throw new JaqpotNotAuthorizedException("Invalid auth token");
@@ -170,7 +171,7 @@ public class PmmlResource {
     @Authorize
     public Response createPMMLSelection(
             @ApiParam(value = "Authorization token") @HeaderParam("subjectid") String subjectId,
-            @FormParam("features") String featuresString) {
+            @FormParam("features") String featuresString) throws JaqpotDocumentSizeExceededException {
         
         List<String> features = Arrays.asList(featuresString.split(","));
         try {
@@ -237,7 +238,7 @@ public class PmmlResource {
             Logger.getLogger(PmmlResource.class.getName()).log(Level.SEVERE, null, ex);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).build();
         }
-        
+
     }
     
     @GET

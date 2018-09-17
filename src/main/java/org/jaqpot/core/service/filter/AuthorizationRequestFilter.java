@@ -36,6 +36,7 @@ import org.jaqpot.core.model.factory.UserFactory;
 import org.jaqpot.core.properties.PropertyManager;
 import org.jaqpot.core.service.annotations.Authorize;
 import org.jaqpot.core.service.data.AAService;
+import org.jaqpot.core.service.exceptions.JaqpotDocumentSizeExceededException;
 import org.jaqpot.core.service.exceptions.JaqpotNotAuthorizedException;
 import org.jaqpot.core.service.security.SecurityContextImpl;
 import org.jaqpot.core.service.security.UserPrincipal;
@@ -79,7 +80,7 @@ public class AuthorizationRequestFilter implements ContainerRequestFilter {
     public AuthorizationRequestFilter() {
     }
 
-    private void _handleAnonymous(ContainerRequestContext requestContext) {
+    private void _handleAnonymous(ContainerRequestContext requestContext) throws JaqpotDocumentSizeExceededException {
         // When operating without AA, all users are anonymous
         Principal userPrincipal = new UserPrincipal("anonymous");
         SecurityContext securityContext = new SecurityContextImpl(userPrincipal);
@@ -105,7 +106,11 @@ public class AuthorizationRequestFilter implements ContainerRequestFilter {
 
         // when AA is not enabled...
         if ("false".equals(propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_AA))) {
-            _handleAnonymous(requestContext);
+            try {
+                _handleAnonymous(requestContext);
+            } catch (JaqpotDocumentSizeExceededException e) {
+                e.printStackTrace();
+            }
             return;
         }
 
@@ -153,7 +158,11 @@ public class AuthorizationRequestFilter implements ContainerRequestFilter {
         User userInDB = userHandler.find(user.getId());
         if (userInDB == null) { // user not in DB - create...
             LOG.log(Level.INFO, "New user registered in DB with ID {0}", user.getId());
-            userHandler.create(user);
+            try {
+                userHandler.create(user);
+            } catch (JaqpotDocumentSizeExceededException e) {
+                e.printStackTrace();
+            }
         }
 
         // update the security context

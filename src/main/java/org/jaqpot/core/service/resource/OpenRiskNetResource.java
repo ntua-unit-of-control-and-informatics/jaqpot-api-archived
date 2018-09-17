@@ -42,6 +42,7 @@ import org.jaqpot.core.model.User;
 import org.jaqpot.core.model.facades.UserFacade;
 import org.jaqpot.core.service.annotations.Authorize;
 import org.jaqpot.core.service.data.CalculationService;
+import org.jaqpot.core.service.exceptions.JaqpotDocumentSizeExceededException;
 import org.jaqpot.core.service.exceptions.QuotaExceededException;
 import org.jaqpot.core.service.exceptions.parameter.*;
 import org.jaqpot.core.service.validator.ParameterValidator;
@@ -132,7 +133,7 @@ public class OpenRiskNetResource {
     public Response uploadFile(
             @HeaderParam("subjectid") String subjectId,
             @ApiParam(value = "multipartFormData input", hidden = true) MultipartFormDataInput input)
-            throws ParameterIsNullException, ParameterInvalidURIException, QuotaExceededException, IOException, ParameterScopeException, ParameterRangeException, ParameterTypeException {
+            throws ParameterIsNullException, ParameterInvalidURIException, QuotaExceededException, IOException, ParameterScopeException, ParameterRangeException, ParameterTypeException, JaqpotDocumentSizeExceededException {
         UrlValidator urlValidator = new UrlValidator();
 
         User user = userHandler.find(securityContext.getUserPrincipal().getName());

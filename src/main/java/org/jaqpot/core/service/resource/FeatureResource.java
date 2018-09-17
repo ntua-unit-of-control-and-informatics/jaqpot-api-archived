@@ -62,6 +62,7 @@ import org.jaqpot.core.model.factory.ErrorReportFactory;
 import org.jaqpot.core.model.util.ROG;
 import org.jaqpot.core.service.annotations.Authorize;
 import org.jaqpot.core.service.data.AAService;
+import org.jaqpot.core.service.exceptions.JaqpotDocumentSizeExceededException;
 import org.jaqpot.core.service.exceptions.JaqpotForbiddenException;
 import org.jaqpot.core.service.exceptions.JaqpotNotAuthorizedException;
 
@@ -187,7 +188,7 @@ public class FeatureResource {
             @ApiParam(value = "Feature in JSON representation compliant with the Feature specifications. "
                     + "Malformed Feature entries with missing fields will not be accepted.", required = true,
                     defaultValue = DEFAULT_FEATURE) Feature feature
-    ) throws JaqpotNotAuthorizedException {
+    ) throws JaqpotNotAuthorizedException, JaqpotDocumentSizeExceededException {
         if (feature == null) {
             ErrorReport report = ErrorReportFactory.badRequest("No feature provided; check out the API specs",
                     "Clients MUST provide a Feature document in JSON to perform this request");
@@ -261,7 +262,7 @@ public class FeatureResource {
             @ApiParam(value = "ID of the Feature.", required = true) @PathParam("id") String id,
             @ApiParam(value = "Feature in JSON", defaultValue = DEFAULT_FEATURE, required = true) Feature feature,
             @ApiParam("Clients need to authenticate in order to create resources on the server") @HeaderParam("subjectid") String subjectId
-    ) {
+    ) throws JaqpotDocumentSizeExceededException {
         if (feature == null) {
             ErrorReport report = ErrorReportFactory.badRequest("No feature provided; check out the API specs",
                     "Clients MUST provide a Feature document in JSON to perform this request");

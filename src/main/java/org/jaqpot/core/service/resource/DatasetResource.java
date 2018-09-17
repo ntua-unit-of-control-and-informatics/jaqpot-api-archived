@@ -49,6 +49,7 @@ import org.jaqpot.core.service.annotations.Authorize;
 import org.jaqpot.core.service.annotations.UnSecure;
 import org.jaqpot.core.service.client.ambit.Ambit;
 import org.jaqpot.core.service.client.jpdi.JPDIClient;
+import org.jaqpot.core.service.exceptions.JaqpotDocumentSizeExceededException;
 import org.jaqpot.core.service.exceptions.JaqpotForbiddenException;
 import org.jaqpot.core.service.exceptions.QuotaExceededException;
 import org.jaqpot.core.service.exceptions.parameter.*;
@@ -309,7 +310,7 @@ public class DatasetResource {
     })
     public Response createDataset(
             @ApiParam(value = "Authorization token") @HeaderParam("subjectid") String subjectId,
-            Dataset dataset) throws QuotaExceededException, URISyntaxException {
+            Dataset dataset) throws QuotaExceededException, URISyntaxException, JaqpotDocumentSizeExceededException {
 
         User user = userHandler.find(securityContext.getUserPrincipal().getName());
         long datasetCount = datasetHandler.countAllOfCreator(user.getId());
@@ -356,7 +357,7 @@ public class DatasetResource {
     public Response createEmptyDataset(
             @ApiParam(value = "Authorization token") @HeaderParam("subjectid") String subjectId,
             @FormParam("title") String title,
-            @FormParam("description") String description) throws URISyntaxException, QuotaExceededException {
+            @FormParam("description") String description) throws URISyntaxException, QuotaExceededException, JaqpotDocumentSizeExceededException {
 
         User user = userHandler.find(securityContext.getUserPrincipal().getName());
         long datasetCount = datasetHandler.countAllOfCreator(user.getId());
@@ -404,7 +405,7 @@ public class DatasetResource {
     })
     public Response mergeDatasets(
             @FormParam("dataset_uris") String datasetURIs,
-            @HeaderParam("subjectid") String subjectId) throws URISyntaxException, QuotaExceededException {
+            @HeaderParam("subjectid") String subjectId) throws URISyntaxException, QuotaExceededException, JaqpotDocumentSizeExceededException {
 
         User user = userHandler.find(securityContext.getUserPrincipal().getName());
         long datasetCount = datasetHandler.countAllOfCreator(user.getId());
@@ -506,7 +507,7 @@ public class DatasetResource {
             @FormParam("substance_uri") String substanceURI,
             @FormParam("title") String title,
             @FormParam("description") String description
-    ) throws QuotaExceededException, ExecutionException, InterruptedException {
+    ) throws QuotaExceededException, ExecutionException, InterruptedException, JaqpotDocumentSizeExceededException {
 
         User user = userHandler.find(securityContext.getUserPrincipal().getName());
         long reportCount = reportHandler.countAllOfCreator(user.getId());
@@ -879,7 +880,7 @@ public class DatasetResource {
     public Response createDummyDataset(
             @HeaderParam("subjectid") String subjectId,
             @ApiParam(value = "multipartFormData input", hidden = true) MultipartFormDataInput input)
-            throws ParameterIsNullException, ParameterInvalidURIException, QuotaExceededException, IOException, ParameterScopeException, ParameterRangeException, ParameterTypeException, URISyntaxException {
+            throws ParameterIsNullException, ParameterInvalidURIException, QuotaExceededException, IOException, ParameterScopeException, ParameterRangeException, ParameterTypeException, URISyntaxException, JaqpotDocumentSizeExceededException {
 
         User user = userHandler.find(securityContext.getUserPrincipal().getName());
         long datasetCount = datasetHandler.countAllOfCreator(user.getId());

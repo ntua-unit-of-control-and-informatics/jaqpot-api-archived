@@ -42,6 +42,7 @@ import org.jaqpot.core.model.factory.ErrorReportFactory;
 import org.jaqpot.core.service.annotations.UnSecure;
 import org.jaqpot.core.service.data.AAService;
 import org.jaqpot.core.service.data.ConjoinerService;
+import org.jaqpot.core.service.exceptions.JaqpotDocumentSizeExceededException;
 
 import javax.annotation.Resource;
 import javax.ejb.EJB;
@@ -200,6 +201,11 @@ public class PreparationMDB extends RunningTaskMDB {
             LOG.log(Level.SEVERE, null, ex);
             task.setStatus(Task.Status.ERROR);
             task.setErrorReport(ErrorReportFactory.badRequest("Error while processing input.", ex.getMessage()));
+        } catch (JaqpotDocumentSizeExceededException e) {
+            LOG.log(Level.SEVERE, e.getMessage(), e);
+            task.setStatus(Task.Status.ERROR);
+            task.setErrorReport(ErrorReportFactory.badRequest("Error creating Dataset resource, exceeding maximum dataset limit of 16 mb.", e.getMessage()));
+            e.printStackTrace();
         } finally {
             if (task != null && task.getId() != null) {
                 terminate(task.getId());

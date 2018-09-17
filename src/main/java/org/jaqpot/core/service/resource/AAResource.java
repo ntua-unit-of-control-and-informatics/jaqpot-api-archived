@@ -35,6 +35,7 @@ import org.jaqpot.core.model.dto.aa.AuthToken;
 import org.jaqpot.core.model.dto.dataset.Dataset;
 import org.jaqpot.core.service.annotations.Authorize;
 import org.jaqpot.core.service.data.AAService;
+import org.jaqpot.core.service.exceptions.JaqpotDocumentSizeExceededException;
 import org.jaqpot.core.service.exceptions.JaqpotForbiddenException;
 import org.jaqpot.core.service.exceptions.JaqpotNotAuthorizedException;
 
@@ -88,7 +89,7 @@ public class AAResource {
     })
     public Response login(
             @ApiParam(value = "Username", required = true) @FormParam("username") String username,
-            @ApiParam(value = "Password", required = true) @FormParam("password") String password) throws JaqpotNotAuthorizedException {
+            @ApiParam(value = "Password", required = true) @FormParam("password") String password) throws JaqpotNotAuthorizedException, JaqpotDocumentSizeExceededException {
 
         AuthToken aToken;
         aToken = aaService.login(username, password);
