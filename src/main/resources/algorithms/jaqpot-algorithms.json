@@ -96,7 +96,7 @@
                 "An MLR algorithm by Weka"
             ],
             "titles": [
-                "MLR - Weka"
+                "MLR - Weka (multi-response linear regression implemented in Java-WEKA)"
             ],
             "subjects": [
                 "mlr",
@@ -121,7 +121,7 @@
                 "LibSVM implementation for training a support vector classifier."
             ],
             "titles": [
-                "SVM - Weka (LibSVM)"
+                "SVM - Weka (LibSVM, Support vector machines implemented in Java-WEKA)"
             ],
             "subjects": [
                 "regression",
@@ -207,7 +207,7 @@
                 "Weka PLS filter wrapped as a classifier."
             ],
             "titles": [
-                "PLS - Weka"
+                "PLS - Weka (Partial Least Squares implemented in Java-WEKA)"
             ],
             "subjects": [
                 "regression",
@@ -256,7 +256,7 @@
                 "LibSVM implementation for training a support vector classifier."
             ],
             "titles": [
-                "SVM - Weka (LibSVM)"
+                "SVM - Weka (LibSVM) Implementation"
             ],
             "subjects": [
                 "svm",

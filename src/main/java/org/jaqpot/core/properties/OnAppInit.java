@@ -209,7 +209,6 @@ public class OnAppInit {
             }catch(IllegalArgumentException e){
                 LOG.log(Level.SEVERE, e.getMessage());
             }
-            
         });
     }
 

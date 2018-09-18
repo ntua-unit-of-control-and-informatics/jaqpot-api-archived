@@ -5,10 +5,10 @@
             "Created by task TSK9OkphghugWPc"
         ],
         "descriptions" : [ 
-            "8 MeOx NPs with 29 descriptors, used for predicting HaCaT toxicity."
+            "10 MeOx NPs with 29 descriptors, used for predicting HaCaT toxicity."
         ],
         "titles" : [ 
-            "Gajewicz et al - 18 Metal Oxide NPs"
+            "Gajewicz et al - 10 Metal Oxide NPs"
         ],
         "subjects" : [ 
             "toxicity", 
