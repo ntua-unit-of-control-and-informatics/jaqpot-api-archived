@@ -5,7 +5,7 @@
                 "Linear Model by R under OpenCPU"
             ],
             "titles" : [ 
-                "R LM Algorithm"
+                "Linear Model (implemented in R - base library)"
             ],
             "subjects" : [ 
                 "linear", 

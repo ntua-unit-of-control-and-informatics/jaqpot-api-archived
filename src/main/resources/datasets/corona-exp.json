@@ -1,6 +1,6 @@
 {
     "_id" : "corona-exp",
-    "creators" : null,
+    "creators" : "admin",
     "dataEntry" : [ 
         {
             "compound" : {

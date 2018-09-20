@@ -44,6 +44,7 @@ import org.jaqpot.core.model.facades.UserFacade;
 import org.jaqpot.core.model.util.ROG;
 import org.jaqpot.core.service.annotations.Authorize;
 import org.jaqpot.core.service.annotations.UnSecure;
+import org.jaqpot.core.service.exceptions.JaqpotDocumentSizeExceededException;
 import org.jaqpot.core.service.exceptions.QuotaExceededException;
 
 import javax.ejb.EJB;
@@ -57,8 +58,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import java.util.HashMap;
 import java.util.logging.Logger;
-import org.jaqpot.core.service.annotations.TokenSecured;
-import org.jaqpot.core.service.authenitcation.RoleEnum;
 
 /**
  *
@@ -68,6 +67,7 @@ import org.jaqpot.core.service.authenitcation.RoleEnum;
 @Path("doseresponse")
 @Api(value = "/doseresponse", description = "Dose Response API")
 @Produces(MediaType.APPLICATION_JSON)
+@Authorize
 public class DoseResponseResource {
 
     private static final Logger LOG = Logger.getLogger(DoseResponseResource.class.getName());
@@ -90,7 +90,6 @@ public class DoseResponseResource {
     SecurityContext securityContext;
 
     @POST
-    @TokenSecured({RoleEnum.DEFAULT_USER})
 //    @Path("/test")
     @ApiOperation(value = "Creates Dose Response Report",
             notes = "Creates Dose Response Report",
@@ -103,8 +102,8 @@ public class DoseResponseResource {
             @FormParam("dataset_uri") String datasetURI,
             @FormParam("prediction_feature") String predictionFeature,
             @FormParam("parameters") String parameters,
-            @HeaderParam("Authorization") String api_key
-    ) throws QuotaExceededException {
+            @HeaderParam("subjectid") String subjectId
+    ) throws QuotaExceededException, JaqpotDocumentSizeExceededException {
 
         User user = userHandler.find(securityContext.getUserPrincipal().getName());
         long reportCount = reportHandler.countAllOfCreator(user.getId());
@@ -117,13 +116,10 @@ public class DoseResponseResource {
                     + ", your quota has been exceeded; you already have " + reportCount + " reports. "
                     + "No more than " + maxAllowedReports + " are allowed with your subscription.");
         }
-        
-        String[] apiA = api_key.split("\\s+");
-        String apiKey = apiA[1];
-        
+
         Dataset dataset = client.target(datasetURI)
                 .request()
-                .header("Authorization", "Bearer " + apiKey)
+                .header("subjectid", subjectId)
                 .accept(MediaType.APPLICATION_JSON)
                 .get(Dataset.class);
         dataset.setDatasetURI(datasetURI);

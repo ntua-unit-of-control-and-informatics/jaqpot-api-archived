@@ -45,6 +45,7 @@ import org.jaqpot.core.model.util.ROG;
 import org.jaqpot.core.properties.PropertyManager;
 import org.jaqpot.core.service.annotations.Authorize;
 import org.jaqpot.core.service.annotations.UnSecure;
+import org.jaqpot.core.service.exceptions.JaqpotDocumentSizeExceededException;
 import org.jaqpot.core.service.exceptions.QuotaExceededException;
 
 import javax.ejb.EJB;
@@ -67,6 +68,7 @@ import java.util.logging.Logger;
 @Path("interlab")
 @Api(value = "/interlab", description = "Interlab Testing API")
 @Produces(MediaType.APPLICATION_JSON)
+@Authorize
 public class InterLabTestingResource {
 
     private static final Logger LOG = Logger.getLogger(InterLabTestingResource.class.getName());
@@ -104,11 +106,9 @@ public class InterLabTestingResource {
             @FormParam("dataset_uri") String datasetURI,
             @FormParam("prediction_feature") String predictionFeature,
             @FormParam("parameters") String parameters,
-            @HeaderParam("Authorization") String api_key
-    ) throws QuotaExceededException {
+            @HeaderParam("subjectid") String subjectId
+    ) throws QuotaExceededException, JaqpotDocumentSizeExceededException {
 
-        String[] apiA = api_key.split("\\s+");
-        String apiKey = apiA[1];
         User user = userHandler.find(securityContext.getUserPrincipal().getName());
         long reportCount = reportHandler.countAllOfCreator(user.getId());
         int maxAllowedReports = new UserFacade(user).getMaxReports();
@@ -123,7 +123,7 @@ public class InterLabTestingResource {
 
         Dataset dataset = client.target(datasetURI)
                 .request()
-                .header("Authorization", "Bearer " + apiKey)
+                .header("subjectid", subjectId)
                 .accept(MediaType.APPLICATION_JSON)
                 .get(Dataset.class);
         dataset.setDatasetURI(datasetURI);

@@ -20,6 +20,7 @@ import org.jaqpot.core.model.facades.UserFacade;
 import org.jaqpot.core.model.util.ROG;
 import org.jaqpot.core.service.annotations.Authorize;
 import org.jaqpot.core.service.annotations.UnSecure;
+import org.jaqpot.core.service.exceptions.JaqpotDocumentSizeExceededException;
 import org.jaqpot.core.service.exceptions.QuotaExceededException;
 
 import javax.ejb.EJB;
@@ -33,8 +34,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import java.util.HashMap;
 import java.util.logging.Logger;
-import org.jaqpot.core.service.annotations.TokenSecured;
-import org.jaqpot.core.service.authenitcation.RoleEnum;
 
 /**
  *
@@ -43,6 +42,7 @@ import org.jaqpot.core.service.authenitcation.RoleEnum;
 @Path("readacross")
 @Api(value = "/readacross", description = "Read Across API")
 @Produces(MediaType.APPLICATION_JSON)
+@Authorize
 public class ReadAcrossResource {
 
     private static final Logger LOG = Logger.getLogger(ReadAcrossResource.class.getName());
@@ -65,7 +65,6 @@ public class ReadAcrossResource {
     SecurityContext securityContext;
 
     @POST
-    @TokenSecured({RoleEnum.DEFAULT_USER})
     @ApiOperation(value = "Creates Read Across Report",
             notes = "Creates Read Across Report",
             response = Report.class
@@ -77,11 +76,9 @@ public class ReadAcrossResource {
             @FormParam("dataset_uri") String datasetURI,
             @FormParam("prediction_feature") String predictionFeature,
             @FormParam("parameters") String parameters,
-            @HeaderParam("Authorization") String api_key
-    ) throws QuotaExceededException {
+            @HeaderParam("subjectid") String subjectId
+    ) throws QuotaExceededException, JaqpotDocumentSizeExceededException {
 
-        String[] apiA = api_key.split("\\s+");
-        String apiKey = apiA[1];
         User user = userHandler.find(securityContext.getUserPrincipal().getName());
         long reportCount = reportHandler.countAllOfCreator(user.getId());
         int maxAllowedReports = new UserFacade(user).getMaxReports();
@@ -96,7 +93,7 @@ public class ReadAcrossResource {
 
         Dataset dataset = client.target(datasetURI)
                 .request()
-                .header("Authorization", "Bearer " + apiKey)
+                .header("subjectid", subjectId)
                 .accept(MediaType.APPLICATION_JSON)
                 .get(Dataset.class);
         dataset.setDatasetURI(datasetURI);
@@ -110,7 +107,7 @@ public class ReadAcrossResource {
             trainingRequest.setParameters(parameterMap);
         }
 
-        Report report = client.target("http://jaqpot.org:8093/pws/readacross")
+        Report report = client.target("http://147.102.82.32:8093/pws/readacross")
                 .request()
                 .header("Content-Type", MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)

@@ -61,9 +61,8 @@ import org.jaqpot.core.model.MetaInfo;
 import org.jaqpot.core.model.factory.ErrorReportFactory;
 import org.jaqpot.core.model.util.ROG;
 import org.jaqpot.core.service.annotations.Authorize;
-import org.jaqpot.core.service.annotations.TokenSecured;
-import org.jaqpot.core.service.authenitcation.AAService;
-import org.jaqpot.core.service.authenitcation.RoleEnum;
+import org.jaqpot.core.service.data.AAService;
+import org.jaqpot.core.service.exceptions.JaqpotDocumentSizeExceededException;
 import org.jaqpot.core.service.exceptions.JaqpotForbiddenException;
 import org.jaqpot.core.service.exceptions.JaqpotNotAuthorizedException;
 
@@ -76,6 +75,7 @@ import org.jaqpot.core.service.exceptions.JaqpotNotAuthorizedException;
 @Path("feature")
 @Api(value = "/feature", description = "Feature API")
 @Produces({"application/json", "text/uri-list"})
+@Authorize
 public class FeatureResource {
 
     private static final String DEFAULT_FEATURE = "{\n"
@@ -107,7 +107,6 @@ public class FeatureResource {
     SecurityContext securityContext;
 
     @GET
-    @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @ApiOperation(value = "Lists features",
             notes = "Lists Feature entries in the DB of Jaqpot and returns them in a list. "
@@ -126,7 +125,7 @@ public class FeatureResource {
         @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
     })
     public Response listFeatures(
-            @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key,
+            @ApiParam(value = "Authorization token") @HeaderParam("subjectid") String subjectId,
             @ApiParam("Generic query") @QueryParam("query") String query,
             @ApiParam(value = "start", defaultValue = "0") @QueryParam("start") Integer start,
             @ApiParam(value = "max - the server imposes an upper limit of 500 on this "
@@ -144,14 +143,13 @@ public class FeatureResource {
     }
 
     @GET
-    @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @Path("/{id}")
     @ApiOperation(value = "Finds Feature by ID",
             notes = "Finds specified Feature (by ID)",
             response = Feature.class)
     public Response getFeature(
-            @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key,
+            @ApiParam(value = "Authorization token") @HeaderParam("subjectid") String subjectId,
             @PathParam("id") String id) {
         Feature feature = featureHandler.find(id);
         if (feature == null) {
@@ -161,7 +159,6 @@ public class FeatureResource {
     }
 
     @POST
-    @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @Consumes(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Creates a new Feature",
@@ -184,13 +181,14 @@ public class FeatureResource {
         @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)"),
         @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
     })
+    @Authorize
     public Response createFeature(
             @ApiParam(value = "Clients need to authenticate in order to create resources on the server")
-            @HeaderParam("Authorization") String api_key,
+            @HeaderParam("subjectid") String subjectId,
             @ApiParam(value = "Feature in JSON representation compliant with the Feature specifications. "
                     + "Malformed Feature entries with missing fields will not be accepted.", required = true,
                     defaultValue = DEFAULT_FEATURE) Feature feature
-    ) throws JaqpotNotAuthorizedException {
+    ) throws JaqpotNotAuthorizedException, JaqpotDocumentSizeExceededException {
         if (feature == null) {
             ErrorReport report = ErrorReportFactory.badRequest("No feature provided; check out the API specs",
                     "Clients MUST provide a Feature document in JSON to perform this request");
@@ -216,7 +214,6 @@ public class FeatureResource {
     }
 
     @DELETE
-    @TokenSecured({RoleEnum.DEFAULT_USER})
     @Path("/{id}")
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @ApiOperation(value = "Deletes a particular Feature resource.",
@@ -231,7 +228,7 @@ public class FeatureResource {
         @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
     })
     public Response deleteFeature(
-            @ApiParam("Clients need to authenticate in order to create resources on the server") @HeaderParam("Authorization") String api_key,
+            @ApiParam("Clients need to authenticate in order to create resources on the server") @HeaderParam("subjectid") String subjectId,
             @ApiParam(value = "ID of the Model.", required = true) @PathParam("id") String id
     ) throws JaqpotForbiddenException {
         Feature feature = new Feature(id);
@@ -244,7 +241,6 @@ public class FeatureResource {
     }
 
     @PUT
-    @TokenSecured({RoleEnum.DEFAULT_USER})
     @Path("/{id}")
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @ApiOperation(value = "Places a new Feature at a particular URI",
@@ -265,8 +261,8 @@ public class FeatureResource {
     public Response putFeature(
             @ApiParam(value = "ID of the Feature.", required = true) @PathParam("id") String id,
             @ApiParam(value = "Feature in JSON", defaultValue = DEFAULT_FEATURE, required = true) Feature feature,
-            @ApiParam("Clients need to authenticate in order to create resources on the server") @HeaderParam("Authorization") String api_key
-    ) {
+            @ApiParam("Clients need to authenticate in order to create resources on the server") @HeaderParam("subjectid") String subjectId
+    ) throws JaqpotDocumentSizeExceededException {
         if (feature == null) {
             ErrorReport report = ErrorReportFactory.badRequest("No feature provided; check out the API specs",
                     "Clients MUST provide a Feature document in JSON to perform this request");

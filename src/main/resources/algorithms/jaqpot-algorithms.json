@@ -96,7 +96,7 @@
                 "An MLR algorithm by Weka"
             ],
             "titles": [
-                "MLR - Weka Implementation"
+                "MLR - Weka (multi-response linear regression implemented in Java-WEKA)"
             ],
             "subjects": [
                 "mlr",
@@ -121,7 +121,7 @@
                 "LibSVM implementation for training a support vector classifier."
             ],
             "titles": [
-                "SVM - Weka (LibSVM) Implementation"
+                "SVM - Weka (LibSVM, Support vector machines implemented in Java-WEKA)"
             ],
             "subjects": [
                 "regression",
@@ -207,7 +207,7 @@
                 "Weka PLS filter wrapped as a classifier."
             ],
             "titles": [
-                "PLS - Weka Implementation"
+                "PLS - Weka (Partial Least Squares implemented in Java-WEKA)"
             ],
             "subjects": [
                 "regression",
@@ -350,35 +350,6 @@
         "trainingService": "http://test.jaqpot.org:8090/algorithms/svm/training",
         "predictionService": "http://test.jaqpot.org:8090/algorithms/svm/prediction",
         "_id": "weka-svm-class"
-    },
-    {
-        "meta": {
-            "descriptions": [
-                "An MLR algorithm by Weka"
-            ],
-            "titles": [
-                "MLR 2 - Weka Implementation"
-            ],
-            "subjects": [
-                "mlr",
-                "linear",
-                "regression"
-            ],
-            "creators": [
-                "hampos"
-            ],
-            "date": "2016-10-08T13:06:41.088+0000",
-            "locked": false
-        },
-        "ontologicalClasses": [
-            "ot:Algorithm",
-            "ot:Regression",
-            "ot:SupervisedLearning"
-        ],
-        "ranking": 2,
-        "trainingService": "http://test.jaqpot.org:8090/algorithms/mlr/training",
-        "predictionService": "http://test.jaqpot.org:8090/algorithms/mlr/prediction",
-        "_id": "weka-mlr2"
     },
     {
         "meta": {

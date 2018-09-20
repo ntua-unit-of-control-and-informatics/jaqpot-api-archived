@@ -60,6 +60,7 @@ import org.jaqpot.core.model.util.ROG;
 import org.jaqpot.core.properties.PropertyManager;
 import org.jaqpot.core.service.annotations.UnSecure;
 import org.jaqpot.core.service.client.ambit.Ambit;
+import org.jaqpot.core.service.exceptions.JaqpotDocumentSizeExceededException;
 
 import javax.annotation.Resource;
 import javax.ejb.EJB;
@@ -124,7 +125,7 @@ public class ConjoinerService {
 
     private Set<Dataset.DescriptorCategory> usedDescriptors;
 
-    public Task initiatePreparation(Map<String, Object> options, String userName) {
+    public Task initiatePreparation(Map<String, Object> options, String userName) throws JaqpotDocumentSizeExceededException {
 
         Task task = TaskFactory.queuedTask("Preparation on bundle: " + options.get("bundle_uri"),
                 "A preparation procedure will return a Dataset if completed successfully."
@@ -161,6 +162,7 @@ public class ConjoinerService {
                 }
             }
         }
+
         Dataset dataset = new Dataset();
 
         dataset.setFeatures(featureMap);
@@ -202,6 +204,7 @@ public class ConjoinerService {
                         });
             });
         }
+
 
         dataset.setDescriptors(usedDescriptors);
         dataset.setVisible(Boolean.TRUE);
