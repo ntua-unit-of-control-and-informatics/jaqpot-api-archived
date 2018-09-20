@@ -51,14 +51,14 @@ import org.jaqpot.core.model.dto.dataset.Dataset;
 import org.jaqpot.core.model.facades.UserFacade;
 import org.jaqpot.core.model.factory.ErrorReportFactory;
 import org.jaqpot.core.model.util.ROG;
-import org.jaqpot.core.service.annotations.Authorize;
+import org.jaqpot.core.service.annotations.TokenSecured;
+import org.jaqpot.core.service.authenitcation.RoleEnum;
 import org.jaqpot.core.service.data.TrainingService;
-import org.jaqpot.core.service.exceptions.*;
+import org.jaqpot.core.service.exceptions.JaqpotDocumentSizeExceededException;
 import org.jaqpot.core.service.exceptions.JaqpotForbiddenException;
-import org.jaqpot.core.service.exceptions.parameter.*;
+import org.jaqpot.core.service.exceptions.QuotaExceededException;
 import org.jaqpot.core.service.exceptions.parameter.*;
 import org.jaqpot.core.service.validator.ParameterValidator;
-import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput;
 
 import javax.ejb.EJB;
 import javax.inject.Inject;
@@ -77,7 +77,8 @@ import java.util.logging.Logger;
 @Path("algorithm")
 @Api(value = "/algorithm", description = "Algorithms API")
 @Produces({"application/json", "text/uri-list"})
-@Authorize
+//@Authorize
+
 public class AlgorithmResource {
 
     private static final Logger LOG = Logger.getLogger(AlgorithmResource.class.getName());
@@ -134,6 +135,7 @@ public class AlgorithmResource {
     ParameterValidator parameterValidator;
 
     @GET
+    @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @ApiOperation(
             value = "Finds all Algorithms",
@@ -155,7 +157,7 @@ public class AlgorithmResource {
 
 })
     public Response getAlgorithms(
-            @ApiParam(value = "Authorization token") @HeaderParam("subjectid") String subjectId,
+            @ApiParam(value = "Authorization token") @HeaderParam("apiKey") String apiKey,
             @ApiParam(value = "class") @QueryParam("class") String ontologicalClass,
             @ApiParam(value = "start", defaultValue = "0") @QueryParam("start") Integer start,
             @ApiParam(value = "max", defaultValue = "10") @QueryParam("max") Integer max) {
@@ -172,6 +174,7 @@ public class AlgorithmResource {
     }
 
     @POST
+    @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @ApiOperation(
             value = "Creates Algorithm",
@@ -203,7 +206,7 @@ public class AlgorithmResource {
 })
     public Response createAlgorithm(
             @ApiParam(value = "Algorithm in JSON", defaultValue = DEFAULT_ALGORITHM, required = true) Algorithm algorithm,
-            @ApiParam(value = "Authorization token") @HeaderParam("subjectid") String subjectId,
+            @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key,
             @ApiParam(value = "Title of your algorithm") @HeaderParam("title") String title,
             @ApiParam(value = "Short description of your algorithm") @HeaderParam("description") String description,
             @ApiParam(value = "Tags for your algorithm (in a comma separated list) to facilitate look-up") @HeaderParam("tags") String tags
@@ -251,6 +254,7 @@ public class AlgorithmResource {
 
     @GET
     @Path("/{id}")
+    @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list", "application/ld+json"})
     @ApiOperation(value = "Finds Algorithm",
             notes = "Finds Algorithm with provided name",
@@ -274,7 +278,7 @@ public class AlgorithmResource {
             @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
     })
     public Response getAlgorithm(
-            @ApiParam(value = "Authorization token") @HeaderParam("subjectid") String subjectId,
+            @ApiParam(value = "Authorization token")  @HeaderParam("Authorization") String api_key,
             @PathParam("id") String algorithmId) throws ParameterIsNullException {
         if (algorithmId == null) {
             throw new ParameterIsNullException("algorithmId");
@@ -289,6 +293,7 @@ public class AlgorithmResource {
 
     @POST
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
+    @TokenSecured({RoleEnum.DEFAULT_USER})
     @Path("/{id}")
     @ApiOperation(value = "Creates Model",
             notes = "Applies Dataset and Parameters on Algorithm and creates Model.",
@@ -325,9 +330,11 @@ public class AlgorithmResource {
             @ApiParam(name = "scaling", defaultValue = STANDARIZATION) @FormParam("scaling") String scaling, //, allowableValues = SCALING + "," + STANDARIZATION
             @ApiParam(name = "doa", defaultValue = DEFAULT_DOA) @FormParam("doa") String doa,
             @PathParam("id") String algorithmId,
-            @HeaderParam("subjectid") String subjectId) throws QuotaExceededException, ParameterIsNullException, ParameterInvalidURIException, ParameterTypeException, ParameterRangeException, ParameterScopeException, JaqpotDocumentSizeExceededException {
+            @HeaderParam("Authorization") String api_key) throws QuotaExceededException, ParameterIsNullException, ParameterInvalidURIException, ParameterTypeException, ParameterRangeException, ParameterScopeException, JaqpotDocumentSizeExceededException  {
         UrlValidator urlValidator = new UrlValidator(UrlValidator.ALLOW_LOCAL_URLS);
 
+        String[] apiA = api_key.split("\\s+");
+        String apiKey = apiA[1];
         Algorithm algorithm = algorithmHandler.find(algorithmId);
         if (algorithm == null) {
             throw new NotFoundException("Could not find Algorithm with id:" + algorithmId);
@@ -387,7 +394,7 @@ public class AlgorithmResource {
         options.put("description", description);
         options.put("dataset_uri", datasetURI);
         options.put("prediction_feature", predictionFeature);
-        options.put("subjectid", subjectId);
+        options.put("api_key", apiKey);
         options.put("algorithmId", algorithmId);
         options.put("parameters", parameters);
         options.put("base_uri", uriInfo.getBaseUri().toString());
@@ -419,6 +426,7 @@ public class AlgorithmResource {
     }
 
     @DELETE
+    @TokenSecured({RoleEnum.ADMNISTRATOR})
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/{id}")
     @ApiOperation(value = "Unregisters an algorithm of given ID",
@@ -447,7 +455,7 @@ public class AlgorithmResource {
     })
     public Response deleteAlgorithm(
             @ApiParam(value = "ID of the algorithm which is to be deleted.", required = true) @PathParam("id") String id,
-            @HeaderParam("subjectid") String subjectId) throws ParameterIsNullException, JaqpotForbiddenException {
+            @HeaderParam("apiKey") String apiKey) throws ParameterIsNullException, JaqpotForbiddenException {
 
         if (id == null) {
             throw new ParameterIsNullException("id");
@@ -471,6 +479,7 @@ public class AlgorithmResource {
 
     @PATCH
     @Path("/{id}")
+    @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @Consumes("application/json-patch+json")
     @ApiOperation(value = "Modifies a particular Algorithm resource",
@@ -485,7 +494,7 @@ public class AlgorithmResource {
         @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
     })
     public Response modifyAlgorithm(
-            @ApiParam("Clients need to authenticate in order to create resources on the server") @HeaderParam("subjectid") String subjectId,
+            @ApiParam("Clients need to authenticate in order to create resources on the server") @HeaderParam("apiKey") String apiKey,
             @ApiParam(value = "ID of an existing BibTeX.", required = true) @PathParam("id") String id,
             @ApiParam(value = "The patch in JSON according to the RFC 6902 specs", required = true) String patch
     ) throws JsonPatchException, JsonProcessingException {

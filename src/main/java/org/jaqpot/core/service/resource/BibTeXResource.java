@@ -68,7 +68,9 @@ import org.jaqpot.core.model.factory.ErrorReportFactory;
 import org.jaqpot.core.model.util.ROG;
 import org.jaqpot.core.model.validator.BibTeXValidator;
 import org.jaqpot.core.service.annotations.Authorize;
-import org.jaqpot.core.service.data.AAService;
+import org.jaqpot.core.service.annotations.TokenSecured;
+import org.jaqpot.core.service.authenitcation.AAService;
+import org.jaqpot.core.service.authenitcation.RoleEnum;
 import org.jaqpot.core.service.exceptions.JaqpotDocumentSizeExceededException;
 import org.jaqpot.core.service.exceptions.JaqpotForbiddenException;
 import org.jaqpot.core.service.exceptions.JaqpotNotAuthorizedException;
@@ -120,6 +122,7 @@ public class BibTeXResource {
     BibTeXHandler bibtexHandler;
     
     @GET
+    @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @ApiOperation(value = "Finds all BibTeX entries",
             notes = "Finds all BibTeX entries in the DB of Jaqpot and returns them in a list", position = 1)
@@ -148,6 +151,7 @@ public class BibTeXResource {
     
     @GET
     @Path("/{id}")
+    @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @ApiOperation(value = "Returns BibTeX entry",
             notes = "Finds and returns a BibTeX by ID",
@@ -170,6 +174,7 @@ public class BibTeXResource {
     }
     
     @POST
+    @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @Consumes(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Creates a new BibTeX entry",
@@ -187,8 +192,7 @@ public class BibTeXResource {
     })
     @Authorize
     public Response createBibTeX(
-            @ApiParam(value = "Clients need to authenticate in order to create resources on the server")
-            @HeaderParam("subjectid") String subjectId,
+            @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key,
             @ApiParam(value = "BibTeX in JSON representation compliant with the BibTeX specifications. "
                     + "Malformed BibTeX entries with missing fields will not be accepted.", required = true,
                     defaultValue = DEFAULT_BIBTEX) BibTeX bib
@@ -223,6 +227,7 @@ public class BibTeXResource {
     }
     
     @PUT
+    @TokenSecured({RoleEnum.DEFAULT_USER})
     @Path("/{id}")
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @ApiOperation(value = "Places a new BibTeX entry at a particular URI",
@@ -242,7 +247,7 @@ public class BibTeXResource {
     public Response createBibTeXGivenID(
             @ApiParam(value = "ID of the BibTeX.", required = true) @PathParam("id") String id,
             @ApiParam(value = "BibTeX in JSON", defaultValue = DEFAULT_BIBTEX, required = true) BibTeX bib,
-            @ApiParam("Clients need to authenticate in order to create resources on the server") @HeaderParam("subjectid") String subjectId
+            @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key
     ) throws JaqpotDocumentSizeExceededException {
         if (bib == null) {
             ErrorReport report = ErrorReportFactory.badRequest("No bibtex provided; check out the API specs",
@@ -273,6 +278,7 @@ public class BibTeXResource {
     }
     
     @DELETE
+    @TokenSecured({RoleEnum.DEFAULT_USER})
     @Path("/{id}")
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @ApiOperation(value = "Deletes a particular BibTeX resource",
@@ -288,7 +294,7 @@ public class BibTeXResource {
         @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
     })
     public Response deleteBibTeX(
-            @ApiParam("Clients need to authenticate in order to create resources on the server") @HeaderParam("subjectid") String subjectId,
+            @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key,
             @ApiParam(value = "ID of the BibTeX.", required = true) @PathParam("id") String id
     ) throws JaqpotForbiddenException {
         BibTeX bibTeX = new BibTeX(id);
@@ -302,6 +308,7 @@ public class BibTeXResource {
     }
     
     @PATCH
+    @TokenSecured({RoleEnum.DEFAULT_USER})
     @Path("/{id}")
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @Consumes("application/json-patch+json")
@@ -318,7 +325,7 @@ public class BibTeXResource {
         @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
     })
     public Response modifyBibTeX(
-            @ApiParam("Clients need to authenticate in order to create resources on the server") @HeaderParam("subjectid") String subjectId,
+            @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key,
             @ApiParam(value = "ID of an existing BibTeX.", required = true) @PathParam("id") String id,
             @ApiParam(value = "The patch in JSON according to the RFC 6902 specs", required = true, defaultValue = DEFAULT_BIBTEX_PATCH) String patch
     ) throws JsonPatchException, JsonProcessingException {

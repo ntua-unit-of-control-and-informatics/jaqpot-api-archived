@@ -45,30 +45,26 @@ import com.nimbusds.oauth2.sdk.auth.Secret;
 import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
 import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringWriter;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.security.NoSuchAlgorithmException;
-import java.security.interfaces.RSAPublicKey;
-import java.security.spec.InvalidKeySpecException;
-import java.util.Scanner;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import net.minidev.json.JSONArray;
+import net.minidev.json.JSONObject;
+import org.jaqpot.core.properties.PropertyManager;
+
 import javax.annotation.PostConstruct;
 import javax.ejb.DependsOn;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
 import javax.inject.Inject;
 import javax.ws.rs.InternalServerErrorException;
-import net.minidev.json.JSONArray;
-import net.minidev.json.JSONObject;
-import org.apache.commons.io.IOUtils;
-import org.jaqpot.core.properties.OnAppInit;
-import org.jaqpot.core.properties.PropertyManager;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.security.interfaces.RSAPublicKey;
+import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *

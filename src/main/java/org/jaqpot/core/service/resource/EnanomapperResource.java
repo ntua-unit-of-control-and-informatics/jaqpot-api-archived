@@ -60,6 +60,8 @@ import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import org.jaqpot.core.service.annotations.TokenSecured;
+import org.jaqpot.core.service.authenitcation.RoleEnum;
 
 /**
  *
@@ -69,7 +71,6 @@ import java.util.stream.Collectors;
  */
 @Path("enm")
 @Api(value = "/enm", description = "eNM API")
-@Authorize
 public class EnanomapperResource {
 
     private static final Logger LOG = Logger.getLogger(EnanomapperResource.class.getName());
@@ -189,6 +190,7 @@ public class EnanomapperResource {
 //        return Response.ok(task).build();
 //    }
     @POST
+    @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/dataset")
@@ -201,16 +203,18 @@ public class EnanomapperResource {
     @org.jaqpot.core.service.annotations.Task
     public Response createDatasetByStudy(
             @ApiParam(name = "Data for dataset creation ", defaultValue = DEFAULT_DATASET_DATA) DatasetData datasetData,
-            @HeaderParam("subjectid") String subjectId) throws QuotaExceededException, ExecutionException, InterruptedException, JaqpotDocumentSizeExceededException {
+            @HeaderParam("Authorization") String api_key) throws QuotaExceededException, ExecutionException, InterruptedException,JaqpotDocumentSizeExceededException {
 
         User user = userHandler.find(securityContext.getUserPrincipal().getName());
         long datasetCount = datasetHandler.countAllOfCreator(user.getId());
         int maxAllowedDatasets = new UserFacade(user).getMaxDatasets();
 
+        String[] apiA = api_key.split("\\s+");
+        String apiKey = apiA[1];
         if (datasetCount > maxAllowedDatasets) {
             LOG.info(String.format("User %s has %d datasets while maximum is %d",
                     user.getId(), datasetCount, maxAllowedDatasets));
-            throw new QuotaExceededException("Dear " + user.getId()
+            throw new QuotaExceededException("Dear " + user.getName()
                     + ", your quota has been exceeded; you already have " + datasetCount + " datasets. "
                     + "No more than " + maxAllowedDatasets + " are allowed with your subscription.");
         }
@@ -241,7 +245,7 @@ public class EnanomapperResource {
         options.put("descriptors", descriptorsString);
         options.put("properties", propertiesString);
         options.put("intersect_columns", datasetData.getIntersectColumns() != null ? datasetData.getIntersectColumns() : true);
-        options.put("subjectid", subjectId);
+        options.put("api_key", apiKey);
         options.put("base_uri", uriInfo.getBaseUri().toString());
         options.put("mode", "PREPARATION");
         options.put("retain_null_values", datasetData.getRetainNullValues() != null ? datasetData.getRetainNullValues() : false);
