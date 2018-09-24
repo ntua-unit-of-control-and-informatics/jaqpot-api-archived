@@ -36,6 +36,7 @@ import org.apache.commons.validator.routines.UrlValidator;
 import org.jaqpot.core.data.*;
 import org.jaqpot.core.model.*;
 import org.jaqpot.core.model.Feature;
+import org.jaqpot.core.model.builder.FeatureBuilder;
 import org.jaqpot.core.model.builder.MetaInfoBuilder;
 import org.jaqpot.core.model.dto.dataset.DataEntry;
 import org.jaqpot.core.model.dto.dataset.Dataset;
@@ -116,11 +117,12 @@ public class DatasetResource {
     @UnSecure
     Client client;
 
+
     @Inject
     JPDIClient jpdiClient;
 
     @Inject
-    PropertyManager properyManager;
+    PropertyManager propertyManager;
 
     @Context
     SecurityContext securityContext;
@@ -664,7 +666,7 @@ public class DatasetResource {
                 .stream()
                 .findFirst()
                 .orElseThrow(() -> new BadRequestException("Model does not have a valid prediction feature")));
-        String qprfHost = properyManager.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_QPRF);
+        String qprfHost = propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_QPRF);
         LOG.log(Level.INFO, qprfHost);
         Report report = client.target(qprfHost)
                 .request()
@@ -915,6 +917,7 @@ public class DatasetResource {
                 e.printStackTrace();
             }
         }
+        populateFeatures(dataset);
 
         ROG randomStringGenerator = new ROG(true);
         dataset.setId(randomStringGenerator.nextString(14));
@@ -943,7 +946,7 @@ public class DatasetResource {
             List<String> line = parseLine(scanner.nextLine());
             if (firstLine) {
                 for (String l : line) {
-                   String pseudoURL = ("/feature/" + l).replaceAll(" ","_"); //uriInfo.getBaseUri().toString()+
+                   String pseudoURL = "/feature/" + l.replaceAll(" ","_"); //uriInfo.getBaseUri().toString()+
                     feature.add(pseudoURL);
                     featureInfoList.add(new FeatureInfo(pseudoURL, l,"NA",new HashMap<>(),Dataset.DescriptorCategory.EXPERIMENTAL));
                 }
@@ -973,5 +976,22 @@ public class DatasetResource {
         scanner.close();
         dataset.setFeatures(featureInfoList);
         dataset.setDataEntry(dataEntryList);
+    }
+
+    private void populateFeatures(Dataset dataset) throws JaqpotDocumentSizeExceededException {
+        for (FeatureInfo featureInfo : dataset.getFeatures()) {
+            String featureURI = null;
+            Feature f = FeatureBuilder.builder(featureInfo.getName().replaceAll(" ","_") + "_" + new ROG(true).nextString(12))
+                    .addTitles(featureInfo.getName()).build();
+            featureHandler.create(f);
+            featureURI = propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_BASE_SERVICE)+"feature/" + f.getId();
+            //Update FeatureURIS in Data Entries
+            for (DataEntry dataentry : dataset.getDataEntry()) {
+                Object value = dataentry.getValues().remove(featureInfo.getURI());
+                dataentry.getValues().put(featureURI,value);
+            }
+            //Update FeatureURI in Feature Info
+            featureInfo.setURI(featureURI);
+        }
     }
 }

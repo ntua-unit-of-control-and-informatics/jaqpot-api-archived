@@ -80,7 +80,7 @@ public class PropertyManager {
         JAQPOT_JANITOR_TARGET("janitor.target", "janitor", ""),
         JAQPOT_JANITOR_USERNAME("janitor.username", "janitor", ""),
         JAQPOT_JANITOR_PASSWORD("janitor.password", "janitor", ""),
-        JAQPOT_AMBIT("jaqpot.base.ambit", "config", "https://data.enanomapper.net:443/"),
+        JAQPOT_AMBIT("jaqpot.base.ambit", "config", "https://data.enanomapper.net/"),
         JAQPOT_PYTHON_ALGORITHMS_HOST("python.algorithms.host", "config", "http://localhost:8080/"),
         JAQPOT_EXPERIMENTAL_DESIGNS_HOST("exp.design.host", "config", "http://localhost:8080/"),
         JAQPOT_BASE_ALGORITHMS("jaqpot.base.algorithms", "config", "http://localhost:8080/algorithms/service/"),

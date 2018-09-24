@@ -316,9 +316,8 @@ public class ConjoinerService {
                     usedDescriptors.add(Dataset.DescriptorCategory.MOPAC);
                     continue;
                 } else {
-                    if (!descriptors.contains(Dataset.DescriptorCategory.EXPERIMENTAL.name())) {
+                    if (!descriptors.contains(Dataset.DescriptorCategory.EXPERIMENTAL.name()))
                         continue;
-                    }
                     String name = effect.getEndpoint();
                     String units = effect.getResult().getUnit();
                     String conditions = serializer.write(effect.getConditions());
