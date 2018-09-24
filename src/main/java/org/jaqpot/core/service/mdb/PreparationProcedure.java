@@ -133,6 +133,11 @@ public class PreparationProcedure extends AbstractJaqpotProcedure implements Mes
             dataset.setMeta(datasetMeta);
             dataset.setVisible(Boolean.TRUE);
 
+            if (dataset.getDataEntry() == null || dataset.getDataEntry().isEmpty()
+            || dataset.getDataEntry().get(0).getValues()==null || dataset.getDataEntry().get(0).getValues().isEmpty() ) {
+            throw new IllegalArgumentException("Resulting dataset is empty");
+            }
+
             datasetHandler.create(dataset);
 
             progress(80f, "Dataset saved successfully.");

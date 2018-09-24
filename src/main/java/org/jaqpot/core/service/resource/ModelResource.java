@@ -65,6 +65,7 @@ import org.jaqpot.core.service.annotations.TokenSecured;
 import org.jaqpot.core.service.annotations.UnSecure;
 import org.jaqpot.core.service.authentication.RoleEnum;
 import org.jaqpot.core.service.data.PredictionService;
+import org.jaqpot.core.service.exceptions.JaqpotDocumentSizeExceededException;
 import org.jaqpot.core.service.exceptions.JaqpotForbiddenException;
 import org.jaqpot.core.service.exceptions.parameter.ParameterInvalidURIException;
 import org.jaqpot.core.service.exceptions.parameter.ParameterIsNullException;
@@ -455,7 +456,7 @@ public class ModelResource {
             @ApiParam(name = "dataset_uri", required = true) @FormParam("dataset_uri") String datasetURI,
             @FormParam("visible") Boolean visible,
             @PathParam("id") String id,
-            @HeaderParam("Authorization") String api_key) throws GeneralSecurityException, QuotaExceededException, ParameterIsNullException, ParameterInvalidURIException {
+            @HeaderParam("Authorization") String api_key) throws GeneralSecurityException, QuotaExceededException, ParameterIsNullException, ParameterInvalidURIException,JaqpotDocumentSizeExceededException {
         String[] apiA = api_key.split("\\s+");
         String apiKey = apiA[1];
         if (datasetURI == null) {

@@ -45,6 +45,7 @@ import org.jaqpot.core.model.util.ROG;
 import org.jaqpot.core.properties.PropertyManager;
 import org.jaqpot.core.service.annotations.Authorize;
 import org.jaqpot.core.service.annotations.UnSecure;
+import org.jaqpot.core.service.exceptions.JaqpotDocumentSizeExceededException;
 import org.jaqpot.core.service.exceptions.QuotaExceededException;
 
 import javax.ejb.EJB;
@@ -105,7 +106,7 @@ public class InterLabTestingResource {
             @FormParam("prediction_feature") String predictionFeature,
             @FormParam("parameters") String parameters,
             @HeaderParam("Authorization") String api_key
-    ) throws QuotaExceededException {
+    ) throws QuotaExceededException, JaqpotDocumentSizeExceededException {
 
         String[] apiA = api_key.split("\\s+");
         String apiKey = apiA[1];

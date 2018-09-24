@@ -51,16 +51,13 @@ import org.jaqpot.core.model.dto.dataset.Dataset;
 import org.jaqpot.core.model.facades.UserFacade;
 import org.jaqpot.core.model.factory.ErrorReportFactory;
 import org.jaqpot.core.model.util.ROG;
-import org.jaqpot.core.service.annotations.Authorize;
+import org.jaqpot.core.service.annotations.TokenSecured;
 import org.jaqpot.core.service.data.TrainingService;
+import org.jaqpot.core.service.exceptions.JaqpotDocumentSizeExceededException;
 import org.jaqpot.core.service.exceptions.JaqpotForbiddenException;
-import org.jaqpot.core.service.exceptions.JaqpotNotAuthorizedException;
-import org.jaqpot.core.service.exceptions.JaqpotForbiddenException;
-import org.jaqpot.core.service.exceptions.parameter.*;
 import org.jaqpot.core.service.exceptions.QuotaExceededException;
 import org.jaqpot.core.service.exceptions.parameter.*;
 import org.jaqpot.core.service.validator.ParameterValidator;
-import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput;
 
 import javax.ejb.EJB;
 import javax.inject.Inject;
@@ -69,8 +66,10 @@ import javax.ws.rs.core.*;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import org.jaqpot.core.service.annotations.TokenSecured;
 import org.jaqpot.core.service.authentication.RoleEnum;
+
 
 /**
  *
@@ -214,7 +213,7 @@ public class AlgorithmResource {
             @ApiParam(value = "Title of your algorithm") @HeaderParam("title") String title,
             @ApiParam(value = "Short description of your algorithm") @HeaderParam("description") String description,
             @ApiParam(value = "Tags for your algorithm (in a comma separated list) to facilitate look-up") @HeaderParam("tags") String tags
-    ) throws QuotaExceededException {
+    ) throws QuotaExceededException, JaqpotDocumentSizeExceededException {
 
         User user = userHandler.find(securityContext.getUserPrincipal().getName());
         long algorithmCount = algorithmHandler.countAllOfCreator(user.getId());
@@ -334,7 +333,7 @@ public class AlgorithmResource {
             @ApiParam(name = "scaling", defaultValue = STANDARIZATION) @FormParam("scaling") String scaling, //, allowableValues = SCALING + "," + STANDARIZATION
             @ApiParam(name = "doa", defaultValue = DEFAULT_DOA) @FormParam("doa") String doa,
             @PathParam("id") String algorithmId,
-            @HeaderParam("Authorization") String api_key) throws QuotaExceededException, ParameterIsNullException, ParameterInvalidURIException, ParameterTypeException, ParameterRangeException, ParameterScopeException {
+            @HeaderParam("Authorization") String api_key) throws QuotaExceededException, ParameterIsNullException, ParameterInvalidURIException, ParameterTypeException, ParameterRangeException, ParameterScopeException, JaqpotDocumentSizeExceededException  {
         UrlValidator urlValidator = new UrlValidator(UrlValidator.ALLOW_LOCAL_URLS);
 
         String[] apiA = api_key.split("\\s+");

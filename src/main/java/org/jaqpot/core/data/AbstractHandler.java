@@ -38,6 +38,7 @@ import java.util.Map;
 
 import org.jaqpot.core.db.entitymanager.JaqpotEntityManager;
 import org.jaqpot.core.model.JaqpotEntity;
+import org.jaqpot.core.service.exceptions.JaqpotDocumentSizeExceededException;
 
 
 /**
@@ -57,7 +58,7 @@ public abstract class AbstractHandler<T extends JaqpotEntity>  {
 
     protected abstract JaqpotEntityManager getEntityManager();
 
-    public void create(T entity) {
+    public void create(T entity) throws JaqpotDocumentSizeExceededException {
         if (entity.getMeta() != null) {
             entity.getMeta().setDate(new Date());
         }

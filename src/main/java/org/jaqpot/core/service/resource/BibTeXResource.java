@@ -71,6 +71,8 @@ import org.jaqpot.core.service.annotations.Authorize;
 import org.jaqpot.core.service.annotations.TokenSecured;
 import org.jaqpot.core.service.authentication.AAService;
 import org.jaqpot.core.service.authentication.RoleEnum;
+import org.jaqpot.core.service.exceptions.JaqpotDocumentSizeExceededException;
+
 import org.jaqpot.core.service.exceptions.JaqpotForbiddenException;
 import org.jaqpot.core.service.exceptions.JaqpotNotAuthorizedException;
 
@@ -195,7 +197,7 @@ public class BibTeXResource {
             @ApiParam(value = "BibTeX in JSON representation compliant with the BibTeX specifications. "
                     + "Malformed BibTeX entries with missing fields will not be accepted.", required = true,
                     defaultValue = DEFAULT_BIBTEX) BibTeX bib
-    ) throws JaqpotNotAuthorizedException {
+    ) throws JaqpotNotAuthorizedException, JaqpotDocumentSizeExceededException {
         if (bib == null) {
             ErrorReport report = ErrorReportFactory.badRequest("No bibtex provided; check out the API specs",
                     "Clients MUST provide a BibTeX document in JSON to perform this request");
@@ -247,7 +249,7 @@ public class BibTeXResource {
             @ApiParam(value = "ID of the BibTeX.", required = true) @PathParam("id") String id,
             @ApiParam(value = "BibTeX in JSON", defaultValue = DEFAULT_BIBTEX, required = true) BibTeX bib,
             @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key
-    ) {
+    ) throws JaqpotDocumentSizeExceededException {
         if (bib == null) {
             ErrorReport report = ErrorReportFactory.badRequest("No bibtex provided; check out the API specs",
                     "Clients MUST provide a BibTeX document in JSON to perform this request");

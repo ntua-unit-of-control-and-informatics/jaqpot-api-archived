@@ -66,6 +66,7 @@ import org.jaqpot.core.model.builder.MetaInfoBuilder;
 import org.jaqpot.core.model.facades.UserFacade;
 import org.jaqpot.core.model.util.ROG;
 import org.jaqpot.core.service.annotations.Authorize;
+import org.jaqpot.core.service.exceptions.JaqpotDocumentSizeExceededException;
 import org.jaqpot.core.service.annotations.TokenSecured;
 import org.jaqpot.core.service.authentication.RoleEnum;
 import org.jaqpot.core.service.exceptions.parameter.ParameterInvalidURIException;
@@ -160,14 +161,14 @@ public class ValidationResource {
             @FormParam("stratify") String stratify,
             @FormParam("seed") Integer seed,
             @HeaderParam("Authorization") String api_key
-    ) throws QuotaExceededException, JMSException, ParameterInvalidURIException, ParameterIsNullException {
+    ) throws QuotaExceededException, JMSException, ParameterInvalidURIException, ParameterIsNullException,JaqpotDocumentSizeExceededException {
         if (algorithmURI==null)
             throw new ParameterIsNullException("algorithmURI");
         if (datasetURI==null)
             throw new ParameterIsNullException("datasetURI");
         if (folds==null)
             throw new ParameterIsNullException("folds");
-        
+
         String[] apiA = api_key.split("\\s+");
         String apiKey = apiA[1];
         User user = userHandler.find(securityContext.getUserPrincipal().getName());
@@ -267,7 +268,7 @@ public class ValidationResource {
             @FormParam("stratify") String stratify,
             @FormParam("seed") Integer seed,
             @HeaderParam("Authorization") String api_key
-    ) throws QuotaExceededException, JMSException, ParameterInvalidURIException, ParameterIsNullException {
+    ) throws QuotaExceededException, JMSException, ParameterInvalidURIException, ParameterIsNullException, JaqpotDocumentSizeExceededException  {
         if (algorithmURI==null)
             throw new ParameterIsNullException("algorithmURI");
         if (datasetURI==null)
@@ -366,7 +367,7 @@ public class ValidationResource {
             @FormParam("model_uri") String modelURI,
             @FormParam("test_dataset_uri") String datasetURI,
             @HeaderParam("Authorization") String api_key
-    ) throws QuotaExceededException, ParameterIsNullException, ParameterInvalidURIException {
+    ) throws QuotaExceededException, ParameterIsNullException, ParameterInvalidURIException,JaqpotDocumentSizeExceededException {
         if (modelURI==null)
             throw new ParameterIsNullException("modelURI");
         if (datasetURI==null)

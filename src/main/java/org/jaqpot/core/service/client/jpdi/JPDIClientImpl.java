@@ -65,6 +65,7 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.apache.http.Header;
+import org.jaqpot.core.service.exceptions.JaqpotDocumentSizeExceededException;
 
 /**
  *
@@ -291,6 +292,9 @@ public class JPDIClientImpl implements JPDIClient {
                     }
                 } catch (IOException | UnsupportedOperationException ex) {
                     futureModel.completeExceptionally(ex);
+                } catch (JaqpotDocumentSizeExceededException e) {
+                    futureModel.completeExceptionally(e);
+                    e.printStackTrace();
                 }
             }
             

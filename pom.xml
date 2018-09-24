@@ -128,7 +128,7 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
-            <version>3.4</version>
+            <version>3.8</version>
         </dependency>
         <dependency>
             <groupId>com.itextpdf.tool</groupId>
@@ -224,7 +224,7 @@
         <server.base></server.base>
         <ambit.base></ambit.base>
         <algorithms.base></algorithms.base>
-        <jaqpot.python.algorithms.host></jaqpot.python.algorithms.host>
+        <python.algorithms.host></python.algorithms.host>
         <exp.design.host></exp.design.host>
         <image.base></image.base>
         <validation.base></validation.base>

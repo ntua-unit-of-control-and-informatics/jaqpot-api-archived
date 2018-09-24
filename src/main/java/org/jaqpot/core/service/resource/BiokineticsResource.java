@@ -14,6 +14,8 @@ import org.jaqpot.core.model.facades.UserFacade;
 import org.jaqpot.core.service.annotations.Authorize;
 import org.jaqpot.core.service.authentication.AAService;
 import org.jaqpot.core.service.data.TrainingService;
+import org.jaqpot.core.service.exceptions.JaqpotDocumentSizeExceededException;
+import org.jaqpot.core.service.exceptions.JaqpotDocumentSizeExceededException;
 import org.jaqpot.core.service.exceptions.QuotaExceededException;
 import org.jaqpot.core.service.exceptions.parameter.*;
 import org.jaqpot.core.service.validator.ParameterValidator;
@@ -113,7 +115,7 @@ public class BiokineticsResource {
     public Response trainBiokineticsModel(
             @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key,
             @ApiParam(value = "multipartFormData input", hidden = true) MultipartFormDataInput input)
-            throws ParameterIsNullException, ParameterInvalidURIException, QuotaExceededException, IOException, ParameterScopeException, ParameterRangeException, ParameterTypeException {
+            throws ParameterIsNullException, ParameterInvalidURIException, QuotaExceededException, IOException, ParameterScopeException, ParameterRangeException, ParameterTypeException, JaqpotDocumentSizeExceededException {
 
         String[] apiA = api_key.split("\\s+");
         String apiKey = apiA[1];
@@ -232,12 +234,12 @@ public class BiokineticsResource {
             @ApiParam(name = "description", required = true) @FormParam("description") String description,
             @FormParam("parameters") String parameters,
             //            @ApiParam(name = "algorithmId", required = true) @FormParam("algorithmId") String algorithmId,
-            @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key) throws QuotaExceededException, ParameterIsNullException, ParameterInvalidURIException, ParameterTypeException, ParameterRangeException, ParameterScopeException {
+            @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key) throws QuotaExceededException, ParameterIsNullException, ParameterInvalidURIException, ParameterTypeException, ParameterRangeException, ParameterScopeException, JaqpotDocumentSizeExceededException {
         UrlValidator urlValidator = new UrlValidator(UrlValidator.ALLOW_LOCAL_URLS);
-        
+
         String[] apiA = api_key.split("\\s+");
-        String apiKey = apiA[1];        
-        
+        String apiKey = apiA[1];
+
         String algorithmId = "httk";
         Algorithm algorithm = algorithmHandler.find(algorithmId);
         if (algorithm == null) {
@@ -318,15 +320,15 @@ public class BiokineticsResource {
     public Response makeHttkPrediction(
             @FormParam("visible") Boolean visible,
             @PathParam("id") String id,
-            @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key) throws GeneralSecurityException, QuotaExceededException, ParameterIsNullException, ParameterInvalidURIException {
+            @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key) throws GeneralSecurityException, QuotaExceededException, ParameterIsNullException, ParameterInvalidURIException, JaqpotDocumentSizeExceededException {
 
         if (id == null) {
             throw new ParameterIsNullException("id");
         }
 
         String[] apiA = api_key.split("\\s+");
-        String apiKey = apiA[1];         
-        
+        String apiKey = apiA[1];
+
         UrlValidator urlValidator = new UrlValidator(UrlValidator.ALLOW_LOCAL_URLS);
 
         User user = userHandler.find(securityContext.getUserPrincipal().getName());
