@@ -46,6 +46,7 @@ import javax.ws.rs.BadRequestException;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
@@ -146,6 +147,41 @@ public class NotificationResource {
         
         try{
             notifHandler.create(notif);
+        }catch(Exception e){
+            throw new BadRequestException("Could not create Notification, cause: " + e.getMessage());
+        }
+        
+        return Response
+                .ok(notif)
+                .build();
+    }
+    
+    @PUT
+    @TokenSecured({RoleEnum.DEFAULT_USER})
+    @Produces({MediaType.APPLICATION_JSON})
+    @ApiOperation(value = "Updates notification",
+            notes = "Updates Notifications for Jaqpot Users. ",
+            response = Notification.class)
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "Notifications updated")
+        ,
+        @ApiResponse(code = 401, message = "You are not authorized to access this resource")
+        ,
+        @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)")
+        ,
+        @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
+    })
+    public Response updateNotification(
+            @ApiParam(value = "Clients need to authenticate in order to create notification") @HeaderParam("Authorization") String api_key,
+            Notification notif
+    ) throws JaqpotNotAuthorizedException {
+
+
+        String currentUserID = securityContext.getUserPrincipal().getName();
+        
+        
+        try{
+            notifHandler.edit(notif);
         }catch(Exception e){
             throw new BadRequestException("Could not create Notification, cause: " + e.getMessage());
         }

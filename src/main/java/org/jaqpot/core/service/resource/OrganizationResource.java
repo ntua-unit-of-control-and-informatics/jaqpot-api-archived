@@ -59,11 +59,13 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
+import org.jaqpot.core.data.NotificationHandler;
 import org.jaqpot.core.data.OrganizationHandler;
 import org.jaqpot.core.data.UserHandler;
 import org.jaqpot.core.model.Algorithm;
 import org.jaqpot.core.model.ErrorReport;
 import org.jaqpot.core.model.MetaInfo;
+import org.jaqpot.core.model.Notification;
 import org.jaqpot.core.model.Organization;
 import org.jaqpot.core.model.User;
 import org.jaqpot.core.model.builder.MetaInfoBuilder;
@@ -95,6 +97,9 @@ public class OrganizationResource {
     
     @EJB
     AAService aaService;
+    
+    @EJB
+    NotificationHandler notificationHandler;
     
     @GET
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
@@ -260,9 +265,9 @@ public class OrganizationResource {
         if(orgForUpdate.getId().equals("Jaqpot") && aaService.isAdmin(apiKey)){
             orgHandler.edit(orgForUpdate);
         }
-        else if( orgForUpdate.getMeta() != null && 
-                orgForUpdate.getMeta().getCreators() != null &&
-                orgForUpdate.getMeta().getCreators().contains(userId)){
+        
+        List<Notification> notifs = notificationHandler.getInvitationsToOrg(userId, orgForUpdate.getId());
+        if(notifs.size() > 0 || orgForUpdate.getMeta().getCreators().contains(userId)){
             orgHandler.edit(orgForUpdate);
         }
         else{

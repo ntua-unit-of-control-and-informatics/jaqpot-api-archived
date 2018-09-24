@@ -70,13 +70,20 @@ public class NotificationHandler extends AbstractHandler<Notification> {
         return em.count(Notification.class, properties);
     }
     
-    public List<Notification> getOwnersNotifs(String owner,String query, int start, int end) {
+    public List<Notification> getOwnersNotifs(String owner, String query, int start, int end) {
         Map<String, Object> properties = new HashMap<>();
         properties.put("owner", owner);
         if(query.equals("UNREAD")){
             properties.put("viewed", false);
         }
         return em.find(Notification.class, properties, start, end);
+    }
+    
+    public List<Notification> getInvitationsToOrg(String owner, String organization){
+         Map<String, Object> properties = new HashMap<>();
+        properties.put("owner", owner);
+        properties.put("invitationTo", organization);
+        return em.find(Notification.class, properties, 0, 100);
     }
 
 }
