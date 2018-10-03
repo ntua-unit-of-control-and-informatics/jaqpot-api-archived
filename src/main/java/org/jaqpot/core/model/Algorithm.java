@@ -58,7 +58,6 @@ public class Algorithm extends JaqpotEntity {
     private Set<BibTeX> bibtex;
 
     private String trainingService;
-    private String quickPredictionService;
     private String predictionService;
     private String reportService;
 

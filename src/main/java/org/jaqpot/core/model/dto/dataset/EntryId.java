@@ -44,7 +44,8 @@ public class EntryId {
     String URI;
     String name;
     String ownerUUID;
-
+    String type;
+    
     public EntryId(){}
     public EntryId(String URI, String name, String ownerUUID) {
         this.URI = URI;
@@ -78,6 +79,14 @@ public class EntryId {
         this.ownerUUID = ownerUUID;
     }
 
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+    
     @Override
     public String toString() {
         return "EntryId{" + "URI=" + URI + '}';
