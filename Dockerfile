@@ -23,7 +23,7 @@ RUN \
 
 
 
-ADD ./target/jaqpot-api-4.0.3.war /opt/jboss/wildfly/standalone/deployments/
+ADD ./target/jaqpot-api-4.0.5.war /opt/jboss/wildfly/standalone/deployments/
 ADD ./standalone/standalone.xml /opt/jboss/wildfly/standalone/configuration/standalone.xml
 
 
