@@ -48,6 +48,7 @@ import org.jaqpot.core.service.client.ambit.Ambit;
 import org.jaqpot.core.service.data.ConjoinerService;
 import org.jaqpot.core.service.data.PredictionService;
 import org.jaqpot.core.service.data.TrainingService;
+import org.jaqpot.core.service.exceptions.JaqpotDocumentSizeExceededException;
 import org.jaqpot.core.service.exceptions.QuotaExceededException;
 
 import javax.ejb.EJB;
@@ -202,7 +203,7 @@ public class EnanomapperResource {
     @org.jaqpot.core.service.annotations.Task
     public Response createDatasetByStudy(
             @ApiParam(name = "Data for dataset creation ", defaultValue = DEFAULT_DATASET_DATA) DatasetData datasetData,
-            @HeaderParam("Authorization") String api_key) throws QuotaExceededException, ExecutionException, InterruptedException {
+            @HeaderParam("Authorization") String api_key) throws QuotaExceededException, ExecutionException, InterruptedException,JaqpotDocumentSizeExceededException {
 
         User user = userHandler.find(securityContext.getUserPrincipal().getName());
         long datasetCount = datasetHandler.countAllOfCreator(user.getId());

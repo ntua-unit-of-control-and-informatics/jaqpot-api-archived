@@ -42,6 +42,7 @@ import org.jaqpot.core.model.User;
 import org.jaqpot.core.model.facades.UserFacade;
 import org.jaqpot.core.service.annotations.Authorize;
 import org.jaqpot.core.service.data.CalculationService;
+import org.jaqpot.core.service.exceptions.JaqpotDocumentSizeExceededException;
 import org.jaqpot.core.service.exceptions.QuotaExceededException;
 import org.jaqpot.core.service.exceptions.parameter.*;
 import org.jaqpot.core.service.validator.ParameterValidator;
@@ -119,7 +120,7 @@ public class OpenRiskNetResource {
     @Path("/upload")
     @Consumes("multipart/form-data")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "file", value = "xls[m,x] file", required = true, dataType = "file", paramType = "formData"),
+            @ApiImplicitParam(name = "smilesFile", value = "xls[m,x] file", required = true, dataType = "file", paramType = "formData"),
             @ApiImplicitParam(name = "title", value = "Title of dataset", required = true, dataType = "string", paramType = "formData"),
             @ApiImplicitParam(name = "description", value = "Description of dataset", required = true, dataType = "string", paramType = "formData"),
             @ApiImplicitParam(name = "algorithm-uri", value = "Algorithm URI", required = true, dataType = "string", paramType = "formData"),
@@ -134,7 +135,7 @@ public class OpenRiskNetResource {
     public Response uploadFile(
             @HeaderParam("Authorization") String api_key,
             @ApiParam(value = "multipartFormData input", hidden = true) MultipartFormDataInput input)
-            throws ParameterIsNullException, ParameterInvalidURIException, QuotaExceededException, IOException, ParameterScopeException, ParameterRangeException, ParameterTypeException {
+            throws ParameterIsNullException, ParameterInvalidURIException, QuotaExceededException, IOException, ParameterScopeException, ParameterRangeException, ParameterTypeException, JaqpotDocumentSizeExceededException {
         UrlValidator urlValidator = new UrlValidator();
         String[] apiA = api_key.split("\\s+");
         String apiKey = apiA[1];
@@ -150,9 +151,15 @@ public class OpenRiskNetResource {
                     + "No more than " + maxAllowedDatasets + " are allowed with your subscription.");
         }
 
-        byte[] bytes = new byte[0];
+
         Map<String, List<InputPart>> uploadForm = input.getFormDataMap();
-        List<InputPart> inputParts = uploadForm.get("file");
+        List<InputPart> inputParts = uploadForm.get("smilesFile");
+        String filename = getFileName(inputParts.get(0).getHeaders());
+
+
+        byte[] bytes = new byte[0];
+        bytes = getBytesFromInputParts(inputParts);
+
         String title = uploadForm.get("title").get(0).getBody(String.class, null);
         String description = uploadForm.get("description").get(0).getBody(String.class, null);
         String algorithmURI = uploadForm.get("algorithm-uri").get(0).getBody(String.class, null);
@@ -177,25 +184,8 @@ public class OpenRiskNetResource {
 
         parameterValidator.validate(parameters, algorithm.getParameters());
 
-        String filename="";
 
-        for (InputPart inputPart : inputParts) {
 
-            try {
-                MultivaluedMap<String, String> header = inputPart.getHeaders();
-                filename = getFileName(header);
-
-                //convert the uploaded file to inputstream
-                InputStream inputStream = inputPart.getBody(InputStream.class, null);
-                bytes = getBytesFromInputStream(inputStream);
-                String str = new String(bytes, "UTF-8"); // for UTF-8 encoding
-
-                System.out.println(str);
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
         Map<String, Object> options = new HashMap<>();
         options.put("title", title);
         options.put("description", description);
@@ -210,6 +200,19 @@ public class OpenRiskNetResource {
 
         return Response.ok(task).build();
 
+    }
+
+    private static byte[] getBytesFromInputParts (List<InputPart> inputParts) {
+        for (InputPart inputPart : inputParts) {
+            try {
+                //convert the uploaded file to inputstream
+                InputStream inputStream = inputPart.getBody(InputStream.class, null);
+                return getBytesFromInputStream(inputStream);
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }return  null;
     }
     private static byte[] getBytesFromInputStream(InputStream is) throws IOException {
         ByteArrayOutputStream os = new ByteArrayOutputStream();

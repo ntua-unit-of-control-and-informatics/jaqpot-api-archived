@@ -44,6 +44,7 @@ import org.jaqpot.core.model.facades.UserFacade;
 import org.jaqpot.core.model.util.ROG;
 import org.jaqpot.core.service.annotations.Authorize;
 import org.jaqpot.core.service.annotations.UnSecure;
+import org.jaqpot.core.service.exceptions.JaqpotDocumentSizeExceededException;
 import org.jaqpot.core.service.exceptions.QuotaExceededException;
 
 import javax.ejb.EJB;
@@ -104,7 +105,7 @@ public class DoseResponseResource {
             @FormParam("prediction_feature") String predictionFeature,
             @FormParam("parameters") String parameters,
             @HeaderParam("Authorization") String api_key
-    ) throws QuotaExceededException {
+    ) throws QuotaExceededException,JaqpotDocumentSizeExceededException {
 
         User user = userHandler.find(securityContext.getUserPrincipal().getName());
         long reportCount = reportHandler.countAllOfCreator(user.getId());
@@ -117,10 +118,8 @@ public class DoseResponseResource {
                     + ", your quota has been exceeded; you already have " + reportCount + " reports. "
                     + "No more than " + maxAllowedReports + " are allowed with your subscription.");
         }
-        
         String[] apiA = api_key.split("\\s+");
         String apiKey = apiA[1];
-        
         Dataset dataset = client.target(datasetURI)
                 .request()
                 .header("Authorization", "Bearer " + apiKey)

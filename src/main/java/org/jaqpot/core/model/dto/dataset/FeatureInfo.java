@@ -50,10 +50,20 @@ public class FeatureInfo {
     public FeatureInfo() {
     }
 
-    public FeatureInfo(String URI, String name) {
+    public FeatureInfo(String URI, String name){
         this.URI = URI;
         this.name = name;
     }
+
+    public FeatureInfo(String URI, String name, String units, Map<String, Object> conditions, Dataset.DescriptorCategory category) {
+        this.URI = URI;
+        this.name = name;
+        this.units = units;
+        this.conditions = conditions;
+        this.category = category;
+    }
+
+
 
     public String getOnt() {
         return ont;

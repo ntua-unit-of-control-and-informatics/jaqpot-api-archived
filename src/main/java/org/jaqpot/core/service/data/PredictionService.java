@@ -40,6 +40,7 @@ import org.jaqpot.core.data.TaskHandler;
 import org.jaqpot.core.model.Task;
 import org.jaqpot.core.model.builder.MetaInfoBuilder;
 import org.jaqpot.core.model.factory.TaskFactory;
+import org.jaqpot.core.service.exceptions.JaqpotDocumentSizeExceededException;
 
 /**
  *
@@ -58,7 +59,7 @@ public class PredictionService {
     @EJB
     TaskHandler taskHandler;
 
-    public Task initiatePrediction(Map<String, Object> options) {
+    public Task initiatePrediction(Map<String, Object> options) throws JaqpotDocumentSizeExceededException {
 
         Task task = TaskFactory.queuedTask("Prediction by model " + options.get("modelId"),
                 "A prediction procedure will return a new Dataset if completed successfully.",

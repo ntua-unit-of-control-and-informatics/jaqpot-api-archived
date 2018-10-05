@@ -39,6 +39,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import javax.ejb.EJB;
@@ -77,6 +78,7 @@ import org.jaqpot.core.service.annotations.TokenSecured;
 import org.jaqpot.core.service.annotations.UnSecure;
 import org.jaqpot.core.service.authentication.RoleEnum;
 import org.jaqpot.core.service.data.PredictionService;
+import org.jaqpot.core.service.exceptions.JaqpotDocumentSizeExceededException;
 import org.jaqpot.core.service.exceptions.JaqpotForbiddenException;
 import org.jaqpot.core.service.exceptions.parameter.ParameterInvalidURIException;
 import org.jaqpot.core.service.exceptions.parameter.ParameterIsNullException;
@@ -531,7 +533,7 @@ public class ModelResource {
             @ApiParam(name = "dataset_uri", required = true) @FormParam("dataset_uri") String datasetURI,
             @FormParam("visible") Boolean visible,
             @PathParam("id") String id,
-            @HeaderParam("Authorization") String api_key) throws GeneralSecurityException, QuotaExceededException, ParameterIsNullException, ParameterInvalidURIException {
+            @HeaderParam("Authorization") String api_key) throws GeneralSecurityException, QuotaExceededException, ParameterIsNullException, ParameterInvalidURIException,JaqpotDocumentSizeExceededException {
         String[] apiA = api_key.split("\\s+");
         String apiKey = apiA[1];
         if (datasetURI == null) {
@@ -604,7 +606,7 @@ public class ModelResource {
     @org.jaqpot.core.service.annotations.Task
     public Response storePretrained(
             PretrainedModel pretrainedModelRequest,
-            @HeaderParam("Authorization") String api_key) throws GeneralSecurityException, QuotaExceededException, ParameterIsNullException, ParameterInvalidURIException {
+            @HeaderParam("Authorization") String api_key) throws GeneralSecurityException, QuotaExceededException, ParameterIsNullException, ParameterInvalidURIException, IllegalArgumentException, JaqpotDocumentSizeExceededException {
         String[] apiA = api_key.split("\\s+");
         String apiKey = apiA[1];
 
@@ -677,8 +679,11 @@ public class ModelResource {
             pretrainedIndF.setMeta(featMetaInf);
             pretrainedIndF.setFromPretrained(Boolean.TRUE);
             pretrainedIndF.setActualIndependentFeatureName(indf);
-
-            featureHandler.create(pretrainedIndF);
+            try {
+                featureHandler.create(pretrainedIndF);
+            } catch (JaqpotDocumentSizeExceededException ex) {
+                Logger.getLogger(ModelResource.class.getName()).log(Level.SEVERE, null, ex);
+            }
             String featURI = propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_BASE_SERVICE) + "feature/" + linkedFeatID;
             pretrainedIndependentFeatures.add(featURI);
             independentFeaturesForAdd.put(featURI, indf);
@@ -708,7 +713,11 @@ public class ModelResource {
             pretrainedDepF.setFromPretrained(Boolean.TRUE);
             pretrainedDepF.setActualIndependentFeatureName(depenf);
 
-            featureHandler.create(pretrainedDepF);
+            try {
+                featureHandler.create(pretrainedDepF);
+            } catch (JaqpotDocumentSizeExceededException ex) {
+                Logger.getLogger(ModelResource.class.getName()).log(Level.SEVERE, null, ex);
+            }
             String depDeatURI = propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_BASE_SERVICE) + "feature/" + linkedFeatID;
             pretrainedDependentFeatures.add(depDeatURI);
 //            additionalInfo.put(depDeatURI, depenf);

@@ -53,7 +53,7 @@ import org.jaqpot.core.model.User;
 public class PropertyManager {
 
     public enum PropertyType {
-        JAQPOT_LOCAL_IP("jaqpot.local.ip", "config", "null"),
+        JAQPOT_LOCAL_IP("jaqpot.local.ip", "config", "147.102.86.129"),
         JAQPOT_ADMINISTRATORS("jaqpot.administrators", "config", "admin"),
         JAQPOT_AA("jaqpot.aa", "config", "true"),
         JAQPOT_CORS_ALLOWORIGIN("jaqpot.cors.alloworigin", "config", "*"),
@@ -64,7 +64,7 @@ public class PropertyManager {
         JAQPOT_BASE_SERVICE("jaqpot.base.service", "config", "http://localhost:8080/jaqpot/services/"),
         JAQPOT_BASE_IMAGE("jaqpot.base.image", "config", "http://localhost:8880/imageAnalysis/service/"),
         JAQPOT_BASE_VALIDATION("jaqpot.base.validation", "config", "http://localhost:8092/pws/validation"),
-        JAQPOT_BASE_INTERLAB("jaqpot.base.interlab", "config", "http://localhost:8091/pws/interlabtest"),
+        JAQPOT_BASE_INTERLAB("jaqpot.base.interlab", "config", "http://jaqpot.org:8091/pws/interlabtest/"),
         JAQPOT_RABBITMQ_HOST("jaqpot.rabbitmq.host", "config", ""),
         JAQPOT_RABBITMQ_USERNAME("jaqpot.rabbitmq.username", "config", ""),
         JAQPOT_RABBITMQ_PASSWORD("jaqpot.rabbitmq.password", "config", ""),

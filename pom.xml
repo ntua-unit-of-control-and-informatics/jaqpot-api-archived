@@ -128,7 +128,7 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
-            <version>3.4</version>
+            <version>3.8</version>
         </dependency>
         <dependency>
             <groupId>com.itextpdf.tool</groupId>
@@ -143,7 +143,7 @@
         <dependency>
             <groupId>org.jaqpot</groupId>
             <artifactId>ambit-client</artifactId>
-            <version>1.0.4</version>
+            <version>1.0.7</version>
         </dependency>
         <dependency>
             <groupId>org.mapstruct</groupId>
@@ -246,6 +246,7 @@
     <repositories>
         <repository>
             <id>jaqpot-releases</id>
+            <name>jaqpot-releases</name>
             <url>https://nexus.jaqpot.org/repository/maven-releases/</url>
         </repository>
     </repositories>

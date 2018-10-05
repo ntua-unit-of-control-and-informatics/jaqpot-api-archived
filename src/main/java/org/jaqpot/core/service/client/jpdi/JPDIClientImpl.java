@@ -66,7 +66,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import javax.ws.rs.client.Entity;
 import org.apache.http.Header;
-import org.jaqpot.core.model.dto.models.QuickPredictionNeeds;
+import org.jaqpot.core.service.exceptions.JaqpotDocumentSizeExceededException;
 
 /**
  *
@@ -294,6 +294,9 @@ public class JPDIClientImpl implements JPDIClient {
                     }
                 } catch (IOException | UnsupportedOperationException ex) {
                     futureModel.completeExceptionally(ex);
+                } catch (JaqpotDocumentSizeExceededException e) {
+                    futureModel.completeExceptionally(e);
+                    e.printStackTrace();
                 }
             }
 

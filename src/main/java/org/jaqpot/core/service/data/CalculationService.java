@@ -5,6 +5,7 @@ import org.jaqpot.core.model.Task;
 import org.jaqpot.core.model.dto.dataset.Dataset;
 import org.jaqpot.core.model.dto.dataset.FeatureInfo;
 import org.jaqpot.core.model.factory.TaskFactory;
+import org.jaqpot.core.service.exceptions.JaqpotDocumentSizeExceededException;
 
 import javax.annotation.Resource;
 import javax.ejb.EJB;
@@ -35,7 +36,7 @@ public class CalculationService {
 
     private Set<Dataset.DescriptorCategory> usedDescriptors;
 
-    public Task initiatePreparation(Map<String, Object> options, String userName) {
+    public Task initiatePreparation(Map<String, Object> options, String userName) throws JaqpotDocumentSizeExceededException {
         Task task = TaskFactory.queuedTask("Preparation on file: " + options.get("filename"),
                 "A preparation procedure will return a Dataset if completed successfully."
                         + "It may also initiate other procedures if desired.",

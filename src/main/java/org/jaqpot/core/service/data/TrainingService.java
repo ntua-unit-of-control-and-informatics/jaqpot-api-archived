@@ -43,6 +43,7 @@ import org.jaqpot.core.model.Algorithm;
 import org.jaqpot.core.model.Task;
 import org.jaqpot.core.model.builder.MetaInfoBuilder;
 import org.jaqpot.core.model.util.ROG;
+import org.jaqpot.core.service.exceptions.JaqpotDocumentSizeExceededException;
 
 /**
  *
@@ -65,7 +66,7 @@ public class TrainingService {
     @Inject
     private JMSContext jmsContext;
 
-    public Task initiateTraining(Map<String, Object> options, String userName) {
+    public Task initiateTraining(Map<String, Object> options, String userName) throws JaqpotDocumentSizeExceededException {
 
         String algorithmId = (String) options.get("algorithmId");
         Algorithm algorithm = algorithmHandler.find(algorithmId);

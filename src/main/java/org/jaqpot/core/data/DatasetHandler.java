@@ -34,6 +34,7 @@
  */
 package org.jaqpot.core.data;
 
+import com.mongodb.MongoWriteException;
 import org.jaqpot.core.annotations.MongoDB;
 import org.jaqpot.core.db.entitymanager.JaqpotEntityManager;
 import org.jaqpot.core.model.MetaInfo;
@@ -41,6 +42,10 @@ import org.jaqpot.core.model.dto.dataset.DataEntry;
 import org.jaqpot.core.model.dto.dataset.Dataset;
 import org.jaqpot.core.model.dto.dataset.FeatureInfo;
 import org.jaqpot.core.model.factory.DatasetFactory;
+import org.jaqpot.core.service.exceptions.JaqpotDocumentSizeExceededException;
+import org.jaqpot.core.service.exceptions.JaqpotForbiddenException;
+import org.jaqpot.core.service.filter.excmappers.MongoWriteExceptionMapper;
+
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 
@@ -69,10 +74,7 @@ public class DatasetHandler extends AbstractHandler<Dataset> {
     }
     
     @Override
-    public void create(Dataset dataset) throws IllegalArgumentException {
-//        if (dataset.getDataEntry() == null || dataset.getDataEntry().isEmpty()) {
-//            throw new IllegalArgumentException("Resulting dataset is empty");
-//        }
+    public void create(Dataset dataset) throws IllegalArgumentException, JaqpotDocumentSizeExceededException {
         HashSet<String> features = dataset.getFeatures().stream().map(FeatureInfo::getURI).collect(Collectors.toCollection(HashSet::new));
         for (DataEntry dataEntry : dataset.getDataEntry()) {
             HashSet<String> entryFeatures = new HashSet<>(dataEntry.getValues().keySet());
@@ -92,6 +94,10 @@ public class DatasetHandler extends AbstractHandler<Dataset> {
                 })
                 .getValues().size());
         dataset.setVisible(Boolean.TRUE);
+
+        if (dataset.toString().length() > 14000000)
+            throw new JaqpotDocumentSizeExceededException("Resulting Dataset exceeds limit of 14mb on Dataset Resources");
+        int bla = dataset.toString().length();
         super.create(dataset);
     }
     

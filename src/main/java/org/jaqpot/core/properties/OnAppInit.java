@@ -36,6 +36,21 @@ package org.jaqpot.core.properties;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.io.IOUtils;
+import org.jaqpot.core.data.AlgorithmHandler;
+import org.jaqpot.core.data.DatasetHandler;
+import org.jaqpot.core.data.UserHandler;
+import org.jaqpot.core.model.Algorithm;
+import org.jaqpot.core.model.User;
+import org.jaqpot.core.model.dto.dataset.Dataset;
+import org.jaqpot.core.service.exceptions.JaqpotDocumentSizeExceededException;
+
+import javax.annotation.PostConstruct;
+import javax.ejb.DependsOn;
+import javax.ejb.Singleton;
+import javax.ejb.Startup;
+import javax.inject.Inject;
+import javax.ws.rs.InternalServerErrorException;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -94,10 +109,15 @@ public class OnAppInit {
     @PostConstruct
     void init() {
 
-        Organization org = orgHandler.find("Jaqpot");
-        if (org == null) {
-            Organization organ = this.jaqpotOrganization();
-            orgHandler.create(organ);
+        String userToSearch = "guest";
+        User user = userHandler.find(userToSearch);
+        if (user == null) {
+            User initialUser = this.firstUser();
+            try {
+                userHandler.create(initialUser);
+            } catch (JaqpotDocumentSizeExceededException e) {
+                e.printStackTrace();
+            }
         }
 
         Algorithm algo = algoHandler.find("weka-svm");
@@ -105,7 +125,11 @@ public class OnAppInit {
             List<Algorithm> algos = this.readAlgorithms();
 
             algos.forEach((alg) -> {
-                algoHandler.create(alg);
+                try {
+                    algoHandler.create(alg);
+                } catch (JaqpotDocumentSizeExceededException e) {
+                    e.printStackTrace();
+                }
             });
         }
 
@@ -230,12 +254,15 @@ public class OnAppInit {
             throw new InternalServerErrorException(e);
         }
         datasets.forEach((dataset) -> {
-            try {
-                datasetHandler.create(dataset);
-            } catch (IllegalArgumentException e) {
+            try{
+                try {
+                    datasetHandler.create(dataset);
+                } catch (JaqpotDocumentSizeExceededException e) {
+                    e.printStackTrace();
+                }
+            }catch(IllegalArgumentException e){
                 LOG.log(Level.SEVERE, e.getMessage());
             }
-
         });
     }
 
