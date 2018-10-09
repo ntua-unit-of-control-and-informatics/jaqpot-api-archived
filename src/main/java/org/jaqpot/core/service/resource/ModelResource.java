@@ -630,11 +630,11 @@ public class ModelResource {
         model.setActualModel(pretrainedModelRequest.getRawModel());
         model.setPmmlModel(pretrainedModelRequest.getPmmlModel());
 
-        model.setImplementedIn(pretrainedModelRequest.getImplementedIn().get(0));
+        model.setImplementedIn(pretrainedModelRequest.getRuntime().get(0));
         model.setImplementedWith(pretrainedModelRequest.getImplementedWith().get(0));
 
-        String implementedIn = pretrainedModelRequest.getImplementedIn().get(0);
-        String algoId = implementedIn + "-pretrained";
+        String runtime = pretrainedModelRequest.getRuntime().get(0);
+        String algoId = runtime + "-pretrained";
         Algorithm algo = algoHandler.find(algoId);
         model.setAlgorithm(algo);
 
@@ -646,8 +646,8 @@ public class ModelResource {
         if (pretrainedModelRequest.getTitle().get(0) != null) {
             titles.add(pretrainedModelRequest.getTitle().get(0));
         }
-        if (pretrainedModelRequest.getDiscription().get(0) != null) {
-            descriptions.add(pretrainedModelRequest.getDiscription().get(0));
+        if (pretrainedModelRequest.getDescription().get(0) != null) {
+            descriptions.add(pretrainedModelRequest.getDescription().get(0));
         }
 
         mf.setTitles(titles);

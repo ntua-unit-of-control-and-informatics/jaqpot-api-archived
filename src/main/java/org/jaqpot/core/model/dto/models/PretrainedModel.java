@@ -49,10 +49,10 @@ public class PretrainedModel {
     List<String> dependentFeatures;
     List<String> independentFeatures;
     List<String> predictedFeatures;
-    private List<String> implementedIn;
+    private List<String> runtime;
     private List<String> implementedWith;
     private List<String> title;
-    private List<String> discription;
+    private List<String> description;
     private List<String> algorithm;
 
     public Object getRawModel() {
@@ -95,12 +95,12 @@ public class PretrainedModel {
         this.predictedFeatures = predictedFeatures;
     }
 
-    public List<String> getImplementedIn() {
-        return implementedIn;
+    public List<String> getRuntime() {
+        return runtime;
     }
 
-    public void setImplementedIn(List<String> implementedIn) {
-        this.implementedIn = implementedIn;
+    public void setRuntime(List<String> runtime) {
+        this.runtime = runtime;
     }
 
     public List<String> getImplementedWith() {
@@ -119,12 +119,12 @@ public class PretrainedModel {
         this.title = title;
     }
 
-    public List<String> getDiscription() {
-        return discription;
+    public List<String> getDescription() {
+        return description;
     }
 
-    public void setDiscription(List<String> discription) {
-        this.discription = discription;
+    public void setDiscription(List<String> description) {
+        this.description = description;
     }
 
     public List<String> getAlgorithm() {
