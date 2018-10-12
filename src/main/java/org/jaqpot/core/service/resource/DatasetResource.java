@@ -150,7 +150,8 @@ public class DatasetResource {
     public Response listDatasets(
             @ApiParam(value = "start", defaultValue = "0") @QueryParam("start") Integer start,
             @ApiParam(value = "max - the server imposes an upper limit of 500 on this "
-                    + "parameter.", defaultValue = "10") @QueryParam("max") Integer max
+                    + "parameter.", defaultValue = "10") @QueryParam("max") Integer max,
+            @ApiParam(value = "description for the dataset", required = true, allowableValues = "UPLOADED, CREATED, TRANSFORMED, PREDICTED") @QueryParam("status") String datasetstatus
     ) {
         start = start != null ? start : 0;
         if (max == null || max > 500) {

@@ -72,6 +72,32 @@ public class Dataset extends JaqpotEntity {
         }
 
     }
+    
+        public enum DatasetExistance {
+
+        UPLOADED("Uploaded", "Dataset uploaded from user"),
+        CREATED("Created", "Dataset created from outer source"),
+        TRANFORMED("Transformed", "Dataset transformed"),
+        PREDICTED("Predicted", "Dataset is a result of a prediction"),
+        DESCRIPTORSADDED("Descriptors added", "Dataset has added descriptors");
+        
+        private final String name;
+        private final String description;
+
+        private DatasetExistance(String name, String description) {
+            this.name = name;
+            this.description = description;
+        }
+
+        public String getName() {
+            return this.name;
+        }
+
+        public String getDescription() {
+            return this.description;
+        }
+
+    }
 
     private String datasetURI;
     
@@ -85,7 +111,8 @@ public class Dataset extends JaqpotEntity {
     private Integer totalColumns;
 
     private Set<DescriptorCategory> descriptors;
-
+    private DatasetExistance existence;
+    
     public String getDatasetURI() {
         return datasetURI;
     }
@@ -142,6 +169,14 @@ public class Dataset extends JaqpotEntity {
         this.descriptors = descriptors;
     }
 
+    public DatasetExistance getDatasetExistance() {
+        return existence;
+    }
+
+    public void setDatasetExistance(DatasetExistance existence) {
+        this.existence = existence;
+    }
+    
     @Override
     public String toString() {
         return "Dataset{" + "datasetURI=" + datasetURI + ", dataEntry=" + dataEntry + '}';

@@ -62,6 +62,7 @@ public class MetaInfo {
     private Set<String> hasSources;
     private Set<String> doi;
     private Date date;
+    private Set<String> tags;
     private boolean locked;
 
     public MetaInfo(MetaInfo other) {
@@ -215,4 +216,13 @@ public class MetaInfo {
     public void setLocked(boolean locked) {
         this.locked = locked;
     }
+
+    public Set<String> getTags() {
+        return tags;
+    }
+
+    public void setTags(Set<String> tags) {
+        this.tags = tags;
+    }
+    
 }
