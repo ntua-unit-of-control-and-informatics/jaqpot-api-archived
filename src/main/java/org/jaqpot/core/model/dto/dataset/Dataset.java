@@ -107,6 +107,8 @@ public class Dataset extends JaqpotEntity {
 
     private Set<FeatureInfo> features;
 
+    private String datasetPic;
+    
     private Integer totalRows;
     private Integer totalColumns;
 
@@ -169,11 +171,19 @@ public class Dataset extends JaqpotEntity {
         this.descriptors = descriptors;
     }
 
-    public DatasetExistance getDatasetExistance() {
+    public String getDatasetPic() {
+        return datasetPic;
+    }
+
+    public void setDatasetPic(String datasetPic) {
+        this.datasetPic = datasetPic;
+    }
+
+    public DatasetExistance getExistence() {
         return existence;
     }
 
-    public void setDatasetExistance(DatasetExistance existence) {
+    public void setExistence(DatasetExistance existence) {
         this.existence = existence;
     }
     
