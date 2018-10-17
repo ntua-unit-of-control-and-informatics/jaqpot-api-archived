@@ -1,6 +1,6 @@
 package org.jaqpot.core.service.client.ambit.mapper;
 
-import org.jaqpot.core.model.dto.dataset.DataEntry;
+import org.jaqpot.core.model.DataEntry;
 import org.jaqpot.core.model.dto.dataset.EntryId;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;

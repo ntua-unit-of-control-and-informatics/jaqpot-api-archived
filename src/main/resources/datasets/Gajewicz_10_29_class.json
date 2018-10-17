@@ -84,7 +84,7 @@
             }
         }, 
         {
-            "compound" : {
+            "entryId" : {
                 "name" : "Cr2O3",
                 "ownerUUID" : null,
                 "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-5ce3cffa-d919-31bb-ae67-092df5ac6fbb"

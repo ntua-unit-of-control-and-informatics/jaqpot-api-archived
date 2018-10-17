@@ -34,22 +34,16 @@
  */
 package org.jaqpot.core.data;
 
-import com.mongodb.MongoWriteException;
 import org.jaqpot.core.annotations.MongoDB;
 import org.jaqpot.core.db.entitymanager.JaqpotEntityManager;
-import org.jaqpot.core.model.MetaInfo;
-import org.jaqpot.core.model.dto.dataset.DataEntry;
+import org.jaqpot.core.model.DataEntry;
 import org.jaqpot.core.model.dto.dataset.Dataset;
 import org.jaqpot.core.model.dto.dataset.FeatureInfo;
-import org.jaqpot.core.model.factory.DatasetFactory;
 import org.jaqpot.core.service.exceptions.JaqpotDocumentSizeExceededException;
-import org.jaqpot.core.service.exceptions.JaqpotForbiddenException;
-import org.jaqpot.core.service.filter.excmappers.MongoWriteExceptionMapper;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-
-import java.util.*;
+import java.util.HashSet;
 import java.util.stream.Collectors;
 
 /**
@@ -63,7 +57,7 @@ public class DatasetHandler extends AbstractHandler<Dataset> {
     @Inject
     @MongoDB
     JaqpotEntityManager em;
-    
+
     public DatasetHandler() {
         super(Dataset.class);
     }
@@ -75,37 +69,14 @@ public class DatasetHandler extends AbstractHandler<Dataset> {
     
     @Override
     public void create(Dataset dataset) throws IllegalArgumentException, JaqpotDocumentSizeExceededException {
-        HashSet<String> features = dataset.getFeatures().stream().map(FeatureInfo::getURI).collect(Collectors.toCollection(HashSet::new));
-        for (DataEntry dataEntry : dataset.getDataEntry()) {
-            HashSet<String> entryFeatures = new HashSet<>(dataEntry.getValues().keySet());
-            if (!entryFeatures.equals(features)) {
-                throw new IllegalArgumentException("Invalid Dataset - DataEntry URIs do not match with Feature URIs. "
-                        + " Problem was found when parsing " + dataEntry.getEntryId());
-            }
-        }
-        dataset.setTotalRows(dataset.getDataEntry().size());
-        dataset.setTotalColumns(dataset.getDataEntry()
-                .stream()
-                .max((e1, e2) -> Integer.compare(e1.getValues().size(), e2.getValues().size()))
-                .orElseGet(() -> {
-                    DataEntry de = new DataEntry();
-                    de.setValues(new TreeMap<>());
-                    return de;
-                })
-                .getValues().size());
-        dataset.setVisible(Boolean.TRUE);
 
         if (dataset.toString().length() > 14000000)
             throw new JaqpotDocumentSizeExceededException("Resulting Dataset exceeds limit of 14mb on Dataset Resources");
-        int bla = dataset.toString().length();
         super.create(dataset);
     }
     
     @Override
     public void edit(Dataset dataset) throws IllegalArgumentException {
-//        if (dataset.getDataEntry().isEmpty()) {
-//            throw new IllegalArgumentException("Resulting dataset is empty");
-//        }
         HashSet<String> features = dataset.getFeatures().stream().map(FeatureInfo::getURI).collect(Collectors.toCollection(HashSet::new));
         for (DataEntry dataEntry : dataset.getDataEntry()) {
             HashSet<String> entryFeatures = new HashSet<>(dataEntry.getValues().keySet());
@@ -117,78 +88,11 @@ public class DatasetHandler extends AbstractHandler<Dataset> {
         getEntityManager().merge(dataset);
     }
     
-    public Dataset find(Object id, Integer rowStart, Integer rowMax, Integer colStart, Integer colMax, String stratify, Long seed, Integer folds, String targetFeature) {
+    public Dataset find(Object id) {
         Dataset dataset = em.find(Dataset.class, id);
         if (dataset == null) {
             return null;
         }
-        if (stratify != null) {
-            switch (stratify) {
-                case "random":
-                    dataset = DatasetFactory.randomize(dataset, seed);
-                    break;
-                case "normal":
-                    dataset = DatasetFactory.stratify(dataset, folds, targetFeature);
-                    break;
-                default:
-                    break;
-            }
-        }
-        
-        if (rowStart == null) {
-            rowStart = 0;
-        }
-        if (colStart == null) {
-            colStart = 0;
-        }
-        
-        if (dataset.getTotalRows() == null) {
-            dataset.setTotalRows(dataset.getDataEntry().size());
-        }
-        
-        if (dataset.getTotalColumns() == null) {
-            dataset.setTotalColumns(dataset.getDataEntry()
-                    .stream()
-                    .max((e1, e2) -> Integer.compare(e1.getValues().size(), e2.getValues().size()))
-                    .get()
-                    .getValues().size());
-        }
-        
-        int rowEnd;
-        if (rowMax == null || (rowEnd = rowStart + rowMax) > dataset.getTotalRows()) {
-            rowEnd = dataset.getTotalRows();
-        }
-        if (colMax == null || colStart + colMax > dataset.getTotalColumns()) {
-            colMax = dataset.getTotalColumns() - colStart;
-        }
-        
-        dataset.setDataEntry(dataset.getDataEntry().subList(rowStart, rowEnd));
-        
-        for (int j = 0; j < dataset.getDataEntry().size(); j++) {
-            DataEntry de = dataset.getDataEntry().get(j);
-            TreeMap<String, Object> values = (TreeMap) de.getValues();
-            NavigableSet<String> valuesSet = values.navigableKeySet();
-            
-            Iterator<String> it = valuesSet.iterator();
-            for (int i = 0; i < colStart; i++) {
-                it.next();
-                it.remove();
-            }
-            for (int i = 0; i < colMax; i++) {
-                it.next();
-            }
-            while (it.hasNext()) {
-                it.next();
-                it.remove();
-            }
-            if (de.getEntryId().getName() == null) {
-                de.getEntryId().setName(Integer.toString(j+1));
-            }
-        }
-//        DataEntry blank = new DataEntry();
-//        blank.setValues(new TreeMap<>());
-//        DataEntry firstEntry = dataset.getDataEntry().stream().findFirst().orElse(blank);
-//        dataset.getFeatures().keySet().retainAll(firstEntry.getValues().keySet());                
         return dataset;
     }
 }

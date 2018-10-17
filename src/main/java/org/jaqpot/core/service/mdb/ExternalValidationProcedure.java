@@ -3,6 +3,7 @@ package org.jaqpot.core.service.mdb;
 import org.jaqpot.core.annotations.Jackson;
 import org.jaqpot.core.data.*;
 import org.jaqpot.core.data.serialize.JSONSerializer;
+import org.jaqpot.core.data.wrappers.DatasetLegacyWrapper;
 import org.jaqpot.core.model.*;
 import org.jaqpot.core.model.builder.MetaInfoBuilder;
 import org.jaqpot.core.model.dto.dataset.Dataset;
@@ -56,7 +57,7 @@ public class ExternalValidationProcedure extends AbstractJaqpotProcedure {
     ReportHandler reportHandler;
 
     @EJB
-    DatasetHandler datasetHandler;
+    DatasetLegacyWrapper datasetLegacyWrapper;
 
     @Inject
     @Jackson
@@ -119,13 +120,15 @@ public class ExternalValidationProcedure extends AbstractJaqpotProcedure {
                 progress("Attempting to download dataset...");
                 try{
                     dataset = client.target(dataset_uri)
+                        .queryParam("dataEntries", true)
                         .request()
                         .header("Authorization", "Bearer " + apiKey)
                         .accept(MediaType.APPLICATION_JSON)
                         .get(Dataset.class);
                 }catch(NotFoundException e){
                     String[] splitted = dataset_uri.split("/");
-                    dataset = datasetHandler.find(splitted[splitted.length -1]);
+                    dataset = datasetLegacyWrapper.find(splitted[splitted.length -1]);
+                    //dataset = datasetHandler.find(splitted[splitted.length -1]);
                 }
                 dataset.setDatasetURI(dataset_uri);
             }

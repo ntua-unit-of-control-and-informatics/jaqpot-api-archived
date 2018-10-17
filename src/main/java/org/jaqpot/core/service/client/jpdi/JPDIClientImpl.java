@@ -34,7 +34,6 @@
  */
 package org.jaqpot.core.service.client.jpdi;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.concurrent.FutureCallback;
@@ -45,7 +44,7 @@ import org.jaqpot.core.data.FeatureHandler;
 import org.jaqpot.core.data.serialize.JSONSerializer;
 import org.jaqpot.core.model.*;
 import org.jaqpot.core.model.builder.MetaInfoBuilder;
-import org.jaqpot.core.model.dto.dataset.DataEntry;
+import org.jaqpot.core.model.DataEntry;
 import org.jaqpot.core.model.dto.dataset.Dataset;
 import org.jaqpot.core.model.dto.dataset.FeatureInfo;
 import org.jaqpot.core.model.dto.jpdi.*;
@@ -64,8 +63,7 @@ import java.util.concurrent.Future;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import javax.ws.rs.client.Entity;
-import org.apache.http.Header;
+
 import org.jaqpot.core.service.exceptions.JaqpotDocumentSizeExceededException;
 
 /**

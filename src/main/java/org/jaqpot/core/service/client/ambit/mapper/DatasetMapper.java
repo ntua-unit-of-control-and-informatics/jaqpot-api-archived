@@ -1,14 +1,13 @@
 package org.jaqpot.core.service.client.ambit.mapper;
 
 import org.jaqpot.core.model.MetaInfo;
-import org.jaqpot.core.model.dto.dataset.DataEntry;
+import org.jaqpot.core.model.DataEntry;
 import org.jaqpot.core.model.dto.dataset.Dataset;
 import org.jaqpot.core.model.dto.dataset.FeatureInfo;
 import org.jaqpot.core.model.dto.dataset.EntryId;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
-import java.util.List;
 import java.util.Set;
 
 /**

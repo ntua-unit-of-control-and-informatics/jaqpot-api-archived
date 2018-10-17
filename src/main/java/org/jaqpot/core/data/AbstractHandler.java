@@ -69,6 +69,10 @@ public abstract class AbstractHandler<T extends JaqpotEntity>  {
         getEntityManager().merge(entity);
     }
 
+    public void updateOne(Object id, String key, Object value) {
+        getEntityManager().updateOne(entityClass,id,key,value);
+    }
+
     public void remove(T entity) {
         getEntityManager().remove(entity);
     }

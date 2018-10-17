@@ -222,4 +222,7 @@ public interface JaqpotEntityManager extends Closeable {
     public <T extends JaqpotEntity> List<T> findSortedAsc(Class<T> entityClass, Map<String, Object> properties, Integer start, Integer max, List<String> ascendingFields);
     
     public <T extends JaqpotEntity> List<T> findSortedDesc(Class<T> entityClass, Map<String, Object> properties, Integer start, Integer max, List<String> descendingFields);
-}
+
+    public <T extends JaqpotEntity> void updateOne(Class<T> entityClass, Object primaryKey, String key, Object field);
+
+    }
