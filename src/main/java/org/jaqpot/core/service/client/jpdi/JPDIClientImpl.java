@@ -417,7 +417,7 @@ public class JPDIClientImpl implements JPDIClient {
                                 dataset.setId(randomStringGenerator.nextString(20));
                                 dataset.setTotalRows(dataset.getDataEntry().size());
                                 dataset.setMeta(datasetMeta);
-                                dataset.setDatasetExistance(Dataset.DatasetExistance.PREDICTED);
+                                dataset.setExistence(Dataset.DatasetExistance.PREDICTED);
                                 futureDataset.complete(DatasetFactory.mergeColumns(dataset, tempWithDependentFeatures));
                             } catch (Exception ex) {
                                 futureDataset.completeExceptionally(ex);
