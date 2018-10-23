@@ -34,6 +34,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.jaqpot.core.model.MetaInfo;
 import org.jaqpot.core.model.User;
 import org.jaqpot.core.model.builder.UserBuilder;
 
@@ -57,7 +58,8 @@ public class UserFactory {
     public static User newNormalUser(String userName, String password) {
         String hashedPassword = password != null ? new String(Base64.getEncoder().encode(sha256.digest(password.getBytes()))) : null;
         sha256.reset();
-        return UserBuilder.builder(userName)
+        MetaInfo mi = new MetaInfo();
+        return UserBuilder.builder(userName).setMeta(mi)
                 .setHashedPassword(hashedPassword)
                 .setMaxBibTeX(100)
                 .setMaxModels(20)

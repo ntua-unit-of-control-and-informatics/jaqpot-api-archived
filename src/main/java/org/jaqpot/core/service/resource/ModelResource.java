@@ -171,7 +171,8 @@ public class ModelResource {
             @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key,
             @ApiParam(value = "start", defaultValue = "0") @QueryParam("start") Integer start,
             @ApiParam(value = "max - the server imposes an upper limit of 500 on this "
-                    + "parameter.", defaultValue = "20") @QueryParam("max") Integer max
+                    + "parameter.", defaultValue = "20") @QueryParam("max") Integer max,
+            @ApiParam(value = "organization") @QueryParam("organization") String organization
     ) {
         if (max == null || max > 500) {
             max = 500;
@@ -654,7 +655,7 @@ public class ModelResource {
         mf.setDescriptions(descriptions);
         mf.setCreators(creators);
         model.setMeta(mf);
-
+        model.setVisible(Boolean.TRUE);
         HashMap additionalInfo = new HashMap();
         HashMap independentFeaturesForAdd = new HashMap();
 
@@ -737,7 +738,7 @@ public class ModelResource {
                 predictionFeatureResource.setMeta(MetaInfoBuilder
                         .builder()
                         .addSources(/*messageBody.get("base_uri") + */"model/" + model.getId())
-                        .addComments("Feature created to hold predictions for model with ID " + model.getId())
+                        .addComments("Feature created to hold predictions for model with Title " + model.getMeta().getTitles().toArray()[0])
                         .addTitles(featureTitle)
                         //                        .addSeeAlso(predictionFeature)
                         .addCreators(user.getId())
@@ -764,15 +765,16 @@ public class ModelResource {
         datasetForPretrained.setId(randomStringGenerator.nextString(14));
         datasetForPretrained.setFeatured(Boolean.FALSE);
         datasetForPretrained.setMeta(MetaInfoBuilder.builder()
-                .addTitles("Dataset for pretrained model " + model.getId())
+                .addTitles("Dataset for pretrained model " + model.getMeta().getTitles().toArray()[0])
                 .addDescriptions("Dataset created to hold the independent and predictes features for "
-                        + "the pretrained model " + model.getId())
+                        + "the pretrained model " + model.getMeta().getTitles().toArray()[0])
                 .addCreators(apiA)
                 .build()
         );
 
         datasetForPretrained.getMeta().setCreators(new HashSet<>(Arrays.asList(securityContext.getUserPrincipal().getName())));
         datasetForPretrained.setVisible(Boolean.TRUE);
+        datasetForPretrained.setExistence(Dataset.DatasetExistence.FROMPRETRAINED);
         datasetForPretrained = DatasetFactory.addNullFeaturesFromPretrained(datasetForPretrained, pretrainedIndependentFeatures, pretrainedPredictedFeatures);
 
         Set<FeatureInfo> featureInfos = new HashSet();

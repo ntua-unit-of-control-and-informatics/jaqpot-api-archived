@@ -32,6 +32,7 @@ package org.jaqpot.core.model.builder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import org.jaqpot.core.model.MetaInfo;
 import org.jaqpot.core.model.User;
 import org.jaqpot.core.model.validator.EmailValidator;
 
@@ -60,6 +61,11 @@ public class UserBuilder implements EntityBuilder<User> {
 
     private UserBuilder(User other) {
         this.user = other;
+    }
+    
+    public UserBuilder setMeta(MetaInfo mi){
+        user.setMeta(mi);
+        return this;
     }
 
     public UserBuilder setName(String name) {

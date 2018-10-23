@@ -47,7 +47,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Organization extends JaqpotEntity{
  
-    private String organizationPic;
+//    private String organizationPic;
     
     private Map<String, Integer> capabilities;
     
@@ -70,13 +70,13 @@ public class Organization extends JaqpotEntity{
         super(id);
     }
 
-    public String getOrganizationPic() {
-        return organizationPic;
-    }
-
-    public void setOrganizationPic(String organizationPic) {
-        this.organizationPic = organizationPic;
-    }
+//    public String getOrganizationPic() {
+//        return organizationPic;
+//    }
+//
+//    public void setOrganizationPic(String organizationPic) {
+//        this.organizationPic = organizationPic;
+//    }
 
     public String getAbout() {
         return about;

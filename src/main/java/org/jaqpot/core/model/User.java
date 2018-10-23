@@ -72,7 +72,7 @@ public class User extends JaqpotEntity {
 
     private List<String> organizations;
 
-    private String profilePic;
+//    private String profilePic;
 
     private String occupation;
 
@@ -158,13 +158,13 @@ public class User extends JaqpotEntity {
         this.organizations = organizations;
     }
 
-    public String getProfilePic() {
-        return profilePic;
-    }
-
-    public void setProfilePic(String profilePic) {
-        this.profilePic = profilePic;
-    }
+//    public String getProfilePic() {
+//        return profilePic;
+//    }
+//
+//    public void setProfilePic(String profilePic) {
+//        this.profilePic = profilePic;
+//    }
 
     public String getOccupation() {
         return occupation;

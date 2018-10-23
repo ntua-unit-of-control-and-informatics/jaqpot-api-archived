@@ -74,6 +74,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import org.jaqpot.core.service.filter.AuthorizationEnum;
 
 import static org.jaqpot.core.util.CSVUtils.parseLine;
 
@@ -128,6 +129,7 @@ public class DatasetResource {
 
     @GET
     @TokenSecured({RoleEnum.DEFAULT_USER})
+//    @Authorize({AuthorizationEnum.ORGANIZATION,AuthorizationEnum.OWNER})
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @ApiOperation(value = "Finds all Datasets",
             notes = "Finds all Datasets in the DB of Jaqpot and returns them in a list. Results can be obtained "
@@ -151,18 +153,54 @@ public class DatasetResource {
             @ApiParam(value = "start", defaultValue = "0") @QueryParam("start") Integer start,
             @ApiParam(value = "max - the server imposes an upper limit of 500 on this "
                     + "parameter.", defaultValue = "10") @QueryParam("max") Integer max,
-            @ApiParam(value = "description for the dataset", required = true, allowableValues = "UPLOADED, CREATED, TRANSFORMED, PREDICTED") @QueryParam("status") String datasetstatus
+            @ApiParam(value = "description for the dataset", required = false, allowableValues = "UPLOADED, CREATED, TRANSFORMED, PREDICTED, FROMPRETRAINED, DESCRIPTORS, ALL") @QueryParam("existence") String datasetexistence,
+            @ApiParam(value = "organization for the dataset", required = false) @QueryParam("organization") String organization
     ) {
         start = start != null ? start : 0;
         if (max == null || max > 500) {
             max = 500;
         }
         String creator = securityContext.getUserPrincipal().getName();
-        return Response.ok(datasetHandler.listMetaOfCreator(creator, start, max))
-                .status(Response.Status.OK)
-                .header("total", datasetHandler.countAllOfCreator(creator))
-                .build();
 
+        List<Dataset> datasets = new ArrayList();
+        Number total = null;
+        if (datasetexistence == null || datasetexistence.equals("ALL")) {
+            datasets.addAll(datasetHandler.listMetaOfCreator(creator, start, max));
+            total = datasetHandler.countAllOfCreator(creator);
+        } else {
+            switch (datasetexistence) {
+                case "UPLOADED":
+                    datasets.addAll(datasetHandler.listDatasetCreatorsExistence(creator, Dataset.DatasetExistence.UPLOADED, start, max));
+                    total = datasetHandler.countCreatorsExistenseDatasets(creator, Dataset.DatasetExistence.UPLOADED);
+                    break;
+                case "CREATED":
+                    datasets.addAll(datasetHandler.listDatasetCreatorsExistence(creator, Dataset.DatasetExistence.CREATED, start, max));
+                    total = datasetHandler.countCreatorsExistenseDatasets(creator, Dataset.DatasetExistence.CREATED);
+                    break;
+                case "TRANSFORMED":
+                    datasets.addAll(datasetHandler.listDatasetCreatorsExistence(creator, Dataset.DatasetExistence.TRANFORMED, start, max));
+                    total = datasetHandler.countCreatorsExistenseDatasets(creator, Dataset.DatasetExistence.TRANFORMED);
+                    break;
+                case "PREDICTED":
+                    datasets.addAll(datasetHandler.listDatasetCreatorsExistence(creator, Dataset.DatasetExistence.PREDICTED, start, max));
+                    total = datasetHandler.countCreatorsExistenseDatasets(creator, Dataset.DatasetExistence.PREDICTED);
+                    break;
+                case "PRETRAINED":
+                    datasets.addAll(datasetHandler.listDatasetCreatorsExistence(creator,Dataset.DatasetExistence.FROMPRETRAINED , start, max));
+                    total = datasetHandler.countCreatorsExistenseDatasets(creator, Dataset.DatasetExistence.FROMPRETRAINED);
+                    break;
+                case "DESCRIPTORS":
+                    datasets.addAll(datasetHandler.listDatasetCreatorsExistence(creator, Dataset.DatasetExistence.DESCRIPTORSADDED, start, max));
+                    total = datasetHandler.countCreatorsExistenseDatasets(creator, Dataset.DatasetExistence.DESCRIPTORSADDED);
+                    break;
+            }
+
+        }
+
+        return Response.ok(datasets)
+                .status(Response.Status.OK)
+                .header("total", total)
+                .build();
     }
 
     @GET
@@ -365,7 +403,7 @@ public class DatasetResource {
     public Response createEmptyDataset(
             @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key,
             @FormParam("title") String title,
-            @FormParam("description") String description) throws URISyntaxException, QuotaExceededException,JaqpotDocumentSizeExceededException {
+            @FormParam("description") String description) throws URISyntaxException, QuotaExceededException, JaqpotDocumentSizeExceededException {
 
         User user = userHandler.find(securityContext.getUserPrincipal().getName());
         long datasetCount = datasetHandler.countAllOfCreator(user.getId());
@@ -414,7 +452,7 @@ public class DatasetResource {
     })
     public Response mergeDatasets(
             @FormParam("dataset_uris") String datasetURIs,
-            @HeaderParam("Authorization") String api_key) throws URISyntaxException, QuotaExceededException,JaqpotDocumentSizeExceededException {
+            @HeaderParam("Authorization") String api_key) throws URISyntaxException, QuotaExceededException, JaqpotDocumentSizeExceededException {
 
         String[] apiA = api_key.split("\\s+");
         String apiKey = apiA[1];
@@ -575,7 +613,7 @@ public class DatasetResource {
             @FormParam("substance_uri") String substanceURI,
             @FormParam("title") String title,
             @FormParam("description") String description
-    ) throws QuotaExceededException, ExecutionException, InterruptedException,JaqpotDocumentSizeExceededException {
+    ) throws QuotaExceededException, ExecutionException, InterruptedException, JaqpotDocumentSizeExceededException {
 
         String[] apiA = api_key.split("\\s+");
         String apiKey = apiA[1];
@@ -952,7 +990,7 @@ public class DatasetResource {
     public Response createDummyDataset(
             @HeaderParam("Authorization") String api_key,
             @ApiParam(value = "multipartFormData input", hidden = true) MultipartFormDataInput input)
-            throws ParameterIsNullException, ParameterInvalidURIException, QuotaExceededException, IOException, ParameterScopeException, ParameterRangeException, ParameterTypeException, URISyntaxException,JaqpotDocumentSizeExceededException {
+            throws ParameterIsNullException, ParameterInvalidURIException, QuotaExceededException, IOException, ParameterScopeException, ParameterRangeException, ParameterTypeException, URISyntaxException, JaqpotDocumentSizeExceededException {
 
         User user = userHandler.find(securityContext.getUserPrincipal().getName());
         long datasetCount = datasetHandler.countAllOfCreator(user.getId());
@@ -1015,9 +1053,9 @@ public class DatasetResource {
             List<String> line = parseLine(scanner.nextLine());
             if (firstLine) {
                 for (String l : line) {
-                   String pseudoURL = ("/feature/" + l).replaceAll(" ","_"); //uriInfo.getBaseUri().toString()+
+                    String pseudoURL = ("/feature/" + l).replaceAll(" ", "_"); //uriInfo.getBaseUri().toString()+
                     feature.add(pseudoURL);
-                    featureInfoList.add(new FeatureInfo(pseudoURL, l,"NA",new HashMap<>(),Dataset.DescriptorCategory.EXPERIMENTAL));
+                    featureInfoList.add(new FeatureInfo(pseudoURL, l, "NA", new HashMap<>(), Dataset.DescriptorCategory.EXPERIMENTAL));
                 }
                 firstLine = false;
             } else {
@@ -1026,10 +1064,11 @@ public class DatasetResource {
                 TreeMap<String, Object> values = new TreeMap<>();
                 while (it1.hasNext() && it2.hasNext()) {
                     String it = it2.next();
-                    if (!NumberUtils.isParsable(it))
+                    if (!NumberUtils.isParsable(it)) {
                         values.put(it1.next(), it);
-                    else
-                        values.put(it1.next(),Float.parseFloat(it));
+                    } else {
+                        values.put(it1.next(), Float.parseFloat(it));
+                    }
                 }
                 org.jaqpot.core.model.dto.dataset.EntryId substance = new org.jaqpot.core.model.dto.dataset.EntryId();
                 substance.setURI("/substance/" + count);
