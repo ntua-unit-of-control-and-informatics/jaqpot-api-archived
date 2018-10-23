@@ -9,6 +9,7 @@ import org.jaqpot.core.data.AlgorithmHandler;
 import org.jaqpot.core.data.DatasetHandler;
 import org.jaqpot.core.data.TaskHandler;
 import org.jaqpot.core.data.serialize.JSONSerializer;
+import org.jaqpot.core.data.wrappers.DatasetLegacyWrapper;
 import org.jaqpot.core.model.Algorithm;
 import org.jaqpot.core.model.MetaInfo;
 import org.jaqpot.core.model.Task;
@@ -61,6 +62,9 @@ public class DescriptorCalculationProcedure extends AbstractJaqpotProcedure impl
 
     @EJB
     DatasetHandler datasetHandler;
+
+    @EJB
+    DatasetLegacyWrapper datasetLegacyWrapper;
 
     @EJB
     AAService aaService;
@@ -138,9 +142,10 @@ public class DescriptorCalculationProcedure extends AbstractJaqpotProcedure impl
 
             if (dataset.getDataEntry() == null || dataset.getDataEntry().isEmpty())
                 throw new IllegalArgumentException("Resulting dataset is empty");
-            else
-                datasetHandler.create(dataset);
-
+            else {
+                datasetLegacyWrapper.create(dataset);
+                //datasetHandler.create(dataset);
+            }
             progress(100f, "Dataset saved successfully.");
             checkCancelled();
             progress("Calculation Task is now completed.");

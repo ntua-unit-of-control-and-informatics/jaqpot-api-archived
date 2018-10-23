@@ -30,14 +30,13 @@
 package org.jaqpot.core.service.resource;
 
 import io.swagger.annotations.*;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.validator.routines.UrlValidator;
 import org.jaqpot.core.data.*;
+import org.jaqpot.core.data.wrappers.DatasetLegacyWrapper;
 import org.jaqpot.core.model.*;
-import org.jaqpot.core.model.Feature;
 import org.jaqpot.core.model.builder.MetaInfoBuilder;
-import org.jaqpot.core.model.dto.dataset.DataEntry;
+import org.jaqpot.core.model.DataEntry;
 import org.jaqpot.core.model.dto.dataset.Dataset;
 import org.jaqpot.core.model.dto.dataset.FeatureInfo;
 import org.jaqpot.core.model.dto.jpdi.TrainingRequest;
@@ -45,7 +44,6 @@ import org.jaqpot.core.model.facades.UserFacade;
 import org.jaqpot.core.model.factory.DatasetFactory;
 import org.jaqpot.core.model.util.ROG;
 import org.jaqpot.core.properties.PropertyManager;
-import org.jaqpot.core.service.annotations.Authorize;
 import org.jaqpot.core.service.annotations.TokenSecured;
 import org.jaqpot.core.service.annotations.UnSecure;
 import org.jaqpot.core.service.authentication.RoleEnum;
@@ -96,6 +94,7 @@ public class DatasetResource {
     @EJB
     FeatureHandler featureHandler;
 
+
     @EJB
     UserHandler userHandler;
 
@@ -109,7 +108,13 @@ public class DatasetResource {
     AlgorithmHandler algorithmHandler;
 
     @EJB
+    DataEntryHandler dataEntryHandler;
+
+    @EJB
     ReportHandler reportHandler;
+
+    @EJB
+    DatasetLegacyWrapper datasetLegacyWrapper;
 
     @Inject
     Ambit ambitClient;
@@ -141,12 +146,9 @@ public class DatasetResource {
             position = 1)
     @ApiResponses(value = {
         @ApiResponse(code = 200, response = Dataset.class, responseContainer = "List",
-                message = "Datasets found and are listed in the response body")
-        ,
-        @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to access this resource")
-        ,
-        @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)")
-        ,
+                message = "Datasets found and are listed in the response body"),
+        @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to access this resource"),
+        @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)"),
         @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
     })
     public Response listDatasets(
@@ -225,6 +227,7 @@ public class DatasetResource {
     public Response getDataset(
             @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key,
             @PathParam("id") String id,
+            @QueryParam("dataEntries") Boolean dataEntries,
             @QueryParam("rowStart") Integer rowStart,
             @QueryParam("rowMax") Integer rowMax,
             @QueryParam("colStart") Integer colStart,
@@ -233,10 +236,14 @@ public class DatasetResource {
             @QueryParam("seed") Long seed,
             @QueryParam("folds") Integer folds,
             @QueryParam("target_feature") String targetFeature) {
-        Dataset dataset = datasetHandler.find(id, rowStart, rowMax, colStart, colMax, stratify, seed, folds, targetFeature);
-        if (dataset == null) {
+        Dataset dataset = null;
+        if (dataEntries==null) dataEntries=false;
+        if (dataEntries)
+                dataset = datasetLegacyWrapper.find(id, rowStart, rowMax, colStart, colMax);
+         else
+            dataset = datasetHandler.find(id);
+        if (dataset == null)
             throw new NotFoundException("Could not find Dataset with id:" + id);
-        }
         return Response.ok(dataset).build();
     }
 
@@ -286,16 +293,11 @@ public class DatasetResource {
     @ApiOperation(value = "Finds Features of Dataset by Id",
             notes = "Finds specified Dataset's features")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, response = Dataset.class, message = "Dataset's features found and are listed in the response body")
-        ,
-            @ApiResponse(code = 404, response = ErrorReport.class, message = "Dataset was not found in the system")
-        ,
-            @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to access this resource")
-        ,
-            @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)")
-        ,
-            @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
-    })
+        @ApiResponse(code = 200, response = Dataset.class, message = "Dataset's features found and are listed in the response body"),
+            @ApiResponse(code = 404, response = ErrorReport.class, message = "Dataset was not found in the system"),
+            @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to access this resource"),
+            @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)"),
+            @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")})
     public Response getDatasetFeatures(
             @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key,
             @PathParam("id") String id
@@ -343,14 +345,10 @@ public class DatasetResource {
     @ApiOperation(value = "Creates a new Dataset",
             notes = "The new Dataset created will be assigned on a random generated Id")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, response = Dataset.class, message = "Dataset was created succesfully")
-        ,
-            @ApiResponse(code = 403, response = ErrorReport.class, message = "Dataset quota has been exceeded")
-        ,
-            @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to access this resource")
-        ,
-            @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)")
-        ,
+        @ApiResponse(code = 200, response = Dataset.class, message = "Dataset was created succesfully"),
+            @ApiResponse(code = 403, response = ErrorReport.class, message = "Dataset quota has been exceeded"),
+            @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to access this resource"),
+            @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)"),
             @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
     })
     public Response createDataset(
@@ -377,7 +375,8 @@ public class DatasetResource {
         }
         dataset.getMeta().setCreators(new HashSet<>(Arrays.asList(securityContext.getUserPrincipal().getName())));
         dataset.setVisible(Boolean.TRUE);
-        datasetHandler.create(dataset);
+        datasetLegacyWrapper.create(dataset);
+        //datasetHandler.create(dataset);
 
         return Response.created(new URI(dataset.getId())).entity(dataset).build();
 
@@ -429,7 +428,8 @@ public class DatasetResource {
 
         emptyDataset.getMeta().setCreators(new HashSet<>(Arrays.asList(securityContext.getUserPrincipal().getName())));
         emptyDataset.setVisible(Boolean.TRUE);
-        datasetHandler.create(emptyDataset);
+        datasetLegacyWrapper.create(emptyDataset);
+        //datasetHandler.create(emptyDataset);
 
         return Response.created(new URI(emptyDataset.getId())).entity(emptyDataset).build();
     }
@@ -476,7 +476,7 @@ public class DatasetResource {
                     .accept(MediaType.APPLICATION_JSON)
                     .header("Authorization", "Bearer " + apiKey)
                     .get(Dataset.class);
-            dataset = DatasetFactory.mergeRows(dataset, d);
+            //dataset = DatasetFactory.mergeRows(dataset, d);
         }
         ROG randomStringGenerator = new ROG(true);
         dataset.setId(randomStringGenerator.nextString(14));
@@ -487,7 +487,8 @@ public class DatasetResource {
         }
         dataset.getMeta().setCreators(new HashSet<>(Arrays.asList(securityContext.getUserPrincipal().getName())));
 
-        datasetHandler.create(dataset);
+        datasetLegacyWrapper.create(dataset);
+        //datasetHandler.create(dataset);
 
         return Response.created(new URI(dataset.getId())).entity(dataset).build();
 
@@ -499,12 +500,9 @@ public class DatasetResource {
     @ApiOperation(value = "Merges the features of two or more Datasets",
             notes = "The new intersected Dataset created will be assigned on a random generated Id")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, response = Dataset.class, message = "Dataset was created succesfully")
-        ,
-            @ApiResponse(code = 403, response = ErrorReport.class, message = "Dataset quota has been exceeded")
-        ,
-            @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to access this resource")
-        ,
+        @ApiResponse(code = 200, response = Dataset.class, message = "Dataset was created succesfully"),
+            @ApiResponse(code = 403, response = ErrorReport.class, message = "Dataset quota has been exceeded"),
+            @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to access this resource"),
             @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
     })
     public Response mergeFeaturesDatasets(
@@ -533,7 +531,7 @@ public class DatasetResource {
                     .accept(MediaType.APPLICATION_JSON)
                     .header("Authorization", "Bearer " + apiKey)
                     .get(Dataset.class);
-            dataset = DatasetFactory.mergeColumns(dataset, d);
+            //dataset = DatasetFactory.mergeColumns(dataset, d);
         }
         ROG randomStringGenerator = new ROG(true);
         dataset.setId(randomStringGenerator.nextString(14));
@@ -544,7 +542,8 @@ public class DatasetResource {
         }
         dataset.getMeta().setCreators(new HashSet<>(Arrays.asList(securityContext.getUserPrincipal().getName())));
 
-        datasetHandler.create(dataset);
+        datasetLegacyWrapper.create(dataset);
+        //datasetHandler.create(dataset);
 
         return Response.created(new URI(dataset.getId())).entity(dataset).build();
 
@@ -592,18 +591,12 @@ public class DatasetResource {
     @Path("{id}/qprf")
     @ApiOperation("Creates QPRF Report")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Dataset was succesfully deleted")
-        ,
-            @ApiResponse(code = 400, response = ErrorReport.class, message = "Bad Request. More details can be found in details of ErrorReport")
-        ,
-            @ApiResponse(code = 404, response = ErrorReport.class, message = "Dataset was not found in the system")
-        ,
-            @ApiResponse(code = 403, response = ErrorReport.class, message = "Dataset quota has been exceeded")
-        ,
-            @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to access this resource")
-        ,
-            @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)")
-        ,
+        @ApiResponse(code = 200, message = "Dataset was succesfully deleted"),
+            @ApiResponse(code = 400, response = ErrorReport.class, message = "Bad Request. More details can be found in details of ErrorReport"),
+            @ApiResponse(code = 404, response = ErrorReport.class, message = "Dataset was not found in the system"),
+            @ApiResponse(code = 403, response = ErrorReport.class, message = "Dataset quota has been exceeded"),
+            @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to access this resource"),
+            @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)"),
             @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
     })
 
@@ -629,7 +622,8 @@ public class DatasetResource {
                     + "No more than " + maxAllowedReports + " are allowed with your subscription.");
         }
 
-        Dataset ds = datasetHandler.find(id);
+        Dataset ds = datasetLegacyWrapper.find(id);
+        //Dataset ds = datasetHandler.find(id);
         if (ds == null) {
             throw new NotFoundException("Dataset with id:" + id + " was not found on the server.");
         }
@@ -645,6 +639,7 @@ public class DatasetResource {
             throw new BadRequestException("The model that created this dataset does not point to a valid training dataset.");
         }
         Dataset trainingDS = client.target(datasetURI)
+                .queryParam("dataEntries",true)
                 .request()
                 .accept(MediaType.APPLICATION_JSON)
                 .header("Authorization", "Bearer " + apiKey)
@@ -822,7 +817,8 @@ public class DatasetResource {
 
         String[] apiA = api_key.split("\\s+");
         String apiKey = apiA[1];
-        Dataset ds = datasetHandler.find(id);
+        Dataset ds = datasetLegacyWrapper.find(id);
+        //Dataset ds = datasetHandler.find(id);
         if (ds == null) {
             throw new NotFoundException("Dataset with id:" + id + " was not found on the server.");
         }
@@ -838,6 +834,7 @@ public class DatasetResource {
             throw new BadRequestException("The model that created this dataset does not point to a valid training dataset.");
         }
         Dataset trainingDS = client.target(datasetURI)
+                .queryParam("dataEntries", true)
                 .request()
                 .accept(MediaType.APPLICATION_JSON)
                 .header("Authorization", "Bearer " + apiKey)
@@ -975,7 +972,7 @@ public class DatasetResource {
 
     @POST
     @TokenSecured({RoleEnum.DEFAULT_USER})
-    @Path("/createDummyDataset")
+    @Path("/createdummydataset")
     @ApiImplicitParams({
         @ApiImplicitParam(name = "file", value = "xls[m,x] file", required = true, dataType = "file", paramType = "formData")
         ,
@@ -1015,6 +1012,8 @@ public class DatasetResource {
         );
 
         List<InputPart> inputParts = uploadForm.get("file");
+        ROG randomStringGenerator = new ROG(true);
+        dataset.setId(randomStringGenerator.nextString(14));
         for (InputPart inputPart : inputParts) {
 
             try {
@@ -1026,22 +1025,21 @@ public class DatasetResource {
             }
         }
 
-        ROG randomStringGenerator = new ROG(true);
-        dataset.setId(randomStringGenerator.nextString(14));
         dataset.setFeatured(Boolean.FALSE);
         if (dataset.getMeta() == null) {
             dataset.setMeta(new MetaInfo());
         }
         dataset.getMeta().setCreators(new HashSet<>(Arrays.asList(securityContext.getUserPrincipal().getName())));
         dataset.setVisible(Boolean.TRUE);
-        datasetHandler.create(dataset);
+        datasetLegacyWrapper.create(dataset);
 
         return Response.created(new URI(dataset.getId())).entity(dataset).build();
 
     }
 
-    private void calculateRowsAndColumns(Dataset dataset, InputStream stream) {
+    private void calculateRowsAndColumns(Dataset dataset, InputStream stream) throws JaqpotDocumentSizeExceededException {
         Scanner scanner = new Scanner(stream);
+        ROG randomStringGenerator = new ROG(true);
 
         Set<FeatureInfo> featureInfoList = new HashSet<>();
         List<DataEntry> dataEntryList = new ArrayList<>();
@@ -1074,9 +1072,10 @@ public class DatasetResource {
                 substance.setURI("/substance/" + count);
                 substance.setName("row" + count);
                 substance.setOwnerUUID("7da545dd-2544-43b0-b834-9ec02553f7f2");
-                DataEntry dataEntry = new DataEntry();
+                DataEntry dataEntry = new DataEntry(randomStringGenerator.nextString(14));
                 dataEntry.setValues(values);
                 dataEntry.setEntryId(substance);
+                dataEntry.setDatasetId(dataset.getId());
                 dataEntryList.add(dataEntry);
             }
             count++;
@@ -1084,5 +1083,107 @@ public class DatasetResource {
         scanner.close();
         dataset.setFeatures(featureInfoList);
         dataset.setDataEntry(dataEntryList);
+
     }
+
+    @GET
+    @TokenSecured({RoleEnum.DEFAULT_USER})
+    @Produces({"application/json", MediaType.APPLICATION_JSON})
+
+    @Path("{did}/dataentry/{id}")
+    @ApiOperation(value = "Finds Data Entry by Id",
+            notes = "Finds specified Data Entry"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, response = DataEntry.class, message = "Dataset Entry was found"),
+            @ApiResponse(code = 404, response = ErrorReport.class, message = "Dataset Entry was not found in the system"),
+            @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to access this resource"),
+            @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)"),
+            @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
+    })
+    public Response getDataEntry(
+            @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key,
+            @PathParam("did") String datasetId,
+            @PathParam("id") String id)
+            throws NotFoundException,IllegalArgumentException
+    {
+        Dataset dataset = datasetHandler.find(datasetId);
+        if (dataset == null)
+            throw new NotFoundException("Could not find Dataset with id:" + datasetId);
+
+        DataEntry dataEntry = dataEntryHandler.find(id);
+        if (dataEntry == null)
+            throw new NotFoundException("Could not find DataEntry with id:" + id);
+        if (!dataEntry.getDatasetId().equals(dataset.getId()))
+            throw new IllegalArgumentException("Data Entry "+id+" is not part of Dataset with id :"+datasetId);
+        return Response.ok(dataEntry).build();
+    }
+
+    @GET
+    @TokenSecured({RoleEnum.DEFAULT_USER})
+    @Produces({"application/json", MediaType.APPLICATION_JSON})
+
+    @Path("{id}/dataentry")
+    @ApiOperation(value = "Finds Data Entries of Dataset with given id",
+            notes = "Finds Data entries of specified Dataset"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, response = DataEntry.class,responseContainer = "List",  message = "Dataset Entry was found"),
+            @ApiResponse(code = 404, response = ErrorReport.class, message = "Dataset Entry was not found in the system"),
+            @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to access this resource"),
+            @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)"),
+            @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
+    })
+    public Response getDataEntries(
+            @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key,
+            @PathParam("id") String id,
+            @ApiParam(value = "rowStart", defaultValue = "0")@QueryParam("rowStart") Integer rowStart,
+            @ApiParam(value = "rowMax") @QueryParam("rowMax") Integer rowMax,
+            @QueryParam("colStart") Integer colStart,
+            @QueryParam("colMax") Integer colMax,
+            @QueryParam("stratify") String stratify,
+            @QueryParam("seed") Long seed,
+            @QueryParam("folds") Integer folds,
+            @QueryParam("target_feature") String targetFeature
+    ) throws NotFoundException {
+        Dataset dataset = datasetHandler.find(id);
+        if (dataset == null) {
+            throw new NotFoundException("Could not find Dataset with id:" + id);
+        }
+        List<DataEntry> dataEntries = dataEntryHandler.findDataEntriesByDatasetId(id, rowStart, rowMax, colStart, colMax);
+        if (dataEntries == null || dataEntries.isEmpty()){
+            throw new NotFoundException("Could not find DataEntries associated with dataset with id:" + id);
+        }
+        return Response.ok(dataEntries).build();
+    }
+
+    @POST
+    @TokenSecured({RoleEnum.DEFAULT_USER})
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces({"application/json", MediaType.APPLICATION_JSON})
+    @Path("{id}/dataentry")
+    @ApiOperation(value = "Creates DataEntry",
+            notes = "The new Data Entry created will be assigned on a random generated Id")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, response = DataEntry.class, message = "DataEntry was created succesfully"),
+            @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to access this resource"),
+            @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)"),
+            @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
+    })
+    public Response createDataEntry(
+            @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key,
+            @PathParam("id")String id,
+            DataEntry dataentry) throws URISyntaxException, JaqpotDocumentSizeExceededException {
+        Dataset dataset = datasetHandler.find(id);
+        if (dataset == null)
+            throw new NotFoundException("Could not find Dataset with id:" + id);
+        dataentry.setDatasetId(id);
+        ROG randomStringGenerator = new ROG(true);
+        dataentry.setId(randomStringGenerator.nextString(14));
+        dataEntryHandler.create(dataentry);
+        datasetHandler.updateOne(id,"totalRows",dataset.getTotalRows()+1);
+        return Response.created(new URI(dataentry.getId())).entity(dataentry).build();
+
+    }
+
 }

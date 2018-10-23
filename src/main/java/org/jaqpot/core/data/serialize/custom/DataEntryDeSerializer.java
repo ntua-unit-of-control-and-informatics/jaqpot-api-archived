@@ -44,7 +44,7 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import java.io.IOException;
 import java.util.Map;
 import java.util.TreeMap;
-import org.jaqpot.core.model.dto.dataset.DataEntry;
+import org.jaqpot.core.model.DataEntry;
 
 /**
  *
@@ -69,7 +69,6 @@ public class DataEntryDeSerializer extends StdDeserializer<DataEntry> implements
             valuesMap.put(entry.getKey().replaceAll("\\(DOT\\)", "\\."), entry.getValue());
         }              
         dataEntry.setValues(valuesMap);
-        
         return dataEntry;
     }
 

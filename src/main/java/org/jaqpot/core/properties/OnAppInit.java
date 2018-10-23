@@ -40,6 +40,7 @@ import org.apache.commons.io.IOUtils;
 import org.jaqpot.core.data.AlgorithmHandler;
 import org.jaqpot.core.data.DatasetHandler;
 import org.jaqpot.core.data.UserHandler;
+import org.jaqpot.core.data.wrappers.DatasetLegacyWrapper;
 import org.jaqpot.core.model.Algorithm;
 import org.jaqpot.core.model.User;
 import org.jaqpot.core.model.dto.dataset.Dataset;
@@ -102,6 +103,9 @@ public class OnAppInit {
 
     @Inject
     DatasetHandler datasetHandler;
+
+    @Inject
+    DatasetLegacyWrapper datasetLegacyWrapper;
 
     @Inject
     OrganizationHandler orgHandler;
@@ -256,7 +260,8 @@ public class OnAppInit {
         datasets.forEach((dataset) -> {
             try{
                 try {
-                    datasetHandler.create(dataset);
+                    datasetLegacyWrapper.create(dataset);
+                    //datasetHandler.create(dataset);
                 } catch (JaqpotDocumentSizeExceededException e) {
                     e.printStackTrace();
                 }

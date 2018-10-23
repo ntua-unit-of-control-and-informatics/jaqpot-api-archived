@@ -27,12 +27,14 @@
  * All source files of JAQPOT Quattro that are stored on github are licensed
  * with the aforementioned licence. 
  */
-package org.jaqpot.core.model.dto.dataset;
+package org.jaqpot.core.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import org.jaqpot.core.model.dto.dataset.EntryId;
+
+import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Map;
 import java.util.TreeMap;
-import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  *
@@ -41,10 +43,19 @@ import javax.xml.bind.annotation.XmlRootElement;
  *
  */
 @XmlRootElement
-@JsonIgnoreProperties(ignoreUnknown = true)
-public class DataEntry {
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class DataEntry extends JaqpotEntity {
 
-    EntryId entryId;
+
+    private String datasetId;
+
+    private EntryId entryId;
+
+    public DataEntry(){}
+
+    public DataEntry(String id) {
+        super(id);
+    }
 
     TreeMap<String, Object> values;
 
@@ -54,6 +65,14 @@ public class DataEntry {
 
     public void setEntryId(EntryId entryId) {
         this.entryId = entryId;
+    }
+
+    public String getDatasetId() {
+        return datasetId;
+    }
+
+    public void setDatasetId(String datasetId) {
+        this.datasetId = datasetId;
     }
 
     public Map<String, Object> getValues() {
@@ -66,7 +85,7 @@ public class DataEntry {
 
     @Override
     public String toString() {
-        return "DataEntry{" + "entryId=" + entryId + ", values=" + values + '}';
+        return "DataEntry{" + "datasetId=" + datasetId + ", values=" + values + '}';
     }
 
 }

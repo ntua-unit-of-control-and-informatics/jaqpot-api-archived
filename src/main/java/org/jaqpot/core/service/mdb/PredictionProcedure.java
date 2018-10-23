@@ -40,6 +40,7 @@ import org.jaqpot.core.data.DatasetHandler;
 import org.jaqpot.core.data.ModelHandler;
 import org.jaqpot.core.data.TaskHandler;
 import org.jaqpot.core.data.serialize.JSONSerializer;
+import org.jaqpot.core.data.wrappers.DatasetLegacyWrapper;
 import org.jaqpot.core.model.MetaInfo;
 import org.jaqpot.core.model.Model;
 import org.jaqpot.core.model.Task;
@@ -92,6 +93,8 @@ public class PredictionProcedure extends AbstractJaqpotProcedure implements Mess
     @EJB
     AlgorithmHandler algorithmHandler;
 
+    @EJB
+    DatasetLegacyWrapper datasetLegacyWrapper;
     @EJB
     ModelHandler modelHandler;
 
@@ -159,13 +162,15 @@ public class PredictionProcedure extends AbstractJaqpotProcedure implements Mess
                 progress("Attempting to download dataset...");
                 try{
                     dataset = client.target(dataset_uri)
+                        .queryParam("dataEntries", true)
                         .request()
                         .header("Authorization", "Bearer " + apiKey)
                         .accept(MediaType.APPLICATION_JSON)
                         .get(Dataset.class);
                 }catch(NotFoundException e){
                     String[] splitted = dataset_uri.split("/");
-                    dataset = datasetHandler.find(splitted[splitted.length -1]);
+                    dataset = datasetLegacyWrapper.find(splitted[splitted.length -1]);
+                    //dataset = datasetHandler.find(splitted[splitted.length -1]);
                 }
                 dataset.setDatasetURI(dataset_uri);
                 progress("Dataset has been retrieved.");
@@ -225,7 +230,8 @@ public class PredictionProcedure extends AbstractJaqpotProcedure implements Mess
             dataset.setVisible(Boolean.TRUE);
             dataset.setFeatured(Boolean.FALSE);
             dataset.setByModel(model.getId());
-            datasetHandler.create(dataset);
+            datasetLegacyWrapper.create(dataset);
+            //datasetHandler.create(dataset);
 
             complete("dataset/" + dataset.getId());
 //            rabbitMQClient.sendMessage(creator,"Prediction:"+dataset.getId()+":"+model.getMeta().getTitles().iterator().next());

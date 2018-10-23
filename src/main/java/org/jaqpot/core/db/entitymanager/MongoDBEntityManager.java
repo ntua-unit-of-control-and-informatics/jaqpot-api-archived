@@ -35,6 +35,7 @@ import com.mongodb.MongoClientURI;
 import com.mongodb.MongoWriteException;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.result.UpdateResult;
 import com.mongodb.util.JSON;
 import static com.mongodb.client.model.Projections.*;
 import com.mongodb.client.model.Sorts;
@@ -194,6 +195,15 @@ public class MongoDBEntityManager implements JaqpotEntityManager {
         MongoCollection<Document> collection = db.getCollection(collectionNames.get(entityClass));
         Document retrieved = collection.find(new Document("_id", primaryKey)).projection(include(fields)).first();
         return serializer.parse(JSON.serialize(retrieved), entityClass);
+    }
+
+    @Override
+    public <T extends JaqpotEntity> void updateOne(Class<T> entityClass, Object primaryKey, String key, Object field) {
+        MongoDatabase db = mongoClient.getDatabase(database);
+        MongoCollection<Document> collection = db.getCollection(collectionNames.get(entityClass));
+        //Document retrieved = collection.find(new Document("_id", primaryKey)).first();
+        Document update = new Document().append("$set",new Document().append(key,field));
+        collection.updateOne(new Document("_id", primaryKey),update);
     }
 
     @Override

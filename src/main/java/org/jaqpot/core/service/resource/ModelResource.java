@@ -59,6 +59,7 @@ import org.jaqpot.core.data.DatasetHandler;
 import org.jaqpot.core.data.FeatureHandler;
 import org.jaqpot.core.data.ModelHandler;
 import org.jaqpot.core.data.UserHandler;
+import org.jaqpot.core.data.wrappers.DatasetLegacyWrapper;
 import org.jaqpot.core.model.*;
 import org.jaqpot.core.model.builder.MetaInfoBuilder;
 import org.jaqpot.core.model.dto.dataset.Dataset;
@@ -110,6 +111,9 @@ public class ModelResource {
 
     @EJB
     DatasetHandler datasetHandler;
+
+    @EJB
+    DatasetLegacyWrapper datasetLegacyWrapper;
 
     @EJB
     UserHandler userHandler;
@@ -799,7 +803,9 @@ public class ModelResource {
 
         datasetForPretrained.setFeatures(featureInfos);
 
-        datasetHandler.create(datasetForPretrained);
+        datasetLegacyWrapper.create(datasetForPretrained);
+
+        //datasetHandler.create(datasetForPretrained);
 
 
         String datasetURI = propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_BASE_SERVICE) + "dataset/" + datasetForPretrained.getId();
@@ -915,7 +921,8 @@ public class ModelResource {
                     String uri = model.getDatasetUri();
                     String[] urisplitted = uri.split("/");
                     String dataset_id = urisplitted[urisplitted.length - 1];
-                    dataset = datasetHandler.find(dataset_id);
+                    datasetLegacyWrapper.find(dataset_id);
+                    //dataset = datasetHandler.find(dataset_id);
                     if (dataset == null) {
                         throw new NotFoundException(String.format("Dataset with id %s"
                                 + " not found. Please contact admins", dataset_id));

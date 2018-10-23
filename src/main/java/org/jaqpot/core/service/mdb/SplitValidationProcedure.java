@@ -1,10 +1,9 @@
 package org.jaqpot.core.service.mdb;
 
 import org.jaqpot.core.annotations.Jackson;
-import org.jaqpot.core.data.AlgorithmHandler;
-import org.jaqpot.core.data.ReportHandler;
-import org.jaqpot.core.data.TaskHandler;
+import org.jaqpot.core.data.*;
 import org.jaqpot.core.data.serialize.JSONSerializer;
+import org.jaqpot.core.data.wrappers.DatasetLegacyWrapper;
 import org.jaqpot.core.model.*;
 import org.jaqpot.core.model.builder.MetaInfoBuilder;
 import org.jaqpot.core.model.dto.dataset.Dataset;
@@ -31,7 +30,6 @@ import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.jaqpot.core.data.DatasetHandler;
 
 /**
  *
@@ -57,9 +55,9 @@ public class SplitValidationProcedure extends AbstractJaqpotProcedure {
 
     @EJB
     ReportHandler reportHandler;
-    
+
     @EJB
-    DatasetHandler datasetHandler;
+    DatasetLegacyWrapper datasetLegacyWrapper;
     
     @Inject
     @Jackson
@@ -135,13 +133,16 @@ public class SplitValidationProcedure extends AbstractJaqpotProcedure {
                     .queryParam("stratify", stratify)
                     .queryParam("splitRatio", splitRatio)
                     .queryParam("seed", seed)
+                    .queryParam("dataEntries", true)
                     .request()
                     .accept(MediaType.APPLICATION_JSON)
                     .header("Authorization", "Bearer " + apiKey)
                     .get(Dataset.class);
             }catch(NotFoundException e){
                 String[] datasetSlit = datasetURI.split("/");
-                dataset = datasetHandler.find(datasetSlit[datasetSlit.length - 1], null, null, null, null, stratify, seed.longValue(), null, null);
+                dataset = datasetLegacyWrapper.find(datasetSlit[datasetSlit.length - 1]);
+                //dataset = datasetHandler.find(datasetSlit[datasetSlit.length - 1]);
+
             }
             progress(10f, "Dataset retrieved successfully.");
             checkCancelled();

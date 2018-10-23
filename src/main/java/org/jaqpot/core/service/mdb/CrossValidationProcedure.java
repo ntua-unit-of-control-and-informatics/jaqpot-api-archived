@@ -35,10 +35,9 @@
 package org.jaqpot.core.service.mdb;
 
 import org.jaqpot.core.annotations.Jackson;
-import org.jaqpot.core.data.AlgorithmHandler;
-import org.jaqpot.core.data.ReportHandler;
-import org.jaqpot.core.data.TaskHandler;
+import org.jaqpot.core.data.*;
 import org.jaqpot.core.data.serialize.JSONSerializer;
+import org.jaqpot.core.data.wrappers.DatasetLegacyWrapper;
 import org.jaqpot.core.model.*;
 import org.jaqpot.core.model.builder.MetaInfoBuilder;
 import org.jaqpot.core.model.dto.dataset.Dataset;
@@ -66,7 +65,6 @@ import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.jaqpot.core.data.DatasetHandler;
 
 /**
  * @author Charalampos Chomenidis
@@ -91,14 +89,17 @@ public class CrossValidationProcedure extends AbstractJaqpotProcedure {
     ReportHandler reportHandler;
 
     @EJB
-    DatasetHandler datasetHandler;
-    
+    DatasetLegacyWrapper datasetLegacyWrapper;
+
     @Inject
     @Jackson
     JSONSerializer serializer;
 
     @Inject
     JPDIClient jpdiClient;
+
+    @EJB
+    DataEntryHandler dataEntryHandler;
 
     @Inject
     PropertyManager propertyManager;
@@ -166,13 +167,15 @@ public class CrossValidationProcedure extends AbstractJaqpotProcedure {
                 progress("Attempting to download dataset...");
                 try{
                     dataset = client.target(datasetURI)
+                        .queryParam("dataEntries",true)
                         .request()
                         .header("Authorization", "Bearer " + apiKey)
                         .accept(MediaType.APPLICATION_JSON)
                         .get(Dataset.class);
                 }catch(NotFoundException e){
                     String[] datasetSlit = datasetURI.split("/");
-                    dataset = datasetHandler.find(datasetSlit[datasetSlit.length - 1], null, null, null, null, stratify, seed.longValue(), null, null);
+                    dataset = datasetLegacyWrapper.find(datasetSlit[datasetSlit.length - 1]);
+                    //dataset = datasetHandler.find(datasetSlit[datasetSlit.length - 1]);
                 }
                 dataset.setDatasetURI(datasetURI);
                 progress(10f, "Dataset retrieved successfully.");

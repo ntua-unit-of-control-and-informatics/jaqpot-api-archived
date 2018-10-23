@@ -39,16 +39,16 @@ import org.jaqpot.core.data.AlgorithmHandler;
 import org.jaqpot.core.data.ModelHandler;
 import org.jaqpot.core.data.TaskHandler;
 import org.jaqpot.core.data.serialize.JSONSerializer;
+import org.jaqpot.core.data.wrappers.DatasetLegacyWrapper;
 import org.jaqpot.core.model.Algorithm;
 import org.jaqpot.core.model.MetaInfo;
 import org.jaqpot.core.model.Model;
 import org.jaqpot.core.model.Task;
 import org.jaqpot.core.model.builder.MetaInfoBuilder;
-import org.jaqpot.core.model.dto.dataset.DataEntry;
+import org.jaqpot.core.model.DataEntry;
 import org.jaqpot.core.model.dto.dataset.Dataset;
 import org.jaqpot.core.service.annotations.Secure;
 import org.jaqpot.core.service.client.jpdi.JPDIClient;
-import org.jaqpot.core.service.messaging.RabbitMQ;
 
 import javax.ejb.ActivationConfigProperty;
 import javax.ejb.EJB;
@@ -59,12 +59,10 @@ import javax.jms.Message;
 import javax.jms.MessageListener;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.core.MediaType;
-import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -91,6 +89,9 @@ public class TrainingProcedure extends AbstractJaqpotProcedure implements Messag
 
     @EJB
     AlgorithmHandler algorithmHandler;
+
+    @EJB
+    DatasetLegacyWrapper datasetLegacyWrapper;
 
     @EJB
     ModelHandler modelHandler;
@@ -161,13 +162,15 @@ public class TrainingProcedure extends AbstractJaqpotProcedure implements Messag
                         "Attempting to download dataset...");
                 try{
                     dataset = client.target(dataset_uri)
+                        .queryParam("dataEntries", true)
                         .request()
                         .header("Authorization", "Bearer " + apiKey)
                         .accept(MediaType.APPLICATION_JSON)
                         .get(Dataset.class);
                 }catch(NotFoundException e){
                     String[] splitted = dataset_uri.split("/");
-                    dataset = datasetHandler.find(splitted[splitted.length -1]);
+                    dataset = datasetLegacyWrapper.find(splitted[splitted.length -1]);
+                //dataset = datasetHandler.find(splitted[splitted.length -1]);
                 }
                 
                 dataset.setDatasetURI(dataset_uri);

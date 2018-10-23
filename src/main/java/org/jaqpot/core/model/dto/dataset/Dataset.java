@@ -31,9 +31,10 @@ package org.jaqpot.core.model.dto.dataset;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import javax.xml.bind.annotation.XmlRootElement;
+
+import org.jaqpot.core.model.DataEntry;
 import org.jaqpot.core.model.JaqpotEntity;
 
 /**

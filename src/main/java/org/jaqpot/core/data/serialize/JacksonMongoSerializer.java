@@ -39,14 +39,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Writer;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.enterprise.context.Dependent;
 import org.jaqpot.core.annotations.MongoDB;
 import org.jaqpot.core.data.serialize.custom.DataEntryDeSerializeModifier;
-import org.jaqpot.core.data.serialize.custom.DataEntryDeSerializer;
 import org.jaqpot.core.data.serialize.custom.DataEntrySerializer;
-import org.jaqpot.core.model.dto.dataset.DataEntry;
+import org.jaqpot.core.model.DataEntry;
 
 /**
  *

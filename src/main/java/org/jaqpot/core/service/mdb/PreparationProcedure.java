@@ -8,6 +8,7 @@ import org.jaqpot.core.annotations.Jackson;
 import org.jaqpot.core.data.DatasetHandler;
 import org.jaqpot.core.data.TaskHandler;
 import org.jaqpot.core.data.serialize.JSONSerializer;
+import org.jaqpot.core.data.wrappers.DatasetLegacyWrapper;
 import org.jaqpot.core.model.MetaInfo;
 import org.jaqpot.core.model.Task;
 import org.jaqpot.core.model.builder.MetaInfoBuilder;
@@ -55,6 +56,9 @@ public class PreparationProcedure extends AbstractJaqpotProcedure implements Mes
 
     @EJB
     ConjoinerService conjoinerService;
+
+    @EJB
+    DatasetLegacyWrapper datasetLegacyWrapper;
 
     @EJB
     TaskHandler taskHandler;
@@ -137,8 +141,8 @@ public class PreparationProcedure extends AbstractJaqpotProcedure implements Mes
             || dataset.getDataEntry().get(0).getValues()==null || dataset.getDataEntry().get(0).getValues().isEmpty() ) {
             throw new IllegalArgumentException("Resulting dataset is empty");
             }
-
-            datasetHandler.create(dataset);
+            datasetLegacyWrapper.create(dataset);
+            //datasetHandler.create(dataset);
 
             progress(80f, "Dataset saved successfully.");
 
