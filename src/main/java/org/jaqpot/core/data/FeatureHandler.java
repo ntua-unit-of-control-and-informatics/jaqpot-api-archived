@@ -43,6 +43,14 @@ public class FeatureHandler extends AbstractHandler<Feature> {
         return features.stream().findFirst().orElse(null);
     }
 
+    public Feature findByTitleAndIdentifier(String title, String identifier) {
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("meta.titles", Arrays.asList(title));
+        properties.put("meta.identifiers", Arrays.asList(identifier));
+        List<Feature> features = this.find(properties);
+        return features.stream().findFirst().orElse(null);
+    }
+
     public List<Feature> findBySource(String source) {
         Map<String, Object> properties = new HashMap<>();
         properties.put("meta.hasSources", Arrays.asList(source));

@@ -30,15 +30,12 @@
 package org.jaqpot.core.service.resource;
 
 import io.swagger.annotations.*;
-import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.validator.routines.UrlValidator;
 import org.jaqpot.core.data.*;
 import org.jaqpot.core.data.wrappers.DatasetLegacyWrapper;
 import org.jaqpot.core.model.*;
 import org.jaqpot.core.model.builder.MetaInfoBuilder;
-import org.jaqpot.core.model.DataEntry;
 import org.jaqpot.core.model.dto.dataset.Dataset;
-import org.jaqpot.core.model.dto.dataset.FeatureInfo;
 import org.jaqpot.core.model.dto.jpdi.TrainingRequest;
 import org.jaqpot.core.model.facades.UserFacade;
 import org.jaqpot.core.model.factory.DatasetFactory;
@@ -52,9 +49,6 @@ import org.jaqpot.core.service.client.jpdi.JPDIClient;
 import org.jaqpot.core.service.exceptions.JaqpotDocumentSizeExceededException;
 import org.jaqpot.core.service.exceptions.JaqpotForbiddenException;
 import org.jaqpot.core.service.exceptions.QuotaExceededException;
-import org.jaqpot.core.service.exceptions.parameter.*;
-import org.jboss.resteasy.plugins.providers.multipart.InputPart;
-import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput;
 
 import javax.ejb.EJB;
 import javax.inject.Inject;
@@ -62,8 +56,6 @@ import javax.ws.rs.*;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.*;
-import java.io.IOException;
-import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
@@ -72,8 +64,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-
-import static org.jaqpot.core.util.CSVUtils.parseLine;
 
 /**
  *
@@ -89,10 +79,6 @@ public class DatasetResource {
 
     @EJB
     DatasetHandler datasetHandler;
-
-    @EJB
-    FeatureHandler featureHandler;
-
 
     @EJB
     UserHandler userHandler;
@@ -930,121 +916,6 @@ public class DatasetResource {
 //        reportHandler.create(report);
 //
 //        return Response.ok(report).build();
-    }
-
-    @POST
-    @TokenSecured({RoleEnum.DEFAULT_USER})
-    @Path("/createdummydataset")
-    @ApiImplicitParams({
-        @ApiImplicitParam(name = "file", value = "xls[m,x] file", required = true, dataType = "file", paramType = "formData")
-        ,
-            @ApiImplicitParam(name = "title", value = "Title of dataset", required = true, dataType = "string", paramType = "formData")
-        ,
-            @ApiImplicitParam(name = "description", value = "Description of dataset", required = true, dataType = "string", paramType = "formData")
-    })
-    @ApiOperation(value = "Creates dummy dataset By .csv document",
-            notes = "Creates dummy features/substances, returns Dataset",
-            response = Dataset.class
-    )
-    public Response createDummyDataset(
-            @HeaderParam("Authorization") String api_key,
-            @ApiParam(value = "multipartFormData input", hidden = true) MultipartFormDataInput input)
-            throws ParameterIsNullException, ParameterInvalidURIException, QuotaExceededException, IOException, ParameterScopeException, ParameterRangeException, ParameterTypeException, URISyntaxException,JaqpotDocumentSizeExceededException {
-
-        User user = userHandler.find(securityContext.getUserPrincipal().getName());
-        long datasetCount = datasetHandler.countAllOfCreator(user.getId());
-        int maxAllowedDatasets = new UserFacade(user).getMaxDatasets();
-
-        if (datasetCount > maxAllowedDatasets) {
-            LOG.info(String.format("User %s has %d datasets while maximum is %d",
-                    user.getId(), datasetCount, maxAllowedDatasets));
-            throw new QuotaExceededException("Dear " + user.getId()
-                    + ", your quota has been exceeded; you already have " + datasetCount + " datasets. "
-                    + "No more than " + maxAllowedDatasets + " are allowed with your subscription.");
-        }
-
-        Dataset dataset = new Dataset();
-        Map<String, List<InputPart>> uploadForm = input.getFormDataMap();
-        dataset.setFeatured(Boolean.FALSE);
-
-        dataset.setMeta(MetaInfoBuilder.builder()
-                .addTitles(uploadForm.get("title").get(0).getBodyAsString())
-                .addDescriptions(uploadForm.get("description").get(0).getBodyAsString())
-                .build()
-        );
-
-        List<InputPart> inputParts = uploadForm.get("file");
-        ROG randomStringGenerator = new ROG(true);
-        dataset.setId(randomStringGenerator.nextString(14));
-        for (InputPart inputPart : inputParts) {
-
-            try {
-                MultivaluedMap<String, String> header = inputPart.getHeaders();
-                InputStream inputStream = inputPart.getBody(InputStream.class, null);
-                calculateRowsAndColumns(dataset, inputStream);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
-        dataset.setFeatured(Boolean.FALSE);
-        if (dataset.getMeta() == null) {
-            dataset.setMeta(new MetaInfo());
-        }
-        dataset.getMeta().setCreators(new HashSet<>(Arrays.asList(securityContext.getUserPrincipal().getName())));
-        dataset.setVisible(Boolean.TRUE);
-        datasetLegacyWrapper.create(dataset);
-
-        return Response.created(new URI(dataset.getId())).entity(dataset).build();
-
-    }
-
-    private void calculateRowsAndColumns(Dataset dataset, InputStream stream) throws JaqpotDocumentSizeExceededException {
-        Scanner scanner = new Scanner(stream);
-        ROG randomStringGenerator = new ROG(true);
-
-        Set<FeatureInfo> featureInfoList = new HashSet<>();
-        List<DataEntry> dataEntryList = new ArrayList<>();
-        List<String> feature = new LinkedList<>();
-        boolean firstLine = true;
-        int count = 0;
-        while (scanner.hasNext()) {
-
-            List<String> line = parseLine(scanner.nextLine());
-            if (firstLine) {
-                for (String l : line) {
-                   String pseudoURL = ("/feature/" + l).replaceAll(" ","_"); //uriInfo.getBaseUri().toString()+
-                    feature.add(pseudoURL);
-                    featureInfoList.add(new FeatureInfo(pseudoURL, l,"NA",new HashMap<>(),Dataset.DescriptorCategory.EXPERIMENTAL));
-                }
-                firstLine = false;
-            } else {
-                Iterator<String> it1 = feature.iterator();
-                Iterator<String> it2 = line.iterator();
-                TreeMap<String, Object> values = new TreeMap<>();
-                while (it1.hasNext() && it2.hasNext()) {
-                    String it = it2.next();
-                    if (!NumberUtils.isParsable(it))
-                        values.put(it1.next(), it);
-                    else
-                        values.put(it1.next(),Float.parseFloat(it));
-                }
-                org.jaqpot.core.model.dto.dataset.EntryId substance = new org.jaqpot.core.model.dto.dataset.EntryId();
-                substance.setURI("/substance/" + count);
-                substance.setName("row" + count);
-                substance.setOwnerUUID("7da545dd-2544-43b0-b834-9ec02553f7f2");
-                DataEntry dataEntry = new DataEntry(randomStringGenerator.nextString(14));
-                dataEntry.setValues(values);
-                dataEntry.setEntryId(substance);
-                dataEntry.setDatasetId(dataset.getId());
-                dataEntryList.add(dataEntry);
-            }
-            count++;
-        }
-        scanner.close();
-        dataset.setFeatures(featureInfoList);
-        dataset.setDataEntry(dataEntryList);
-
     }
 
     @GET

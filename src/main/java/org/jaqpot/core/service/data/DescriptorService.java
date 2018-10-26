@@ -2,8 +2,6 @@ package org.jaqpot.core.service.data;
 
 import org.jaqpot.core.data.TaskHandler;
 import org.jaqpot.core.model.Task;
-import org.jaqpot.core.model.dto.dataset.Dataset;
-import org.jaqpot.core.model.dto.dataset.FeatureInfo;
 import org.jaqpot.core.model.factory.TaskFactory;
 import org.jaqpot.core.service.exceptions.JaqpotDocumentSizeExceededException;
 
@@ -14,25 +12,20 @@ import javax.inject.Inject;
 import javax.jms.JMSContext;
 import javax.jms.Topic;
 import java.util.Map;
-import java.util.Set;
-
-/**
- * Created by Angelos Valsamis on 29/3/2017.
- */
 
 @Stateless
-public class CalculationService {
+public class DescriptorService {
 
     @EJB
     TaskHandler taskHandler;
 
-    @Resource(lookup = "java:jboss/exported/jms/topic/descriptorspreparation")
-    private Topic calculationQueue;
+    @Resource(lookup = "java:jboss/exported/jms/topic/descriptor")
+    private Topic descriptorQueue;
 
     @Inject
     private JMSContext jmsContext;
 
-    public Task initiatePreparation(Map<String, Object> options, String userName) throws JaqpotDocumentSizeExceededException {
+    public Task initiateDescriptor(Map<String, Object> options, String userName) throws JaqpotDocumentSizeExceededException {
         Task task = TaskFactory.queuedTask("Preparation on file: " + options.get("filename"),
                 "A preparation procedure will return a Dataset if completed successfully."
                         + "It may also initiate other procedures if desired.",
@@ -41,7 +34,7 @@ public class CalculationService {
         options.put("taskId", task.getId());
         task.setVisible(Boolean.TRUE);
         taskHandler.create(task);
-        jmsContext.createProducer().setDeliveryDelay(1000).send(calculationQueue, options);
+        jmsContext.createProducer().setDeliveryDelay(1000).send(descriptorQueue, options);
         return task;
     }
 }

@@ -78,7 +78,9 @@ public class CSVWriter implements MessageBodyWriter<JaqpotEntity> {
         String uri = uriInfo.getBaseUri() + entity.getClass().getSimpleName().toLowerCase() + "/" + entity.getId();
         Dataset dataset = (Dataset) entity;
 
-        Set<String> attributes = dataset.getDataEntry().get(0).getValues().keySet();
+        if (dataset.getDataEntry().size()!=0) {
+            Set<String> attributes = dataset.getDataEntry().get(0).getValues().keySet();
+
         String headers = "\"EntryId\"," + attributes.stream()
                 .map(a -> "\"" + dataset.getFeatures().stream()
                         .filter(f -> f.getURI().equals(a))
@@ -88,6 +90,7 @@ public class CSVWriter implements MessageBodyWriter<JaqpotEntity> {
                 .collect(Collectors.joining(","));
 //        String headers = dataset.getDataEntry().get(0).getValues().keySet().stream().collect(Collectors.joining(","));
         entityStream.write(headers.getBytes());
+        }
         for (DataEntry de : dataset.getDataEntry()) {
             String row = "\n\"" + de.getEntryId().getName() + "\"," + de.getValues().values().stream()
                     .map(v -> v != null ? "\"" + v.toString() + "\"" : "\"null\"").collect(Collectors.joining(","));

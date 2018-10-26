@@ -29,15 +29,14 @@
  */
 package org.jaqpot.core.model.dto.dataset;
 
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Map;
 import java.util.Objects;
 
-/**
- *
- * @author Pantelis Sopasakis
- * @author Charalampos Chomenidis
- *
- */
+@XmlRootElement
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class FeatureInfo {
 
     private String URI;
@@ -45,14 +44,8 @@ public class FeatureInfo {
     private String units;
     private Map<String, Object> conditions;
     private Dataset.DescriptorCategory category;
-    private String ont;
 
     public FeatureInfo() {
-    }
-
-    public FeatureInfo(String URI, String name){
-        this.URI = URI;
-        this.name = name;
     }
 
     public FeatureInfo(String URI, String name, String units, Map<String, Object> conditions, Dataset.DescriptorCategory category) {
@@ -63,14 +56,9 @@ public class FeatureInfo {
         this.category = category;
     }
 
-
-
-    public String getOnt() {
-        return ont;
-    }
-
-    public void setOnt(String ont) {
-        this.ont = ont;
+    public FeatureInfo(String URI, String name) {
+        this.URI = URI;
+        this.name = name;
     }
 
     public String getURI() {

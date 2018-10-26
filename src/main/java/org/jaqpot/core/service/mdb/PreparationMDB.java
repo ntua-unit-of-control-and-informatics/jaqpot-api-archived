@@ -36,13 +36,13 @@ import org.jaqpot.core.data.serialize.JSONSerializer;
 import org.jaqpot.core.model.MetaInfo;
 import org.jaqpot.core.model.Task;
 import org.jaqpot.core.model.builder.MetaInfoBuilder;
-import org.jaqpot.core.model.dto.bundle.BundleData;
 import org.jaqpot.core.model.dto.dataset.Dataset;
 import org.jaqpot.core.model.factory.ErrorReportFactory;
 import org.jaqpot.core.service.annotations.UnSecure;
 import org.jaqpot.core.service.authentication.AAService;
 import org.jaqpot.core.service.data.ConjoinerService;
 import org.jaqpot.core.service.exceptions.JaqpotDocumentSizeExceededException;
+import org.jaqpot.core.service.exceptions.JaqpotNotAuthorizedException;
 
 import javax.annotation.Resource;
 import javax.ejb.EJB;
@@ -56,22 +56,9 @@ import javax.ws.rs.client.Client;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.jaqpot.core.service.exceptions.JaqpotNotAuthorizedException;
 
-/**
- *
- * @author Charalampos Chomenidis
- * @author Pantelis Sopasakis
- */
-/*@MessageDriven(activationConfig = {
-    @ActivationConfigProperty(propertyName = "destinationLookup",
-            propertyValue = "java:jboss/exported/jms/topic/preparation"),
-    @ActivationConfigProperty(propertyName = "destinationType",
-            propertyValue = "javax.jms.Topic")
-})*/
 public class PreparationMDB extends RunningTaskMDB {
 
     private static final Logger LOG = Logger.getLogger(PreparationMDB.class.getName());
