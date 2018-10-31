@@ -150,20 +150,11 @@
             <artifactId>mapstruct-jdk8</artifactId>
             <version>1.2.0.Final</version>
         </dependency>
-        
-        <!--        <dependency>
-            <groupId>com.rabbitmq</groupId>
-            <artifactId>amqp-client</artifactId>
-            <version>4.1.1</version>
-        </dependency>-->
-        
         <dependency>
             <groupId>com.nimbusds</groupId>
             <artifactId>oauth2-oidc-sdk</artifactId>
             <version>5.62</version>
         </dependency>
-
-
     </dependencies>
 
     <build>

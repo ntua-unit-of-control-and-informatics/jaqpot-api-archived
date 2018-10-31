@@ -30,13 +30,8 @@
 package org.jaqpot.core.model.util;
 
 import java.security.SecureRandom;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
+
 import org.jaqpot.core.model.*;
 import org.jaqpot.core.model.builder.BibTeXBuilder;
 import org.jaqpot.core.model.builder.MetaInfoBuilder;
@@ -60,11 +55,11 @@ public class ROG {
     }
 
     public String nextString(final int len) {
-        StringBuilder sb = new StringBuilder(len);
-        for (int i = 0; i < len; i++) {
-            sb.append(AB.charAt(rnd.nextInt(AB.length())));
-        }
-        return sb.toString();
+        //StringBuilder sb = new StringBuilder(len);
+        //for (int i = 0; i < len; i++) {
+        //    sb.append(AB.charAt(rnd.nextInt(AB.length())));
+        //}
+        return UUID.randomUUID().toString().replaceAll("-","");//sb.toString();
     }
 
     public MetaInfo nextMeta() {

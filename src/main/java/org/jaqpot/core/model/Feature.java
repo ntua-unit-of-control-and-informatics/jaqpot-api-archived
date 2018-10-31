@@ -85,6 +85,11 @@ public class Feature extends JaqpotEntity {
         super(other);
         this.admissibleValues = other.admissibleValues != null ? new HashSet<>(other.admissibleValues) : null;
         this.units = other.units;
+        this.predictorFor = other.predictorFor;
+        this.setMeta(other.getMeta());
+        this.actualIndependentFeatureName= other.actualIndependentFeatureName;
+        this.fromPretrained = other.fromPretrained;
+
     }
 
     public String getUnits() {

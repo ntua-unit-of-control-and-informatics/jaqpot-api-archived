@@ -183,6 +183,96 @@ public class JPDIClientImpl implements JPDIClient {
     }
 
     @Override
+    public Future<Dataset> descriptor(Dataset dataset, Descriptor descriptor, Map<String, Object> parameters, String taskId) {
+        CompletableFuture<Dataset> futureDataset = new CompletableFuture<>();
+
+        //TODO Create a calculateService for algorithms.
+        final HttpPost request = new HttpPost(descriptor.getDescriptorService());
+
+        DescriptorRequest descriptorRequest = new DescriptorRequest();
+        descriptorRequest.setDataset(dataset);
+        descriptorRequest.setParameters(parameters);
+
+        PipedOutputStream out = new PipedOutputStream();
+        PipedInputStream in;
+        try {
+            in = new PipedInputStream(out);
+        } catch (IOException ex) {
+            futureDataset.completeExceptionally(ex);
+            return futureDataset;
+        }
+        InputStreamEntity entity = new InputStreamEntity(in, ContentType.APPLICATION_JSON);
+        entity.setChunked(true);
+
+        request.setEntity(entity);
+        request.addHeader("Accept", "application/json");
+
+        Future futureResponse = client.execute(request, new FutureCallback<HttpResponse>() {
+
+            @Override
+            public void completed(final HttpResponse response) {
+                futureMap.remove(taskId);
+                int status = response.getStatusLine().getStatusCode();
+                try {
+                    InputStream responseStream = response.getEntity().getContent();
+
+                    switch (status) {
+                        case 200:
+                        case 201:
+                            //TODO handle successful return of Dataset
+                            DescriptorResponse descriptorResponse = serializer.parse(responseStream,DescriptorResponse.class);
+                            Dataset descriptorResponseDataset = descriptorResponse.getResponseDataset();
+                            descriptorResponseDataset.setId(UUID.randomUUID().toString());
+                            descriptorResponseDataset.setVisible(Boolean.TRUE);
+                            ROG randomStringGenerator = new ROG(true);
+                            descriptorResponseDataset.setId(randomStringGenerator.nextString(14));
+                            futureDataset.complete(descriptorResponseDataset);
+                            break;
+                        case 400:
+                            String message = new BufferedReader(new InputStreamReader(responseStream))
+                                    .lines().collect(Collectors.joining("\n"));
+                            futureDataset.completeExceptionally(new BadRequestException(message));
+                            break;
+                        case 500:
+                            message = new BufferedReader(new InputStreamReader(responseStream))
+                                    .lines().collect(Collectors.joining("\n"));
+                            futureDataset.completeExceptionally(new InternalServerErrorException(message));
+                            break;
+                        default:
+                            message = new BufferedReader(new InputStreamReader(responseStream))
+                                    .lines().collect(Collectors.joining("\n"));
+                            futureDataset.completeExceptionally(new InternalServerErrorException(message));
+                    }
+                } catch (IOException | UnsupportedOperationException ex) {
+                    futureDataset.completeExceptionally(ex);
+                }
+            }
+
+            @Override
+            public void failed(final Exception ex) {
+                futureMap.remove(taskId);
+                futureDataset.completeExceptionally(ex);
+            }
+
+            @Override
+            public void cancelled() {
+                futureMap.remove(taskId);
+                futureDataset.cancel(true);
+            }
+
+        });
+        serializer.write(descriptorRequest, out);
+        try {
+            out.close();
+        } catch (IOException ex) {
+            futureDataset.completeExceptionally(ex);
+        }
+
+        futureMap.put(taskId, futureResponse);
+        return futureDataset;
+    }
+
+    @Override
     public Future<Model> train(Dataset dataset, Algorithm algorithm, Map<String, Object> parameters, String predictionFeature, MetaInfo modelMeta, String taskId) {
 
         CompletableFuture<Model> futureModel = new CompletableFuture<>();
@@ -191,8 +281,6 @@ public class JPDIClientImpl implements JPDIClient {
         trainingRequest.setDataset(dataset);
         trainingRequest.setParameters(parameters);
         trainingRequest.setPredictionFeature(predictionFeature);
-//        String trainingRequestString = serializer.write(trainingRequest);
-//        System.out.println(trainingRequestString);
 
         final HttpPost request = new HttpPost(algorithm.getTrainingService());
 

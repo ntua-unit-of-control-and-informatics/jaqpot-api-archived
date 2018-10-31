@@ -38,10 +38,8 @@ import java.io.Closeable;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
-import org.jaqpot.core.model.Algorithm;
-import org.jaqpot.core.model.MetaInfo;
-import org.jaqpot.core.model.Model;
-import org.jaqpot.core.model.Report;
+
+import org.jaqpot.core.model.*;
 import org.jaqpot.core.model.dto.dataset.Dataset;
 import org.jaqpot.core.model.dto.jpdi.PredictionResponse;
 import org.jaqpot.core.model.dto.models.QuickPredictionNeeds;
@@ -52,6 +50,8 @@ import org.jaqpot.core.model.dto.models.QuickPredictionNeeds;
  * @author Pantelis Sopasakis
  */
 public interface JPDIClient extends Closeable {
+
+    Future<Dataset> descriptor(Dataset dataset, Descriptor descriptor, Map<String, Object> parameters, String taskId);
 
     Future<Dataset> calculate(byte[] file, Algorithm algorithm, Map<String, Object> parameters, String taskId);
 

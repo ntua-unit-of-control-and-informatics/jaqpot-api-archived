@@ -74,7 +74,6 @@ public class DatasetHandler extends AbstractHandler<Dataset> {
     
     @Override
     public void create(Dataset dataset) throws IllegalArgumentException, JaqpotDocumentSizeExceededException {
-
         if (dataset.toString().length() > 14000000)
             throw new JaqpotDocumentSizeExceededException("Resulting Dataset exceeds limit of 14mb on Dataset Resources");
         super.create(dataset);
