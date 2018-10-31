@@ -1037,54 +1037,7 @@ public class DatasetResource {
 
     }
 
-    private void calculateRowsAndColumns(Dataset dataset, InputStream stream) throws JaqpotDocumentSizeExceededException {
-        Scanner scanner = new Scanner(stream);
-        ROG randomStringGenerator = new ROG(true);
 
-        Set<FeatureInfo> featureInfoList = new HashSet<>();
-        List<DataEntry> dataEntryList = new ArrayList<>();
-        List<String> feature = new LinkedList<>();
-        boolean firstLine = true;
-        int count = 0;
-        while (scanner.hasNext()) {
-
-            List<String> line = parseLine(scanner.nextLine());
-            if (firstLine) {
-                for (String l : line) {
-                    String pseudoURL = ("/feature/" + l).replaceAll(" ", "_"); //uriInfo.getBaseUri().toString()+
-                    feature.add(pseudoURL);
-                    featureInfoList.add(new FeatureInfo(pseudoURL, l, "NA", new HashMap<>(), Dataset.DescriptorCategory.EXPERIMENTAL));
-                }
-                firstLine = false;
-            } else {
-                Iterator<String> it1 = feature.iterator();
-                Iterator<String> it2 = line.iterator();
-                TreeMap<String, Object> values = new TreeMap<>();
-                while (it1.hasNext() && it2.hasNext()) {
-                    String it = it2.next();
-                    if (!NumberUtils.isParsable(it)) {
-                        values.put(it1.next(), it);
-                    } else {
-                        values.put(it1.next(), Float.parseFloat(it));
-                    }
-                }
-                org.jaqpot.core.model.dto.dataset.EntryId substance = new org.jaqpot.core.model.dto.dataset.EntryId();
-                substance.setURI("/substance/" + count);
-                substance.setName("row" + count);
-                substance.setOwnerUUID("7da545dd-2544-43b0-b834-9ec02553f7f2");
-                DataEntry dataEntry = new DataEntry(randomStringGenerator.nextString(14));
-                dataEntry.setValues(values);
-                dataEntry.setEntryId(substance);
-                dataEntry.setDatasetId(dataset.getId());
-                dataEntryList.add(dataEntry);
-            }
-            count++;
-        }
-        scanner.close();
-        dataset.setFeatures(featureInfoList);
-        dataset.setDataEntry(dataEntryList);
-
-    }
 
     @GET
     @TokenSecured({RoleEnum.DEFAULT_USER})
@@ -1181,9 +1134,85 @@ public class DatasetResource {
         ROG randomStringGenerator = new ROG(true);
         dataentry.setId(randomStringGenerator.nextString(14));
         dataEntryHandler.create(dataentry);
-        datasetHandler.updateOne(id,"totalRows",dataset.getTotalRows()+1);
+        datasetHandler.updateField(id,"totalRows",dataset.getTotalRows()+1);
         return Response.created(new URI(dataentry.getId())).entity(dataentry).build();
 
     }
 
+    @PUT
+    @TokenSecured({RoleEnum.DEFAULT_USER})
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces({"application/json", MediaType.APPLICATION_JSON})
+    @Path("{id}/meta")
+    @ApiOperation(value = "Updates meta info of a dataset",
+            notes = "TUpdates meta info of a dataset")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, response = DataEntry.class, message = "Meta was updated succesfully"),
+            @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to access this resource"),
+            @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)"),
+            @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
+    })
+    public Response updateMeta(
+            @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key,
+            @PathParam("id")String id,
+            Dataset datasetForUpdate) throws URISyntaxException, JaqpotDocumentSizeExceededException {
+        Dataset dataset = datasetHandler.find(id);
+        if (dataset == null)
+            throw new NotFoundException("Could not find Dataset with id:" + id);
+        datasetHandler.updateMeta(id, datasetForUpdate.getMeta());
+        return Response.accepted().entity(datasetForUpdate.getMeta()).build();
+        
+    }
+    
+    
+        private void calculateRowsAndColumns(Dataset dataset, InputStream stream) throws JaqpotDocumentSizeExceededException {
+        Scanner scanner = new Scanner(stream);
+        ROG randomStringGenerator = new ROG(true);
+
+        Set<FeatureInfo> featureInfoList = new HashSet<>();
+        List<DataEntry> dataEntryList = new ArrayList<>();
+        List<String> feature = new LinkedList<>();
+        boolean firstLine = true;
+        int count = 0;
+        while (scanner.hasNext()) {
+
+            List<String> line = parseLine(scanner.nextLine());
+            if (firstLine) {
+                for (String l : line) {
+                    String pseudoURL = ("/feature/" + l).replaceAll(" ", "_"); //uriInfo.getBaseUri().toString()+
+                    feature.add(pseudoURL);
+                    featureInfoList.add(new FeatureInfo(pseudoURL, l, "NA", new HashMap<>(), Dataset.DescriptorCategory.EXPERIMENTAL));
+                }
+                firstLine = false;
+            } else {
+                Iterator<String> it1 = feature.iterator();
+                Iterator<String> it2 = line.iterator();
+                TreeMap<String, Object> values = new TreeMap<>();
+                while (it1.hasNext() && it2.hasNext()) {
+                    String it = it2.next();
+                    if (!NumberUtils.isParsable(it)) {
+                        values.put(it1.next(), it);
+                    } else {
+                        values.put(it1.next(), Float.parseFloat(it));
+                    }
+                }
+                org.jaqpot.core.model.dto.dataset.EntryId substance = new org.jaqpot.core.model.dto.dataset.EntryId();
+                substance.setURI("/substance/" + count);
+                substance.setName("row" + count);
+                substance.setOwnerUUID("7da545dd-2544-43b0-b834-9ec02553f7f2");
+                DataEntry dataEntry = new DataEntry(randomStringGenerator.nextString(14));
+                dataEntry.setValues(values);
+                dataEntry.setEntryId(substance);
+                dataEntry.setDatasetId(dataset.getId());
+                dataEntryList.add(dataEntry);
+            }
+            count++;
+        }
+        scanner.close();
+        dataset.setFeatures(featureInfoList);
+        dataset.setDataEntry(dataEntryList);
+
+    }
+        
+        
 }

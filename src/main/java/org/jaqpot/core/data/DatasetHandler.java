@@ -34,6 +34,9 @@
  */
 package org.jaqpot.core.data;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import org.jaqpot.core.annotations.MongoDB;
 import org.jaqpot.core.db.entitymanager.JaqpotEntityManager;
 import org.jaqpot.core.model.DataEntry;
@@ -44,6 +47,8 @@ import org.jaqpot.core.service.exceptions.JaqpotDocumentSizeExceededException;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**

@@ -60,6 +60,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import org.bson.Document;
 import org.jaqpot.core.data.serialize.JSONSerializer;
 import org.jaqpot.core.model.JaqpotEntity;
+import org.jaqpot.core.model.MetaInfo;
 import org.jaqpot.core.properties.PropertyManager;
 import org.reflections.Reflections;
 
@@ -198,7 +199,7 @@ public class MongoDBEntityManager implements JaqpotEntityManager {
     }
 
     @Override
-    public <T extends JaqpotEntity> void updateOne(Class<T> entityClass, Object primaryKey, String key, Object field) {
+    public <T extends JaqpotEntity> void updateField(Class<T> entityClass, Object primaryKey, String key, Object field) {
         MongoDatabase db = mongoClient.getDatabase(database);
         MongoCollection<Document> collection = db.getCollection(collectionNames.get(entityClass));
         //Document retrieved = collection.find(new Document("_id", primaryKey)).first();
@@ -206,6 +207,17 @@ public class MongoDBEntityManager implements JaqpotEntityManager {
         collection.updateOne(new Document("_id", primaryKey),update);
     }
 
+    @Override
+    public <T extends JaqpotEntity> void updateMeta(Class<T> entityClass, Object primaryKey, MetaInfo field) {
+        MongoDatabase db = mongoClient.getDatabase(database);
+        MongoCollection<Document> collection = db.getCollection(collectionNames.get(entityClass));
+        String metaJson = serializer.write(field);
+//        BasicDBObject newDocument = new BasicDBObject();
+        Document entityMeta = Document.parse(metaJson);
+        Document update = new Document().append("$set",new Document().append("meta",entityMeta));
+        collection.updateOne(new Document("_id", primaryKey),update);
+    }
+    
     @Override
     public <T extends JaqpotEntity> List<T> find(Class<T> entityClass, Map<String, Object> properties, Integer start, Integer max) {
         MongoDatabase db = mongoClient.getDatabase(database);

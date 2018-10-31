@@ -693,6 +693,8 @@ public class ModelResource {
             pretrainedIndependentFeatures.add(featURI);
             independentFeaturesForAdd.put(featURI, indf);
         });
+        
+        additionalInfo.put("fromUser",pretrainedModelRequest.getAdditionalInfo());
         additionalInfo.put("independentFeatures", independentFeaturesForAdd);
         model.setIndependentFeatures(pretrainedIndependentFeatures);
 

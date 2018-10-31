@@ -63,6 +63,7 @@ public class MetaInfo {
     private Set<String> doi;
     private Date date;
     private String picture;
+    private String markdown;
     private Set<String> tags;
     private boolean locked;
 
@@ -224,6 +225,14 @@ public class MetaInfo {
 
     public void setPicture(String picture) {
         this.picture = picture;
+    }
+
+    public String getMarkdown() {
+        return markdown;
+    }
+
+    public void setMarkdown(String markdown) {
+        this.markdown = markdown;
     }
     
     public Set<String> getTags() {

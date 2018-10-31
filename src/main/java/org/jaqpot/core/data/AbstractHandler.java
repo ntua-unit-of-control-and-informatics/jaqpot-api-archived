@@ -38,6 +38,7 @@ import java.util.Map;
 
 import org.jaqpot.core.db.entitymanager.JaqpotEntityManager;
 import org.jaqpot.core.model.JaqpotEntity;
+import org.jaqpot.core.model.MetaInfo;
 import org.jaqpot.core.service.exceptions.JaqpotDocumentSizeExceededException;
 
 
@@ -69,8 +70,12 @@ public abstract class AbstractHandler<T extends JaqpotEntity>  {
         getEntityManager().merge(entity);
     }
 
-    public void updateOne(Object id, String key, Object value) {
-        getEntityManager().updateOne(entityClass,id,key,value);
+    public void updateField(Object id, String key, Object value) {
+        getEntityManager().updateField(entityClass,id,key,value);
+    }
+    
+    public void updateMeta(Object id, MetaInfo meta){
+        getEntityManager().updateMeta(entityClass, id, meta);
     }
 
     public void remove(T entity) {
