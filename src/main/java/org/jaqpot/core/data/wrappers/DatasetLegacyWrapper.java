@@ -25,10 +25,6 @@ public class DatasetLegacyWrapper {
     @EJB
     DatasetHandler datasetHandler;
 
-
-    DatasetLegacyWrapper() {
-    }
-
     public void create(Dataset dataset) throws IllegalArgumentException, JaqpotDocumentSizeExceededException {
         ROG randomStringGenerator = new ROG(true);
 
