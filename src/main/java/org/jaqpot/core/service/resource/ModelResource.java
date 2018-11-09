@@ -682,8 +682,8 @@ public class ModelResource {
             featTitles.add(indf);
             featMetaInf.setTitles(featTitles);
             pretrainedIndF.setMeta(featMetaInf);
-            pretrainedIndF.setFromPretrained(Boolean.TRUE);
-            pretrainedIndF.setActualIndependentFeatureName(indf);
+//            pretrainedIndF.setFromPretrained(Boolean.TRUE);
+//            pretrainedIndF.setActualIndependentFeatureName(indf);
             try {
                 featureHandler.create(pretrainedIndF);
             } catch (JaqpotDocumentSizeExceededException ex) {
@@ -717,8 +717,8 @@ public class ModelResource {
             featTitles.add(depenf);
             featMetaInf.setTitles(featTitles);
             pretrainedDepF.setMeta(featMetaInf);
-            pretrainedDepF.setFromPretrained(Boolean.TRUE);
-            pretrainedDepF.setActualIndependentFeatureName(depenf);
+//            pretrainedDepF.setFromPretrained(Boolean.TRUE);
+//            pretrainedDepF.setActualIndependentFeatureName(depenf);
 
             try {
                 featureHandler.create(pretrainedDepF);
@@ -750,8 +750,8 @@ public class ModelResource {
                         .addCreators(user.getId())
                         .build());
                 /* Create feature */
-                predictionFeatureResource.setActualIndependentFeatureName(featureTitle);
-                predictionFeatureResource.setFromPretrained(Boolean.TRUE);
+//                predictionFeatureResource.setActualIndependentFeatureName(featureTitle);
+//                predictionFeatureResource.setFromPretrained(Boolean.TRUE);
                 featureHandler.create(predictionFeatureResource);
             }
             String predictFeat = propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_BASE_SERVICE) + "feature/" + predictionFeatureResource.getId();

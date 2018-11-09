@@ -65,14 +65,14 @@ public class Feature extends JaqpotEntity {
      * {@link JaqpotEntity}.
      */
     private Set<String> admissibleValues;
-    /**
-     * In case the feature is produced from a pretrained model, 
-     * this field stores it's actual name that is needed for predictions.
-     * {@link JaqpotEntity}.
-     */
-    private String actualIndependentFeatureName;
+//    /**
+//     * In case the feature is produced from a pretrained model, 
+//     * this field stores it's actual name that is needed for predictions.
+//     * {@link JaqpotEntity}.
+//     */
+//    private String actualIndependentFeatureName;
     
-    private Boolean fromPretrained;
+//    private Boolean fromPretrained;
     
     public Feature() {
     }
@@ -116,20 +116,20 @@ public class Feature extends JaqpotEntity {
         this.predictorFor = predictorFor;
     }
 
-    public String getActualIndependentFeatureName() {
-        return actualIndependentFeatureName;
-    }
-
-    public void setActualIndependentFeatureName(String actualIndependentFeatureName) {
-        this.actualIndependentFeatureName = actualIndependentFeatureName;
-    }
-
-    public Boolean getFromPretrained() {
-        return fromPretrained;
-    }
-
-    public void setFromPretrained(Boolean fromPretrained) {
-        this.fromPretrained = fromPretrained;
-    }
+//    public String getActualIndependentFeatureName() {
+//        return actualIndependentFeatureName;
+//    }
+//
+//    public void setActualIndependentFeatureName(String actualIndependentFeatureName) {
+//        this.actualIndependentFeatureName = actualIndependentFeatureName;
+//    }
+//
+//    public Boolean getFromPretrained() {
+//        return fromPretrained;
+//    }
+//
+//    public void setFromPretrained(Boolean fromPretrained) {
+//        this.fromPretrained = fromPretrained;
+//    }
 
 }
