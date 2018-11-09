@@ -87,8 +87,6 @@ public class Feature extends JaqpotEntity {
         this.units = other.units;
         this.predictorFor = other.predictorFor;
         this.setMeta(other.getMeta());
-        this.actualIndependentFeatureName= other.actualIndependentFeatureName;
-        this.fromPretrained = other.fromPretrained;
 
     }
 
