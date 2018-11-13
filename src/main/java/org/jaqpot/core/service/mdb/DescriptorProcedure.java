@@ -150,8 +150,12 @@ public class DescriptorProcedure extends AbstractJaqpotProcedure implements Mess
             }
             Dataset subDataset = null;
 
-            //Create Dataset with features URIs that we want to extract descriptors from
-            subDataset = DatasetFactory.copy(initialDataset,featureURIs);
+            //Case of all applying descriptor service to all featureURIs
+            if (featureURIs.contains("all"))
+                subDataset = DatasetFactory.copy(initialDataset);
+            else
+                subDataset = DatasetFactory.copy(initialDataset,featureURIs);
+
 
             subDataset.setMeta(null);
             Future<Dataset> futureDataset = jpdiClient.descriptor(subDataset,descriptor,parameterMap,taskId);
