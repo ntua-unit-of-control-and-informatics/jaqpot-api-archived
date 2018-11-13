@@ -36,8 +36,6 @@
 //import org.jaqpot.core.properties.PropertyManager;
 //import org.jaqpot.core.service.annotations.Authorize;
 //import org.jaqpot.core.service.exceptions.JaqpotNotAuthorizedException;
-//import org.jaqpot.core.service.security.SecurityContextImpl;
-//import org.jaqpot.core.service.security.UserPrincipal;
 //
 //import javax.annotation.Priority;
 //import javax.ejb.EJB;
@@ -49,9 +47,16 @@
 //import javax.ws.rs.core.SecurityContext;
 //import javax.ws.rs.ext.Provider;
 //import java.io.IOException;
+//import java.lang.annotation.Annotation;
+//import java.lang.reflect.AnnotatedElement;
+//import java.lang.reflect.Method;
 //import java.security.Principal;
+//import java.util.List;
 //import java.util.logging.Level;
 //import java.util.logging.Logger;
+//import javax.ws.rs.Path;
+//import javax.ws.rs.container.ResourceInfo;
+//import javax.ws.rs.core.Context;
 //
 ///**
 // *
@@ -70,91 +75,31 @@
 //
 //    @EJB
 //    UserHandler userHandler;
+//    
+//    @Context
+//    private ResourceInfo resourceInfo;
 //
 //    private static final Logger LOG = Logger.getLogger(AuthorizationRequestFilter.class.getName());
 //
 //    public AuthorizationRequestFilter() {
 //    }
 //
-//    private void _handleAnonymous(ContainerRequestContext requestContext) {
-//        // When operating without AA, all users are anonymous
-//        Principal userPrincipal = new UserPrincipal("anonymous");
-//        SecurityContext securityContext = new SecurityContextImpl(userPrincipal);
-//        requestContext.setSecurityContext(securityContext);
-//        User anonymousUser = userHandler.find("anonymous");
-//        if (anonymousUser == null) { // The anonymous user is a DB entry
-//            // create an anonymous user if it doesn't exist!
-//            anonymousUser = UserFactory.newNormalUser("anonymous", "anonymous");
-//            anonymousUser.setName("Anonymous User");
-//            anonymousUser.setMail("anonymous@jaqpot.org");
-//            userHandler.create(anonymousUser);
-//        }
-//    }
-//
-//    private void _handleSecurityContext(User user, ContainerRequestContext requestContext) {
-//        Principal userPrincipal = new UserPrincipal(user.getId());
-//        SecurityContext securityContext = new SecurityContextImpl(userPrincipal);
-//        requestContext.setSecurityContext(securityContext);
-//    }
-//
 //    @Override
 //    public void filter(ContainerRequestContext requestContext) throws IOException {
 //
-//        // when AA is not enabled...
-//        if ("false".equals(propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_AA))) {
-//            _handleAnonymous(requestContext);
-//            return;
-//        }
+//        AnnotatedElement resourceClass = resourceInfo.getResourceClass();
+//        Path classResource = resourceClass.getAnnotation(Path.class);
+//        
+//        AnnotatedElement resourceMethod = resourceInfo.getResourceMethod();
+//        AuthorizationEnum[] authAnnot = resourceMethod.getAnnotation(Authorize.class).value();
 //
-//        // Check whether there is an AA token...
-//        String token = requestContext.getHeaderString("subjectid");
-//        if (token == null || token.isEmpty()) {
-//            token = requestContext.getUriInfo().getQueryParameters().getFirst("subjectid");
-//            if (token == null || token.isEmpty()) {
-//                requestContext.abortWith(Response
-//                        .ok(ErrorReportFactory.unauthorized("Please provide an authorization token in a subjectid header."))
-//                        .status(Response.Status.UNAUTHORIZED)
-//                        .build());
-//            }
-//        }
+//        String resource = classResource.value();
+//        
+//        System.out.println(resource);
+//        
 //
-//        // is the token valid? if not: forbidden...
+//        
 //
-//        if (!aaService.validate(token)) {
-//            requestContext.abortWith(Response.
-//                    ok(ErrorReportFactory.unauthorized("Your authorization token is not valid."))
-//                    .status(Response.Status.UNAUTHORIZED)
-//                    .build());
-//            return; // invalid token
-//        }
-//
-//        // who is this user? is the user cached?
-//        User user = aaService.getUserFromToken(token);
-//        if (user != null) {
-//            _handleSecurityContext(user, requestContext); // update the security context
-//            return; // user is cached!
-//        }
-//
-//        // the token is valid - ask SSO who this user is...
-//        // the user is not cached...
-//        user = aaService.getUserFromSSO(token);
-//        if (user == null || user.getId() == null) {
-//            requestContext.abortWith(Response.
-//                    ok(ErrorReportFactory.unauthorized("User attributes could not be retrived!"))
-//                    .status(Response.Status.FORBIDDEN)
-//                    .build());
-//        }
-//        aaService.registerUserToken(token, user); // cache the user (by token)
-//
-//        // is the user in the DB?
-//        User userInDB = userHandler.find(user.getId());
-//        if (userInDB == null) { // user not in DB - create...
-//            LOG.log(Level.INFO, "New user registered in DB with ID {0}", user.getId());
-//            userHandler.create(user);
-//        }
-//
-//        // update the security context
-//        _handleSecurityContext(user, requestContext);
 //
 //    }
 //

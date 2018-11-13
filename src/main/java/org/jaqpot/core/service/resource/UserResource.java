@@ -271,7 +271,7 @@ public class UserResource {
     @GET
     @Produces({MediaType.APPLICATION_JSON})
     @TokenSecured({RoleEnum.DEFAULT_USER})
-    @Path("/{id}/profilepic")
+    @Path("/{id}/picture")
     @ApiOperation(value = "Finds Users profile pic by Id",
             notes = "Finds specified users profile pic",
             response = User.class)
@@ -403,6 +403,35 @@ public class UserResource {
             // Hide the hashed password!
             user.setHashedPass(null);
         }
+        return Response.ok(user).build();
+    }
+    
+    
+    @GET
+    @Produces({MediaType.APPLICATION_JSON})
+    @TokenSecured({RoleEnum.DEFAULT_USER})
+    @Path("/{id}/organizations")
+    @ApiOperation(value = "Finds User's Organizations by user Id",
+            notes = "Finds specified users organization",
+            response = User.class)
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "User is found")
+        ,
+        @ApiResponse(code = 401, message = "You are not authorized to access this user")
+        ,
+        @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)")
+        ,
+        @ApiResponse(code = 404, message = "This user was not found.")
+        ,
+        @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
+    })
+    public Response getUserOrganizations(
+            @PathParam("id") String id,
+            @ApiParam(value = "Clients need to authenticate in order to access this resource")
+            @HeaderParam("Authorization") String api_key) throws JaqpotNotAuthorizedException {
+
+        String currentUserID = securityContext.getUserPrincipal().getName();
+        User user = userHandler.getOrganizations(id);
         return Response.ok(user).build();
     }
 

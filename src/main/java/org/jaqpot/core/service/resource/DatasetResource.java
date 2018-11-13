@@ -30,6 +30,8 @@
 package org.jaqpot.core.service.resource;
 
 import io.swagger.annotations.*;
+import java.io.IOException;
+import java.io.InputStream;
 import org.apache.commons.validator.routines.UrlValidator;
 import org.jaqpot.core.data.*;
 import org.jaqpot.core.data.wrappers.DatasetLegacyWrapper;
@@ -64,6 +66,16 @@ import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.math.NumberUtils;
+import org.jaqpot.core.model.dto.dataset.FeatureInfo;
+import org.jaqpot.core.service.exceptions.parameter.ParameterInvalidURIException;
+import org.jaqpot.core.service.exceptions.parameter.ParameterIsNullException;
+import org.jaqpot.core.service.exceptions.parameter.ParameterRangeException;
+import org.jaqpot.core.service.exceptions.parameter.ParameterScopeException;
+import org.jaqpot.core.service.exceptions.parameter.ParameterTypeException;
+import org.jaqpot.core.service.filter.AuthorizationEnum;
+import org.jboss.resteasy.plugins.providers.multipart.InputPart;
+import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput;
 
 /**
  *
@@ -119,6 +131,7 @@ public class DatasetResource {
 
     @GET
     @TokenSecured({RoleEnum.DEFAULT_USER})
+//    @Authorize({AuthorizationEnum.ORGANIZATION,AuthorizationEnum.OWNER})
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @ApiOperation(value = "Finds all Datasets",
             notes = "Finds all Datasets in the DB of Jaqpot and returns them in a list. Results can be obtained "
@@ -139,18 +152,54 @@ public class DatasetResource {
             @ApiParam(value = "start", defaultValue = "0") @QueryParam("start") Integer start,
             @ApiParam(value = "max - the server imposes an upper limit of 500 on this "
                     + "parameter.", defaultValue = "10") @QueryParam("max") Integer max,
-            @ApiParam(value = "description for the dataset", required = true, allowableValues = "UPLOADED, CREATED, TRANSFORMED, PREDICTED") @QueryParam("status") String datasetstatus
+            @ApiParam(value = "description for the dataset", required = false, allowableValues = "UPLOADED, CREATED, TRANSFORMED, PREDICTED, FROMPRETRAINED, DESCRIPTORS, ALL") @QueryParam("existence") String datasetexistence,
+            @ApiParam(value = "organization for the dataset", required = false) @QueryParam("organization") String organization
     ) {
         start = start != null ? start : 0;
         if (max == null || max > 500) {
             max = 500;
         }
         String creator = securityContext.getUserPrincipal().getName();
-        return Response.ok(datasetHandler.listMetaOfCreator(creator, start, max))
-                .status(Response.Status.OK)
-                .header("total", datasetHandler.countAllOfCreator(creator))
-                .build();
 
+        List<Dataset> datasets = new ArrayList();
+        Number total = null;
+        if (datasetexistence == null || datasetexistence.equals("ALL")) {
+            datasets.addAll(datasetHandler.listMetaOfCreator(creator, start, max));
+            total = datasetHandler.countAllOfCreator(creator);
+        } else {
+            switch (datasetexistence) {
+                case "UPLOADED":
+                    datasets.addAll(datasetHandler.listDatasetCreatorsExistence(creator, Dataset.DatasetExistence.UPLOADED, start, max));
+                    total = datasetHandler.countCreatorsExistenseDatasets(creator, Dataset.DatasetExistence.UPLOADED);
+                    break;
+                case "CREATED":
+                    datasets.addAll(datasetHandler.listDatasetCreatorsExistence(creator, Dataset.DatasetExistence.CREATED, start, max));
+                    total = datasetHandler.countCreatorsExistenseDatasets(creator, Dataset.DatasetExistence.CREATED);
+                    break;
+                case "TRANSFORMED":
+                    datasets.addAll(datasetHandler.listDatasetCreatorsExistence(creator, Dataset.DatasetExistence.TRANFORMED, start, max));
+                    total = datasetHandler.countCreatorsExistenseDatasets(creator, Dataset.DatasetExistence.TRANFORMED);
+                    break;
+                case "PREDICTED":
+                    datasets.addAll(datasetHandler.listDatasetCreatorsExistence(creator, Dataset.DatasetExistence.PREDICTED, start, max));
+                    total = datasetHandler.countCreatorsExistenseDatasets(creator, Dataset.DatasetExistence.PREDICTED);
+                    break;
+                case "PRETRAINED":
+                    datasets.addAll(datasetHandler.listDatasetCreatorsExistence(creator,Dataset.DatasetExistence.FROMPRETRAINED , start, max));
+                    total = datasetHandler.countCreatorsExistenseDatasets(creator, Dataset.DatasetExistence.FROMPRETRAINED);
+                    break;
+                case "DESCRIPTORS":
+                    datasets.addAll(datasetHandler.listDatasetCreatorsExistence(creator, Dataset.DatasetExistence.DESCRIPTORSADDED, start, max));
+                    total = datasetHandler.countCreatorsExistenseDatasets(creator, Dataset.DatasetExistence.DESCRIPTORSADDED);
+                    break;
+            }
+
+        }
+
+        return Response.ok(datasets)
+                .status(Response.Status.OK)
+                .header("total", total)
+                .build();
     }
 
     @GET
@@ -350,7 +399,7 @@ public class DatasetResource {
     public Response createEmptyDataset(
             @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key,
             @FormParam("title") String title,
-            @FormParam("description") String description) throws URISyntaxException, QuotaExceededException,JaqpotDocumentSizeExceededException {
+            @FormParam("description") String description) throws URISyntaxException, QuotaExceededException, JaqpotDocumentSizeExceededException {
 
         User user = userHandler.find(securityContext.getUserPrincipal().getName());
         long datasetCount = datasetHandler.countAllOfCreator(user.getId());
@@ -400,7 +449,7 @@ public class DatasetResource {
     })
     public Response mergeDatasets(
             @FormParam("dataset_uris") String datasetURIs,
-            @HeaderParam("Authorization") String api_key) throws URISyntaxException, QuotaExceededException,JaqpotDocumentSizeExceededException {
+            @HeaderParam("Authorization") String api_key) throws URISyntaxException, QuotaExceededException, JaqpotDocumentSizeExceededException {
 
         String[] apiA = api_key.split("\\s+");
         String apiKey = apiA[1];
@@ -554,7 +603,7 @@ public class DatasetResource {
             @FormParam("substance_uri") String substanceURI,
             @FormParam("title") String title,
             @FormParam("description") String description
-    ) throws QuotaExceededException, ExecutionException, InterruptedException,JaqpotDocumentSizeExceededException {
+    ) throws QuotaExceededException, ExecutionException, InterruptedException, JaqpotDocumentSizeExceededException {
 
         String[] apiA = api_key.split("\\s+");
         String apiKey = apiA[1];
@@ -917,7 +966,7 @@ public class DatasetResource {
 //
 //        return Response.ok(report).build();
     }
-
+    
     @GET
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces({"application/json", MediaType.APPLICATION_JSON})
@@ -1013,9 +1062,34 @@ public class DatasetResource {
         ROG randomStringGenerator = new ROG(true);
         dataentry.setId(randomStringGenerator.nextString(14));
         dataEntryHandler.create(dataentry);
-        datasetHandler.updateOne(id,"totalRows",dataset.getTotalRows()+1);
+        datasetHandler.updateField(id,"totalRows",dataset.getTotalRows()+1);
         return Response.created(new URI(dataentry.getId())).entity(dataentry).build();
 
     }
 
+    @PUT
+    @TokenSecured({RoleEnum.DEFAULT_USER})
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces({"application/json", MediaType.APPLICATION_JSON})
+    @Path("{id}/meta")
+    @ApiOperation(value = "Updates meta info of a dataset",
+            notes = "TUpdates meta info of a dataset")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, response = DataEntry.class, message = "Meta was updated succesfully"),
+            @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to access this resource"),
+            @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)"),
+            @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
+    })
+    public Response updateMeta(
+            @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key,
+            @PathParam("id")String id,
+            Dataset datasetForUpdate) throws URISyntaxException, JaqpotDocumentSizeExceededException {
+        Dataset dataset = datasetHandler.find(id);
+        if (dataset == null)
+            throw new NotFoundException("Could not find Dataset with id:" + id);
+        datasetHandler.updateMeta(id, datasetForUpdate.getMeta());
+        return Response.accepted().entity(datasetForUpdate.getMeta()).build();
+        
+    }
+        
 }

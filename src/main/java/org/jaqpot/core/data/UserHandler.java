@@ -76,7 +76,7 @@ public class UserHandler extends AbstractHandler<User> {
 
     public User getProfPic(String id) {
         List<String> fields = new ArrayList<>();
-        fields.add("profilePic");
+        fields.add("meta.picture");
         return em.find(User.class, id, fields);
     }
 
@@ -95,6 +95,12 @@ public class UserHandler extends AbstractHandler<User> {
     public User getName(String id) {
         List<String> fields = new ArrayList<>();
         fields.add("name");
+        return em.find(User.class, id, fields);
+    }
+    
+    public User getOrganizations(String id){
+        List<String> fields = new ArrayList<>();
+        fields.add("organizations");
         return em.find(User.class, id, fields);
     }
 

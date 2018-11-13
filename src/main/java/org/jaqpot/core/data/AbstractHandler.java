@@ -38,6 +38,7 @@ import java.util.Map;
 
 import org.jaqpot.core.db.entitymanager.JaqpotEntityManager;
 import org.jaqpot.core.model.JaqpotEntity;
+import org.jaqpot.core.model.MetaInfo;
 import org.jaqpot.core.service.exceptions.JaqpotDocumentSizeExceededException;
 
 
@@ -50,7 +51,7 @@ import org.jaqpot.core.service.exceptions.JaqpotDocumentSizeExceededException;
  */
 public abstract class AbstractHandler<T extends JaqpotEntity>  {
 
-    private final Class<T> entityClass;
+    final Class<T> entityClass;
 
     public AbstractHandler(Class<T> entityClass) {
         this.entityClass = entityClass;
@@ -69,8 +70,12 @@ public abstract class AbstractHandler<T extends JaqpotEntity>  {
         getEntityManager().merge(entity);
     }
 
-    public void updateOne(Object id, String key, Object value) {
-        getEntityManager().updateOne(entityClass,id,key,value);
+    public void updateField(Object id, String key, Object value) {
+        getEntityManager().updateField(entityClass,id,key,value);
+    }
+    
+    public void updateMeta(Object id, MetaInfo meta){
+        getEntityManager().updateMeta(entityClass, id, meta);
     }
 
     public void remove(T entity) {
@@ -97,7 +102,11 @@ public abstract class AbstractHandler<T extends JaqpotEntity>  {
     public List<T> find(Map<String, Object> properties) {
         return getEntityManager().find(entityClass, properties, 0, Integer.MAX_VALUE);
     }
-
+    
+    public List<T> find(Map<String, Object> properties, List<String> fields, Integer start, Integer max) {
+        return getEntityManager().find(entityClass, properties, fields, 0, Integer.MAX_VALUE);
+    }
+    
     public List<T> findAll() {
         return getEntityManager().findAll(entityClass, 0, Integer.MAX_VALUE);
     }
@@ -142,7 +151,7 @@ public abstract class AbstractHandler<T extends JaqpotEntity>  {
         Map<String, Object> properties = new HashMap<>();
         properties.put("meta.creators", Arrays.asList(createdBy));
         properties.put("visible", true);
-
+        fields.add("organizations");
         return getEntityManager().findSortedDesc(entityClass, properties, fields, start, max, Arrays.asList("meta.date"));
     }
 

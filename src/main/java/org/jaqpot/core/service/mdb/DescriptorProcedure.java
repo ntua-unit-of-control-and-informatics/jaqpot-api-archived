@@ -182,7 +182,7 @@ public class DescriptorProcedure extends AbstractJaqpotProcedure implements Mess
                     .build();
             dataset.setMeta(datasetMeta);
             dataset.setVisible(Boolean.TRUE);
-            dataset.setExistence(Dataset.DatasetExistance.DESCRIPTORSADDED);
+            dataset.setExistence(Dataset.DatasetExistence.DESCRIPTORSADDED);
             if (dataset.getDataEntry() == null || dataset.getDataEntry().isEmpty())
                 throw new IllegalArgumentException("Resulting dataset is empty");
             else

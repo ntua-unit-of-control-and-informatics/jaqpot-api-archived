@@ -34,6 +34,9 @@
  */
 package org.jaqpot.core.data;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import org.jaqpot.core.annotations.MongoDB;
 import org.jaqpot.core.db.entitymanager.JaqpotEntityManager;
 import org.jaqpot.core.model.DataEntry;
@@ -44,6 +47,8 @@ import org.jaqpot.core.service.exceptions.JaqpotDocumentSizeExceededException;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -94,4 +99,44 @@ public class DatasetHandler extends AbstractHandler<Dataset> {
         }
         return dataset;
     }
+    
+    public List<Dataset> listDatasetCreatorsExistence(String creator, Dataset.DatasetExistence existence, Integer start, Integer max){
+        List<String> fields = new ArrayList<>();
+        fields.add("_id");
+        fields.add("meta");
+        fields.add("ontologicalClasses");
+        fields.add("organizations");
+        fields.add("totalRows");
+        fields.add("totalColumns");
+        
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("meta.creators", Arrays.asList(creator));
+        properties.put("existence", existence.getName().toUpperCase());
+        return em.find(Dataset.class, properties, fields, start, max);
+    }
+    
+    public List<Dataset> listDatasetOrgsExistence(String organization, Dataset.DatasetExistence existence, Integer start, Integer max){
+        List<String> fields = new ArrayList<>();
+        fields.add("_id");
+        fields.add("meta");
+        fields.add("ontologicalClasses");
+        fields.add("organizations");
+        fields.add("totalRows");
+        fields.add("totalColumns");
+        
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("organizations", Arrays.asList(organization));
+        properties.put("existence", existence.getName().toUpperCase());
+        return em.find(Dataset.class, properties, fields, start, max);
+    }
+    
+    public Number countCreatorsExistenseDatasets(String creator, Dataset.DatasetExistence existence){
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("meta.creators", Arrays.asList(creator));
+        properties.put("existence", existence.getName().toUpperCase());
+        properties.put("visible", true);
+        return getEntityManager().count(entityClass, properties);
+    }
+    
+    
 }

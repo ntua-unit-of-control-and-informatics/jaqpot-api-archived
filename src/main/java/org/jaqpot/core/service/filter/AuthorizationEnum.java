@@ -32,35 +32,13 @@
  * All source files of JAQPOT Quattro that are stored on github are licensed
  * with the aforementioned licence. 
  */
-package org.jaqpot.core.model.builder;
-
-import org.jaqpot.core.model.Organization;
+package org.jaqpot.core.service.filter;
 
 /**
  *
  * @author pantelispanka
  */
-public class OrganizationBuilder implements EntityBuilder<Organization> {
-
-    private final Organization organization;
-
-    public static OrganizationBuilder builder(String id) {
-        return new OrganizationBuilder(id);
-    }
-
-    private OrganizationBuilder(String id){
-        organization = new Organization(id);
-        organization.setId(id);
-    }
-
-//    public OrganizationBuilder setOrganizationPic(String orgPic){
-//        organization.setOrganizationPic(orgPic);
-//        return this;
-//    }
-    
-    @Override
-    public Organization build() {
-        return organization;
-    }
-
+public enum AuthorizationEnum {
+    OWNER,
+    ORGANIZATION
 }
