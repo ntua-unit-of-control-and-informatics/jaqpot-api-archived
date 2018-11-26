@@ -80,7 +80,7 @@ import org.jaqpot.core.model.builder.MetaInfoBuilder;
 import org.jaqpot.core.model.factory.ErrorReportFactory;
 import org.jaqpot.core.model.util.ROG;
 import org.jaqpot.core.service.annotations.Authorize;
-import org.jaqpot.core.service.data.AAService;
+import org.jaqpot.core.service.authentication.AAService;
 import org.jaqpot.core.service.exceptions.JaqpotDocumentSizeExceededException;
 import org.jaqpot.core.service.exceptions.JaqpotNotAuthorizedException;
 import org.jpmml.model.JAXBUtil;
@@ -131,7 +131,7 @@ public class PmmlResource {
             @ApiParam(value = "description") @FormParam("description") String description
     ) throws JaqpotNotAuthorizedException, JaqpotDocumentSizeExceededException {
         // First check the subjectid:
-        if (subjectId == null || !aaService.validate(subjectId)) {
+        if (subjectId == null || !aaService.validateAccessToken(subjectId)) {
             throw new JaqpotNotAuthorizedException("Invalid auth token");
         }
         if (pmmlString == null) {

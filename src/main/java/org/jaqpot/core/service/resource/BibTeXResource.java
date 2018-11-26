@@ -68,7 +68,7 @@ import org.jaqpot.core.model.factory.ErrorReportFactory;
 import org.jaqpot.core.model.util.ROG;
 import org.jaqpot.core.model.validator.BibTeXValidator;
 import org.jaqpot.core.service.annotations.Authorize;
-import org.jaqpot.core.service.data.AAService;
+import org.jaqpot.core.service.authentication.AAService;
 import org.jaqpot.core.service.exceptions.JaqpotDocumentSizeExceededException;
 import org.jaqpot.core.service.exceptions.JaqpotForbiddenException;
 import org.jaqpot.core.service.exceptions.JaqpotNotAuthorizedException;
