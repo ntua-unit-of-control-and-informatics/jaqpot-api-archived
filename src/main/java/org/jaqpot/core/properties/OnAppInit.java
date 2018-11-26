@@ -271,7 +271,7 @@ public class OnAppInit {
                 if (trainingUri != null) {
                     URI trainUriFromFile = new URI(trainingUri);
                     String pathFromFile = trainUriFromFile.getPath();
-                    String pythonalgohost = propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_PYTHON_ALGORITHMS_HOST);
+                    String pythonalgohost = propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.PYTHON_ALGORITHMS_HOST);
                     URI hostUrl = new URI(pythonalgohost);
                     URI pythonAlgoTrainingService = hostUrl.resolve(pathFromFile);
                     algo.setTrainingService(pythonAlgoTrainingService.toString());
@@ -280,7 +280,7 @@ public class OnAppInit {
                 if (predictingUri != null) {
                     URI predictUriFromFile = new URI(predictingUri);
                     String pathFromFile = predictUriFromFile.getPath();
-                    String pythonalgohost = propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_PYTHON_ALGORITHMS_HOST);
+                    String pythonalgohost = propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.PYTHON_ALGORITHMS_HOST);
                     URI hostUrl = new URI(pythonalgohost);
                     URI pythonAlgoPredictingService = hostUrl.resolve(pathFromFile);
                     algo.setPredictionService(pythonAlgoPredictingService.toString());
@@ -289,7 +289,7 @@ public class OnAppInit {
                 if (reportingUri != null) {
                     URI reportingUriFromFile = new URI(reportingUri);
                     String pathFromFile = reportingUriFromFile.getPath();
-                    String pythonalgohost = propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_PYTHON_ALGORITHMS_HOST);
+                    String pythonalgohost = propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.PYTHON_ALGORITHMS_HOST);
                     URI hostUrl = new URI(pythonalgohost);
                     URI pythonAlgoReportingService = hostUrl.resolve(pathFromFile);
                     algo.setReportService(pythonAlgoReportingService.toString());

@@ -22,7 +22,7 @@ import org.jaqpot.core.model.dto.dataset.FeatureInfo;
 import org.jaqpot.core.model.util.ROG;
 import org.jaqpot.core.properties.PropertyManager;
 import org.jaqpot.core.service.client.jpdi.JPDIClient;
-import org.jaqpot.core.service.data.AAService;
+//import org.jaqpot.core.service.data.AAService;
 import org.jaqpot.core.service.exceptions.JaqpotDocumentSizeExceededException;
 
 import javax.ejb.ActivationConfigProperty;
@@ -38,6 +38,7 @@ import java.util.Map;
 import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.jaqpot.core.service.authentication.AAService;
 /**
  *
  * @author Charalampos Chomenidis

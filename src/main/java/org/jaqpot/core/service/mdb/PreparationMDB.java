@@ -40,7 +40,6 @@ import org.jaqpot.core.model.dto.bundle.BundleData;
 import org.jaqpot.core.model.dto.dataset.Dataset;
 import org.jaqpot.core.model.factory.ErrorReportFactory;
 import org.jaqpot.core.service.annotations.UnSecure;
-import org.jaqpot.core.service.data.AAService;
 import org.jaqpot.core.service.data.ConjoinerService;
 import org.jaqpot.core.service.exceptions.JaqpotDocumentSizeExceededException;
 
@@ -59,6 +58,8 @@ import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.jaqpot.core.service.authentication.AAService;
+import org.jaqpot.core.service.exceptions.JaqpotNotAuthorizedException;
 
 /**
  *
@@ -206,6 +207,8 @@ public class PreparationMDB extends RunningTaskMDB {
             task.setStatus(Task.Status.ERROR);
             task.setErrorReport(ErrorReportFactory.badRequest("Error creating Dataset resource, exceeding maximum dataset limit of 16 mb.", e.getMessage()));
             e.printStackTrace();
+        } catch (JaqpotNotAuthorizedException ex) {
+            Logger.getLogger(PreparationMDB.class.getName()).log(Level.SEVERE, null, ex);
         } finally {
             if (task != null && task.getId() != null) {
                 terminate(task.getId());
