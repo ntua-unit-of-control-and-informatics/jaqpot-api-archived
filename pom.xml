@@ -228,7 +228,14 @@
         <interlab.base></interlab.base>
         <jaqpot.readacross></jaqpot.readacross>
         <pksim.base></pksim.base>
+        <httk.base></httk.base>
+
         <ocpulm.base></ocpulm.base>
+        
+        <oidc.issuer></oidc.issuer>
+        <oidc.client.id></oidc.client.id>
+        <oidc.client.pass></oidc.client.pass>
+        <oidc.provider.conf></oidc.provider.conf>
         
         <jaqpot.qprf></jaqpot.qprf>
     </properties>
