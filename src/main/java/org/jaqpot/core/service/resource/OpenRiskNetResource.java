@@ -63,6 +63,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
+import org.jaqpot.core.service.annotations.TokenSecured;
+import org.jaqpot.core.service.authentication.RoleEnum;
 
 
 @Path("openrisknet")
@@ -114,7 +116,7 @@ public class OpenRiskNetResource {
     }
 
     @POST
-    @Authorize
+    @TokenSecured({RoleEnum.DEFAULT_USER})
     @Path("/upload")
     @Consumes("multipart/form-data")
     @ApiImplicitParams({
@@ -131,11 +133,13 @@ public class OpenRiskNetResource {
     )
     @org.jaqpot.core.service.annotations.Task
     public Response uploadFile(
-            @HeaderParam("subjectid") String subjectId,
+            @HeaderParam("Authorization") String api_key,
             @ApiParam(value = "multipartFormData input", hidden = true) MultipartFormDataInput input)
             throws ParameterIsNullException, ParameterInvalidURIException, QuotaExceededException, IOException, ParameterScopeException, ParameterRangeException, ParameterTypeException, JaqpotDocumentSizeExceededException {
         UrlValidator urlValidator = new UrlValidator();
 
+        String[] apiA = api_key.split("\\s+");
+        String apiKey = apiA[1];
         User user = userHandler.find(securityContext.getUserPrincipal().getName());
         long datasetCount = datasetHandler.countAllOfCreator(user.getId());
         int maxAllowedDatasets = new UserFacade(user).getMaxDatasets();
@@ -186,7 +190,7 @@ public class OpenRiskNetResource {
         Map<String, Object> options = new HashMap<>();
         options.put("title", title);
         options.put("description", description);
-        options.put("subjectid", subjectId);
+        options.put("api_key", apiKey);
         options.put("file", bytes);
         options.put("filename",filename);
         options.put("mode", "PREPARATION");

@@ -61,7 +61,9 @@ import org.jaqpot.core.model.dto.dataset.FeatureInfo;
 import org.jaqpot.core.model.facades.UserFacade;
 import org.jaqpot.core.model.factory.ErrorReportFactory;
 import org.jaqpot.core.service.annotations.Authorize;
+import org.jaqpot.core.service.annotations.TokenSecured;
 import org.jaqpot.core.service.annotations.UnSecure;
+import org.jaqpot.core.service.authentication.RoleEnum;
 import org.jaqpot.core.service.data.PredictionService;
 import org.jaqpot.core.service.exceptions.JaqpotDocumentSizeExceededException;
 import org.jaqpot.core.service.exceptions.JaqpotForbiddenException;
@@ -79,7 +81,6 @@ import org.jaqpot.core.service.validator.ParameterValidator;
 @Path("model")
 @Api(value = "/model", description = "Models API")
 @Produces({"application/json", "text/uri-list"})
-@Authorize
 public class ModelResource {
 
     private static final Logger LOG = Logger.getLogger(ModelResource.class.getName());
@@ -112,6 +113,7 @@ public class ModelResource {
     ParameterValidator parameterValidator;
 
     @GET
+    @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @ApiOperation(value = "Finds all Models",
             notes = "Finds all Models from Jaqpot Dataset. The response will list all models and will return either a URI list "
@@ -154,6 +156,7 @@ public class ModelResource {
     }
 
     @GET
+    @TokenSecured({RoleEnum.DEFAULT_USER})
     @Path("/featured")
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @ApiOperation(value = "Finds all Models",
@@ -196,6 +199,7 @@ public class ModelResource {
     }
 
     @GET
+    @TokenSecured({RoleEnum.DEFAULT_USER})
     @Path("/{id}")
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list", "application/ld+json"})
     @ApiOperation(value = "Finds Model by Id",
@@ -235,6 +239,7 @@ public class ModelResource {
     }
 
     @GET
+    @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces(MediaType.APPLICATION_XML)
     @Path("/{id}/pmml")
     @ApiOperation(value = "Finds Model by Id",
@@ -275,6 +280,7 @@ public class ModelResource {
     }
 
     @GET
+    @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces({"text/uri-list"})
     @Path("/{id}/independent")
     @ApiOperation(value = "Lists the independent features of a Model",
@@ -300,6 +306,7 @@ public class ModelResource {
     }
 
     @GET
+    @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces({"text/uri-list"})
     @Path("/{id}/dependent")
     @ApiOperation(value = "Lists the dependent features of a Model",
@@ -324,6 +331,7 @@ public class ModelResource {
     }
 
     @GET
+    @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces({"text/uri-list"})
     @Path("/{id}/predicted")
     @ApiOperation(value = "Lists the dependent features of a Model",
@@ -359,6 +367,7 @@ public class ModelResource {
     }
 
     @GET
+    @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/{id}/required")
     @ApiOperation(value = "Lists the required features of a Model",
@@ -407,6 +416,7 @@ public class ModelResource {
     }
 
     @POST
+    @TokenSecured({RoleEnum.DEFAULT_USER})
     @Consumes({MediaType.APPLICATION_FORM_URLENCODED})
     @Produces({MediaType.APPLICATION_JSON})
     @Path("/{id}")
@@ -482,6 +492,7 @@ public class ModelResource {
     }
 
     @DELETE
+    @TokenSecured({RoleEnum.DEFAULT_USER})
     @Path("/{id}")
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @ApiOperation(value = "Deletes a particular Model resource",
