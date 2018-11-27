@@ -201,8 +201,10 @@ public class AAResource {
         @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
     })
     public Response validateAccessToken(
-            @ApiParam(value = "Authorization token") @HeaderParam("Authentication") String accessToken
+            @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String accessToken
     ) throws JaqpotNotAuthorizedException {
+        String[] apiA = accessToken.split("\\s+");
+        String apiKey = apiA[1];
         boolean valid = aaService.validateAccessToken(accessToken);
         return Response.ok(valid ? "true" : "false", MediaType.APPLICATION_JSON)
                 .status(valid ? Response.Status.OK : Response.Status.UNAUTHORIZED)
