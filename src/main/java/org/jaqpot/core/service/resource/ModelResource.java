@@ -141,7 +141,7 @@ public class ModelResource {
         @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
     })
     public Response listModels(
-            @ApiParam(value = "Authorization token") @HeaderParam("subjectid") String subjectId,
+            @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String subjectId,
             @ApiParam(value = "start", defaultValue = "0") @QueryParam("start") Integer start,
             @ApiParam(value = "max - the server imposes an upper limit of 500 on this "
                     + "parameter.", defaultValue = "20") @QueryParam("max") Integer max
@@ -185,7 +185,7 @@ public class ModelResource {
         @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
     })
     public Response listFeaturedModels(
-            @ApiParam(value = "Authorization token") @HeaderParam("subjectid") String subjectId,
+            @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String subjectId,
             @ApiParam(value = "start", defaultValue = "0") @QueryParam("start") Integer start,
             @ApiParam(value = "max - the server imposes an upper limit of 500 on this "
                     + "parameter.", defaultValue = "20") @QueryParam("max") Integer max
@@ -227,7 +227,7 @@ public class ModelResource {
 //    })
     public Response getModel(
             @PathParam("id") String id,
-            @ApiParam(value = "Clients need to authenticate in order to access models") @HeaderParam("subjectid") String subjectId) {
+            @ApiParam(value = "Clients need to authenticate in order to access models") @HeaderParam("Authorization") String subjectId) {
         Model model = modelHandler.findModel(id);
         if (model == null) {
             return Response
@@ -254,7 +254,7 @@ public class ModelResource {
     })
     public Response getModelPmml(
             @PathParam("id") String id,
-            @ApiParam(value = "Clients need to authenticate in order to access models") @HeaderParam("subjectid") String subjectId) throws NotFoundException {
+            @ApiParam(value = "Clients need to authenticate in order to access models") @HeaderParam("Authorization") String subjectId) throws NotFoundException {
         Model model = modelHandler.findModelPmml(id);
         if (model == null || model.getPmmlModel() == null) {
             throw new NotFoundException("The requested model was not found on the server.");
@@ -296,7 +296,7 @@ public class ModelResource {
     })
     public Response listModelIndependentFeatures(
             @PathParam("id") String id,
-            @ApiParam(value = "Clients need to authenticate in order to access models") @HeaderParam("subjectid") String subjectId) {
+            @ApiParam(value = "Clients need to authenticate in order to access models") @HeaderParam("Authorization") String subjectId) {
 
         Model foundModel = modelHandler.findModelIndependentFeatures(id);
         if (foundModel == null) {
@@ -322,7 +322,7 @@ public class ModelResource {
     })
     public Response listModelDependentFeatures(
             @PathParam("id") String id,
-            @ApiParam(value = "Clients need to authenticate in order to access models") @HeaderParam("subjectid") String subjectId) {
+            @ApiParam(value = "Clients need to authenticate in order to access models") @HeaderParam("Authorization") String subjectId) {
         Model foundModel = modelHandler.findModelIndependentFeatures(id);
         if (foundModel == null) {
             throw new NotFoundException("The requested model was not found on the server.");
@@ -347,7 +347,7 @@ public class ModelResource {
     })
     public Response listModelPredictedFeatures(
             @PathParam("id") String id,
-            @ApiParam(value = "Clients need to authenticate in order to access models") @HeaderParam("subjectid") String subjectId) {
+            @ApiParam(value = "Clients need to authenticate in order to access models") @HeaderParam("Authorization") String subjectId) {
 
         Model foundModel = modelHandler.findModel(id);
         if (foundModel == null) {
@@ -376,7 +376,7 @@ public class ModelResource {
             responseContainer = "List")
     public Response listModelRequiredFeatures(
             @PathParam("id") String id,
-            @HeaderParam("subjectId") String subjectId) {
+            @HeaderParam("Authorization") String subjectId) {
         Model model = modelHandler.find(id);
         if (model == null) {
             return Response.status(Response.Status.NOT_FOUND).build();
@@ -388,7 +388,7 @@ public class ModelResource {
             Model firstTransformation = client.target(model.getTransformationModels().get(0))
                     .request()
                     .accept(MediaType.APPLICATION_JSON)
-                    .header("subjectId", subjectId)
+                    .header("Authorization", subjectId)
                     .get(Model.class);
             requiredFeatures = firstTransformation.getIndependentFeatures();
             datasetURI = firstTransformation.getDatasetUri();
@@ -401,7 +401,7 @@ public class ModelResource {
             featureSet = client.target(datasetURI.split("\\?")[0] + "/features")
                     .request()
                     .accept(MediaType.APPLICATION_JSON)
-                    .header("subjectId", subjectId)
+                    .header("Authorization", subjectId)
                     .get(new GenericType<Set<FeatureInfo>>() {
                     });
         } else {
@@ -445,7 +445,7 @@ public class ModelResource {
             @ApiParam(name = "dataset_uri", required = true) @FormParam("dataset_uri") String datasetURI,
             @FormParam("visible") Boolean visible,
             @PathParam("id") String id,
-            @HeaderParam("subjectid") String subjectId) throws GeneralSecurityException, QuotaExceededException, ParameterIsNullException, ParameterInvalidURIException, JaqpotDocumentSizeExceededException {
+            @HeaderParam("Authorization") String subjectId) throws GeneralSecurityException, QuotaExceededException, ParameterIsNullException, ParameterInvalidURIException, JaqpotDocumentSizeExceededException {
 
         if (datasetURI == null) {
             throw new ParameterIsNullException("datasetURI");
@@ -520,7 +520,7 @@ public class ModelResource {
         @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
     })
     public Response deleteModel(
-            @ApiParam("Clients need to authenticate in order to create resources on the server") @HeaderParam("subjectid") String subjectId,
+            @ApiParam("Clients need to authenticate in order to create resources on the server") @HeaderParam("Authorization") String subjectId,
             @ApiParam(value = "ID of the Model.", required = true) @PathParam("id") String id
     ) throws JaqpotForbiddenException {
         Model model = modelHandler.find(id);

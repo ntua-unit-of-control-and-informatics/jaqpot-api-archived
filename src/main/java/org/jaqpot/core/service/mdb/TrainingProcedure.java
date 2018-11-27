@@ -157,7 +157,7 @@ public class TrainingProcedure extends AbstractJaqpotProcedure implements Messag
                         "Attempting to download dataset...");
                 dataset = client.target(dataset_uri)
                         .request()
-                        .header("subjectid", subjectId)
+                        .header("Authorization", subjectId)
                         .accept(MediaType.APPLICATION_JSON)
                         .get(Dataset.class);
                 dataset.setDatasetURI(dataset_uri);

@@ -160,7 +160,7 @@ public class AlgorithmResource {
 
 })
     public Response getAlgorithms(
-            @ApiParam(value = "Authorization token") @HeaderParam("apiKey") String apiKey,
+            @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String apiKey,
             @ApiParam(value = "class") @QueryParam("class") String ontologicalClass,
             @ApiParam(value = "start", defaultValue = "0") @QueryParam("start") Integer start,
             @ApiParam(value = "max", defaultValue = "10") @QueryParam("max") Integer max) {
@@ -458,7 +458,7 @@ public class AlgorithmResource {
     })
     public Response deleteAlgorithm(
             @ApiParam(value = "ID of the algorithm which is to be deleted.", required = true) @PathParam("id") String id,
-            @HeaderParam("apiKey") String apiKey) throws ParameterIsNullException, JaqpotForbiddenException {
+            @HeaderParam("Authorization") String apiKey) throws ParameterIsNullException, JaqpotForbiddenException {
 
         if (id == null) {
             throw new ParameterIsNullException("id");

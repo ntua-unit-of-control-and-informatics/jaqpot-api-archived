@@ -142,7 +142,8 @@ public class BibTeXResource {
             @ApiParam("Creator of the BibTeX entry") @QueryParam("creator") String creator,
             @ApiParam("Generic query (e.g., Article title, journal name, etc)") @QueryParam("query") String query,
             @ApiParam(value = "start", defaultValue = "0") @QueryParam("start") Integer start,
-            @ApiParam(value = "max", defaultValue = "10") @QueryParam("max") Integer max
+            @ApiParam(value = "max", defaultValue = "10") @QueryParam("max") Integer max,
+            @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key
     ) {
         return Response
                 .ok(bibtexHandler.listMeta(start != null ? start : 0, max != null ? max : Integer.MAX_VALUE))
@@ -165,7 +166,8 @@ public class BibTeXResource {
         @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
     })
     public Response getBibTeX(
-            @ApiParam(value = "ID of the BibTeX", required = true) @PathParam("id") String id
+            @ApiParam(value = "ID of the BibTeX", required = true) @PathParam("id") String id,
+            @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key
     ) {
         BibTeX b = bibtexHandler.find(id);
         if (b == null) {

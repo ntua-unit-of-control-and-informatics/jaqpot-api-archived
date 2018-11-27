@@ -76,7 +76,7 @@ public class ValidationService {
         Task trainTask = client.target(algorithmURI)
                 .request()
                 .accept(MediaType.APPLICATION_JSON)
-                .header("subjectid", subjectId)
+                .header("Authorization", subjectId)
                 .post(Entity.form(params), Task.class);
         String trainTaskURI = algorithmURI.split("algorithm")[0] + "task/" + trainTask.getId();
         while (trainTask.getStatus().equals(Task.Status.RUNNING)
@@ -88,7 +88,7 @@ public class ValidationService {
             }
             trainTask = client.target(trainTaskURI)
                     .request()
-                    .header("subjectid", subjectId)
+                    .header("Authorization", subjectId)
                     .accept(MediaType.APPLICATION_JSON)
                     .get(Task.class);
         }
@@ -101,7 +101,7 @@ public class ValidationService {
         params.add("dataset_uri", testingDataset);
         Task predictionTask = client.target(trainTask.getResultUri())
                 .request()
-                .header("subjectid", subjectId)
+                .header("Authorization", subjectId)
                 .accept(MediaType.APPLICATION_JSON)
                 .post(Entity.form(params), Task.class);
         String predictionTaskURI = modelURI.split("model")[0] + "task/" + predictionTask.getId();
@@ -114,7 +114,7 @@ public class ValidationService {
             }
             predictionTask = client.target(predictionTaskURI)
                     .request()
-                    .header("subjectid", subjectId)
+                    .header("Authorization", subjectId)
                     .accept(MediaType.APPLICATION_JSON)
                     .get(Task.class);
         }
@@ -124,7 +124,7 @@ public class ValidationService {
         }
         Model model = client.target(modelURI)
                 .request()
-                .header("subjectid", subjectId)
+                .header("Authorization", subjectId)
                 .accept(MediaType.APPLICATION_JSON)
                 .get(Model.class);
         Object[] result = new Object[5];

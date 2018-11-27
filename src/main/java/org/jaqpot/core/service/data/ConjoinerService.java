@@ -140,7 +140,8 @@ public class ConjoinerService {
     }
 
     public Dataset  prepareDataset(String substanceOwner, Set<String> substances, String subjectId, Set<String> descriptors,  Set<String> properties, Boolean intersectColumns, Boolean retainNullValues) throws RuntimeException, ExecutionException, InterruptedException {
-        retainNullValues = false;
+        //retainNullValues = false;
+        intersectColumns = true;
         BundleData ambitClientBundle = ambitClient.getSubstancesBySubstanceOwner(substanceOwner,subjectId);
 
         featureMap = new HashSet<>();
@@ -301,7 +302,7 @@ public class ConjoinerService {
                         Response featureResponse = client.target(key)
                                 .request()
                                 .accept(MediaType.APPLICATION_JSON)
-                                .header("subjectid", subjectId)
+                                .header("Authorization", subjectId)
                                 .get();
                         String featureTitle = Json.createReader(featureResponse.readEntity(InputStream.class))
                                 .readObject()

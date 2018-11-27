@@ -153,7 +153,7 @@ public class TaskResource {
         @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
     })
     public Response getTask(
-            @ApiParam(value = "Authorization token") @HeaderParam("subjectid") String subjectId,
+            @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String subjectId,
             @ApiParam(value = "ID of the task to be retrieved") @PathParam("id") String id) {
         Task task = taskHandler.find(id);
         if (task == null) {
@@ -193,7 +193,7 @@ public class TaskResource {
     })
     public Response deleteTask(
             @ApiParam(value = "ID of the task which is to be cancelled.", required = true) @PathParam("id") String id,
-            @HeaderParam("subjectid") String subjectId) throws JaqpotForbiddenException {
+            @HeaderParam("Authorization") String subjectId) throws JaqpotForbiddenException {
 
         Task task = taskHandler.find(id);
         if (task == null) {

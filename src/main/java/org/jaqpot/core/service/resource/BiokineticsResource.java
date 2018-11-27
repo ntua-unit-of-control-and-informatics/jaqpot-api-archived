@@ -217,14 +217,10 @@ public class BiokineticsResource {
             }
     )
     @ApiResponses(value = {
-        @ApiResponse(code = 400, response = ErrorReport.class, message = "Bad request. More info can be found in details of Error Report.")
-        ,
-            @ApiResponse(code = 401, response = ErrorReport.class, message = "Wrong, missing or insufficient credentials. Error report is produced.")
-        ,
-            @ApiResponse(code = 404, response = ErrorReport.class, message = "Algorithm was not found.")
-        ,
-            @ApiResponse(code = 200, response = Task.class, message = "The process has successfully been started. A task URI is returned.")
-        ,
+        @ApiResponse(code = 400, response = ErrorReport.class, message = "Bad request. More info can be found in details of Error Report."),
+            @ApiResponse(code = 401, response = ErrorReport.class, message = "Wrong, missing or insufficient credentials. Error report is produced."),
+            @ApiResponse(code = 404, response = ErrorReport.class, message = "Algorithm was not found."),
+            @ApiResponse(code = 200, response = Task.class, message = "The process has successfully been started. A task URI is returned."),
             @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
 
     })
@@ -302,18 +298,12 @@ public class BiokineticsResource {
             response = Task.class,
             extensions = {
                 @Extension(properties = {
-            @ExtensionProperty(name = "orn-@type", value = "x-orn:JaqpotPredictionTaskId"),}
-                )
-                ,
+            @ExtensionProperty(name = "orn-@type", value = "x-orn:JaqpotPredictionTaskId"),}),
                 @Extension(name = "orn:expects", properties = {
-            @ExtensionProperty(name = "x-orn-@id", value = "x-orn:AcessToken")
-            ,
-                    @ExtensionProperty(name = "x-orn-@id", value = "x-orn:JaqpotModelId")
-        })
-                ,
+            @ExtensionProperty(name = "x-orn-@id", value = "x-orn:AcessToken"),
+                        @ExtensionProperty(name = "x-orn-@id", value = "x-orn:JaqpotModelId")}),
                 @Extension(name = "orn:returns", properties = {
-            @ExtensionProperty(name = "x-orn-@id", value = "x-orn:JaqpotHttkPredictionTaskId")
-        })
+            @ExtensionProperty(name = "x-orn-@id", value = "x-orn:JaqpotHttkPredictionTaskId")})
             }
     )
     @org.jaqpot.core.service.annotations.Task

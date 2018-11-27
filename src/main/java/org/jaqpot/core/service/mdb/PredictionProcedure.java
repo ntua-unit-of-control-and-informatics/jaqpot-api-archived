@@ -158,7 +158,7 @@ public class PredictionProcedure extends AbstractJaqpotProcedure implements Mess
                 progress("Attempting to download dataset...");
                 dataset = client.target(dataset_uri)
                         .request()
-                        .header("subjectid", subjectId)
+                        .header("Authorization", subjectId)
                         .accept(MediaType.APPLICATION_JSON)
                         .get(Dataset.class);
                 dataset.setDatasetURI(dataset_uri);

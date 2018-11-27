@@ -140,12 +140,9 @@ public class DatasetResource {
             position = 1)
     @ApiResponses(value = {
         @ApiResponse(code = 200, response = Dataset.class, responseContainer = "List",
-                message = "Datasets found and are listed in the response body")
-        ,
-        @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to access this resource")
-        ,
-        @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)")
-        ,
+                message = "Datasets found and are listed in the response body"),
+        @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to access this resource"),
+        @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)"),
         @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
     })
     public Response listDatasets(
@@ -175,16 +172,11 @@ public class DatasetResource {
     )
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @ApiResponses(value = {
-        @ApiResponse(code = 200, response = Dataset.class, message = "Dataset was found")
-        ,
-            @ApiResponse(code = 404, response = ErrorReport.class, message = "Dataset was not found in the system")
-        ,
-            @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to access this resource")
-        ,
-            @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)")
-        ,
-            @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
-    })
+        @ApiResponse(code = 200, response = Dataset.class, message = "Dataset was found"),
+            @ApiResponse(code = 404, response = ErrorReport.class, message = "Dataset was not found in the system"),
+            @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to access this resource"),
+            @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)"),
+            @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")})
     public Response getDataset(
             @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key,
             @PathParam("id") String id,
@@ -216,12 +208,9 @@ public class DatasetResource {
             + "returned (RFC 2616) with code P670.",
             position = 1)
     @ApiResponses(value = {
-        @ApiResponse(code = 200, response = Dataset.class, responseContainer = "List", message = "Datasets found and are listed in the response body")
-        ,
-        @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to access this resource")
-        ,
-        @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)")
-        ,
+        @ApiResponse(code = 200, response = Dataset.class, responseContainer = "List", message = "Datasets found and are listed in the response body"),
+        @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to access this resource"),
+        @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)"),
         @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
     })
     public Response listFeaturedDatasets(
@@ -249,14 +238,10 @@ public class DatasetResource {
     @ApiOperation(value = "Finds Features of Dataset by Id",
             notes = "Finds specified Dataset's features")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, response = Dataset.class, message = "Dataset's features found and are listed in the response body")
-        ,
-            @ApiResponse(code = 404, response = ErrorReport.class, message = "Dataset was not found in the system")
-        ,
-            @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to access this resource")
-        ,
-            @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)")
-        ,
+        @ApiResponse(code = 200, response = Dataset.class, message = "Dataset's features found and are listed in the response body"),
+            @ApiResponse(code = 404, response = ErrorReport.class, message = "Dataset was not found in the system"),
+            @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to access this resource"),
+            @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)"),
             @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
     })
     public Response getDatasetFeatures(
@@ -277,14 +262,10 @@ public class DatasetResource {
     @ApiOperation(value = "Finds MetaData of Dataset by Id",
             notes = "Finds specified Dataset's MetaData")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, response = Dataset.class, message = "Dataset's meta data found and are listed in the response body")
-        ,
-            @ApiResponse(code = 404, response = ErrorReport.class, message = "Dataset was not found in the system")
-        ,
-            @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to access this resource")
-        ,
-            @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)")
-        ,
+        @ApiResponse(code = 200, response = Dataset.class, message = "Dataset's meta data found and are listed in the response body"),
+            @ApiResponse(code = 404, response = ErrorReport.class, message = "Dataset was not found in the system"),
+            @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to access this resource"),
+            @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)"),
             @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
     })
     public Response getDatasetMeta(
@@ -306,14 +287,10 @@ public class DatasetResource {
     @ApiOperation(value = "Creates a new Dataset",
             notes = "The new Dataset created will be assigned on a random generated Id")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, response = Dataset.class, message = "Dataset was created succesfully")
-        ,
-            @ApiResponse(code = 403, response = ErrorReport.class, message = "Dataset quota has been exceeded")
-        ,
-            @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to access this resource")
-        ,
-            @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)")
-        ,
+        @ApiResponse(code = 200, response = Dataset.class, message = "Dataset was created succesfully"),
+            @ApiResponse(code = 403, response = ErrorReport.class, message = "Dataset quota has been exceeded"),
+            @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to access this resource"),
+            @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)"),
             @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
     })
     public Response createDataset(
@@ -353,14 +330,10 @@ public class DatasetResource {
     @ApiOperation(value = "Creates a new empty Dataset",
             notes = "The new empty Dataset created will be assigned on a random generated Id")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, response = Dataset.class, message = "Dataset was created succesfully")
-        ,
-            @ApiResponse(code = 403, response = ErrorReport.class, message = "Dataset quota has been exceeded")
-        ,
-            @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to access this resource")
-        ,
-            @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)")
-        ,
+        @ApiResponse(code = 200, response = Dataset.class, message = "Dataset was created succesfully"),
+            @ApiResponse(code = 403, response = ErrorReport.class, message = "Dataset quota has been exceeded"),
+            @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to access this resource"),
+            @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)"),
             @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
     })
     public Response createEmptyDataset(
@@ -403,14 +376,10 @@ public class DatasetResource {
     @ApiOperation(value = "Merges Datasets",
             notes = "The new intersected Dataset created will be assigned on a random generated Id")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, response = Dataset.class, message = "Dataset was created succesfully")
-        ,
-            @ApiResponse(code = 403, response = ErrorReport.class, message = "Dataset quota has been exceeded")
-        ,
-            @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to access this resource")
-        ,
-            @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)")
-        ,
+        @ApiResponse(code = 200, response = Dataset.class, message = "Dataset was created succesfully"),
+            @ApiResponse(code = 403, response = ErrorReport.class, message = "Dataset quota has been exceeded"),
+            @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to access this resource"),
+            @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)"),
             @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
     })
     public Response mergeDatasets(
@@ -462,16 +431,11 @@ public class DatasetResource {
     @Authorize
     @ApiOperation("Deletes dataset")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Dataset was succesfully deleted")
-        ,
-            @ApiResponse(code = 404, response = ErrorReport.class, message = "Dataset was not found in the system")
-        ,
-            @ApiResponse(code = 403, response = ErrorReport.class, message = "Dataset quota has been exceeded")
-        ,
-            @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to access this resource")
-        ,
-            @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)")
-        ,
+        @ApiResponse(code = 200, message = "Dataset was succesfully deleted"),
+            @ApiResponse(code = 404, response = ErrorReport.class, message = "Dataset was not found in the system"),
+            @ApiResponse(code = 403, response = ErrorReport.class, message = "Dataset quota has been exceeded"),
+            @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to access this resource"),
+            @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)"),
             @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
     })
     public Response deleteDataset(
@@ -500,18 +464,12 @@ public class DatasetResource {
     @Authorize
     @ApiOperation("Creates QPRF Report")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Dataset was succesfully deleted")
-        ,
-            @ApiResponse(code = 400, response = ErrorReport.class, message = "Bad Request. More details can be found in details of ErrorReport")
-        ,
-            @ApiResponse(code = 404, response = ErrorReport.class, message = "Dataset was not found in the system")
-        ,
-            @ApiResponse(code = 403, response = ErrorReport.class, message = "Dataset quota has been exceeded")
-        ,
-            @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to access this resource")
-        ,
-            @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)")
-        ,
+        @ApiResponse(code = 200, message = "Dataset was succesfully deleted"),
+            @ApiResponse(code = 400, response = ErrorReport.class, message = "Bad Request. More details can be found in details of ErrorReport"),
+            @ApiResponse(code = 404, response = ErrorReport.class, message = "Dataset was not found in the system"),
+            @ApiResponse(code = 403, response = ErrorReport.class, message = "Dataset quota has been exceeded"),
+            @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to access this resource"),
+            @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)"),
             @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
     })
 
@@ -707,18 +665,12 @@ public class DatasetResource {
     @Authorize
     @ApiOperation("Creates QPRF Dummy Report")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Dataset was succesfully deleted")
-        ,
-            @ApiResponse(code = 400, response = ErrorReport.class, message = "Bad Request. More details can be found in details of ErrorReport")
-        ,
-            @ApiResponse(code = 404, response = ErrorReport.class, message = "Dataset was not found in the system")
-        ,
-            @ApiResponse(code = 403, response = ErrorReport.class, message = "Dataset quota has been exceeded")
-        ,
-            @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to access this resource")
-        ,
-            @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)")
-        ,
+        @ApiResponse(code = 200, message = "Dataset was succesfully deleted"),
+            @ApiResponse(code = 400, response = ErrorReport.class, message = "Bad Request. More details can be found in details of ErrorReport"),
+            @ApiResponse(code = 404, response = ErrorReport.class, message = "Dataset was not found in the system"),
+            @ApiResponse(code = 403, response = ErrorReport.class, message = "Dataset quota has been exceeded"),
+            @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to access this resource"),
+            @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)"),
             @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
     })
     public Response createQPRFReportDummy(
@@ -885,10 +837,8 @@ public class DatasetResource {
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Path("/createDummyDataset")
     @ApiImplicitParams({
-        @ApiImplicitParam(name = "file", value = "xls[m,x] file", required = true, dataType = "file", paramType = "formData")
-        ,
-            @ApiImplicitParam(name = "title", value = "Title of dataset", required = true, dataType = "string", paramType = "formData")
-        ,
+        @ApiImplicitParam(name = "file", value = "xls[m,x] file", required = true, dataType = "file", paramType = "formData"),
+            @ApiImplicitParam(name = "title", value = "Title of dataset", required = true, dataType = "string", paramType = "formData"),
             @ApiImplicitParam(name = "description", value = "Description of dataset", required = true, dataType = "string", paramType = "formData")
     })
     @ApiOperation(value = "Creates dummy dataset By .csv document",
