@@ -205,7 +205,7 @@ public class AAResource {
     ) throws JaqpotNotAuthorizedException {
         String[] apiA = accessToken.split("\\s+");
         String apiKey = apiA[1];
-        boolean valid = aaService.validateAccessToken(accessToken);
+        boolean valid = aaService.validateAccessToken(apiKey);
         return Response.ok(valid ? "true" : "false", MediaType.APPLICATION_JSON)
                 .status(valid ? Response.Status.OK : Response.Status.UNAUTHORIZED)
                 .build();
