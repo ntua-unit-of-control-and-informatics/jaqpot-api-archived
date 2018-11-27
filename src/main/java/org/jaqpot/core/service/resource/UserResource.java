@@ -49,7 +49,7 @@ import java.util.Arrays;
 import java.util.List;
 import org.jaqpot.core.service.annotations.TokenSecured;
 import org.jaqpot.core.service.authentication.RoleEnum;
-
+import org.jaqpot.core.service.authentication.SecurityContextImpl;
 /**
  *
  * @author Pantelis Sopasakis

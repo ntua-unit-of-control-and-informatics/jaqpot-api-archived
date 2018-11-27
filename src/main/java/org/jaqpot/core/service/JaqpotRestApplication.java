@@ -44,6 +44,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
+import org.jaqpot.core.service.authentication.TokenRequestFilter;
 
 /**
  *
@@ -117,7 +118,8 @@ public class JaqpotRestApplication extends Application {
         // Writers [Annotated with @Provider]
         Reflections reflectedWriters = new Reflections("org.jaqpot.core.service.writer");
         resources.addAll(reflectedWriters.getTypesAnnotatedWith(Provider.class));
-
+        
+        resources.add(TokenRequestFilter.class);
         // Swagger-related stuff [Registered directly]
         resources.add(io.swagger.jaxrs.listing.ApiListingResource.class);
         resources.add(io.swagger.jaxrs.listing.SwaggerSerializers.class);
