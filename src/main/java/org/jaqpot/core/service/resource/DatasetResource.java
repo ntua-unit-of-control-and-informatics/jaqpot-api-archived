@@ -47,6 +47,7 @@ import org.jaqpot.core.model.util.ROG;
 import org.jaqpot.core.properties.PropertyManager;
 import org.jaqpot.core.service.annotations.Authorize;
 import org.jaqpot.core.service.annotations.UnSecure;
+import org.jaqpot.core.service.authentication.SecurityContextImpl;
 import org.jaqpot.core.service.client.ambit.Ambit;
 import org.jaqpot.core.service.client.jpdi.JPDIClient;
 import org.jaqpot.core.service.exceptions.JaqpotDocumentSizeExceededException;
@@ -213,7 +214,7 @@ public class DatasetResource {
         @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
     })
     public Response listFeaturedDatasets(
-            @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key,
+            @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String subjectId,
             @ApiParam(value = "start", defaultValue = "0") @QueryParam("start") Integer start,
             @ApiParam(value = "max - the server imposes an upper limit of 500 on this "
                     + "parameter.", defaultValue = "10") @QueryParam("max") Integer max
@@ -244,7 +245,7 @@ public class DatasetResource {
             @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
     })
     public Response getDatasetFeatures(
-            @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key,
+            @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String subjectId,
             @PathParam("id") String id
     ) {
         Dataset dataset = datasetHandler.find(id);
@@ -268,7 +269,7 @@ public class DatasetResource {
             @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
     })
     public Response getDatasetMeta(
-            @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key,
+            @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String subjectId,
             @PathParam("id") String id) {
         Dataset dataset = datasetHandler.find(id);
         dataset.setDataEntry(new ArrayList<>());
@@ -293,7 +294,7 @@ public class DatasetResource {
             @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
     })
     public Response createDataset(
-            @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key,
+            @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String subjectId,
             Dataset dataset) throws QuotaExceededException, URISyntaxException, JaqpotDocumentSizeExceededException {
 
         User user = userHandler.find(securityContext.getUserPrincipal().getName());
@@ -336,7 +337,7 @@ public class DatasetResource {
             @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
     })
     public Response createEmptyDataset(
-            @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key,
+            @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String subjectId,
             @FormParam("title") String title,
             @FormParam("description") String description) throws URISyntaxException, QuotaExceededException, JaqpotDocumentSizeExceededException {
 
@@ -383,10 +384,8 @@ public class DatasetResource {
     })
     public Response mergeDatasets(
             @FormParam("dataset_uris") String datasetURIs,
-            @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key) throws URISyntaxException, QuotaExceededException, JaqpotDocumentSizeExceededException {
-        
-        String[] apiA = api_key.split("\\s+");
-        String apiKey = apiA[1];
+            @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String subjectId) throws URISyntaxException, QuotaExceededException, JaqpotDocumentSizeExceededException {
+
         User user = userHandler.find(securityContext.getUserPrincipal().getName());
         long datasetCount = datasetHandler.countAllOfCreator(user.getId());
         int maxAllowedDatasets = new UserFacade(user).getMaxDatasets();
@@ -405,7 +404,7 @@ public class DatasetResource {
             Dataset d = client.target(datasetURI)
                     .request()
                     .accept(MediaType.APPLICATION_JSON)
-                    .header("Authorization", "Bearer " + apiKey)
+                    .header("Authorization", "Bearer " + subjectId.split("\\s+")[1])
                     .get(Dataset.class);
             dataset = DatasetFactory.mergeRows(dataset, d);
         }
@@ -438,7 +437,7 @@ public class DatasetResource {
             @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
     })
     public Response deleteDataset(
-            @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key,
+            @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String subjectId,
             @PathParam("id") String id) throws JaqpotForbiddenException {
         Dataset ds = datasetHandler.find(id);
         if (ds == null) {
@@ -473,15 +472,13 @@ public class DatasetResource {
     })
 
     public Response createQPRFReport(
-            @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key,
+            @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String subjectId,
             @PathParam("id") String id,
             @FormParam("substance_uri") String substanceURI,
             @FormParam("title") String title,
             @FormParam("description") String description
     ) throws QuotaExceededException, ExecutionException, InterruptedException, JaqpotDocumentSizeExceededException {
 
-        String[] apiA = api_key.split("\\s+");
-        String apiKey = apiA[1];
         User user = userHandler.find(securityContext.getUserPrincipal().getName());
         long reportCount = reportHandler.countAllOfCreator(user.getId());
         int maxAllowedReports = new UserFacade(user).getMaxReports();
@@ -512,7 +509,7 @@ public class DatasetResource {
         Dataset trainingDS = client.target(datasetURI)
                 .request()
                 .accept(MediaType.APPLICATION_JSON)
-                .header("Authorization", "Bearer " + apiKey)
+                .header("Authorization", "Bearer " + subjectId.split("\\s+")[1])
                 .get(Dataset.class);
         if (trainingDS == null) {
             throw new BadRequestException("The model that created this dataset does not point to a valid training dataset.");
@@ -561,7 +558,7 @@ public class DatasetResource {
 
             String substanceId = substanceURI.split("substance/")[1];
 
-            Dataset structures = ambitClient.getDatasetStructures(substanceId, apiKey);
+            Dataset structures = ambitClient.getDatasetStructures(substanceId, subjectId.split("\\s+")[1]);
 
             List<Map<String, String>> structuresList = structures.getDataEntry()
                     .stream()
@@ -673,14 +670,13 @@ public class DatasetResource {
             @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
     })
     public Response createQPRFReportDummy(
-            @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key,
+            @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String subjectId,
             @PathParam("id") String id,
             @FormParam("substance_uri") String substanceURI,
             @FormParam("title") String title,
             @FormParam("description") String description
     ) {
-        String[] apiA = api_key.split("\\s+");
-        String apiKey = apiA[1];
+
         Dataset ds = datasetHandler.find(id);
         if (ds == null) {
             throw new NotFoundException("Dataset with id:" + id + " was not found on the server.");
@@ -699,7 +695,7 @@ public class DatasetResource {
         Dataset trainingDS = client.target(datasetURI)
                 .request()
                 .accept(MediaType.APPLICATION_JSON)
-                .header("Authorization", "Bearer " + apiKey)
+                .header("Authorization", "Bearer " + subjectId.split("\\s+")[1])
                 .get(Dataset.class);
         if (trainingDS == null) {
             throw new BadRequestException("The model that created this dataset does not point to a valid training dataset.");
@@ -747,7 +743,7 @@ public class DatasetResource {
             Dataset structures = client.target(substanceURI + "/structures")
                     .request()
                     .accept(MediaType.APPLICATION_JSON)
-                    .header("Authorization", "Bearer " + apiKey)
+                    .header("Authorization", "Bearer " + subjectId.split("\\s+")[1])
                     .get(Dataset.class);
             List<Map<String, String>> structuresList = structures.getDataEntry()
                     .stream()
@@ -845,7 +841,7 @@ public class DatasetResource {
             response = Dataset.class
     )
     public Response createDummyDataset(
-            @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key,
+            @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String subjectId,
             @ApiParam(value = "multipartFormData input", hidden = true) MultipartFormDataInput input)
             throws ParameterIsNullException, ParameterInvalidURIException, QuotaExceededException, IOException, ParameterScopeException, ParameterRangeException, ParameterTypeException, URISyntaxException, JaqpotDocumentSizeExceededException {
 

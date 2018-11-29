@@ -113,12 +113,9 @@ public class BiokineticsResource {
     )
     @org.jaqpot.core.service.annotations.Task
     public Response trainBiokineticsModel(
-            @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key,
+            @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String subjectId,
             @ApiParam(value = "multipartFormData input", hidden = true) MultipartFormDataInput input)
             throws ParameterIsNullException, ParameterInvalidURIException, QuotaExceededException, IOException, ParameterScopeException, ParameterRangeException, ParameterTypeException, JaqpotDocumentSizeExceededException {
-
-        String[] apiA = api_key.split("\\s+");
-        String apiKey = apiA[1];
 
         UrlValidator urlValidator = new UrlValidator(UrlValidator.ALLOW_LOCAL_URLS);
 
@@ -186,7 +183,7 @@ public class BiokineticsResource {
         Map<String, Object> options = new HashMap<>();
         options.put("title", title);
         options.put("description", description);
-        options.put("api_key", apiKey);
+        options.put("subjectId", subjectId.split("\\s+")[1]);
         options.put("parameters", parameters);
         options.put("base_uri", uriInfo.getBaseUri().toString());
         options.put("dataset_uri", datasetUri);
@@ -230,11 +227,8 @@ public class BiokineticsResource {
             @ApiParam(name = "description", required = true) @FormParam("description") String description,
             @FormParam("parameters") String parameters,
             //            @ApiParam(name = "algorithmId", required = true) @FormParam("algorithmId") String algorithmId,
-            @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key) throws QuotaExceededException, ParameterIsNullException, ParameterInvalidURIException, ParameterTypeException, ParameterRangeException, ParameterScopeException, JaqpotDocumentSizeExceededException {
+            @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String subjectId) throws QuotaExceededException, ParameterIsNullException, ParameterInvalidURIException, ParameterTypeException, ParameterRangeException, ParameterScopeException, JaqpotDocumentSizeExceededException {
         UrlValidator urlValidator = new UrlValidator(UrlValidator.ALLOW_LOCAL_URLS);
-
-        String[] apiA = api_key.split("\\s+");
-        String apiKey = apiA[1];
 
         String algorithmId = "httk";
         Algorithm algorithm = algorithmHandler.find(algorithmId);
@@ -266,7 +260,7 @@ public class BiokineticsResource {
         options.put("description", description);
         options.put("dataset_uri", null);
         options.put("prediction_feature", null);
-        options.put("api_key", apiKey);
+        options.put("subjectId", subjectId.split("\\s+")[1]);
         options.put("algorithmId", algorithmId);
         options.put("parameters", parameters);
         options.put("base_uri", uriInfo.getBaseUri().toString());
@@ -310,14 +304,11 @@ public class BiokineticsResource {
     public Response makeHttkPrediction(
             @FormParam("visible") Boolean visible,
             @PathParam("id") String id,
-            @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key) throws GeneralSecurityException, QuotaExceededException, ParameterIsNullException, ParameterInvalidURIException, JaqpotDocumentSizeExceededException {
+            @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String subjectId) throws GeneralSecurityException, QuotaExceededException, ParameterIsNullException, ParameterInvalidURIException, JaqpotDocumentSizeExceededException {
 
         if (id == null) {
             throw new ParameterIsNullException("id");
         }
-
-        String[] apiA = api_key.split("\\s+");
-        String apiKey = apiA[1];
 
         UrlValidator urlValidator = new UrlValidator(UrlValidator.ALLOW_LOCAL_URLS);
 
@@ -345,7 +336,7 @@ public class BiokineticsResource {
 
         Map<String, Object> options = new HashMap<>();
         options.put("dataset_uri", null);
-        options.put("api_key", apiKey);
+        options.put("subjectId", subjectId.split("\\s+")[1]);
         options.put("modelId", id);
         options.put("creator", securityContext.getUserPrincipal().getName());
         options.put("base_uri", uriInfo.getBaseUri().toString());

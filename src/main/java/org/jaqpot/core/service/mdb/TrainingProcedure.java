@@ -132,7 +132,7 @@ public class TrainingProcedure extends AbstractJaqpotProcedure implements Messag
         String algorithmId = (String) messageBody.get("algorithmId");
         String modelTitle = (String) messageBody.get("title");
         String modelDescription = (String) messageBody.get("description");
-        String subjectId = (String) messageBody.get("subjectid");
+        String subjectId = (String) messageBody.get("subjectId");
         String baseURI = (String) messageBody.get("base_uri");
         String creator = (String) messageBody.get("creator");
         try {
@@ -157,7 +157,7 @@ public class TrainingProcedure extends AbstractJaqpotProcedure implements Messag
                         "Attempting to download dataset...");
                 dataset = client.target(dataset_uri)
                         .request()
-                        .header("Authorization", subjectId)
+                        .header("Authorization", "Bearer "+subjectId)
                         .accept(MediaType.APPLICATION_JSON)
                         .get(Dataset.class);
                 dataset.setDatasetURI(dataset_uri);

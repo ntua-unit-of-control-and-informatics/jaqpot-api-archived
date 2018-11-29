@@ -483,7 +483,7 @@ public class ModelResource {
 
         Map<String, Object> options = new HashMap<>();
         options.put("dataset_uri", datasetURI);
-        options.put("subjectid", subjectId);
+        options.put("subjectId", subjectId);
         options.put("modelId", id);
         options.put("creator", securityContext.getUserPrincipal().getName());
         options.put("base_uri", uriInfo.getBaseUri().toString());

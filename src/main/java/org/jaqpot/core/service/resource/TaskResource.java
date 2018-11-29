@@ -108,7 +108,7 @@ public class TaskResource {
         @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
     })
     public Response listTasks(
-            @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key,
+            @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String subjectId,
             @ApiParam(value = "Status of the task", allowableValues = "RUNNING,QUEUED,COMPLETED,ERROR,CANCELLED,REJECTED") @QueryParam("status") String status,
             @ApiParam(value = "start", defaultValue = "0") @QueryParam("start") Integer start,
             @ApiParam(value = "max - the server imposes an upper limit of 500 on this "
@@ -234,7 +234,7 @@ public class TaskResource {
             notes = "Implements long polling",
             response = Task.class)
     public void poll(
-            @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key,
+            @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String subjectId,
             @Suspended final AsyncResponse asyncResponse,
             @PathParam("id") String id) {
 

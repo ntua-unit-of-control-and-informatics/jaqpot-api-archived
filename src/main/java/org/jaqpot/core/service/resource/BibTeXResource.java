@@ -143,7 +143,7 @@ public class BibTeXResource {
             @ApiParam("Generic query (e.g., Article title, journal name, etc)") @QueryParam("query") String query,
             @ApiParam(value = "start", defaultValue = "0") @QueryParam("start") Integer start,
             @ApiParam(value = "max", defaultValue = "10") @QueryParam("max") Integer max,
-            @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key
+            @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String subjectId
     ) {
         return Response
                 .ok(bibtexHandler.listMeta(start != null ? start : 0, max != null ? max : Integer.MAX_VALUE))
@@ -167,7 +167,7 @@ public class BibTeXResource {
     })
     public Response getBibTeX(
             @ApiParam(value = "ID of the BibTeX", required = true) @PathParam("id") String id,
-            @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key
+            @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String subjectId
     ) {
         BibTeX b = bibtexHandler.find(id);
         if (b == null) {
@@ -195,7 +195,7 @@ public class BibTeXResource {
     })
     @Authorize
     public Response createBibTeX(
-            @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key,
+            @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String subjectId,
             @ApiParam(value = "BibTeX in JSON representation compliant with the BibTeX specifications. "
                     + "Malformed BibTeX entries with missing fields will not be accepted.", required = true,
                     defaultValue = DEFAULT_BIBTEX) BibTeX bib
@@ -250,7 +250,7 @@ public class BibTeXResource {
     public Response createBibTeXGivenID(
             @ApiParam(value = "ID of the BibTeX.", required = true) @PathParam("id") String id,
             @ApiParam(value = "BibTeX in JSON", defaultValue = DEFAULT_BIBTEX, required = true) BibTeX bib,
-            @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key
+            @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String subjectId
     ) throws JaqpotDocumentSizeExceededException {
         if (bib == null) {
             ErrorReport report = ErrorReportFactory.badRequest("No bibtex provided; check out the API specs",
@@ -297,7 +297,7 @@ public class BibTeXResource {
         @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
     })
     public Response deleteBibTeX(
-            @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key,
+            @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String subjectId,
             @ApiParam(value = "ID of the BibTeX.", required = true) @PathParam("id") String id
     ) throws JaqpotForbiddenException {
         BibTeX bibTeX = new BibTeX(id);
@@ -328,7 +328,7 @@ public class BibTeXResource {
         @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
     })
     public Response modifyBibTeX(
-            @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key,
+            @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String subjectId,
             @ApiParam(value = "ID of an existing BibTeX.", required = true) @PathParam("id") String id,
             @ApiParam(value = "The patch in JSON according to the RFC 6902 specs", required = true, defaultValue = DEFAULT_BIBTEX_PATCH) String patch
     ) throws JsonPatchException, JsonProcessingException {

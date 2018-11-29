@@ -112,7 +112,7 @@ public class SplitValidationProcedure extends AbstractJaqpotProcedure {
             Algorithm algorithm = Optional.of(client.target(algorithmURI)
                     .request()
                     .accept(MediaType.APPLICATION_JSON)
-                    .header("Authorization", subjectId)
+                    .header("Authorization", "Bearer "+subjectId)
                     .get(Algorithm.class)).orElseThrow(() -> new NotFoundException("Algorithm with URI:" + algorithmURI + " was not found."));
 
             progress(5f, "Algorithm retrieved successfully.");
@@ -124,7 +124,7 @@ public class SplitValidationProcedure extends AbstractJaqpotProcedure {
                     .queryParam("seed", seed)
                     .request()
                     .accept(MediaType.APPLICATION_JSON)
-                    .header("Authorization", subjectId)
+                    .header("Authorization", "Bearer "+subjectId)
                     .get(Dataset.class)).orElseThrow(() -> new NotFoundException("Dataset with URI:" + datasetURI + " was not found."));
             progress(10f, "Dataset retrieved successfully.");
             checkCancelled();

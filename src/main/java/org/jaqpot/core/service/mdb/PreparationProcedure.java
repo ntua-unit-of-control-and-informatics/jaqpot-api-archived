@@ -95,7 +95,7 @@ public class PreparationProcedure extends AbstractJaqpotProcedure implements Mes
         String substanceOwner= (String) messageBody.get("substance_owner");
         String taskId = (String) messageBody.get("taskId");
         String bundleUri = (String) messageBody.get("bundle_uri");
-        String subjectId = (String) messageBody.get("subjectid");
+        String subjectId = (String) messageBody.get("subjectId");
         String substances = (String) messageBody.get("substances");
         String properties = (String) messageBody.get("properties");
         String descriptors = (String) messageBody.get("descriptors");

@@ -79,7 +79,7 @@ public class CORSResponseFilter implements ContainerResponseFilter {
         }
         responseContext.getHeaders().add("Access-Control-Allow-Origin", allowOrigin);
         responseContext.getHeaders().add("Access-Control-Allow-Methods", "GET, POST, DELETE, PUT, PATCH, OPTIONS");
-        responseContext.getHeaders().add("Access-Control-Allow-Headers", "Content-Type, api_key, Authorization, subjectid, Accept, total");
+        responseContext.getHeaders().add("Access-Control-Allow-Headers", "Content-Type, api_key, Authorization, subjectId, Accept, total");
         responseContext.getHeaders().add("access-control-expose-headers", "total");
         responseContext.getHeaders().add("Date", new Date().toString());
 

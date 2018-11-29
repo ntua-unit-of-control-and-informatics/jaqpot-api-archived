@@ -103,7 +103,7 @@ public class PmmlResource {
     @Authorize
     public Response createPMML(
             @ApiParam(value = "Clients need to authenticate in order to create resources on the server")
-            @HeaderParam("Authorization") String api_key,
+            @HeaderParam("Authorization") String subjectId,
             @ApiParam(value = "PMML in JSON representation.", required = true) String pmmlString,
             @ApiParam(value = "title") @FormParam("title") String title,
             @ApiParam(value = "description") @FormParam("description") String description
@@ -148,7 +148,7 @@ public class PmmlResource {
             notes = "Creates a new PMML entry which is assigned a random unique ID",
             response = Pmml.class)
     public Response createPMMLSelection(
-            @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key,
+            @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String subjectId,
             @FormParam("features") String featuresString) throws  JaqpotDocumentSizeExceededException {
 
         List<String> features = Arrays.asList(featuresString.split(","));
@@ -234,7 +234,7 @@ public class PmmlResource {
         @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
     })
     public Response getPmml(
-            @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key,
+            @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String subjectId,
             @ApiParam(value = "ID of the BibTeX", required = true) @PathParam("id") String id
     ) {
         
@@ -266,7 +266,7 @@ public class PmmlResource {
         @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
     })
     public Response listPmml(
-            @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key,
+            @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String subjectId,
             @ApiParam(value = "start", defaultValue = "0") @QueryParam("start") Integer start,
             @ApiParam(value = "max", defaultValue = "10") @QueryParam("max") Integer max
     ) {

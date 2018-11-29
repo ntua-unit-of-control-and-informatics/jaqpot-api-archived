@@ -128,7 +128,7 @@ public class PreparationMDB extends RunningTaskMDB {
             String substanceOwner= (String) messageBody.get("substance_owner");
             List<String> substances = (List<String>) messageBody.get("substances");
             Map<String, List<String>> properties = (Map<String, List<String>>) messageBody.get("properties");            //String bundleUri = (String) messageBody.get("bundle_uri");
-            String subjectId = (String) messageBody.get("subjectid");
+            String subjectId = (String) messageBody.get("subjectId");
             String descriptors = (String) messageBody.get("descriptors");
             Boolean intersectColumns = (Boolean) messageBody.get("intersect_columns");
             Boolean retainNullValues = (Boolean) messageBody.get("retain_null_values");

@@ -67,7 +67,7 @@ public class SecurityContextImpl implements SecurityContext {
 
     @Override
     public String getAuthenticationScheme() {
-        return "subjectid";
+        return "subjectId";
     }
 
 }

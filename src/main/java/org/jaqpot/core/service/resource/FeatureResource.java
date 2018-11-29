@@ -109,7 +109,7 @@ public class FeatureResource {
         @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
     })
     public Response listFeatures(
-            @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key,
+            @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String subjectId,
             @ApiParam("Generic query") @QueryParam("query") String query,
             @ApiParam(value = "start", defaultValue = "0") @QueryParam("start") Integer start,
             @ApiParam(value = "max - the server imposes an upper limit of 500 on this "
@@ -134,7 +134,7 @@ public class FeatureResource {
             notes = "Finds specified Feature (by ID)",
             response = Feature.class)
     public Response getFeature(
-            @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key,
+            @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String subjectId,
             @PathParam("id") String id) {
         Feature feature = featureHandler.find(id);
         if (feature == null) {
@@ -169,7 +169,7 @@ public class FeatureResource {
     })
     public Response createFeature(
             @ApiParam(value = "Clients need to authenticate in order to create resources on the server")
-            @HeaderParam("Authorization") String api_key,
+            @HeaderParam("Authorization") String subjectId,
             @ApiParam(value = "Feature in JSON representation compliant with the Feature specifications. "
                     + "Malformed Feature entries with missing fields will not be accepted.", required = true,
                     defaultValue = DEFAULT_FEATURE) Feature feature
@@ -214,7 +214,7 @@ public class FeatureResource {
         @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
     })
     public Response deleteFeature(
-            @ApiParam("Clients need to authenticate in order to create resources on the server") @HeaderParam("Authorization") String api_key,
+            @ApiParam("Clients need to authenticate in order to create resources on the server") @HeaderParam("Authorization") String subjectId,
             @ApiParam(value = "ID of the Model.", required = true) @PathParam("id") String id
     ) throws JaqpotForbiddenException {
         Feature feature = new Feature(id);
@@ -248,7 +248,7 @@ public class FeatureResource {
     public Response putFeature(
             @ApiParam(value = "ID of the Feature.", required = true) @PathParam("id") String id,
             @ApiParam(value = "Feature in JSON", defaultValue = DEFAULT_FEATURE, required = true) Feature feature,
-            @ApiParam("Clients need to authenticate in order to create resources on the server") @HeaderParam("Authorization") String api_key
+            @ApiParam("Clients need to authenticate in order to create resources on the server") @HeaderParam("Authorization") String subjectId
     )throws JaqpotDocumentSizeExceededException  {
         if (feature == null) {
             ErrorReport report = ErrorReportFactory.badRequest("No feature provided; check out the API specs",

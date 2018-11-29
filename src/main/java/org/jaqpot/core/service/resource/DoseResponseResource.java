@@ -104,7 +104,7 @@ public class DoseResponseResource {
             @FormParam("dataset_uri") String datasetURI,
             @FormParam("prediction_feature") String predictionFeature,
             @FormParam("parameters") String parameters,
-            @HeaderParam("Authorization") String api_key
+            @HeaderParam("Authorization") String subjectId
     ) throws QuotaExceededException,JaqpotDocumentSizeExceededException {
 
         User user = userHandler.find(securityContext.getUserPrincipal().getName());
@@ -118,11 +118,10 @@ public class DoseResponseResource {
                     + ", your quota has been exceeded; you already have " + reportCount + " reports. "
                     + "No more than " + maxAllowedReports + " are allowed with your subscription.");
         }
-        String[] apiA = api_key.split("\\s+");
-        String apiKey = apiA[1];
+
         Dataset dataset = client.target(datasetURI)
                 .request()
-                .header("Authorization", "Bearer " + apiKey)
+                .header("Authorization", "Bearer " + subjectId.split("\\s+")[1])
                 .accept(MediaType.APPLICATION_JSON)
                 .get(Dataset.class);
         dataset.setDatasetURI(datasetURI);

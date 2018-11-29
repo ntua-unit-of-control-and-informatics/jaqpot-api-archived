@@ -89,7 +89,7 @@ public class UserResource {
         @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
     })
     public Response listUsers(
-             @ApiParam(value = "Clients need to authenticate in order to access models") @HeaderParam("Authorization") String api_key,
+             @ApiParam(value = "Clients need to authenticate in order to access models") @HeaderParam("Authorization") String subjectId,
             @ApiParam(value = "start", defaultValue = "0") @QueryParam("start") Integer start,
             @ApiParam(value = "max", defaultValue = "10") @QueryParam("max") Integer max
     ) throws JaqpotNotAuthorizedException {
@@ -124,7 +124,7 @@ public class UserResource {
     })
     public Response getUser(
             @PathParam("id") String id,
-             @ApiParam(value = "Clients need to authenticate in order to access models") @HeaderParam("Authorization") String api_key) throws JaqpotNotAuthorizedException {
+             @ApiParam(value = "Clients need to authenticate in order to access models") @HeaderParam("Authorization") String subjectId) throws JaqpotNotAuthorizedException {
 
         String admins = propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_ADMINISTRATORS);
         List<String> adminsList = Arrays.asList(admins.split("\\s*,\\s*"));
@@ -160,7 +160,7 @@ public class UserResource {
     })
     public Response getUserQuota(
             @PathParam("id") String id,
-             @ApiParam(value = "Clients need to authenticate in order to access models") @HeaderParam("Authorization") String api_key) throws JaqpotNotAuthorizedException {
+             @ApiParam(value = "Clients need to authenticate in order to access models") @HeaderParam("Authorization") String subjectId) throws JaqpotNotAuthorizedException {
 
         String currentUserID = securityContext.getUserPrincipal().getName();
         String admins = propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_ADMINISTRATORS);

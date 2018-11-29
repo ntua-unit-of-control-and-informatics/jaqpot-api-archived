@@ -290,7 +290,8 @@ public class AAResource {
 
     @POST
     @Path("/login")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes({"application/x-www-form-urlencoded", MediaType.APPLICATION_FORM_URLENCODED})
+    @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     public Response swaggerLogin(
             @ApiParam(value = "Username", required = true) @FormParam("username") String username,
             @ApiParam(value = "Password", required = true) @FormParam("password") String password) throws JaqpotNotAuthorizedException {

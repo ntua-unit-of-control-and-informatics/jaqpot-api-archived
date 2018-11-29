@@ -105,11 +105,9 @@ public class InterLabTestingResource {
             @FormParam("dataset_uri") String datasetURI,
             @FormParam("prediction_feature") String predictionFeature,
             @FormParam("parameters") String parameters,
-            @HeaderParam("Authorization") String api_key
+            @HeaderParam("Authorization") String subjectId
     ) throws QuotaExceededException, JaqpotDocumentSizeExceededException {
 
-        String[] apiA = api_key.split("\\s+");
-        String apiKey = apiA[1];
         User user = userHandler.find(securityContext.getUserPrincipal().getName());
         long reportCount = reportHandler.countAllOfCreator(user.getId());
         int maxAllowedReports = new UserFacade(user).getMaxReports();
@@ -124,7 +122,7 @@ public class InterLabTestingResource {
 
         Dataset dataset = client.target(datasetURI)
                 .request()
-                .header("Authorization", "Bearer " + apiKey)
+                .header("Authorization", "Bearer " + subjectId.split("\\s+")[1])
                 .accept(MediaType.APPLICATION_JSON)
                 .get(Dataset.class);
         dataset.setDatasetURI(datasetURI);

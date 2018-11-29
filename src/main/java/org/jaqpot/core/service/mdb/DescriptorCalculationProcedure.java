@@ -100,7 +100,7 @@ public class DescriptorCalculationProcedure extends AbstractJaqpotProcedure impl
         }
 
         String taskId = (String) messageBody.get("taskId");
-        String subjectId = (String) messageBody.get("subjectid");
+        String subjectId = (String) messageBody.get("subjectId");
         byte[] file = (byte[]) messageBody.get("file");
         String parameters = (String) messageBody.get("parameters");
         String algorithmId = (String) messageBody.get("algorithmId");

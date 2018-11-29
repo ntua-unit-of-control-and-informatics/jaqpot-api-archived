@@ -203,14 +203,12 @@ public class EnanomapperResource {
     @org.jaqpot.core.service.annotations.Task
     public Response createDatasetByStudy(
             @ApiParam(name = "Data for dataset creation ", defaultValue = DEFAULT_DATASET_DATA) DatasetData datasetData,
-            @HeaderParam("Authorization") String api_key) throws QuotaExceededException, ExecutionException, InterruptedException,JaqpotDocumentSizeExceededException {
+            @HeaderParam("Authorization") String subjectId) throws QuotaExceededException, ExecutionException, InterruptedException,JaqpotDocumentSizeExceededException {
 
         User user = userHandler.find(securityContext.getUserPrincipal().getName());
         long datasetCount = datasetHandler.countAllOfCreator(user.getId());
         int maxAllowedDatasets = new UserFacade(user).getMaxDatasets();
 
-        String[] apiA = api_key.split("\\s+");
-        String apiKey = apiA[1];
         if (datasetCount > maxAllowedDatasets) {
             LOG.info(String.format("User %s has %d datasets while maximum is %d",
                     user.getId(), datasetCount, maxAllowedDatasets));
@@ -245,7 +243,7 @@ public class EnanomapperResource {
         options.put("descriptors", descriptorsString);
         options.put("properties", propertiesString);
         options.put("intersect_columns", datasetData.getIntersectColumns() != null ? datasetData.getIntersectColumns() : true);
-        options.put("api_key", apiKey);
+        options.put("subjectId", subjectId.split("\\s+")[1]);
         options.put("base_uri", uriInfo.getBaseUri().toString());
         options.put("mode", "PREPARATION");
         options.put("retain_null_values", datasetData.getRetainNullValues() != null ? datasetData.getRetainNullValues() : false);
@@ -263,7 +261,7 @@ public class EnanomapperResource {
     )
     public Response createBundle(
             @ApiParam(value = "Data for bundle creation", defaultValue = DEFAULT_BUNDLE_DATA, required = true) BundleData bundleData,
-            @HeaderParam("subjectid") String subjectId) throws ExecutionException, InterruptedException {
+            @HeaderParam("subjectId") String subjectId) throws ExecutionException, InterruptedException {
         if (bundleData == null) {
             throw new BadRequestException("Post data cannot be empty");
         }

@@ -160,7 +160,7 @@ public class ValidationResource {
             @FormParam("folds") Integer folds,
             @FormParam("stratify") String stratify,
             @FormParam("seed") Integer seed,
-            @HeaderParam("Authorization") String api_key
+            @HeaderParam("Authorization") String subjectId
     ) throws QuotaExceededException, JMSException, ParameterInvalidURIException, ParameterIsNullException,JaqpotDocumentSizeExceededException {
         if (algorithmURI==null)
             throw new ParameterIsNullException("algorithmURI");
@@ -169,8 +169,7 @@ public class ValidationResource {
         if (folds==null)
             throw new ParameterIsNullException("folds");
 
-        String[] apiA = api_key.split("\\s+");
-        String apiKey = apiA[1];
+
         User user = userHandler.find(securityContext.getUserPrincipal().getName());
         long reportCount = reportHandler.countAllOfCreator(user.getId());
         int maxAllowedReports = new UserFacade(user).getMaxReports();
@@ -226,7 +225,7 @@ public class ValidationResource {
         options.put("stratify", stratify);
         options.put("seed", seed);
         options.put("creator", user.getId());
-        options.put("api_key", apiKey);
+        options.put("subjectId", subjectId.split("\\s+")[1]);
 
         Map<String, String> transformationAlgorithms = new LinkedHashMap<>();
         if (transformations != null && !transformations.isEmpty()) {
@@ -267,7 +266,7 @@ public class ValidationResource {
             @ApiParam(name = "split_ratio",required = true) @FormParam("split_ratio") Double splitRatio,
             @FormParam("stratify") String stratify,
             @FormParam("seed") Integer seed,
-            @HeaderParam("Authorization") String api_key
+            @HeaderParam("Authorization") String subjectId
     ) throws QuotaExceededException, JMSException, ParameterInvalidURIException, ParameterIsNullException, JaqpotDocumentSizeExceededException  {
         if (algorithmURI==null)
             throw new ParameterIsNullException("algorithmURI");
@@ -275,8 +274,7 @@ public class ValidationResource {
             throw new ParameterIsNullException("datasetURI");
         if (splitRatio==null)
             throw new ParameterIsNullException("splitRatio");
-        String[] apiA = api_key.split("\\s+");
-        String apiKey = apiA[1];
+
         User user = userHandler.find(securityContext.getUserPrincipal().getName());
         long reportCount = reportHandler.countAllOfCreator(user.getId());
         int maxAllowedReports = new UserFacade(user).getMaxReports();
@@ -333,7 +331,7 @@ public class ValidationResource {
         options.put("stratify", stratify);
         options.put("seed", seed);
         options.put("type", "SPLIT");
-        options.put("api_key", apiKey);
+        options.put("subjectId", subjectId.split("\\s+")[1]);
 
         Map<String, String> transformationAlgorithms = new LinkedHashMap<>();
         if (transformations != null && !transformations.isEmpty()) {
@@ -366,14 +364,14 @@ public class ValidationResource {
     public Response externalValidateAlgorithm(
             @FormParam("model_uri") String modelURI,
             @FormParam("test_dataset_uri") String datasetURI,
-            @HeaderParam("Authorization") String api_key
+            @HeaderParam("Authorization") String subjectId
     ) throws QuotaExceededException, ParameterIsNullException, ParameterInvalidURIException,JaqpotDocumentSizeExceededException {
         if (modelURI==null)
             throw new ParameterIsNullException("modelURI");
         if (datasetURI==null)
             throw new ParameterIsNullException("datasetURI");
-        String[] apiA = api_key.split("\\s+");
-        String apiKey = apiA[1];
+
+
         User user = userHandler.find(securityContext.getUserPrincipal().getName());
         long reportCount = reportHandler.countAllOfCreator(user.getId());
         int maxAllowedReports = new UserFacade(user).getMaxReports();
@@ -410,11 +408,10 @@ public class ValidationResource {
         Map<String, Object> options = new HashMap<>();
         options.put("taskId", task.getId());
         options.put("model_uri", modelURI);
-        options.put("api_key", apiKey);
         options.put("dataset_uri", datasetURI);
         options.put("base_uri", uriInfo.getBaseUri().toString());
         options.put("type", "EXTERNAL");
-        options.put("api_key", apiKey);
+        options.put("subjectId", subjectId.split("\\s+")[1]);
         options.put("creator", user.getId());
 
 
