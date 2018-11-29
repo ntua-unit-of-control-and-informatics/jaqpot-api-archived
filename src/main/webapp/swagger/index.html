@@ -92,13 +92,15 @@
         showRequestHeaders: false
       });
       window.swaggerUi.load();
+
+
       function addApiKeyAuthorization() {
         var key = $('#input_apiKey')[0].value;
         log("key: " + key);
         if (key && key.trim() != "") {
           log("added key " + key);
           var apiKeyAuth = new SwaggerClient.ApiKeyAuthorization("Authorization", "Bearer " + key, "header");
-          window.swaggerUi.api.clientAuthorizations.add("bearer", apiKeyAuth);
+          window.swaggerUi.api.clientAuthorizations.add("key", apiKeyAuth);
           // window.authorizations.add("api_key", new ApiKeyAuthorization("api_key", key, "query"));
 //          swaggerUi.api.clientAuthorizations.add("key", new SwaggerClient.ApiKeyAuthorization("subjectid", key, "header"));
         }
