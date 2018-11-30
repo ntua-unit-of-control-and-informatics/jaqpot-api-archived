@@ -220,7 +220,6 @@ public class PmmlResource {
     }
     
     @GET
-    @TokenSecured({RoleEnum.DEFAULT_USER})
     @Path("/{id}")
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list", MediaType.APPLICATION_XML, "text/xml"})
     @ApiOperation(value = "Returns PMML entry",

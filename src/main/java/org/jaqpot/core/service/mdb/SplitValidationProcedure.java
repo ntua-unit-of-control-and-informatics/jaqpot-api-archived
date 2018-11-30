@@ -158,7 +158,7 @@ public class SplitValidationProcedure extends AbstractJaqpotProcedure {
                     if (transParameters != null && !transParameters.isEmpty()) {
                         parameterMap = serializer.parse(transParameters, new HashMap<String, Object>().getClass());
                     }
-                    dataset = jpdiClient.transform(dataset, transAlgorithm, parameterMap, predictionFeature, dataset.getMeta(), taskId).get();
+                    dataset = jpdiClient.transform(dataset, transAlgorithm, parameterMap, predictionFeature, dataset.getMeta(), taskId,subjectId).get();
                     addProgress(10f, "Done");
                 }
                 progress(30f, "Done processing transformations.", "--");
@@ -184,8 +184,8 @@ public class SplitValidationProcedure extends AbstractJaqpotProcedure {
             String predictedFeature = "";
             Integer indepFeatureSize = 0;
 
-            Model model = jpdiClient.train(trainDataset, algorithm, parameterMap, predictionFeature, trainDataset.getMeta(), taskId).get();
-            Dataset predictedDataset = jpdiClient.predict(testDataset, model, testDataset.getMeta(), taskId).get();
+            Model model = jpdiClient.train(trainDataset, algorithm, parameterMap, predictionFeature, trainDataset.getMeta(), taskId, subjectId).get();
+            Dataset predictedDataset = jpdiClient.predict(testDataset, model, testDataset.getMeta(), taskId, subjectId).get();
 
             addProgress(20f, "Finished train and test with train_dataset:" + trainDataset.getDatasetURI() + " test_dataset:" + testDataset.getDatasetURI());
             checkCancelled();

@@ -129,7 +129,7 @@ public class DescriptorCalculationProcedure extends AbstractJaqpotProcedure impl
             progress("Starting JPDI Training...");
             checkCancelled();
 
-            Future<Dataset> futureDataset = jpdiClient.calculate(file, algorithm, parameterMap, taskId);
+            Future<Dataset> futureDataset = jpdiClient.calculate(file, algorithm, parameterMap, taskId, subjectId);
             Dataset dataset = futureDataset.get();
 
             dataset = populateFeatures(dataset);

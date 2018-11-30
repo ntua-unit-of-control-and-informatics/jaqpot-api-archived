@@ -58,11 +58,9 @@ import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.StreamingOutput;
 import org.jaqpot.core.annotations.Jackson;
 import org.jaqpot.core.data.ReportHandler;
+import org.jaqpot.core.data.UserHandler;
 import org.jaqpot.core.data.serialize.JSONSerializer;
-import org.jaqpot.core.model.BibTeX;
-import org.jaqpot.core.model.ErrorReport;
-import org.jaqpot.core.model.MetaInfo;
-import org.jaqpot.core.model.Report;
+import org.jaqpot.core.model.*;
 import org.jaqpot.core.model.factory.ErrorReportFactory;
 import org.jaqpot.core.model.validator.BibTeXValidator;
 import org.jaqpot.core.service.annotations.Authorize;
@@ -93,6 +91,9 @@ public class ReportResource {
     SecurityContext securityContext;
 
     @EJB
+    UserHandler userHandler;
+
+    @EJB
     ReportHandler reportHandler;
 
     @Inject
@@ -114,9 +115,10 @@ public class ReportResource {
         if (max == null || max > 500) {
             max = 500;
         }
-        String userName = securityContext.getUserPrincipal().getName();
-        return Response.ok(reportHandler.listMetaOfCreator(userName, start != null ? start : 0, max))
-                .header("total", reportHandler.countAllOfCreator(userName))
+        String creator = securityContext.getUserPrincipal().getName();
+
+        return Response.ok(reportHandler.listMetaOfCreator(creator, start != null ? start : 0, max))
+                .header("total", reportHandler.countAllOfCreator(creator))
                 .build();
 
     }

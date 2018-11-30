@@ -212,9 +212,9 @@ public class TrainingProcedure extends AbstractJaqpotProcedure implements Messag
                         parameterMap = serializer.parse(transParameters, new HashMap<String, Object>().getClass());
                     }
 
-                    Model transModel = jpdiClient.train(dataset, transAlgorithm, parameterMap, predictionFeature, modelMeta, taskId).get();
+                    Model transModel = jpdiClient.train(dataset, transAlgorithm, parameterMap, predictionFeature, modelMeta, taskId, subjectId).get();
                     transformationModels.add(transModel);
-                    dataset = jpdiClient.predict(dataset, transModel, dataset != null ? dataset.getMeta() : null, taskId).get();
+                    dataset = jpdiClient.predict(dataset, transModel, dataset != null ? dataset.getMeta() : null, taskId,subjectId).get();
 
                     addProgress(5f, "Transformation model created successfully:" + transModel.getId());
 
@@ -231,7 +231,7 @@ public class TrainingProcedure extends AbstractJaqpotProcedure implements Messag
 
             progress("Starting JPDI Training...");
 
-            Future<Model> futureModel = jpdiClient.train(dataset, algorithm, parameterMap, predictionFeature, modelMeta, taskId);
+            Future<Model> futureModel = jpdiClient.train(dataset, algorithm, parameterMap, predictionFeature, modelMeta, taskId, subjectId);
             Model model = futureModel.get();
             progress("JPDI Training completed successfully.");
 
@@ -247,7 +247,7 @@ public class TrainingProcedure extends AbstractJaqpotProcedure implements Messag
                 for (DataEntry de : dataset.getDataEntry()) {
                     de.getValues().keySet().retainAll(model.getIndependentFeatures());
                 }
-                Model linkedModel = jpdiClient.train(dataset, linkedAlgorithm, parameterMap, predictionFeature, modelMeta, taskId).get();
+                Model linkedModel = jpdiClient.train(dataset, linkedAlgorithm, parameterMap, predictionFeature, modelMeta, taskId,subjectId).get();
                 linkedModels.add(linkedModel);
                 addProgress(5f, "Linked model created successfully:" + linkedModel.getId());
                 checkCancelled();

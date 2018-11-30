@@ -94,7 +94,7 @@ public class JPDIClientImpl implements JPDIClient {
     }
 
     @Override
-    public Future<Dataset> calculate(byte[] file, Algorithm algorithm, Map<String, Object> parameters, String taskId) {
+    public Future<Dataset> calculate(byte[] file, Algorithm algorithm, Map<String, Object> parameters, String taskId, String subjectId) {
         CompletableFuture<Dataset> futureDataset = new CompletableFuture<>();
 
         //TODO Create a calculateService for algorithms.
@@ -118,6 +118,7 @@ public class JPDIClientImpl implements JPDIClient {
 
         request.setEntity(entity);
         request.addHeader("Accept", "application/json");
+        request.addHeader("Authorization", "Bearer "+subjectId);
 
         Future futureResponse = client.execute(request, new FutureCallback<HttpResponse>() {
 
@@ -185,7 +186,7 @@ public class JPDIClientImpl implements JPDIClient {
     }
 
     @Override
-    public Future<Model> train(Dataset dataset, Algorithm algorithm, Map<String, Object> parameters, String predictionFeature, MetaInfo modelMeta, String taskId) {
+    public Future<Model> train(Dataset dataset, Algorithm algorithm, Map<String, Object> parameters, String predictionFeature, MetaInfo modelMeta, String taskId, String subjectId) {
         
         CompletableFuture<Model> futureModel = new CompletableFuture<>();
         
@@ -211,7 +212,7 @@ public class JPDIClientImpl implements JPDIClient {
         
         request.setEntity(entity);
         request.addHeader("Accept", "application/json");
-        
+        request.addHeader("Authorization", "Bearer "+subjectId);
         Future futureResponse = client.execute(request, new FutureCallback<HttpResponse>() {
             
             @Override
@@ -324,7 +325,7 @@ public class JPDIClientImpl implements JPDIClient {
     }
     
     @Override
-    public Future<Dataset> predict(Dataset inputDataset, Model model, MetaInfo datasetMeta, String taskId) {
+    public Future<Dataset> predict(Dataset inputDataset, Model model, MetaInfo datasetMeta, String taskId, String subjectId) {
         
         CompletableFuture<Dataset> futureDataset = new CompletableFuture<>();
         
@@ -343,7 +344,7 @@ public class JPDIClientImpl implements JPDIClient {
         final HttpPost request = new HttpPost(model.getAlgorithm().getPredictionService());
         request.addHeader("Accept", "application/json");
         request.addHeader("Content-Type", "application/json");
-        
+        request.addHeader("Authorization", "Bearer "+ subjectId);
         PipedOutputStream out = new PipedOutputStream();
         PipedInputStream in;
         try {
@@ -457,10 +458,10 @@ public class JPDIClientImpl implements JPDIClient {
     }
     
     @Override
-    public Future<Dataset> transform(Dataset dataset, Algorithm algorithm, Map<String, Object> parameters, String predictionFeature, MetaInfo datasetMeta, String taskId) {
+    public Future<Dataset> transform(Dataset dataset, Algorithm algorithm, Map<String, Object> parameters, String predictionFeature, MetaInfo datasetMeta, String taskId, String subjectId) {
         try {
-            Model model = this.train(dataset, algorithm, parameters, predictionFeature, datasetMeta, taskId).get();
-            return this.predict(dataset, model, datasetMeta, taskId);
+            Model model = this.train(dataset, algorithm, parameters, predictionFeature, datasetMeta, taskId,subjectId).get();
+            return this.predict(dataset, model, datasetMeta, taskId, subjectId);
         } catch (InterruptedException ex) {
             throw new RuntimeException("Error while transforming Dataset:" + dataset.getId() + " with Algorithm:" + algorithm.getId(), ex);
         } catch (ExecutionException ex) {
@@ -469,7 +470,7 @@ public class JPDIClientImpl implements JPDIClient {
     }
     
     @Override
-    public Future<Report> report(Dataset dataset, Algorithm algorithm, Map<String, Object> parameters, MetaInfo reportMeta, String taskId) {
+    public Future<Report> report(Dataset dataset, Algorithm algorithm, Map<String, Object> parameters, MetaInfo reportMeta, String taskId, String subjectId) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     

@@ -522,7 +522,7 @@ public class DatasetResource {
                     throw new NotFoundException("Transformation model with id:" + transModelURI + " was not found.");
                 }
                 try {
-                    trainingDS = jpdiClient.predict(trainingDS, transModel, trainingDS.getMeta(), UUID.randomUUID().toString()).get();
+                    trainingDS = jpdiClient.predict(trainingDS, transModel, trainingDS.getMeta(), UUID.randomUUID().toString(),  subjectId.split("\\s+")[1]).get();
                 } catch (InterruptedException ex) {
                     LOG.log(Level.SEVERE, "JPDI Training procedure interupted", ex);
                     throw new InternalServerErrorException("JPDI Training procedure interupted", ex);
@@ -708,7 +708,7 @@ public class DatasetResource {
                     throw new NotFoundException("Transformation model with id:" + transModelURI + " was not found.");
                 }
                 try {
-                    trainingDS = jpdiClient.predict(trainingDS, transModel, trainingDS.getMeta(), UUID.randomUUID().toString()).get();
+                    trainingDS = jpdiClient.predict(trainingDS, transModel, trainingDS.getMeta(), UUID.randomUUID().toString(), subjectId.split("\\s+")[1]).get();
                 } catch (InterruptedException ex) {
                     LOG.log(Level.SEVERE, "JPDI Training procedure interupted", ex);
                     throw new InternalServerErrorException("JPDI Training procedure interupted", ex);
