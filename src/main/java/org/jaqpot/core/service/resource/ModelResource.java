@@ -32,12 +32,7 @@ package org.jaqpot.core.service.resource;
 import io.swagger.annotations.*;
 
 import java.security.GeneralSecurityException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import javax.ejb.EJB;
@@ -323,7 +318,7 @@ public class ModelResource {
     public Response listModelDependentFeatures(
             @PathParam("id") String id,
             @ApiParam(value = "Clients need to authenticate in order to access models") @HeaderParam("Authorization") String subjectId) {
-        Model foundModel = modelHandler.findModelIndependentFeatures(id);
+        Model foundModel = modelHandler.findModelDependentFeatures(id);
         if (foundModel == null) {
             throw new NotFoundException("The requested model was not found on the server.");
         }
@@ -376,11 +371,15 @@ public class ModelResource {
             responseContainer = "List")
     public Response listModelRequiredFeatures(
             @PathParam("id") String id,
-            @HeaderParam("Authorization") String subjectId) {
+            @HeaderParam("Authorization") String subjectId,
+            @QueryParam("keepOrder") Boolean keepOrder) {
         Model model = modelHandler.find(id);
         if (model == null) {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
+
+        if (keepOrder == null)
+            keepOrder = false;
         List<String> requiredFeatures;
         String datasetURI;
 
@@ -397,6 +396,75 @@ public class ModelResource {
             datasetURI = model.getDatasetUri();
         }
         Set<FeatureInfo> featureSet;
+
+
+            if (datasetURI != null) {
+                featureSet = client.target(datasetURI.split("\\?")[0] + "/features")
+                        .request()
+                        .accept(MediaType.APPLICATION_JSON)
+                        .header("Authorization", subjectId)
+                        .get(new GenericType<Set<FeatureInfo>>() {
+                        });
+            } else {
+                featureSet = new HashSet<>();
+            }
+
+            Set<String> requiredFeatureSet = new HashSet<>(requiredFeatures);
+            List<FeatureInfo> selectedFeatures = featureSet.stream()
+                    .filter(f -> requiredFeatureSet.contains(f.getURI()))
+                    .collect(Collectors.toList());
+
+        if (keepOrder) {
+            Dataset dataset = client.target(datasetURI)
+                    .request()
+                    .accept(MediaType.APPLICATION_JSON)
+                    .header("Authorization", subjectId)
+                    .property("rowStart", 1)
+                    .property("rowMax", 1)
+                    .get(Dataset.class);
+            Set <String> sortedFeat = dataset.getDataEntry().get(0).getValues().keySet();
+            sortedFeat.retainAll(requiredFeatureSet);
+
+            LinkedList<FeatureInfo> sortedFeatures = new LinkedList<>();
+            for (String sortedF:sortedFeat)
+                featureSet.stream().filter(f -> sortedF.equals(f.getURI())).findFirst().ifPresent(sortedFeatures::add);
+            selectedFeatures = sortedFeatures;
+        }
+
+        return Response.status(Response.Status.OK).entity(selectedFeatures).build();
+    }
+
+    @GET
+    @TokenSecured({RoleEnum.DEFAULT_USER})
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/{id}/predicting")
+    @ApiOperation(value = "Lists the predicting feature of a Model",
+            notes = "Lists the predicting features of a Model identified by its ID. The result is available as a URI list.",
+            response = String.class,
+            responseContainer = "List")
+    public Response listModelPredictingFeatures(
+            @PathParam("id") String id,
+            @HeaderParam("Authorization") String subjectId) {
+        Model model = modelHandler.find(id);
+        if (model == null) {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+        List<String> predictingFeatures;
+        String datasetURI;
+
+        if (model.getTransformationModels() != null && !model.getTransformationModels().isEmpty()) {
+            Model firstTransformation = client.target(model.getTransformationModels().get(0))
+                    .request()
+                    .accept(MediaType.APPLICATION_JSON)
+                    .header("Authorization", subjectId)
+                    .get(Model.class);
+            predictingFeatures = firstTransformation.getDependentFeatures();
+            datasetURI = firstTransformation.getDatasetUri();
+        } else {
+            predictingFeatures = model.getDependentFeatures();
+            datasetURI = model.getDatasetUri();
+        }
+        Set<FeatureInfo> featureSet;
         if (datasetURI != null) {
             featureSet = client.target(datasetURI.split("\\?")[0] + "/features")
                     .request()
@@ -408,12 +476,14 @@ public class ModelResource {
             featureSet = new HashSet<>();
         }
 
-        Set<String> requiredFeatureSet = new HashSet<>(requiredFeatures);
+        Set<String> requiredFeatureSet = new HashSet<>(predictingFeatures);
         List<FeatureInfo> selectedFeatures = featureSet.stream()
                 .filter(f -> requiredFeatureSet.contains(f.getURI()))
                 .collect(Collectors.toList());
         return Response.status(Response.Status.OK).entity(selectedFeatures).build();
     }
+
+
 
     @POST
     @TokenSecured({RoleEnum.DEFAULT_USER})

@@ -189,6 +189,7 @@ public class ExternalValidationProcedure extends AbstractJaqpotProcedure {
             report.setMeta(MetaInfoBuilder
                     .builder()
                     .addTitles("External validation report")
+                    .addCreators(creator)
                     .addSources(dataset_uri, model_uri)
                     .addDescriptions("External validation with model:" + model_uri + " and dataset:" + dataset_uri)
                     .build());

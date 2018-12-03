@@ -324,6 +324,7 @@ public class ValidationResource {
         options.put("taskId", task.getId());
         options.put("algorithm_uri", algorithmURI);
         options.put("dataset_uri", datasetURI);
+        options.put("creator", user.getId());
         options.put("algorithm_params", algorithmParameters);
         options.put("prediction_feature", predictionFeature);
         options.put("scaling", scaling);
@@ -384,7 +385,7 @@ public class ValidationResource {
                     + "No more than " + maxAllowedReports + " are allowed with your subscription.");
         }
 
-        UrlValidator urlValidator = new UrlValidator();
+        UrlValidator urlValidator = new UrlValidator(UrlValidator.ALLOW_LOCAL_URLS);
         if (!urlValidator.isValid(modelURI)) {
             throw new ParameterInvalidURIException("Not valid model URI.");
         }
