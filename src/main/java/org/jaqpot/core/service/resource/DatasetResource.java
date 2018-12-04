@@ -907,7 +907,7 @@ public class DatasetResource {
             List<String> line = parseLine(scanner.nextLine());
             if (firstLine) {
                 for (String l : line) {
-                   String pseudoURL = "/feature/" + l.replaceAll(" ","_"); //uriInfo.getBaseUri().toString()+
+                   String pseudoURL = "/feature/" + l.trim().replaceAll("[ .]","_"); //uriInfo.getBaseUri().toString()+
                     feature.add(pseudoURL);
                     featureInfoList.add(new FeatureInfo(pseudoURL, l,"NA",new HashMap<>(),Dataset.DescriptorCategory.EXPERIMENTAL));
                 }
@@ -941,18 +941,22 @@ public class DatasetResource {
 
     private void populateFeatures(Dataset dataset) throws JaqpotDocumentSizeExceededException {
         for (FeatureInfo featureInfo : dataset.getFeatures()) {
-            String featureURI = null;
-            Feature f = FeatureBuilder.builder(featureInfo.getName().replaceAll(" ","_") + "_" + new ROG(true).nextString(12))
+            String trimmedFeatureURI = propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_BASE_SERVICE)+"feature/"+featureInfo.getName().replaceAll("\\s+"," ").replaceAll("[ .]","_")+"_" + new ROG(true).nextString(12);;
+
+            String trimmedFeatureName= featureInfo.getName().replaceAll("\\s+"," ").replaceAll("[.]","_").replaceAll("[.]","_");
+
+            Feature f = FeatureBuilder.builder(trimmedFeatureURI)
                     .addTitles(featureInfo.getName()).build();
             featureHandler.create(f);
-            featureURI = propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_BASE_SERVICE)+"feature/" + f.getId();
+
             //Update FeatureURIS in Data Entries
             for (DataEntry dataentry : dataset.getDataEntry()) {
                 Object value = dataentry.getValues().remove(featureInfo.getURI());
-                dataentry.getValues().put(featureURI,value);
+                dataentry.getValues().put(trimmedFeatureURI,value);
             }
             //Update FeatureURI in Feature Info
-            featureInfo.setURI(featureURI);
+            featureInfo.setURI(trimmedFeatureURI);
+            featureInfo.setName(trimmedFeatureName);
         }
     }
 }
