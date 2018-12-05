@@ -133,6 +133,41 @@ public class OrganizationResource {
                 .build();
     }
     
+    @GET
+    @Path("/{id}/users")
+    @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
+    @ApiOperation(
+            value = "Finds all Organization users",
+            notes = "Finds all Organization users",
+            extensions = {
+                @Extension(properties = {
+            @ExtensionProperty(name = "orn-@type", value = "x-orn:Organization"),}
+                )
+                ,
+                @Extension(name = "orn:returns", properties = {
+            @ExtensionProperty(name = "x-orn-@id", value = "x-orn:OrganizationList")
+        })
+            }
+    )
+    @ApiResponses(value = {
+        @ApiResponse(code = 401, response = ErrorReport.class, message = "Wrong, missing or insufficient credentials. Error report is produced.")
+        ,
+            @ApiResponse(code = 200, response = Organization.class, responseContainer = "List", message = "A list of algorithms in the Jaqpot framework")
+        ,
+            @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
+
+    })
+    public Response getOrganizationUsers(
+            @PathParam("id") String id) {
+        
+        List<String> fields = new ArrayList();
+        fields.add("userIds");
+        Organization orgUsers = orgHandler.find(id, fields);
+        return Response
+                .ok(orgUsers)
+                .build();
+    }
+    
     
     @POST
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})

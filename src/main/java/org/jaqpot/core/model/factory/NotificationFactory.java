@@ -74,7 +74,7 @@ public class NotificationFactory {
                 .setOwner(to)
                 .setBody(body)
                 .setTime(Notification.Time.NEW)
-                .setType(Type.SHAREMODEL)
+                .setType(Type.SHARE)
                 .setViewed(Boolean.FALSE)
                 .setEntityShared(modelId)
                 .build();
@@ -90,7 +90,7 @@ public class NotificationFactory {
                 .setOwner(to)
                 .setBody(body)
                 .setTime(Notification.Time.NEW)
-                .setType(Type.SHAREMODEL)
+                .setType(Type.SHARE)
                 .setViewed(Boolean.FALSE)
                 .setEntityShared(datasetId)
                 .build();

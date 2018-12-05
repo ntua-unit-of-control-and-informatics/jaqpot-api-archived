@@ -98,6 +98,10 @@ public abstract class AbstractHandler<T extends JaqpotEntity>  {
         fields.add("features");
         return getEntityManager().find(entityClass, id, fields);
     }
+    
+//    public List<T> findInArray(Map<String, Object> properties, List<String> fields, Integer start, Integer max){
+//        return getEntityManager().findInArray(entityClass, properties, fields, start, max);
+//    }
 
     public List<T> find(Map<String, Object> properties) {
         return getEntityManager().find(entityClass, properties, 0, Integer.MAX_VALUE);

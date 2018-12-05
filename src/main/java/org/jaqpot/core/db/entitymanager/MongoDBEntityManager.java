@@ -35,6 +35,7 @@ import com.mongodb.MongoClientURI;
 import com.mongodb.MongoWriteException;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import static com.mongodb.client.model.Filters.eq;
 import com.mongodb.client.result.UpdateResult;
 import com.mongodb.util.JSON;
 import static com.mongodb.client.model.Projections.*;
@@ -44,6 +45,7 @@ import org.jaqpot.core.annotations.MongoDB;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -241,6 +243,24 @@ public class MongoDBEntityManager implements JaqpotEntityManager {
                 .into(result);
         return result;
     }
+    
+//    @Override
+//    public <T extends JaqpotEntity> List<T> findInArray(Class<T> entityClass, Map<String, Object> properties, List<String> fields, Integer start, Integer max){
+//        MongoDatabase db = mongoClient.getDatabase(database);
+//        MongoCollection<Document> collection = db.getCollection(collectionNames.get(entityClass));
+//        List<T> result = new ArrayList<>();
+//        
+//        properties.entrySet().forEach(e ->{ });
+//        
+//        collection.find(new Document(properties))
+//                .projection(include(fields))
+//                .skip(start != null ? start : 0)
+//                .limit(max != null ? max : DEFAULT_PAGE_SIZE)
+//                .map(document -> serializer.parse(JSON.serialize(document), entityClass))
+//                .into(result);
+//        return result;
+//        
+//    };
 
     @Override
     public <T extends JaqpotEntity> List<T> findSorted(Class<T> entityClass, Map<String, Object> properties, Integer start, Integer max, List<String> ascendingFields, List<String> descendingFields) {

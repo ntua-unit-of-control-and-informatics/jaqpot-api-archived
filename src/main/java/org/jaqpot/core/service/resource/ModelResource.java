@@ -30,6 +30,7 @@
 package org.jaqpot.core.service.resource;
 
 import io.swagger.annotations.*;
+import java.net.URISyntaxException;
 
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
@@ -81,9 +82,11 @@ import org.jaqpot.core.service.authentication.RoleEnum;
 import org.jaqpot.core.service.data.PredictionService;
 import org.jaqpot.core.service.exceptions.JaqpotDocumentSizeExceededException;
 import org.jaqpot.core.service.exceptions.JaqpotForbiddenException;
+import org.jaqpot.core.service.exceptions.JaqpotNotAuthorizedException;
 import org.jaqpot.core.service.exceptions.parameter.ParameterInvalidURIException;
 import org.jaqpot.core.service.exceptions.parameter.ParameterIsNullException;
 import org.jaqpot.core.service.exceptions.QuotaExceededException;
+import org.jaqpot.core.service.httphandlers.Rights;
 import org.jaqpot.core.service.validator.ParameterValidator;
 
 /**
@@ -130,6 +133,9 @@ public class ModelResource {
     @EJB
     PropertyManager propertyManager;
 
+    @EJB
+    Rights rights;
+    
     @Context
     SecurityContext securityContext;
 
@@ -673,7 +679,7 @@ public class ModelResource {
             MetaInfo featMetaInf = new MetaInfo();
             featMetaInf.setCreators(creators);
             Set<String> featDescr = new HashSet();
-            featDescr.add("Feature created to link to independent feature of model " + model.getId());
+            featDescr.add("Feature created to link to independent feature of model " + model.getMeta().getTitles().stream().findFirst());
             featMetaInf.setDescriptions(featDescr);
             Set<String> hasSources = new HashSet();
             hasSources.add("model/" + model.getId());
@@ -708,7 +714,7 @@ public class ModelResource {
             MetaInfo featMetaInf = new MetaInfo();
             featMetaInf.setCreators(creators);
             Set<String> featDescr = new HashSet();
-            featDescr.add("Feature created to link to independent feature of model " + model.getId());
+            featDescr.add("Feature created to link to independent feature of model " + model.getMeta().getTitles().stream().findFirst());
             featMetaInf.setDescriptions(featDescr);
             Set<String> hasSources = new HashSet();
             hasSources.add("model/" + model.getId());
@@ -940,4 +946,41 @@ public class ModelResource {
 
         return Response.status(Response.Status.OK).entity(dataset).build();
     }
+    
+    @PUT
+    @TokenSecured({RoleEnum.DEFAULT_USER})
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces({"application/json", MediaType.APPLICATION_JSON})
+    @Path("{id}/meta")
+    @ApiOperation(value = "Updates meta info of a dataset",
+            notes = "TUpdates meta info of a dataset")
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, response = MetaInfo.class, message = "Meta was updated succesfully")
+        ,
+            @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to access this resource")
+        ,
+            @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)")
+        ,
+            @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
+    })
+    public Response updateMeta(
+            @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key,
+            @PathParam("id") String id,
+            Model modelForUpdate) throws URISyntaxException, JaqpotDocumentSizeExceededException, JaqpotNotAuthorizedException {
+        
+        String userId = securityContext.getUserPrincipal().getName();
+        Model model = modelHandler.find(id);
+        if (model == null) {
+            throw new NotFoundException("Could not find Dataset with id:" + id);
+        }
+        User user = userHandler.find(userId);
+        Boolean canUpdate = rights.canWrite(modelForUpdate.getMeta(), user);
+        if(canUpdate == true){
+            modelHandler.updateMeta(id, modelForUpdate.getMeta());
+        }else{
+            throw new JaqpotNotAuthorizedException("You are not authorized to update this resource");
+        }
+        return Response.accepted().entity(modelForUpdate.getMeta()).build();
+    }
+
 }

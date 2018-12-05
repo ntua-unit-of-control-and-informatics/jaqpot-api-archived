@@ -228,12 +228,22 @@ public class DescriptorProcedure extends AbstractJaqpotProcedure implements Mess
     private void populateFeatures(@NotNull Dataset dataset, String datasetURI) throws JaqpotDocumentSizeExceededException {
         for (FeatureInfo featureInfo : dataset.getFeatures()) {
             String featureURI = null;
-            Feature f = FeatureBuilder.builder(new ROG(true).nextString(12))
+            Feature f;
+            if(featureInfo.getConditions() != null && featureInfo.getConditions().values() != null ){
+                f = FeatureBuilder.builder(new ROG(true).nextString(12))
                     .addTitles(featureInfo.getURI())
                     .addIdentifiers(String.valueOf(featureInfo.getConditions().values()))
                     .addDescriptions(featureInfo.getName())
                     .addSources(datasetURI)
                     .build();
+            }else{
+                f = FeatureBuilder.builder(new ROG(true).nextString(12))
+                    .addTitles(featureInfo.getURI())
+                    .addDescriptions(featureInfo.getName())
+                    .addSources(datasetURI)
+                    .build();
+            }
+            
             featureHandler.create(f);
             featureURI = propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_BASE_SERVICE)+"feature/" + f.getId();
 

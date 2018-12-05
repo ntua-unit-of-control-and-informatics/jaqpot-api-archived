@@ -130,6 +130,24 @@ public class DatasetHandler extends AbstractHandler<Dataset> {
         return em.find(Dataset.class, properties, fields, start, max);
     }
     
+    
+        public List<Dataset> listOrgsDataset(String organization, Integer start, Integer max){
+        List<String> fields = new ArrayList<>();
+        fields.add("_id");
+        fields.add("meta");
+        fields.add("ontologicalClasses");
+        fields.add("organizations");
+        fields.add("totalRows");
+        fields.add("totalColumns");
+        
+        Map<String, Object> properties = new HashMap<>();
+        
+        
+        properties.put("meta.view", organization);
+//        properties.put("visible", true);
+        return em.find(Dataset.class, properties, fields, start, max);
+    }
+    
     public Number countCreatorsExistenseDatasets(String creator, Dataset.DatasetExistence existence){
         Map<String, Object> properties = new HashMap<>();
         properties.put("meta.creators", Arrays.asList(creator));

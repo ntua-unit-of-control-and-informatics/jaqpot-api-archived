@@ -32,54 +32,30 @@
  * All source files of JAQPOT Quattro that are stored on github are licensed
  * with the aforementioned licence. 
  */
-package org.jaqpot.core.data;
+package org.jaqpot.core.service.httphandlers;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import javax.ejb.Stateless;
-import javax.inject.Inject;
-import org.jaqpot.core.annotations.MongoDB;
-import org.jaqpot.core.db.entitymanager.JaqpotEntityManager;
-import org.jaqpot.core.model.Discussion;
+import org.jaqpot.core.model.MetaInfo;
+import org.jaqpot.core.model.User;
 
 /**
  *
  * @author pantelispanka
  */
-
 @Stateless
-public class DiscussionHandler extends AbstractHandler<Discussion>  {
-    
-    @Inject
-    @MongoDB
-    JaqpotEntityManager em;
-    
-    
-    public DiscussionHandler(){
-        super(Discussion.class);
+public class Rights {
+
+    public Boolean canWrite(MetaInfo metaInfo, User user) {
+        Boolean canWrite = false;
+        if (metaInfo.getCreators().contains(user.getId())) {
+            canWrite = true;
+        }
+        for (String org : user.getOrganizations()) {
+            if (metaInfo.getWrite() != null && metaInfo.getWrite().contains(org)) {
+                canWrite = true;
+            }
+        }
+        return canWrite;
     }
 
-    @Override
-    protected JaqpotEntityManager getEntityManager() {
-        return em;
-    }
-    
-    public List<Discussion> findByEntityId(String entityId,Integer start, Integer max){
-        Map<String , Object> properties = new HashMap();
-        properties.put("onEntity", entityId);
-        List<String> descField = new ArrayList();
-        descField.add("meta.date");
-//        return em..find(entityClass, properties, start, max);
-        return em.findSortedDesc(Discussion.class, properties, start, max, descField);
-    }
-    
-    
-    public Long countByEntityId(String entityId){
-        Map<String , Object> properties = new HashMap();
-        properties.put("onEntity", entityId);
-        return em.count(Discussion.class, properties);
-    }
-    
 }
