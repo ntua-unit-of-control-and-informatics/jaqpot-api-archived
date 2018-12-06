@@ -219,7 +219,11 @@ public class DescriptorResource {
     })
     @org.jaqpot.core.service.annotations.Task
     public Response applydescriptor(
-            DescriptorReqDTO descriptorReqDTO,
+            @ApiParam(name = "title", required = true) @FormParam("title") String title,
+            @ApiParam(name = "description", required = true) @FormParam("description") String description,
+            @ApiParam(name = "dataset_uri") @FormParam("dataset_uri") String datasetURI,
+            @ApiParam(name = "description_features") @FormParam("description_features") Set<String> descriptionFeatures,
+            @ApiParam(name = "parameters") @FormParam("parameters") String parameters,
             @PathParam("id")  String descriptorId,
             @HeaderParam("Authorization") String api_key) throws QuotaExceededException, ParameterIsNullException, ParameterInvalidURIException, ParameterTypeException, ParameterRangeException, ParameterScopeException, JaqpotDocumentSizeExceededException  {
         UrlValidator urlValidator = new UrlValidator(UrlValidator.ALLOW_LOCAL_URLS);
@@ -231,25 +235,25 @@ public class DescriptorResource {
             throw new NotFoundException("Could not find Descriptor with id:" + descriptorId);
         }
 
-        if (descriptorReqDTO.getDatasetURI() == null) {
+        if (datasetURI == null) {
             throw new ParameterIsNullException("datasetURI");
         }
 
-        if (!urlValidator.isValid(descriptorReqDTO.getDatasetURI())) {
+        if (!urlValidator.isValid(datasetURI)) {
             throw new ParameterInvalidURIException("Not valid Dataset URI.");
         }
 
-        String datasetId = descriptorReqDTO.getDatasetURI().split("dataset/")[1];
+        String datasetId = datasetURI.split("dataset/")[1];
         Dataset datasetMeta = datasetHandler.findMeta(datasetId);
 
         if (datasetMeta.getTotalRows() != null && datasetMeta.getTotalRows() < 1) {
             throw new BadRequestException("Cannot apply descriptor on dataset with no rows.");
         }
 
-        if (descriptorReqDTO.getTitle() == null) {
+        if (title == null) {
             throw new ParameterIsNullException("title");
         }
-        if (descriptorReqDTO.getDescription() == null) {
+        if (description == null) {
             throw new ParameterIsNullException("description");
         }
 
@@ -266,17 +270,17 @@ public class DescriptorResource {
         }
 
         Map<String, Object> options = new HashMap<>();
-        options.put("title", descriptorReqDTO.getTitle());
-        options.put("description", descriptorReqDTO.getDescription());
-        options.put("datasetURI", descriptorReqDTO.getDatasetURI());
-        options.put("featureURIs",serializer.write(descriptorReqDTO.getFeatureURIs()));
+        options.put("title", title);
+        options.put("description", description);
+        options.put("datasetURI", datasetURI);
+        options.put("featureURIs",  serializer.write(descriptionFeatures));
         options.put("api_key", apiKey);
         options.put("descriptorId", descriptorId);
-        options.put("parameters", descriptorReqDTO.getParameters());
+        options.put("parameters", parameters);
         options.put("base_uri", uriInfo.getBaseUri().toString());
         options.put("creator", securityContext.getUserPrincipal().getName());
 
-        parameterValidator.validate(descriptorReqDTO.getParameters(), descriptor.getParameters());
+        parameterValidator.validate(parameters, descriptor.getParameters());
 
         Task task = descriptorService.initiateDescriptor(options, securityContext.getUserPrincipal().getName());
 

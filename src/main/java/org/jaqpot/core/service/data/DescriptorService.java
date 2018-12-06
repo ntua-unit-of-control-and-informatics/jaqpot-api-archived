@@ -12,6 +12,7 @@ import javax.inject.Inject;
 import javax.jms.JMSContext;
 import javax.jms.Topic;
 import java.util.Map;
+import javax.jms.DeliveryMode;
 
 @Stateless
 public class DescriptorService {
@@ -34,7 +35,11 @@ public class DescriptorService {
         options.put("taskId", task.getId());
         task.setVisible(Boolean.TRUE);
         taskHandler.create(task);
-        jmsContext.createProducer().setDeliveryDelay(1000).send(descriptorQueue, options);
+        jmsContext.createProducer()
+                .setDeliveryMode(DeliveryMode.NON_PERSISTENT)
+                .setTimeToLive(3000000)
+                .setDeliveryDelay(10)
+                .send(descriptorQueue, options);
         return task;
     }
 }

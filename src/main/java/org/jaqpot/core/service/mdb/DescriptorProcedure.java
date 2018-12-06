@@ -1,5 +1,7 @@
 package org.jaqpot.core.service.mdb;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import org.jaqpot.core.annotations.Jackson;
 import org.jaqpot.core.data.DescriptorHandler;
 import org.jaqpot.core.data.FeatureHandler;
@@ -33,6 +35,8 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.core.MediaType;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Future;
@@ -40,10 +44,11 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @MessageDriven(activationConfig = {
-        @ActivationConfigProperty(propertyName = "destinationLookup",
-                propertyValue = "java:jboss/exported/jms/topic/descriptor"),
+    @ActivationConfigProperty(propertyName = "destinationLookup",
+            propertyValue = "java:jboss/exported/jms/topic/descriptor")
+    ,
         @ActivationConfigProperty(propertyName = "destinationType",
-                propertyValue = "javax.jms.Topic")
+            propertyValue = "javax.jms.Topic")
 })
 public class DescriptorProcedure extends AbstractJaqpotProcedure implements MessageListener {
 
@@ -122,7 +127,6 @@ public class DescriptorProcedure extends AbstractJaqpotProcedure implements Mess
                 featureURIs = serializer.parse(features, Set.class);
             }
 
-
             Descriptor descriptor = descriptorHandler.find(descriptorId);
 
             if (descriptor == null) {
@@ -132,16 +136,16 @@ public class DescriptorProcedure extends AbstractJaqpotProcedure implements Mess
 
             checkCancelled();
             Dataset initialDataset;
-            try{
+            try {
                 initialDataset = client.target(datasetURI)
                         .queryParam("dataEntries", true)
                         .request()
                         .header("Authorization", "Bearer " + apiKey)
                         .accept(MediaType.APPLICATION_JSON)
                         .get(Dataset.class);
-            }catch(NotFoundException e){
+            } catch (NotFoundException e) {
                 String[] splitted = datasetURI.split("/");
-                initialDataset = datasetLegacyWrapper.find(splitted[splitted.length -1]);
+                initialDataset = datasetLegacyWrapper.find(splitted[splitted.length - 1]);
             }
 
             if (initialDataset == null) {
@@ -151,22 +155,28 @@ public class DescriptorProcedure extends AbstractJaqpotProcedure implements Mess
             Dataset subDataset = null;
 
             //Case of all applying descriptor service to all featureURIs
-            if (featureURIs.contains("all"))
-                subDataset = DatasetFactory.copy(initialDataset);
-            else
-                subDataset = DatasetFactory.copy(initialDataset,featureURIs);
-
+            
+            if (featureURIs.toString().contains("all")) {
+                Set<String> featUris = new HashSet();
+                initialDataset.getFeatures().stream().forEach(f -> {
+                    featUris.add(f.getURI());
+                });
+                subDataset = DatasetFactory.copy(initialDataset, featUris);
+            } else {
+                subDataset = DatasetFactory.copy(initialDataset, featureURIs);
+            }
 
             subDataset.setMeta(null);
-            Future<Dataset> futureDataset = jpdiClient.descriptor(subDataset,descriptor,parameterMap,taskId);
+            subDataset.setId(null);
+            Future<Dataset> futureDataset = jpdiClient.descriptor(subDataset, descriptor, parameterMap, taskId);
 
             Dataset dataset = futureDataset.get();
             dataset.setId(new ROG(true).nextString(12));
-            String newDatasetURI = propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_BASE_SERVICE)+"dataset/" + dataset.getId();
+            String newDatasetURI = propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_BASE_SERVICE) + "dataset/" + dataset.getId();
 
-            copyFeatures(initialDataset,newDatasetURI);
+            copyFeatures(initialDataset, newDatasetURI);
             populateFeatures(dataset, newDatasetURI);
-            dataset = DatasetFactory.mergeColumns(dataset,initialDataset);
+            dataset = DatasetFactory.mergeColumns(dataset, initialDataset);
 
             progress("JPDI Descriptor calculation procedure completed successfully.");
             progress(50f, "Dataset ready.");
@@ -183,24 +193,22 @@ public class DescriptorProcedure extends AbstractJaqpotProcedure implements Mess
             dataset.setMeta(datasetMeta);
             dataset.setVisible(Boolean.TRUE);
             dataset.setExistence(Dataset.DatasetExistence.DESCRIPTORSADDED);
-            if (dataset.getDataEntry() == null || dataset.getDataEntry().isEmpty())
+            if (dataset.getDataEntry() == null || dataset.getDataEntry().isEmpty()) {
                 throw new IllegalArgumentException("Resulting dataset is empty");
-            else
+            } else {
                 datasetLegacyWrapper.create(dataset);
+            }
             progress(100f, "Dataset saved successfully.");
             checkCancelled();
             progress("Calculation Task is now completed.");
             complete("dataset/" + dataset.getId());
-        }
-        catch (IllegalArgumentException ex) {
+        } catch (IllegalArgumentException ex) {
             LOG.log(Level.SEVERE, "Preparation procedure execution error", ex);
             errInternalServerError(ex, "JPDI Preparation procedure error");
-        }
-        catch (BadRequestException ex) {
+        } catch (BadRequestException ex) {
             errBadRequest(ex, "Error while processing input.");
             LOG.log(Level.SEVERE, null, ex);
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
             LOG.log(Level.SEVERE, "JPDI Preparation procedure unknown error", ex);
             errInternalServerError(ex, "JPDI Preparation procedure unknown error");
         }
@@ -210,19 +218,20 @@ public class DescriptorProcedure extends AbstractJaqpotProcedure implements Mess
     private void copyFeatures(@NotNull Dataset dataset, String datasetURI) throws JaqpotDocumentSizeExceededException {
         for (FeatureInfo featureInfo : dataset.getFeatures()) {
             Feature feature = featureHandler.find(featureInfo.getURI().split("feature/")[1]);
-            if (feature==null)
-                throw new NullPointerException("Feature with URI "+ featureInfo.getURI()+" was not found in the system");
+            if (feature == null) {
+                throw new NullPointerException("Feature with URI " + featureInfo.getURI() + " was not found in the system");
+            }
             Feature f = FeatureBuilder.builder(feature)
-                    .addDescriptions("Copy of "+feature.getId()+" feature")
+                    .addDescriptions("Copy of " + feature.getId() + " feature")
                     .addSources(datasetURI).build();
             f.setId(new ROG(true).nextString(12));
             featureHandler.create(f);
-            String featureURI = propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_BASE_SERVICE)+"feature/" + f.getId();
+            String featureURI = propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_BASE_SERVICE) + "feature/" + f.getId();
 
             //Update FeatureURIs in Data Entries
             for (DataEntry dataentry : dataset.getDataEntry()) {
                 Object value = dataentry.getValues().remove(featureInfo.getURI());
-                dataentry.getValues().put(featureURI,value);
+                dataentry.getValues().put(featureURI, value);
             }
             featureInfo.setURI(featureURI);
         }
@@ -233,28 +242,28 @@ public class DescriptorProcedure extends AbstractJaqpotProcedure implements Mess
         for (FeatureInfo featureInfo : dataset.getFeatures()) {
             String featureURI = null;
             Feature f;
-            if(featureInfo.getConditions() != null && featureInfo.getConditions().values() != null ){
+            if (featureInfo.getConditions() != null && featureInfo.getConditions().values() != null) {
                 f = FeatureBuilder.builder(new ROG(true).nextString(12))
-                    .addTitles(featureInfo.getURI())
-                    .addIdentifiers(String.valueOf(featureInfo.getConditions().values()))
-                    .addDescriptions(featureInfo.getName())
-                    .addSources(datasetURI)
-                    .build();
-            }else{
+                        .addTitles(featureInfo.getURI())
+                        .addIdentifiers(String.valueOf(featureInfo.getConditions().values()))
+                        .addDescriptions(featureInfo.getName())
+                        .addSources(datasetURI)
+                        .build();
+            } else {
                 f = FeatureBuilder.builder(new ROG(true).nextString(12))
-                    .addTitles(featureInfo.getURI())
-                    .addDescriptions(featureInfo.getName())
-                    .addSources(datasetURI)
-                    .build();
+                        .addTitles(featureInfo.getURI())
+                        .addDescriptions(featureInfo.getName())
+                        .addSources(datasetURI)
+                        .build();
             }
-            
+
             featureHandler.create(f);
-            featureURI = propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_BASE_SERVICE)+"feature/" + f.getId();
+            featureURI = propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_BASE_SERVICE) + "feature/" + f.getId();
 
             //Update FeatureURIs in Data Entries
             for (DataEntry dataentry : dataset.getDataEntry()) {
                 Object value = dataentry.getValues().remove(featureInfo.getURI());
-                dataentry.getValues().put(featureURI,value);
+                dataentry.getValues().put(featureURI, value);
             }
             //Update FeatureURI in Feature Info
             featureInfo.setConditions(null);

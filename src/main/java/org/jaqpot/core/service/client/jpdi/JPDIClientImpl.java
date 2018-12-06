@@ -215,13 +215,14 @@ public class JPDIClientImpl implements JPDIClient {
                 int status = response.getStatusLine().getStatusCode();
                 try {
                     InputStream responseStream = response.getEntity().getContent();
-
+                    
                     switch (status) {
                         case 200:
                         case 201:
                             //TODO handle successful return of Dataset
                             DescriptorResponse descriptorResponse = serializer.parse(responseStream,DescriptorResponse.class);
-                            Dataset descriptorResponseDataset = descriptorResponse.getResponseDataset();
+//                            Dataset descriptorResponseDataset = serializer.parse(responseStream,Dataset.class);
+                            Dataset descriptorResponseDataset =descriptorResponse.getResponseDataset();
                             descriptorResponseDataset.setId(UUID.randomUUID().toString());
                             descriptorResponseDataset.setVisible(Boolean.TRUE);
                             ROG randomStringGenerator = new ROG(true);
