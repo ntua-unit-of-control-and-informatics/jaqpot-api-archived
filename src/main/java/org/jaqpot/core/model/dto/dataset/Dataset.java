@@ -54,7 +54,8 @@ public class Dataset extends JaqpotEntity {
         GO("GO descriptors", "Descriptors derived by proteomics data."),
         MOPAC("Mopac descriptors", "Descriptors derived by crystallographic data."),
         CDK("CDK descriptors", "Descriptors derived from cdk software."),
-        PREDICTED("Predicted descriptors", "Descriptors derived from algorithm predictions.");
+        PREDICTED("Predicted descriptors", "Descriptors derived from algorithm predictions."),
+        FORPREDICTION("Created for prediction", "Dataset created and is temp for prediction");
 
         private final String name;
         private final String description;
@@ -81,7 +82,8 @@ public class Dataset extends JaqpotEntity {
         TRANFORMED("Transformed", "Dataset transformed"),
         PREDICTED("Predicted", "Dataset is a result of a prediction"),
         DESCRIPTORSADDED("Descriptors added", "Dataset has added descriptors"),
-        FROMPRETRAINED("Pretrained empty", "Dataset empty for pretrained model");
+        FROMPRETRAINED("Pretrained empty", "Dataset empty for pretrained model"),
+        FORPREDICTION("Created for prediction", "Dataset created and is temp for prediction");
         
         private final String name;
         private final String description;

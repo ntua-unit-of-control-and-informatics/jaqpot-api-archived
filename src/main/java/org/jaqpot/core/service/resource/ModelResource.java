@@ -560,7 +560,7 @@ public class ModelResource {
         }
 
         User user = userHandler.find(securityContext.getUserPrincipal().getName());
-        long datasetCount = datasetHandler.countAllOfCreator(user.getId());
+        long datasetCount = datasetHandler.countCreatorsExistenseDatasets(user.getId(), Dataset.DatasetExistence.UPLOADED);
         int maxAllowedDatasets = new UserFacade(user).getMaxDatasets();
 
         if (datasetCount > maxAllowedDatasets) {

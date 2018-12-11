@@ -87,6 +87,11 @@ public class TokenRequestFilter implements ContainerRequestFilter, Serializable 
         Method resourceMethod = resourceInfo.getResourceMethod();
 //        List<RoleEnum> classRoles = extractRoles(resourceMethod);
 
+        if (requestContext.getRequest().getMethod().equals("OPTIONS")) {
+            requestContext.abortWith(Response.status(Response.Status.OK).build());
+        }
+
+
         MultivaluedMap headers = requestContext.getHeaders();
         String api_key;
         try {
