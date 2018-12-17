@@ -35,15 +35,19 @@ import org.apache.commons.validator.routines.UrlValidator;
 import org.jaqpot.core.annotations.Jackson;
 import org.jaqpot.core.data.AlgorithmHandler;
 import org.jaqpot.core.data.DatasetHandler;
+import org.jaqpot.core.data.FeatureHandler;
 import org.jaqpot.core.data.UserHandler;
 import org.jaqpot.core.data.serialize.JSONSerializer;
 import org.jaqpot.core.data.wrappers.DatasetLegacyWrapper;
 import org.jaqpot.core.model.*;
+import org.jaqpot.core.model.builder.FeatureBuilder;
 import org.jaqpot.core.model.builder.MetaInfoBuilder;
 import org.jaqpot.core.model.dto.dataset.Dataset;
+import org.jaqpot.core.model.dto.dataset.EntryId;
 import org.jaqpot.core.model.dto.dataset.FeatureInfo;
 import org.jaqpot.core.model.facades.UserFacade;
 import org.jaqpot.core.model.util.ROG;
+import org.jaqpot.core.properties.PropertyManager;
 import org.jaqpot.core.service.annotations.Authorize;
 import org.jaqpot.core.service.data.CalculationService;
 import org.jaqpot.core.service.exceptions.JaqpotDocumentSizeExceededException;
@@ -84,6 +88,12 @@ public class OpenRiskNetResource {
 
     @EJB
     AlgorithmHandler algorithmHandler;
+
+    @Inject
+    PropertyManager propertyManager;
+
+    @EJB
+    FeatureHandler featureHandler;
 
     @EJB
     DatasetHandler datasetHandler;
@@ -234,12 +244,10 @@ public class OpenRiskNetResource {
 
     @POST
     @TokenSecured({RoleEnum.DEFAULT_USER})
-    @Path("/createdummydataset")
+    @Path("/createDummyDataset")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "file", value = "xls[m,x] file", required = true, dataType = "file", paramType = "formData")
-            ,
-            @ApiImplicitParam(name = "title", value = "Title of dataset", required = true, dataType = "string", paramType = "formData")
-            ,
+            @ApiImplicitParam(name = "file", value = "xls[m,x] file", required = true, dataType = "file", paramType = "formData"),
+            @ApiImplicitParam(name = "title", value = "Title of dataset", required = true, dataType = "string", paramType = "formData"),
             @ApiImplicitParam(name = "description", value = "Description of dataset", required = true, dataType = "string", paramType = "formData")
     })
     @ApiOperation(value = "Creates dummy dataset By .csv document",
@@ -247,9 +255,9 @@ public class OpenRiskNetResource {
             response = Dataset.class
     )
     public Response createDummyDataset(
-            @HeaderParam("Authorization") String api_key,
+            @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String subjectId,
             @ApiParam(value = "multipartFormData input", hidden = true) MultipartFormDataInput input)
-            throws ParameterIsNullException, ParameterInvalidURIException, QuotaExceededException, IOException, ParameterScopeException, ParameterRangeException, ParameterTypeException, URISyntaxException,JaqpotDocumentSizeExceededException {
+            throws ParameterIsNullException, ParameterInvalidURIException, QuotaExceededException, IOException, ParameterScopeException, ParameterRangeException, ParameterTypeException, URISyntaxException, JaqpotDocumentSizeExceededException {
 
         User user = userHandler.find(securityContext.getUserPrincipal().getName());
         long datasetCount = datasetHandler.countAllOfCreator(user.getId());
@@ -274,8 +282,6 @@ public class OpenRiskNetResource {
         );
 
         List<InputPart> inputParts = uploadForm.get("file");
-        ROG randomStringGenerator = new ROG(true);
-        dataset.setId(randomStringGenerator.nextString(14));
         for (InputPart inputPart : inputParts) {
 
             try {
@@ -286,7 +292,10 @@ public class OpenRiskNetResource {
                 e.printStackTrace();
             }
         }
+        populateFeatures(dataset);
 
+        ROG randomStringGenerator = new ROG(true);
+        dataset.setId(randomStringGenerator.nextString(14));
         dataset.setFeatured(Boolean.FALSE);
         if (dataset.getMeta() == null) {
             dataset.setMeta(new MetaInfo());
@@ -299,9 +308,8 @@ public class OpenRiskNetResource {
 
     }
 
-    private void calculateRowsAndColumns(Dataset dataset, InputStream stream) throws JaqpotDocumentSizeExceededException {
+    private void calculateRowsAndColumns(Dataset dataset, InputStream stream) {
         Scanner scanner = new Scanner(stream);
-        ROG randomStringGenerator = new ROG(true);
 
         Set<FeatureInfo> featureInfoList = new HashSet<>();
         List<DataEntry> dataEntryList = new ArrayList<>();
@@ -313,7 +321,7 @@ public class OpenRiskNetResource {
             List<String> line = parseLine(scanner.nextLine());
             if (firstLine) {
                 for (String l : line) {
-                    String pseudoURL = ("/feature/" + l).replaceAll(" ","_"); //uriInfo.getBaseUri().toString()+
+                    String pseudoURL = "/feature/" + l.trim().replaceAll("[ .]","_"); //uriInfo.getBaseUri().toString()+
                     feature.add(pseudoURL);
                     featureInfoList.add(new FeatureInfo(pseudoURL, l,"NA",new HashMap<>(),Dataset.DescriptorCategory.EXPERIMENTAL));
                 }
@@ -329,14 +337,15 @@ public class OpenRiskNetResource {
                     else
                         values.put(it1.next(),Float.parseFloat(it));
                 }
-                org.jaqpot.core.model.dto.dataset.EntryId substance = new org.jaqpot.core.model.dto.dataset.EntryId();
-                substance.setURI("/substance/" + count);
-                substance.setName("row" + count);
-                substance.setOwnerUUID("7da545dd-2544-43b0-b834-9ec02553f7f2");
-                DataEntry dataEntry = new DataEntry(randomStringGenerator.nextString(14));
+
+                DataEntry dataEntry = new DataEntry();
                 dataEntry.setValues(values);
-                dataEntry.setEntryId(substance);
-                dataEntry.setDatasetId(dataset.getId());
+                EntryId entryId = new EntryId();
+                entryId.setName("row" + count);
+                entryId.setURI(propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_BASE_SERVICE)+"substance/"+ new ROG(true).nextString(12));
+                entryId.setOwnerUUID("7da545dd-2544-43b0-b834-9ec02553f7f2");
+
+                dataEntry.setEntryId(entryId);
                 dataEntryList.add(dataEntry);
             }
             count++;
@@ -344,8 +353,26 @@ public class OpenRiskNetResource {
         scanner.close();
         dataset.setFeatures(featureInfoList);
         dataset.setDataEntry(dataEntryList);
-
     }
 
+    private void populateFeatures(Dataset dataset) throws JaqpotDocumentSizeExceededException {
+        for (FeatureInfo featureInfo : dataset.getFeatures()) {
+            String trimmedFeatureURI = propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_BASE_SERVICE)+"feature/"+featureInfo.getName().replaceAll("\\s+"," ").replaceAll("[ .]","_")+"_" + new ROG(true).nextString(12);
 
+            String trimmedFeatureName= featureInfo.getName().replaceAll("\\s+"," ").replaceAll("[.]","_").replaceAll("[.]","_");
+
+            Feature f = FeatureBuilder.builder(trimmedFeatureURI.split("feature/")[1])
+                    .addTitles(featureInfo.getName()).build();
+            featureHandler.create(f);
+
+            //Update FeatureURIS in Data Entries
+            for (DataEntry dataentry : dataset.getDataEntry()) {
+                Object value = dataentry.getValues().remove(featureInfo.getURI());
+                dataentry.getValues().put(trimmedFeatureURI,value);
+            }
+            //Update FeatureURI in Feature Info
+            featureInfo.setURI(trimmedFeatureURI);
+            featureInfo.setName(trimmedFeatureName);
+        }
+    }
 }
