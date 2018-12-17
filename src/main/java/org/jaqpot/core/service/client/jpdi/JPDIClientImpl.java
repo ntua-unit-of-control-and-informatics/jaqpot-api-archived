@@ -60,9 +60,11 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import org.jaqpot.core.model.factory.FeatureFactory;
 
 import org.jaqpot.core.service.exceptions.JaqpotDocumentSizeExceededException;
 
@@ -215,14 +217,14 @@ public class JPDIClientImpl implements JPDIClient {
                 int status = response.getStatusLine().getStatusCode();
                 try {
                     InputStream responseStream = response.getEntity().getContent();
-                    
+
                     switch (status) {
                         case 200:
                         case 201:
                             //TODO handle successful return of Dataset
-                            DescriptorResponse descriptorResponse = serializer.parse(responseStream,DescriptorResponse.class);
+                            DescriptorResponse descriptorResponse = serializer.parse(responseStream, DescriptorResponse.class);
 //                            Dataset descriptorResponseDataset = serializer.parse(responseStream,Dataset.class);
-                            Dataset descriptorResponseDataset =descriptorResponse.getResponseDataset();
+                            Dataset descriptorResponseDataset = descriptorResponse.getResponseDataset();
                             descriptorResponseDataset.setId(UUID.randomUUID().toString());
                             descriptorResponseDataset.setVisible(Boolean.TRUE);
                             ROG randomStringGenerator = new ROG(true);
@@ -442,7 +444,6 @@ public class JPDIClientImpl implements JPDIClient {
             return futureDataset;
         }
         request.setEntity(new InputStreamEntity(in, ContentType.APPLICATION_JSON));
-
         Future futureResponse = client.execute(request, new FutureCallback<HttpResponse>() {
 
             @Override
@@ -462,15 +463,29 @@ public class JPDIClientImpl implements JPDIClient {
                                 if (dataset.getDataEntry().isEmpty()) {
                                     DatasetFactory.addEmptyRows(dataset, predictions.size());
                                 }
-                                if (model.getAlgorithm().getOntologicalClasses().contains("ot:ClearDataset")) {
+                                if (model.getAlgorithm().getOntologicalClasses() != null && model.getAlgorithm().getOntologicalClasses().contains("ot:ClearDataset")) {
                                     DatasetFactory.addEmptyRows(dataset, predictions.size());
                                 }
                                 List<String> depFeats = model.getPredictedFeatures();
                                 List<Feature> features = new ArrayList();
                                 depFeats.forEach((String feat) -> {
+
                                     String[] splF = feat.split("/");
                                     String id = splF[splF.length - 1];
                                     features.add(featureHandler.find(id));
+
+//                                    try {
+//                                        String[] splF = feat.split("/");
+//                                        String id = splF[splF.length - 1];
+//                                        Feature feature = FeatureFactory.predictionFeature(featureHandler.find(id));
+//                                        feature.getMeta().getCreators().clear();
+//                                        feature.getMeta().setCreators(dataset.getMeta().getCreators());
+//                                        featureHandler.create(feature);
+//                                        
+//                                        features.add(feature);
+//                                    } catch (JaqpotDocumentSizeExceededException ex) {
+//                                        futureDataset.completeExceptionally(ex);
+//                                    }
                                 });
 
 //                                features = featureHandler.findBySource("algorithm/" + model.getAlgorithm().getId());
@@ -479,13 +494,16 @@ public class JPDIClientImpl implements JPDIClient {
                                         .forEach(i -> {
                                             Map<String, Object> row = predictions.get(i);
                                             DataEntry dataEntry = dataset.getDataEntry().get(i);
-                                            if (model.getAlgorithm().getOntologicalClasses().contains("ot:Scaling")
-                                                    || model.getAlgorithm().getOntologicalClasses().contains("ot:Transformation")
-                                                    || model.getAlgorithm().getOntologicalClasses().contains("ot:ClearDataset")) {
-                                                dataEntry.getValues().clear();
-                                                dataset.getFeatures().clear();
+                                            if (model.getAlgorithm().getOntologicalClasses() != null) {
+                                                if (model.getAlgorithm().getOntologicalClasses().contains("ot:Scaling")
+                                                        || model.getAlgorithm().getOntologicalClasses().contains("ot:Transformation")
+                                                        || model.getAlgorithm().getOntologicalClasses().contains("ot:ClearDataset")) {
+                                                    dataEntry.getValues().clear();
+                                                    dataset.getFeatures().clear();
 
+                                                }
                                             }
+
                                             row.entrySet()
                                                     .stream()
                                                     .forEach(entry -> {

@@ -159,7 +159,7 @@ public class PredictionProcedure extends AbstractJaqpotProcedure implements Mess
 
             Dataset dataset;
             if (dataset_uri != null && !dataset_uri.isEmpty()) {
-                progress("Attempting to download dataset...");
+                progress("Searching dataset...");
                 try{
                     dataset = client.target(dataset_uri)
                         .queryParam("dataEntries", true)
@@ -201,10 +201,10 @@ public class PredictionProcedure extends AbstractJaqpotProcedure implements Mess
             HashSet<String> creators = new HashSet<>(Arrays.asList(creator));
             datasetMeta.setCreators(creators);
 
-            progress("Starting JPDI Prediction...");
+            progress("Starting Prediction...");
 
             dataset = jpdiClient.predict(dataset, model, datasetMeta, taskId).get();
-            progress("JPDI Prediction completed successfully.");
+            progress("Prediction completed successfully.");
             progress(80f, "Dataset was built successfully.");
             checkCancelled();
 

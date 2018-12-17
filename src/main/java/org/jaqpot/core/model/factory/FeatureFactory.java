@@ -29,7 +29,15 @@
  */
 package org.jaqpot.core.model.factory;
 
+import java.util.HashSet;
+import java.util.Set;
+import javax.ejb.EJB;
+import org.jaqpot.core.data.FeatureHandler;
 import org.jaqpot.core.model.Feature;
+import org.jaqpot.core.model.MetaInfo;
+import org.jaqpot.core.model.builder.MetaInfoBuilder;
+import org.jaqpot.core.model.dto.dataset.Dataset;
+import org.jaqpot.core.model.util.ROG;
 
 /**
  *
@@ -38,9 +46,24 @@ import org.jaqpot.core.model.Feature;
  */
 public class FeatureFactory {
 
-    public static Feature predictionFeature(String modelUri) {
-
-        throw new UnsupportedOperationException();
+    
+    public static Feature predictionFeature(Feature feature) {
+        Feature newFeature = new Feature();
+        
+        MetaInfo mf = MetaInfoBuilder.builder(feature.getMeta()).build();
+        mf.getHasSources().clear();
+        Set<String> sources = new HashSet();
+        sources.add("feature/" + feature.getId());
+        mf.setHasSources(sources);
+        newFeature.setMeta(mf);
+        if(feature.getUnits() != null){
+            newFeature.setUnits(feature.getUnits());
+        }   
+        newFeature.setCategory(Dataset.DescriptorCategory.PREDICTED);
+//        newFeature = featHandler.create(newFeature);
+        ROG randomStringGenerator = new ROG(true);
+        newFeature.setId(randomStringGenerator.nextString(20));
+        return newFeature;
     }
 
 }

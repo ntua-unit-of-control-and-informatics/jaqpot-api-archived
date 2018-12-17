@@ -33,13 +33,13 @@ import java.util.logging.Logger;
 /**
  * @author Angelos Valsamis
  * @author Charalampos Chomenidis
- * @author Georgios Drakakis
  * @author Pantelis Sopasakis
  *
  */
 @MessageDriven(activationConfig = {
     @ActivationConfigProperty(propertyName = "destinationLookup",
-            propertyValue = "java:jboss/exported/jms/topic/validationExternal"),
+            propertyValue = "java:jboss/exported/jms/topic/validationExternal")
+    ,
     @ActivationConfigProperty(propertyName = "destinationType",
             propertyValue = "javax.jms.Topic")
 })
@@ -99,7 +99,8 @@ public class ExternalValidationProcedure extends AbstractJaqpotProcedure {
         String model_uri = (String) messageBody.get("model_uri");
         String apiKey = (String) messageBody.get("api_key");
         String creator = (String) messageBody.get("creator");
-
+        String validation_from_ui = (String) messageBody.get("validation_type");
+        
         try {
             init(taskId);
             checkCancelled();
@@ -116,22 +117,26 @@ public class ExternalValidationProcedure extends AbstractJaqpotProcedure {
             checkCancelled();
 
             Dataset dataset = null;
-            if (dataset_uri != null && !dataset_uri.isEmpty()) {
-                progress("Attempting to download dataset...");
-                try{
-                    dataset = client.target(dataset_uri)
-                        .queryParam("dataEntries", true)
-                        .request()
-                        .header("Authorization", "Bearer " + apiKey)
-                        .accept(MediaType.APPLICATION_JSON)
-                        .get(Dataset.class);
-                }catch(NotFoundException e){
-                    String[] splitted = dataset_uri.split("/");
-                    dataset = datasetLegacyWrapper.find(splitted[splitted.length -1]);
-                    //dataset = datasetHandler.find(splitted[splitted.length -1]);
-                }
-                dataset.setDatasetURI(dataset_uri);
-            }
+
+//            if (dataset_uri != null && !dataset_uri.isEmpty()) {
+//                progress("Attempting to download dataset...");
+//                try{
+//                    dataset = client.target(dataset_uri)
+//                        .queryParam("dataEntries", true)
+//                        .request()
+//                        .header("Authorization", "Bearer " + apiKey)
+//                        .accept(MediaType.APPLICATION_JSON)
+//                        .get(Dataset.class);
+//                }catch(NotFoundException e){
+//                    String[] splitted = dataset_uri.split("/");
+//                    dataset = datasetLegacyWrapper.find(splitted[splitted.length -1]);
+//                    //dataset = datasetHandler.find(splitted[splitted.length -1]);
+//                }
+//                dataset.setDatasetURI(dataset_uri);
+//            }
+            String[] splitted = dataset_uri.split("/");
+            dataset = datasetLegacyWrapper.find(splitted[splitted.length - 1]);
+
             progress(10f, "Dataset retrieved successfully.");
             checkCancelled();
 
@@ -164,9 +169,16 @@ public class ExternalValidationProcedure extends AbstractJaqpotProcedure {
             checkCancelled();
 
             ValidationType validationType;
-            if (model.getAlgorithm().getOntologicalClasses().contains("ot:Regression")) {
+            
+            if(validation_from_ui.contains("REGRESSION")){
                 validationType = ValidationType.REGRESSION;
-            } else if (model.getAlgorithm().getOntologicalClasses().contains("ot:Classification")) {
+            }
+            else if(validation_from_ui.contains("CLASSIFICATION")){
+                validationType = ValidationType.CLASSIFICATION;
+            }
+            else if (model.getAlgorithm().getOntologicalClasses() != null && model.getAlgorithm().getOntologicalClasses().contains("ot:Regression")) {
+                validationType = ValidationType.REGRESSION;
+            } else if (model.getAlgorithm().getOntologicalClasses() != null && model.getAlgorithm().getOntologicalClasses().contains("ot:Classification")) {
                 validationType = ValidationType.CLASSIFICATION;
             } else {
                 throw new IllegalArgumentException("Selected Algorithm is neither Regression nor Classification.");
@@ -186,8 +198,8 @@ public class ExternalValidationProcedure extends AbstractJaqpotProcedure {
 
             progress(92f, "Validation info populated successfully");
             checkCancelled();
-
-            Report report = client.target(propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_BASE_VALIDATION))
+                        
+            Report report = client.target(propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_BASE_VALIDATION))
                     .request()
                     .header("Content-Type", MediaType.APPLICATION_JSON)
                     .accept(MediaType.APPLICATION_JSON)

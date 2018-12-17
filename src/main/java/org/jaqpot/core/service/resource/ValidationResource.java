@@ -366,6 +366,7 @@ public class ValidationResource {
     public Response externalValidateAlgorithm(
             @FormParam("model_uri") String modelURI,
             @FormParam("test_dataset_uri") String datasetURI,
+            @FormParam("validation_type") String validationType,
             @HeaderParam("Authorization") String api_key
     ) throws QuotaExceededException, ParameterIsNullException, ParameterInvalidURIException,JaqpotDocumentSizeExceededException {
         if (modelURI==null)
@@ -386,13 +387,13 @@ public class ValidationResource {
                     + "No more than " + maxAllowedReports + " are allowed with your subscription.");
         }
 
-        UrlValidator urlValidator = new UrlValidator();
-        if (!urlValidator.isValid(modelURI)) {
-            throw new ParameterInvalidURIException("Not valid model URI.");
-        }
-        if (!urlValidator.isValid(datasetURI)) {
-            throw new ParameterInvalidURIException("Not valid dataset URI.");
-        }
+//        UrlValidator urlValidator = new UrlValidator();
+//        if (!urlValidator.isValid(modelURI)) {
+//            throw new ParameterInvalidURIException("Not valid model URI.");
+//        }
+//        if (!urlValidator.isValid(datasetURI)) {
+//            throw new ParameterInvalidURIException("Not valid dataset URI.");
+//        }
 
         Task task = new Task(new ROG(true).nextString(12));
         task.setMeta(
@@ -416,7 +417,7 @@ public class ValidationResource {
         options.put("type", "EXTERNAL");
         options.put("api_key", apiKey);
         options.put("creator", user.getId());
-
+        options.put("validation_type", validationType );
 
         taskHandler.create(task);
         jmsContext.createProducer().setDeliveryDelay(1000).send(externalValidationQueue, options);
