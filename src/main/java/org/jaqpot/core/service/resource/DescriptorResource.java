@@ -1,6 +1,7 @@
 package org.jaqpot.core.service.resource;
 
 import io.swagger.annotations.*;
+import javassist.runtime.Desc;
 import org.apache.commons.validator.routines.UrlValidator;
 import org.jaqpot.core.annotations.Jackson;
 import org.jaqpot.core.data.DatasetHandler;
@@ -17,6 +18,7 @@ import org.jaqpot.core.service.annotations.TokenSecured;
 import org.jaqpot.core.service.authentication.RoleEnum;
 import org.jaqpot.core.service.data.DescriptorService;
 import org.jaqpot.core.service.exceptions.JaqpotDocumentSizeExceededException;
+import org.jaqpot.core.service.exceptions.JaqpotForbiddenException;
 import org.jaqpot.core.service.exceptions.QuotaExceededException;
 import org.jaqpot.core.service.exceptions.parameter.*;
 import org.jaqpot.core.service.validator.ParameterValidator;
@@ -95,7 +97,7 @@ public class DescriptorResource {
 
     })
     public Response getDescriptors(
-            @ApiParam(value = "Authorization token") @HeaderParam("apiKey") String apiKey,
+            @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String apiKey,
             @ApiParam(value = "start", defaultValue = "0") @QueryParam("start") Integer start,
             @ApiParam(value = "max", defaultValue = "10") @QueryParam("max") Integer max) {
         return Response
@@ -286,4 +288,50 @@ public class DescriptorResource {
 
         return Response.ok(task).build();
     }
+
+    @DELETE
+    @TokenSecured({RoleEnum.ADMNISTRATOR})
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/{id}")
+    @ApiOperation(value = "Unregisters a descriptor of given ID",
+            notes = "Deletes a descriptor of given ID. The application of this method "
+                    + "requires authentication and assumes certain priviledges.",
+            extensions = {
+                    @Extension(properties = {
+                            @ExtensionProperty(name = "orn-@type", value = "x-orn:DeletesDescriptor"),
+                    }
+                    ),
+                    @Extension(name = "orn:expects",properties={
+                            @ExtensionProperty(name = "x-orn-@id", value = "x-orn:DescriptorId"),
+                            @ExtensionProperty(name = "x-orn-@id", value = "x-orn:OperationParameters")
+                    }),
+                    @Extension(name = "orn:returns",properties={
+                            @ExtensionProperty(name = "x-orn-@id", value = "x-orn:HttpStatus")
+                    })
+            }
+
+    )
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Descriptor deleted successfully"),
+            @ApiResponse(code = 401, response=  ErrorReport.class,message = "Wrong, missing or insufficient credentials. Error report is produced."),
+            @ApiResponse(code = 403, response=  ErrorReport.class,message = "This is a forbidden operation (do not attempt to repeat it)."),
+            @ApiResponse(code = 500, response=  ErrorReport.class, message = "Internal server error - this request cannot be served.")
+    })
+    public Response deleteDescriptor(
+            @ApiParam(value = "ID of the descriptor which is to be deleted.", required = true) @PathParam("id") String id,
+            @HeaderParam("Authorization") String apiKey) throws NotFoundException, ParameterIsNullException {
+
+        if (id == null) {
+            throw new ParameterIsNullException("id");
+        }
+
+        Descriptor descriptor = descriptorHandler.find(id);
+
+        if (descriptor==null)
+            throw new NotFoundException("Descriptor with id "+id +" was not found in the system");
+
+        descriptorHandler.remove(new Descriptor(id));
+        return Response.ok().build();
+    }
+
 }
