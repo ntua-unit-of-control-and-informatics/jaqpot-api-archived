@@ -97,7 +97,7 @@ public class DescriptorResource {
 
     })
     public Response getDescriptors(
-            @ApiParam(value = "Authorization token") @HeaderParam("apiKey") String apiKey,
+            @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String apiKey,
             @ApiParam(value = "start", defaultValue = "0") @QueryParam("start") Integer start,
             @ApiParam(value = "max", defaultValue = "10") @QueryParam("max") Integer max) {
         return Response
@@ -319,7 +319,7 @@ public class DescriptorResource {
     })
     public Response deleteDescriptor(
             @ApiParam(value = "ID of the descriptor which is to be deleted.", required = true) @PathParam("id") String id,
-            @HeaderParam("apiKey") String apiKey) throws ParameterIsNullException, JaqpotForbiddenException {
+            @HeaderParam("Authorization") String apiKey) throws NotFoundException, ParameterIsNullException {
 
         if (id == null) {
             throw new ParameterIsNullException("id");
@@ -327,15 +327,8 @@ public class DescriptorResource {
 
         Descriptor descriptor = descriptorHandler.find(id);
 
-        MetaInfo metaInfo = descriptor.getMeta();
-        if (metaInfo.getLocked())
-            throw new JaqpotForbiddenException("You cannot delete an Algorithm that is locked.");
-
-        String userName = securityContext.getUserPrincipal().getName();
-
-        if (!descriptor.getMeta().getCreators().contains(userName)) {
-            return Response.status(Response.Status.FORBIDDEN).entity("You cannot delete an Algorithm that was not created by you.").build();
-        }
+        if (descriptor==null)
+            throw new NotFoundException("Descriptor with id "+id +" was not found in the system");
 
         descriptorHandler.remove(new Descriptor(id));
         return Response.ok().build();
