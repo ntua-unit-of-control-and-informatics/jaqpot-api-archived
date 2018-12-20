@@ -897,7 +897,7 @@ public class DatasetResource {
     private void calculateRowsAndColumns(Dataset dataset, InputStream stream) {
         Scanner scanner = new Scanner(stream);
 
-        Set<FeatureInfo> featureInfoList = new HashSet<>();
+        Set<FeatureInfo> featureInfoList = new LinkedHashSet<>();
         List<DataEntry> dataEntryList = new ArrayList<>();
         List<String> feature = new LinkedList<>();
         boolean firstLine = true;
@@ -907,7 +907,7 @@ public class DatasetResource {
             List<String> line = parseLine(scanner.nextLine());
             if (firstLine) {
                 for (String l : line) {
-                   String pseudoURL = "/feature/" + l.trim().replaceAll("[ .]","_"); //uriInfo.getBaseUri().toString()+
+                   String pseudoURL = "/feature/"+count+"_"+l.trim().replaceAll("[ .]","_"); //uriInfo.getBaseUri().toString()+
                     feature.add(pseudoURL);
                     featureInfoList.add(new FeatureInfo(pseudoURL, l,"NA",new HashMap<>(),Dataset.DescriptorCategory.EXPERIMENTAL));
                 }
@@ -940,8 +940,13 @@ public class DatasetResource {
     }
 
     private void populateFeatures(Dataset dataset) throws JaqpotDocumentSizeExceededException {
+        int count =0;
         for (FeatureInfo featureInfo : dataset.getFeatures()) {
-            String trimmedFeatureURI = propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_BASE_SERVICE)+"feature/"+featureInfo.getName().replaceAll("\\s+"," ").replaceAll("[ .]","_")+"_" + new ROG(true).nextString(12);;
+
+            //Lead feature Id with ascending integer to "sort" by insertion order
+            Integer paddingSize = dataset.getFeatures().size()/10+1;
+            String formatted = String.format("%0" + paddingSize + "d", count++);
+            String trimmedFeatureURI = propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_BASE_SERVICE)+"feature/"+formatted+"_" +featureInfo.getName().replaceAll("\\s+"," ").replaceAll("[ .]","_")+"_" + new ROG(true).nextString(12);;
 
             String trimmedFeatureName= featureInfo.getName().replaceAll("\\s+"," ").replaceAll("[.]","_").replaceAll("[.]","_");
 
