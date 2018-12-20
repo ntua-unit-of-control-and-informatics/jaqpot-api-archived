@@ -45,6 +45,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.logging.Logger;
 import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.InternalServerErrorException;
@@ -62,6 +63,9 @@ import org.jaqpot.core.service.httphandlers.SwaggerLdHandler;
 @SwaggerDefinition
 public class SwaggerLdResource {
 
+    
+    private static final Logger LOG = Logger.getLogger(SwaggerLdResource.class.getName());
+    
     @Inject
     PropertyManager pm;
 
@@ -74,11 +78,14 @@ public class SwaggerLdResource {
             notes = "Implements long polling",
             response = Swagger.class)
     public Response getSwaggerLd() {
-        String jaqBase = pm.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_BASE);
-        String port = pm.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_PORT);
-        String host = pm.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_HOST);
-        String swagUri = "http://" + host + ":" + port + jaqBase + "/swagger.json";
+//        String jaqBase = pm.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_BASE);
+//        String port = pm.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_PORT);
+//        String host = pm.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_HOST);
+//        String swagUri = "http://" + host + ":" + port + jaqBase + "/swagger.json";
 
+        
+        String swagUri = "http://localhost:8080/jaqpot/services/swagger.json";
+        LOG.info(swagUri);
         URL url = null;
         HttpURLConnection con = null;
         InputStream response = null;
