@@ -36,8 +36,11 @@ import org.apache.commons.validator.routines.UrlValidator;
 import org.jaqpot.core.data.*;
 import org.jaqpot.core.data.wrappers.DatasetLegacyWrapper;
 import org.jaqpot.core.model.*;
+import org.jaqpot.core.model.Feature;
+import org.jaqpot.core.model.builder.FeatureBuilder;
 import org.jaqpot.core.model.builder.MetaInfoBuilder;
 import org.jaqpot.core.model.dto.dataset.Dataset;
+import org.jaqpot.core.model.dto.dataset.EntryId;
 import org.jaqpot.core.model.dto.jpdi.TrainingRequest;
 import org.jaqpot.core.model.facades.UserFacade;
 import org.jaqpot.core.model.factory.DatasetFactory;
@@ -77,6 +80,8 @@ import org.jaqpot.core.service.filter.AuthorizationEnum;
 import org.jboss.resteasy.plugins.providers.multipart.InputPart;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput;
 
+import static org.jaqpot.core.util.CSVUtils.parseLine;
+
 /**
  *
  * @author Charalampos Chomenidis
@@ -88,6 +93,12 @@ import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput;
 public class DatasetResource {
 
     private static final Logger LOG = Logger.getLogger(DatasetResource.class.getName());
+
+    @Inject
+    PropertyManager propertyManager;
+
+    @EJB
+    FeatureHandler featureHandler;
 
     @EJB
     DatasetHandler datasetHandler;
@@ -1152,4 +1163,137 @@ public class DatasetResource {
 
     }
 
+    @POST
+    @TokenSecured({RoleEnum.DEFAULT_USER})
+    @Path("/csv")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "file", value = "xls[m,x] file", required = true, dataType = "file", paramType = "formData"),
+            @ApiImplicitParam(name = "title", value = "Title of dataset", required = true, dataType = "string", paramType = "formData"),
+            @ApiImplicitParam(name = "description", value = "Description of dataset", required = true, dataType = "string", paramType = "formData")
+    })
+    @ApiOperation(value = "Creates dataset By .csv document",
+            notes = "Creates features/substances, returns Dataset",
+            response = Dataset.class
+    )
+    public Response createDummyDataset(
+            @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String subjectId,
+            @ApiParam(value = "multipartFormData input", hidden = true) MultipartFormDataInput input)
+            throws ParameterIsNullException, ParameterInvalidURIException, QuotaExceededException, IOException, ParameterScopeException, ParameterRangeException, ParameterTypeException, URISyntaxException, JaqpotDocumentSizeExceededException {
+
+        User user = userHandler.find(securityContext.getUserPrincipal().getName());
+        long datasetCount = datasetHandler.countAllOfCreator(user.getId());
+        int maxAllowedDatasets = new UserFacade(user).getMaxDatasets();
+
+        if (datasetCount > maxAllowedDatasets) {
+            LOG.info(String.format("User %s has %d datasets while maximum is %d",
+                    user.getId(), datasetCount, maxAllowedDatasets));
+            throw new QuotaExceededException("Dear " + user.getId()
+                    + ", your quota has been exceeded; you already have " + datasetCount + " datasets. "
+                    + "No more than " + maxAllowedDatasets + " are allowed with your subscription.");
+        }
+
+        Dataset dataset = new Dataset();
+        Map<String, List<InputPart>> uploadForm = input.getFormDataMap();
+        dataset.setFeatured(Boolean.FALSE);
+
+        dataset.setMeta(MetaInfoBuilder.builder()
+                .addTitles(uploadForm.get("title").get(0).getBodyAsString())
+                .addDescriptions(uploadForm.get("description").get(0).getBodyAsString())
+                .build()
+        );
+
+        List<InputPart> inputParts = uploadForm.get("file");
+        for (InputPart inputPart : inputParts) {
+
+            try {
+                MultivaluedMap<String, String> header = inputPart.getHeaders();
+                InputStream inputStream = inputPart.getBody(InputStream.class, null);
+                calculateRowsAndColumns(dataset, inputStream);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        populateFeatures(dataset);
+
+        ROG randomStringGenerator = new ROG(true);
+        dataset.setId(randomStringGenerator.nextString(14));
+        dataset.setFeatured(Boolean.FALSE);
+        if (dataset.getMeta() == null) {
+            dataset.setMeta(new MetaInfo());
+        }
+        dataset.getMeta().setCreators(new HashSet<>(Arrays.asList(securityContext.getUserPrincipal().getName())));
+        dataset.setVisible(Boolean.TRUE);
+        datasetLegacyWrapper.create(dataset);
+
+        return Response.created(new URI(dataset.getId())).entity(dataset).build();
+
+    }
+
+    private void calculateRowsAndColumns(Dataset dataset, InputStream stream) {
+        Scanner scanner = new Scanner(stream);
+
+        Set<FeatureInfo> featureInfoList = new HashSet<>();
+        List<DataEntry> dataEntryList = new ArrayList<>();
+        List<String> feature = new LinkedList<>();
+        boolean firstLine = true;
+        int count = 0;
+        while (scanner.hasNext()) {
+
+            List<String> line = parseLine(scanner.nextLine());
+            if (firstLine) {
+                for (String l : line) {
+                    String pseudoURL = "/feature/" + l.trim().replaceAll("[ .]","_"); //uriInfo.getBaseUri().toString()+
+                    feature.add(pseudoURL);
+                    featureInfoList.add(new FeatureInfo(pseudoURL, l,"NA",new HashMap<>(),Dataset.DescriptorCategory.EXPERIMENTAL));
+                }
+                firstLine = false;
+            } else {
+                Iterator<String> it1 = feature.iterator();
+                Iterator<String> it2 = line.iterator();
+                TreeMap<String, Object> values = new TreeMap<>();
+                while (it1.hasNext() && it2.hasNext()) {
+                    String it = it2.next();
+                    if (!NumberUtils.isParsable(it))
+                        values.put(it1.next(), it);
+                    else
+                        values.put(it1.next(),Float.parseFloat(it));
+                }
+
+                DataEntry dataEntry = new DataEntry();
+                dataEntry.setValues(values);
+                EntryId entryId = new EntryId();
+                entryId.setName("row" + count);
+                entryId.setURI(propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_BASE_SERVICE)+"substance/"+ new ROG(true).nextString(12));
+                entryId.setOwnerUUID("7da545dd-2544-43b0-b834-9ec02553f7f2");
+
+                dataEntry.setEntryId(entryId);
+                dataEntryList.add(dataEntry);
+            }
+            count++;
+        }
+        scanner.close();
+        dataset.setFeatures(featureInfoList);
+        dataset.setDataEntry(dataEntryList);
+    }
+
+    private void populateFeatures(Dataset dataset) throws JaqpotDocumentSizeExceededException {
+        for (FeatureInfo featureInfo : dataset.getFeatures()) {
+            String trimmedFeatureURI = propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_BASE_SERVICE)+"feature/"+featureInfo.getName().replaceAll("\\s+"," ").replaceAll("[ .]","_")+"_" + new ROG(true).nextString(12);
+
+            String trimmedFeatureName= featureInfo.getName().replaceAll("\\s+"," ").replaceAll("[.]","_").replaceAll("[.]","_");
+
+            Feature f = FeatureBuilder.builder(trimmedFeatureURI.split("feature/")[1])
+                    .addTitles(featureInfo.getName()).build();
+            featureHandler.create(f);
+
+            //Update FeatureURIS in Data Entries
+            for (DataEntry dataentry : dataset.getDataEntry()) {
+                Object value = dataentry.getValues().remove(featureInfo.getURI());
+                dataentry.getValues().put(trimmedFeatureURI,value);
+            }
+            //Update FeatureURI in Feature Info
+            featureInfo.setURI(trimmedFeatureURI);
+            featureInfo.setName(trimmedFeatureName);
+        }
+    }
 }
