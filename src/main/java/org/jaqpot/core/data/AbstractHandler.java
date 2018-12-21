@@ -155,7 +155,6 @@ public abstract class AbstractHandler<T extends JaqpotEntity>  {
         Map<String, Object> properties = new HashMap<>();
         properties.put("meta.creators", Arrays.asList(createdBy));
         properties.put("visible", true);
-        fields.add("organizations");
         return getEntityManager().findSortedDesc(entityClass, properties, fields, start, max, Arrays.asList("meta.date"));
     }
 
@@ -167,6 +166,15 @@ public abstract class AbstractHandler<T extends JaqpotEntity>  {
         Map<String, Object> properties = new HashMap<>();
         properties.put("meta.creators", Arrays.asList(createdBy));
         properties.put("visible", true);
+
+        return getEntityManager().count(entityClass, properties);
+    }
+    
+    public Long countAllOfCreatorAndOrg(String createdBy, String organization) {
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("meta.creators", Arrays.asList(createdBy));
+        properties.put("visible", true);
+        properties.put("meta.read", organization);
 
         return getEntityManager().count(entityClass, properties);
     }

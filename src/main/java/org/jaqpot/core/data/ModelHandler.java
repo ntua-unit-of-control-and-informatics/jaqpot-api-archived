@@ -111,6 +111,7 @@ public class ModelHandler extends AbstractHandler<Model> {
         fields.add("datasetUri");
         fields.add("parameters");
         fields.add("organizations");
+        fields.add("meta");
         return em.findAll(Model.class, fields, 0, Integer.MAX_VALUE);
     }
 
@@ -132,7 +133,7 @@ public class ModelHandler extends AbstractHandler<Model> {
         fields.add("transformationModels");
         fields.add("linkedModels");
         fields.add("additionalInfo");
-        fields.add("organizations");
+        fields.add("meta");
         return em.find(Model.class, keys, fields).stream().findFirst().orElse(null);
     }
 

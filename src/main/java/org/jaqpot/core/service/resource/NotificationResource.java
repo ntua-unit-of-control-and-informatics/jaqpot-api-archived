@@ -103,7 +103,7 @@ public class NotificationResource {
 
 
         String currentUserID = securityContext.getUserPrincipal().getName();
-        Long countedNots = notifHandler.countAllOfCreator(currentUserID);
+        Long countedNots = notifHandler.countAllOfOwnersUnviewed(currentUserID);
         
         if(start == null){
             start = 0;

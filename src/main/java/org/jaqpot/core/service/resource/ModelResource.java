@@ -135,7 +135,7 @@ public class ModelResource {
 
     @EJB
     Rights rights;
-    
+
     @Context
     SecurityContext securityContext;
 
@@ -187,9 +187,28 @@ public class ModelResource {
         if (max == null || max > 500) {
             max = 500;
         }
+
         String creator = securityContext.getUserPrincipal().getName();
-        return Response.ok(modelHandler.listMetaOfCreator(creator, start != null ? start : 0, max))
-                .header("total", modelHandler.countAllOfCreator(creator))
+
+        List<Model> modelsFound = new ArrayList();
+        Long total = null;
+        if (organization == null) {
+            modelsFound.addAll(modelHandler.listMetaOfCreator(creator, start != null ? start : 0, max));
+            total = modelHandler.countAllOfCreator(creator);
+        } else {
+            List<String> fields = new ArrayList<>();
+            fields.add("_id");
+            fields.add("meta");
+            fields.add("predictedFeatures");
+            fields.add("independentFeatures");
+            Map<String, Object> properties = new HashMap<>();
+
+            properties.put("meta.read", organization);
+            modelsFound.addAll(modelHandler.find(properties, fields, start, max));
+            total = modelHandler.countAllOfCreatorAndOrg(creator, organization);
+        }
+        return Response.ok(modelsFound)
+                .header("total", total)
                 .build();
     }
 
@@ -544,7 +563,7 @@ public class ModelResource {
             @ApiParam(name = "dataset_uri", required = true) @FormParam("dataset_uri") String datasetURI,
             @FormParam("visible") Boolean visible,
             @PathParam("id") String id,
-            @HeaderParam("Authorization") String api_key) throws GeneralSecurityException, QuotaExceededException, ParameterIsNullException, ParameterInvalidURIException,JaqpotDocumentSizeExceededException {
+            @HeaderParam("Authorization") String api_key) throws GeneralSecurityException, QuotaExceededException, ParameterIsNullException, ParameterInvalidURIException, JaqpotDocumentSizeExceededException {
         String[] apiA = api_key.split("\\s+");
         String apiKey = apiA[1];
         if (datasetURI == null) {
@@ -699,8 +718,8 @@ public class ModelResource {
             pretrainedIndependentFeatures.add(featURI);
             independentFeaturesForAdd.put(featURI, indf);
         });
-        
-        additionalInfo.put("fromUser",pretrainedModelRequest.getAdditionalInfo());
+
+        additionalInfo.put("fromUser", pretrainedModelRequest.getAdditionalInfo());
         additionalInfo.put("independentFeatures", independentFeaturesForAdd);
         model.setIndependentFeatures(pretrainedIndependentFeatures);
 
@@ -814,8 +833,6 @@ public class ModelResource {
         datasetLegacyWrapper.create(datasetForPretrained);
 
         //datasetHandler.create(datasetForPretrained);
-
-
         String datasetURI = propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_BASE_SERVICE) + "dataset/" + datasetForPretrained.getId();
         model.setDatasetUri(datasetURI);
         modelHandler.create(model);
@@ -946,7 +963,7 @@ public class ModelResource {
 
         return Response.status(Response.Status.OK).entity(dataset).build();
     }
-    
+
     @PUT
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Consumes(MediaType.APPLICATION_JSON)
@@ -967,7 +984,7 @@ public class ModelResource {
             @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key,
             @PathParam("id") String id,
             Model modelForUpdate) throws URISyntaxException, JaqpotDocumentSizeExceededException, JaqpotNotAuthorizedException {
-        
+
         String userId = securityContext.getUserPrincipal().getName();
         Model model = modelHandler.find(id);
         if (model == null) {
@@ -975,9 +992,9 @@ public class ModelResource {
         }
         User user = userHandler.find(userId);
         Boolean canUpdate = rights.canWrite(modelForUpdate.getMeta(), user);
-        if(canUpdate == true){
+        if (canUpdate == true) {
             modelHandler.updateMeta(id, modelForUpdate.getMeta());
-        }else{
+        } else {
             throw new JaqpotNotAuthorizedException("You are not authorized to update this resource");
         }
         return Response.accepted().entity(modelForUpdate.getMeta()).build();

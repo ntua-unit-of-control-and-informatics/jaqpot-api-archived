@@ -70,6 +70,13 @@ public class NotificationHandler extends AbstractHandler<Notification> {
         return em.count(Notification.class, properties);
     }
     
+    public Long countAllOfOwnersUnviewed(String owner){
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("owner", owner);
+        properties.put("viewed", false);
+        return em.count(Notification.class, properties);
+    }
+    
     public List<Notification> getOwnersNotifs(String owner, String query, int start, int end) {
         Map<String, Object> properties = new HashMap<>();
         properties.put("owner", owner);
