@@ -96,6 +96,7 @@ public class PropertyManager {
         OIDC_CLIENT_PASS("oidc.client.pass", "config", "9dccac19-23c6-49be-83be-8f07859d263f"),
         OIDC_PROVIDER_CONF("oidc.provider.conf", "config", ".well-known/openid-configuration");
         
+        
         private final String name;
         private final String bundle;
         private final String defaultValue;

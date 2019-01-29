@@ -59,6 +59,8 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import java.util.HashMap;
 import java.util.logging.Logger;
+import org.jaqpot.core.service.annotations.TokenSecured;
+import org.jaqpot.core.service.authentication.RoleEnum;
 
 /**
  *
@@ -94,6 +96,7 @@ public class InterLabTestingResource {
 
     @POST
     @Path("/test")
+    @TokenSecured({RoleEnum.DEFAULT_USER})
     @ApiOperation(value = "Creates Interlab Testing Report",
             notes = "Creates Interlab Testing Report",
             response = Report.class
