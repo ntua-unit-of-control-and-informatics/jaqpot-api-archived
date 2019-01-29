@@ -118,6 +118,10 @@ public abstract class AbstractHandler<T extends JaqpotEntity>  {
     public List<T> findAll(Integer start, Integer max) {
         return getEntityManager().findAll(entityClass, start, max);
     }
+    
+    public List<T> findAllAndNe( Map<String, Object> properties,Map<String, Object> neProperties, List<String> fields, Integer start, Integer max){
+        return getEntityManager().findAndNe(entityClass, properties, neProperties, fields, start, max);
+    }
 
     public List<T> findFeatured(Integer start, Integer max) {
         List<String> fields = new ArrayList<>();
@@ -155,7 +159,10 @@ public abstract class AbstractHandler<T extends JaqpotEntity>  {
         Map<String, Object> properties = new HashMap<>();
         properties.put("meta.creators", Arrays.asList(createdBy));
         properties.put("visible", true);
-        return getEntityManager().findSortedDesc(entityClass, properties, fields, start, max, Arrays.asList("meta.date"));
+        Map<String, Object> notProperties = new HashMap<>();
+        notProperties.put("onTrash", true);
+        
+        return getEntityManager().findSortedDescAndNe(entityClass, properties, notProperties , fields, start, max, Arrays.asList("meta.date"));
     }
 
     public Long countAll() {
@@ -166,16 +173,25 @@ public abstract class AbstractHandler<T extends JaqpotEntity>  {
         Map<String, Object> properties = new HashMap<>();
         properties.put("meta.creators", Arrays.asList(createdBy));
         properties.put("visible", true);
-
-        return getEntityManager().count(entityClass, properties);
+        Map<String, Object> notProperties = new HashMap<>();
+        notProperties.put("onTrash", true);
+        return getEntityManager().countAndNe(entityClass, properties, notProperties);
     }
     
-    public Long countAllOfCreatorAndOrg(String createdBy, String organization) {
+    public Long countAllOfOrg(String createdBy, String organization) {
         Map<String, Object> properties = new HashMap<>();
         properties.put("meta.creators", Arrays.asList(createdBy));
         properties.put("visible", true);
-        properties.put("meta.read", organization);
-
+//        properties.put("meta.read", organization);
+        Map<String, Object> notProperties = new HashMap<>();
+        notProperties.put("onTrash", true);
+        return getEntityManager().countAndNe(entityClass, properties, notProperties);
+    }
+    
+    public Long countCreatorsInTrash(String createdBy){
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("meta.creators", Arrays.asList(createdBy));
+        properties.put("onTrash", true);
         return getEntityManager().count(entityClass, properties);
     }
 

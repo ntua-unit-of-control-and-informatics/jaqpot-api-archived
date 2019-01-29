@@ -125,7 +125,7 @@ public class ModelHandler extends AbstractHandler<Model> {
         fields.add("dependentFeatures");
         fields.add("independentFeatures");
         fields.add("predictedFeatures");
-        fields.add("algorithm._id");
+        fields.add("algorithm");
         fields.add("bibtex");
         fields.add("datasetUri");
         fields.add("parameters");

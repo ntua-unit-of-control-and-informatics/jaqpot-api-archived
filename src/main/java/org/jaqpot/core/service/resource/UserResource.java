@@ -153,7 +153,7 @@ public class UserResource {
     @GET
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @TokenSecured({RoleEnum.DEFAULT_USER})
-    @Path("/ids")
+    @Path("/search/and/found")
     @ApiOperation(value = "Finds User from partial given username",
             notes = "Finds all users queried")
     @ApiResponses(value = {

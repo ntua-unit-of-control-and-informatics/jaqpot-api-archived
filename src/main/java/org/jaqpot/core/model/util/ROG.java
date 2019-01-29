@@ -61,6 +61,14 @@ public class ROG {
         //}
         return UUID.randomUUID().toString().replaceAll("-","");//sb.toString();
     }
+    
+    public String nextStringId(final int len){
+        StringBuilder sb = new StringBuilder(len);
+        for (int i = 0; i < len; i++) {
+            sb.append(AB.charAt(rnd.nextInt(AB.length())));
+        }
+        return sb.toString();
+    }
 
     public MetaInfo nextMeta() {
         return MetaInfoBuilder.builder()

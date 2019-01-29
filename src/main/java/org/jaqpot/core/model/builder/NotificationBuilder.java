@@ -131,6 +131,12 @@ public class NotificationBuilder implements EntityBuilder<Notification> {
         notification.getMeta().getTitles().addAll(Arrays.asList(titles));
         return this;
     }
+    
+    public NotificationBuilder setBrokenAffiliation(String orgThrough){
+        this.notification.setAffiliatedOrg(orgThrough);
+        return this;
+    }
+            
 
     public NotificationBuilder addDescriptions(String... descriptions) {
         if (descriptions == null) {

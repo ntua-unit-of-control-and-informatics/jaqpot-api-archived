@@ -32,54 +32,44 @@
  * All source files of JAQPOT Quattro that are stored on github are licensed
  * with the aforementioned licence. 
  */
-package org.jaqpot.core.data;
+package org.jaqpot.core.model;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import javax.ejb.Stateless;
-import javax.inject.Inject;
-import org.jaqpot.core.annotations.MongoDB;
-import org.jaqpot.core.db.entitymanager.JaqpotEntityManager;
-import org.jaqpot.core.model.Model;
-import org.jaqpot.core.model.Organization;
-import org.jaqpot.core.model.User;
-
-
+import com.fasterxml.jackson.annotation.JsonInclude;
+import java.util.Set;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  *
  * @author pantelispanka
  */
-@Stateless
-public class OrganizationHandler extends AbstractHandler<Organization> {
-    
-    
-    @Inject
-    @MongoDB
-    JaqpotEntityManager em;
+@XmlRootElement
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class Runtime extends JaqpotEntity{
+ 
+    /**
+     * Users' implementations are ranked by other users.
+     */
+    private int ranking;
+    /**
+     * BibTeX reference were one can find more info about the algorithm.
+     */
 
-    public OrganizationHandler() {
-        super(Organization.class);
+    private String predictionService;
+
+    public int getRanking() {
+        return ranking;
     }
 
-    @Override
-    protected JaqpotEntityManager getEntityManager() {
-        return em;
+    public void setRanking(int ranking) {
+        this.ranking = ranking;
     }
-    
-    public List<Organization> findAllWithPattern(Map<String, Object> searchFor) {
-        Map<String, Object> properties = new HashMap<>();
-        searchFor.keySet().forEach((key) -> {
-            Object pattern = ".*" + searchFor.get(key) + ".*";
-            properties.put(key, pattern);
-        });
 
-        List<String> fields = new ArrayList<>();
-        fields.add("_id");
-
-        return em.findAllWithReqexp(Organization.class, properties, fields, 0, Integer.MAX_VALUE);
+    public String getPredictionService() {
+        return predictionService;
     }
-    
+
+    public void setPredictionService(String predictionService) {
+        this.predictionService = predictionService;
+    }
+
 }

@@ -42,8 +42,12 @@ import io.swagger.annotations.ApiResponses;
 import io.swagger.annotations.Extension;
 import io.swagger.annotations.ExtensionProperty;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.ejb.EJB;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.DELETE;
@@ -70,10 +74,12 @@ import org.jaqpot.core.model.Organization;
 import org.jaqpot.core.model.User;
 import org.jaqpot.core.model.builder.MetaInfoBuilder;
 import org.jaqpot.core.model.facades.UserFacade;
+import org.jaqpot.core.model.factory.NotificationFactory;
 import org.jaqpot.core.model.factory.OrganizationFactory;
 import org.jaqpot.core.service.annotations.TokenSecured;
 import org.jaqpot.core.service.authentication.AAService;
 import org.jaqpot.core.service.authentication.RoleEnum;
+import org.jaqpot.core.service.exceptions.JaqpotDocumentSizeExceededException;
 import org.jaqpot.core.service.exceptions.JaqpotNotAuthorizedException;
 import org.jaqpot.core.service.exceptions.QuotaExceededException;
 
@@ -91,16 +97,16 @@ public class OrganizationResource {
 
     @EJB
     UserHandler userHandler;
-    
+
     @Context
     SecurityContext securityContext;
-    
+
     @EJB
     AAService aaService;
-    
+
     @EJB
     NotificationHandler notificationHandler;
-    
+
     @GET
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @ApiOperation(
@@ -132,7 +138,7 @@ public class OrganizationResource {
                 .header("total", orgHandler.countAll())
                 .build();
     }
-    
+
     @GET
     @Path("/{id}/users")
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
@@ -159,7 +165,7 @@ public class OrganizationResource {
     })
     public Response getOrganizationUsers(
             @PathParam("id") String id) {
-        
+
         List<String> fields = new ArrayList();
         fields.add("userIds");
         Organization orgUsers = orgHandler.find(id, fields);
@@ -167,8 +173,7 @@ public class OrganizationResource {
                 .ok(orgUsers)
                 .build();
     }
-    
-    
+
     @POST
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @TokenSecured({RoleEnum.DEFAULT_USER})
@@ -198,14 +203,14 @@ public class OrganizationResource {
         String userId = securityContext.getUserPrincipal().getName();
         Long allready = orgHandler.countAllOfCreator(userId);
         User user = userHandler.find(userId);
-        int maxOrgs =  new UserFacade(user).getMaxOrganizationsCreator();
-        if(allready > maxOrgs){
+        int maxOrgs = new UserFacade(user).getMaxOrganizationsCreator();
+        if (allready > maxOrgs) {
             throw new QuotaExceededException("Dear " + user.getName()
                     + ", your quota has been exceeded; you already created " + allready + "organizations. "
                     + "No more than " + maxOrgs + " are allowed with your subscription.");
         }
         Organization organizationToBe = OrganizationFactory.buildOrgFromId(org.getId());;
-        try{
+        try {
             organizationToBe.setContact(user.getMail());
             MetaInfo mf = MetaInfoBuilder.builder()
                     .addAudiences()
@@ -220,16 +225,15 @@ public class OrganizationResource {
             orgHandler.create(organizationToBe);
             user.getOrganizations().add(org.getId());
             userHandler.edit(user);
-        }catch(Exception e){
+        } catch (Exception e) {
             throw new BadRequestException(e.getMessage());
         }
-        
+
         return Response
                 .ok(organizationToBe)
                 .build();
     }
-    
-    
+
     @GET
     @Path("/{id}")
     @TokenSecured({RoleEnum.DEFAULT_USER})
@@ -262,8 +266,59 @@ public class OrganizationResource {
                 .build();
     }
 
+//    @PUT
+//    @Path("/{id}")
+//    @TokenSecured({RoleEnum.DEFAULT_USER})
+//    @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
+//    @ApiOperation(
+//            value = "Updates Organization",
+//            notes = "Updates Organization on Jaqpot by id",
+//            extensions = {
+//                @Extension(properties = {
+//            @ExtensionProperty(name = "orn-@type", value = "x-orn:Organization"),}
+//                )
+//                ,
+//                @Extension(name = "orn:returns", properties = {
+//            @ExtensionProperty(name = "x-orn-@id", value = "x-orn:Organization")
+//        })
+//            }
+//    )
+//    @ApiResponses(value = {
+//        @ApiResponse(code = 401, response = ErrorReport.class, message = "Wrong, missing or insufficient credentials. Error report is produced.")
+//        ,
+//            @ApiResponse(code = 200, response = Organization.class, responseContainer = "List", message = "A list of algorithms in the Jaqpot framework")
+//        ,
+//            @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
+//
+//    })
+//    public Response updateOrganizationById(
+//            @PathParam("id") String id,
+//            @ApiParam(value = "Clients need to authenticate in order to access this resource")
+//            @HeaderParam("Authorization") String api_key,
+//            Organization orgForUpdate) throws JaqpotNotAuthorizedException {
+//        
+//        String userId = securityContext.getUserPrincipal().getName();
+//        
+//        String[] apiA = api_key.split("\\s+");
+//        String apiKey = apiA[1];
+//        if(orgForUpdate.getId().equals("Jaqpot") && aaService.isAdmin(apiKey)){
+//            orgHandler.edit(orgForUpdate);
+//        }
+//        
+//        List<Notification> notifs = notificationHandler.getInvitationsToOrg(userId, orgForUpdate.getId());
+//        if(notifs.size() > 0 || orgForUpdate.getMeta().getCreators().contains(userId)){
+//            orgHandler.edit(orgForUpdate);
+//        }
+//        else{
+//            throw new JaqpotNotAuthorizedException("You are not authorized to edit this Organization");
+//        }
+//        
+//        return Response
+//                .ok(orgHandler.find(orgForUpdate.getId()))
+//                .build();
+//    }
+//    
     @PUT
-    @Path("/{id}")
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @ApiOperation(
@@ -287,33 +342,32 @@ public class OrganizationResource {
             @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
 
     })
-    public Response updateOrganizationById(
-            @PathParam("id") String id,
+    public Response updateOrganization(
             @ApiParam(value = "Clients need to authenticate in order to access this resource")
             @HeaderParam("Authorization") String api_key,
             Organization orgForUpdate) throws JaqpotNotAuthorizedException {
-        
+
         String userId = securityContext.getUserPrincipal().getName();
-        
+
         String[] apiA = api_key.split("\\s+");
         String apiKey = apiA[1];
-        if(orgForUpdate.getId().equals("Jaqpot") && aaService.isAdmin(apiKey)){
+        if (orgForUpdate.getId().equals("Jaqpot") && aaService.isAdmin(apiKey)) {
             orgHandler.edit(orgForUpdate);
         }
-        
+
         List<Notification> notifs = notificationHandler.getInvitationsToOrg(userId, orgForUpdate.getId());
-        if(notifs.size() > 0 || orgForUpdate.getMeta().getCreators().contains(userId)){
+        notifs.addAll(notificationHandler.getAffiliationsToOrg(userId));
+        if (notifs.size() > 0 || orgForUpdate.getMeta().getCreators().contains(userId)) {
             orgHandler.edit(orgForUpdate);
-        }
-        else{
+        } else {
             throw new JaqpotNotAuthorizedException("You are not authorized to edit this Organization");
         }
-        
+
         return Response
                 .ok(orgHandler.find(orgForUpdate.getId()))
                 .build();
     }
-    
+
     @DELETE
     @Path("/{id}")
     @TokenSecured({RoleEnum.DEFAULT_USER})
@@ -331,24 +385,122 @@ public class OrganizationResource {
     })
     public Response deleteOrganizationById(
             @PathParam("id") String id) throws JaqpotNotAuthorizedException {
-        
+
         User user = userHandler.find(securityContext.getUserPrincipal().getName());
         Organization organization = orgHandler.find(id);
-        if(!organization.getId().contains("Jaqpot") && organization.getMeta().getCreators().contains(user.getId()) ){
+        if (!organization.getId().contains("Jaqpot") && organization.getMeta().getCreators().contains(user.getId())) {
             List<String> users = organization.getUserIds();
-            users.forEach(userId ->{
+            users.forEach(userId -> {
                 User userToUpdate = userHandler.find(userId);
                 userToUpdate.getOrganizations().remove(organization.getId());
                 userHandler.edit(userToUpdate);
             });
             orgHandler.remove(organization);
-        }else{
+        } else {
             throw new JaqpotNotAuthorizedException("You are not authorized to delete this Organization");
         }
         return Response
                 .ok(organization).status(Response.Status.ACCEPTED)
                 .build();
     }
-    
-    
+
+    @GET
+    @Produces({MediaType.APPLICATION_JSON})
+    @TokenSecured({RoleEnum.DEFAULT_USER})
+    @Path("/search/and/found")
+    @ApiOperation(value = "Finds Organization from partial given org name",
+            notes = "Finds all users queried")
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "Orgs found")
+        ,
+        @ApiResponse(code = 401, message = "You are not authorized to access this user")
+        ,
+        @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)")
+        ,
+        @ApiResponse(code = 404, message = "No user was not found.")
+        ,
+        @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
+    })
+    public Response getAllOrgs(
+            @QueryParam("orgname") String orgname,
+            @ApiParam(value = "Clients need to authenticate in order to access this resource")
+            @HeaderParam("Authorization") String api_key) throws JaqpotNotAuthorizedException {
+
+        Map<String, Object> search = new HashMap();
+        if (orgname != null) {
+            search.put("_id", orgname);
+        }
+        List<Organization> users = orgHandler.findAllWithPattern(search);
+
+        return Response.ok(users).build();
+    }
+
+    @PUT
+    @Path("/affiliations")
+    @TokenSecured({RoleEnum.DEFAULT_USER})
+    @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
+    @ApiOperation(
+            value = "Updates Organization",
+            notes = "Updates Organization on Jaqpot by id",
+            extensions = {
+                @Extension(properties = {
+            @ExtensionProperty(name = "orn-@type", value = "x-orn:Organization"),}
+                )
+                ,
+                @Extension(name = "orn:returns", properties = {
+            @ExtensionProperty(name = "x-orn-@id", value = "x-orn:Organization")
+        })
+            }
+    )
+    @ApiResponses(value = {
+        @ApiResponse(code = 401, response = ErrorReport.class, message = "Wrong, missing or insufficient credentials. Error report is produced.")
+        ,
+            @ApiResponse(code = 200, response = Organization.class, responseContainer = "List", message = "A list of algorithms in the Jaqpot framework")
+        ,
+            @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
+
+    })
+    public Response updateOrganizationsAffiliations(
+            @ApiParam(value = "Clients need to authenticate in order to access this resource")
+            @HeaderParam("Authorization") String api_key,
+            List<Organization> orgsForUpdate) throws JaqpotNotAuthorizedException {
+
+        String userId = securityContext.getUserPrincipal().getName();
+        String[] apiA = api_key.split("\\s+");
+        String apiKey = apiA[1];
+
+        if (orgsForUpdate.size() != 2) {
+            throw new BadRequestException("Cannot fulfill the reqiest");
+        }
+
+        if (orgsForUpdate.get(0).getMeta().getCreators().contains(userId)
+                || orgsForUpdate.get(1).getMeta().getCreators().contains(userId)) {
+            orgHandler.updateField(orgsForUpdate.get(0).getId(), "affiliations", orgsForUpdate.get(0).getAffiliations());
+            orgsForUpdate.get(0).getUserIds().forEach(useridorg1 -> {
+                Notification notif = NotificationFactory.affiliationBrokenNotification(userId, useridorg1, orgsForUpdate.get(1).getId());
+                try {
+                    notificationHandler.create(notif);
+                } catch (JaqpotDocumentSizeExceededException ex) {
+                    Logger.getLogger(OrganizationResource.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            });
+
+            orgHandler.updateField(orgsForUpdate.get(1).getId(), "affiliations", orgsForUpdate.get(1).getAffiliations());
+            orgsForUpdate.get(1).getUserIds().forEach(useridorg2 -> {
+                Notification notif = NotificationFactory.affiliationBrokenNotification(userId, useridorg2, orgsForUpdate.get(0).getId());
+                try {
+                    notificationHandler.create(notif);
+                } catch (JaqpotDocumentSizeExceededException ex) {
+                    Logger.getLogger(OrganizationResource.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            });
+        } else {
+            throw new JaqpotNotAuthorizedException("You are not authorized to alter the affiliations of these orgs");
+        }
+
+        return Response
+                .accepted()
+                .build();
+    }
+
 }

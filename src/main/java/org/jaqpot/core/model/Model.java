@@ -122,6 +122,8 @@ public class Model extends JaqpotEntity {
      */
     private String algorithmForPretrained;
 
+    private Boolean onTrash;
+    
     public Model() {
     }
 
@@ -315,6 +317,14 @@ public class Model extends JaqpotEntity {
 
     public void setAlgorithmForPretrained(String algorithmForPretrained) {
         this.algorithmForPretrained = algorithmForPretrained;
+    }
+    
+    public Boolean getOnTrash() {
+        return onTrash;
+    }
+
+    public void setOnTrash(Boolean onTrash) {
+        this.onTrash = onTrash;
     }
 
 }

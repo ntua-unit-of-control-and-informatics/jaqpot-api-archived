@@ -71,12 +71,14 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.jaqpot.core.model.dto.dataset.FeatureInfo;
+import org.jaqpot.core.service.exceptions.JaqpotNotAuthorizedException;
 import org.jaqpot.core.service.exceptions.parameter.ParameterInvalidURIException;
 import org.jaqpot.core.service.exceptions.parameter.ParameterIsNullException;
 import org.jaqpot.core.service.exceptions.parameter.ParameterRangeException;
 import org.jaqpot.core.service.exceptions.parameter.ParameterScopeException;
 import org.jaqpot.core.service.exceptions.parameter.ParameterTypeException;
 import org.jaqpot.core.service.filter.AuthorizationEnum;
+import org.jaqpot.core.service.httphandlers.Rights;
 import org.jboss.resteasy.plugins.providers.multipart.InputPart;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput;
 
@@ -124,6 +126,9 @@ public class DatasetResource {
     @EJB
     DatasetLegacyWrapper datasetLegacyWrapper;
 
+    @EJB
+    Rights rights;
+    
     @Inject
     Ambit ambitClient;
 
@@ -167,6 +172,7 @@ public class DatasetResource {
             @ApiParam(value = "max - the server imposes an upper limit of 500 on this "
                     + "parameter.", defaultValue = "10") @QueryParam("max") Integer max,
             @ApiParam(value = "description for the dataset", required = false, allowableValues = "UPLOADED, CREATED, TRANSFORMED, PREDICTED, FROMPRETRAINED, DESCRIPTORS, ALL") @QueryParam("existence") String datasetexistence,
+            @ApiParam(value = "onTrash for the dataset", required = false, allowableValues = "true, false") @QueryParam("ontrash") Boolean ontrash,
             @ApiParam(value = "organization for the dataset", required = false) @QueryParam("organization") String organization
     ) {
         start = start != null ? start : 0;
@@ -178,9 +184,21 @@ public class DatasetResource {
         List<Dataset> datasets = new ArrayList();
         Number total = null;
         if (datasetexistence == null || datasetexistence.equals("ALL")) {
-            if (organization == null) {
+            if (organization == null  && ontrash == null) {
                 datasets.addAll(datasetHandler.listMetaOfCreator(creator, start, max));
                 total = datasetHandler.countAllOfCreator(creator);
+            }else if(ontrash != null){
+                List<String> fields = new ArrayList<>();
+                fields.add("_id");
+                fields.add("meta");
+                fields.add("ontologicalClasses");
+                fields.add("organizations");
+                fields.add("totalRows");
+                fields.add("totalColumns");
+                Map<String, Object> properties = new HashMap<>();
+                properties.put("onTrash", ontrash);
+                datasets.addAll(datasetHandler.find(properties, fields, start, max));
+                total = datasetHandler.countCreatorsInTrash(creator);
             } else {
                 List<String> fields = new ArrayList<>();
                 fields.add("_id");
@@ -189,15 +207,14 @@ public class DatasetResource {
                 fields.add("organizations");
                 fields.add("totalRows");
                 fields.add("totalColumns");
-
                 Map<String, Object> properties = new HashMap<>();
-
                 properties.put("meta.read", organization);
-                datasets.addAll(datasetHandler.find(properties, fields, start, max));
-//                datasetHandler.c
-//                datasets.addAll((datasetHandler.listOrgsDataset(organization, start, max)));
+    //            properties.put("meta.creators", Arrays.asList(creator));
+                Map<String, Object> neProperties = new HashMap<>();
+                neProperties.put("onTrash", true);
+                datasets.addAll(datasetHandler.findAllAndNe(properties, neProperties, fields, start, max));
+                total = datasetHandler.countAllOfOrg(creator, organization);
             }
-
         } else {
             switch (datasetexistence) {
                 case "UPLOADED":
@@ -409,7 +426,7 @@ public class DatasetResource {
         }
 
         ROG randomStringGenerator = new ROG(true);
-        dataset.setId(randomStringGenerator.nextString(14));
+        dataset.setId(randomStringGenerator.nextStringId(22));
         dataset.setFeatured(Boolean.FALSE);
         if (dataset.getMeta() == null) {
             dataset.setMeta(new MetaInfo());
@@ -627,7 +644,7 @@ public class DatasetResource {
             return Response.status(Response.Status.FORBIDDEN).entity("You cannot delete a Dataset that was not created by you.").build();
         }
         datasetHandler.remove(ds);
-        return Response.ok().build();
+        return Response.status(Response.Status.NO_CONTENT).build();
     }
 
     @POST
@@ -1153,12 +1170,56 @@ public class DatasetResource {
     public Response updateMeta(
             @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key,
             @PathParam("id") String id,
-            Dataset datasetForUpdate) throws URISyntaxException, JaqpotDocumentSizeExceededException {
+            Dataset datasetForUpdate) throws URISyntaxException, JaqpotDocumentSizeExceededException, JaqpotNotAuthorizedException {
+        String userId = securityContext.getUserPrincipal().getName();
         Dataset dataset = datasetHandler.find(id);
         if (dataset == null) {
             throw new NotFoundException("Could not find Dataset with id:" + id);
         }
-        datasetHandler.updateMeta(id, datasetForUpdate.getMeta());
+        Boolean canUpdate = rights.canWrite(datasetForUpdate.getMeta(), userHandler.find(userId));
+        if (canUpdate == true) {
+            datasetHandler.updateMeta(id, datasetForUpdate.getMeta());
+        } else {
+            throw new JaqpotNotAuthorizedException("You are not authorized to update this resource");
+        }
+        
+        return Response.accepted().entity(datasetForUpdate.getMeta()).build();
+
+    }
+    
+    
+    @PUT
+    @TokenSecured({RoleEnum.DEFAULT_USER})
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces({"application/json", MediaType.APPLICATION_JSON})
+    @Path("{id}/ontrash")
+    @ApiOperation(value = "Updates meta info of a dataset",
+            notes = "TUpdates meta info of a dataset")
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, response = DataEntry.class, message = "Meta was updated succesfully")
+        ,
+            @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to access this resource")
+        ,
+            @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)")
+        ,
+            @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
+    })
+    public Response updateOnTrash(
+            @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key,
+            @PathParam("id") String id,
+            Dataset datasetForUpdate) throws URISyntaxException, JaqpotDocumentSizeExceededException, JaqpotNotAuthorizedException {
+        String userId = securityContext.getUserPrincipal().getName();
+        Dataset dataset = datasetHandler.find(id);
+        if (dataset == null) {
+            throw new NotFoundException("Could not find Dataset with id:" + id);
+        }
+        Boolean canTrash = rights.canTrash(dataset.getMeta(), userHandler.find(userId));
+        if (canTrash == true) {
+            datasetHandler.updateField(id, "onTrash" , datasetForUpdate.getOnTrash());
+        } else {
+            throw new JaqpotNotAuthorizedException("You are not authorized to update this resource");
+        }
+        
         return Response.accepted().entity(datasetForUpdate.getMeta()).build();
 
     }

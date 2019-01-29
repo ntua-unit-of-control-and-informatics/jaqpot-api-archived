@@ -115,6 +115,7 @@ public interface JaqpotEntityManager extends Closeable {
      */
     public <T extends JaqpotEntity> Long count(Class<T> entityClass, Map<String, Object> properties);
 
+    public <T extends JaqpotEntity> Long countAndNe(Class<T> entityClass, Map<String, Object> properties, Map<String, Object> notProperties);
     /**
      * Find by primary keys. Searches for entities of the specified class that
      * match the given primary keys. The returned entity instances will only
@@ -227,6 +228,8 @@ public interface JaqpotEntityManager extends Closeable {
      * @return only the specified fields of the entity with given primary key
      */
     public <T extends JaqpotEntity> T find(Class<T> entityClass, Object primaryKey, List<String> fields);
+    
+    public <T extends JaqpotEntity> List<T> findAndNe(Class<T> entityClass, Map<String, Object> properties, Map<String, Object> notProperties, List<String> fields, Integer start, Integer max);
 
     public <T extends JaqpotEntity> List<T> findSorted(Class<T> entityClass, Map<String, Object> properties, List<String> fields, Integer start, Integer max, List<String> ascendingFields, List<String> descendingFields);
     
@@ -234,6 +237,8 @@ public interface JaqpotEntityManager extends Closeable {
     
     public <T extends JaqpotEntity> List<T> findSortedDesc(Class<T> entityClass, Map<String, Object> properties, List<String> fields, Integer start, Integer max, List<String> descendingFields);
 
+    public <T extends JaqpotEntity> List<T> findSortedDescAndNe(Class<T> entityClass, Map<String, Object> properties, Map<String, Object> notProperties, List<String> fields, Integer start, Integer max, List<String> descendingFields);
+    
     public <T extends JaqpotEntity> List<T> findSorted(Class<T> entityClass, Map<String, Object> properties, Integer start, Integer max, List<String> ascendingFields, List<String> descendingFields);
     
     public <T extends JaqpotEntity> List<T> findSortedAsc(Class<T> entityClass, Map<String, Object> properties, Integer start, Integer max, List<String> ascendingFields);

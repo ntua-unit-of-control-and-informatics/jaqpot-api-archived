@@ -92,5 +92,12 @@ public class NotificationHandler extends AbstractHandler<Notification> {
         properties.put("invitationTo", organization);
         return em.find(Notification.class, properties, 0, 100);
     }
+    
+    public List<Notification> getAffiliationsToOrg(String owner){
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("owner", owner);
+        properties.put("type", "AFFILIATION");
+        return em.find(Notification.class, properties, 0, 100);
+    }
 
 }

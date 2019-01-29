@@ -112,7 +112,11 @@ public class DatasetHandler extends AbstractHandler<Dataset> {
         Map<String, Object> properties = new HashMap<>();
         properties.put("meta.creators", Arrays.asList(creator));
         properties.put("existence", existence.getName().toUpperCase());
-        return em.find(Dataset.class, properties, fields, start, max);
+        
+        Map<String, Object> notProperties = new HashMap<>();
+        notProperties.put("onTrash", true);
+        
+        return em.findAndNe(Dataset.class, properties, notProperties, fields, start, max);
     }
     
     public List<Dataset> listDatasetOrgsExistence(String organization, Dataset.DatasetExistence existence, Integer start, Integer max){
@@ -153,7 +157,9 @@ public class DatasetHandler extends AbstractHandler<Dataset> {
         properties.put("meta.creators", Arrays.asList(creator));
         properties.put("existence", existence.getName().toUpperCase());
         properties.put("visible", true);
-        return getEntityManager().count(entityClass, properties);
+        Map<String, Object> neProperties = new HashMap<>();
+        neProperties.put("onTrash", true);
+        return getEntityManager().countAndNe(entityClass, properties, neProperties);
     }
     
     

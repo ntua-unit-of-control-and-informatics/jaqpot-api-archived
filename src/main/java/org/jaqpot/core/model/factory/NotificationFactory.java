@@ -97,6 +97,22 @@ public class NotificationFactory {
         return notif;
     }
     
+        
+    public static Notification affiliationBrokenNotification(String from, String to, String brokenWith){
+        String body = "The affiliation with the org  " + brokenWith + " has been broken";
+        Notification notif = NotificationBuilder
+                .builderRandomId()
+                .setFrom(from)
+                .setTo(to)
+                .setOwner(to)
+                .setBody(body)
+                .setBrokenAffiliation(brokenWith)
+                .setType(Type.BROKENAFFILIATION)
+                .setViewed(Boolean.FALSE)
+                .build();
+        return notif;
+    }
+    
     
     public static Notification randomIdNotification(){
         Notification notif = NotificationBuilder

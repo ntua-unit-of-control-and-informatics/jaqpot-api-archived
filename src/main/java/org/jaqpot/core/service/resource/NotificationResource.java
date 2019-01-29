@@ -55,7 +55,10 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import org.jaqpot.core.data.NotificationHandler;
+import org.jaqpot.core.data.OrganizationHandler;
 import org.jaqpot.core.model.Notification;
+import org.jaqpot.core.model.Notification.Type;
+import org.jaqpot.core.model.Organization;
 import org.jaqpot.core.model.User;
 import org.jaqpot.core.model.util.ROG;
 import org.jaqpot.core.properties.PropertyManager;
@@ -74,6 +77,9 @@ public class NotificationResource {
     
     @EJB
     NotificationHandler notifHandler;
+    
+    @EJB
+    OrganizationHandler orgHandler;
     
     @Context
     SecurityContext securityContext;
@@ -141,6 +147,23 @@ public class NotificationResource {
 
 
         String currentUserID = securityContext.getUserPrincipal().getName();
+        
+        if(notif.getType().equals(Type.AFFILIATION.toString())){
+            Organization org = orgHandler.find(notif.getOrganizationShared());
+            if(org == null){
+                throw new BadRequestException("Organization not found");
+            }
+            if(!org.getMeta().getCreators().contains(currentUserID) || org.getMeta().getContributors() != null && !org.getMeta().getContributors().contains(currentUserID)){
+                throw new JaqpotNotAuthorizedException("Cannot create the affiliation");
+            }
+            Organization orgAffil = orgHandler.find(notif.getAffiliatedOrg());
+            if(orgAffil == null){
+                throw new BadRequestException("Organization not found");
+            }
+            if(!orgAffil.getMeta().getCreators().contains(currentUserID) || orgAffil.getMeta().getContributors() != null && !orgAffil.getMeta().getContributors().contains(currentUserID)){
+                throw new JaqpotNotAuthorizedException("Cannot create the affiliation");
+            }
+        }
         
         ROG randomStringGenerator = new ROG(true);
         notif.setId("NOT" + randomStringGenerator.nextString(24));

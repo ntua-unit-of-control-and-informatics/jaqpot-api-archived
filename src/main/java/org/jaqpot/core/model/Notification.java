@@ -49,7 +49,9 @@ public class Notification extends JaqpotEntity {
         SIMPLE,
         INVITATION,
         FYI,
-        SHARE
+        SHARE,
+        AFFILIATION,
+        BROKENAFFILIATION
     }
 
     public enum Time {
@@ -79,6 +81,9 @@ public class Notification extends JaqpotEntity {
     private String entityShared;
     
     private String organizationShared;
+
+    private String affiliatedOrg;
+
     
     private Boolean resolved;
 
@@ -180,6 +185,14 @@ public class Notification extends JaqpotEntity {
 
     public void setOrganizationShared(String organizationShared) {
         this.organizationShared = organizationShared;
+    }
+
+    public String getAffiliatedOrg() {
+        return affiliatedOrg;
+    }
+
+    public void setAffiliatedOrg(String affiliatedOrg) {
+        this.affiliatedOrg = affiliatedOrg;
     }
     
 }

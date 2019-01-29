@@ -430,7 +430,7 @@ public class JPDIClientImpl implements JPDIClient {
         predictionRequest.setDataset(dataset);
         predictionRequest.setRawModel(model.getActualModel());
         predictionRequest.setAdditionalInfo(model.getAdditionalInfo());
-
+        
         final HttpPost request = new HttpPost(model.getAlgorithm().getPredictionService());
         request.addHeader("Accept", "application/json");
         request.addHeader("Content-Type", "application/json");

@@ -66,6 +66,8 @@ public class Dataset extends JaqpotEntity {
      */
     private String createdBy;
 
+    private Boolean onTrash;
+    
     public Dataset() {
     }
 
@@ -113,4 +115,12 @@ public class Dataset extends JaqpotEntity {
         this.predictedFeatures = predictedFeatures;
     }
 
+    public Boolean getOnTrash() {
+        return onTrash;
+    }
+
+    public void setOnTrash(Boolean onTrash) {
+        this.onTrash = onTrash;
+    }
+    
 }

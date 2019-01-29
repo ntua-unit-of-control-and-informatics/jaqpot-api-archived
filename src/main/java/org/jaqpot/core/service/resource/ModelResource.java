@@ -182,6 +182,7 @@ public class ModelResource {
             @ApiParam(value = "start", defaultValue = "0") @QueryParam("start") Integer start,
             @ApiParam(value = "max - the server imposes an upper limit of 500 on this "
                     + "parameter.", defaultValue = "20") @QueryParam("max") Integer max,
+            @ApiParam(value = "on trash datasets", required = false, allowableValues = "true, false") @QueryParam("ontrash") Boolean ontrash,
             @ApiParam(value = "organization") @QueryParam("organization") String organization
     ) {
         if (max == null || max > 500) {
@@ -192,9 +193,20 @@ public class ModelResource {
 
         List<Model> modelsFound = new ArrayList();
         Long total = null;
-        if (organization == null) {
+        if (organization == null && ontrash == null) {
             modelsFound.addAll(modelHandler.listMetaOfCreator(creator, start != null ? start : 0, max));
             total = modelHandler.countAllOfCreator(creator);
+        }else if(ontrash != null ){
+            List<String> fields = new ArrayList<>();
+            fields.add("_id");
+            fields.add("meta");
+            fields.add("predictedFeatures");
+            fields.add("independentFeatures");
+            Map<String, Object> properties = new HashMap<>();
+            properties.put("onTrash", ontrash);
+            properties.put("meta.creators", Arrays.asList(creator));
+            modelsFound.addAll(modelHandler.find(properties, fields, start, max));
+            total = modelHandler.countCreatorsInTrash(creator);
         } else {
             List<String> fields = new ArrayList<>();
             fields.add("_id");
@@ -202,10 +214,12 @@ public class ModelResource {
             fields.add("predictedFeatures");
             fields.add("independentFeatures");
             Map<String, Object> properties = new HashMap<>();
-
             properties.put("meta.read", organization);
-            modelsFound.addAll(modelHandler.find(properties, fields, start, max));
-            total = modelHandler.countAllOfCreatorAndOrg(creator, organization);
+//            properties.put("meta.creators", Arrays.asList(creator));
+            Map<String, Object> neProperties = new HashMap<>();
+            neProperties.put("onTrash", true);
+            modelsFound.addAll(modelHandler.findAllAndNe(properties, neProperties, fields, start, max));
+            total = modelHandler.countAllOfOrg(creator, organization);
         }
         return Response.ok(modelsFound)
                 .header("total", total)
@@ -656,7 +670,7 @@ public class ModelResource {
 //        TrainingResponse trainingResponse = serializer.parse(responseStream, TrainingResponse.class);
         Model model = new Model();
 
-        model.setId(randomStringGenerator.nextString(20));
+        model.setId(randomStringGenerator.nextStringId(20));
         model.setActualModel(pretrainedModelRequest.getRawModel());
         model.setPmmlModel(pretrainedModelRequest.getPmmlModel());
 
@@ -994,6 +1008,42 @@ public class ModelResource {
         Boolean canUpdate = rights.canWrite(modelForUpdate.getMeta(), user);
         if (canUpdate == true) {
             modelHandler.updateMeta(id, modelForUpdate.getMeta());
+        } else {
+            throw new JaqpotNotAuthorizedException("You are not authorized to update this resource");
+        }
+        return Response.accepted().entity(modelForUpdate.getMeta()).build();
+    }
+    
+    @PUT
+    @TokenSecured({RoleEnum.DEFAULT_USER})
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces({"application/json", MediaType.APPLICATION_JSON})
+    @Path("{id}/ontrash")
+    @ApiOperation(value = "Puths a model on users trash",
+            notes = "Puths a model on users trash")
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, response = MetaInfo.class, message = "Meta was updated succesfully")
+        ,
+            @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to access this resource")
+        ,
+            @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)")
+        ,
+            @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
+    })
+    public Response updateOnTrash(
+            @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key,
+            @PathParam("id") String id,
+            Model modelForUpdate) throws URISyntaxException, JaqpotDocumentSizeExceededException, JaqpotNotAuthorizedException {
+
+        String userId = securityContext.getUserPrincipal().getName();
+        Model model = modelHandler.find(id);
+        if (model == null) {
+            throw new NotFoundException("Could not find Model with id:" + id);
+        }
+        User user = userHandler.find(userId);
+        Boolean canTrash = rights.canTrash(model.getMeta(), user);
+        if (canTrash == true) {
+            modelHandler.updateField(id, "onTrash", modelForUpdate.getOnTrash());
         } else {
             throw new JaqpotNotAuthorizedException("You are not authorized to update this resource");
         }

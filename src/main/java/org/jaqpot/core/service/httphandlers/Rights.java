@@ -57,5 +57,13 @@ public class Rights {
         }
         return canWrite;
     }
+    
+    public Boolean canTrash(MetaInfo metaInfo, User user){
+        Boolean canTrash = false;
+        if (metaInfo.getCreators().contains(user.getId())) {
+            canTrash = true;
+        }
+        return canTrash;
+    }
 
 }

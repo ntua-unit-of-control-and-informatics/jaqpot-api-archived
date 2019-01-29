@@ -63,6 +63,8 @@ public class Organization extends JaqpotEntity{
     
     private String contact;
     
+    private List<String> affiliations;
+    
     public Organization(){
     }
     
@@ -133,5 +135,13 @@ public class Organization extends JaqpotEntity{
     public void setContact(String contact) {
         this.contact = contact;
     }
-  
+
+    public List<String> getAffiliations() {
+        return affiliations;
+    }
+
+    public void setAffiliations(List<String> affiliations) {
+        this.affiliations = affiliations;
+    }
+    
 }

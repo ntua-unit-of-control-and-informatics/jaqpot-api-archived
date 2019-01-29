@@ -119,6 +119,8 @@ public class Dataset extends JaqpotEntity {
     private Set<DescriptorCategory> descriptors;
     private DatasetExistence existence;
     
+    private Boolean onTrash;
+    
     public String getDatasetURI() {
         return datasetURI;
     }
@@ -189,6 +191,14 @@ public class Dataset extends JaqpotEntity {
 
     public void setExistence(DatasetExistence existence) {
         this.existence = existence;
+    }
+
+    public Boolean getOnTrash() {
+        return onTrash;
+    }
+
+    public void setOnTrash(Boolean onTrash) {
+        this.onTrash = onTrash;
     }
     
     @Override
