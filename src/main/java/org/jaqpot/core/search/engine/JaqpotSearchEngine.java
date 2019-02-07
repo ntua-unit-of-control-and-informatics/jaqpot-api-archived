@@ -29,6 +29,8 @@
  */
 package org.jaqpot.core.search.engine;
 
+import org.jaqpot.core.model.JaqpotEntity;
+
 /**
  *
  * @author Pantelis Sopasakis
@@ -36,5 +38,9 @@ package org.jaqpot.core.search.engine;
  *
  */
 public interface JaqpotSearchEngine {
+    
+    
+    public void index(JaqpotEntity entity);
+    
     
 }

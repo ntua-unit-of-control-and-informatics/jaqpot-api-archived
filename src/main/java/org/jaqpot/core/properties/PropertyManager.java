@@ -97,7 +97,7 @@ public class PropertyManager {
         OIDC_PROVIDER_CONF("oidc.provider.conf", "config", ".well-known/openid-configuration"),
         ELASTIC_HOST("elastic.host","config", "192.168.10.80"),
         ELASTIC_PORT("elastic.port", "config", "31798"),
-        ELASTIC_EXISTS("elastic", "config", "true");
+        ELASTIC_EXISTS("elastic.existence", "config", "false");
         
         
         private final String name;

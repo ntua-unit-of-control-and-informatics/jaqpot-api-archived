@@ -241,6 +241,11 @@
         <oidc.provider.conf></oidc.provider.conf>
         
         <jaqpot.qprf></jaqpot.qprf>
+        
+        <elastic.host></elastic.host>
+        <elastic.port></elastic.port>
+        <elastic.existence></elastic.existence>
+        
     </properties>
     
     <repositories>

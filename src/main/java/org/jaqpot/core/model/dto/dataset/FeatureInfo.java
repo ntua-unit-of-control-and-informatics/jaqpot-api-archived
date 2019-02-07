@@ -42,6 +42,7 @@ public class FeatureInfo {
     private String URI;
     private String name;
     private String units;
+    private String ont;
     private Map<String, Object> conditions;
     private Dataset.DescriptorCategory category;
 
@@ -101,6 +102,14 @@ public class FeatureInfo {
         this.category = category;
     }
 
+    public String getOnt() {
+        return ont;
+    }
+
+    public void setOnt(String ont) {
+        this.ont = ont;
+    }
+    
     @Override
     public int hashCode() {
         int hash = 7;
