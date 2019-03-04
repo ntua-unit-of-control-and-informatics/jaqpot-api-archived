@@ -2,7 +2,12 @@
  *
  * JAQPOT Quattro
  *
- * JAQPOT Quattro and the components shipped with it (web applications and beans)
+ * JAQPOT Quattro and the components shipped with it, in particular:
+ * (i)   JaqpotCoreServices
+ * (ii)  JaqpotAlgorithmServices
+ * (iii) JaqpotDB
+ * (iv)  JaqpotDomain
+ * (v)   JaqpotEAR
  * are licensed by GPL v3 as specified hereafter. Additional components may ship
  * with some other licence as will be specified therein.
  *
@@ -27,22 +32,57 @@
  * All source files of JAQPOT Quattro that are stored on github are licensed
  * with the aforementioned licence. 
  */
-package org.jaqpot.core.search.engine;
+package org.jaqpot.core.search.dto;
 
-import javax.ejb.Local;
-import org.jaqpot.core.model.JaqpotEntity;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  *
- * @author Pantelis Sopasakis
- * @author Charalampos Chomenidis
- *
+ * @author pantelispanka
  */
-@Local
-public interface JaqpotSearchEngine {
+public class ElasticResponse {
+
+    private Integer took;
     
+    private Boolean timed_out;
     
-    public void index(JaqpotEntity entity);
+    @JsonProperty("_shards")
+    private Shard _shards;
     
-    
+    private Hits hits;
+
+    public Integer getTook() {
+        return took;
+    }
+
+    public void setTook(Integer took) {
+        this.took = took;
+    }
+
+    public Boolean getTimed_out() {
+        return timed_out;
+    }
+
+    public void setTimed_out(Boolean timed_out) {
+        this.timed_out = timed_out;
+    }
+
+    public Shard getShards() {
+        return _shards;
+    }
+
+    public void setShards(Shard _shards) {
+        this._shards = _shards;
+    }
+
+    public Hits getHits() {
+        return hits;
+    }
+
+    public void setHits(Hits hits) {
+        this.hits = hits;
+    }
+      
 }
+

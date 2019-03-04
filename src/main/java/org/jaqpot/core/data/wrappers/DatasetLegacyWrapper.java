@@ -13,8 +13,12 @@ import javax.ejb.Stateless;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
+import org.jaqpot.core.data.FeatureHandler;
+import org.jaqpot.core.model.Feature;
+import org.jaqpot.core.properties.PropertyManager;
 
 @Stateless
 public class DatasetLegacyWrapper {
@@ -24,6 +28,12 @@ public class DatasetLegacyWrapper {
 
     @EJB
     DatasetHandler datasetHandler;
+    
+    @EJB
+    FeatureHandler fh;
+    
+    @EJB
+    PropertyManager pm;
 
     public void create(Dataset dataset) throws IllegalArgumentException, JaqpotDocumentSizeExceededException {
         ROG randomStringGenerator = new ROG(true);
@@ -52,6 +62,18 @@ public class DatasetLegacyWrapper {
         List<DataEntry> dataEntryList = dataset.getDataEntry();
         dataset.setDataEntry(new LinkedList<>());
         datasetHandler.create(dataset);
+        Set<FeatureInfo> finfo = dataset.getFeatures();
+        finfo.forEach(f -> {
+            String[] fIdAr = f.getURI().split("/");
+            String fid = fIdAr[fIdAr.length - 1];
+            Feature feature = fh.find(fid);
+            Set<String> hasSources = new HashSet();
+            hasSources.add(
+                    pm.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_BASE) 
+                    + "/dataset/" + dataset.getId());
+            feature.getMeta().setHasSources(hasSources);
+            fh.edit(feature);
+        } );
         for (DataEntry dataentry: dataEntryList) {
             dataentry.setId(randomStringGenerator.nextString(14));
             dataentry.setDatasetId(dataset.getId());

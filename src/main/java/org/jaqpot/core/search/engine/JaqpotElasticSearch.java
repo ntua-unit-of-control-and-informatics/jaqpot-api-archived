@@ -38,13 +38,15 @@ import javax.ejb.Singleton;
 import javax.ejb.Startup;
 import javax.inject.Inject;
 import javax.ws.rs.InternalServerErrorException;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
+import org.apache.http.entity.ContentType;
+import org.apache.http.nio.entity.NStringEntity;
 import org.apache.http.util.EntityUtils;
+import org.elasticsearch.client.Request;
 import org.elasticsearch.client.Response;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestClientBuilder;
-import org.jaqpot.core.annotations.ElasticSearch;
-import org.jaqpot.core.model.JaqpotEntity;
 import org.jaqpot.core.properties.PropertyManager;
 
 /**
@@ -52,16 +54,19 @@ import org.jaqpot.core.properties.PropertyManager;
  * @author Pantelis Karatzas
  *
  */
-@ElasticSearch
+//@ElasticSearch
 @Singleton
 @Startup
-@DependsOn("OnAppInit")
-public class JaqpotElasticSearch implements JaqpotSearchEngine {
+@DependsOn("ElasticQueries")
+public class JaqpotElasticSearch {
 
     private static final Logger LOG = Logger.getLogger(JaqpotElasticSearch.class.getName());
 
     @Inject
     PropertyManager propertyManager;
+
+    @Inject
+    ElasticQueries eq;
 
     private String elasticHost;
     private Integer elasticPort;
@@ -75,9 +80,9 @@ public class JaqpotElasticSearch implements JaqpotSearchEngine {
 
         if ("true".equals(elasticExistence)) {
             this.elasticHost = propertyManager
-                    .getProperty(PropertyManager.PropertyType.ELASTIC_HOST);
+                    .getPropertyOrDefault(PropertyManager.PropertyType.ELASTIC_HOST);
             this.elasticPort = Integer.valueOf(propertyManager
-                    .getProperty(PropertyManager.PropertyType.ELASTIC_PORT));
+                    .getPropertyOrDefault(PropertyManager.PropertyType.ELASTIC_PORT));
             LOG.log(Level.INFO, "ElasticSearch initialization");
             LOG.log(Level.INFO, "ElasticSearch host : {0}", this.elasticHost);
             LOG.log(Level.INFO, "ElasticSearch port : {0}", this.elasticPort);
@@ -87,34 +92,63 @@ public class JaqpotElasticSearch implements JaqpotSearchEngine {
             );
             builder.setMaxRetryTimeoutMillis(10000);
             this.elCl = builder.build();
-            
+
             this.checkForIndices();
         }
 
     }
 
     public void checkForIndices() {
-        Response resp = null;
+        this.createModelIndice();
+    }
+
+    private void createModelIndice() {
         String responseBody = null;
         try {
-            resp = this.elCl.performRequest("GET", "_cat/indices");
-            responseBody = EntityUtils.toString(resp.getEntity());
-            Boolean indExists = responseBody.toLowerCase().contains("model");
-            System.out.println(responseBody);
-//            if (indExists == false) {
-//                this.createIndices();
-//            }
+            Request check = new Request("GET", "_cat/indices");
+            Response resp1 = this.elCl.performRequest(check);
+            responseBody = EntityUtils.toString(resp1.getEntity());
+            Boolean indDevExists = responseBody.toLowerCase().contains("jaqpotindexdev");
+            if (indDevExists == false) {
+                String settings = eq.getModelIndice();
+                try {
+                    HttpEntity entity = new NStringEntity(settings, ContentType.APPLICATION_JSON);
+                    Request req = new Request("PUT", "/jaqpotindexdev");
+                    req.setEntity(entity);
+                    req.addParameter("pretty", "true");
+                    this.elCl.performRequest(req);
+                } catch (IOException e) {
+                    throw new InternalServerErrorException("Could not create index for models", e);
+                }
+            }
+            Boolean indProdExists = responseBody.toLowerCase().contains("jaqpotindexprod");
+            if (indProdExists == false) {
+                String settings = eq.getModelIndice();
+                try {
+                    HttpEntity entity = new NStringEntity(settings, ContentType.APPLICATION_JSON);
+                    Request req = new Request("PUT", "/jaqpotindexprod");
+                    req.setEntity(entity);
+                    req.addParameter("pretty", "true");
+                    this.elCl.performRequest(req);
+//                    responseBody = EntityUtils.toString(resp3.getEntity());
+                } catch (IOException e) {
+                    throw new InternalServerErrorException("Could not create index for models", e);
+                }
+            }
         } catch (IOException e) {
             throw new InternalServerErrorException("Something went wrong with elastic client", e);
         }
     }
-    
-    
 
-    @Override
-    public void index(JaqpotEntity entity) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    
+    public RestClient getClient(){
+        return this.elCl;
     }
-
+            
+          
+//    @Override
+//    public void index(JaqpotEntity entity) {
+//        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+//    }
 
 }

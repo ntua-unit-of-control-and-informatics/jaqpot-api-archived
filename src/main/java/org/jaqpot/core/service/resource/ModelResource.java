@@ -196,7 +196,7 @@ public class ModelResource {
         if (organization == null && ontrash == null) {
             modelsFound.addAll(modelHandler.listMetaOfCreator(creator, start != null ? start : 0, max));
             total = modelHandler.countAllOfCreator(creator);
-        }else if(ontrash != null ){
+        } else if (ontrash != null) {
             List<String> fields = new ArrayList<>();
             fields.add("_id");
             fields.add("meta");
@@ -688,7 +688,7 @@ public class ModelResource {
         Set<String> creators = new HashSet();
         creators.add(user.getId());
         if (pretrainedModelRequest.getTitle().get(0) != null) {
-            titles.add(pretrainedModelRequest.getTitle().get(0));
+            titles.add(pretrainedModelRequest.getTitle().get(0).toString());
         }
         if (pretrainedModelRequest.getDescription().get(0) != null) {
             descriptions.add(pretrainedModelRequest.getDescription().get(0));
@@ -699,7 +699,16 @@ public class ModelResource {
         mf.setCreators(creators);
         model.setMeta(mf);
         model.setVisible(Boolean.TRUE);
+
         HashMap additionalInfo = new HashMap();
+
+//        if (pretrainedModelRequest.getAdditionalInfo() != null) {
+//            Map addFromUser = (Map) pretrainedModelRequest.getAdditionalInfo();
+//            if (!addFromUser.isEmpty()) {
+//                additionalInfo.putAll(addFromUser);
+//            }
+//        }
+
         HashMap independentFeaturesForAdd = new HashMap();
 
         List<String> pretrainedIndependentFeatures = new ArrayList();
@@ -712,7 +721,7 @@ public class ModelResource {
             MetaInfo featMetaInf = new MetaInfo();
             featMetaInf.setCreators(creators);
             Set<String> featDescr = new HashSet();
-            featDescr.add("Feature created to link to independent feature of model " + model.getMeta().getTitles().stream().findFirst());
+            featDescr.add("Feature created to link to independent feature of model " + model.getMeta().getTitles().stream().findFirst().get().toString());
             featMetaInf.setDescriptions(featDescr);
             Set<String> hasSources = new HashSet();
             hasSources.add("model/" + model.getId());
@@ -747,7 +756,7 @@ public class ModelResource {
             MetaInfo featMetaInf = new MetaInfo();
             featMetaInf.setCreators(creators);
             Set<String> featDescr = new HashSet();
-            featDescr.add("Feature created to link to independent feature of model " + model.getMeta().getTitles().stream().findFirst());
+            featDescr.add("Feature created to link to independent feature of model " + model.getMeta().getTitles().stream().findFirst().get().toString());
             featMetaInf.setDescriptions(featDescr);
             Set<String> hasSources = new HashSet();
             hasSources.add("model/" + model.getId());
@@ -1013,7 +1022,7 @@ public class ModelResource {
         }
         return Response.accepted().entity(modelForUpdate.getMeta()).build();
     }
-    
+
     @PUT
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Consumes(MediaType.APPLICATION_JSON)

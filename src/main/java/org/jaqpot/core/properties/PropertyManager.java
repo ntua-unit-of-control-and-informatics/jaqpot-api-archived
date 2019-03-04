@@ -53,6 +53,7 @@ import org.jaqpot.core.model.User;
 public class PropertyManager {
 
     public enum PropertyType {
+        JAQPOT_ENV("jaqpot.env", "config", "dev"),
         JAQPOT_LOCAL_IP("jaqpot.local.ip", "config", "147.102.86.129"),
         JAQPOT_ADMINISTRATORS("jaqpot.administrators", "config", "admin"),
         JAQPOT_AA("jaqpot.aa", "config", "true"),
@@ -96,8 +97,11 @@ public class PropertyManager {
         OIDC_CLIENT_PASS("oidc.client.pass", "config", "9dccac19-23c6-49be-83be-8f07859d263f"),
         OIDC_PROVIDER_CONF("oidc.provider.conf", "config", ".well-known/openid-configuration"),
         ELASTIC_HOST("elastic.host","config", "192.168.10.80"),
-        ELASTIC_PORT("elastic.port", "config", "31798"),
-        ELASTIC_EXISTS("elastic.existence", "config", "false");
+        ELASTIC_PORT("elastic.port", "config", "32258"),
+        ELASTIC_EXISTS("elastic.existence", "config", "true"),
+        KAFKA_BOOTSTRAP("kafka.bootstrap","config", "192.168.10.80:32400,192.168.10.80:32401,192.168.10.80:32402"),
+        KAFKA_EXISTS("kafka.existence", "config", "true"),
+        KAFKA_REPLICATION("kafka.replication", "config", "3");
         
         
         private final String name;

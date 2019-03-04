@@ -105,6 +105,7 @@ public class OpenIdServiceConfiguration {
             LOG.log(Level.INFO, "Starting OIDC configuration on well Known endpoints: {0}", issuerURI + issuerConf);
             this.issuerUri = new URL(issuerURI);
             this.providerConfUrl = new URL(issuerUri, issuerConf);
+            
 //            LOG.log(Level.INFO, "OIDC configured on well Known endpoints: {0}", this.providerConfUrl.getHost());
         } catch (MalformedURLException e) {
             throw new InternalServerErrorException("OpenIdService Endpoints could not be configured");

@@ -124,6 +124,8 @@ public class Model extends JaqpotEntity {
 
     private Boolean onTrash;
     
+    private Boolean indexed;
+    
     public Model() {
     }
 
@@ -327,4 +329,12 @@ public class Model extends JaqpotEntity {
         this.onTrash = onTrash;
     }
 
+    public Boolean getIndexed() {
+        return indexed;
+    }
+
+    public void setIndexed(Boolean indexed) {
+        this.indexed = indexed;
+    }
+    
 }

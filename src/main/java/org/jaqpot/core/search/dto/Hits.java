@@ -2,7 +2,12 @@
  *
  * JAQPOT Quattro
  *
- * JAQPOT Quattro and the components shipped with it (web applications and beans)
+ * JAQPOT Quattro and the components shipped with it, in particular:
+ * (i)   JaqpotCoreServices
+ * (ii)  JaqpotAlgorithmServices
+ * (iii) JaqpotDB
+ * (iv)  JaqpotDomain
+ * (v)   JaqpotEAR
  * are licensed by GPL v3 as specified hereafter. Additional components may ship
  * with some other licence as will be specified therein.
  *
@@ -27,22 +32,44 @@
  * All source files of JAQPOT Quattro that are stored on github are licensed
  * with the aforementioned licence. 
  */
-package org.jaqpot.core.search.engine;
+package org.jaqpot.core.search.dto;
 
-import javax.ejb.Local;
-import org.jaqpot.core.model.JaqpotEntity;
+import java.util.List;
 
 /**
  *
- * @author Pantelis Sopasakis
- * @author Charalampos Chomenidis
- *
+ * @author pantelispanka
  */
-@Local
-public interface JaqpotSearchEngine {
+public class Hits {
     
+    private Integer total;
     
-    public void index(JaqpotEntity entity);
+    private Double max_score; 
     
-    
+    private List<Hit> hits;
+
+    public Integer getTotal() {
+        return total;
+    }
+
+    public void setTotal(Integer total) {
+        this.total = total;
+    }
+
+    public Double getMax_score() {
+        return max_score;
+    }
+
+    public void setMax_score(Double max_score) {
+        this.max_score = max_score;
+    }
+
+    public List<Hit> getHits() {
+        return hits;
+    }
+
+    public void setHits(List<Hit> hits) {
+        this.hits = hits;
+    }
+     
 }

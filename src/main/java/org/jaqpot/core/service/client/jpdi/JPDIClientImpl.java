@@ -34,6 +34,7 @@
  */
 package org.jaqpot.core.service.client.jpdi;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.concurrent.FutureCallback;
@@ -430,6 +431,15 @@ public class JPDIClientImpl implements JPDIClient {
         predictionRequest.setDataset(dataset);
         predictionRequest.setRawModel(model.getActualModel());
         predictionRequest.setAdditionalInfo(model.getAdditionalInfo());
+        
+        
+//        ObjectMapper mapper = new ObjectMapper();
+//        try{
+//            System.out.println(mapper.writeValueAsString(predictionRequest));
+//        }catch(Exception e){
+//            LOG.log(Level.SEVERE, e.getLocalizedMessage());
+//        }
+        
         
         final HttpPost request = new HttpPost(model.getAlgorithm().getPredictionService());
         request.addHeader("Accept", "application/json");

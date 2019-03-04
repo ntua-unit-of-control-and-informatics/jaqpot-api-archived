@@ -2,7 +2,12 @@
  *
  * JAQPOT Quattro
  *
- * JAQPOT Quattro and the components shipped with it (web applications and beans)
+ * JAQPOT Quattro and the components shipped with it, in particular:
+ * (i)   JaqpotCoreServices
+ * (ii)  JaqpotAlgorithmServices
+ * (iii) JaqpotDB
+ * (iv)  JaqpotDomain
+ * (v)   JaqpotEAR
  * are licensed by GPL v3 as specified hereafter. Additional components may ship
  * with some other licence as will be specified therein.
  *
@@ -27,22 +32,31 @@
  * All source files of JAQPOT Quattro that are stored on github are licensed
  * with the aforementioned licence. 
  */
-package org.jaqpot.core.search.engine;
-
-import javax.ejb.Local;
-import org.jaqpot.core.model.JaqpotEntity;
+package org.jaqpot.core.search.dto;
 
 /**
  *
- * @author Pantelis Sopasakis
- * @author Charalampos Chomenidis
- *
+ * @author pantelispanka
  */
-@Local
-public interface JaqpotSearchEngine {
-    
-    
-    public void index(JaqpotEntity entity);
-    
-    
+public class Source {
+
+    private String meta;
+    private String entity_type;
+
+    public String getMeta() {
+        return meta;
+    }
+
+    public void setMeta(String meta) {
+        this.meta = meta;
+    }
+
+    public String getEntity_type() {
+        return entity_type;
+    }
+
+    public void setEntity_type(String entity_type) {
+        this.entity_type = entity_type;
+    }
+
 }

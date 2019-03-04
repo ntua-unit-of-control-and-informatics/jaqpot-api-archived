@@ -74,8 +74,8 @@ public class Dataset extends JaqpotEntity {
         }
 
     }
-    
-        public enum DatasetExistence {
+
+    public enum DatasetExistence {
 
         UPLOADED("Uploaded", "Dataset uploaded from user"),
         CREATED("Created", "Dataset created from outer source"),
@@ -84,7 +84,7 @@ public class Dataset extends JaqpotEntity {
         DESCRIPTORSADDED("Descriptors added", "Dataset has added descriptors"),
         FROMPRETRAINED("Pretrained empty", "Dataset empty for pretrained model"),
         FORPREDICTION("Created for prediction", "Dataset created and is temp for prediction");
-        
+
         private final String name;
         private final String description;
 
@@ -104,7 +104,7 @@ public class Dataset extends JaqpotEntity {
     }
 
     private String datasetURI;
-    
+
     private String byModel;
 
     private List<DataEntry> dataEntry;
@@ -112,15 +112,15 @@ public class Dataset extends JaqpotEntity {
     private Set<FeatureInfo> features;
 
     private String datasetPic;
-    
+
     private Integer totalRows;
     private Integer totalColumns;
 
     private Set<DescriptorCategory> descriptors;
     private DatasetExistence existence;
-    
+
     private Boolean onTrash;
-    
+
     public String getDatasetURI() {
         return datasetURI;
     }
@@ -200,7 +200,7 @@ public class Dataset extends JaqpotEntity {
     public void setOnTrash(Boolean onTrash) {
         this.onTrash = onTrash;
     }
-    
+
     @Override
     public String toString() {
         return "Dataset{" + "datasetURI=" + datasetURI + ", dataEntry=" + dataEntry + '}';

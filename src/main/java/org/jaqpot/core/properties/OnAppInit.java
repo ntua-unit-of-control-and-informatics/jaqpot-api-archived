@@ -36,22 +36,9 @@ package org.jaqpot.core.properties;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.commons.io.IOUtils;
-import org.jaqpot.core.data.AlgorithmHandler;
-import org.jaqpot.core.data.DatasetHandler;
-import org.jaqpot.core.data.UserHandler;
 import org.jaqpot.core.data.wrappers.DatasetLegacyWrapper;
-import org.jaqpot.core.model.Algorithm;
-import org.jaqpot.core.model.User;
-import org.jaqpot.core.model.dto.dataset.Dataset;
 import org.jaqpot.core.service.exceptions.JaqpotDocumentSizeExceededException;
 
-import javax.annotation.PostConstruct;
-import javax.ejb.DependsOn;
-import javax.ejb.Singleton;
-import javax.ejb.Startup;
-import javax.inject.Inject;
-import javax.ws.rs.InternalServerErrorException;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -71,15 +58,17 @@ import org.apache.commons.io.IOUtils;
 import org.jaqpot.core.model.dto.dataset.Dataset;
 import org.jaqpot.core.data.AlgorithmHandler;
 import org.jaqpot.core.data.DatasetHandler;
+import org.jaqpot.core.data.ModelHandler;
 import org.jaqpot.core.data.OrganizationHandler;
 import org.jaqpot.core.data.UserHandler;
+import org.jaqpot.core.messagebeans.IndexEntityProducer;
 import org.jaqpot.core.model.Algorithm;
 import org.jaqpot.core.model.MetaInfo;
+import org.jaqpot.core.model.Model;
 import org.jaqpot.core.model.Organization;
 import org.jaqpot.core.model.User;
 import org.jaqpot.core.model.builder.MetaInfoBuilder;
 import org.jaqpot.core.model.factory.OrganizationFactory;
-import org.jaqpot.core.service.resource.DatasetResource;
 
 /**
  *
@@ -110,9 +99,14 @@ public class OnAppInit {
     @Inject
     OrganizationHandler orgHandler;
 
+    @Inject
+    ModelHandler modelHandler;
+    
+    @Inject
+    IndexEntityProducer imp;
+
     @PostConstruct
     void init() {
-
         String userToSearch = "guest";
         User user = userHandler.find(userToSearch);
         if (user == null) {
@@ -142,7 +136,7 @@ public class OnAppInit {
         if (counted.intValue() == 0) {
             this.restoreDatasets();
         }
-
+       
     }
 
     public User firstUser() {
@@ -258,14 +252,14 @@ public class OnAppInit {
             throw new InternalServerErrorException(e);
         }
         datasets.forEach((dataset) -> {
-            try{
+            try {
                 try {
                     datasetLegacyWrapper.create(dataset);
                     //datasetHandler.create(dataset);
                 } catch (JaqpotDocumentSizeExceededException e) {
                     e.printStackTrace();
                 }
-            }catch(IllegalArgumentException e){
+            } catch (IllegalArgumentException e) {
                 LOG.log(Level.SEVERE, e.getMessage());
             }
         });
