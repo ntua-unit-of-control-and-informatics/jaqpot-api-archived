@@ -61,6 +61,8 @@ import org.jaqpot.core.data.FeatureHandler;
 import org.jaqpot.core.data.ModelHandler;
 import org.jaqpot.core.data.UserHandler;
 import org.jaqpot.core.data.wrappers.DatasetLegacyWrapper;
+import org.jaqpot.core.messagebeans.DeleteIndexedEntityProducer;
+import org.jaqpot.core.messagebeans.IndexEntityProducer;
 import org.jaqpot.core.model.*;
 import org.jaqpot.core.model.builder.MetaInfoBuilder;
 import org.jaqpot.core.model.dto.dataset.Dataset;
@@ -135,7 +137,7 @@ public class ModelResource {
 
     @EJB
     Rights rights;
-
+    
     @Context
     SecurityContext securityContext;
 
@@ -145,6 +147,13 @@ public class ModelResource {
 
     @Inject
     ParameterValidator parameterValidator;
+    
+    @EJB
+    IndexEntityProducer iep;
+    
+    
+    @EJB
+    DeleteIndexedEntityProducer diep;
 
     @GET
     @TokenSecured({RoleEnum.DEFAULT_USER})
@@ -860,6 +869,8 @@ public class ModelResource {
         model.setDatasetUri(datasetURI);
         modelHandler.create(model);
 
+        this.iep.sendJaqpotModelIDForIndex(model.getId(), IndexEntityProducer.EntityType.MODEL, IndexEntityProducer.IndexTransaction.INDEX);
+                
         ModelId mi = new ModelId();
         mi.setModelId(model.getId());
         return Response.ok(mi).build();
@@ -929,6 +940,12 @@ public class ModelResource {
             }
         }
         modelHandler.remove(new Model(id));
+        
+        if(propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.KAFKA_EXISTS).equals("true")){
+            this.diep.sendJaqpotEntityIDForDelete(id, IndexEntityProducer.EntityType.MODEL);
+        }
+        
+        
         return Response.ok().build();
     }
 
@@ -1020,6 +1037,12 @@ public class ModelResource {
         } else {
             throw new JaqpotNotAuthorizedException("You are not authorized to update this resource");
         }
+        
+        
+        if(propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.KAFKA_EXISTS).equals("true")){
+            this.iep.sendJaqpotModelIDForIndex(modelForUpdate.getId(), IndexEntityProducer.EntityType.MODEL, IndexEntityProducer.IndexTransaction.UPDATE);
+        }
+        
         return Response.accepted().entity(modelForUpdate.getMeta()).build();
     }
 

@@ -41,6 +41,7 @@ import java.util.logging.Logger;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.ws.rs.BadRequestException;
+import javax.ws.rs.InternalServerErrorException;
 import org.apache.http.HttpEntity;
 import org.apache.http.entity.ContentType;
 import org.apache.http.nio.entity.NStringEntity;
@@ -48,6 +49,7 @@ import org.apache.http.util.EntityUtils;
 import org.elasticsearch.client.Request;
 import org.elasticsearch.client.Response;
 import org.elasticsearch.client.ResponseListener;
+import org.jaqpot.core.properties.PropertyManager;
 import org.jaqpot.core.search.dto.ElasticResponse;
 
 /**
@@ -64,45 +66,53 @@ public class JaqpotSearch {
 
     @EJB
     ElasticQueries eq;
+    
+    @EJB
+    PropertyManager pm;
 
-    public void term(String term, int from, int size) {
+    public ElasticResponse search(String term, int from, int size) throws IOException {
         String query = eq.getQuery();
         String queryFromed = String.format(query, from, size, term);
         HttpEntity httpEntity = new NStringEntity(queryFromed, ContentType.APPLICATION_JSON);
+        
         String path = "/jaqpotindexdev/_search";
+        if(pm.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_ENV).equals("prod")){
+            path = "/jaqpotindexprod/_search";
+        }
         Request req = new Request("GET", path);
         req.setEntity(httpEntity);
-        try{
-            Response resp = this.jes.getClient().performRequest(req);
-        }catch(IOException e){
-            throw new BadRequestException("Error!  Could not complete request");
+        ObjectMapper mapper = new ObjectMapper();
+        ElasticResponse elResp = null;
+        try {
+            Response rspns = this.jes.getClient().performRequest(req);
+            elResp = mapper.readValue(rspns.getEntity().getContent(), ElasticResponse.class);
+        } catch (IOException e) {
+            throw new InternalServerErrorException("Could not perform Search request " + e.getLocalizedMessage());
         }
-        
-        this.jes.getClient().performRequestAsync(req, indexListener());
+        return elResp;
     }
 
-    public ResponseListener indexListener() {
-        ResponseListener responseListener = new ResponseListener() {
-
-            @Override
-            public void onFailure(Exception e) {
-                logger.log(Level.SEVERE, "Failed");
-            }
-
-            @Override
-            public void onSuccess(Response rspns) {
-                ObjectMapper mapper = new ObjectMapper();
-                try {                
-                    ElasticResponse elResp = mapper.readValue(rspns.getEntity().getContent(), ElasticResponse.class );
-                } catch (IOException ex) {
-                    Logger.getLogger(JaqpotSearch.class.getName()).log(Level.SEVERE, null, ex);
-                }
-                logger.log(Level.INFO, rspns.getEntity().toString());              
-            }
-
-        };
-        return responseListener;
-    }
-;
-
+//    public ResponseListener indexListener() {
+//        ResponseListener responseListener = new ResponseListener() {
+//
+//            @Override
+//            public void onFailure(Exception e) {
+//                logger.log(Level.SEVERE, "Failed");
+//            }
+//
+//            @Override
+//            public void onSuccess(Response rspns) {
+//                ObjectMapper mapper = new ObjectMapper();
+//                try {
+//                    ElasticResponse elResp = mapper.readValue(rspns.getEntity().getContent(), ElasticResponse.class);
+//                } catch (IOException ex) {
+//                    Logger.getLogger(JaqpotSearch.class.getName()).log(Level.SEVERE, null, ex);
+//                }
+//                logger.log(Level.INFO, rspns.getEntity().toString());
+//            }
+//
+//        };
+//        return responseListener;
+//    }
+    
 }

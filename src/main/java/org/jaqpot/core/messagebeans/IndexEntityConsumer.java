@@ -34,9 +34,6 @@
  */
 package org.jaqpot.core.messagebeans;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.StringReader;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.Properties;
@@ -48,8 +45,6 @@ import javax.ejb.DependsOn;
 import javax.ejb.EJB;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
-import javax.json.Json;
-import javax.json.JsonObject;
 import org.apache.http.HttpEntity;
 import org.apache.http.entity.ContentType;
 import org.apache.http.nio.entity.NStringEntity;
@@ -67,7 +62,6 @@ import org.jaqpot.core.data.FeatureHandler;
 import org.jaqpot.core.data.ModelHandler;
 import org.jaqpot.core.messagebeans.IndexEntityProducer.EntityType;
 import org.jaqpot.core.model.Feature;
-import org.jaqpot.core.model.MetaInfo;
 import org.jaqpot.core.model.Model;
 import org.jaqpot.core.model.dto.dataset.Dataset;
 
@@ -159,6 +153,7 @@ public class IndexEntityConsumer {
     public void indexDataset(ConsumerRecord<Long, String> consumerRecord) {
         String[] message = consumerRecord.value().toString().split("_");
         String datasetId = message[message.length - 1];
+        String indexType = message[0];
         Dataset dataset = dh.find(datasetId);
         StringBuilder sb = new StringBuilder();
         if (dataset.getMeta() != null) {
@@ -194,7 +189,21 @@ public class IndexEntityConsumer {
             }
             if (dataset.getMeta().getMarkdown() != null) {
                 String markString = dataset.getMeta().getMarkdown()
-                        .replace("\n", "").replace("\r", "").replace("#", " ").replaceAll("[^\\x20-\\x7e]", "");
+                        .replace("\n", "")
+                        .replace("\r", " ")
+                        .replace("#", " ")
+                        .replace('"', ' ')
+                        .replaceAll("(\\d+)-(?=\\d)", "$1_")
+                        .replace("-", " ")
+                        .replace(".", " ")
+                        .replace(":", " ")
+                        .replace("[", " ")
+                        .replace("]", " ")
+                        .replace(";", " ")
+                        .replaceAll(":", " ")
+                        .replace("<", " ")
+                        .replace(">", " ")
+                        .replace("*", " ").replaceAll("[^\\x20-\\x7e]", " ");
                 sb.append(markString).append(" ");
             }
             if (dataset.getMeta().getRead() != null) {
@@ -238,7 +247,21 @@ public class IndexEntityConsumer {
                     }
                     if (feat.getMeta().getMarkdown() != null) {
                         String markString = feat.getMeta().getMarkdown()
-                                .replace("\n", "").replace("\r", "").replaceAll("[^\\x20-\\x7e]", "");
+                                .replace("\n", "")
+                                .replace("\r", " ")
+                                .replace("#", " ")
+                                .replace('"', ' ')
+                                .replaceAll("(\\d+)-(?=\\d)", "$1_")
+                                .replace("-", " ")
+                                .replace(".", " ")
+                                .replace(":", " ")
+                                .replace("[", " ")
+                                .replace("]", " ")
+                                .replace(";", " ")
+                                .replaceAll(":", " ")
+                                .replace("<", " ")
+                                .replace(">", " ")
+                                .replace("*", " ").replaceAll("[^\\x20-\\x7e]", " ");
                         sb.append(markString).append(" ");
                     }
                 }
@@ -254,7 +277,18 @@ public class IndexEntityConsumer {
                 .replaceAll("/", " ")
                 .replaceAll("\\\\", " ")
                 .replace('"', ' ')
-                .replaceAll(":", " ");
+                .replaceAll("(\\d+)-(?=\\d)", "$1_")
+                .replace("-", " ")
+                .replace(".", " ")
+                .replace(":", " ")
+                .replace("[", " ")
+                .replace("]", " ")
+                .replace(";", " ")
+                .replaceAll(":", " ")
+                .replace("<", " ")
+                .replace(">", " ")
+                .replace("*", " ")
+                .replaceAll("()", " ");
 
         String jaqpotIndex = elq.getModelIndex();
 
@@ -263,16 +297,21 @@ public class IndexEntityConsumer {
         HttpEntity httpEntity = new NStringEntity(entity, ContentType.APPLICATION_JSON);
 
         if (pm.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_ENV).equals("dev")) {
-            String path = String.format("jaqpotindexdev/meta_doc/%s/_create", dataset.getId());
-
+            String path = null;
+            if (indexType.equals("Index")) {
+                path = String.format("jaqpotindexdev/meta_doc/%s/_create", dataset.getId());
+            }
+            if (indexType.equals("Update")) {
+                path = String.format("jaqpotindexdev/meta_doc/%s/", dataset.getId());
+            }
             Request req = new Request("PUT", path);
             req.setEntity(httpEntity);
-            this.elc.getClient().performRequestAsync(req, indexListener(dataset.getId(), EntityType.DATASET));
+            this.elc.getClient().performRequestAsync(req, indexListener(dataset.getId(), EntityType.DATASET, sb.toString()));
         } else {
             String path = String.format("jaqpotindexprod/_doc/{0}?op_type=create", dataset.getId());
             Request req = new Request("PUT", path);
             req.setEntity(httpEntity);
-            this.elc.getClient().performRequestAsync(req, indexListener(dataset.getId(), EntityType.DATASET));
+            this.elc.getClient().performRequestAsync(req, indexListener(dataset.getId(), EntityType.DATASET, sb.toString()));
         }
 
     }
@@ -280,131 +319,144 @@ public class IndexEntityConsumer {
     public void indexModel(ConsumerRecord<Long, String> consumerRecord) {
         String[] message = consumerRecord.value().toString().split("_");
         String modelId = message[message.length - 1];
+        String indexType = message[0];
         Model model = mh.find(modelId);
         StringBuilder sb = new StringBuilder();
-        if (model.getMeta() != null) {
-            if (model.getMeta().getTitles() != null) {
-                model.getMeta().getTitles().forEach(t -> {
-                    sb.append(t).append(" ");
-                });
-            }
-            if (model.getMeta().getAudiences() != null) {
-                model.getMeta().getAudiences().forEach(a -> {
-                    sb.append(a).append(" ");
-                });
-            }
-            if (model.getMeta().getComments() != null) {
-                model.getMeta().getComments().forEach(c -> {
-                    sb.append(c).append(" ");
-                });
-            }
-            if (model.getMeta().getTags() != null) {
-                model.getMeta().getTags().forEach(t -> {
-                    sb.append(t).append(" ");
-                });
-            }
-            if (model.getMeta().getDescriptions() != null) {
-                model.getMeta().getDescriptions().forEach(d -> {
-                    sb.append(d).append(" ");
-                });
-            }
-            if (model.getMeta().getIdentifiers() != null) {
-                model.getMeta().getIdentifiers().forEach(i -> {
-                    sb.append(i).append(" ");
-                });
-            }
-            if (model.getMeta().getMarkdown() != null) {
-                String markString = model.getMeta().getMarkdown()
-                        .replace("\n", "").replace("\r", "").replace("#", " ").replaceAll("[^\\x20-\\x7e]", "");
-                sb.append(markString).append(" ");
-            }
-            if (model.getMeta().getRead() != null) {
-                model.getMeta().getRead().forEach(i -> {
-                    sb.append(i).append(" ");
-                });
-            }
-            model.getDependentFeatures().forEach(depf -> {
-                String[] featUri = depf.split("/");
-                Feature feat = fh.find(featUri[featUri.length - 1]);
-                if (feat.getMeta() != null) {
-                    if (feat.getMeta().getTitles() != null) {
-                        feat.getMeta().getTitles().forEach(t -> {
-                            sb.append("Predicts ").append(t).append(" ");
-                        });
-                    }
-                    if (feat.getMeta().getAudiences() != null) {
-                        feat.getMeta().getAudiences().forEach(a -> {
-                            sb.append(a).append(" ");
-                        });
-                    }
-                    if (feat.getMeta().getComments() != null) {
-                        feat.getMeta().getComments().forEach(c -> {
-                            sb.append(c).append(" ");
-                        });
-                    }
-                    if (feat.getMeta().getTags() != null) {
-                        feat.getMeta().getTags().forEach(t -> {
-                            sb.append(t).append(" ");
-                        });
-                    }
-                    if (feat.getMeta().getDescriptions() != null) {
-                        feat.getMeta().getDescriptions().forEach(d -> {
-                            sb.append(d).append(" ");
-                        });
-                    }
-                    if (feat.getMeta().getIdentifiers() != null) {
-                        feat.getMeta().getIdentifiers().forEach(i -> {
-                            sb.append(i).append(" ");
-                        });
-                    }
-                    if (feat.getMeta().getMarkdown() != null) {
-                        String markString = feat.getMeta().getMarkdown()
-                                .replace("\n", "").replace("\r", "").replaceAll("[^\\x20-\\x7e]", "");
-                        sb.append(markString).append(" ");
-                    }
+
+        try {
+            if (model.getMeta() != null) {
+                if (model.getMeta().getTitles() != null) {
+                    model.getMeta().getTitles().forEach(t -> {
+                        sb.append(t).append(" ");
+                    });
                 }
-            });
-            model.getIndependentFeatures().forEach(indf -> {
-                String[] featUri = indf.split("/");
-                Feature feat = fh.find(featUri[featUri.length - 1]);
-                if (feat.getMeta() != null) {
-                    if (feat.getMeta().getTitles() != null) {
-                        feat.getMeta().getTitles().forEach(t -> {
-                            sb.append(t).append(" ");
-                        });
-                    }
-                    if (feat.getMeta().getAudiences() != null) {
-                        feat.getMeta().getAudiences().forEach(a -> {
-                            sb.append(a).append(" ");
-                        });
-                    }
-                    if (feat.getMeta().getComments() != null) {
-                        feat.getMeta().getComments().forEach(c -> {
-                            sb.append(c).append(" ");
-                        });
-                    }
-                    if (feat.getMeta().getTags() != null) {
-                        feat.getMeta().getTags().forEach(t -> {
-                            sb.append(t).append(" ");
-                        });
-                    }
-                    if (feat.getMeta().getDescriptions() != null) {
-                        feat.getMeta().getDescriptions().forEach(d -> {
-                            sb.append(d).append(" ");
-                        });
-                    }
-                    if (feat.getMeta().getIdentifiers() != null) {
-                        feat.getMeta().getIdentifiers().forEach(i -> {
-                            sb.append(i).append(" ");
-                        });
-                    }
-                    if (feat.getMeta().getMarkdown() != null) {
-                        String markString = feat.getMeta().getMarkdown()
-                                .replace("\n", "").replace("\r", "").replace("#", " ").replaceAll("[^\\x20-\\x7e]", "");
-                        sb.append(markString).append(" ");
-                    }
+                if (model.getMeta().getAudiences() != null) {
+                    model.getMeta().getAudiences().forEach(a -> {
+                        sb.append(a).append(" ");
+                    });
                 }
-            });
+                if (model.getMeta().getComments() != null) {
+                    model.getMeta().getComments().forEach(c -> {
+                        sb.append(c).append(" ");
+                    });
+                }
+                if (model.getMeta().getTags() != null) {
+                    model.getMeta().getTags().forEach(t -> {
+                        sb.append(t).append(" ");
+                    });
+                }
+                if (model.getMeta().getDescriptions() != null) {
+                    model.getMeta().getDescriptions().forEach(d -> {
+                        sb.append(d).append(" ");
+                    });
+                }
+                if (model.getMeta().getIdentifiers() != null) {
+                    model.getMeta().getIdentifiers().forEach(i -> {
+                        sb.append(i).append(" ");
+                    });
+                }
+                if (model.getMeta().getMarkdown() != null) {
+                    String markString = model.getMeta().getMarkdown()
+                            .replace("\n", "").replace("\r", "").replace("#", " ").replaceAll("[^\\x20-\\x7e]", "");
+                    sb.append(markString).append(" ");
+                }
+                if (model.getMeta().getRead() != null) {
+                    model.getMeta().getRead().forEach(i -> {
+                        sb.append(i).append(" ");
+                    });
+                }
+                if (model.getDependentFeatures() != null) {
+                    model.getDependentFeatures().forEach(depf -> {
+                        String[] featUri = depf.split("/");
+                        Feature feat = fh.find(featUri[featUri.length - 1]);
+                        if (feat.getMeta() != null) {
+                            if (feat.getMeta().getTitles() != null) {
+                                feat.getMeta().getTitles().forEach(t -> {
+                                    sb.append("Predicts ").append(t).append(" ");
+                                });
+                            }
+                            if (feat.getMeta().getAudiences() != null) {
+                                feat.getMeta().getAudiences().forEach(a -> {
+                                    sb.append(a).append(" ");
+                                });
+                            }
+                            if (feat.getMeta().getComments() != null) {
+                                feat.getMeta().getComments().forEach(c -> {
+                                    sb.append(c).append(" ");
+                                });
+                            }
+                            if (feat.getMeta().getTags() != null) {
+                                feat.getMeta().getTags().forEach(t -> {
+                                    sb.append(t).append(" ");
+                                });
+                            }
+                            if (feat.getMeta().getDescriptions() != null) {
+                                feat.getMeta().getDescriptions().forEach(d -> {
+                                    sb.append(d).append(" ");
+                                });
+                            }
+                            if (feat.getMeta().getIdentifiers() != null) {
+                                feat.getMeta().getIdentifiers().forEach(i -> {
+                                    sb.append(i).append(" ");
+                                });
+                            }
+                            if (feat.getMeta().getMarkdown() != null) {
+                                String markString = feat.getMeta().getMarkdown()
+                                        .replace("\n", "").replace("\r", "").replaceAll("[^\\x20-\\x7e]", "");
+                                sb.append(markString).append(" ");
+                            }
+                        }
+                    });
+
+                }
+
+                if (model.getIndependentFeatures() != null) {
+                    model.getIndependentFeatures().forEach(indf -> {
+                        String[] featUri = indf.split("/");
+                        Feature feat = fh.find(featUri[featUri.length - 1]);
+                        if (feat.getMeta() != null) {
+                            if (feat.getMeta().getTitles() != null) {
+                                feat.getMeta().getTitles().forEach(t -> {
+                                    sb.append(t).append(" ");
+                                });
+                            }
+                            if (feat.getMeta().getAudiences() != null) {
+                                feat.getMeta().getAudiences().forEach(a -> {
+                                    sb.append(a).append(" ");
+                                });
+                            }
+                            if (feat.getMeta().getComments() != null) {
+                                feat.getMeta().getComments().forEach(c -> {
+                                    sb.append(c).append(" ");
+                                });
+                            }
+                            if (feat.getMeta().getTags() != null) {
+                                feat.getMeta().getTags().forEach(t -> {
+                                    sb.append(t).append(" ");
+                                });
+                            }
+                            if (feat.getMeta().getDescriptions() != null) {
+                                feat.getMeta().getDescriptions().forEach(d -> {
+                                    sb.append(d).append(" ");
+                                });
+                            }
+                            if (feat.getMeta().getIdentifiers() != null) {
+                                feat.getMeta().getIdentifiers().forEach(i -> {
+                                    sb.append(i).append(" ");
+                                });
+                            }
+                            if (feat.getMeta().getMarkdown() != null) {
+                                String markString = feat.getMeta().getMarkdown()
+                                        .replace("\n", "").replace("\r", "").replace("#", " ").replaceAll("[^\\x20-\\x7e]", "");
+                                sb.append(markString).append(" ");
+                            }
+                        }
+                    });
+                }
+
+            }
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Error while gathering info about model" + modelId);
         }
 
         String forIndex = sb.toString()
@@ -415,7 +467,18 @@ public class IndexEntityConsumer {
                 .replaceAll("/", " ")
                 .replaceAll("\\\\", " ")
                 .replace('"', ' ')
-                .replaceAll(":", " ");
+                .replaceAll("(\\d+)-(?=\\d)", "$1_")
+                .replace("-", " ")
+                .replace(".", " ")
+                .replace(":", " ")
+                .replace("[", " ")
+                .replace("]", " ")
+                .replace(";", " ")
+                .replaceAll(":", " ")
+                .replace("<", " ")
+                .replace(">", " ")
+                .replace("*", " ")
+                .replaceAll("()", " ");
 
         String jaqpotIndex = elq.getModelIndex();
 
@@ -424,25 +487,32 @@ public class IndexEntityConsumer {
         HttpEntity httpEntity = new NStringEntity(entity, ContentType.APPLICATION_JSON);
 
         if (pm.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_ENV).equals("dev")) {
-            String path = String.format("jaqpotindexdev/meta_doc/%s/_create", model.getId());
+            String path = null;
+            if (indexType.equals("Index")) {
+                path = String.format("jaqpotindexdev/meta_doc/%s/_create", model.getId());
+            }
+            if (indexType.equals("Update")) {
+                path = String.format("jaqpotindexdev/meta_doc/%s/", model.getId());
+            }
 
             Request req = new Request("PUT", path);
             req.setEntity(httpEntity);
-            this.elc.getClient().performRequestAsync(req, indexListener(model.getId(), EntityType.MODEL));
+            this.elc.getClient().performRequestAsync(req, indexListener(model.getId(), EntityType.MODEL, sb.toString()));
         } else {
-            String path = String.format("jaqpotindexprod/_doc/{0}?op_type=create", model.getId());
+            String path = String.format("jaqpotindexprod/meta_doc/%s/_create", model.getId());
             Request req = new Request("PUT", path);
             req.setEntity(httpEntity);
-            this.elc.getClient().performRequestAsync(req, indexListener(model.getId(), EntityType.MODEL));
+            this.elc.getClient().performRequestAsync(req, indexListener(model.getId(), EntityType.MODEL, sb.toString()));
         }
     }
 
-    public ResponseListener indexListener(String entityId, EntityType et) {
+    public ResponseListener indexListener(String entityId, EntityType et, String sb) {
         ResponseListener responseListener = new ResponseListener() {
 
             @Override
             public void onFailure(Exception e) {
                 logger.log(Level.SEVERE, "Model with id : {0} could not be indexed exception", entityId);
+                logger.log(Level.SEVERE, "Entity string : {0}", sb);
                 logger.log(Level.SEVERE, "Exception, {0}", e.getMessage().toString());
             }
 

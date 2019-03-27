@@ -34,53 +34,49 @@
  */
 package org.jaqpot.core.model.dto.search;
 
+import java.util.List;
+
 /**
  *
  * @author pantelispanka
  */
 public class FountEntities {
-    
-    private String entityId;
-    
-    private EntityType entityType;
-    
-    public enum EntityType {
 
-        MODEL("model", "entity is model"),
-        DATASET("dataset", "entity is dataset");
+    private Long total;
+    private List<String> entityId;
+    private String finished;
+    private String duration;
 
-        private final String name;
-        private final String description;
-
-        private EntityType(String name, String description) {
-            this.name = name;
-            this.description = description;
-        }
-
-        public String getName() {
-            return this.name;
-        }
-
-        public String getDescription() {
-            return this.description;
-        }
-
+    public Long getTotal() {
+        return total;
     }
 
-    public String getEntityId() {
+    public void setTotal(Long total) {
+        this.total = total;
+    }
+
+    public List<String> getEntityId() {
         return entityId;
     }
 
-    public void setEntityId(String entityId) {
+    public void setEntityId(List<String> entityId) {
         this.entityId = entityId;
     }
 
-    public EntityType getEntityType() {
-        return entityType;
+    public String getFinished() {
+        return finished;
     }
 
-    public void setEntityType(EntityType entityType) {
-        this.entityType = entityType;
+    public void setFinished(String finished) {
+        this.finished = finished;
+    }
+
+    public String getDuration() {
+        return duration;
+    }
+
+    public void setDuration(String duration) {
+        this.duration = duration;
     }
     
 }

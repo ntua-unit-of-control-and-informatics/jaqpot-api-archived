@@ -32,56 +32,22 @@
  * All source files of JAQPOT Quattro that are stored on github are licensed
  * with the aforementioned licence. 
  */
-package org.jaqpot.core.service.httphandlers;
-
-import javax.ejb.Stateless;
-import org.jaqpot.core.model.MetaInfo;
-import org.jaqpot.core.model.User;
+package org.jaqpot.core.model.dto.search;
 
 /**
  *
  * @author pantelispanka
  */
-@Stateless
-public class Rights {
+public class SearchSession {
+    
+    private String seacrhSession;
 
-    public Boolean canWrite(MetaInfo metaInfo, User user) {
-        Boolean canWrite = false;
-        if (metaInfo.getCreators().contains(user.getId())) {
-            canWrite = true;
-        }
-        for (String org : user.getOrganizations()) {
-            if (metaInfo.getWrite() != null && metaInfo.getWrite().contains(org)) {
-                canWrite = true;
-            }
-        }
-        return canWrite;
+    public String getSeacrhSession() {
+        return seacrhSession;
     }
 
-    public Boolean canTrash(MetaInfo metaInfo, User user) {
-        Boolean canTrash = false;
-        if (metaInfo.getCreators().contains(user.getId())) {
-            canTrash = true;
-        }
-        return canTrash;
+    public void setSeacrhSession(String seacrhSession) {
+        this.seacrhSession = seacrhSession;
     }
-
-    public Boolean canView(MetaInfo mf, User user) {
-        Boolean canView = false;
-        if (mf.getCreators() != null && mf.getCreators().contains(user.getId())) {
-            canView = true;
-        }
-        if (mf.getRead() != null) {
-            if (mf.getRead().contains("Jaqpot")) {
-                canView = true;
-            }
-            for (String org : user.getOrganizations()) {
-                if (mf.getRead().contains(org)) {
-                    canView = true;
-                }
-            }
-        }
-        return canView;
-    }
-
+    
 }

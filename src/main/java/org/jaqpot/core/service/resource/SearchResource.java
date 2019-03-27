@@ -38,20 +38,31 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import java.util.ArrayList;
+import java.util.List;
 import javax.ejb.EJB;
 import javax.inject.Inject;
+import javax.ws.rs.BadRequestException;
 import javax.ws.rs.GET;
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.SecurityContext;
 import org.jaqpot.core.messagebeans.IndexEntityProducer;
+import org.jaqpot.core.messagebeans.SearchSessionProducer;
 import org.jaqpot.core.model.ErrorReport;
 import org.jaqpot.core.model.JaqpotEntity;
+import org.jaqpot.core.model.dto.search.FountEntities;
+import org.jaqpot.core.model.dto.search.SearchSession;
+import org.jaqpot.core.model.util.ROG;
 import org.jaqpot.core.search.engine.JaqpotSearch;
 import org.jaqpot.core.service.annotations.TokenSecured;
 import org.jaqpot.core.service.authentication.RoleEnum;
+import org.jaqpot.core.sessions.SessionClient;
 
 /**
  *
@@ -64,9 +75,15 @@ public class SearchResource {
 
     @EJB
     JaqpotSearch jaqpotSearch;
-    
-    @Inject
-    IndexEntityProducer imp;
+
+    @EJB
+    SearchSessionProducer ssp;
+
+    @Context
+    SecurityContext securityContext;
+
+    @EJB
+    SessionClient sessionClient;
 
     @GET
     @TokenSecured({RoleEnum.DEFAULT_USER})
@@ -86,11 +103,82 @@ public class SearchResource {
     public Response search(
             @QueryParam("term") String term
     ) {
-        int from = 0;
-        int to = 40;
-        jaqpotSearch.term(term, from, to);
+
+        String userId = securityContext.getUserPrincipal().getName();
+        ROG rog = new ROG(true);
+        String sessionId = rog.nextStringId(12);
+
+        String termf = term.replace("\\", "")
+                .replace("\n", "")
+                .replace("\r", " ")
+                .replace("#", " ")
+                .replace('"', ' ')
+                .replaceAll("(\\d+)-(?=\\d)", "$1_")
+                .replace("-", " ")
+                .replace(".", " ")
+                .replace(":", " ")
+                .replace("[", " ")
+                .replace("]", " ")
+                .replace(";", " ")
+                .replaceAll(":", " ")
+                .replace("<", " ")
+                .replace(">", " ")
+                .replace("*", " ").replaceAll("[^\\x20-\\x7e]", " ");
+        String termf1 = termf.replace("*", "");
+        ssp.startSearchSession(userId, sessionId, termf1);
+        List<String> entityIds = new ArrayList();
+        this.sessionClient.searchSession(sessionId, entityIds, Boolean.FALSE);
+        SearchSession searchS = new SearchSession();
+        searchS.setSeacrhSession(sessionId);
+
         return Response
-                .ok()
+                .ok(searchS)
+                .build();
+    }
+
+    @GET
+    @Path("/session")
+    @TokenSecured({RoleEnum.DEFAULT_USER})
+    @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
+    @ApiOperation(
+            value = "List of found entities through session",
+            notes = "List of found entities through session"
+    )
+    @ApiResponses(value = {
+        @ApiResponse(code = 401, response = ErrorReport.class, message = "Wrong, missing or insufficient credentials. Error report is produced.")
+        ,
+            @ApiResponse(code = 200, response = FountEntities.class, responseContainer = "List", message = "A list of jaqpot entities found")
+        ,
+            @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
+
+    })
+    public Response searchSession(
+            @QueryParam("session") String term,
+            @QueryParam("from") Integer from,
+            @QueryParam("to") Integer to
+    ) {
+
+        if (from == null) {
+            from = 0;
+        }
+
+        if (to == null) {
+            to = 20;
+        }
+        Boolean exists = this.sessionClient.searchSessionExcists(term);
+        if (exists.equals(false)) {
+            throw new NotFoundException("Search request is by long gone. Please search again!");
+        }
+
+        FountEntities fe = null;
+        try {
+            fe = this.sessionClient.searchSessionFound(term, from, to);
+        } catch (Exception e) {
+            throw new NotFoundException(e.getLocalizedMessage());
+        }
+
+        return Response
+                .ok(fe)
                 .build();
     }
 

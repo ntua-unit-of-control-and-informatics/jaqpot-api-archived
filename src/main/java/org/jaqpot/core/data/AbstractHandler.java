@@ -41,7 +41,6 @@ import org.jaqpot.core.model.JaqpotEntity;
 import org.jaqpot.core.model.MetaInfo;
 import org.jaqpot.core.service.exceptions.JaqpotDocumentSizeExceededException;
 
-
 /**
  *
  * @author Pantelis Sopasakis
@@ -49,7 +48,7 @@ import org.jaqpot.core.service.exceptions.JaqpotDocumentSizeExceededException;
  * @param <T> Entity Type to be handled by the Handler.
  *
  */
-public abstract class AbstractHandler<T extends JaqpotEntity>  {
+public abstract class AbstractHandler<T extends JaqpotEntity> {
 
     final Class<T> entityClass;
 
@@ -71,10 +70,10 @@ public abstract class AbstractHandler<T extends JaqpotEntity>  {
     }
 
     public void updateField(Object id, String key, Object value) {
-        getEntityManager().updateField(entityClass,id,key,value);
+        getEntityManager().updateField(entityClass, id, key, value);
     }
-    
-    public void updateMeta(Object id, MetaInfo meta){
+
+    public void updateMeta(Object id, MetaInfo meta) {
         getEntityManager().updateMeta(entityClass, id, meta);
     }
 
@@ -90,27 +89,36 @@ public abstract class AbstractHandler<T extends JaqpotEntity>  {
         return getEntityManager().find(entityClass, id, fields);
     }
 
-    public T findMeta(Object id)
-    {
+    public T findMeta(Object id) {
         List<String> fields = new ArrayList<>();
         fields.add("totalColumns");
         fields.add("totalRows");
         fields.add("features");
+        fields.add("meta");
         return getEntityManager().find(entityClass, id, fields);
     }
-    
+
+    public T findMetaAndTrash(Object id) {
+        List<String> fields = new ArrayList<>();
+        fields.add("totalColumns");
+        fields.add("totalRows");
+        fields.add("features");
+        fields.add("meta");
+        fields.add("onTrash");
+        return getEntityManager().find(entityClass, id, fields);
+    }
+
 //    public List<T> findInArray(Map<String, Object> properties, List<String> fields, Integer start, Integer max){
 //        return getEntityManager().findInArray(entityClass, properties, fields, start, max);
 //    }
-
     public List<T> find(Map<String, Object> properties) {
         return getEntityManager().find(entityClass, properties, 0, Integer.MAX_VALUE);
     }
-    
+
     public List<T> find(Map<String, Object> properties, List<String> fields, Integer start, Integer max) {
         return getEntityManager().find(entityClass, properties, fields, 0, Integer.MAX_VALUE);
     }
-    
+
     public List<T> findAll() {
         return getEntityManager().findAll(entityClass, 0, Integer.MAX_VALUE);
     }
@@ -118,8 +126,8 @@ public abstract class AbstractHandler<T extends JaqpotEntity>  {
     public List<T> findAll(Integer start, Integer max) {
         return getEntityManager().findAll(entityClass, start, max);
     }
-    
-    public List<T> findAllAndNe( Map<String, Object> properties,Map<String, Object> neProperties, List<String> fields, Integer start, Integer max){
+
+    public List<T> findAllAndNe(Map<String, Object> properties, Map<String, Object> neProperties, List<String> fields, Integer start, Integer max) {
         return getEntityManager().findAndNe(entityClass, properties, neProperties, fields, start, max);
     }
 
@@ -161,8 +169,8 @@ public abstract class AbstractHandler<T extends JaqpotEntity>  {
         properties.put("visible", true);
         Map<String, Object> notProperties = new HashMap<>();
         notProperties.put("onTrash", true);
-        
-        return getEntityManager().findSortedDescAndNe(entityClass, properties, notProperties , fields, start, max, Arrays.asList("meta.date"));
+
+        return getEntityManager().findSortedDescAndNe(entityClass, properties, notProperties, fields, start, max, Arrays.asList("meta.date"));
     }
 
     public Long countAll() {
@@ -177,7 +185,7 @@ public abstract class AbstractHandler<T extends JaqpotEntity>  {
         notProperties.put("onTrash", true);
         return getEntityManager().countAndNe(entityClass, properties, notProperties);
     }
-    
+
     public Long countAllOfOrg(String createdBy, String organization) {
         Map<String, Object> properties = new HashMap<>();
         properties.put("meta.creators", Arrays.asList(createdBy));
@@ -187,8 +195,8 @@ public abstract class AbstractHandler<T extends JaqpotEntity>  {
         notProperties.put("onTrash", true);
         return getEntityManager().countAndNe(entityClass, properties, notProperties);
     }
-    
-    public Long countCreatorsInTrash(String createdBy){
+
+    public Long countCreatorsInTrash(String createdBy) {
         Map<String, Object> properties = new HashMap<>();
         properties.put("meta.creators", Arrays.asList(createdBy));
         properties.put("onTrash", true);

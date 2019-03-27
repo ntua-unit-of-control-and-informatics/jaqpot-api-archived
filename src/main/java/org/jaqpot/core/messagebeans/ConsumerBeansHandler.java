@@ -66,14 +66,22 @@ public class ConsumerBeansHandler {
     IndexEntityConsumer kIndCon;
 
     @EJB
+    SearchSessionConsumer sSesCon;
+
+    @EJB
+    DeleteIndexedEntityConsumer diep;
+
+    @EJB
     PropertyManager pm;
 
-    private int poolSize = 1;
-    private int batchSize = poolSize * 1;
-    private int INTERVAL = 5000;
+    private final int poolSize = 2;
+    private final int batchSize = poolSize * 1;
+    private final int INTERVAL = 5000;
 
     private ScheduledExecutorService executor1;
 
+    private ScheduledExecutorService executor2;
+    private ScheduledExecutorService executor3;
     private Boolean poll;
     private Future future;
 
@@ -95,7 +103,20 @@ public class ConsumerBeansHandler {
             int initialDelay = 0;
             int period = 1000;
             executor1.scheduleAtFixedRate(task1, initialDelay, period, TimeUnit.MILLISECONDS);
-        }else{
+
+            executor2 = Executors.newScheduledThreadPool(poolSize);
+
+            SearchSessionConsumer.searchSessionConsumer searchSessionConsumer = sSesCon.new searchSessionConsumer();
+            Runnable task2 = searchSessionConsumer;
+            executor2.scheduleAtFixedRate(task2, initialDelay, period, TimeUnit.MILLISECONDS);
+
+            executor3 = Executors.newScheduledThreadPool(poolSize);
+
+            DeleteIndexedEntityConsumer.deleteIndexedEntityConsumer deleteIndexedEntityConsumer = diep.new deleteIndexedEntityConsumer();
+            Runnable task3 = deleteIndexedEntityConsumer;
+            executor3.scheduleAtFixedRate(task3, initialDelay, period, TimeUnit.MILLISECONDS);
+
+        } else {
             LOG.log(Level.INFO, "No message consumer beans will start");
         }
 
@@ -106,8 +127,16 @@ public class ConsumerBeansHandler {
 
         try {
             executor1.shutdown();
-            executor1.awaitTermination(15, TimeUnit.SECONDS);
+            executor1.awaitTermination(2, TimeUnit.SECONDS);
             executor1 = null;
+
+            executor2.shutdown();
+            executor2.awaitTermination(2, TimeUnit.SECONDS);
+            executor2 = null;
+
+            executor3.shutdown();
+            executor3.awaitTermination(2, TimeUnit.SECONDS);
+            executor3 = null;
 
         } catch (InterruptedException e) {
             throw new InternalServerErrorException("Poller Problem", e);

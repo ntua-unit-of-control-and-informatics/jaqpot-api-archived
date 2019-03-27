@@ -77,8 +77,10 @@ public class JaqpotElasticSearch {
     void init() {
 
         elasticExistence = propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.ELASTIC_EXISTS);
-
-        if ("true".equals(elasticExistence)) {
+        LOG.log(Level.INFO, elasticExistence);
+        
+        if (propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.ELASTIC_EXISTS).equals("true")) {
+            LOG.log(Level.INFO, "Starting Elastic search client");
             this.elasticHost = propertyManager
                     .getPropertyOrDefault(PropertyManager.PropertyType.ELASTIC_HOST);
             this.elasticPort = Integer.valueOf(propertyManager

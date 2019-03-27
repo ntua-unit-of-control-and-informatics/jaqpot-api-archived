@@ -104,6 +104,29 @@ public class IndexEntityProducer {
 
     }
 
+    public enum IndexTransaction {
+
+        INDEX("index", "index the entity"),
+        UPDATE("update", "update the entity");
+
+        private final String name;
+        private final String description;
+
+        private IndexTransaction(String name, String description) {
+            this.name = name;
+            this.description = description;
+        }
+
+        public String getName() {
+            return this.name;
+        }
+
+        public String getDescription() {
+            return this.description;
+        }
+
+    }
+
     @PostConstruct
     public void init() {
         logger.log(Level.INFO, pm.getPropertyOrDefault(PropertyManager.PropertyType.KAFKA_EXISTS));
@@ -137,18 +160,25 @@ public class IndexEntityProducer {
             if (unindexed.size() > 0) {
                 logger.log(Level.INFO, "Starting indexing {0} unindexd models ", String.valueOf(unindexed.size()));
                 unindexed.forEach(m -> {
-                    this.sendJaqpotModelIDForIndex(m.getId(), EntityType.MODEL);
+                    this.sendJaqpotModelIDForIndex(m.getId(), EntityType.MODEL, IndexTransaction.INDEX);
                 });
             }
 
         }
     }
 
-    public void sendJaqpotModelIDForIndex(String enityId, EntityType et) {
+    public void sendJaqpotModelIDForIndex(String enityId, EntityType et, IndexTransaction it) {
         switch (et) {
             case MODEL:
                 if (pm.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_ENV).equals("dev")) {
-                    ProducerRecord<Long, String> record = new ProducerRecord<>(DEVTOPIC, "Index_model_" + enityId);
+                    ProducerRecord<Long, String> record = null;
+                    if (it.equals(IndexTransaction.INDEX)) {
+                        record = new ProducerRecord<>(DEVTOPIC, "Index_model_" + enityId);
+                    }
+                    if (it.equals(IndexTransaction.UPDATE)) {
+                        record = new ProducerRecord<>(DEVTOPIC, "Update_model_" + enityId);
+                    }
+
                     try {
                         this.kafkaProducer.send(record).get();
                     } catch (InterruptedException | ExecutionException e) {
@@ -157,7 +187,13 @@ public class IndexEntityProducer {
                         this.kafkaProducer.flush();
                     }
                 } else {
-                    ProducerRecord<Long, String> record = new ProducerRecord<>(PRODTOPIC, "Index_model_" + enityId);
+                    ProducerRecord<Long, String> record = null;
+                    if (it.equals(IndexTransaction.INDEX)) {
+                        record = new ProducerRecord<>(DEVTOPIC, "Index_model_" + enityId);
+                    }
+                    if (it.equals(IndexTransaction.UPDATE)) {
+                        record = new ProducerRecord<>(DEVTOPIC, "Update_model_" + enityId);
+                    }
                     try {
                         this.kafkaProducer.send(record).get();
                     } catch (InterruptedException | ExecutionException e) {
@@ -169,7 +205,8 @@ public class IndexEntityProducer {
                 break;
             case DATASET:
                 if (pm.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_ENV).equals("dev")) {
-                    ProducerRecord<Long, String> record = new ProducerRecord<>(DEVTOPIC, "Index_dataset_" + enityId);
+                    ProducerRecord<Long, String> record
+                            = new ProducerRecord<>(DEVTOPIC, "Index_dataset_" + enityId);
                     try {
                         this.kafkaProducer.send(record).get();
                     } catch (InterruptedException | ExecutionException e) {

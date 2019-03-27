@@ -66,26 +66,26 @@ import org.jaqpot.core.properties.PropertyManager;
 @Startup
 @DependsOn("OnAppInit")
 @Singleton
-public class SearchSessionProducer {
+public class DeleteIndexedEntityProducer {
 
-    Logger logger = Logger.getLogger(SearchSessionProducer.class.getName());
+    Logger logger = Logger.getLogger(DeleteIndexedEntityProducer.class.getName());
 
     @EJB
     PropertyManager pm;
 
     private KafkaProducer kafkaProducer;
-    private final static String DEVTOPIC = "SearchSessionDev";
-    private final static String PRODTOPIC = "SearchSessionProd";
+    private final static String DEVTOPIC = "DeleteIndexedEntityDev";
+    private final static String PRODTOPIC = "DeleteIndexedEntityProd";
 
     @PostConstruct
     public void init() {
         logger.log(Level.INFO, pm.getPropertyOrDefault(PropertyManager.PropertyType.KAFKA_EXISTS));
         if (pm.getPropertyOrDefault(PropertyManager.PropertyType.KAFKA_EXISTS).equals("true")) {
-            logger.log(Level.INFO, "Starting kafka SearchSessionProducer");
+            logger.log(Level.INFO, "Starting kafka IndexModelProducer");
             Properties props = new Properties();
             props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,
                     pm.getPropertyOrDefault(PropertyManager.PropertyType.KAFKA_BOOTSTRAP));
-            props.put(ProducerConfig.CLIENT_ID_CONFIG, "SearchSessionProducer");
+            props.put(ProducerConfig.CLIENT_ID_CONFIG, "IndexModelProducer");
             props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG,
                     LongSerializer.class.getName());
             props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,
@@ -104,31 +104,53 @@ public class SearchSessionProducer {
         }
     }
 
-    public void startSearchSession(String userId, String sessionId, String term) {
-        if (pm.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_ENV).equals("dev")) {
-            ProducerRecord<Long, String> record = new ProducerRecord<>(DEVTOPIC, 
-                    "Search_session_" + sessionId + "_user_" +
-                    userId + "_term:" + term);
-            try {
-                this.kafkaProducer.send(record).get();
-            } catch (InterruptedException | ExecutionException e) {
-                logger.log(Level.SEVERE, "Cannot send {0} search session", sessionId);
-            } finally {
-                this.kafkaProducer.flush();
-            }
-        } else {
-            ProducerRecord<Long, String> record = new ProducerRecord<>(PRODTOPIC, 
-                    "Search_session_" + sessionId + "_user_" +
-                    userId + "_term:" + term);
-            try {
-                this.kafkaProducer.send(record).get();
-            } catch (InterruptedException | ExecutionException e) {
-                logger.log(Level.SEVERE, "Cannot start {0} search session", sessionId);
-            } finally {
-                this.kafkaProducer.flush();
-            }
+    public void sendJaqpotEntityIDForDelete(String enityId, IndexEntityProducer.EntityType et) {
+        switch (et) {
+            case MODEL:
+                if (pm.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_ENV).equals("dev")) {
+                    ProducerRecord<Long, String> record = new ProducerRecord<>(DEVTOPIC, "Delete_model_" + enityId);
+                    try {
+                        this.kafkaProducer.send(record).get();
+                    } catch (InterruptedException | ExecutionException e) {
+                        logger.log(Level.SEVERE, "Cannot send {0}", enityId);
+                    } finally {
+                        this.kafkaProducer.flush();
+                    }
+                }
+                if (pm.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_ENV).equals("prod")) {
+                    ProducerRecord<Long, String> record = new ProducerRecord<>(PRODTOPIC, "Delete_model_" + enityId);
+                    try {
+                        this.kafkaProducer.send(record).get();
+                    } catch (InterruptedException | ExecutionException e) {
+                        logger.log(Level.SEVERE, "Cannot send {0}", enityId);
+                    } finally {
+                        this.kafkaProducer.flush();
+                    }
+                }
+                break;
+            case DATASET:
+                if (pm.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_ENV).equals("dev")) {
+                    ProducerRecord<Long, String> record = new ProducerRecord<>(DEVTOPIC, "Delete_dataset_" + enityId);
+                    try {
+                        this.kafkaProducer.send(record).get();
+                    } catch (InterruptedException | ExecutionException e) {
+                        logger.log(Level.SEVERE, "Cannot send {0}", enityId);
+                    } finally {
+                        this.kafkaProducer.flush();
+                    }
+                }
+                if (pm.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_ENV).equals("prod")) {
+                    ProducerRecord<Long, String> record = new ProducerRecord<>(PRODTOPIC, "Delete_dataset_" + enityId);
+                    try {
+                        this.kafkaProducer.send(record).get();
+                    } catch (InterruptedException | ExecutionException e) {
+                        logger.log(Level.SEVERE, "Cannot send {0}", enityId);
+                    } finally {
+                        this.kafkaProducer.flush();
+                    }
+                }
+                break;
         }
-
     }
 
     @PreDestroy
