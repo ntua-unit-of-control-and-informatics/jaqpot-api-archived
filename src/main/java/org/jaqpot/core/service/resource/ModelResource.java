@@ -739,8 +739,6 @@ public class ModelResource {
             featTitles.add(indf);
             featMetaInf.setTitles(featTitles);
             pretrainedIndF.setMeta(featMetaInf);
-//            pretrainedIndF.setFromPretrained(Boolean.TRUE);
-//            pretrainedIndF.setActualIndependentFeatureName(indf);
             try {
                 featureHandler.create(pretrainedIndF);
             } catch (JaqpotDocumentSizeExceededException ex) {
@@ -823,54 +821,56 @@ public class ModelResource {
         model.setAdditionalInfo(additionalInfo);
         model.setPretrained(Boolean.TRUE);
 
-        Dataset datasetForPretrained = DatasetFactory.createEmpty(0);
-        ROG randomStringGenerator = new ROG(true);
-        datasetForPretrained.setId(randomStringGenerator.nextString(14));
-        datasetForPretrained.setFeatured(Boolean.FALSE);
-        datasetForPretrained.setMeta(MetaInfoBuilder.builder()
-                .addTitles("Dataset for pretrained model " + model.getMeta().getTitles().toArray()[0])
-                .addDescriptions("Dataset created to hold the independent and predictes features for "
-                        + "the pretrained model " + model.getMeta().getTitles().toArray()[0])
-                .addCreators(apiA)
-                .build()
-        );
-
-        datasetForPretrained.getMeta().setCreators(new HashSet<>(Arrays.asList(securityContext.getUserPrincipal().getName())));
-        datasetForPretrained.setVisible(Boolean.TRUE);
-        datasetForPretrained.setExistence(Dataset.DatasetExistence.FROMPRETRAINED);
-        datasetForPretrained = DatasetFactory.addNullFeaturesFromPretrained(datasetForPretrained, pretrainedIndependentFeatures, pretrainedPredictedFeatures);
-
-        Set<FeatureInfo> featureInfos = new HashSet();
-        for (String indFeat : model.getIndependentFeatures()) {
-            String[] indFs = indFeat.split("/");
-            Feature feature = featureHandler.find(indFs[indFs.length - 1]);
-            FeatureInfo featInfo = new FeatureInfo();
-            featInfo.setName(feature.getMeta().getTitles().toArray()[0].toString());
-            String featureURI = propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_BASE_SERVICE) + "feature/" + feature.getId();
-            featInfo.setURI(featureURI);
-            featureInfos.add(featInfo);
-        }
-        for (String depFeat : model.getPredictedFeatures()) {
-            String[] indFs = depFeat.split("/");
-            Feature feature = featureHandler.find(indFs[indFs.length - 1]);
-            FeatureInfo featInfo = new FeatureInfo();
-            featInfo.setName(feature.getMeta().getTitles().toArray()[0].toString());
-            String featureURI = propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_BASE_SERVICE) + "feature/" + feature.getId();
-            featInfo.setURI(featureURI);
-            featureInfos.add(featInfo);
-        }
-
-        datasetForPretrained.setFeatures(featureInfos);
-
-        datasetLegacyWrapper.create(datasetForPretrained);
+//        Dataset datasetForPretrained = DatasetFactory.createEmpty(0);
+//        ROG randomStringGenerator = new ROG(true);
+//        datasetForPretrained.setId(randomStringGenerator.nextString(14));
+//        datasetForPretrained.setFeatured(Boolean.FALSE);
+//        datasetForPretrained.setMeta(MetaInfoBuilder.builder()
+//                .addTitles("Dataset for pretrained model " + model.getMeta().getTitles().toArray()[0])
+//                .addDescriptions("Dataset created to hold the independent and predictes features for "
+//                        + "the pretrained model " + model.getMeta().getTitles().toArray()[0])
+//                .addCreators(apiA)
+//                .build()
+//        );
+//
+//        datasetForPretrained.getMeta().setCreators(new HashSet<>(Arrays.asList(securityContext.getUserPrincipal().getName())));
+//        datasetForPretrained.setVisible(Boolean.TRUE);
+//        datasetForPretrained.setExistence(Dataset.DatasetExistence.FROMPRETRAINED);
+//        datasetForPretrained = DatasetFactory.addNullFeaturesFromPretrained(datasetForPretrained, pretrainedIndependentFeatures, pretrainedPredictedFeatures);
+//
+//        Set<FeatureInfo> featureInfos = new HashSet();
+//        for (String indFeat : model.getIndependentFeatures()) {
+//            String[] indFs = indFeat.split("/");
+//            Feature feature = featureHandler.find(indFs[indFs.length - 1]);
+//            FeatureInfo featInfo = new FeatureInfo();
+//            featInfo.setName(feature.getMeta().getTitles().toArray()[0].toString());
+//            String featureURI = propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_BASE_SERVICE) + "feature/" + feature.getId();
+//            featInfo.setURI(featureURI);
+//            featureInfos.add(featInfo);
+//        }
+//        for (String depFeat : model.getPredictedFeatures()) {
+//            String[] indFs = depFeat.split("/");
+//            Feature feature = featureHandler.find(indFs[indFs.length - 1]);
+//            FeatureInfo featInfo = new FeatureInfo();
+//            featInfo.setName(feature.getMeta().getTitles().toArray()[0].toString());
+//            String featureURI = propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_BASE_SERVICE) + "feature/" + feature.getId();
+//            featInfo.setURI(featureURI);
+//            featureInfos.add(featInfo);
+//        }
+//
+//        datasetForPretrained.setFeatures(featureInfos);
+//
+//        datasetLegacyWrapper.create(datasetForPretrained);
 
         //datasetHandler.create(datasetForPretrained);
-        String datasetURI = propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_BASE_SERVICE) + "dataset/" + datasetForPretrained.getId();
-        model.setDatasetUri(datasetURI);
+//        String datasetURI = propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_BASE_SERVICE) + "dataset/" + datasetForPretrained.getId();
+//        model.setDatasetUri(datasetURI);
         modelHandler.create(model);
 
-        this.iep.sendJaqpotModelIDForIndex(model.getId(), IndexEntityProducer.EntityType.MODEL, IndexEntityProducer.IndexTransaction.INDEX);
-                
+        if(propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.KAFKA_EXISTS).equals("true")){
+            this.iep.sendJaqpotModelIDForIndex(model.getId(), IndexEntityProducer.EntityType.MODEL, IndexEntityProducer.IndexTransaction.INDEX);
+        }
+      
         ModelId mi = new ModelId();
         mi.setModelId(model.getId());
         return Response.ok(mi).build();

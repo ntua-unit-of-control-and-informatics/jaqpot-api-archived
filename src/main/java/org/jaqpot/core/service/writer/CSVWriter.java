@@ -83,7 +83,7 @@ public class CSVWriter implements MessageBodyWriter<JaqpotEntity> {
 
         String headers = "\"EntryId\"," + attributes.stream()
                 .map(a -> "\"" + dataset.getFeatures().stream()
-                        .filter(f -> f.getURI().equals(a))
+                        .filter(f -> f.getKey().equals(a))
                         .findFirst()
                         .get()
                         .getName() + "\"")

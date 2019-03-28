@@ -131,11 +131,11 @@ public class IndexEntityProducer {
     public void init() {
         logger.log(Level.INFO, pm.getPropertyOrDefault(PropertyManager.PropertyType.KAFKA_EXISTS));
         if (pm.getPropertyOrDefault(PropertyManager.PropertyType.KAFKA_EXISTS).equals("true")) {
-            logger.log(Level.INFO, "Starting kafka IndexModelProducer");
+            logger.log(Level.INFO, "Starting kafka IndexEnityProducer");
             Properties props = new Properties();
             props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,
                     pm.getPropertyOrDefault(PropertyManager.PropertyType.KAFKA_BOOTSTRAP));
-            props.put(ProducerConfig.CLIENT_ID_CONFIG, "IndexModelProducer");
+            props.put(ProducerConfig.CLIENT_ID_CONFIG, "IndexEnityProducer");
             props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG,
                     LongSerializer.class.getName());
             props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,

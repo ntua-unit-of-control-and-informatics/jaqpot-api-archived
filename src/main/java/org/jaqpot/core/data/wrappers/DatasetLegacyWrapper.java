@@ -28,17 +28,17 @@ public class DatasetLegacyWrapper {
 
     @EJB
     DatasetHandler datasetHandler;
-    
+
     @EJB
     FeatureHandler fh;
-    
+
     @EJB
     PropertyManager pm;
 
     public void create(Dataset dataset) throws IllegalArgumentException, JaqpotDocumentSizeExceededException {
         ROG randomStringGenerator = new ROG(true);
 
-        HashSet<String> features = dataset.getFeatures().stream().map(FeatureInfo::getURI).collect(Collectors.toCollection(HashSet::new));
+        HashSet<String> features = dataset.getFeatures().stream().map(FeatureInfo::getKey).collect(Collectors.toCollection(HashSet::new));
         for (DataEntry dataEntry : dataset.getDataEntry()) {
             HashSet<String> entryFeatures = new HashSet<>(dataEntry.getValues().keySet());
             if (!entryFeatures.equals(features)) {
@@ -67,29 +67,31 @@ public class DatasetLegacyWrapper {
             String[] fIdAr = f.getURI().split("/");
             String fid = fIdAr[fIdAr.length - 1];
             Feature feature = fh.find(fid);
-            Set<String> hasSources = new HashSet();
-            hasSources.add(
-                    pm.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_BASE) 
-                    + "/dataset/" + dataset.getId());
-            feature.getMeta().setHasSources(hasSources);
-            fh.edit(feature);
-        } );
-        for (DataEntry dataentry: dataEntryList) {
+            if (feature != null) {
+                Set<String> hasSources = new HashSet();
+                hasSources.add(
+                        pm.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_BASE)
+                        + "/dataset/" + dataset.getId());
+                feature.getMeta().setHasSources(hasSources);
+                fh.edit(feature);
+            }
+        });
+        for (DataEntry dataentry : dataEntryList) {
             dataentry.setId(randomStringGenerator.nextString(14));
             dataentry.setDatasetId(dataset.getId());
             dataEntryHandler.create(dataentry);
         }
     }
 
-    public Dataset find(Object id, Integer rowStart, Integer rowMax, Integer colStart, Integer colMax){
+    public Dataset find(Object id, Integer rowStart, Integer rowMax, Integer colStart, Integer colMax) {
         List<DataEntry> dataEntryList = dataEntryHandler.findDataEntriesByDatasetId(id, rowStart, rowMax, colStart, colMax);
         Dataset dataset = datasetHandler.find(id);
         dataset.setDataEntry(dataEntryList);
         return dataset;
     }
 
-     public Dataset find(Object id){
-        return find(id, null,null,null,null);
-     }
+    public Dataset find(Object id) {
+        return find(id, null, null, null, null);
+    }
 
 }

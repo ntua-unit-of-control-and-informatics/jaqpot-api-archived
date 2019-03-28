@@ -354,7 +354,7 @@ public class JPDIClientImpl implements JPDIClient {
                                     predictionFeatureResource.setMeta(MetaInfoBuilder
                                             .builder()
                                             .addSources(/*messageBody.get("base_uri") + */"algorithm/" + algorithm.getId())
-                                            .addComments("Feature created to hold predictions by algorithm with ID " + algorithm.getId())
+                                            .addComments("Feature created to hold predictions by algorithm with ID " + model.getId())
                                             .addTitles(featureTitle)
                                             .addSeeAlso(predictionFeature)
                                             .addCreators(algorithm.getMeta().getCreators())
@@ -423,10 +423,10 @@ public class JPDIClientImpl implements JPDIClient {
         Dataset dataset = DatasetFactory.copy(inputDataset);
         Dataset tempWithDependentFeatures = DatasetFactory.copy(dataset, new HashSet<>(model.getDependentFeatures()));
 
-        dataset.getDataEntry().parallelStream()
-                .forEach(dataEntry -> {
-                    dataEntry.getValues().keySet().retainAll(model.getIndependentFeatures());
-                });
+//        dataset.getDataEntry().parallelStream()
+//                .forEach(dataEntry -> {
+//                    dataEntry.getValues().keySet().retainAll(model.getIndependentFeatures());
+//                });
         PredictionRequest predictionRequest = new PredictionRequest();
         predictionRequest.setDataset(dataset);
         predictionRequest.setRawModel(model.getActualModel());
@@ -525,9 +525,11 @@ public class JPDIClientImpl implements JPDIClient {
                                                         if (feature == null) {
                                                             return;
                                                         }
-                                                        dataEntry.getValues().put(baseURI + "feature/" + feature.getId(), entry.getValue());
+                                                        int size = dataEntry.getValues().size();
+                                                        dataEntry.getValues().put(String.valueOf(size), entry.getValue());
                                                         FeatureInfo featInfo = new FeatureInfo(baseURI + "feature/" + feature.getId(), feature.getMeta().getTitles().stream().findFirst().get());
                                                         featInfo.setCategory(Dataset.DescriptorCategory.PREDICTED);
+                                                        featInfo.setKey(String.valueOf(size));
                                                         dataset.getFeatures().add(featInfo);
                                                     });
                                         });

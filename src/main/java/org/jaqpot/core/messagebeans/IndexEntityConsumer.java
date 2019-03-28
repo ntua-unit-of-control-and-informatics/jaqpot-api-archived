@@ -292,7 +292,7 @@ public class IndexEntityConsumer {
 
         String jaqpotIndex = elq.getModelIndex();
 
-        String entity = String.format(jaqpotIndex, sb,
+        String entity = String.format(jaqpotIndex, forIndex,
                 "Model");
         HttpEntity httpEntity = new NStringEntity(entity, ContentType.APPLICATION_JSON);
 
@@ -482,7 +482,7 @@ public class IndexEntityConsumer {
 
         String jaqpotIndex = elq.getModelIndex();
 
-        String entity = String.format(jaqpotIndex, sb,
+        String entity = String.format(jaqpotIndex, forIndex,
                 "Model");
         HttpEntity httpEntity = new NStringEntity(entity, ContentType.APPLICATION_JSON);
 

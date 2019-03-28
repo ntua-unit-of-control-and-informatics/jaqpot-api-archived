@@ -99,7 +99,7 @@ public class PropertyManager {
         ELASTIC_HOST("elastic.host","config", "192.168.10.80"),
         ELASTIC_PORT("elastic.port", "config", "32258"),
         ELASTIC_EXISTS("elastic.existence", "config", "false"),
-        KAFKA_BOOTSTRAP("kafka.bootstrap","config", "192.168.10.84:32400,192.168.10.82:32401,192.168.10.83:32402"),
+        KAFKA_BOOTSTRAP("kafka.bootstrap","config", "192.168.10.84:32400,192.168.10.83:32401,192.168.10.82:32402"),
         KAFKA_EXISTS("kafka.existence", "config", "false"),
         KAFKA_REPLICATION("kafka.replication", "config", "3"),
         REDIS_EXISTS("redis.exists", "config", "false"),

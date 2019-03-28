@@ -45,7 +45,7 @@ public class FeatureInfo {
     private String ont;
     private Map<String, Object> conditions;
     private Dataset.DescriptorCategory category;
-    private Integer key;
+    private String key;
 
     public FeatureInfo() {
     }
@@ -111,11 +111,11 @@ public class FeatureInfo {
         this.ont = ont;
     }
 
-    public Integer getKey() {
+    public String getKey() {
         return key;
     }
 
-    public void setKey(Integer key) {
+    public void setKey(String key) {
         this.key = key;
     }
     

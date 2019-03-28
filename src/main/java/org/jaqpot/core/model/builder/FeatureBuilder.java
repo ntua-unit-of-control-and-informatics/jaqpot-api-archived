@@ -32,6 +32,8 @@ public class FeatureBuilder implements EntityBuilder<Feature> {
     public static FeatureBuilder builderRandomId() {
         return new FeatureBuilder("FTR" + new ROG(true).nextString(12));
     }
+    
+
 
     @Override
     public  Feature build() {
@@ -136,5 +138,5 @@ public class FeatureBuilder implements EntityBuilder<Feature> {
         feature.getMeta().getSubjects().addAll(items);
         return this;
     }
-
+    
 }
