@@ -203,7 +203,7 @@ public class IndexEntityConsumer {
                         .replaceAll(":", " ")
                         .replace("<", " ")
                         .replace(">", " ")
-                        .replace("*", " ").replaceAll("[^\\x20-\\x7e]", " ");
+                        .replace("*", " ");
                 sb.append(markString).append(" ");
             }
             if (dataset.getMeta().getRead() != null) {
@@ -246,27 +246,11 @@ public class IndexEntityConsumer {
                         });
                     }
                     if (feat.getMeta().getMarkdown() != null) {
-                        String markString = feat.getMeta().getMarkdown()
-                                .replace("\n", "")
-                                .replace("\r", " ")
-                                .replace("#", " ")
-                                .replace('"', ' ')
-                                .replaceAll("(\\d+)-(?=\\d)", "$1_")
-                                .replace("-", " ")
-                                .replace(".", " ")
-                                .replace(":", " ")
-                                .replace("[", " ")
-                                .replace("]", " ")
-                                .replace(";", " ")
-                                .replaceAll(":", " ")
-                                .replace("<", " ")
-                                .replace(">", " ")
-                                .replace("*", " ").replaceAll("[^\\x20-\\x7e]", " ");
+                        String markString = feat.getMeta().getMarkdown();
                         sb.append(markString).append(" ");
                     }
                 }
             });
-
         }
 
         String forIndex = sb.toString()
@@ -356,8 +340,7 @@ public class IndexEntityConsumer {
                     });
                 }
                 if (model.getMeta().getMarkdown() != null) {
-                    String markString = model.getMeta().getMarkdown()
-                            .replace("\n", "").replace("\r", "").replace("#", " ").replaceAll("[^\\x20-\\x7e]", "");
+                    String markString = model.getMeta().getMarkdown();
                     sb.append(markString).append(" ");
                 }
                 if (model.getMeta().getRead() != null) {
@@ -401,8 +384,7 @@ public class IndexEntityConsumer {
                                 });
                             }
                             if (feat.getMeta().getMarkdown() != null) {
-                                String markString = feat.getMeta().getMarkdown()
-                                        .replace("\n", "").replace("\r", "").replaceAll("[^\\x20-\\x7e]", "");
+                                String markString = feat.getMeta().getMarkdown();
                                 sb.append(markString).append(" ");
                             }
                         }
@@ -446,8 +428,7 @@ public class IndexEntityConsumer {
                                 });
                             }
                             if (feat.getMeta().getMarkdown() != null) {
-                                String markString = feat.getMeta().getMarkdown()
-                                        .replace("\n", "").replace("\r", "").replace("#", " ").replaceAll("[^\\x20-\\x7e]", "");
+                                String markString = feat.getMeta().getMarkdown();
                                 sb.append(markString).append(" ");
                             }
                         }
@@ -477,8 +458,7 @@ public class IndexEntityConsumer {
                 .replaceAll(":", " ")
                 .replace("<", " ")
                 .replace(">", " ")
-                .replace("*", " ")
-                .replaceAll("()", " ");
+                .replace("*", " ");
 
         String jaqpotIndex = elq.getModelIndex();
 
@@ -489,20 +469,28 @@ public class IndexEntityConsumer {
         if (pm.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_ENV).equals("dev")) {
             String path = null;
             if (indexType.equals("Index")) {
-                path = String.format("jaqpotindexdev/meta_doc/%s/_create", model.getId());
+                path = String.format("jaqpotindexdev/meta_doc/%s/_create", modelId);
             }
             if (indexType.equals("Update")) {
-                path = String.format("jaqpotindexdev/meta_doc/%s/", model.getId());
+                path = String.format("jaqpotindexdev/meta_doc/%s/", modelId);
             }
 
             Request req = new Request("PUT", path);
             req.setEntity(httpEntity);
-            this.elc.getClient().performRequestAsync(req, indexListener(model.getId(), EntityType.MODEL, sb.toString()));
+            try {
+                this.elc.getClient().performRequestAsync(req, indexListener(modelId, EntityType.MODEL, forIndex));
+            } catch (Exception e) {
+                logger.log(Level.SEVERE, "Could not index model {0} ", modelId + " " + e.getMessage());
+            }
         } else {
             String path = String.format("jaqpotindexprod/meta_doc/%s/_create", model.getId());
             Request req = new Request("PUT", path);
             req.setEntity(httpEntity);
-            this.elc.getClient().performRequestAsync(req, indexListener(model.getId(), EntityType.MODEL, sb.toString()));
+            try {
+                this.elc.getClient().performRequestAsync(req, indexListener(model.getId(), EntityType.MODEL, forIndex));
+            } catch (Exception e) {
+                logger.log(Level.SEVERE, "Could not index model {0} ", modelId + " " + e.getMessage());
+            }
         }
     }
 
@@ -513,7 +501,7 @@ public class IndexEntityConsumer {
             public void onFailure(Exception e) {
                 logger.log(Level.SEVERE, "Model with id : {0} could not be indexed exception", entityId);
                 logger.log(Level.SEVERE, "Entity string : {0}", sb);
-                logger.log(Level.SEVERE, "Exception, {0}", e.getMessage().toString());
+                logger.log(Level.SEVERE, "Exception, {0}", e.getMessage());
             }
 
             @Override

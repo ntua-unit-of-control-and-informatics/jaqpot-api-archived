@@ -148,7 +148,7 @@ public class IndexEntityProducer {
             short replication = 2;
             if (pm.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_ENV).equals("dev")) {
                 admin.createTopics(asList(new NewTopic(DEVTOPIC, partitions, replication).configs(configs)));
-            } else {
+            } else if(pm.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_ENV).equals("prod")) {
                 admin.createTopics(asList(new NewTopic(PRODTOPIC, partitions, replication).configs(configs)));
             }
 
@@ -178,7 +178,6 @@ public class IndexEntityProducer {
                     if (it.equals(IndexTransaction.UPDATE)) {
                         record = new ProducerRecord<>(DEVTOPIC, "Update_model_" + enityId);
                     }
-
                     try {
                         this.kafkaProducer.send(record).get();
                     } catch (InterruptedException | ExecutionException e) {
@@ -186,13 +185,14 @@ public class IndexEntityProducer {
                     } finally {
                         this.kafkaProducer.flush();
                     }
-                } else {
+                } else if(pm.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_ENV).equals("prod")){
+                    
                     ProducerRecord<Long, String> record = null;
                     if (it.equals(IndexTransaction.INDEX)) {
-                        record = new ProducerRecord<>(DEVTOPIC, "Index_model_" + enityId);
+                        record = new ProducerRecord<>(PRODTOPIC, "Index_model_" + enityId);
                     }
                     if (it.equals(IndexTransaction.UPDATE)) {
-                        record = new ProducerRecord<>(DEVTOPIC, "Update_model_" + enityId);
+                        record = new ProducerRecord<>(PRODTOPIC, "Update_model_" + enityId);
                     }
                     try {
                         this.kafkaProducer.send(record).get();
@@ -214,7 +214,7 @@ public class IndexEntityProducer {
                     } finally {
                         this.kafkaProducer.flush();
                     }
-                } else {
+                } else if(pm.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_ENV).equals("prod")){
                     ProducerRecord<Long, String> record = new ProducerRecord<>(PRODTOPIC, "Index_dataset_" + enityId);
                     try {
                         this.kafkaProducer.send(record).get();

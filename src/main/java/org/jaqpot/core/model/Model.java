@@ -126,6 +126,8 @@ public class Model extends JaqpotEntity {
     
     private Boolean indexed;
     
+    private String planguage;
+    
     public Model() {
     }
 
@@ -336,5 +338,13 @@ public class Model extends JaqpotEntity {
     public void setIndexed(Boolean indexed) {
         this.indexed = indexed;
     }
-    
+
+    public String getPlanguage() {
+        return planguage;
+    }
+
+    public void setPlanguage(String planguage) {
+        this.planguage = planguage;
+    }
+
 }

@@ -128,10 +128,9 @@ public class DatasetResource {
 
     @EJB
     Rights rights;
-   
+
 //    @Inject
 //    Ambit ambitClient;
-
     @Inject
     @UnSecure
     Client client;
@@ -173,7 +172,8 @@ public class DatasetResource {
                     + "parameter.", defaultValue = "10") @QueryParam("max") Integer max,
             @ApiParam(value = "description for the dataset", required = false, allowableValues = "UPLOADED, CREATED, TRANSFORMED, PREDICTED, FROMPRETRAINED, DESCRIPTORS, ALL") @QueryParam("existence") String datasetexistence,
             @ApiParam(value = "onTrash for the dataset", required = false, allowableValues = "true, false") @QueryParam("ontrash") Boolean ontrash,
-            @ApiParam(value = "organization for the dataset", required = false) @QueryParam("organization") String organization
+            @ApiParam(value = "organization for the dataset", required = false) @QueryParam("organization") String organization,
+            @ApiParam(value = "by Model", required = false) @QueryParam("byModel") String byModel
     ) {
         start = start != null ? start : 0;
         if (max == null || max > 500) {
@@ -184,10 +184,10 @@ public class DatasetResource {
         List<Dataset> datasets = new ArrayList();
         Number total = null;
         if (datasetexistence == null || datasetexistence.equals("ALL")) {
-            if (organization == null  && ontrash == null) {
+            if (organization == null && ontrash == null) {
                 datasets.addAll(datasetHandler.listMetaOfCreator(creator, start, max));
                 total = datasetHandler.countAllOfCreator(creator);
-            }else if(ontrash != null){
+            } else if (ontrash != null) {
                 List<String> fields = new ArrayList<>();
                 fields.add("_id");
                 fields.add("meta");
@@ -209,7 +209,7 @@ public class DatasetResource {
                 fields.add("totalColumns");
                 Map<String, Object> properties = new HashMap<>();
                 properties.put("meta.read", organization);
-    //            properties.put("meta.creators", Arrays.asList(creator));
+                //            properties.put("meta.creators", Arrays.asList(creator));
                 Map<String, Object> neProperties = new HashMap<>();
                 neProperties.put("onTrash", true);
                 datasets.addAll(datasetHandler.findAllAndNe(properties, neProperties, fields, start, max));
@@ -230,8 +230,13 @@ public class DatasetResource {
                     total = datasetHandler.countCreatorsExistenseDatasets(creator, Dataset.DatasetExistence.TRANFORMED);
                     break;
                 case "PREDICTED":
-                    datasets.addAll(datasetHandler.listDatasetCreatorsExistence(creator, Dataset.DatasetExistence.PREDICTED, start, max));
-                    total = datasetHandler.countCreatorsExistenseDatasets(creator, Dataset.DatasetExistence.PREDICTED);
+                    if (byModel != null) {
+                        datasets.addAll(datasetHandler.listDatasetByModelExistence(creator, byModel, Dataset.DatasetExistence.PREDICTED, start, max));
+
+                    } else {
+                        datasets.addAll(datasetHandler.listDatasetCreatorsExistence(creator, Dataset.DatasetExistence.PREDICTED, start, max));
+                        total = datasetHandler.countCreatorsExistenseDatasets(creator, Dataset.DatasetExistence.PREDICTED);
+                    }
                     break;
                 case "PRETRAINED":
                     datasets.addAll(datasetHandler.listDatasetCreatorsExistence(creator, Dataset.DatasetExistence.FROMPRETRAINED, start, max));
@@ -854,7 +859,6 @@ public class DatasetResource {
 //
 //        return Response.ok(report).build();
 //    }
-
     @POST
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Path("{id}/qprf-dummy")
@@ -1182,12 +1186,11 @@ public class DatasetResource {
         } else {
             throw new JaqpotNotAuthorizedException("You are not authorized to update this resource");
         }
-        
+
         return Response.accepted().entity(datasetForUpdate.getMeta()).build();
 
     }
-    
-    
+
     @PUT
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Consumes(MediaType.APPLICATION_JSON)
@@ -1215,11 +1218,11 @@ public class DatasetResource {
         }
         Boolean canTrash = rights.canTrash(dataset.getMeta(), userHandler.find(userId));
         if (canTrash == true) {
-            datasetHandler.updateField(id, "onTrash" , datasetForUpdate.getOnTrash());
+            datasetHandler.updateField(id, "onTrash", datasetForUpdate.getOnTrash());
         } else {
             throw new JaqpotNotAuthorizedException("You are not authorized to update this resource");
         }
-        
+
         return Response.accepted().entity(datasetForUpdate.getMeta()).build();
 
     }
@@ -1228,8 +1231,10 @@ public class DatasetResource {
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Path("/csv")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "file", value = "xls[m,x] file", required = true, dataType = "file", paramType = "formData"),
-            @ApiImplicitParam(name = "title", value = "Title of dataset", required = true, dataType = "string", paramType = "formData"),
+        @ApiImplicitParam(name = "file", value = "xls[m,x] file", required = true, dataType = "file", paramType = "formData")
+        ,
+            @ApiImplicitParam(name = "title", value = "Title of dataset", required = true, dataType = "string", paramType = "formData")
+        ,
             @ApiImplicitParam(name = "description", value = "Description of dataset", required = true, dataType = "string", paramType = "formData")
     })
     @ApiOperation(value = "Creates dataset By .csv document",
@@ -1303,9 +1308,9 @@ public class DatasetResource {
             List<String> line = parseLine(scanner.nextLine());
             if (firstLine) {
                 for (String l : line) {
-                    String pseudoURL = "/feature/" + l.trim().replaceAll("[ .]","_"); //uriInfo.getBaseUri().toString()+
+                    String pseudoURL = "/feature/" + l.trim().replaceAll("[ .]", "_"); //uriInfo.getBaseUri().toString()+
                     feature.add(pseudoURL);
-                    featureInfoList.add(new FeatureInfo(pseudoURL, l,"NA",new HashMap<>(),Dataset.DescriptorCategory.EXPERIMENTAL));
+                    featureInfoList.add(new FeatureInfo(pseudoURL, l, "NA", new HashMap<>(), Dataset.DescriptorCategory.EXPERIMENTAL));
                 }
                 firstLine = false;
             } else {
@@ -1314,17 +1319,18 @@ public class DatasetResource {
                 TreeMap<String, Object> values = new TreeMap<>();
                 while (it1.hasNext() && it2.hasNext()) {
                     String it = it2.next();
-                    if (!NumberUtils.isParsable(it))
+                    if (!NumberUtils.isParsable(it)) {
                         values.put(it1.next(), it);
-                    else
-                        values.put(it1.next(),Float.parseFloat(it));
+                    } else {
+                        values.put(it1.next(), Float.parseFloat(it));
+                    }
                 }
 
                 DataEntry dataEntry = new DataEntry();
                 dataEntry.setValues(values);
                 EntryId entryId = new EntryId();
                 entryId.setName("row" + count);
-                entryId.setURI(propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_BASE_SERVICE)+"substance/"+ new ROG(true).nextString(12));
+                entryId.setURI(propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_BASE_SERVICE) + "substance/" + new ROG(true).nextString(12));
                 entryId.setOwnerUUID("7da545dd-2544-43b0-b834-9ec02553f7f2");
 
                 dataEntry.setEntryId(entryId);
@@ -1339,9 +1345,9 @@ public class DatasetResource {
 
     private void populateFeatures(Dataset dataset) throws JaqpotDocumentSizeExceededException {
         for (FeatureInfo featureInfo : dataset.getFeatures()) {
-            String trimmedFeatureURI = propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_BASE_SERVICE)+"feature/"+featureInfo.getName().replaceAll("\\s+"," ").replaceAll("[ .]","_")+"_" + new ROG(true).nextString(12);
+            String trimmedFeatureURI = propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_BASE_SERVICE) + "feature/" + featureInfo.getName().replaceAll("\\s+", " ").replaceAll("[ .]", "_") + "_" + new ROG(true).nextString(12);
 
-            String trimmedFeatureName= featureInfo.getName().replaceAll("\\s+"," ").replaceAll("[.]","_").replaceAll("[.]","_");
+            String trimmedFeatureName = featureInfo.getName().replaceAll("\\s+", " ").replaceAll("[.]", "_").replaceAll("[.]", "_");
 
             Feature f = FeatureBuilder.builder(trimmedFeatureURI.split("feature/")[1])
                     .addTitles(featureInfo.getName()).build();
@@ -1350,7 +1356,7 @@ public class DatasetResource {
             //Update FeatureURIS in Data Entries
             for (DataEntry dataentry : dataset.getDataEntry()) {
                 Object value = dataentry.getValues().remove(featureInfo.getURI());
-                dataentry.getValues().put(trimmedFeatureURI,value);
+                dataentry.getValues().put(trimmedFeatureURI, value);
             }
             //Update FeatureURI in Feature Info
             featureInfo.setURI(trimmedFeatureURI);

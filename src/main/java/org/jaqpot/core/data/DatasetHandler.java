@@ -58,7 +58,7 @@ import java.util.stream.Collectors;
  */
 @Stateless
 public class DatasetHandler extends AbstractHandler<Dataset> {
-    
+
     @Inject
     @MongoDB
     JaqpotEntityManager em;
@@ -66,19 +66,20 @@ public class DatasetHandler extends AbstractHandler<Dataset> {
     public DatasetHandler() {
         super(Dataset.class);
     }
-    
+
     @Override
     protected JaqpotEntityManager getEntityManager() {
         return em;
     }
-    
+
     @Override
     public void create(Dataset dataset) throws IllegalArgumentException, JaqpotDocumentSizeExceededException {
-        if (dataset.toString().length() > 14000000)
+        if (dataset.toString().length() > 14000000) {
             throw new JaqpotDocumentSizeExceededException("Resulting Dataset exceeds limit of 14mb on Dataset Resources");
+        }
         super.create(dataset);
     }
-    
+
     @Override
     public void edit(Dataset dataset) throws IllegalArgumentException {
         HashSet<String> features = dataset.getFeatures().stream().map(FeatureInfo::getURI).collect(Collectors.toCollection(HashSet::new));
@@ -91,7 +92,7 @@ public class DatasetHandler extends AbstractHandler<Dataset> {
         }
         getEntityManager().merge(dataset);
     }
-    
+
     public Dataset find(Object id) {
         Dataset dataset = em.find(Dataset.class, id);
         if (dataset == null) {
@@ -99,8 +100,8 @@ public class DatasetHandler extends AbstractHandler<Dataset> {
         }
         return dataset;
     }
-    
-    public List<Dataset> listDatasetCreatorsExistence(String creator, Dataset.DatasetExistence existence, Integer start, Integer max){
+
+    public List<Dataset> listDatasetCreatorsExistence(String creator, Dataset.DatasetExistence existence, Integer start, Integer max) {
         List<String> fields = new ArrayList<>();
         fields.add("_id");
         fields.add("meta");
@@ -108,18 +109,18 @@ public class DatasetHandler extends AbstractHandler<Dataset> {
         fields.add("organizations");
         fields.add("totalRows");
         fields.add("totalColumns");
-        
+
         Map<String, Object> properties = new HashMap<>();
         properties.put("meta.creators", Arrays.asList(creator));
         properties.put("existence", existence.getName().toUpperCase());
-        
+
         Map<String, Object> notProperties = new HashMap<>();
         notProperties.put("onTrash", true);
-        
+
         return em.findAndNe(Dataset.class, properties, notProperties, fields, start, max);
     }
-    
-    public List<Dataset> listDatasetOrgsExistence(String organization, Dataset.DatasetExistence existence, Integer start, Integer max){
+
+    public List<Dataset> listDatasetByModelExistence(String creator, String byModel, Dataset.DatasetExistence existence, Integer start, Integer max) {
         List<String> fields = new ArrayList<>();
         fields.add("_id");
         fields.add("meta");
@@ -127,15 +128,33 @@ public class DatasetHandler extends AbstractHandler<Dataset> {
         fields.add("organizations");
         fields.add("totalRows");
         fields.add("totalColumns");
-        
+
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("meta.creators", Arrays.asList(creator));
+        properties.put("existence", existence.getName().toUpperCase());
+        properties.put("byModel", byModel);
+        Map<String, Object> notProperties = new HashMap<>();
+        notProperties.put("onTrash", true);
+
+        return em.findAndNe(Dataset.class, properties, notProperties, fields, start, max);
+    }
+
+    public List<Dataset> listDatasetOrgsExistence(String organization, Dataset.DatasetExistence existence, Integer start, Integer max) {
+        List<String> fields = new ArrayList<>();
+        fields.add("_id");
+        fields.add("meta");
+        fields.add("ontologicalClasses");
+        fields.add("organizations");
+        fields.add("totalRows");
+        fields.add("totalColumns");
+
         Map<String, Object> properties = new HashMap<>();
         properties.put("organizations", Arrays.asList(organization));
         properties.put("existence", existence.getName().toUpperCase());
         return em.find(Dataset.class, properties, fields, start, max);
     }
-    
-    
-        public List<Dataset> listOrgsDataset(String organization, Integer start, Integer max){
+
+    public List<Dataset> listOrgsDataset(String organization, Integer start, Integer max) {
         List<String> fields = new ArrayList<>();
         fields.add("_id");
         fields.add("meta");
@@ -143,16 +162,15 @@ public class DatasetHandler extends AbstractHandler<Dataset> {
         fields.add("organizations");
         fields.add("totalRows");
         fields.add("totalColumns");
-        
+
         Map<String, Object> properties = new HashMap<>();
-        
-        
+
         properties.put("meta.view", organization);
 //        properties.put("visible", true);
         return em.find(Dataset.class, properties, fields, start, max);
     }
-    
-    public long countCreatorsExistenseDatasets(String creator, Dataset.DatasetExistence existence){
+
+    public long countModelsPredictedDatasets(String creator, Dataset.DatasetExistence existence) {
         Map<String, Object> properties = new HashMap<>();
         properties.put("meta.creators", Arrays.asList(creator));
         properties.put("existence", existence.getName().toUpperCase());
@@ -161,6 +179,15 @@ public class DatasetHandler extends AbstractHandler<Dataset> {
         neProperties.put("onTrash", true);
         return getEntityManager().countAndNe(entityClass, properties, neProperties);
     }
-    
-    
+
+    public long countCreatorsExistenseDatasets(String creator, Dataset.DatasetExistence existence) {
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("meta.creators", Arrays.asList(creator));
+        properties.put("existence", existence.getName().toUpperCase());
+        properties.put("visible", true);
+        Map<String, Object> neProperties = new HashMap<>();
+        neProperties.put("onTrash", true);
+        return getEntityManager().countAndNe(entityClass, properties, neProperties);
+    }
+
 }

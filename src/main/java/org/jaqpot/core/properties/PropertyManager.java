@@ -53,7 +53,8 @@ import org.jaqpot.core.model.User;
 public class PropertyManager {
 
     public enum PropertyType {
-        JAQPOT_ENV("jaqpot.env", "config", "dev"),
+//        JAQPOT_ENV("jaqpot.env", "config", "dev"),
+        JAQPOT_ENV("jaqpot.env", "config", "prod"),
         JAQPOT_LOCAL_IP("jaqpot.local.ip", "config", "147.102.86.129"),
         JAQPOT_ADMINISTRATORS("jaqpot.administrators", "config", "admin"),
         JAQPOT_AA("jaqpot.aa", "config", "true"),
@@ -64,7 +65,7 @@ public class PropertyManager {
         JAQPOT_BASE("jaqpot.base", "config", "/jaqpot/services"),
         JAQPOT_BASE_SERVICE("jaqpot.base.service", "config", "http://localhost:8080/jaqpot/services/"),
         JAQPOT_BASE_IMAGE("jaqpot.base.image", "config", "http://localhost:8880/imageAnalysis/service/"),
-        JAQPOT_BASE_VALIDATION("jaqpot.base.validation", "config", "http://localhost:8092/pws/validation"),
+        JAQPOT_BASE_VALIDATION("jaqpot.base.validation", "config", "http://localhost:5000/pws/validation"),
         JAQPOT_BASE_INTERLAB("jaqpot.base.interlab", "config", "http://jaqpot.org:8091/pws/interlabtest/"),
         JAQPOT_RABBITMQ_HOST("jaqpot.rabbitmq.host", "config", ""),
         JAQPOT_RABBITMQ_USERNAME("jaqpot.rabbitmq.username", "config", ""),
@@ -96,15 +97,18 @@ public class PropertyManager {
         OIDC_CLIENT_ID("oidc.client.id", "config", "jaqpot-api"),
         OIDC_CLIENT_PASS("oidc.client.pass", "config", "9dccac19-23c6-49be-83be-8f07859d263f"),
         OIDC_PROVIDER_CONF("oidc.provider.conf", "config", ".well-known/openid-configuration"),
+        
         ELASTIC_HOST("elastic.host","config", "192.168.10.80"),
-        ELASTIC_PORT("elastic.port", "config", "32258"),
-        ELASTIC_EXISTS("elastic.existence", "config", "false"),
-        KAFKA_BOOTSTRAP("kafka.bootstrap","config", "192.168.10.84:32400,192.168.10.83:32401,192.168.10.82:32402"),
-        KAFKA_EXISTS("kafka.existence", "config", "false"),
+        ELASTIC_PORT("elastic.port", "config", "30995"),
+        ELASTIC_EXISTS("elastic.existence", "config", "true"),
+        
+        KAFKA_BOOTSTRAP("kafka.bootstrap","config", "192.168.10.84:32400,192.168.10.84:32401,192.168.10.84:32402"),
+        KAFKA_EXISTS("kafka.existence", "config", "true"),
         KAFKA_REPLICATION("kafka.replication", "config", "3"),
+        
         REDIS_EXISTS("redis.exists", "config", "false"),
         REDIS_DB("redis.db", "config", "localhost"),
-        REDIS_ON_CLUSTER("redis.on.cluster", "config", "false"),
+        REDIS_ON_CLUSTER("redis.on.cluster", "config", "true"),
         REDIS_CLUSTER("redis.cluster", "config", "redis-cluster.redis:6379");
         
         

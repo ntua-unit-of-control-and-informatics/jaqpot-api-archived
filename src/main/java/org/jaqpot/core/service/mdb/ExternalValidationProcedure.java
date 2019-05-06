@@ -1,5 +1,6 @@
 package org.jaqpot.core.service.mdb;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jaqpot.core.annotations.Jackson;
 import org.jaqpot.core.data.*;
 import org.jaqpot.core.data.serialize.JSONSerializer;
@@ -100,7 +101,7 @@ public class ExternalValidationProcedure extends AbstractJaqpotProcedure {
         String apiKey = (String) messageBody.get("api_key");
         String creator = (String) messageBody.get("creator");
         String validation_from_ui = (String) messageBody.get("validation_type");
-        
+
         try {
             init(taskId);
             checkCancelled();
@@ -169,14 +170,12 @@ public class ExternalValidationProcedure extends AbstractJaqpotProcedure {
             checkCancelled();
 
             ValidationType validationType;
-            
-            if(validation_from_ui.contains("REGRESSION")){
+
+            if (validation_from_ui.contains("REGRESSION")) {
                 validationType = ValidationType.REGRESSION;
-            }
-            else if(validation_from_ui.contains("CLASSIFICATION")){
+            } else if (validation_from_ui.contains("CLASSIFICATION")) {
                 validationType = ValidationType.CLASSIFICATION;
-            }
-            else if (model.getAlgorithm().getOntologicalClasses() != null && model.getAlgorithm().getOntologicalClasses().contains("ot:Regression")) {
+            } else if (model.getAlgorithm().getOntologicalClasses() != null && model.getAlgorithm().getOntologicalClasses().contains("ot:Regression")) {
                 validationType = ValidationType.REGRESSION;
             } else if (model.getAlgorithm().getOntologicalClasses() != null && model.getAlgorithm().getOntologicalClasses().contains("ot:Classification")) {
                 validationType = ValidationType.CLASSIFICATION;
@@ -198,7 +197,14 @@ public class ExternalValidationProcedure extends AbstractJaqpotProcedure {
 
             progress(92f, "Validation info populated successfully");
             checkCancelled();
-                        
+
+//            ObjectMapper mapper = new ObjectMapper();
+//            try {
+//                System.out.println(mapper.writeValueAsString(reportRequest));
+//            } catch (Exception e) {
+//                LOG.log(Level.SEVERE, e.getLocalizedMessage());
+//            }
+
             Report report = client.target(propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_BASE_VALIDATION))
                     .request()
                     .header("Content-Type", MediaType.APPLICATION_JSON)

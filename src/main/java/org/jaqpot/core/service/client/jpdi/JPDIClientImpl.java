@@ -65,6 +65,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import org.jaqpot.core.data.AlgorithmHandler;
 import org.jaqpot.core.model.factory.FeatureFactory;
 
 import org.jaqpot.core.service.exceptions.JaqpotDocumentSizeExceededException;
@@ -80,16 +81,18 @@ public class JPDIClientImpl implements JPDIClient {
     private final CloseableHttpAsyncClient client;
     private final JSONSerializer serializer;
     private final FeatureHandler featureHandler;
+    private final AlgorithmHandler algorithmHandler;
     private final String baseURI;
     private final ROG randomStringGenerator;
 
     private final Map<String, Future> futureMap;
 
-    public JPDIClientImpl(CloseableHttpAsyncClient client, JSONSerializer serializer, FeatureHandler featureHandler, String baseURI) {
+    public JPDIClientImpl(CloseableHttpAsyncClient client, JSONSerializer serializer, FeatureHandler featureHandler, AlgorithmHandler algorithmHandler,  String baseURI) {
         this.client = client;
         client.start();
         this.serializer = serializer;
         this.featureHandler = featureHandler;
+        this.algorithmHandler = algorithmHandler;
         this.baseURI = baseURI;
         this.futureMap = new ConcurrentHashMap<>(20);
         this.randomStringGenerator = new ROG(true);
@@ -432,16 +435,14 @@ public class JPDIClientImpl implements JPDIClient {
         predictionRequest.setRawModel(model.getActualModel());
         predictionRequest.setAdditionalInfo(model.getAdditionalInfo());
         
-        
 //        ObjectMapper mapper = new ObjectMapper();
 //        try{
 //            System.out.println(mapper.writeValueAsString(predictionRequest));
 //        }catch(Exception e){
 //            LOG.log(Level.SEVERE, e.getLocalizedMessage());
 //        }
-        
-        
-        final HttpPost request = new HttpPost(model.getAlgorithm().getPredictionService());
+        Algorithm algo = algorithmHandler.find(model.getAlgorithm().getId());
+        final HttpPost request = new HttpPost(algo.getPredictionService());
         request.addHeader("Accept", "application/json");
         request.addHeader("Content-Type", "application/json");
 
@@ -473,7 +474,7 @@ public class JPDIClientImpl implements JPDIClient {
                                 if (dataset.getDataEntry().isEmpty()) {
                                     DatasetFactory.addEmptyRows(dataset, predictions.size());
                                 }
-                                if (model.getAlgorithm().getOntologicalClasses() != null && model.getAlgorithm().getOntologicalClasses().contains("ot:ClearDataset")) {
+                                if (model.getAlgorithm().getOntologicalClasses() != null && model.getAlgorithm().getOntologicalClasses().contains("ot:PBPK")) {
                                     DatasetFactory.addEmptyRows(dataset, predictions.size());
                                 }
                                 List<String> depFeats = model.getPredictedFeatures();
@@ -507,7 +508,8 @@ public class JPDIClientImpl implements JPDIClient {
                                             if (model.getAlgorithm().getOntologicalClasses() != null) {
                                                 if (model.getAlgorithm().getOntologicalClasses().contains("ot:Scaling")
                                                         || model.getAlgorithm().getOntologicalClasses().contains("ot:Transformation")
-                                                        || model.getAlgorithm().getOntologicalClasses().contains("ot:ClearDataset")) {
+                                                        || model.getAlgorithm().getOntologicalClasses().contains("ot:ClearDataset")
+                                                        || model.getAlgorithm().getOntologicalClasses().contains("ot:PBPK")) {
                                                     dataEntry.getValues().clear();
                                                     dataset.getFeatures().clear();
 
