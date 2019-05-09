@@ -131,11 +131,11 @@ public class OnAppInit {
             });
         }
 
-        Long counted = datasetHandler.countAll();
-
-        if (counted.intValue() == 0) {
-            this.restoreDatasets();
-        }
+//        Long counted = datasetHandler.countAll();
+//
+//        if (counted.intValue() == 0) {
+//            this.restoreDatasets();
+//        }
        
     }
 
