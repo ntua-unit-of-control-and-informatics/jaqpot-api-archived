@@ -29,9 +29,14 @@
  */
 package org.jaqpot.core.service.resource;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+//import io.swagger.annotations.Api;
+//import io.swagger.annotations.ApiOperation;
+//import io.swagger.annotations.ApiParam;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -80,7 +85,7 @@ import org.jaqpot.core.service.exceptions.QuotaExceededException;
  *
  */
 @Path("validation")
-@Api(value = "/validation", description = "Validation API")
+//@Api(value = "/validation", description = "Validation API")
 @Produces(MediaType.APPLICATION_JSON)
 @Authorize
 public class ValidationResource {
@@ -145,9 +150,15 @@ public class ValidationResource {
     @POST
     @Path("/training_test_cross")
     @TokenSecured({RoleEnum.DEFAULT_USER})
-    @ApiOperation(value = "Creates Validation Report",
+    /*@ApiOperation(value = "Creates Validation Report",
             notes = "Creates Validation Report",
             response = Task.class
+    )*/
+    @Operation(summary = "Creates Validation Report",
+            description = "Creates Validation Report",
+            responses = {
+                @ApiResponse(content = @Content(schema = @Schema(implementation = Task.class)))
+            }
     )
     @org.jaqpot.core.service.annotations.Task
     public Response crossValidateAlgorithm(
@@ -155,8 +166,10 @@ public class ValidationResource {
             @FormParam("training_dataset_uri") String datasetURI,
             @FormParam("algorithm_params") String algorithmParameters,
             @FormParam("prediction_feature") String predictionFeature,
-            @ApiParam(name = "transformations", defaultValue = DEFAULT_TRANSFORMATIONS) @FormParam("transformations") String transformations,
-            @ApiParam(name = "scaling", defaultValue = STANDARIZATION) @FormParam("scaling") String scaling, //, allowableValues = SCALING + "," + STANDARIZATION
+            //@ApiParam(name = "transformations", defaultValue = DEFAULT_TRANSFORMATIONS) @FormParam("transformations") String transformations,
+            @Parameter(name = "transformations", schema = @Schema(implementation =String.class, defaultValue = DEFAULT_TRANSFORMATIONS)) @FormParam("transformations") String transformations,
+            //@ApiParam(name = "scaling", defaultValue = STANDARIZATION) @FormParam("scaling") String scaling, //, allowableValues = SCALING + "," + STANDARIZATION
+            @Parameter(name = "scaling", schema = @Schema(implementation = String.class, defaultValue = STANDARIZATION)) @FormParam("scaling") String scaling, //, allowableValues = SCALING + "," + STANDARIZATION
             @FormParam("folds") Integer folds,
             @FormParam("stratify") String stratify,
             @FormParam("seed") Integer seed,
@@ -252,19 +265,28 @@ public class ValidationResource {
     @POST
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Path("/training_test_split")
-    @ApiOperation(value = "Creates Validation Report",
+    /*@ApiOperation(value = "Creates Validation Report",
             notes = "Creates Validation Report",
             response = Task.class
-    )
+   )*/
+    @Operation(summary = "Creates Validation Report",
+            description = "Creates Validation Report",
+            responses = {
+                @ApiResponse(content = @Content(schema = @Schema(implementation = Task.class)))
+            })
     @org.jaqpot.core.service.annotations.Task
     public Response splitValidateAlgorithm(
             @FormParam("algorithm_uri") String algorithmURI,
             @FormParam("training_dataset_uri") String datasetURI,
             @FormParam("algorithm_params") String algorithmParameters,
             @FormParam("prediction_feature") String predictionFeature,
-            @ApiParam(name = "transformations", defaultValue = DEFAULT_TRANSFORMATIONS) @FormParam("transformations") String transformations,
+            /*@ApiParam(name = "transformations", defaultValue = DEFAULT_TRANSFORMATIONS) @FormParam("transformations") String transformations,
             @ApiParam(name = "scaling", defaultValue = STANDARIZATION) @FormParam("scaling") String scaling, //, allowableValues = SCALING + "," + STANDARIZATION          
             @ApiParam(name = "split_ratio",required = true) @FormParam("split_ratio") Double splitRatio,
+            */
+            @Parameter(name = "transformations", schema = @Schema(implementation =String.class, defaultValue = DEFAULT_TRANSFORMATIONS)) @FormParam("transformations") String transformations,
+            @Parameter(name = "scaling", schema = @Schema(implementation =String.class, defaultValue = STANDARIZATION)) @FormParam("scaling") String scaling, //, allowableValues = SCALING + "," + STANDARIZATION          
+            @Parameter(name = "split_ratio",required = true) @FormParam("split_ratio") Double splitRatio,
             @FormParam("stratify") String stratify,
             @FormParam("seed") Integer seed,
             @HeaderParam("Authorization") String api_key
@@ -358,9 +380,15 @@ public class ValidationResource {
     @POST
     @Path("/test_set_validation")
     @TokenSecured({RoleEnum.DEFAULT_USER})
-    @ApiOperation(value = "Creates Validation Report",
+    /*@ApiOperation(value = "Creates Validation Report",
             notes = "Creates Validation Report",
             response = Task.class
+    )*/
+    @Operation(summary = "Creates Validation Report",
+               description = "Creates Validation Report",
+               responses = {
+                @ApiResponse(content = @Content(schema = @Schema(implementation = Task.class)))
+            }
     )
     @org.jaqpot.core.service.annotations.Task
     public Response externalValidateAlgorithm(

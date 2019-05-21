@@ -5,8 +5,16 @@
  */
 package org.jaqpot.core.service.resource;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+//import io.swagger.annotations.Api;
+//import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.extensions.Extension;
+import io.swagger.v3.oas.annotations.extensions.ExtensionProperty;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
 import org.jaqpot.core.annotations.Jackson;
 import org.jaqpot.core.data.ReportHandler;
 import org.jaqpot.core.data.UserHandler;
@@ -42,7 +50,7 @@ import org.jaqpot.core.service.authentication.RoleEnum;
  * @author hampos
  */
 @Path("readacross")
-@Api(value = "/readacross", description = "Read Across API")
+//@Api(value = "/readacross", description = "Read Across API")
 @Produces(MediaType.APPLICATION_JSON)
 public class ReadAcrossResource {
 
@@ -67,10 +75,15 @@ public class ReadAcrossResource {
 
     @POST
     @TokenSecured({RoleEnum.DEFAULT_USER})
-    @ApiOperation(value = "Creates Read Across Report",
+    /*@ApiOperation(value = "Creates Read Across Report",
             notes = "Creates Read Across Report",
             response = Report.class
-    )
+    )*/
+    @Operation(summary = "Creates Read Across Report",
+               description = "Creates Read Across Report",
+               responses = {
+                   @ApiResponse(content = @Content(schema = @Schema(implementation = Report.class)))
+               })
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     public Response readAcrossReport(
             @FormParam("title") String title,

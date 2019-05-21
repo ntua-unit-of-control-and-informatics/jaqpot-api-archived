@@ -29,11 +29,19 @@
  */
 package org.jaqpot.core.service.resource;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+//import io.swagger.annotations.Api;
+//import io.swagger.annotations.ApiOperation;
+//import io.swagger.annotations.ApiParam;
+//import io.swagger.annotations.ApiResponse;
+//import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.extensions.Extension;
+import io.swagger.v3.oas.annotations.extensions.ExtensionProperty;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
@@ -77,7 +85,7 @@ import org.jaqpot.core.service.mdb.ThreadReference;
  *
  */
 @Path("task")
-@Api(value = "/task", description = "Tasks API")
+//@Api(value = "/task", description = "Tasks API")
 public class TaskResource {
 
     @Context
@@ -98,7 +106,7 @@ public class TaskResource {
     @GET
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @TokenSecured({RoleEnum.DEFAULT_USER})
-    @ApiOperation(value = "Finds all Tasks",
+    /*@ApiOperation(value = "Finds all Tasks",
             notes = "Finds all Tasks from Jaqpot Dataset. One may specify various "
             + "search criteria such as the task creator of the task status.",
             response = Task.class,
@@ -106,13 +114,25 @@ public class TaskResource {
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "Success; the list of tasks is found in the response"),
         @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
-    })
+    })*/
+     @Operation(summary = "Finds all Tasks",
+               description = "Finds all Tasks from Jaqpot Dataset. One may specify various ",
+               responses = {
+                   @ApiResponse(responseCode = "200", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Task.class))), description= "Success; the list of tasks is found in the response"),
+                   @ApiResponse(responseCode = "500", description = "Internal server error - this request cannot be served.")
+               })
     public Response listTasks(
-            @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key,
-            @ApiParam(value = "Status of the task", allowableValues = "RUNNING,QUEUED,COMPLETED,ERROR,CANCELLED,REJECTED") @QueryParam("status") String status,
-            @ApiParam(value = "start", defaultValue = "0") @QueryParam("start") Integer start,
-            @ApiParam(value = "max - the server imposes an upper limit of 500 on this "
-                    + "parameter.", defaultValue = "10") @QueryParam("max") Integer max
+           // @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key,
+           // @ApiParam(value = "Status of the task", allowableValues = "RUNNING,QUEUED,COMPLETED,ERROR,CANCELLED,REJECTED") @QueryParam("status") String status,
+           // @ApiParam(value = "start", defaultValue = "0") @QueryParam("start") Integer start,
+           // @ApiParam(value = "max - the server imposes an upper limit of 500 on this "
+           //         + "parameter.", defaultValue = "10") @QueryParam("max") Integer max
+            @Parameter(description = "Authorization token") @HeaderParam("Authorization") String api_key,
+            @Parameter(description = "Status of the task", schema = @Schema(implementation = String.class, allowableValues = "RUNNING,QUEUED,COMPLETED,ERROR,CANCELLED,REJECTED")) @QueryParam("status") String status,
+            @Parameter(description = "start", schema = @Schema(implementation = String.class, defaultValue = "0")) @QueryParam("start") Integer start,
+            @Parameter(description = "max - the server imposes an upper limit of 500 on this "
+                    + "parameter.", schema = @Schema(implementation = String.class, defaultValue = "10")) @QueryParam("max") Integer max
+    
     ) {
         start = start != null ? start : 0;
         if (max == null || max > 500) {
@@ -142,7 +162,7 @@ public class TaskResource {
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @Path("/{id}")
-    @ApiOperation(value = "Finds Task by Id",
+    /*@ApiOperation(value = "Finds Task by Id",
             notes = "Finds specified Task",
             response = Task.class)
     @ApiResponses(value = {
@@ -151,10 +171,21 @@ public class TaskResource {
         @ApiResponse(code = 202, message = "Task is accepted (still running)"),
         @ApiResponse(code = 404, message = "This task was not found."),
         @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
-    })
+    })*/
+     @Operation(summary = "Finds Task by Id",
+               description = "Finds specified Task",
+               responses = {
+                   @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = Task.class)), description= "Task is found"),
+                   @ApiResponse(responseCode = "201", description = "Task is created (see content - redirects to other task)"),
+                   @ApiResponse(responseCode = "202", description = "Task is accepted (still running)"),
+                   @ApiResponse(responseCode = "404", description = "This task was not found."),
+                   @ApiResponse(responseCode = "500", description = "Internal server error - this request cannot be served.")
+               })
     public Response getTask(
-            @ApiParam(value = "Authorization token") @HeaderParam("subjectid") String subjectId,
-            @ApiParam(value = "ID of the task to be retrieved") @PathParam("id") String id) {
+            //@ApiParam(value = "Authorization token") @HeaderParam("subjectid") String subjectId,
+            //@ApiParam(value = "ID of the task to be retrieved") @PathParam("id") String id) {  
+            @Parameter(description = "Authorization token") @HeaderParam("subjectid") String subjectId,
+            @Parameter(description = "ID of the task to be retrieved") @PathParam("id") String id) {
         Task task = taskHandler.find(id);
         if (task == null) {
             throw new NotFoundException("Task " + uriInfo.getPath() + "not found");
@@ -176,7 +207,7 @@ public class TaskResource {
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/{id}")
-    @ApiOperation(value = "Deletes a Task of given ID",
+    /*@ApiOperation(value = "Deletes a Task of given ID",
             notes = "Deletes a Task given its ID in the URI. When the DELETE method is applied, the task "
             + "is interrupted and tagged as CANCELLED. Note that this method does not return a response "
             + "on success. If the task does not exist, an error report will be returned to the client "
@@ -190,9 +221,23 @@ public class TaskResource {
         @ApiResponse(code = 401, message = "Wrong, missing or insufficient credentials. Error report is produced."),
         @ApiResponse(code = 403, message = "This is a forbidden operation (do not attempt to repeat it)."),
         @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
-    })
+    })*/
+     @Operation(summary = "Deletes a Task of given ID",
+               description = "Deletes a Task given its ID in the URI. When the DELETE method is applied, the task "
+            + "is interrupted and tagged as CANCELLED. Note that this method does not return a response "
+            + "on success. If the task does not exist, an error report will be returned to the client "
+            + "accompanied by an HTTP status code 404. Note also that authentication and authorization "
+            + "restrictions apply, so clients need to be authenticated with a valid token and have "
+            + "appropriate rights to be able to successfully apply this method.",
+               responses = {
+                   @ApiResponse(responseCode = "200", description= "Task deleted successfully"),
+                   @ApiResponse(responseCode = "401", description = "Wrong, missing or insufficient credentials. Error report is produced."),
+                   @ApiResponse(responseCode = "403", description = "This is a forbidden operation (do not attempt to repeat it)."),
+                   @ApiResponse(responseCode = "500", description = "Internal server error - this request cannot be served.")
+               })
     public Response deleteTask(
-            @ApiParam(value = "ID of the task which is to be cancelled.", required = true) @PathParam("id") String id,
+            //@ApiParam(value = "ID of the task which is to be cancelled.", required = true) @PathParam("id") String id,
+            @Parameter(description = "ID of the task which is to be cancelled.", required = true) @PathParam("id") String id,
             @HeaderParam("subjectid") String subjectId) throws JaqpotForbiddenException {
 
         Task task = taskHandler.find(id);
@@ -230,11 +275,18 @@ public class TaskResource {
     @GET
     @Path("/{id}/poll")
     @TokenSecured({RoleEnum.DEFAULT_USER})
-    @ApiOperation(value = "Poll Task by Id",
+    /*@ApiOperation(value = "Poll Task by Id",
             notes = "Implements long polling",
             response = Task.class)
+    */
+    @Operation(summary = "Poll Task by Id",
+               description = "Implements long polling",
+               responses = {
+                   @ApiResponse(content = @Content(schema = @Schema(implementation = Task.class))),
+               })
     public void poll(
-            @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key,
+            //@ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key,
+            @Parameter(description = "Authorization token") @HeaderParam("Authorization") String api_key,
             @Suspended final AsyncResponse asyncResponse,
             @PathParam("id") String id) {
 

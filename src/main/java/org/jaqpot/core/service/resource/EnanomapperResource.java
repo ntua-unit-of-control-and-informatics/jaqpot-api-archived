@@ -29,9 +29,17 @@
  */
 package org.jaqpot.core.service.resource;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+//import io.swagger.annotations.Api;
+//import io.swagger.annotations.ApiOperation;
+//import io.swagger.annotations.ApiParam;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.extensions.Extension;
+import io.swagger.v3.oas.annotations.extensions.ExtensionProperty;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
 import org.jaqpot.core.annotations.Jackson;
 import org.jaqpot.core.data.DatasetHandler;
 import org.jaqpot.core.data.ModelHandler;
@@ -70,7 +78,7 @@ import org.jaqpot.core.service.authentication.RoleEnum;
  *
  */
 @Path("enm")
-@Api(value = "/enm", description = "eNM API")
+//@Api(value = "/enm", description = "eNM API")
 public class EnanomapperResource {
 
     private static final Logger LOG = Logger.getLogger(EnanomapperResource.class.getName());
@@ -194,15 +202,23 @@ public class EnanomapperResource {
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/dataset")
-    @ApiOperation(value = "Creates Dataset By Study",
+    /*@ApiOperation(value = "Creates Dataset By Study",
             notes = "Reads Studies from Bundle's Substances, creates Dataset,"
             + "calculates Descriptors, returns Dataset",
             response = Task.class
 
-    )
+    )*/
+    @Operation(summary = "Creates Dataset By Study",
+               description = "Reads Studies from Bundle's Substances, creates Dataset,"
+            + "calculates Descriptors, returns Dataset",
+               responses = {
+                   @ApiResponse(content = @Content(schema = @Schema(implementation = Task.class)),
+                       description = "Dataset was found"),
+               })
     @org.jaqpot.core.service.annotations.Task
     public Response createDatasetByStudy(
-            @ApiParam(name = "Data for dataset creation ", defaultValue = DEFAULT_DATASET_DATA) DatasetData datasetData,
+            //@ApiParam(name = "Data for dataset creation ", defaultValue = DEFAULT_DATASET_DATA) DatasetData datasetData,
+            @Parameter(name = "Data for dataset creation ", schema = @Schema(implementation = DatasetData.class, defaultValue = DEFAULT_DATASET_DATA)) DatasetData datasetData,
             @HeaderParam("Authorization") String api_key) throws QuotaExceededException, ExecutionException, InterruptedException,JaqpotDocumentSizeExceededException {
 
         User user = userHandler.find(securityContext.getUserPrincipal().getName());
@@ -289,9 +305,13 @@ public class EnanomapperResource {
 
     @GET
     @Path("/property/categories")
-    @ApiOperation(value = "Retrieves property categories",
+    /*@ApiOperation(value = "Retrieves property categories",
             response = Map.class
-    )
+    )*/
+    @Operation(summary = "Retrieves property categories",
+               responses = {
+                   @ApiResponse(content = @Content(schema = @Schema(implementation = Map.class)))
+               })
     public Response getPropertyCategories() {
 
         Map<String, List<String>> categories = new HashMap<>();
@@ -316,9 +336,13 @@ public class EnanomapperResource {
 
     @GET
     @Path("/descriptor/categories")
-    @ApiOperation(value = "Retrieves descriptor calculation categories",
+    /*@ApiOperation(value = "Retrieves descriptor calculation categories",
             response = List.class
-    )
+    )*/
+     @Operation(summary = "Retrieves descriptor calculation categories",
+               responses = {
+                   @ApiResponse(content = @Content(schema = @Schema(implementation = List.class)))
+               })
     public Response getDescriptorCategories() {
         List<DescriptorCategory> descriptorCategories = new ArrayList<>();
 

@@ -1,15 +1,19 @@
 package org.jaqpot.core.model.dto.descriptor;
 
-import io.swagger.annotations.ApiParam;
+//import io.swagger.annotations.ApiParam;
+import io.swagger.v3.oas.annotations.Parameter;
 
 import javax.ws.rs.FormParam;
 import java.util.ArrayList;
 import java.util.Set;
 
 public class DescriptorReqDTO {
-    @ApiParam(name = "title of resulting dataset", required = true) @FormParam("title") private String title;
-    @ApiParam(name = "description of resulting dataset", required = true) @FormParam("description") private String description;
-    @ApiParam(name = "dataset_uri") @FormParam("dataset_uri") private String datasetURI;
+    //@ApiParam(name = "title of resulting dataset", required = true) @FormParam("title") private String title;
+    //@ApiParam(name = "description of resulting dataset", required = true) @FormParam("description") private String description;
+    //@ApiParam(name = "dataset_uri") @FormParam("dataset_uri") private String datasetURI;
+    @Parameter(name = "title of resulting dataset", required = true) @FormParam("title") private String title;
+    @Parameter(name = "description of resulting dataset", required = true) @FormParam("description") private String description;
+    @Parameter(name = "dataset_uri") @FormParam("dataset_uri") private String datasetURI;
     @FormParam("parameters") private String parameters;
     @FormParam("featureURIs") private Set<String> featureURIs;
 

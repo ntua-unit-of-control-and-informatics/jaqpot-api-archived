@@ -5,21 +5,30 @@
  */
 package org.jaqpot.core.service.resource;
 
-import io.swagger.annotations.Contact;
-import io.swagger.annotations.Info;
-import io.swagger.annotations.SwaggerDefinition;
-import io.swagger.jaxrs.Reader;
-import io.swagger.jaxrs.config.ReaderListener;
-import io.swagger.models.Swagger;
-import io.swagger.models.auth.ApiKeyAuthDefinition;
-import io.swagger.models.auth.In;
+import io.swagger.v3.jaxrs2.Reader;
+import io.swagger.v3.jaxrs2.ReaderListener;
+import io.swagger.v3.oas.annotations.info.Contact;
+import io.swagger.v3.oas.annotations.info.Info;
+//import io.swagger.annotations.Contact;
+//import io.swagger.annotations.Info;
+//import io.swagger.annotations.SwaggerDefinition;
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.security.SecurityRequirement;
+import io.swagger.v3.oas.models.security.SecurityScheme;
+//import io.swagger.jaxrs.Reader;
+//import io.swagger.jaxrs.config.ReaderListener;
+//import io.swagger.models.Swagger;
+//import io.swagger.models.auth.ApiKeyAuthDefinition;
+//import io.swagger.models.auth.In;
 import javax.enterprise.context.ApplicationScoped;
 
 /**
  *
  * @author hampos
  */
-@SwaggerDefinition(
+//@SwaggerDefinition(
+@OpenAPIDefinition(
         info = @Info(
                 title = "Jaqpot API",
                 description = "Jaqpot v4 (Quattro) is the 4t"
@@ -46,17 +55,25 @@ import javax.enterprise.context.ApplicationScoped;
 public class SwaggerFilter implements ReaderListener {
 
     @Override
-    public void beforeScan(Reader reader, Swagger swgr) {
+    //public void beforeScan(Reader reader, Swagger swgr) {
+    public void beforeScan(Reader reader, OpenAPI swgr) {
 
     }
 
     @Override
-    public void afterScan(Reader reader, Swagger swgr) {
-        ApiKeyAuthDefinition apiKeyDefinition = new ApiKeyAuthDefinition();
-        apiKeyDefinition.setName("Authorization");
-        apiKeyDefinition.setIn(In.HEADER);
-        apiKeyDefinition.setType("apiKey");
-        swgr.addSecurityDefinition("apiKey", apiKeyDefinition);
+    //public void afterScan(Reader reader, Swagger swgr) {
+    public void afterScan(Reader reader, OpenAPI swgr) {
+        SecurityScheme securityScheme = new SecurityScheme();
+        //ApiKeyAuthDefinition apiKeyDefinition = new ApiKeyAuthDefinition();
+        securityScheme.setIn(SecurityScheme.In.HEADER);
+        securityScheme.setName("Authorization");
+        securityScheme.setType(SecurityScheme.Type.APIKEY);
+        SecurityRequirement sr = new SecurityRequirement();
+        swgr.addSecurityItem(sr);
+        //apiKeyDefinition.setName("Authorization");
+        //apiKeyDefinition.setIn(In.HEADER);
+        //apiKeyDefinition.setType("apiKey");
+        //swgr.addSecurityDefinition("apiKey", apiKeyDefinition);
     }
 
 }

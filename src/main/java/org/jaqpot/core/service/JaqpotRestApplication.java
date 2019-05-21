@@ -29,7 +29,14 @@
  */
 package org.jaqpot.core.service;
 
-import io.swagger.jaxrs.config.BeanConfig;
+//import io.swagger.jaxrs.config.BeanConfig;
+import io.swagger.v3.jaxrs2.integration.JaxrsOpenApiContextBuilder;
+import io.swagger.v3.jaxrs2.integration.resources.AcceptHeaderOpenApiResource;
+import io.swagger.v3.jaxrs2.integration.resources.OpenApiResource;
+import io.swagger.v3.oas.integration.OpenApiConfigurationException;
+import io.swagger.v3.oas.integration.SwaggerConfiguration;
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.info.Info;
 import org.jaqpot.core.properties.PropertyManager;
 import org.reflections.Reflections;
 
@@ -42,8 +49,12 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
+import javax.servlet.ServletConfig;
+import javax.ws.rs.core.Context;
 import org.jaqpot.core.service.authentication.TokenRequestFilter;
 
 /**
@@ -59,13 +70,13 @@ public class JaqpotRestApplication extends Application {
 
     private static final Logger LOG = Logger.getLogger(JaqpotRestApplication.class.getName());
 
-    BeanConfig beanConfig;
+    //BeanConfig beanConfig;
 
     @Inject
     PropertyManager propertyManager;
 
     public JaqpotRestApplication() {
-
+        
     }
 
     //Move constructor logic in @PostConstruct in order to be able to use PropertyManager Injection
@@ -78,7 +89,26 @@ public class JaqpotRestApplication extends Application {
         LOG.log(Level.INFO, "Host:{0}", host);
         LOG.log(Level.INFO, "Port:{0}", port);
         LOG.log(Level.INFO, "BasePath:{0}", basePath);
-        beanConfig = new BeanConfig();
+        OpenAPI oas = new OpenAPI();
+        Info info = new Info()
+                .title("Jaqpot Quattro")
+                .description("Jaqpot Quattro")
+                .version("4.0.3");
+        oas.info(info);
+        
+        SwaggerConfiguration oasConfig = new SwaggerConfiguration()
+                .openAPI(oas)
+                .prettyPrint(true)
+                .resourcePackages(Stream.of("org.jaqpot.core.service.resource").collect(Collectors.toSet()));
+
+        try {
+            new JaxrsOpenApiContextBuilder()
+                    .openApiConfiguration(oasConfig)
+                    .buildContext(true);
+        } catch (OpenApiConfigurationException e) {
+            throw new RuntimeException(e.getMessage(), e);
+        }
+        /*beanConfig = new BeanConfig();
         beanConfig.setVersion("4.0.3");
         beanConfig.setResourcePackage("org.jaqpot.core.service.resource");
         beanConfig.setScan(true);
@@ -93,6 +123,7 @@ public class JaqpotRestApplication extends Application {
         beanConfig.setBasePath(basePath);
         beanConfig.setSchemes(new String[]{"http","https"});
         beanConfig.setPrettyPrint(true);
+        */
     }
 
     @Override
@@ -121,9 +152,11 @@ public class JaqpotRestApplication extends Application {
 
         resources.add(TokenRequestFilter.class);
         // Swagger-related stuff [Registered directly]
-        resources.add(io.swagger.jaxrs.listing.ApiListingResource.class);
-        resources.add(io.swagger.jaxrs.listing.SwaggerSerializers.class);
-
+        //resources.add(io.swagger.jaxrs.listing.ApiListingResource.class);
+        //resources.add(io.swagger.jaxrs.listing.SwaggerSerializers.class);
+        resources.add(OpenApiResource.class);
+        resources.add(AcceptHeaderOpenApiResource.class);
+        
         return resources;
     }
 

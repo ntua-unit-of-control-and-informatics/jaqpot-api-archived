@@ -34,10 +34,18 @@
  */
 package org.jaqpot.core.service.resource;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+//import io.swagger.annotations.Api;
+//import io.swagger.annotations.ApiOperation;
+//import io.swagger.annotations.ApiResponse;
+//import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.extensions.Extension;
+import io.swagger.v3.oas.annotations.extensions.ExtensionProperty;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
 import java.util.ArrayList;
 import java.util.List;
 import javax.ejb.EJB;
@@ -69,7 +77,7 @@ import org.jaqpot.core.sessions.SessionClient;
  * @author pantelispanka
  */
 @Path("search")
-@Api(value = "/search", description = "Search API")
+//@Api(value = "/search", description = "Search API")
 @Produces({"application/json", "text/uri-list"})
 public class SearchResource {
 
@@ -88,7 +96,7 @@ public class SearchResource {
     @GET
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
-    @ApiOperation(
+    /*@ApiOperation(
             value = "Searches for Jaqpot Entities",
             notes = "Searches for Jaqpot Entities"
     )
@@ -99,7 +107,15 @@ public class SearchResource {
         ,
             @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
 
-    })
+    })*/
+    @Operation(summary = "Searches for Jaqpot Entities",
+               description = "Searches for Jaqpot Entities",
+               responses = {
+                   @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = JaqpotEntity.class)),
+                       description = "A list of jaqpot entities found"),
+                   @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = ErrorReport.class)), description = "Wrong, missing or insufficient credentials. Error report is produced."),
+                   @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorReport.class)), description = "Internal server error - this request cannot be served.")
+               })
     public Response search(
             @QueryParam("term") String term
     ) {
@@ -140,7 +156,7 @@ public class SearchResource {
     @Path("/session")
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
-    @ApiOperation(
+    /*@ApiOperation(
             value = "List of found entities through session",
             notes = "List of found entities through session"
     )
@@ -151,7 +167,15 @@ public class SearchResource {
         ,
             @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
 
-    })
+    })*/
+    @Operation(summary = "List of found entities through session",
+               description = "List of found entities through session",
+               responses = {
+                   @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = FountEntities.class)),
+                       description = "A list of jaqpot entities found"),
+                   @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = ErrorReport.class)), description = "Wrong, missing or insufficient credentials. Error report is produced."),
+                   @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorReport.class)), description = "Internal server error - this request cannot be served.")
+               })
     public Response searchSession(
             @QueryParam("session") String term,
             @QueryParam("from") Integer from,

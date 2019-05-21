@@ -29,8 +29,15 @@
  */
 package org.jaqpot.core.service.resource;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+//import io.swagger.annotations.Api;
+//import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.extensions.Extension;
+import io.swagger.v3.oas.annotations.extensions.ExtensionProperty;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.Content;
 import org.jaqpot.core.annotations.Jackson;
 import org.jaqpot.core.data.ReportHandler;
 import org.jaqpot.core.data.UserHandler;
@@ -66,7 +73,7 @@ import java.util.logging.Logger;
  * @author Pantelis Sopasakis
  */
 @Path("interlab")
-@Api(value = "/interlab", description = "Interlab Testing API")
+//@Api(value = "/interlab", description = "Interlab Testing API")
 @Produces(MediaType.APPLICATION_JSON)
 public class InterLabTestingResource {
 
@@ -94,10 +101,15 @@ public class InterLabTestingResource {
 
     @POST
     @Path("/test")
-    @ApiOperation(value = "Creates Interlab Testing Report",
+    /*@ApiOperation(value = "Creates Interlab Testing Report",
             notes = "Creates Interlab Testing Report",
             response = Report.class
-    )
+    )*/
+     @Operation(summary = "Creates Interlab Testing Report",
+               description = "Creates Interlab Testing Report",
+               responses = {
+                   @ApiResponse(content = @Content(schema = @Schema(implementation = Report.class)))
+               })
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     public Response interLabTest(
             @FormParam("title") String title,

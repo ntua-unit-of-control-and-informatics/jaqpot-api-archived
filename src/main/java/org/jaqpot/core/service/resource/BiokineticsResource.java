@@ -1,6 +1,17 @@
 package org.jaqpot.core.service.resource;
 
-import io.swagger.annotations.*;
+//import io.swagger.annotations.*;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.enums.ParameterStyle;
+import io.swagger.v3.oas.annotations.extensions.Extension;
+import io.swagger.v3.oas.annotations.extensions.ExtensionProperty;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
 import org.apache.commons.validator.routines.UrlValidator;
 import org.jaqpot.core.annotations.Jackson;
 import org.jaqpot.core.data.AlgorithmHandler;
@@ -47,7 +58,7 @@ import org.jaqpot.core.service.data.PredictionService;
  * Created by Angelos Valsamis on 23/10/2017.
  */
 @Path("biokinetics")
-@Api(value = "/biokinetics", description = "Biokinetics API")
+//@Api(value = "/biokinetics", description = "Biokinetics API")
 @Produces({"application/json", "text/uri-list"})
 @Authorize
 
@@ -93,7 +104,7 @@ public class BiokineticsResource {
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @Path("/pksim/createmodel")
-    @ApiImplicitParams({
+    /*@ApiImplicitParams({
         @ApiImplicitParam(name = "file", value = "xml[m,x] file", required = true, dataType = "file", paramType = "formData")
         ,
             @ApiImplicitParam(name = "dataset-uri", value = "Dataset uri to be trained upon", required = true, dataType = "string", paramType = "formData")
@@ -110,13 +121,32 @@ public class BiokineticsResource {
     @ApiOperation(value = "Creates Biokinetics model with PkSim",
             notes = "Creates a biokinetics model given a pksim .xml file and demographic data",
             response = Task.class
-    )
+    )*/
+    @Parameters({
+        @Parameter(name = "file", description = "xml[m,x] file", required = true, schema = @Schema(type = "file"), in = ParameterIn.QUERY, style = ParameterStyle.FORM),
+        @Parameter(name = "dataset-uri", description = "Dataset uri to be trained upon", required = true, schema = @Schema(type = "string"), in = ParameterIn.QUERY, style = ParameterStyle.FORM),
+        @Parameter(name = "title", description = "Title of model", required = true, schema = @Schema(type = "string"), in = ParameterIn.QUERY, style = ParameterStyle.FORM),
+        @Parameter(name = "description", description = "Description of model", required = true, schema = @Schema(type = "string"), in = ParameterIn.QUERY, style = ParameterStyle.FORM),
+        @Parameter(name = "algorithm-uri", description = "Algorithm URI", required = true, schema = @Schema(type = "string"), in = ParameterIn.QUERY, style = ParameterStyle.FORM),
+        @Parameter(name = "parameters", description = "Parameters for algorithm", required = false, schema = @Schema(type = "string"), in = ParameterIn.QUERY, style = ParameterStyle.FORM)
+    })
+    /*@ApiOperation(value = "Creates Biokinetics model with PkSim",
+            notes = "Creates a biokinetics model given a pksim .xml file and demographic data",
+            response = Task.class)
+    */
+    @Operation(summary = "Creates Biokinetics model with PkSim",
+            description = "Creates a biokinetics model given a pksim .xml file and demographic data",
+            responses = { 
+                @ApiResponse(content = @Content(schema = @Schema(implementation = Task.class)))
+            })
     @org.jaqpot.core.service.annotations.Task
     public Response trainBiokineticsModel(
-            @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key,
-            @ApiParam(value = "multipartFormData input", hidden = true) MultipartFormDataInput input)
+            //@ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key,
+            //@ApiParam(value = "multipartFormData input", hidden = true) MultipartFormDataInput input)
+            @Parameter(description = "Authorization token") @HeaderParam("Authorization") String api_key,
+            @Parameter(description = "multipartFormData input", hidden = true) MultipartFormDataInput input)
             throws ParameterIsNullException, ParameterInvalidURIException, QuotaExceededException, IOException, ParameterScopeException, ParameterRangeException, ParameterTypeException, JaqpotDocumentSizeExceededException {
-
+ 
         String[] apiA = api_key.split("\\s+");
         String apiKey = apiA[1];
 
@@ -200,7 +230,7 @@ public class BiokineticsResource {
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @Path("httk/createmodel")
-    @ApiOperation(value = "Creates an httk biocinetics Model",
+    /*@ApiOperation(value = "Creates an httk biocinetics Model",
             notes = "Creates an httk biocinetics Model ",
             extensions = {
                 @Extension(properties = {
@@ -227,14 +257,30 @@ public class BiokineticsResource {
         ,
             @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
 
-    })
+    })*/
+    @Operation(summary = "Creates an httk biocinetics Model",
+               description = "Creates an httk biocinetics Model",
+               responses = {
+                   @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = Task.class)),
+                       description = "The process has successfully been started. A task URI is returned."),
+                   @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(implementation = ErrorReport.class)), description = "Bad request. More info can be found in details of Error Report."),
+                   @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = ErrorReport.class)), description = "Wrong, missing or insufficient credentials. Error report is produced."),
+                   @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(implementation = ErrorReport.class)), description = "Algorithm was not found."),
+                   @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorReport.class)), description = "Internal server error - this request cannot be served.")
+               })
     @org.jaqpot.core.service.annotations.Task
     public Response trainHttk(
-            @ApiParam(name = "title", required = true) @FormParam("title") String title,
-            @ApiParam(name = "description", required = true) @FormParam("description") String description,
-            @FormParam("parameters") String parameters,
+            //@ApiParam(name = "title", required = true) @FormParam("title") String title,
+            //@ApiParam(name = "description", required = true) @FormParam("description") String description,
+            //@FormParam("parameters") String parameters,
             //            @ApiParam(name = "algorithmId", required = true) @FormParam("algorithmId") String algorithmId,
-            @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key) throws QuotaExceededException, ParameterIsNullException, ParameterInvalidURIException, ParameterTypeException, ParameterRangeException, ParameterScopeException, JaqpotDocumentSizeExceededException {
+            //@ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key) throws QuotaExceededException, ParameterIsNullException, ParameterInvalidURIException, ParameterTypeException, ParameterRangeException, ParameterScopeException, JaqpotDocumentSizeExceededException {
+            @Parameter(name = "title", required = true) @FormParam("title") String title,
+            @Parameter(name = "description", required = true) @FormParam("description") String description,
+            @FormParam("parameters") String parameters,            
+//            @ApiParam(name = "algorithmId", required = true) @FormParam("algorithmId") String algorithmId,
+            @Parameter(description = "Authorization token") @HeaderParam("Authorization") String api_key) throws QuotaExceededException, ParameterIsNullException, ParameterInvalidURIException, ParameterTypeException, ParameterRangeException, ParameterScopeException, JaqpotDocumentSizeExceededException {
+        
         UrlValidator urlValidator = new UrlValidator(UrlValidator.ALLOW_LOCAL_URLS);
 
         String[] apiA = api_key.split("\\s+");
@@ -297,7 +343,7 @@ public class BiokineticsResource {
     @Consumes({MediaType.APPLICATION_FORM_URLENCODED})
     @Produces({MediaType.APPLICATION_JSON})
     @Path("httk/model/{id}")
-    @ApiOperation(value = "Creates prediction with httk model",
+    /*@ApiOperation(value = "Creates prediction with httk model",
             notes = "Creates prediction with Httk model",
             response = Task.class,
             extensions = {
@@ -315,12 +361,31 @@ public class BiokineticsResource {
             @ExtensionProperty(name = "x-orn-@id", value = "x-orn:JaqpotHttkPredictionTaskId")
         })
             }
-    )
+    )*/
+    @Operation(summary = "Creates prediction with httk model",
+               description = "Creates prediction with Httk model",
+               responses = {
+                   @ApiResponse(content = @Content(schema = @Schema(implementation = Task.class))),
+               },
+                extensions = {
+                    @Extension(properties = {
+                        @ExtensionProperty(name = "orn-@type", value = "x-orn:JaqpotPredictionTaskId"),}
+                    ),
+                   @Extension(name = "orn:expects", properties = {
+                        @ExtensionProperty(name = "x-orn-@id", value = "x-orn:AcessToken"),
+                            @ExtensionProperty(name = "x-orn-@id", value = "x-orn:JaqpotModelId")
+                   }),
+                   @Extension(name = "orn:returns", properties = {
+                        @ExtensionProperty(name = "x-orn-@id", value = "x-orn:JaqpotHttkPredictionTaskId")
+                   })
+                })
+            
     @org.jaqpot.core.service.annotations.Task
     public Response makeHttkPrediction(
             @FormParam("visible") Boolean visible,
             @PathParam("id") String id,
-            @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key) throws GeneralSecurityException, QuotaExceededException, ParameterIsNullException, ParameterInvalidURIException, JaqpotDocumentSizeExceededException {
+            //@ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key) throws GeneralSecurityException, QuotaExceededException, ParameterIsNullException, ParameterInvalidURIException, JaqpotDocumentSizeExceededException {
+            @Parameter(description = "Authorization token") @HeaderParam("Authorization") String api_key) throws GeneralSecurityException, QuotaExceededException, ParameterIsNullException, ParameterInvalidURIException, JaqpotDocumentSizeExceededException {
 
         if (id == null) {
             throw new ParameterIsNullException("id");

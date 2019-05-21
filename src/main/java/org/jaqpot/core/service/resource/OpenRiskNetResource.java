@@ -29,7 +29,10 @@ package org.jaqpot.core.service.resource;
  * with the aforementioned licence.
  */
 
-import io.swagger.annotations.*;
+//import io.swagger.annotations.*;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Schema;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.validator.routines.UrlValidator;
 import org.jaqpot.core.annotations.Jackson;
@@ -78,7 +81,7 @@ import static org.jaqpot.core.util.CSVUtils.parseLine;
 
 
 @Path("openrisknet")
-@Api(value = "/openrisknet", description = "OpenRiskNet API")
+//@Api(value = "/openrisknet", description = "OpenRiskNet API")
 public class OpenRiskNetResource {
 
     private static final Logger LOG = Logger.getLogger(EnanomapperResource.class.getName());
@@ -133,22 +136,31 @@ public class OpenRiskNetResource {
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Path("/upload")
     @Consumes("multipart/form-data")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "smilesFile", value = "xls[m,x] file", required = true, dataType = "file", paramType = "formData"),
-            @ApiImplicitParam(name = "title", value = "Title of dataset", required = true, dataType = "string", paramType = "formData"),
-            @ApiImplicitParam(name = "description", value = "Description of dataset", required = true, dataType = "string", paramType = "formData"),
-            @ApiImplicitParam(name = "algorithm-uri", value = "Algorithm URI", required = true, dataType = "string", paramType = "formData"),
-            @ApiImplicitParam(name = "parameters", value = "Parameters for algorithm", required = false, dataType = "string", paramType = "formData")
+    //@ApiImplicitParams({
+    //        @ApiImplicitParam(name = "smilesFile", value = "xls[m,x] file", required = true, dataType = "file", paramType = "formData"),
+    //        @ApiImplicitParam(name = "title", value = "Title of dataset", required = true, dataType = "string", paramType = "formData"),
+    //        @ApiImplicitParam(name = "description", value = "Description of dataset", required = true, dataType = "string", paramType = "formData"),
+    //        @ApiImplicitParam(name = "algorithm-uri", value = "Algorithm URI", required = true, dataType = "string", paramType = "formData"),
+    //        @ApiImplicitParam(name = "parameters", value = "Parameters for algorithm", required = false, dataType = "string", paramType = "formData")
 
-    })
-    @ApiOperation(value = "Creates Dataset By SMILES document",
-            notes = "Calculates descriptors from SMILES document, returns Dataset",
-            response = Task.class
-    )
+    //})
+    @Operation(summary = "Creates Dataset By SMILES document",
+               parameters = {
+                             @Parameter(required = true, schema = @Schema(name = "smilesFile", type = "string", description = "xls[m,x] file")),
+                             @Parameter(required = true, schema = @Schema(name = "title", type = "string", description = "Title of dataset")),
+                             @Parameter(required = true, schema = @Schema(name = "description", type = "string", description = "Description of dataset")),
+                             @Parameter(required = true, schema = @Schema(name = "algorithm-uri", type = "string", description = "Algorithm URI")),
+                             @Parameter(required = false, schema = @Schema(name = "parameters", type = "string", description = "Parameters for algorithm"))
+                            })
+    //@ApiOperation(value = "Creates Dataset By SMILES document",
+    //        notes = "Calculates descriptors from SMILES document, returns Dataset",
+    //        response = Task.class
+    //)
     @org.jaqpot.core.service.annotations.Task
     public Response uploadFile(
             @HeaderParam("Authorization") String api_key,
-            @ApiParam(value = "multipartFormData input", hidden = true) MultipartFormDataInput input)
+            //@ApiParam(value = "multipartFormData input", hidden = true) MultipartFormDataInput input)
+            @Parameter(hidden = true, schema = @Schema(name = "multipartFormData", description = "multipartFormData input")) MultipartFormDataInput input)
             throws ParameterIsNullException, ParameterInvalidURIException, QuotaExceededException, IOException, ParameterScopeException, ParameterRangeException, ParameterTypeException, JaqpotDocumentSizeExceededException {
         UrlValidator urlValidator = new UrlValidator();
         String[] apiA = api_key.split("\\s+");

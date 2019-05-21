@@ -34,13 +34,21 @@
  */
 package org.jaqpot.core.service.resource;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
-import io.swagger.annotations.Extension;
-import io.swagger.annotations.ExtensionProperty;
+//import io.swagger.v3.oas.annotations.Api;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+//import io.swagger.annotations.ApiOperation;
+//import io.swagger.annotations.ApiParam;
+//import io.swagger.annotations.ApiResponse;
+//import io.swagger.annotations.ApiResponses;
+//import io.swagger.annotations.Extension;
+import io.swagger.v3.oas.annotations.extensions.Extension;
+import io.swagger.v3.oas.annotations.extensions.ExtensionProperty;
+//import io.swagger.annotations.ExtensionProperty;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -88,7 +96,7 @@ import org.jaqpot.core.service.exceptions.QuotaExceededException;
  * @author pantelispanka
  */
 @Path("organization")
-@Api(value = "/organization", description = "Organization API", position = 1)
+//@Api(value = "/organization", description = "Organization API", position = 1)
 @Produces({"application/json", "text/uri-list"})
 public class OrganizationResource {
 
@@ -109,7 +117,7 @@ public class OrganizationResource {
 
     @GET
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
-    @ApiOperation(
+    /* @ApiOperation(
             value = "Finds all Organizations",
             notes = "Finds all Organizations on Jaqpot",
             extensions = {
@@ -129,11 +137,27 @@ public class OrganizationResource {
         ,
             @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
 
-    })
+    })*/
+        @Operation(summary = "Finds all Organizations",
+                  description = "Finds all Organizations on Jaqpot",
+                  extensions = {
+                      @Extension(properties = {
+                           @ExtensionProperty(name = "orn-@type", value = "x-orn:Organization"),
+                           }),
+                      @Extension(name = "orn:returns", properties = {
+                           @ExtensionProperty(name = "x-orn-@id", value = "x-orn:OrganizationList")
+                      })},
+                  responses = {
+                      @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = ErrorReport.class)), description = "Wrong, missing or insufficient credentials. Error report is produced."),
+                      @ApiResponse(responseCode = "200", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Organization.class))), description = "A list of algorithms in the Jaqpot framework"),
+                      @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorReport.class)), description = "Internal server error - this request cannot be served.")
+                  })
     public Response getOrganizations(
-            @ApiParam(value = "start", defaultValue = "0") @QueryParam("start") Integer start,
-            @ApiParam(value = "max", defaultValue = "10") @QueryParam("max") Integer max) {
-        return Response
+            //@ApiParam(value = "start", defaultValue = "0") @QueryParam("start") Integer start,
+            //@ApiParam(value = "max", defaultValue = "10") @QueryParam("max") Integer max) {
+            @Parameter(description = "start", schema = @Schema(implementation = String.class, defaultValue = "0")) @QueryParam("start") Integer start,
+            @Parameter(description = "max", schema = @Schema(implementation = String.class, defaultValue = "10")) @QueryParam("max") Integer max) {
+            return Response
                 .ok(orgHandler.findAll(start != null ? start : 0, max != null ? max : Integer.MAX_VALUE))
                 .header("total", orgHandler.countAll())
                 .build();
@@ -142,7 +166,7 @@ public class OrganizationResource {
     @GET
     @Path("/{id}/users")
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
-    @ApiOperation(
+    /*@ApiOperation(
             value = "Finds all Organization users",
             notes = "Finds all Organization users",
             extensions = {
@@ -162,11 +186,26 @@ public class OrganizationResource {
         ,
             @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
 
-    })
+    })*/
+    @Operation(
+            summary = "Finds all Organization users",
+            description = "Finds all Organization users",
+            extensions = {
+                @Extension(properties = {
+                    @ExtensionProperty(name = "orn-@type", value = "x-orn:Organization"),}
+                ),
+                @Extension(name = "orn:returns", properties = {
+                    @ExtensionProperty(name = "x-orn-@id", value = "x-orn:OrganizationList")
+               })
+           },
+           responses = {
+               @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = ErrorReport.class)), description = "Wrong, missing or insufficient credentials. Error report is produced."),
+               @ApiResponse(responseCode = "200", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Organization.class))), description = "A list of algorithms in the Jaqpot framework"),
+               @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorReport.class)), description = "Internal server error - this request cannot be served.")
+           })
     public Response getOrganizationUsers(
             @PathParam("id") String id) {
-
-        List<String> fields = new ArrayList();
+           List<String> fields = new ArrayList();
         fields.add("userIds");
         Organization orgUsers = orgHandler.find(id, fields);
         return Response
@@ -177,7 +216,7 @@ public class OrganizationResource {
     @POST
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @TokenSecured({RoleEnum.DEFAULT_USER})
-    @ApiOperation(
+    /*@ApiOperation(
             value = "Finds all Organizations",
             notes = "Finds all Organizations on Jaqpot",
             extensions = {
@@ -197,7 +236,23 @@ public class OrganizationResource {
         ,
             @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
 
-    })
+    })*/
+    @Operation(
+               summary = "Finds all Organizations",
+               description = "Finds all Organizations on Jaqpot",
+               extensions = {
+                   @Extension(properties = {
+                       @ExtensionProperty(name = "orn-@type", value = "x-orn:Organization"),}
+                   ),
+                   @Extension(name = "orn:returns", properties = {
+                       @ExtensionProperty(name = "x-orn-@id", value = "x-orn:OrganizationList")
+                   })
+               },
+               responses = {
+                   @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = ErrorReport.class)), description = "Wrong, missing or insufficient credentials. Error report is produced."),
+                   @ApiResponse(responseCode = "200", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Organization.class))), description = "A list of algorithms in the Jaqpot framework"),
+                   @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorReport.class)), description = "Internal server error - this request cannot be served.")
+               })
     public Response createsOrganization(
             Organization org) throws QuotaExceededException {
         String userId = securityContext.getUserPrincipal().getName();
@@ -238,7 +293,7 @@ public class OrganizationResource {
     @Path("/{id}")
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
-    @ApiOperation(
+    /*@ApiOperation(
             value = "Finds Organization",
             notes = "Finds Organization on Jaqpot by id",
             extensions = {
@@ -258,7 +313,23 @@ public class OrganizationResource {
         ,
             @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
 
-    })
+    })*/
+    @Operation(
+              summary = "Finds Organization",
+              description = "Finds Organization on Jaqpot by id",
+              extensions = {
+                  @Extension(properties = {
+                      @ExtensionProperty(name = "orn-@type", value = "x-orn:Organization"),}
+                  ),
+                  @Extension(name = "orn:returns", properties = {
+                      @ExtensionProperty(name = "x-orn-@id", value = "x-orn:Organization")
+                  })
+             },
+             responses = {
+                 @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = ErrorReport.class)), description = "Wrong, missing or insufficient credentials. Error report is produced."),
+                 @ApiResponse(responseCode = "200", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Organization.class))), description = "A list of algorithms in the Jaqpot framework"),
+                 @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorReport.class)), description = "Internal server error - this request cannot be served.")
+             })
     public Response getOrganizationById(
             @PathParam("id") String id) {
         return Response
@@ -321,7 +392,7 @@ public class OrganizationResource {
     @PUT
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
-    @ApiOperation(
+    /*@ApiOperation(
             value = "Updates Organization",
             notes = "Updates Organization on Jaqpot by id",
             extensions = {
@@ -341,9 +412,26 @@ public class OrganizationResource {
         ,
             @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
 
-    })
+    })*/
+    @Operation(
+            summary = "Updates Organization",
+            description = "Updates Organization on Jaqpot by id",
+            extensions = {
+                @Extension(properties = {
+                     @ExtensionProperty(name = "orn-@type", value = "x-orn:Organization"),}
+                ),
+                @Extension(name = "orn:returns", properties = {
+                     @ExtensionProperty(name = "x-orn-@id", value = "x-orn:Organization")
+                })
+           },
+           responses = {
+                @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = ErrorReport.class)), description = "Wrong, missing or insufficient credentials. Error report is produced."),
+                @ApiResponse(responseCode = "200", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Organization.class))), description = "A list of algorithms in the Jaqpot framework"),
+                @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorReport.class)), description = "Internal server error - this request cannot be served.")
+           })
     public Response updateOrganization(
-            @ApiParam(value = "Clients need to authenticate in order to access this resource")
+            //@ApiParam(value = "Clients need to authenticate in order to access this resource")
+            @Parameter(description = "Clients need to authenticate in order to access this resource")
             @HeaderParam("Authorization") String api_key,
             Organization orgForUpdate) throws JaqpotNotAuthorizedException {
 
@@ -372,7 +460,7 @@ public class OrganizationResource {
     @Path("/{id}")
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
-    @ApiOperation(
+    /*@ApiOperation(
             value = "Deletes Organization",
             notes = "Deletes Organization on Jaqpot by id. This action can be done only by the creators of an organization"
     )
@@ -382,7 +470,15 @@ public class OrganizationResource {
             @ApiResponse(code = 200, message = "Organization deleted")
         ,
             @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
-    })
+    })*/
+     @Operation(
+            summary = "Deletes Organization",
+            description = "Deletes Organization on Jaqpot by id. This action can be done only by the creators of an organization",
+            responses = {
+                @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = ErrorReport.class)), description = "Wrong, missing or insufficient credentials. Error report is produced."),
+                @ApiResponse(responseCode = "200", description = "Organization deleted"),
+                @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorReport.class)), description = "Internal server error - this request cannot be served.")
+            })
     public Response deleteOrganizationById(
             @PathParam("id") String id) throws JaqpotNotAuthorizedException {
 
@@ -408,7 +504,7 @@ public class OrganizationResource {
     @Produces({MediaType.APPLICATION_JSON})
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Path("/search/and/found")
-    @ApiOperation(value = "Finds Organization from partial given org name",
+    /*@ApiOperation(value = "Finds Organization from partial given org name",
             notes = "Finds all users queried")
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "Orgs found")
@@ -420,10 +516,20 @@ public class OrganizationResource {
         @ApiResponse(code = 404, message = "No user was not found.")
         ,
         @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
-    })
+    })*/
+    @Operation(summary = "Finds Organization from partial given org name",
+               description = "Finds all users queried",
+               responses = {
+                   @ApiResponse(responseCode = "200", description = "Orgs found"),
+                   @ApiResponse(responseCode = "401", description = "You are not authorized to access this user"),
+                   @ApiResponse(responseCode = "403", description = "This request is forbidden (e.g., no authentication token is provided)"),
+                   @ApiResponse(responseCode = "404", description = "No user was not found."),
+                   @ApiResponse(responseCode = "500", description = "Internal server error - this request cannot be served.")
+               })
     public Response getAllOrgs(
             @QueryParam("orgname") String orgname,
-            @ApiParam(value = "Clients need to authenticate in order to access this resource")
+           // @ApiParam(value = "Clients need to authenticate in order to access this resource")
+            @Parameter(description = "Clients need to authenticate in order to access this resource")
             @HeaderParam("Authorization") String api_key) throws JaqpotNotAuthorizedException {
 
         Map<String, Object> search = new HashMap();
@@ -439,7 +545,7 @@ public class OrganizationResource {
     @Path("/affiliations")
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
-    @ApiOperation(
+    /*@ApiOperation(
             value = "Updates Organization",
             notes = "Updates Organization on Jaqpot by id",
             extensions = {
@@ -459,9 +565,26 @@ public class OrganizationResource {
         ,
             @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
 
-    })
+    })*/
+    @Operation(
+            summary = "Updates Organization",
+            description = "Updates Organization on Jaqpot by id",
+            extensions = {
+                @Extension(properties = {
+                    @ExtensionProperty(name = "orn-@type", value = "x-orn:Organization"),}
+                ),
+                @Extension(name = "orn:returns", properties = {
+                    @ExtensionProperty(name = "x-orn-@id", value = "x-orn:Organization")
+                })
+            },
+        responses = {
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = ErrorReport.class)), description = "Wrong, missing or insufficient credentials. Error report is produced."),
+            @ApiResponse(responseCode = "200", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Organization.class))), description = "A list of algorithms in the Jaqpot framework"),
+            @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorReport.class)), description = "Internal server error - this request cannot be served.")
+        })
     public Response updateOrganizationsAffiliations(
-            @ApiParam(value = "Clients need to authenticate in order to access this resource")
+            //@ApiParam(value = "Clients need to authenticate in order to access this resource")
+            @Parameter(description = "Clients need to authenticate in order to access this resource")
             @HeaderParam("Authorization") String api_key,
             List<Organization> orgsForUpdate) throws JaqpotNotAuthorizedException {
 

@@ -29,8 +29,16 @@
  */
 package org.jaqpot.core.service.resource;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+//import io.swagger.annotations.Api;
+//import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.extensions.Extension;
+import io.swagger.v3.oas.annotations.extensions.ExtensionProperty;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
 import org.jaqpot.core.annotations.Jackson;
 import org.jaqpot.core.data.ReportHandler;
 import org.jaqpot.core.data.UserHandler;
@@ -67,7 +75,7 @@ import org.jaqpot.core.service.authentication.RoleEnum;
  * @author Pantelis Sopasakis
  */
 @Path("doseresponse")
-@Api(value = "/doseresponse", description = "Dose Response API")
+//@Api(value = "/doseresponse", description = "Dose Response API")
 @Produces(MediaType.APPLICATION_JSON)
 public class DoseResponseResource {
 
@@ -93,10 +101,15 @@ public class DoseResponseResource {
     @POST
     @TokenSecured({RoleEnum.DEFAULT_USER})
 //    @Path("/test")
-    @ApiOperation(value = "Creates Dose Response Report",
+    /*@ApiOperation(value = "Creates Dose Response Report",
             notes = "Creates Dose Response Report",
             response = Report.class
-    )
+    )*/
+    @Operation(summary = "Creates Dose Response Report",
+               description = "Creates Dose Response Report",
+               responses = {
+                   @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = Report.class))),
+               })
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     public Response doseResponse(
             @FormParam("title") String title,
