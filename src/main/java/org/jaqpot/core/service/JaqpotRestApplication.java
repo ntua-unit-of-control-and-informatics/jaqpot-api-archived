@@ -37,6 +37,9 @@ import io.swagger.v3.oas.integration.OpenApiConfigurationException;
 import io.swagger.v3.oas.integration.SwaggerConfiguration;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.servers.Server;
+import java.util.ArrayList;
+import java.util.Collection;
 import org.jaqpot.core.properties.PropertyManager;
 import org.reflections.Reflections;
 
@@ -46,6 +49,7 @@ import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.ext.Provider;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -93,8 +97,14 @@ public class JaqpotRestApplication extends Application {
         Info info = new Info()
                 .title("Jaqpot Quattro")
                 .description("Jaqpot Quattro")
-                .version("4.0.3");
+                .version("4.0.?");
+        oas.openapi("3.0.1");
         oas.info(info);
+        
+        Server server = new Server().url(host+":"+port+basePath);
+        List<Server> servers = new ArrayList();
+        servers.add(server);
+        oas.servers(servers);
         
         SwaggerConfiguration oasConfig = new SwaggerConfiguration()
                 .openAPI(oas)
