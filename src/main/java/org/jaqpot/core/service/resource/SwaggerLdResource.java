@@ -68,10 +68,10 @@ import org.jaqpot.core.service.httphandlers.SwaggerLdHandler;
  *
  * @author pantelispanka
  */
-@Path("swagger")
+//@Path("swagger")
 //@Api(value = "/swaggerld")
 //@SwaggerDefinition
-@OpenAPIDefinition
+//@OpenAPIDefinition
 public class SwaggerLdResource {
 
     private static final Logger LOG = Logger.getLogger(SwaggerLdResource.class.getName());
