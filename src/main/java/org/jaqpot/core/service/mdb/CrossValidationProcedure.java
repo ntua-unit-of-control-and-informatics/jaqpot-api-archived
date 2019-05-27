@@ -212,7 +212,7 @@ public class CrossValidationProcedure extends AbstractJaqpotProcedure {
                     if (transParameters != null && !transParameters.isEmpty()) {
                         parameterMap = serializer.parse(transParameters, new HashMap<String, Object>().getClass());
                     }
-                    dataset = jpdiClient.transform(dataset, transAlgorithm, parameterMap, predictionFeature, dataset.getMeta(), taskId).get();
+                    dataset = jpdiClient.transform(dataset, transAlgorithm, parameterMap, predictionFeature, dataset.getMeta(), taskId, null).get();
                     addProgress(10f, "Done");
                 }
                 progress(30f, "Done processing transformations.", "--");
@@ -260,7 +260,7 @@ public class CrossValidationProcedure extends AbstractJaqpotProcedure {
                         .reduce(DatasetFactory.createEmpty(0),(a, b) -> DatasetFactory.mergeRows(a, b));
                         //.orElseThrow(() -> new InternalServerErrorException("Training dataset merging failed"));
                 Model model = jpdiClient.train(trainingDataset, algorithm, parameterMap, predictionFeature, trainingDataset.getMeta(), taskId).get();
-                Dataset predictedDataset = jpdiClient.predict(predictionDataset, model, predictionDataset.getMeta(), taskId).get();
+                Dataset predictedDataset = jpdiClient.predict(predictionDataset, model, predictionDataset.getMeta(), taskId, null).get();
                 finalDataset = DatasetFactory.mergeRows(finalDataset, predictedDataset);
                 predictedFeature = model.getPredictedFeatures().get(0);
                 indepFeatureSize = Math.max(indepFeatureSize, model.getIndependentFeatures().size());

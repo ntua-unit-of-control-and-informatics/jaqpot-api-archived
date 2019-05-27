@@ -2,7 +2,12 @@
  *
  * JAQPOT Quattro
  *
- * JAQPOT Quattro and the components shipped with it (web applications and beans)
+ * JAQPOT Quattro and the components shipped with it, in particular:
+ * (i)   JaqpotCoreServices
+ * (ii)  JaqpotAlgorithmServices
+ * (iii) JaqpotDB
+ * (iv)  JaqpotDomain
+ * (v)   JaqpotEAR
  * are licensed by GPL v3 as specified hereafter. Additional components may ship
  * with some other licence as will be specified therein.
  *
@@ -27,53 +32,45 @@
  * All source files of JAQPOT Quattro that are stored on github are licensed
  * with the aforementioned licence. 
  */
-package org.jaqpot.core.model.dto.jpdi;
+package org.jaqpot.core.model;
 
-import org.jaqpot.core.model.dto.dataset.Dataset;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  *
- * @author Pantelis Sopasakis
- * @author Charalampos Chomenidis
- *
+ * @author pantelispanka
  */
-public class PredictionRequest {
+@XmlRootElement
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class Doa extends JaqpotEntity {
+    
+    private String modelId;
+    private float[][] doaMatrix;
+    private float aValue;
 
-    Dataset dataset;
-    Object rawModel;
-    Object additionalInfo;
-    float[][] doaMatrix;
-
-    public Dataset getDataset() {
-        return dataset;
+    public String getModelId() {
+        return modelId;
     }
 
-    public void setDataset(Dataset dataset) {
-        this.dataset = dataset;
-    }
-
-    public Object getRawModel() {
-        return rawModel;
-    }
-
-    public void setRawModel(Object rawModel) {
-        this.rawModel = rawModel;
-    }
-
-    public Object getAdditionalInfo() {
-        return additionalInfo;
-    }
-
-    public void setAdditionalInfo(Object additionalInfo) {
-        this.additionalInfo = additionalInfo;
+    public void setModelId(String modelId) {
+        this.modelId = modelId;
     }
 
     public float[][] getDoaMatrix() {
         return doaMatrix;
     }
 
-    public void setDoaMatrix(float[][] doaMatrix) {
-        this.doaMatrix = doaMatrix;
+    public void setDoaMatrix(float[][] doiMatrix) {
+        this.doaMatrix = doiMatrix;
+    }
+
+    public float getaValue() {
+        return aValue;
+    }
+
+    public void setaValue(float aValue) {
+        this.aValue = aValue;
     }
     
 }

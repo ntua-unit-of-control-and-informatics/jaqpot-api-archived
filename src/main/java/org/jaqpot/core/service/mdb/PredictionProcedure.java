@@ -63,9 +63,11 @@ import javax.ws.rs.core.MediaType;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -73,6 +75,9 @@ import javax.ejb.EJBTransactionRolledbackException;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.ws.rs.NotFoundException;
+import org.jaqpot.core.data.DoaHandler;
+import org.jaqpot.core.model.Doa;
+import org.jaqpot.core.service.data.DoaService;
 
 /**
  * @author Angelos Valsamis
@@ -101,6 +106,12 @@ public class PredictionProcedure extends AbstractJaqpotProcedure implements Mess
     @EJB
     DatasetHandler datasetHandler;
 
+//    @EJB
+//    DoaService doaService;
+    
+    @EJB
+    DoaHandler doaHandler;
+    
 //    @Inject
 //    RabbitMQ rabbitMQClient;
 
@@ -141,6 +152,7 @@ public class PredictionProcedure extends AbstractJaqpotProcedure implements Mess
         String modelId = (String) messageBody.get("modelId");
         String apiKey = (String) messageBody.get("api_key");
         String creator = (String) messageBody.get("creator");
+        String doa = (String) messageBody.get("doa");
         Model model = null;
         try {
             init(taskId);
@@ -189,7 +201,7 @@ public class PredictionProcedure extends AbstractJaqpotProcedure implements Mess
                         errNotFound("Transformation model with id:" + transModelURI + " was not found.");
                         return;
                     }
-                    dataset = jpdiClient.predict(dataset, transModel, dataset != null ? dataset.getMeta() : null, taskId).get();
+                    dataset = jpdiClient.predict(dataset, transModel, dataset != null ? dataset.getMeta() : null, taskId, null).get();
                     addProgress(5f, "Transformed successfull by model:" + transModel.getId());
                 }
                 progress("Done processing transformations.", "--");
@@ -201,9 +213,14 @@ public class PredictionProcedure extends AbstractJaqpotProcedure implements Mess
             HashSet<String> creators = new HashSet<>(Arrays.asList(creator));
             datasetMeta.setCreators(creators);
 
+            Doa doaM = null;
+            if(doa.equals("true")){
+                doaM = doaHandler.findBySourcesWithDoaMatrix("model/" + model.getId());
+            }
+            
             progress("Starting Prediction...");
 
-            dataset = jpdiClient.predict(dataset, model, datasetMeta, taskId).get();
+            dataset = jpdiClient.predict(dataset, model, datasetMeta, taskId, doaM).get();
             progress("Prediction completed successfully.");
             progress(80f, "Dataset was built successfully.");
             checkCancelled();
@@ -218,7 +235,7 @@ public class PredictionProcedure extends AbstractJaqpotProcedure implements Mess
                         errNotFound("Transformation model with id:" + linkedModelURI + " was not found.");
                         return;
                     }
-                    Dataset linkedDataset = jpdiClient.predict(copyDataset, linkedModel, dataset != null ? dataset.getMeta() : null, taskId).get();
+                    Dataset linkedDataset = jpdiClient.predict(copyDataset, linkedModel, dataset != null ? dataset.getMeta() : null, taskId, null).get();
                     dataset = DatasetFactory.mergeColumns(dataset, linkedDataset);
                     addProgress(5f, "Prediction successfull by model:" + linkedModel.getId());
 

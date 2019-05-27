@@ -2,7 +2,12 @@
  *
  * JAQPOT Quattro
  *
- * JAQPOT Quattro and the components shipped with it (web applications and beans)
+ * JAQPOT Quattro and the components shipped with it, in particular:
+ * (i)   JaqpotCoreServices
+ * (ii)  JaqpotAlgorithmServices
+ * (iii) JaqpotDB
+ * (iv)  JaqpotDomain
+ * (v)   JaqpotEAR
  * are licensed by GPL v3 as specified hereafter. Additional components may ship
  * with some other licence as will be specified therein.
  *
@@ -27,53 +32,35 @@
  * All source files of JAQPOT Quattro that are stored on github are licensed
  * with the aforementioned licence. 
  */
-package org.jaqpot.core.model.dto.jpdi;
+package org.jaqpot.core.service.data;
 
-import org.jaqpot.core.model.dto.dataset.Dataset;
+import java.lang.annotation.Annotation;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.Future;
+import javax.ejb.AsyncResult;
+import javax.ejb.Asynchronous;
+import javax.ejb.Stateless;
 
 /**
  *
- * @author Pantelis Sopasakis
- * @author Charalampos Chomenidis
- *
+ * @author pantelispanka
  */
-public class PredictionRequest {
+@Stateless
+public class DoaService {
 
-    Dataset dataset;
-    Object rawModel;
-    Object additionalInfo;
-    float[][] doaMatrix;
 
-    public Dataset getDataset() {
-        return dataset;
-    }
-
-    public void setDataset(Dataset dataset) {
-        this.dataset = dataset;
-    }
-
-    public Object getRawModel() {
-        return rawModel;
-    }
-
-    public void setRawModel(Object rawModel) {
-        this.rawModel = rawModel;
-    }
-
-    public Object getAdditionalInfo() {
-        return additionalInfo;
-    }
-
-    public void setAdditionalInfo(Object additionalInfo) {
-        this.additionalInfo = additionalInfo;
-    }
-
-    public float[][] getDoaMatrix() {
-        return doaMatrix;
-    }
-
-    public void setDoaMatrix(float[][] doaMatrix) {
-        this.doaMatrix = doaMatrix;
+    @Asynchronous
+    public Future<List<Float>> calculateDoa(float[][] newD, float[][] doa) {
+        int r1 = doa[0].length;
+        int c1 = doa.length;
+        List<Float> preds = new ArrayList<>();
+        preds.add((float) r1);
+        preds.add((float) c1);
+        return new AsyncResult<>(preds);
     }
     
+
+    
 }
+

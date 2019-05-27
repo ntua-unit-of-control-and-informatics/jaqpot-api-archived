@@ -585,6 +585,7 @@ public class ModelResource {
     public Response makePrediction(
             @ApiParam(name = "dataset_uri", required = true) @FormParam("dataset_uri") String datasetURI,
             @FormParam("visible") Boolean visible,
+            @ApiParam(name = "doa", defaultValue = "false") @FormParam("doa") Boolean doa,
             @PathParam("id") String id,
             @HeaderParam("Authorization") String api_key) throws GeneralSecurityException, QuotaExceededException, ParameterIsNullException, ParameterInvalidURIException, JaqpotDocumentSizeExceededException {
         String[] apiA = api_key.split("\\s+");
@@ -629,6 +630,7 @@ public class ModelResource {
         options.put("modelId", id);
         options.put("creator", securityContext.getUserPrincipal().getName());
         options.put("base_uri", uriInfo.getBaseUri().toString());
+        options.put("doa", doa.toString());
         Task task = predictionService.initiatePrediction(options);
         return Response.ok(task).build();
     }
