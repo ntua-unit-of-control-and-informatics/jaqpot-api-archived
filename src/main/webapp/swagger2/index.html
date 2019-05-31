@@ -21,7 +21,6 @@
     {
         box-sizing: inherit;
     }
-
     body {
       margin:0;
       background: #fafafa;
@@ -76,7 +75,7 @@ window.onload = function() {
         url = decodeURIComponent(url[1]);
       } else {
         var base_url = window.location.origin;
-        url = base_url + "/jaqpot/services/swagger.json";
+        url = base_url + "/jaqpot/services/openapi.json";
       }
   // Build a system
   const ui = SwaggerUIBundle({
@@ -91,7 +90,6 @@ window.onload = function() {
     ],
     layout: "StandaloneLayout"
   })
-
   window.ui = ui
 }
 </script>
