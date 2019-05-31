@@ -30,6 +30,7 @@
 package org.jaqpot.core.service;
 
 //import io.swagger.jaxrs.config.BeanConfig;
+import io.swagger.v3.core.util.Json;
 import io.swagger.v3.jaxrs2.integration.JaxrsOpenApiContextBuilder;
 import io.swagger.v3.jaxrs2.integration.resources.AcceptHeaderOpenApiResource;
 import io.swagger.v3.jaxrs2.integration.resources.OpenApiResource;
@@ -38,8 +39,9 @@ import io.swagger.v3.oas.integration.SwaggerConfiguration;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.servers.Server;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.util.ArrayList;
-import java.util.Collection;
 import org.jaqpot.core.properties.PropertyManager;
 import org.reflections.Reflections;
 
@@ -58,7 +60,11 @@ import java.util.stream.Stream;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
 import javax.servlet.ServletConfig;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
 import org.jaqpot.core.service.authentication.TokenRequestFilter;
 
 /**
@@ -75,16 +81,16 @@ public class JaqpotRestApplication extends Application {
     private static final Logger LOG = Logger.getLogger(JaqpotRestApplication.class.getName());
 
     //BeanConfig beanConfig;
-
     @Inject
     PropertyManager propertyManager;
 
     public JaqpotRestApplication() {
-        
+
     }
 
     //Move constructor logic in @PostConstruct in order to be able to use PropertyManager Injection
     @PostConstruct
+    
     public void init() {
         String host = propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_HOST);
         String port = propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_PORT);
@@ -100,40 +106,43 @@ public class JaqpotRestApplication extends Application {
                 .version("4.0.?");
         oas.openapi("3.0.1");
         oas.info(info);
-        
-        Server server = new Server().url(host+":"+port+basePath);
+
+        Server server = new Server().url(host + ":" + port + basePath);
         List<Server> servers = new ArrayList();
         servers.add(server);
         oas.servers(servers);
-        
+
         SwaggerConfiguration oasConfig = new SwaggerConfiguration()
+                //flag
                 .openAPI(oas)
                 .prettyPrint(true)
                 .resourcePackages(Stream.of("org.jaqpot.core.service.resource").collect(Collectors.toSet()));
 
         try {
-            new JaxrsOpenApiContextBuilder()
+            OpenAPI openapi = new JaxrsOpenApiContextBuilder()
                     .openApiConfiguration(oasConfig)
-                    .buildContext(true);
+                    .buildContext(true)
+                    .read();
+           
         } catch (OpenApiConfigurationException e) {
             throw new RuntimeException(e.getMessage(), e);
         }
         /*beanConfig = new BeanConfig();
-        beanConfig.setVersion("4.0.3");
-        beanConfig.setResourcePackage("org.jaqpot.core.service.resource");
-        beanConfig.setScan(true);
-        beanConfig.setTitle("Jaqpot Quattro");
-        beanConfig.setDescription("Jaqpot Quattro");
-        if(!"80".equals(port)){
-            beanConfig.setHost(host + ":" + port);
-        }
-        else{
-            beanConfig.setHost(host);
-        }
-        beanConfig.setBasePath(basePath);
-        beanConfig.setSchemes(new String[]{"http","https"});
-        beanConfig.setPrettyPrint(true);
-        */
+         beanConfig.setVersion("4.0.3");
+         beanConfig.setResourcePackage("org.jaqpot.core.service.resource");
+         beanConfig.setScan(true);
+         beanConfig.setTitle("Jaqpot Quattro");
+         beanConfig.setDescription("Jaqpot Quattro");
+         if(!"80".equals(port)){
+         beanConfig.setHost(host + ":" + port);
+         }
+         else{
+         beanConfig.setHost(host);
+         }
+         beanConfig.setBasePath(basePath);
+         beanConfig.setSchemes(new String[]{"http","https"});
+         beanConfig.setPrettyPrint(true);
+         */
     }
 
     @Override
@@ -166,7 +175,7 @@ public class JaqpotRestApplication extends Application {
         //resources.add(io.swagger.jaxrs.listing.SwaggerSerializers.class);
         resources.add(OpenApiResource.class);
         resources.add(AcceptHeaderOpenApiResource.class);
-        
+
         return resources;
     }
 
