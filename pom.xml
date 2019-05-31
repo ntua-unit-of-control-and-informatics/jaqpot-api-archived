@@ -9,7 +9,15 @@
     
     <dependencies>
         
+       
+        
         <!-- Java Web API -->
+        <!--dependency>
+            <groupId>io.swagger</groupId>
+            <artifactId>swagger-jaxrs</artifactId>
+            <version>1.5.10</version>
+            <type>jar</type>
+        </dependency-->
         <dependency>
             <groupId>javax</groupId>
             <artifactId>javaee-web-api</artifactId>
@@ -63,13 +71,9 @@
             <groupId>io.swagger</groupId>
             <artifactId>swagger-jaxrs</artifactId>
             <version>1.5.10</version>
-        </dependency-->
-        <dependency>
-            <groupId>io.swagger.core.v3</groupId>
-            <artifactId>swagger-jaxrs2</artifactId>
-            <version>2.0.0</version>
-        </dependency>
         
+        </dependency-->
+       
         <!--dependency>
             <groupId>io.swagger</groupId>
             <artifactId>swagger-jaxrs2</artifactId>
@@ -84,7 +88,7 @@
         </dependency>
 
         <!-- javamelody-core -->
-        <!--        <dependency>
+        <!-- <dependency>
             <groupId>net.bull.javamelody</groupId>
             <artifactId>javamelody-core</artifactId>
             <version>1.68.1</version>
@@ -185,7 +189,19 @@
             <artifactId>jedis</artifactId>
             <version>2.8.1</version>
         </dependency>
+         <!-- SWAGGER FOR JAX-RS  -for  OpenApi 3.0-->
+        <dependency>
+            <groupId>io.swagger.core.v3</groupId>
+            <artifactId>swagger-jaxrs2</artifactId>
+            <version>2.0.8</version>
+        </dependency>
         
+
+        <dependency>
+           <groupId>org.reflections</groupId>
+           <artifactId>reflections</artifactId>
+           <version>0.9.10</version>
+        </dependency>
     </dependencies>
 
     
