@@ -30,7 +30,6 @@
 package org.jaqpot.core.service;
 
 //import io.swagger.jaxrs.config.BeanConfig;
-import io.swagger.v3.core.util.Json;
 import io.swagger.v3.jaxrs2.integration.JaxrsOpenApiContextBuilder;
 import io.swagger.v3.jaxrs2.integration.resources.AcceptHeaderOpenApiResource;
 import io.swagger.v3.jaxrs2.integration.resources.OpenApiResource;
@@ -38,9 +37,9 @@ import io.swagger.v3.oas.integration.OpenApiConfigurationException;
 import io.swagger.v3.oas.integration.SwaggerConfiguration;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.security.SecurityRequirement;
+import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.oas.models.servers.Server;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.util.ArrayList;
 import org.jaqpot.core.properties.PropertyManager;
 import org.reflections.Reflections;
@@ -59,12 +58,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
-import javax.servlet.ServletConfig;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
 import org.jaqpot.core.service.authentication.TokenRequestFilter;
 
 /**
@@ -107,10 +100,18 @@ public class JaqpotRestApplication extends Application {
         oas.openapi("3.0.1");
         oas.info(info);
 
+        SecurityScheme securityScheme = new SecurityScheme();
+        //ApiKeyAuthDefinition apiKeyDefinition = new ApiKeyAuthDefinition();
+        securityScheme.setName("HTTP");
+        securityScheme.setType(SecurityScheme.Type.HTTP);
+        SecurityRequirement sr = new SecurityRequirement();
+        sr.addList("HTTP");
+        oas.addSecurityItem(sr);
         Server server = new Server().url(host + ":" + port + basePath);
         List<Server> servers = new ArrayList();
         servers.add(server);
         oas.servers(servers);
+        
 
         SwaggerConfiguration oasConfig = new SwaggerConfiguration()
                 //flag
