@@ -33,11 +33,15 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.oauth2.sdk.token.AccessToken;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.enums.ParameterStyle;
 import io.swagger.v3.oas.annotations.extensions.Extension;
 import io.swagger.v3.oas.annotations.extensions.ExtensionProperty;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
+import io.swagger.v3.oas.annotations.tags.Tags;
 //import io.swagger.annotations.*;
 import org.jaqpot.core.model.ErrorReport;
 import org.jaqpot.core.model.dto.aa.AuthToken;
@@ -184,6 +188,7 @@ public class AAResource {
     @POST
     @Path("/validate/accesstoken")
     @Produces(MediaType.APPLICATION_JSON)
+    
     /*@ApiOperation(
             value = "Validate authorization token",
             notes = "Checks whether an authorization token is valid",
@@ -210,6 +215,7 @@ public class AAResource {
     @Operation(
         summary = "Validate authorization token",
         description = "Checks whether an authorization token is valid",
+        tags = {"aa"},
         extensions = {
                 @Extension(properties = {
                     @ExtensionProperty(name = "orn-@type", value = "x-orn:TokenValidation"),}
@@ -228,7 +234,7 @@ public class AAResource {
             })
     public Response validateAccessToken(
             //@ApiParam(value = "Authorization token") @QueryParam("accessToken") String accessToken
-            @Parameter(description = "Authorization token") @QueryParam("accessToken") String accessToken
+            @Parameter(description = "Authorization token", schema = @Schema(implementation = String.class), in = ParameterIn.QUERY, name = "accessToken") String accessToken
     ) throws JaqpotNotAuthorizedException {
         boolean valid = aaService.validateAccessToken(accessToken);
         return Response.ok(valid ? "true" : "false", MediaType.APPLICATION_JSON)
@@ -308,6 +314,7 @@ public class AAResource {
     @Operation(
             summary = "Requests authorization from SSO",
             description = "Checks whether the client identified by the provided AA token can apply a method to a URI",
+            tags = {"aa"},
             extensions = {
                 @Extension(properties = {
                     @ExtensionProperty(name = "orn-@type", value = "x-orn:Authorization"),}
@@ -327,7 +334,7 @@ public class AAResource {
             })
     public Response getClaims(
             //@ApiParam(value = "Authorization token") @QueryParam("accessToken") String accessToken
-            @Parameter(description = "Authorization token") @QueryParam("accessToken") String accessToken
+            @Parameter(description = "Authorization token", schema = @Schema(type = "String", implementation = String.class), in = ParameterIn.QUERY, name = "accessToken") String accessToken
     ) throws JaqpotNotAuthorizedException {
         JWTClaimsSet claims = aaService.getClaimsFromAccessToken(accessToken);
         return Response.ok(claims)
@@ -337,11 +344,16 @@ public class AAResource {
     @POST
     @Path("/login")
     @Produces(MediaType.APPLICATION_JSON)
+    @Operation(description = "",
+          summary = "",
+          tags = {"aa"}
+    )
+    @RequestBody(content = @Content(mediaType = "application/x-www-form-urlencoded"), required = true)
     public Response swaggerLogin(
             //@ApiParam(value = "Username", required = true) @FormParam("username") String username,
             //@ApiParam(value = "Password", required = true) @FormParam("password") String password) throws JaqpotNotAuthorizedException {
-            @Parameter(description = "Username", required = true) @FormParam("username") String username,
-            @Parameter(description = "Password", required = true) @FormParam("password") String password) throws JaqpotNotAuthorizedException {
+            @Parameter(description = "username", name = "username", schema = @Schema(implementation = String.class, type = "String"), required = true) String username,
+            @Parameter(description = "password", name = "password", schema = @Schema(implementation = String.class, type = "String"), required = true) String password) throws JaqpotNotAuthorizedException {
         AccessToken aToken;
         aToken = aaService.getAccessToken(username, password);
         AuthToken auToken = new AuthToken();
