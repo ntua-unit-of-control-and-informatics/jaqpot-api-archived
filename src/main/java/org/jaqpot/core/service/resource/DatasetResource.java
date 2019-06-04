@@ -39,6 +39,7 @@ import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.io.IOException;
 import java.io.InputStream;
 import org.apache.commons.validator.routines.UrlValidator;
@@ -98,6 +99,7 @@ import static org.jaqpot.core.util.CSVUtils.parseLine;
 @Path("dataset")
 //@Api(value = "dataset", description = "Dataset API")
 @Produces({"application/json", "text/uri-list"})
+@Tag(name = "dataset")
 public class DatasetResource {
 
     private static final Logger LOG = Logger.getLogger(DatasetResource.class.getName());

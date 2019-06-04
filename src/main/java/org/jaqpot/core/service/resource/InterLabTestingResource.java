@@ -38,6 +38,7 @@ import io.swagger.v3.oas.annotations.extensions.ExtensionProperty;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.jaqpot.core.annotations.Jackson;
 import org.jaqpot.core.data.ReportHandler;
 import org.jaqpot.core.data.UserHandler;
@@ -75,6 +76,7 @@ import java.util.logging.Logger;
 @Path("interlab")
 //@Api(value = "/interlab", description = "Interlab Testing API")
 @Produces(MediaType.APPLICATION_JSON)
+@Tag(name = "interlab")
 public class InterLabTestingResource {
 
     private static final Logger LOG = Logger.getLogger(InterLabTestingResource.class.getName());

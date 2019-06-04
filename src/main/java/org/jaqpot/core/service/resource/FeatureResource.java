@@ -36,6 +36,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.jaqpot.core.data.FeatureHandler;
 import org.jaqpot.core.model.ErrorReport;
 import org.jaqpot.core.model.Feature;
@@ -65,6 +66,7 @@ import java.util.HashSet;
 @Path("feature")
 //@Api(value = "/feature", description = "Feature API")
 @Produces({"application/json", "text/uri-list"})
+@Tag(name = "feature")
 public class FeatureResource {
 
     private static final String DEFAULT_FEATURE = "{\n"

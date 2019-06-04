@@ -33,13 +33,17 @@ package org.jaqpot.core.service;
 import io.swagger.v3.jaxrs2.integration.JaxrsOpenApiContextBuilder;
 import io.swagger.v3.jaxrs2.integration.resources.AcceptHeaderOpenApiResource;
 import io.swagger.v3.jaxrs2.integration.resources.OpenApiResource;
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.integration.OpenApiConfigurationException;
 import io.swagger.v3.oas.integration.SwaggerConfiguration;
+import io.swagger.v3.oas.integration.api.OpenAPIConfiguration;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.oas.models.servers.Server;
+import io.swagger.v3.oas.models.servers.ServerVariable;
+import io.swagger.v3.oas.models.servers.ServerVariables;
 import java.util.ArrayList;
 import org.jaqpot.core.properties.PropertyManager;
 import org.reflections.Reflections;
@@ -66,6 +70,7 @@ import org.jaqpot.core.service.authentication.TokenRequestFilter;
  * @author Charalampos Chomenidis
  *
  */
+
 @ApplicationPath("/services")
 @Singleton
 @Startup
@@ -78,13 +83,15 @@ public class JaqpotRestApplication extends Application {
     PropertyManager propertyManager;
 
     public JaqpotRestApplication() {
-
+  
+          super();
     }
 
     //Move constructor logic in @PostConstruct in order to be able to use PropertyManager Injection
     @PostConstruct
     
     public void init() {
+        
         String host = propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_HOST);
         String port = propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_PORT);
         String basePath = propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_BASE);
@@ -107,7 +114,16 @@ public class JaqpotRestApplication extends Application {
         SecurityRequirement sr = new SecurityRequirement();
         sr.addList("HTTP");
         oas.addSecurityItem(sr);
-        Server server = new Server().url(host + ":" + port + basePath);
+        
+        List<String> schemes =new ArrayList();
+        schemes.add("http");
+        schemes.add("https");
+        ServerVariable protocol = new ServerVariable()._enum(schemes)._default("http");
+        ServerVariables varMap = new ServerVariables().addServerVariable("protocol",protocol);
+        
+        Server server = new Server()
+                .url(protocol.getDefault() + "://"+host + ":" + port + basePath)
+                .variables(varMap);
         List<Server> servers = new ArrayList();
         servers.add(server);
         oas.servers(servers);
@@ -115,12 +131,12 @@ public class JaqpotRestApplication extends Application {
 
         SwaggerConfiguration oasConfig = new SwaggerConfiguration()
                 //flag
-                .openAPI(oas)
+                .openAPI(oas).scannerClass("JaqpotRestApplication")
                 .prettyPrint(true)
                 .resourcePackages(Stream.of("org.jaqpot.core.service.resource").collect(Collectors.toSet()));
 
         try {
-            OpenAPI openapi = new JaxrsOpenApiContextBuilder()
+            OpenAPI openapi = new JaxrsOpenApiContextBuilder().application(this)
                     .openApiConfiguration(oasConfig)
                     .buildContext(true)
                     .read();
@@ -175,7 +191,7 @@ public class JaqpotRestApplication extends Application {
         //resources.add(io.swagger.jaxrs.listing.ApiListingResource.class);
         //resources.add(io.swagger.jaxrs.listing.SwaggerSerializers.class);
         resources.add(OpenApiResource.class);
-        resources.add(AcceptHeaderOpenApiResource.class);
+        //resources.add(AcceptHeaderOpenApiResource.class);
 
         return resources;
     }

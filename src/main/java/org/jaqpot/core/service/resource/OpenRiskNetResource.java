@@ -33,6 +33,7 @@ package org.jaqpot.core.service.resource;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.validator.routines.UrlValidator;
 import org.jaqpot.core.annotations.Jackson;
@@ -81,6 +82,7 @@ import static org.jaqpot.core.util.CSVUtils.parseLine;
 
 
 @Path("openrisknet")
+@Tag(name = "openrisknet")
 //@Api(value = "/openrisknet", description = "OpenRiskNet API")
 public class OpenRiskNetResource {
 

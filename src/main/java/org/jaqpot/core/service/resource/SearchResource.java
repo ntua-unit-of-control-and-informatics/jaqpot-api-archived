@@ -46,6 +46,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.ArrayList;
 import java.util.List;
 import javax.ejb.EJB;
@@ -79,6 +80,7 @@ import org.jaqpot.core.sessions.SessionClient;
 @Path("search")
 //@Api(value = "/search", description = "Search API")
 @Produces({"application/json", "text/uri-list"})
+@Tag(name = "search")
 public class SearchResource {
 
     @EJB

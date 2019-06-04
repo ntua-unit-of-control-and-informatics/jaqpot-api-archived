@@ -38,6 +38,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.extensions.Extension;
 import io.swagger.v3.oas.annotations.extensions.ExtensionProperty;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.jaqpot.core.data.UserHandler;
 import org.jaqpot.core.model.User;
 import org.jaqpot.core.model.UserQuota;
@@ -68,6 +69,7 @@ import org.jaqpot.core.service.authentication.RoleEnum;
 @Path("user")
 //@Api(value = "/user", description = "Users API", position = 1)
 @Produces({"application/json", "text/uri-list"})
+@Tag(name = "user")
 public class UserResource {
 
     @EJB

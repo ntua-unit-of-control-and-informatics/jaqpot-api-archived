@@ -15,6 +15,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.jaqpot.core.annotations.Jackson;
 import org.jaqpot.core.data.ReportHandler;
 import org.jaqpot.core.data.UserHandler;
@@ -52,6 +53,7 @@ import org.jaqpot.core.service.authentication.RoleEnum;
 @Path("readacross")
 //@Api(value = "/readacross", description = "Read Across API")
 @Produces(MediaType.APPLICATION_JSON)
+@Tag(name = "readacross")
 public class ReadAcrossResource {
 
     private static final Logger LOG = Logger.getLogger(ReadAcrossResource.class.getName());

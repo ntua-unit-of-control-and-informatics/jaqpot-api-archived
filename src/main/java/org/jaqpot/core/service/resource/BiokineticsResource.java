@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.commons.validator.routines.UrlValidator;
 import org.jaqpot.core.annotations.Jackson;
 import org.jaqpot.core.data.AlgorithmHandler;
@@ -61,7 +62,7 @@ import org.jaqpot.core.service.data.PredictionService;
 //@Api(value = "/biokinetics", description = "Biokinetics API")
 @Produces({"application/json", "text/uri-list"})
 @Authorize
-
+@Tag(name = "biokinetics")
 public class BiokineticsResource {
 
     @EJB

@@ -45,6 +45,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.Arrays;
 import java.util.List;
 import javax.ejb.EJB;
@@ -79,6 +80,7 @@ import org.jaqpot.core.service.exceptions.JaqpotNotAuthorizedException;
 @Path("notification")
 //@Api(value = "/notification", description = "Notifications API", position = 1)
 @Produces({"application/json"})
+@Tag(name = "notification")
 public class NotificationResource {
     
     @EJB

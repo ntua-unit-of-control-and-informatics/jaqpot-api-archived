@@ -40,6 +40,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.jaqpot.core.annotations.Jackson;
 import org.jaqpot.core.data.DatasetHandler;
 import org.jaqpot.core.data.ModelHandler;
@@ -79,6 +80,7 @@ import org.jaqpot.core.service.authentication.RoleEnum;
  */
 @Path("enm")
 //@Api(value = "/enm", description = "eNM API")
+@Tag(name = "enm")
 public class EnanomapperResource {
 
     private static final Logger LOG = Logger.getLogger(EnanomapperResource.class.getName());

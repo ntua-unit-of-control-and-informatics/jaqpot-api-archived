@@ -45,6 +45,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.tags.Tag;
 //import io.swagger.jaxrs.PATCH;
 import org.apache.commons.validator.routines.UrlValidator;
 import org.jaqpot.core.annotations.Jackson;
@@ -89,7 +90,7 @@ import org.jaqpot.core.service.authentication.RoleEnum;
 //@Api(value = "/algorithm", description = "Algorithms API")
 @Produces({"application/json", "text/uri-list"})
 //@Authorize
-
+@Tag(name = "algorithm")
 public class AlgorithmResource {
 
     private static final Logger LOG = Logger.getLogger(AlgorithmResource.class.getName());

@@ -39,6 +39,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import static io.swagger.v3.oas.models.PathItem.HttpMethod.PATCH;
 //import io.swagger.annotations.ApiResponses;
 //import io.swagger.jaxrs.PATCH;
@@ -92,6 +93,7 @@ import org.jaqpot.core.service.exceptions.JaqpotNotAuthorizedException;
 @Path("bibtex")
 //@Api(value = "/bibtex", description = "BibTeX API")
 @Produces({"application/json", "text/uri-list"})
+@Tag(name = "bibtex")
 public class BibTeXResource {
     
     @EJB

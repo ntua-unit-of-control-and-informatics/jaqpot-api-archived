@@ -42,6 +42,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
@@ -86,6 +87,7 @@ import org.jaqpot.core.service.mdb.ThreadReference;
  */
 @Path("task")
 //@Api(value = "/task", description = "Tasks API")
+@Tag(name = "task")
 public class TaskResource {
 
     @Context
