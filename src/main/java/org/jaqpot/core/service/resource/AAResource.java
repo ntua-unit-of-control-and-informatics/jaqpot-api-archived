@@ -35,23 +35,17 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
-import io.swagger.v3.oas.annotations.enums.ParameterStyle;
 import io.swagger.v3.oas.annotations.extensions.Extension;
 import io.swagger.v3.oas.annotations.extensions.ExtensionProperty;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
-import io.swagger.v3.oas.annotations.servers.Server;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import io.swagger.v3.oas.annotations.tags.Tags;
 //import io.swagger.annotations.*;
 import org.jaqpot.core.model.ErrorReport;
 import org.jaqpot.core.model.dto.aa.AuthToken;
-import org.jaqpot.core.model.dto.dataset.Dataset;
-import org.jaqpot.core.service.annotations.Authorize;
 import org.jaqpot.core.service.authentication.AAService;
-import org.jaqpot.core.service.exceptions.JaqpotForbiddenException;
 import org.jaqpot.core.service.exceptions.JaqpotNotAuthorizedException;
 
 import javax.ejb.EJB;
@@ -66,7 +60,7 @@ import org.jaqpot.core.model.User;
  * @author Charalampos Chomenidis
  *
  */
-@Path("aa")
+@Path("/aa")
 //@Api(value = "/aa", description = "AA API")
 @Produces({"application/json"})
 @Tag(name = "aa")
@@ -345,7 +339,6 @@ public class AAResource {
 
     @POST
     @Path("/login")
-    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(description = "",
           summary = ""
@@ -355,7 +348,6 @@ public class AAResource {
             @Parameter(description = "password", name = "password", schema = @Schema(implementation = String.class, type = "String"), required = true, in = ParameterIn.QUERY)
     })
            
-    @RequestBody(content = @Content(mediaType = "application/x-www-form-urlencoded"), required = true)
     public Response swaggerLogin(
             //@ApiParam(value = "Username", required = true) @FormParam("username") String username,
             //@ApiParam(value = "Password", required = true) @FormParam("password") String password) throws JaqpotNotAuthorizedException {
