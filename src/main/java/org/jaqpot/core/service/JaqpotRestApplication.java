@@ -31,12 +31,10 @@ package org.jaqpot.core.service;
 
 //import io.swagger.jaxrs.config.BeanConfig;
 import io.swagger.v3.jaxrs2.integration.JaxrsOpenApiContextBuilder;
-import io.swagger.v3.jaxrs2.integration.resources.AcceptHeaderOpenApiResource;
+
 import io.swagger.v3.jaxrs2.integration.resources.OpenApiResource;
-import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.integration.OpenApiConfigurationException;
 import io.swagger.v3.oas.integration.SwaggerConfiguration;
-import io.swagger.v3.oas.integration.api.OpenAPIConfiguration;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
@@ -122,44 +120,27 @@ public class JaqpotRestApplication extends Application {
         ServerVariables varMap = new ServerVariables().addServerVariable("protocol",protocol);
         
         Server server = new Server()
-                .url(protocol.getDefault() + "://"+host + ":" + port + basePath)
-                .variables(varMap);
+                //.url(protocol.getDefault() + "://"+host + ":" + port + "/jaqpot/services")
+               // .variables(varMap);
+                .url("http://"+host + ":" + port + "/jaqpot/services");
         List<Server> servers = new ArrayList();
         servers.add(server);
         oas.servers(servers);
         
-
+       
         SwaggerConfiguration oasConfig = new SwaggerConfiguration()
                 //flag
-                .openAPI(oas).scannerClass("JaqpotRestApplication")
+                .openAPI(oas)
                 .prettyPrint(true)
                 .resourcePackages(Stream.of("org.jaqpot.core.service.resource").collect(Collectors.toSet()));
-
-        try {
-            OpenAPI openapi = new JaxrsOpenApiContextBuilder().application(this)
-                    .openApiConfiguration(oasConfig)
-                    .buildContext(true)
-                    .read();
-           
-        } catch (OpenApiConfigurationException e) {
-            throw new RuntimeException(e.getMessage(), e);
-        }
-        /*beanConfig = new BeanConfig();
-         beanConfig.setVersion("4.0.3");
-         beanConfig.setResourcePackage("org.jaqpot.core.service.resource");
-         beanConfig.setScan(true);
-         beanConfig.setTitle("Jaqpot Quattro");
-         beanConfig.setDescription("Jaqpot Quattro");
-         if(!"80".equals(port)){
-         beanConfig.setHost(host + ":" + port);
-         }
-         else{
-         beanConfig.setHost(host);
-         }
-         beanConfig.setBasePath(basePath);
-         beanConfig.setSchemes(new String[]{"http","https"});
-         beanConfig.setPrettyPrint(true);
-         */
+       try{
+        OpenAPI openapi = new JaxrsOpenApiContextBuilder().application(this)
+                .openApiConfiguration(oasConfig)
+                .buildContext(true)
+                .read();
+       }catch (OpenApiConfigurationException e) {
+        throw new RuntimeException(e.getMessage(), e);
+      }
     }
 
     @Override
