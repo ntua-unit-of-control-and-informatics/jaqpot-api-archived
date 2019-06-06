@@ -355,8 +355,8 @@ public class OrganizationResource {
             orgHandler.edit(orgForUpdate);
         }
 
-        List<Notification> notifs = notificationHandler.getInvitationsToOrg(userId, orgForUpdate.getId());
-        notifs.addAll(notificationHandler.getAffiliationsToOrg(userId));
+        List<Notification> notifs = notificationHandler.getInvitationsToOrg(userId, orgForUpdate.getId(), 0 ,100);
+        notifs.addAll(notificationHandler.getAffiliationsToOrg(userId, 0 , 100));
         if (notifs.size() > 0 || orgForUpdate.getMeta().getCreators().contains(userId)) {
             orgHandler.edit(orgForUpdate);
         } else {

@@ -39,15 +39,18 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import javax.ejb.EJB;
 import javax.ws.rs.BadRequestException;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
@@ -60,6 +63,7 @@ import org.jaqpot.core.model.Notification;
 import org.jaqpot.core.model.Notification.Type;
 import org.jaqpot.core.model.Organization;
 import org.jaqpot.core.model.User;
+import org.jaqpot.core.model.builder.MetaInfoBuilder;
 import org.jaqpot.core.model.util.ROG;
 import org.jaqpot.core.properties.PropertyManager;
 import org.jaqpot.core.service.annotations.TokenSecured;
@@ -103,13 +107,14 @@ public class NotificationResource {
     public Response listUsersNotifications(
             @ApiParam(value = "Clients need to authenticate in order to access notifications") @HeaderParam("Authorization") String api_key,
             @ApiParam(value = "query", allowableValues = "UNREAD, ALL") @QueryParam("query") String query,
+            @ApiParam(value = "category", allowableValues = "AFFILIATIONS, SHARES, INVITATIONS") @QueryParam("category") String category,
             @ApiParam(value = "start", defaultValue = "0") @QueryParam("start") Integer start,
             @ApiParam(value = "max", defaultValue = "10") @QueryParam("max") Integer max
     ) throws JaqpotNotAuthorizedException {
 
 
         String currentUserID = securityContext.getUserPrincipal().getName();
-        Long countedNots = notifHandler.countAllOfOwnersUnviewed(currentUserID);
+//        Long countedNots = notifHandler.countAllOfOwnersUnviewed(currentUserID);
         
         if(start == null){
             start = 0;
@@ -117,11 +122,36 @@ public class NotificationResource {
         if(max ==null){
             max = 10;
         }
+
+                
+        List<Notification> nots = new ArrayList();
+        Long total = null;
+        if(query != null){
+            nots = notifHandler.getOwnersNotifs(currentUserID, query , start, max);
+            total = notifHandler.countAllOfOwnersUnviewed(currentUserID);
+        }
         
-        List<Notification> nots = notifHandler.getOwnersNotifs(currentUserID, query , start, max);
+        if(category != null) {
+            nots.clear();
+            if(category.equals("AFFILIATIONS")){
+                nots = notifHandler.getAffiliationsToOrg(currentUserID, start, max);
+                nots.addAll(notifHandler.getBrokenAffiliationsToOrg(currentUserID, start, max));
+                total = notifHandler.countAffiliationsToOrg(currentUserID);
+                total += notifHandler.countBrokenAffiliationsToOrg(currentUserID);
+            }
+            if(category.equals("SHARES")){
+                nots = notifHandler.getShares(currentUserID, start, max);
+                total = notifHandler.countShares(currentUserID);
+            }
+            if(category.equals("INVITATIONS")){
+                nots = notifHandler.getInvitations(currentUserID, start, max);
+                total = notifHandler.countInvitations(currentUserID);
+            }
+            
+        }
 
         return Response
-                .ok(nots).header("total", countedNots)
+                .ok(nots).header("total", total)
                 .build();
     }
     
@@ -166,7 +196,7 @@ public class NotificationResource {
         }
         
         ROG randomStringGenerator = new ROG(true);
-        notif.setId("NOT" + randomStringGenerator.nextString(24));
+        notif.setId("NOT" + randomStringGenerator.nextString(24));        
         
         try{
             notifHandler.create(notif);
@@ -202,6 +232,9 @@ public class NotificationResource {
 
         String currentUserID = securityContext.getUserPrincipal().getName();
         
+        if(!notif.getOwner().contains(currentUserID)){
+            throw new JaqpotNotAuthorizedException("Could not update Notification, Only the creator can");
+        }
         
         try{
             notifHandler.edit(notif);
@@ -210,10 +243,89 @@ public class NotificationResource {
         }
         
         return Response
-                .ok(notif)
+                .ok().status(Response.Status.ACCEPTED)
                 .build();
     }
     
+    
+    @DELETE
+    @TokenSecured({RoleEnum.DEFAULT_USER})
+    @Produces({MediaType.APPLICATION_JSON})
+    @ApiOperation(value = "Updates notification",
+            notes = "Updates Notifications for Jaqpot Users. ",
+            response = Notification.class)
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "Notifications updated")
+        ,
+        @ApiResponse(code = 401, message = "You are not authorized to access this resource")
+        ,
+        @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)")
+        ,
+        @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
+    })
+    public Response deleteNotification(
+            @ApiParam(value = "Clients need to authenticate in order to create notification") @HeaderParam("Authorization") String api_key,
+            Notification notif
+    ) throws JaqpotNotAuthorizedException {
+
+
+        String currentUserID = securityContext.getUserPrincipal().getName();
+        
+        if(!notif.getOwner().contains(currentUserID)){
+            throw new JaqpotNotAuthorizedException("Could not delete Notification, Only the creator can");
+        }
+        
+        try{
+            notifHandler.remove(notif);
+        }catch(Exception e){
+            throw new BadRequestException("Could not delete Notification, cause: " + e.getMessage());
+        }
+        
+        return Response
+                .ok().status(Response.Status.ACCEPTED)
+                .build();
+    }
+    
+    @DELETE
+    @Path("/{id}")
+    @TokenSecured({RoleEnum.DEFAULT_USER})
+    @Produces({MediaType.APPLICATION_JSON})
+    @ApiOperation(value = "Updates notification",
+            notes = "Updates Notifications for Jaqpot Users. ",
+            response = Notification.class)
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "Notifications updated")
+        ,
+        @ApiResponse(code = 401, message = "You are not authorized to access this resource")
+        ,
+        @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)")
+        ,
+        @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
+    })
+    public Response deleteNotificationById(
+            @ApiParam(value = "Clients need to authenticate in order to create notification") @HeaderParam("Authorization") String api_key,
+            @PathParam("id") String id
+    ) throws JaqpotNotAuthorizedException {
+
+
+        String currentUserID = securityContext.getUserPrincipal().getName();
+        
+        Notification notifToDelete = notifHandler.find(id);
+        
+        if(!notifToDelete.getOwner().contains(currentUserID)){
+            throw new JaqpotNotAuthorizedException("Could not delete Notification, Only the creator can");
+        }
+        
+        try{
+            notifHandler.remove(notifToDelete);
+        }catch(Exception e){
+            throw new BadRequestException("Could not delete Notification, cause: " + e.getMessage());
+        }
+        
+        return Response
+                .ok().status(Response.Status.ACCEPTED)
+                .build();
+    }
     
     
     

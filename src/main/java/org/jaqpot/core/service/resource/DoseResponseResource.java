@@ -31,6 +31,7 @@ package org.jaqpot.core.service.resource;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import java.util.ArrayList;
 import org.jaqpot.core.annotations.Jackson;
 import org.jaqpot.core.data.ReportHandler;
 import org.jaqpot.core.data.UserHandler;
@@ -57,7 +58,10 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import java.util.HashMap;
+import java.util.List;
 import java.util.logging.Logger;
+import org.jaqpot.core.data.DatasetHandler;
+import org.jaqpot.core.data.wrappers.DatasetLegacyWrapper;
 import org.jaqpot.core.service.annotations.TokenSecured;
 import org.jaqpot.core.service.authentication.RoleEnum;
 
@@ -86,6 +90,9 @@ public class DoseResponseResource {
 
     @EJB
     UserHandler userHandler;
+    
+    @EJB
+    DatasetLegacyWrapper datasetHandler;
 
     @Context
     SecurityContext securityContext;
@@ -120,11 +127,14 @@ public class DoseResponseResource {
         }
         String[] apiA = api_key.split("\\s+");
         String apiKey = apiA[1];
-        Dataset dataset = client.target(datasetURI)
-                .request()
-                .header("Authorization", "Bearer " + apiKey)
-                .accept(MediaType.APPLICATION_JSON)
-                .get(Dataset.class);
+//        Dataset dataset = client.target(datasetURI)
+//                .request()
+//                .header("Authorization", "Bearer " + apiKey)
+//                .accept(MediaType.APPLICATION_JSON)
+//                .get(Dataset.class);
+        
+        Dataset dataset = datasetHandler.find(datasetURI.split("/")[datasetURI.split("/").length - 1]);
+        
         dataset.setDatasetURI(datasetURI);
 
         TrainingRequest trainingRequest = new TrainingRequest();
@@ -136,7 +146,7 @@ public class DoseResponseResource {
             trainingRequest.setParameters(parameterMap);
         }
 
-        Report report = client.target("http://147.102.86.129:8004/ocpu/library/IntPROAST61v5/R/enm.proast61/json")
+        Report report = client.target("http://127.0.0.1:5518/proast")
                 .request()
                 .header("Content-Type", MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)

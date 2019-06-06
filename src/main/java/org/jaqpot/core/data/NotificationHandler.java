@@ -86,18 +86,72 @@ public class NotificationHandler extends AbstractHandler<Notification> {
         return em.find(Notification.class, properties, start, end);
     }
     
-    public List<Notification> getInvitationsToOrg(String owner, String organization){
+    public List<Notification> getInvitationsToOrg(String owner, String organization, int start, int max){
          Map<String, Object> properties = new HashMap<>();
         properties.put("owner", owner);
         properties.put("invitationTo", organization);
-        return em.find(Notification.class, properties, 0, 100);
+        return em.find(Notification.class, properties, start, max);
     }
     
-    public List<Notification> getAffiliationsToOrg(String owner){
+    public List<Notification> getInvitations(String owner, int start, int max){
+         Map<String, Object> properties = new HashMap<>();
+        properties.put("owner", owner);
+        properties.put("type", "INVITATION");
+        return em.find(Notification.class, properties, start, max);
+    }
+    
+    public Long countInvitations(String owner){
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("owner", owner);
+        properties.put("type", "INVITATION");
+        return em.count(Notification.class, properties); 
+    }
+    
+    
+    public List<Notification> getAffiliationsToOrg(String owner, int start, int max){
         Map<String, Object> properties = new HashMap<>();
         properties.put("owner", owner);
         properties.put("type", "AFFILIATION");
-        return em.find(Notification.class, properties, 0, 100);
+//        properties.put("type", "BROKENAFFILIATION");
+        return em.find(Notification.class, properties, start, max);
+    }
+    
+    public List<Notification> getBrokenAffiliationsToOrg(String owner, int start, int max){
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("owner", owner);
+//        properties.put("type", "AFFILIATION");
+        properties.put("type", "BROKENAFFILIATION");
+        return em.find(Notification.class, properties, start, max);
+    }
+    
+    public Long countAffiliationsToOrg(String owner){
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("owner", owner);
+        properties.put("type", "AFFILIATION");
+//        properties.put("type", "BROKENAFFILIATION");
+        return em.count(Notification.class, properties);
+    }
+    
+    public Long countBrokenAffiliationsToOrg(String owner){
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("owner", owner);
+//        properties.put("type", "AFFILIATION");
+        properties.put("type", "BROKENAFFILIATION");
+        return em.count(Notification.class, properties);
+    }
+    
+    public List<Notification> getShares(String owner, int start, int max){
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("owner", owner);
+        properties.put("type", "SHARE");
+        return em.find(Notification.class, properties, start, max);
+    }
+    
+    public Long countShares(String owner){
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("owner", owner);
+        properties.put("type", "SHARE");
+        return em.count(Notification.class, properties);
     }
 
 }

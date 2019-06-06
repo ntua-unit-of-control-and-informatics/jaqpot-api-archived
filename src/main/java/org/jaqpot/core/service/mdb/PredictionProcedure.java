@@ -214,7 +214,7 @@ public class PredictionProcedure extends AbstractJaqpotProcedure implements Mess
             datasetMeta.setCreators(creators);
 
             Doa doaM = null;
-            if(doa.equals("true")){
+            if(doa != null && doa.equals("true")){
                 doaM = doaHandler.findBySourcesWithDoaMatrix("model/" + model.getId());
             }
             
