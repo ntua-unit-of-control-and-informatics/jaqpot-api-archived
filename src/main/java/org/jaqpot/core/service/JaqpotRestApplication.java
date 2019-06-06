@@ -122,11 +122,17 @@ public class JaqpotRestApplication extends Application {
         Server server = new Server()
                 //.url(protocol.getDefault() + "://"+host + ":" + port + "/jaqpot/services")
                // .variables(varMap);
-                .url("http://"+host + ":" + port + "/jaqpot/services");
+                .url("http://"+host + ":" + port + "/jaqpot");
+        Server server2 = new Server()
+                //.url(protocol.getDefault() + "://"+host + ":" + port + "/jaqpot/services")
+               // .variables(varMap);
+                .url("https://"+host + ":" + port + "/jaqpot");
         List<Server> servers = new ArrayList();
         servers.add(server);
-        oas.servers(servers);
+        servers.add(server2);
         
+        oas.servers(servers);
+//        oas.se
        
         SwaggerConfiguration oasConfig = new SwaggerConfiguration()
                 //flag
