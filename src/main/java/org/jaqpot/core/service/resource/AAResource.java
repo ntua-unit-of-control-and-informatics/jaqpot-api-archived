@@ -40,6 +40,10 @@ import io.swagger.v3.oas.annotations.extensions.ExtensionProperty;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Content;
+
+
+
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.tags.Tag;
 //import io.swagger.annotations.*;
 import org.jaqpot.core.model.ErrorReport;
@@ -354,6 +358,7 @@ public class AAResource {
             @FormParam("password") String password) throws JaqpotNotAuthorizedException {
 
         AccessToken aToken;
+
         aToken = aaService.getAccessToken(username, password);
         AuthToken auToken = new AuthToken();
         auToken.setAuthToken(aToken.getValue());
