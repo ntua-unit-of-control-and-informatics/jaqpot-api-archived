@@ -48,6 +48,7 @@ import io.swagger.v3.oas.annotations.media.ArraySchema;
 //import io.swagger.annotations.Extension;
 import io.swagger.v3.oas.annotations.extensions.Extension;
 import io.swagger.v3.oas.annotations.extensions.ExtensionProperty;
+import io.swagger.v3.oas.annotations.tags.Tag;
 //import io.swagger.annotations.ExtensionProperty;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -98,6 +99,7 @@ import org.jaqpot.core.service.exceptions.QuotaExceededException;
 @Path("organization")
 //@Api(value = "/organization", description = "Organization API", position = 1)
 @Produces({"application/json", "text/uri-list"})
+@Tag(name = "organization")
 public class OrganizationResource {
 
     @EJB

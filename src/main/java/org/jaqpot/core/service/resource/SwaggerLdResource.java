@@ -36,6 +36,7 @@ package org.jaqpot.core.service.resource;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.swagger.v3.oas.annotations.tags.Tag;
 //import io.swagger.annotations.Api;
 //import io.swagger.annotations.ApiOperation;
 //import io.swagger.annotations.SwaggerDefinition;
@@ -70,6 +71,7 @@ import org.jaqpot.core.service.mdb.TrainingProcedure;
 @Path("swagger")
 //@Api(value = "/swaggerld")
 //@SwaggerDefinition
+@Tag(name = "swagger")
 public class SwaggerLdResource {
 
     private static final Logger LOG = Logger.getLogger(SwaggerLdResource.class.getName());

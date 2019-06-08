@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.extensions.Extension;
 import io.swagger.v3.oas.annotations.extensions.ExtensionProperty;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import javassist.runtime.Desc;
 import org.apache.commons.validator.routines.UrlValidator;
 import org.jaqpot.core.annotations.Jackson;
@@ -41,6 +42,7 @@ import java.util.logging.Logger;
 @Path("descriptor")
 //@Api(value = "/descriptor", description = "Descriptors API")
 @Produces({"application/json", "text/uri-list"})
+@Tag(name = "descriptor")
 public class DescriptorResource {
 
     @EJB

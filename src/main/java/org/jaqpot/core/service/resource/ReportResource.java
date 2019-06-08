@@ -40,6 +40,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.tags.Tag;
 //import io.swagger.jaxrs.PATCH;
 
 import java.io.BufferedOutputStream;
@@ -85,6 +86,7 @@ import org.jaqpot.core.service.exceptions.JaqpotForbiddenException;
 @Path("report")
 //@Api(value = "/report", description = "Report API")
 @Produces(MediaType.APPLICATION_JSON)
+@Tag(name = "report")
 public class ReportResource {
     
     private static final String DEFAULT_PATCH = "[\n"

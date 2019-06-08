@@ -37,6 +37,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -88,6 +89,7 @@ import org.jaqpot.core.service.exceptions.QuotaExceededException;
 //@Api(value = "/validation", description = "Validation API")
 @Produces(MediaType.APPLICATION_JSON)
 @Authorize
+@Tag(name = "validation")
 public class ValidationResource {
 
     private static final Logger LOG = Logger.getLogger(ValidationResource.class.getName());

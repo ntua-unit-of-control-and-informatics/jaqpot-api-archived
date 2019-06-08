@@ -38,6 +38,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.extensions.Extension;
 import io.swagger.v3.oas.annotations.extensions.ExtensionProperty;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.dmg.pmml.Application;
 import org.dmg.pmml.*;
 import org.jaqpot.core.data.PmmlHandler;
@@ -76,6 +77,7 @@ import java.util.stream.Collectors;
  */
 @Path("pmml")
 //@Api(value = "/pmml", description = "PMML API")
+@Tag(name = "pmml")
 public class PmmlResource {
     
     @EJB

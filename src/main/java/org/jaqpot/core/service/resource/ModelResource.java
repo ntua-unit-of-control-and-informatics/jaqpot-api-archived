@@ -38,6 +38,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.net.URISyntaxException;
 
 import java.security.GeneralSecurityException;
@@ -108,6 +109,7 @@ import org.jaqpot.core.service.validator.ParameterValidator;
 @Path("model")
 //@Api(value = "/model", description = "Models API")
 @Produces({"application/json", "text/uri-list"})
+@Tag(name = "model")
 public class ModelResource {
 
     private static final Logger LOG = Logger.getLogger(ModelResource.class.getName());

@@ -40,6 +40,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.tags.Tag;
 //import io.swagger.annotations.ApiResponse;
 //import io.swagger.annotations.ApiResponses;
 import java.net.URI;
@@ -80,6 +81,7 @@ import org.jaqpot.core.service.exceptions.JaqpotNotAuthorizedException;
 @Path("discussion")
 //@Api(value = "/discussion", description = "AA API")
 @Produces({"application/json"})
+@Tag(name = "discussion")
 public class DiscussionResource {
  
     @Context
