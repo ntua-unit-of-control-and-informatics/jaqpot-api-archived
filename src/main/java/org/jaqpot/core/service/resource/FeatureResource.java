@@ -32,6 +32,8 @@ package org.jaqpot.core.service.resource;
 //import io.swagger.annotations.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -63,7 +65,7 @@ import java.util.HashSet;
  * @author Charalampos Chomenidis
  *
  */
-@Path("feature")
+@Path("/feature")
 //@Api(value = "/feature", description = "Feature API")
 @Produces({"application/json", "text/uri-list"})
 @Tag(name = "feature")
@@ -101,21 +103,28 @@ public class FeatureResource {
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     /*@ApiOperation(value = "Lists features",
-            notes = "Lists Feature entries in the DB of Jaqpot and returns them in a list. "
-            + "Results can be obtained "
-            + "either in the form of a URI list or as a JSON list as specified by the Accept HTTP header. "
-            + "In the latter case, a list will be returned containing only the IDs of the features, their metadata "
-            + "and their ontological classes. The parameter max, which specifies the maximum number of IDs to be "
-            + "listed is limited to 500; if the client specifies a larger value, an HTTP Warning Header will be "
-            + "returned (RFC 2616) with code P670.",
-            response = Feature.class,
-            responseContainer = "List")
-    @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Feature entries found and are listed in the response body"),
-        @ApiResponse(code = 401, message = "You are not authorized to access this user"),
-        @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)"),
-        @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
-    })*/
+     notes = "Lists Feature entries in the DB of Jaqpot and returns them in a list. "
+     + "Results can be obtained "
+     + "either in the form of a URI list or as a JSON list as specified by the Accept HTTP header. "
+     + "In the latter case, a list will be returned containing only the IDs of the features, their metadata "
+     + "and their ontological classes. The parameter max, which specifies the maximum number of IDs to be "
+     + "listed is limited to 500; if the client specifies a larger value, an HTTP Warning Header will be "
+     + "returned (RFC 2616) with code P670.",
+     response = Feature.class,
+     responseContainer = "List")
+     @ApiResponses(value = {
+     @ApiResponse(code = 200, message = "Feature entries found and are listed in the response body"),
+     @ApiResponse(code = 401, message = "You are not authorized to access this user"),
+     @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)"),
+     @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
+     })*/
+    @Parameters({
+        @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
+        @Parameter(name = "query", description = "Generic query", schema = @Schema(implementation = String.class), in = ParameterIn.QUERY),
+        @Parameter(name = "start", description = "start", schema = @Schema(implementation = Integer.class, defaultValue = "0"), in = ParameterIn.QUERY),
+        @Parameter(name = "max", description = "max - the server imposes an upper limit of 500 on this "
+                + "parameter.", schema = @Schema(implementation = Integer.class, defaultValue = "10"), in = ParameterIn.QUERY)
+    })
     @Operation(summary = "Lists features",
             description = "Lists Feature entries in the DB of Jaqpot and returns them in a list. "
             + "Results can be obtained "
@@ -131,11 +140,10 @@ public class FeatureResource {
                 @ApiResponse(responseCode = "500", description = "Internal server error - this request cannot be served.")
             })
     public Response listFeatures(
-            @Parameter(description = "Authorization token") @HeaderParam("Authorization") String api_key,
-            @Parameter(description = "Generic query") @QueryParam("query") String query,
-            @Parameter(description = "start", schema = @Schema(type = "String", defaultValue = "0")) @QueryParam("start") Integer start,
-            @Parameter(description = "max - the server imposes an upper limit of 500 on this "
-                    + "parameter.", schema = @Schema(type = "String", defaultValue = "10")) @QueryParam("max") Integer max
+            @HeaderParam("Authorization") String api_key,
+            @QueryParam("query") String query,
+            @QueryParam("start") Integer start,
+            @QueryParam("max") Integer max
     ) {
         //TODO Support querying at GET /feature
         if (max == null || max > 500) {
@@ -155,14 +163,17 @@ public class FeatureResource {
     //@ApiOperation(value = "Finds Feature by ID",
     //        notes = "Finds specified Feature (by ID)",
     //        response = Feature.class)
+    @Parameters({
+        @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
+        @Parameter(name = "id", description = "id", schema = @Schema(implementation = String.class), in = ParameterIn.PATH)})
     @Operation(summary = "Finds Feature by ID",
-               description = "Finds specified Feature (by ID)",
-               responses = {
-                   @ApiResponse(content = @Content(schema = @Schema(implementation = Feature.class)))
-               })
+            description = "Finds specified Feature (by ID)",
+            responses = {
+                @ApiResponse(content = @Content(schema = @Schema(implementation = Feature.class)))
+            })
     public Response getFeature(
             //@ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key,
-            @Parameter(description = "Authorization token") @HeaderParam("Authorization") String api_key,
+            @HeaderParam("Authorization") String api_key,
             @PathParam("id") String id) {
         Feature feature = featureHandler.find(id);
         if (feature == null) {
@@ -176,25 +187,30 @@ public class FeatureResource {
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @Consumes(MediaType.APPLICATION_JSON)
     /*@ApiOperation(value = "Creates a new Feature",
-            notes = "Creates a new feature which is assigned a random unique ID. When creating a new feature, clients must wary not only for "
-            + "its syntactic correctness, but also for its semantic completeness. It is strongly recommended to add a comprehensive and "
-            + "identifying title to your feature using the <code>meta.titles</code> field, to add a description in <code>meta.descriptions</code> "
-            + "and also to add a list of tags in <code>meta.subjects</code> that will facilitate the discoverability of your features later. "
-            + "Additionally, all features should be annotated with appropriate ontological classes (from the OpenTox ontology), such as "
-            + "<code>ot:Feature</code>, <code>ot:NumericFeature</code> and <code>ot:NominalFeature</code>. Features that are created as "
-            + "prediction features for a model or are descriptors that can be calculated using a descriptor calculation web "
-            + "service should be linked to this/these service(s) using <code>meta.hasSources</code>. Finally, nominal features should define their "
-            + "admissible values in <code>admissibleValues</code>. Malformed feature documents will not be accepted by the server and an "
-            + "error report will be generated and returned to the client. Notice also that authentication, authorization and accounting "
-            + "restrictions may apply.",
-            response = Feature.class)
-    @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Feature was created successfully."),
-        @ApiResponse(code = 400, message = "Bad request: malformed feature"),
-        @ApiResponse(code = 401, message = "You are not authorized to access this resource"),
-        @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)"),
-        @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
-    })*/
+     notes = "Creates a new feature which is assigned a random unique ID. When creating a new feature, clients must wary not only for "
+     + "its syntactic correctness, but also for its semantic completeness. It is strongly recommended to add a comprehensive and "
+     + "identifying title to your feature using the <code>meta.titles</code> field, to add a description in <code>meta.descriptions</code> "
+     + "and also to add a list of tags in <code>meta.subjects</code> that will facilitate the discoverability of your features later. "
+     + "Additionally, all features should be annotated with appropriate ontological classes (from the OpenTox ontology), such as "
+     + "<code>ot:Feature</code>, <code>ot:NumericFeature</code> and <code>ot:NominalFeature</code>. Features that are created as "
+     + "prediction features for a model or are descriptors that can be calculated using a descriptor calculation web "
+     + "service should be linked to this/these service(s) using <code>meta.hasSources</code>. Finally, nominal features should define their "
+     + "admissible values in <code>admissibleValues</code>. Malformed feature documents will not be accepted by the server and an "
+     + "error report will be generated and returned to the client. Notice also that authentication, authorization and accounting "
+     + "restrictions may apply.",
+     response = Feature.class)
+     @ApiResponses(value = {
+     @ApiResponse(code = 200, message = "Feature was created successfully."),
+     @ApiResponse(code = 400, message = "Bad request: malformed feature"),
+     @ApiResponse(code = 401, message = "You are not authorized to access this resource"),
+     @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)"),
+     @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
+     })*/
+    @Parameters({
+        @Parameter(name = "Authorization", description = "Clients need to authenticate in order to create resources on the server", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
+        @Parameter(name = "feature", description = "Feature in JSON representation compliant with the Feature specifications. "
+                + "Malformed Feature entries with missing fields will not be accepted.", required = true,
+                schema = @Schema(implementation = Feature.class, defaultValue = DEFAULT_FEATURE))})
     @Operation(summary = "Creates a new Feature",
             description = "Creates a new feature which is assigned a random unique ID. When creating a new feature, clients must wary not only for "
             + "its syntactic correctness, but also for its semantic completeness. It is strongly recommended to add a comprehensive and "
@@ -216,14 +232,11 @@ public class FeatureResource {
             })
     public Response createFeature(
             //@ApiParam(value = "Clients need to authenticate in order to create resources on the server")
-            @Parameter(description = "Clients need to authenticate in order to create resources on the server")
             @HeaderParam("Authorization") String api_key,
             //@ApiParam(value = "Feature in JSON representation compliant with the Feature specifications. "
             //        + "Malformed Feature entries with missing fields will not be accepted.", required = true,
             //        defaultValue = DEFAULT_FEATURE) Feature feature
-            @Parameter(description = "Feature in JSON representation compliant with the Feature specifications. "
-                   + "Malformed Feature entries with missing fields will not be accepted.", required = true,
-                   schema = @Schema(implementation = Feature.class, defaultValue = DEFAULT_FEATURE)) Feature feature
+            Feature feature
     ) throws JaqpotNotAuthorizedException, JaqpotDocumentSizeExceededException {
         if (feature == null) {
             ErrorReport report = ErrorReportFactory.badRequest("No feature provided; check out the API specs",
@@ -254,16 +267,20 @@ public class FeatureResource {
     @Path("/{id}")
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     /*@ApiOperation(value = "Deletes a particular Feature resource.",
-            notes = "Deletes a Feature of a given ID. The method is idempondent, that is, it can be used more than once without "
-            + "triggering an exception/error. If the Feature does not exist, the method will return without errors. "
-            + "Authentication and authorization requirements apply, so clients that are not authenticated with a "
-            + "valid token or do not have sufficient priviledges will not be able to delete a Feature using this method.")
-    @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Feature entry was deleted successfully."),
-        @ApiResponse(code = 401, message = "You are not authorized to delete this resource"),
-        @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)"),
-        @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
-    })*/
+     notes = "Deletes a Feature of a given ID. The method is idempondent, that is, it can be used more than once without "
+     + "triggering an exception/error. If the Feature does not exist, the method will return without errors. "
+     + "Authentication and authorization requirements apply, so clients that are not authenticated with a "
+     + "valid token or do not have sufficient priviledges will not be able to delete a Feature using this method.")
+     @ApiResponses(value = {
+     @ApiResponse(code = 200, message = "Feature entry was deleted successfully."),
+     @ApiResponse(code = 401, message = "You are not authorized to delete this resource"),
+     @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)"),
+     @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
+     })*/
+    @Parameters({
+        @Parameter(name = "Authorization", description = "Clients need to authenticate in order to create resources on the server", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
+        @Parameter(name = "id", description = "ID of the Model.", schema = @Schema(implementation = String.class), in = ParameterIn.PATH)
+    })
     @Operation(summary = "Deletes a particular Feature resource.",
             description = "Deletes a Feature of a given ID. The method is idempondent, that is, it can be used more than once without "
             + "triggering an exception/error. If the Feature does not exist, the method will return without errors. "
@@ -276,15 +293,16 @@ public class FeatureResource {
                 @ApiResponse(responseCode = "500", description = "Internal server error - this request cannot be served.")
             })
     public Response deleteFeature(
-           // @ApiParam("Clients need to authenticate in order to create resources on the server") @HeaderParam("Authorization") String api_key,
-           // @ApiParam(value = "ID of the Model.", required = true) @PathParam("id") String id
-            @Parameter(description = "Clients need to authenticate in order to create resources on the server") @HeaderParam("Authorization") String api_key,
-            @Parameter(description = "ID of the Model.", required = true) @PathParam("id") String id
+            // @ApiParam("Clients need to authenticate in order to create resources on the server") @HeaderParam("Authorization") String api_key,
+            // @ApiParam(value = "ID of the Model.", required = true) @PathParam("id") String id
+            @HeaderParam("Authorization") String api_key,
+            @PathParam("id") String id
     ) throws JaqpotForbiddenException {
         Feature feature = new Feature(id);
         MetaInfo metaInfo = feature.getMeta();
-        if (metaInfo.getLocked())
+        if (metaInfo.getLocked()) {
             throw new JaqpotForbiddenException("You cannot delete a Feature that is locked.");
+        }
 
         featureHandler.remove(new Feature(id));
         return Response.ok().build();
@@ -294,6 +312,12 @@ public class FeatureResource {
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Path("/{id}")
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
+    @Parameters({
+        @Parameter(name = "Authorization", description = "Clients need to authenticate in order to create resources on the server", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
+        @Parameter(name = "id", description = "ID of the Feature.", schema = @Schema(implementation = String.class), in = ParameterIn.PATH),
+        @Parameter(name = "feature", description = "Feature in JSON", required = true,
+                schema = @Schema(implementation = Feature.class, defaultValue = DEFAULT_FEATURE))
+    })
     @Operation(summary = "Places a new Feature at a particular URI",
             description = "Creates a new Feature entry at the specified URI. If a Feature already exists at this URI,"
             + "it will be replaced. If, instead, no Feature is stored under the specified URI, a new "
@@ -305,17 +329,17 @@ public class FeatureResource {
                 @ApiResponse(responseCode = "401", description = "You are not authorized to create a feature on the server"),
                 @ApiResponse(responseCode = "403", description = "This request is forbidden (e.g., no authentication token is provided)"),
                 @ApiResponse(responseCode = "500", description = "Internal server error - this request cannot be served.")
-    
+
             })
     @Consumes(MediaType.APPLICATION_JSON)
     public Response putFeature(
             //@ApiParam(value = "ID of the Feature.", required = true) @PathParam("id") String id,
             //@ApiParam(value = "Feature in JSON", defaultValue = DEFAULT_FEATURE, required = true) Feature feature,
             //@ApiParam("Clients need to authenticate in order to create resources on the server") @HeaderParam("Authorization") String api_key
-            @Parameter(description = "ID of the Feature.", required = true) @PathParam("id") String id,
-            @Parameter(description = "Feature in JSON", required = true, schema = @Schema(implementation = Feature.class, defaultValue = DEFAULT_FEATURE)) Feature feature,
-            @Parameter(description = "Clients need to authenticate in order to create resources on the server") @HeaderParam("Authorization") String api_key
-    )throws JaqpotDocumentSizeExceededException  {
+            @PathParam("id") String id,
+            Feature feature,
+            @HeaderParam("Authorization") String api_key
+    ) throws JaqpotDocumentSizeExceededException {
         if (feature == null) {
             ErrorReport report = ErrorReportFactory.badRequest("No feature provided; check out the API specs",
                     "Clients MUST provide a Feature document in JSON to perform this request");

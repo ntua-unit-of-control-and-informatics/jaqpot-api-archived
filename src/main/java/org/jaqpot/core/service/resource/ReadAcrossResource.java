@@ -9,6 +9,8 @@ package org.jaqpot.core.service.resource;
 //import io.swagger.annotations.ApiOperation;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.extensions.Extension;
 import io.swagger.v3.oas.annotations.extensions.ExtensionProperty;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -50,7 +52,7 @@ import org.jaqpot.core.service.authentication.RoleEnum;
  *
  * @author hampos
  */
-@Path("readacross")
+@Path("/readacross")
 //@Api(value = "/readacross", description = "Read Across API")
 @Produces(MediaType.APPLICATION_JSON)
 @Tag(name = "readacross")
@@ -81,6 +83,15 @@ public class ReadAcrossResource {
             notes = "Creates Read Across Report",
             response = Report.class
     )*/
+    @Parameters({
+        @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
+        @Parameter(name = "title", description = "title", required = true, schema = @Schema(implementation = String.class), in = ParameterIn.QUERY),
+        @Parameter(name = "descriptions", description = "descriptions", required = true, schema = @Schema(implementation = String.class), in = ParameterIn.QUERY),
+        @Parameter(name = "dataset_uri", description = "dataset_uri", schema = @Schema(implementation = String.class), in = ParameterIn.QUERY),
+        @Parameter(name = "prediction_feature", description = "prediction_feature", schema = @Schema(type = "string"), in = ParameterIn.QUERY),
+        @Parameter(name = "parameters", description = "parameters", schema = @Schema(implementation = String.class), in = ParameterIn.QUERY)
+    })
+    
     @Operation(summary = "Creates Read Across Report",
                description = "Creates Read Across Report",
                responses = {

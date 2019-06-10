@@ -40,6 +40,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 //import io.swagger.annotations.ApiResponse;
 //import io.swagger.annotations.ApiResponses;
@@ -83,33 +85,33 @@ import org.jaqpot.core.service.exceptions.JaqpotNotAuthorizedException;
 @Produces({"application/json"})
 @Tag(name = "discussion")
 public class DiscussionResource {
- 
+
     @Context
     UriInfo uriInfo;
-    
+
     @EJB
     DiscussionHandler discussionHandler;
-    
+
     @EJB
     PropertyManager pManager;
-    
+
     @Context
     SecurityContext securityContext;
-    
-    
+
     @POST
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
-    @Consumes(MediaType.APPLICATION_JSON)           
-    @Operation(summary = "Creates a Discussion on a Jaqpot entity", 
-               responses = 
-                   {
-                    @ApiResponse(responseCode = "200", description = "Discussion was created successfully."),
-                    @ApiResponse(responseCode = "400", description = "Bad request: malformed feature"),
-                    @ApiResponse(responseCode = "401", description = "You are not authorized to access this resource"),
-                    @ApiResponse(responseCode = "403", description = "This request is forbidden (e.g., no authentication token is provided)"),
-                    @ApiResponse(responseCode = "500", description = "Internal server error - this request cannot be served.")
-                   })
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER)
+    @Operation(summary = "Creates a Discussion on a Jaqpot entity",
+            responses
+            = {
+                @ApiResponse(responseCode = "200", description = "Discussion was created successfully."),
+                @ApiResponse(responseCode = "400", description = "Bad request: malformed feature"),
+                @ApiResponse(responseCode = "401", description = "You are not authorized to access this resource"),
+                @ApiResponse(responseCode = "403", description = "This request is forbidden (e.g., no authentication token is provided)"),
+                @ApiResponse(responseCode = "500", description = "Internal server error - this request cannot be served.")
+            })
     //@ApiOperation(value = "Creates a Discussion on a Jaqpot entity",
     //        notes = "Creates a Discussion",
     //        response = Discussion.class)
@@ -120,31 +122,34 @@ public class DiscussionResource {
     //    @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)"),
     //    @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
     //})
-    public Response createNewDiscussion(@HeaderParam("Authorization") String api_key
-            ,Discussion discussion)
-    throws JaqpotNotAuthorizedException, JaqpotDocumentSizeExceededException{
-        
+    public Response createNewDiscussion(@HeaderParam("Authorization") String api_key, Discussion discussion)
+            throws JaqpotNotAuthorizedException, JaqpotDocumentSizeExceededException {
+
         ROG rog = new ROG(true);
         discussion.setId(rog.nextString(10));
         this.discussionHandler.create(discussion);
 //        URI uri = pManager.getProperty(PropertyManager.PropertyType.JAQPOT_BASE);
         return Response.ok(discussion).build();
     }
-    
+
     @GET
     @Path("/{id}")
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces({MediaType.APPLICATION_JSON})
     @Consumes(MediaType.APPLICATION_JSON)
+    @Parameters({
+        @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
+        @Parameter(name = "id", description = "id", schema = @Schema(implementation = String.class), in = ParameterIn.PATH)
+    })
     @Operation(summary = "Get a Discussion from it's id",
-                  responses = 
-                          {     
-                           @ApiResponse(responseCode = "200", description="Disussion found"),
-                           @ApiResponse(responseCode = "400", description = "Bad request: malformed feature"),
-                           @ApiResponse(responseCode = "401", description = "You are not authorized to access this resource"),
-                           @ApiResponse(responseCode = "403", description = "This request is forbidden (e.g., no authentication token is provided)"),
-                           @ApiResponse(responseCode = "500", description = "Internal server error - this request cannot be served.")
-                           })
+            responses
+            = {
+                @ApiResponse(responseCode = "200", description = "Disussion found"),
+                @ApiResponse(responseCode = "400", description = "Bad request: malformed feature"),
+                @ApiResponse(responseCode = "401", description = "You are not authorized to access this resource"),
+                @ApiResponse(responseCode = "403", description = "This request is forbidden (e.g., no authentication token is provided)"),
+                @ApiResponse(responseCode = "500", description = "Internal server error - this request cannot be served.")
+            })
     //@ApiOperation(value = "Get a Discussion from it's id",
     //        notes = "Get's a Discussion",
     //        response = Discussion.class)
@@ -157,27 +162,33 @@ public class DiscussionResource {
     //})
     public Response getDiscussionById(@HeaderParam("Authorization") String api_key,
             @PathParam("id") String id)
-    throws JaqpotNotAuthorizedException, JaqpotDocumentSizeExceededException{
-        
+            throws JaqpotNotAuthorizedException, JaqpotDocumentSizeExceededException {
+
         ROG rog = new ROG(true);
         Discussion disc = discussionHandler.find(id);
 //        URI uri = pManager.getProperty(PropertyManager.PropertyType.JAQPOT_BASE);
         return Response.ok(disc).build();
     }
-    
+
     @GET
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces({MediaType.APPLICATION_JSON})
     @Consumes(MediaType.APPLICATION_JSON)
+    @Parameters({
+        @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
+        @Parameter(name = "entityid", description = "entityid", schema = @Schema(implementation = String.class), in = ParameterIn.QUERY),
+        @Parameter(name = "start", description = "start", schema = @Schema(implementation = Integer.class), in = ParameterIn.QUERY),
+        @Parameter(name = "max", description = "max", schema = @Schema(implementation = Integer.class), in = ParameterIn.QUERY)
+    })
     @Operation(summary = "Get a Discussion from it's entity id",
-               responses = 
-                        {
-                         @ApiResponse(responseCode = "200", description = "Disussion's on entity found"),
-                         @ApiResponse(responseCode = "400", description = "Bad request: malformed discussion"),
-                         @ApiResponse(responseCode = "401", description = "You are not authorized to access this resource"),
-                         @ApiResponse(responseCode = "403", description = "This request is forbidden (e.g., no authentication token is provided)"),
-                         @ApiResponse(responseCode = "500", description = "Internal server error - this request cannot be served.")
-                        })
+            responses
+            = {
+                @ApiResponse(responseCode = "200", description = "Disussion's on entity found"),
+                @ApiResponse(responseCode = "400", description = "Bad request: malformed discussion"),
+                @ApiResponse(responseCode = "401", description = "You are not authorized to access this resource"),
+                @ApiResponse(responseCode = "403", description = "This request is forbidden (e.g., no authentication token is provided)"),
+                @ApiResponse(responseCode = "500", description = "Internal server error - this request cannot be served.")
+            })
     //@ApiOperation(value = "Get a Discussion from it's entity id",
     //        notes = "Get's the Discussion on an entity",
     //        response = Discussion.class)
@@ -188,42 +199,45 @@ public class DiscussionResource {
     //    @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)"),
     //    @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
     //})
-    
+
     public Response getDiscussionByEntityId(@HeaderParam("Authorization") String api_key,
             @QueryParam("entityid") String entityId, @QueryParam("start") Integer start,
             @QueryParam("max") Integer max)
-    throws JaqpotNotAuthorizedException, JaqpotDocumentSizeExceededException{
-        
-        if(start == null){
+            throws JaqpotNotAuthorizedException, JaqpotDocumentSizeExceededException {
+
+        if (start == null) {
             start = 0;
         }
-        if(max == null){
+        if (max == null) {
             max = 20;
         }
-        
+
         List<Discussion> disc = discussionHandler.findByEntityId(entityId, start, max);
         Long total = discussionHandler.countByEntityId(entityId);
-        
+
         return Response.ok(disc)
                 .header("total", total)
                 .build();
     }
-    
-    
+
     @PUT
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Path("/{id}")
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
+    @Parameters({
+        @Parameter(name = "Authorization", description = "Clients need to authenticate in order to create resources on the server", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
+        @Parameter(name = "id", description = "ID of the Discussion.", required = true, schema = @Schema(implementation = String.class), in = ParameterIn.PATH),
+        @Parameter(name = "discussion", description = "Discussion in JSON", required = true, schema = @Schema(implementation = Discussion.class), in = ParameterIn.QUERY),})
     @Operation(summary = "Updates a Discussion at a particular URI",
-               responses = {
-                   @ApiResponse(responseCode = "200", description = "Discussion entry was created / updated successfully."),
-                   @ApiResponse(responseCode = "400", description = "Discussion entry was not created because the request was malformed"),
-                   @ApiResponse(responseCode = "401", description = "You are not authorized to create a feature on the server"),
-                   @ApiResponse(responseCode = "403", description = "This request is forbidden (e.g., no authentication token is provided)"),
-                   @ApiResponse(responseCode = "500", description = "Internal server error - this request cannot be served.")
-               })
+            responses = {
+                @ApiResponse(responseCode = "200", description = "Discussion entry was created / updated successfully."),
+                @ApiResponse(responseCode = "400", description = "Discussion entry was not created because the request was malformed"),
+                @ApiResponse(responseCode = "401", description = "You are not authorized to create a feature on the server"),
+                @ApiResponse(responseCode = "403", description = "This request is forbidden (e.g., no authentication token is provided)"),
+                @ApiResponse(responseCode = "500", description = "Internal server error - this request cannot be served.")
+            })
     @Consumes(MediaType.APPLICATION_JSON)
-    
+
     //@ApiOperation(value = "Updates a Discussion at a particular URI",
     //        notes = "Updates a Discussion entry at the specified URI. If a Discussion already exists at this URI,"
     //        + "it will be replaced. If, instead, no Discussion is stored under the specified URI, a new "
@@ -243,11 +257,10 @@ public class DiscussionResource {
             //@ApiParam(value = "ID of the Discussion.", required = true) @PathParam("id") String id,
             //@ApiParam(value = "Discussion in JSON", required = true) Discussion discussion,
             //@ApiParam(value = "Clients need to authenticate in order to create resources on the server") @HeaderParam("Authorization") String api_key
-            @Parameter(description = "ID of the Discussion.", required = true) @PathParam("id") String id,
-            @Parameter(description = "Discussion in JSON", required = true) Discussion discussion,
-            @Parameter(description = "Clients need to authenticate in order to create resources on the server") @HeaderParam("Authorization") String api_key
-           
-    )throws JaqpotDocumentSizeExceededException  {
+            @PathParam("id") String id,
+            Discussion discussion,
+            @HeaderParam("Authorization") String api_key
+    ) throws JaqpotDocumentSizeExceededException {
         if (discussion == null) {
             ErrorReport report = ErrorReportFactory.badRequest("No feature provided; check out the API specs",
                     "Clients MUST provide a Feature document in JSON to perform this request");
@@ -268,20 +281,24 @@ public class DiscussionResource {
                 .header("Location", uriInfo.getBaseUri().toString() + "discussion/" + discussion.getId())
                 .build();
     }
-    
+
     @PUT
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
+    @Parameters({
+        @Parameter(name = "Authorization", description = "Clients need to authenticate in order to create resources on the server", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
+        @Parameter(name = "discussion", description = "Discussion in JSON", required = true, schema = @Schema(implementation = Discussion.class), in = ParameterIn.QUERY)
+    })
     @Operation(summary = "Updates a Discussion",
-               responses = {
-                            @ApiResponse(responseCode = "200", description = "Discussion entry was created / updated successfully."),
-                            @ApiResponse(responseCode = "400", description = "Discussion entry was not created because the request was malformed"),
-                            @ApiResponse(responseCode = "401", description = "You are not authorized to create a feature on the server"),
-                            @ApiResponse(responseCode = "403", description = "This request is forbidden (e.g., no authentication token is provided)"),
-                            @ApiResponse(responseCode = "500", description = "Internal server error - this request cannot be served.")
-                })   
+            responses = {
+                @ApiResponse(responseCode = "200", description = "Discussion entry was created / updated successfully."),
+                @ApiResponse(responseCode = "400", description = "Discussion entry was not created because the request was malformed"),
+                @ApiResponse(responseCode = "401", description = "You are not authorized to create a feature on the server"),
+                @ApiResponse(responseCode = "403", description = "This request is forbidden (e.g., no authentication token is provided)"),
+                @ApiResponse(responseCode = "500", description = "Internal server error - this request cannot be served.")
+            })
     @Consumes(MediaType.APPLICATION_JSON)
-    
+
     //@ApiOperation(value = "Updates a Discussion",
     //        notes = "Updates a Discussion entry at the specified URI. If a Discussion already exists at this URI,"
     //        + "it will be replaced. If, instead, no Discussion is stored under the specified URI, a new "
@@ -300,17 +317,17 @@ public class DiscussionResource {
     public Response putDiscussion(
             //@ApiParam(value = "Discussion in JSON", required = true) Discussion discussion,
             //@ApiParam(value = "Clients need to authenticate in order to create resources on the server") @HeaderParam("Authorization") String api_key
-            @Parameter(description = "Discussion in JSON", required = true) Discussion discussion,
-            @Parameter(description = "Clients need to authenticate in order to create resources on the server") @HeaderParam("Authorization") String api_key
-    )throws JaqpotDocumentSizeExceededException  {
+            Discussion discussion,
+            @HeaderParam("Authorization") String api_key
+    ) throws JaqpotDocumentSizeExceededException {
         if (discussion == null) {
             ErrorReport report = ErrorReportFactory.badRequest("No feature provided; check out the API specs",
                     "Clients MUST provide a Feature document in JSON to perform this request");
             return Response.ok(report).status(Response.Status.BAD_REQUEST).build();
         }
-        try{
+        try {
             discussionHandler.edit(discussion);
-        }catch(Exception e){
+        } catch (Exception e) {
             throw new BadRequestException("Could not create Notification, cause: " + e.getMessage());
         }
         Discussion disc = discussionHandler.find(discussion.getId());
@@ -320,20 +337,24 @@ public class DiscussionResource {
                 .header("Location", uriInfo.getBaseUri().toString() + "discussion/" + discussion.getId())
                 .build();
     }
-    
+
     @DELETE
     @Path("/{id}")
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces({MediaType.APPLICATION_JSON})
     @Consumes(MediaType.APPLICATION_JSON)
+    @Parameters({
+        @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
+        @Parameter(name = "id", description = "id", schema = @Schema(implementation = String.class), in = ParameterIn.PATH)
+    })
     @Operation(summary = "Get a Discussion from it's id",
-               responses = {
-                            @ApiResponse(responseCode = "200", description = "Disussion found"),
-                            @ApiResponse(responseCode = "400", description = "Bad request: malformed feature"),
-                            @ApiResponse(responseCode = "401", description = "You are not authorized to access this resource"),
-                            @ApiResponse(responseCode = "403", description = "This request is forbidden (e.g., no authentication token is provided)"),
-                            @ApiResponse(responseCode = "500", description = "Internal server error - this request cannot be served.")
-               })
+            responses = {
+                @ApiResponse(responseCode = "200", description = "Disussion found"),
+                @ApiResponse(responseCode = "400", description = "Bad request: malformed feature"),
+                @ApiResponse(responseCode = "401", description = "You are not authorized to access this resource"),
+                @ApiResponse(responseCode = "403", description = "This request is forbidden (e.g., no authentication token is provided)"),
+                @ApiResponse(responseCode = "500", description = "Internal server error - this request cannot be served.")
+            })
     //@ApiOperation(value = "Get a Discussion from it's id",
     //        notes = "Get's a Discussion",
     //        response = Discussion.class)
@@ -346,17 +367,17 @@ public class DiscussionResource {
     //})
     public Response deleteDiscussionById(@HeaderParam("Authorization") String api_key,
             @PathParam("id") String id)
-    throws JaqpotNotAuthorizedException, JaqpotDocumentSizeExceededException{
-        
+            throws JaqpotNotAuthorizedException, JaqpotDocumentSizeExceededException {
+
         String creator = securityContext.getUserPrincipal().getName();
         Discussion discussion = discussionHandler.find(id);
-        if(!discussion.getMeta().getCreators().contains(creator)){
+        if (!discussion.getMeta().getCreators().contains(creator)) {
             throw new JaqpotNotAuthorizedException("You are not authorized to delete this resource");
-        }else{
+        } else {
             discussionHandler.remove(discussion);
         }
-        
+
         return Response.accepted().build();
     }
-    
+
 }

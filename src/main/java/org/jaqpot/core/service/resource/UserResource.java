@@ -32,6 +32,8 @@ package org.jaqpot.core.service.resource;
 //import io.swagger.annotations.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -66,7 +68,7 @@ import org.jaqpot.core.service.authentication.RoleEnum;
  * @author Charalampos Chomenidis
  *
  */
-@Path("user")
+@Path("/user")
 //@Api(value = "/user", description = "Users API", position = 1)
 @Produces({"application/json", "text/uri-list"})
 @Tag(name = "user")
@@ -88,33 +90,39 @@ public class UserResource {
     @TokenSecured({RoleEnum.ADMNISTRATOR})
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     /*@ApiOperation(value = "Lists all Users (admins only)",
-            notes = "Lists all Users of Jaqpot Quattro. This operation can only be performed by the system administrators.",
-            response = User.class,
-            responseContainer = "List")
-    @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Users found and are listed in the response body")
-        ,
-        @ApiResponse(code = 401, message = "You are not authorized to access this user")
-        ,
-        @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)")
-        ,
-        @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
-    })*/
+     notes = "Lists all Users of Jaqpot Quattro. This operation can only be performed by the system administrators.",
+     response = User.class,
+     responseContainer = "List")
+     @ApiResponses(value = {
+     @ApiResponse(code = 200, message = "Users found and are listed in the response body")
+     ,
+     @ApiResponse(code = 401, message = "You are not authorized to access this user")
+     ,
+     @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)")
+     ,
+     @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
+     })*/
+    @Parameters({
+        @Parameter(name = "Authorization", description = "Clients need to authenticate in order to access models", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
+        @Parameter(name = "id", description = "id", schema = @Schema(implementation = String.class), in = ParameterIn.PATH),
+        @Parameter(name = "start", description = "start", schema = @Schema(implementation = Integer.class, defaultValue = "0"), in = ParameterIn.QUERY),
+        @Parameter(name = "max", description = "max", schema = @Schema(implementation = Integer.class, defaultValue = "10"), in = ParameterIn.QUERY)
+    })
     @Operation(summary = "Lists all Users (admins only)",
-               description = "Lists all Users of Jaqpot Quattro. This operation can only be performed by the system administrators.",
-               responses = {
-                   @ApiResponse(responseCode = "200", content = @Content(array = @ArraySchema(schema = @Schema(implementation = User.class))), description= "Users found and are listed in the response body"),
-                   @ApiResponse(responseCode = "401", description = "You are not authorized to access this user"),
-                   @ApiResponse(responseCode = "403", description = "This request is forbidden (e.g., no authentication token is provided)"),
-                   @ApiResponse(responseCode = "500", description = "Internal server error - this request cannot be served.")
-               })
+            description = "Lists all Users of Jaqpot Quattro. This operation can only be performed by the system administrators.",
+            responses = {
+                @ApiResponse(responseCode = "200", content = @Content(array = @ArraySchema(schema = @Schema(implementation = User.class))), description = "Users found and are listed in the response body"),
+                @ApiResponse(responseCode = "401", description = "You are not authorized to access this user"),
+                @ApiResponse(responseCode = "403", description = "This request is forbidden (e.g., no authentication token is provided)"),
+                @ApiResponse(responseCode = "500", description = "Internal server error - this request cannot be served.")
+            })
     public Response listUsers(
             //@ApiParam(value = "Clients need to authenticate in order to access models") @HeaderParam("Authorization") String api_key,
             //@ApiParam(value = "start", defaultValue = "0") @QueryParam("start") Integer start,
             //@ApiParam(value = "max", defaultValue = "10") @QueryParam("max") Integer max
-            @Parameter(description = "Clients need to authenticate in order to access models") @HeaderParam("Authorization") String api_key,
-            @Parameter(description = "start", schema = @Schema(implementation = String.class, defaultValue = "0")) @QueryParam("start") Integer start,
-            @Parameter(description = "max", schema = @Schema(implementation = String.class, defaultValue = "10")) @QueryParam("max") Integer max
+            @HeaderParam("Authorization") String api_key,
+            @QueryParam("start") Integer start,
+            @QueryParam("max") Integer max
     ) throws JaqpotNotAuthorizedException {
         // This resource can be accessed only by the system administrators
         String admins = propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_ADMINISTRATORS);
@@ -136,32 +144,35 @@ public class UserResource {
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Path("/{id}")
     /*@ApiOperation(value = "Finds User by Id",
-            notes = "Finds specified user",
-            response = User.class)
-    @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "User is found")
-        ,
-        @ApiResponse(code = 401, message = "You are not authorized to access this user")
-        ,
-        @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)")
-        ,
-        @ApiResponse(code = 404, message = "This user was not found.")
-        ,
-        @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
-    })*/
+     notes = "Finds specified user",
+     response = User.class)
+     @ApiResponses(value = {
+     @ApiResponse(code = 200, message = "User is found")
+     ,
+     @ApiResponse(code = 401, message = "You are not authorized to access this user")
+     ,
+     @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)")
+     ,
+     @ApiResponse(code = 404, message = "This user was not found.")
+     ,
+     @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
+     })*/
+    @Parameters({
+        @Parameter(name = "Authorization", description = "Clients need to authenticate in order to access this resource", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
+        @Parameter(name = "id", description = "ID of the task to be retrieved", schema = @Schema(implementation = String.class), in = ParameterIn.PATH)})
+
     @Operation(summary = "Finds User by Id",
-               description = "Finds specified user",
-               responses = {
-                   @ApiResponse(responseCode = "200", content = @Content(array = @ArraySchema(schema = @Schema(implementation = User.class))), description= "User is found"),
-                   @ApiResponse(responseCode = "401", description = "You are not authorized to access this user"),
-                   @ApiResponse(responseCode = "403", description = "This request is forbidden (e.g., no authentication token is provided)"),
-                   @ApiResponse(responseCode = "404", description = "This user was not found."),
-                   @ApiResponse(responseCode = "500", description = "Internal server error - this request cannot be served.")
-               })
+            description = "Finds specified user",
+            responses = {
+                @ApiResponse(responseCode = "200", content = @Content(array = @ArraySchema(schema = @Schema(implementation = User.class))), description = "User is found"),
+                @ApiResponse(responseCode = "401", description = "You are not authorized to access this user"),
+                @ApiResponse(responseCode = "403", description = "This request is forbidden (e.g., no authentication token is provided)"),
+                @ApiResponse(responseCode = "404", description = "This user was not found."),
+                @ApiResponse(responseCode = "500", description = "Internal server error - this request cannot be served.")
+            })
     public Response getUser(
             @PathParam("id") String id,
             //@ApiParam(value = "Clients need to authenticate in order to access this resource")
-            @Parameter(description = "Clients need to authenticate in order to access this resource")
             @HeaderParam("Authorization") String api_key) throws JaqpotNotAuthorizedException {
 
 //        String admins = propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_ADMINISTRATORS);
@@ -186,80 +197,88 @@ public class UserResource {
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Path("/search/and/found")
     /*@ApiOperation(value = "Finds User from partial given username",
-            notes = "Finds all users queried")
-    @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Users found")
-        ,
-        @ApiResponse(code = 401, message = "You are not authorized to access this user")
-        ,
-        @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)")
-        ,
-        @ApiResponse(code = 404, message = "No user was not found.")
-        ,
-        @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
-    })*/
+     notes = "Finds all users queried")
+     @ApiResponses(value = {
+     @ApiResponse(code = 200, message = "Users found")
+     ,
+     @ApiResponse(code = 401, message = "You are not authorized to access this user")
+     ,
+     @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)")
+     ,
+     @ApiResponse(code = 404, message = "No user was not found.")
+     ,
+     @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
+     })*/
+    @Parameters({
+        @Parameter(name = "Authorization", description = "Clients need to authenticate in order to access this resource", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
+        @Parameter(name = "mail", schema = @Schema(implementation = String.class), in = ParameterIn.QUERY),
+        @Parameter(name = "name", schema = @Schema(implementation = String.class), in = ParameterIn.QUERY)
+    })
+
     @Operation(summary = "Finds User from partial given username",
-               description = "Finds all users queried",
-               responses = {
-                   @ApiResponse(responseCode = "200", description= "Users found"),
-                   @ApiResponse(responseCode = "401", description = "You are not authorized to access this user"),
-                   @ApiResponse(responseCode = "403", description = "This request is forbidden (e.g., no authentication token is provided)"),
-                   @ApiResponse(responseCode = "404", description = "No user was not found."),
-                   @ApiResponse(responseCode = "500", description = "Internal server error - this request cannot be served.")
-               })
+            description = "Finds all users queried",
+            responses = {
+                @ApiResponse(responseCode = "200", description = "Users found"),
+                @ApiResponse(responseCode = "401", description = "You are not authorized to access this user"),
+                @ApiResponse(responseCode = "403", description = "This request is forbidden (e.g., no authentication token is provided)"),
+                @ApiResponse(responseCode = "404", description = "No user was not found."),
+                @ApiResponse(responseCode = "500", description = "Internal server error - this request cannot be served.")
+            })
     public Response getAllUser(
             @QueryParam("name") String name,
             @QueryParam("mail") String mail,
             //@ApiParam(value = "Clients need to authenticate in order to access this resource")
-            @Parameter(description = "Clients need to authenticate in order to access this resource")
             @HeaderParam("Authorization") String api_key) throws JaqpotNotAuthorizedException {
 
         String currentUserID = securityContext.getUserPrincipal().getName();
         Map<String, Object> search = new HashMap();
-        if(name != null){
+        if (name != null) {
             search.put("name", name.toLowerCase());
         }
-        if(mail != null){
+        if (mail != null) {
             search.put("mail", mail.toLowerCase());
         }
-        
+
         List<User> users = userHandler.findAllWithPattern(search);
 
         return Response.ok(users).build();
     }
-    
+
     @PUT
     @Produces({MediaType.APPLICATION_JSON})
     @Consumes({MediaType.APPLICATION_JSON})
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Path("/{id}")
     /*@ApiOperation(value = "Updates User by Id",
-            notes = "Updates specified user",
-            response = User.class)
-    @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "User is found")
-        ,
-        @ApiResponse(code = 401, message = "You are not authorized to access this user")
-        ,
-        @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)")
-        ,
-        @ApiResponse(code = 404, message = "This user was not found.")
-        ,
-        @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
-    })*/
+     notes = "Updates specified user",
+     response = User.class)
+     @ApiResponses(value = {
+     @ApiResponse(code = 200, message = "User is found")
+     ,
+     @ApiResponse(code = 401, message = "You are not authorized to access this user")
+     ,
+     @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)")
+     ,
+     @ApiResponse(code = 404, message = "This user was not found.")
+     ,
+     @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
+     })*/
+    @Parameters({
+        @Parameter(name = "Authorization", description = "Clients need to authenticate in order to access this resource", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
+        @Parameter(name = "id", description = "ID of the task to be retrieved", schema = @Schema(implementation = String.class), in = ParameterIn.PATH)})
+
     @Operation(summary = "Updates User by Id",
-               description = "Updates specified user",
-               responses = {
-                   @ApiResponse(responseCode = "200", description= "Users is found"),
-                   @ApiResponse(responseCode = "401", description = "You are not authorized to access this user"),
-                   @ApiResponse(responseCode = "403", description = "This request is forbidden (e.g., no authentication token is provided)"),
-                   @ApiResponse(responseCode = "404", description = "This user was not found."),
-                   @ApiResponse(responseCode = "500", description = "Internal server error - this request cannot be served.")
-               })
+            description = "Updates specified user",
+            responses = {
+                @ApiResponse(responseCode = "200", description = "Users is found"),
+                @ApiResponse(responseCode = "401", description = "You are not authorized to access this user"),
+                @ApiResponse(responseCode = "403", description = "This request is forbidden (e.g., no authentication token is provided)"),
+                @ApiResponse(responseCode = "404", description = "This user was not found."),
+                @ApiResponse(responseCode = "500", description = "Internal server error - this request cannot be served.")
+            })
     public Response updateUser(
             @PathParam("id") String id,
             //@ApiParam(value = "Clients need to authenticate in order to access this resource")
-            @Parameter(description = "Clients need to authenticate in order to access this resource")
             @HeaderParam("Authorization") String api_key,
             User userForUpadate) throws JaqpotNotAuthorizedException {
 
@@ -286,33 +305,36 @@ public class UserResource {
     @Produces({MediaType.APPLICATION_JSON})
     @Path("/{id}/quota")
     /*@ApiOperation(value = "Retrieves user's quota",
-            notes = "Returns user's quota given the user's ID. Authenicated users can access only their own quota. "
-            + "Jaqpot administrators can access the quota of all Jaqpot users.",
-            response = UserQuota.class)
-    @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "User is found and quota are retrieved")
-        ,
-        @ApiResponse(code = 401, message = "You are not authorized to access this user's quota")
-        ,
-        @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)")
-        ,
-        @ApiResponse(code = 404, message = "This user was not found.")
-        ,
-        @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
-    })*/
+     notes = "Returns user's quota given the user's ID. Authenicated users can access only their own quota. "
+     + "Jaqpot administrators can access the quota of all Jaqpot users.",
+     response = UserQuota.class)
+     @ApiResponses(value = {
+     @ApiResponse(code = 200, message = "User is found and quota are retrieved")
+     ,
+     @ApiResponse(code = 401, message = "You are not authorized to access this user's quota")
+     ,
+     @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)")
+     ,
+     @ApiResponse(code = 404, message = "This user was not found.")
+     ,
+     @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
+     })*/
+    @Parameters({
+        @Parameter(name = "Authorization", description = "Clients need to authenticate in order to access this resource", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
+        @Parameter(name = "id", description = "ID of the task to be retrieved", schema = @Schema(implementation = String.class), in = ParameterIn.PATH)})
+
     @Operation(summary = "Retrieves user's quota",
-               description = "Returns user's quota given the user's ID. Authenicated users can access only their own quota. ",
-               responses = {
-                   @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = UserQuota.class)), description= "User is found and quota are retrieved"),
-                   @ApiResponse(responseCode = "401", description = "You are not authorized to access this user's quota"),
-                   @ApiResponse(responseCode = "403", description = "This request is forbidden (e.g., no authentication token is provided)"),
-                   @ApiResponse(responseCode = "404", description = "This user was not found."),
-                   @ApiResponse(responseCode = "500", description = "Internal server error - this request cannot be served.")
-               })
+            description = "Returns user's quota given the user's ID. Authenicated users can access only their own quota. ",
+            responses = {
+                @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = UserQuota.class)), description = "User is found and quota are retrieved"),
+                @ApiResponse(responseCode = "401", description = "You are not authorized to access this user's quota"),
+                @ApiResponse(responseCode = "403", description = "This request is forbidden (e.g., no authentication token is provided)"),
+                @ApiResponse(responseCode = "404", description = "This user was not found."),
+                @ApiResponse(responseCode = "500", description = "Internal server error - this request cannot be served.")
+            })
     public Response getUserQuota(
             @PathParam("id") String id,
             //@ApiParam(value = "Clients need to authenticate in order to access this resource")
-            @Parameter(description = "Clients need to authenticate in order to access this resource")
             @HeaderParam("Authorization") String api_key) throws JaqpotNotAuthorizedException {
 
         String currentUserID = securityContext.getUserPrincipal().getName();
@@ -324,42 +346,44 @@ public class UserResource {
         }
 
         UserQuota userQuota = quotaService.getUserQuota(currentUserID);
-        
+
         return Response.ok(userQuota).build();
     }
-    
-    
+
     @GET
     @Produces({MediaType.APPLICATION_JSON})
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Path("/{id}/picture")
     /*@ApiOperation(value = "Finds Users profile pic by Id",
-            notes = "Finds specified users profile pic",
-            response = User.class)
-    @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "User is found")
-        ,
-        @ApiResponse(code = 401, message = "You are not authorized to access this user")
-        ,
-        @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)")
-        ,
-        @ApiResponse(code = 404, message = "This user was not found.")
-        ,
-        @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
-    })*/
+     notes = "Finds specified users profile pic",
+     response = User.class)
+     @ApiResponses(value = {
+     @ApiResponse(code = 200, message = "User is found")
+     ,
+     @ApiResponse(code = 401, message = "You are not authorized to access this user")
+     ,
+     @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)")
+     ,
+     @ApiResponse(code = 404, message = "This user was not found.")
+     ,
+     @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
+     })*/
+    @Parameters({
+        @Parameter(name = "Authorization", description = "Clients need to authenticate in order to access this resource", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
+        @Parameter(name = "id", description = "ID of the task to be retrieved", schema = @Schema(implementation = String.class), in = ParameterIn.PATH)})
+
     @Operation(summary = "Finds Users profile pic by Id",
-               description = "Finds specified users profile pic",
-               responses = {
-                   @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = User.class)), description= "User is found"),
-                   @ApiResponse(responseCode = "401", description = "You are not authorized to access this user"),
-                   @ApiResponse(responseCode = "403", description = "This request is forbidden (e.g., no authentication token is provided)"),
-                   @ApiResponse(responseCode = "404", description = "This user was not found."),
-                   @ApiResponse(responseCode = "500", description = "Internal server error - this request cannot be served.")
-               })
+            description = "Finds specified users profile pic",
+            responses = {
+                @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = User.class)), description = "User is found"),
+                @ApiResponse(responseCode = "401", description = "You are not authorized to access this user"),
+                @ApiResponse(responseCode = "403", description = "This request is forbidden (e.g., no authentication token is provided)"),
+                @ApiResponse(responseCode = "404", description = "This user was not found."),
+                @ApiResponse(responseCode = "500", description = "Internal server error - this request cannot be served.")
+            })
     public Response getUserPic(
             @PathParam("id") String id,
             //@ApiParam(value = "Clients need to authenticate in order to access this resource")
-            @Parameter(description = "Clients need to authenticate in order to access this resource")
             @HeaderParam("Authorization") String api_key) throws JaqpotNotAuthorizedException {
 
         String currentUserID = securityContext.getUserPrincipal().getName();
@@ -372,39 +396,41 @@ public class UserResource {
         }
         return Response.ok(user).build();
     }
-    
-    
+
     @GET
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Path("/{id}/occupation")
     /*@ApiOperation(value = "Finds User occupation by Id",
-            notes = "Finds specified users occupation",
-            response = User.class)
-    @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "User is found")
-        ,
-        @ApiResponse(code = 401, message = "You are not authorized to access this user")
-        ,
-        @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)")
-        ,
-        @ApiResponse(code = 404, message = "This user was not found.")
-        ,
-        @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
-    })*/
+     notes = "Finds specified users occupation",
+     response = User.class)
+     @ApiResponses(value = {
+     @ApiResponse(code = 200, message = "User is found")
+     ,
+     @ApiResponse(code = 401, message = "You are not authorized to access this user")
+     ,
+     @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)")
+     ,
+     @ApiResponse(code = 404, message = "This user was not found.")
+     ,
+     @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
+     })*/
+    @Parameters({
+        @Parameter(name = "Authorization", description = "Clients need to authenticate in order to access this resource", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
+        @Parameter(name = "id", description = "ID of the task to be retrieved", schema = @Schema(implementation = String.class), in = ParameterIn.PATH)})
+
     @Operation(summary = "Finds User occupation by Id",
-               description = "Finds specified users occupation",
-               responses = {
-                   @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = User.class)), description= "User is found"),
-                   @ApiResponse(responseCode = "401", description = "You are not authorized to access this user"),
-                   @ApiResponse(responseCode = "403", description = "This request is forbidden (e.g., no authentication token is provided)"),
-                   @ApiResponse(responseCode = "404", description = "This user was not found."),
-                   @ApiResponse(responseCode = "500", description = "Internal server error - this request cannot be served.")
-               })
+            description = "Finds specified users occupation",
+            responses = {
+                @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = User.class)), description = "User is found"),
+                @ApiResponse(responseCode = "401", description = "You are not authorized to access this user"),
+                @ApiResponse(responseCode = "403", description = "This request is forbidden (e.g., no authentication token is provided)"),
+                @ApiResponse(responseCode = "404", description = "This user was not found."),
+                @ApiResponse(responseCode = "500", description = "Internal server error - this request cannot be served.")
+            })
     public Response getUserOccupation(
             @PathParam("id") String id,
             //@ApiParam(value = "Clients need to authenticate in order to access this resource")
-            @Parameter(description = "Clients need to authenticate in order to access this resource")
             @HeaderParam("Authorization") String api_key) throws JaqpotNotAuthorizedException {
 
         String currentUserID = securityContext.getUserPrincipal().getName();
@@ -417,39 +443,41 @@ public class UserResource {
         }
         return Response.ok(user).build();
     }
-    
-    
+
     @GET
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Path("/{id}/occupationat")
     /*@ApiOperation(value = "Finds User occupation place by Id",
-            notes = "Finds specified users occupation organization",
-            response = User.class)
-    @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "User is found")
-        ,
-        @ApiResponse(code = 401, message = "You are not authorized to access this user")
-        ,
-        @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)")
-        ,
-        @ApiResponse(code = 404, message = "This user was not found.")
-        ,
-        @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
-    })*/
-     @Operation(summary = "Finds User occupation place by Id",
-               description = "Finds specified users occupation organization",
-               responses = {
-                   @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = User.class)), description= "User is found"),
-                   @ApiResponse(responseCode = "401", description = "You are not authorized to access this user"),
-                   @ApiResponse(responseCode = "403", description = "This request is forbidden (e.g., no authentication token is provided)"),
-                   @ApiResponse(responseCode = "404", description = "This user was not found."),
-                   @ApiResponse(responseCode = "500", description = "Internal server error - this request cannot be served.")
-               })
+     notes = "Finds specified users occupation organization",
+     response = User.class)
+     @ApiResponses(value = {
+     @ApiResponse(code = 200, message = "User is found")
+     ,
+     @ApiResponse(code = 401, message = "You are not authorized to access this user")
+     ,
+     @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)")
+     ,
+     @ApiResponse(code = 404, message = "This user was not found.")
+     ,
+     @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
+     })*/
+    @Parameters({
+        @Parameter(name = "Authorization", description = "Clients need to authenticate in order to access this resource", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
+        @Parameter(name = "id", description = "ID of the task to be retrieved", schema = @Schema(implementation = String.class), in = ParameterIn.PATH)})
+
+    @Operation(summary = "Finds User occupation place by Id",
+            description = "Finds specified users occupation organization",
+            responses = {
+                @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = User.class)), description = "User is found"),
+                @ApiResponse(responseCode = "401", description = "You are not authorized to access this user"),
+                @ApiResponse(responseCode = "403", description = "This request is forbidden (e.g., no authentication token is provided)"),
+                @ApiResponse(responseCode = "404", description = "This user was not found."),
+                @ApiResponse(responseCode = "500", description = "Internal server error - this request cannot be served.")
+            })
     public Response getUserOccupationAt(
             @PathParam("id") String id,
             //@ApiParam(value = "Clients need to authenticate in order to access this resource")
-            @Parameter(description = "Clients need to authenticate in order to access this resource")
             @HeaderParam("Authorization") String api_key) throws JaqpotNotAuthorizedException {
 
         String currentUserID = securityContext.getUserPrincipal().getName();
@@ -462,35 +490,39 @@ public class UserResource {
         }
         return Response.ok(user).build();
     }
-    
+
     @GET
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Path("/{id}/name")
     /*@ApiOperation(value = "Finds User occupation place by Id",
-            notes = "Finds specified users occupation organization",
-            response = User.class)
-    @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "User is found")
-        ,
-        @ApiResponse(code = 401, message = "You are not authorized to access this user")
-        ,
-        @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)")
-        ,
-        @ApiResponse(code = 404, message = "This user was not found.")
-        ,
-        @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
-    })*/
+     notes = "Finds specified users occupation organization",
+     response = User.class)
+     @ApiResponses(value = {
+     @ApiResponse(code = 200, message = "User is found")
+     ,
+     @ApiResponse(code = 401, message = "You are not authorized to access this user")
+     ,
+     @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)")
+     ,
+     @ApiResponse(code = 404, message = "This user was not found.")
+     ,
+     @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
+     })*/
+    @Parameters({
+        @Parameter(name = "Authorization", description = "Clients need to authenticate in order to access this resource", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
+        @Parameter(name = "id", description = "ID of the task to be retrieved", schema = @Schema(implementation = String.class), in = ParameterIn.PATH)})
+
     @Operation(summary = "Finds User occupation place by Id",
-               description = "Finds specified users occupation organization",
-               responses = {
-                   @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = User.class)), description= "User is found"),
-                   @ApiResponse(responseCode = "401", description = "You are not authorized to access this user"),
-                   @ApiResponse(responseCode = "403", description = "This request is forbidden (e.g., no authentication token is provided)"),
-                   @ApiResponse(responseCode = "404", description = "This user was not found."),
-                   @ApiResponse(responseCode = "500", description = "Internal server error - this request cannot be served.")
-               })
-  
+            description = "Finds specified users occupation organization",
+            responses = {
+                @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = User.class)), description = "User is found"),
+                @ApiResponse(responseCode = "401", description = "You are not authorized to access this user"),
+                @ApiResponse(responseCode = "403", description = "This request is forbidden (e.g., no authentication token is provided)"),
+                @ApiResponse(responseCode = "404", description = "This user was not found."),
+                @ApiResponse(responseCode = "500", description = "Internal server error - this request cannot be served.")
+            })
+
     public Response getUserName(
             @PathParam("id") String id,
             //@ApiParam(value = "Clients need to authenticate in order to access this resource")
@@ -507,35 +539,38 @@ public class UserResource {
         }
         return Response.ok(user).build();
     }
-    
-    
+
     @GET
     @Produces({MediaType.APPLICATION_JSON})
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Path("/{id}/organizations")
     /*@ApiOperation(value = "Finds User's Organizations by user Id",
-            notes = "Finds specified users organization",
-            response = User.class)
-    @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "User is found")
-        ,
-        @ApiResponse(code = 401, message = "You are not authorized to access this user")
-        ,
-        @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)")
-        ,
-        @ApiResponse(code = 404, message = "This user was not found.")
-        ,
-        @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
-    })*/
+     notes = "Finds specified users organization",
+     response = User.class)
+     @ApiResponses(value = {
+     @ApiResponse(code = 200, message = "User is found")
+     ,
+     @ApiResponse(code = 401, message = "You are not authorized to access this user")
+     ,
+     @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)")
+     ,
+     @ApiResponse(code = 404, message = "This user was not found.")
+     ,
+     @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
+     })*/
+    @Parameters({
+        @Parameter(name = "Authorization", description = "Clients need to authenticate in order to access this resource", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
+        @Parameter(name = "id", description = "ID of the task to be retrieved", schema = @Schema(implementation = String.class), in = ParameterIn.PATH)})
+
     @Operation(summary = "Finds User's Organizations by user Id",
-               description = "Finds specified users organization",
-               responses = {
-                   @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = User.class)), description= "User is found"),
-                   @ApiResponse(responseCode = "401", description = "You are not authorized to access this user"),
-                   @ApiResponse(responseCode = "403", description = "This request is forbidden (e.g., no authentication token is provided)"),
-                   @ApiResponse(responseCode = "404", description = "This user was not found."),
-                   @ApiResponse(responseCode = "500", description = "Internal server error - this request cannot be served.")
-               })
+            description = "Finds specified users organization",
+            responses = {
+                @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = User.class)), description = "User is found"),
+                @ApiResponse(responseCode = "401", description = "You are not authorized to access this user"),
+                @ApiResponse(responseCode = "403", description = "This request is forbidden (e.g., no authentication token is provided)"),
+                @ApiResponse(responseCode = "404", description = "This user was not found."),
+                @ApiResponse(responseCode = "500", description = "Internal server error - this request cannot be served.")
+            })
     public Response getUserOrganizations(
             @PathParam("id") String id,
             //@ApiParam(value = "Clients need to authenticate in order to access this resource")
@@ -547,5 +582,4 @@ public class UserResource {
         return Response.ok(user).build();
     }
 
-    
 }

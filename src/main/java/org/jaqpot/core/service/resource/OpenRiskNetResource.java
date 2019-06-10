@@ -32,7 +32,11 @@ package org.jaqpot.core.service.resource;
 //import io.swagger.annotations.*;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.validator.routines.UrlValidator;
@@ -80,8 +84,7 @@ import org.jaqpot.core.service.authentication.RoleEnum;
 
 import static org.jaqpot.core.util.CSVUtils.parseLine;
 
-
-@Path("openrisknet")
+@Path("/openrisknet")
 @Tag(name = "openrisknet")
 //@Api(value = "/openrisknet", description = "OpenRiskNet API")
 public class OpenRiskNetResource {
@@ -93,7 +96,6 @@ public class OpenRiskNetResource {
 
     @EJB
     AlgorithmHandler algorithmHandler;
-
 
     @EJB
     DatasetHandler datasetHandler;
@@ -113,7 +115,6 @@ public class OpenRiskNetResource {
     @Inject
     @Jackson
     JSONSerializer serializer;
-
 
     private String getFileName(MultivaluedMap<String, String> headers) {
         String[] contentDisposition = headers.getFirst("Content-Disposition").split(";");
@@ -146,14 +147,18 @@ public class OpenRiskNetResource {
     //        @ApiImplicitParam(name = "parameters", value = "Parameters for algorithm", required = false, dataType = "string", paramType = "formData")
 
     //})
-    @Operation(summary = "Creates Dataset By SMILES document",
-               parameters = {
-                             @Parameter(required = true, schema = @Schema(name = "smilesFile", type = "string", description = "xls[m,x] file")),
-                             @Parameter(required = true, schema = @Schema(name = "title", type = "string", description = "Title of dataset")),
-                             @Parameter(required = true, schema = @Schema(name = "description", type = "string", description = "Description of dataset")),
-                             @Parameter(required = true, schema = @Schema(name = "algorithm-uri", type = "string", description = "Algorithm URI")),
-                             @Parameter(required = false, schema = @Schema(name = "parameters", type = "string", description = "Parameters for algorithm"))
-                            })
+    @RequestBody(content = {
+        @Content(mediaType = "multipart/form-data", schema = @Schema(type = "string", format = "binary")),
+        @Content(mediaType = "text/plain", schema = @Schema(type = "string"))})
+    @Parameters({
+        @Parameter(name = "smilesFile", required = true, schema = @Schema( type = "string", format = "binary"), description = "xls[m,x] file", in = ParameterIn.QUERY),
+        @Parameter(name = "title", required = true, description = "Title of dataset", schema = @Schema(type = "string"), in = ParameterIn.QUERY),
+        @Parameter(name = "description", description = "Description of dataset", required = true, schema = @Schema(type = "string"), in = ParameterIn.QUERY),
+        @Parameter(name = "algorithm-uri", description = "Algorithm URI", required = true, schema = @Schema(type = "string"), in = ParameterIn.QUERY),
+        @Parameter(name = "parameters", description = "Parameters for algorithm", required = false, schema = @Schema(type = "string"), in = ParameterIn.QUERY)
+    })
+    @Operation(summary = "Creates Dataset By SMILES document"
+            )
     //@ApiOperation(value = "Creates Dataset By SMILES document",
     //        notes = "Calculates descriptors from SMILES document, returns Dataset",
     //        response = Task.class
@@ -162,7 +167,8 @@ public class OpenRiskNetResource {
     public Response uploadFile(
             @HeaderParam("Authorization") String api_key,
             //@ApiParam(value = "multipartFormData input", hidden = true) MultipartFormDataInput input)
-            @Parameter(hidden = true, schema = @Schema(name = "multipartFormData", description = "multipartFormData input")) MultipartFormDataInput input)
+            //@Parameter(hidden = true, schema = @Schema(name = "multipartFormData", description = "multipartFormData input"))
+            MultipartFormDataInput input)
             throws ParameterIsNullException, ParameterInvalidURIException, QuotaExceededException, IOException, ParameterScopeException, ParameterRangeException, ParameterTypeException, JaqpotDocumentSizeExceededException {
         UrlValidator urlValidator = new UrlValidator();
         String[] apiA = api_key.split("\\s+");
@@ -179,11 +185,9 @@ public class OpenRiskNetResource {
                     + "No more than " + maxAllowedDatasets + " are allowed with your subscription.");
         }
 
-
         Map<String, List<InputPart>> uploadForm = input.getFormDataMap();
         List<InputPart> inputParts = uploadForm.get("smilesFile");
         String filename = getFileName(inputParts.get(0).getHeaders());
-
 
         byte[] bytes = new byte[0];
         bytes = getBytesFromInputParts(inputParts);
@@ -192,9 +196,10 @@ public class OpenRiskNetResource {
         String description = uploadForm.get("description").get(0).getBody(String.class, null);
         String algorithmURI = uploadForm.get("algorithm-uri").get(0).getBody(String.class, null);
 
-        String parameters =null;
-        if(uploadForm.get("parameters")!=null)
+        String parameters = null;
+        if (uploadForm.get("parameters") != null) {
             parameters = uploadForm.get("parameters").get(0).getBody(String.class, null);
+        }
 
         if (algorithmURI == null) {
             throw new ParameterIsNullException("algorithmURI");
@@ -212,14 +217,12 @@ public class OpenRiskNetResource {
 
         parameterValidator.validate(parameters, algorithm.getParameters());
 
-
-
         Map<String, Object> options = new HashMap<>();
         options.put("title", title);
         options.put("description", description);
         options.put("api_key", apiKey);
         options.put("file", bytes);
-        options.put("filename",filename);
+        options.put("filename", filename);
         options.put("mode", "PREPARATION");
         options.put("parameters", parameters);
         options.put("algorithmId", algorithmId);
@@ -230,7 +233,7 @@ public class OpenRiskNetResource {
 
     }
 
-    private static byte[] getBytesFromInputParts (List<InputPart> inputParts) {
+    private static byte[] getBytesFromInputParts(List<InputPart> inputParts) {
         for (InputPart inputPart : inputParts) {
             try {
                 //convert the uploaded file to inputstream
@@ -240,16 +243,18 @@ public class OpenRiskNetResource {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        }return  null;
+        }
+        return null;
     }
+
     private static byte[] getBytesFromInputStream(InputStream is) throws IOException {
         ByteArrayOutputStream os = new ByteArrayOutputStream();
         byte[] buffer = new byte[0xFFFF];
-        for (int len; (len = is.read(buffer)) != -1;)
+        for (int len; (len = is.read(buffer)) != -1;) {
             os.write(buffer, 0, len);
+        }
         os.flush();
         return os.toByteArray();
     }
-
 
 }

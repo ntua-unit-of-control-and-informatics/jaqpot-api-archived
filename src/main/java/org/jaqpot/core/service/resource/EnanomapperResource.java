@@ -34,6 +34,8 @@ package org.jaqpot.core.service.resource;
 //import io.swagger.annotations.ApiParam;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.extensions.Extension;
 import io.swagger.v3.oas.annotations.extensions.ExtensionProperty;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -78,7 +80,7 @@ import org.jaqpot.core.service.authentication.RoleEnum;
  * @author Charalampos Chomenidis
  *
  */
-@Path("enm")
+@Path("/enm")
 //@Api(value = "/enm", description = "eNM API")
 @Tag(name = "enm")
 public class EnanomapperResource {
@@ -112,7 +114,6 @@ public class EnanomapperResource {
     @Inject
     @UnSecure
     Client client;
-
 
     @Inject
     Ambit ambitClient;
@@ -205,23 +206,25 @@ public class EnanomapperResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/dataset")
     /*@ApiOperation(value = "Creates Dataset By Study",
-            notes = "Reads Studies from Bundle's Substances, creates Dataset,"
-            + "calculates Descriptors, returns Dataset",
-            response = Task.class
+     notes = "Reads Studies from Bundle's Substances, creates Dataset,"
+     + "calculates Descriptors, returns Dataset",
+     response = Task.class
 
-    )*/
+     )*/
+    @Parameters({
+        @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
+        @Parameter(name = "datasetData", description = "Data for dataset creation ", schema = @Schema(implementation = DatasetData.class, defaultValue = DEFAULT_DATASET_DATA), in = ParameterIn.QUERY),})
     @Operation(summary = "Creates Dataset By Study",
-               description = "Reads Studies from Bundle's Substances, creates Dataset,"
+            description = "Reads Studies from Bundle's Substances, creates Dataset,"
             + "calculates Descriptors, returns Dataset",
-               responses = {
-                   @ApiResponse(content = @Content(schema = @Schema(implementation = Task.class)),
-                       description = "Dataset was found"),
-               })
+            responses = {
+                @ApiResponse(content = @Content(schema = @Schema(implementation = Task.class)),
+                        description = "Dataset was found"),})
     @org.jaqpot.core.service.annotations.Task
     public Response createDatasetByStudy(
             //@ApiParam(name = "Data for dataset creation ", defaultValue = DEFAULT_DATASET_DATA) DatasetData datasetData,
-            @Parameter(name = "Data for dataset creation ", schema = @Schema(implementation = DatasetData.class, defaultValue = DEFAULT_DATASET_DATA)) DatasetData datasetData,
-            @HeaderParam("Authorization") String api_key) throws QuotaExceededException, ExecutionException, InterruptedException,JaqpotDocumentSizeExceededException {
+            DatasetData datasetData,
+            @HeaderParam("Authorization") String api_key) throws QuotaExceededException, ExecutionException, InterruptedException, JaqpotDocumentSizeExceededException {
 
         User user = userHandler.find(securityContext.getUserPrincipal().getName());
         long datasetCount = datasetHandler.countAllOfCreator(user.getId());
@@ -254,7 +257,6 @@ public class EnanomapperResource {
 
         String propertiesString = serializer.write(datasetData.getProperties().values().stream().flatMap(Collection::stream).collect(Collectors.toSet()));
 
-
         Map<String, Object> options = new HashMap<>();
         options.put("substance_owner", datasetData.getSubstanceOwner().split("substanceowner/")[1]);
         options.put("substances", substancesString);
@@ -271,49 +273,48 @@ public class EnanomapperResource {
         return Response.ok(task).build();
     }
 
-  /*@POST
-    @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Path("/bundle")
-    @ApiOperation(value = "Creates Bundle",
-            notes = "Reads Substances from SubstanceOwner and creates Bundle.",
-            response = String.class
-    )
-    public Response createBundle(
-            @ApiParam(value = "Data for bundle creation", defaultValue = DEFAULT_BUNDLE_DATA, required = true) BundleData bundleData,
-            @HeaderParam("subjectid") String subjectId) throws ExecutionException, InterruptedException {
+    /*@POST
+     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
+     @Consumes(MediaType.APPLICATION_JSON)
+     @Path("/bundle")
+     @ApiOperation(value = "Creates Bundle",
+     notes = "Reads Substances from SubstanceOwner and creates Bundle.",
+     response = String.class
+     )
+     public Response createBundle(
+     @ApiParam(value = "Data for bundle creation", defaultValue = DEFAULT_BUNDLE_DATA, required = true) BundleData bundleData,
+     @HeaderParam("subjectid") String subjectId) throws ExecutionException, InterruptedException {
 
-        if (bundleData == null) {
-            throw new BadRequestException("Post data cannot be empty");
-        }
+     if (bundleData == null) {
+     throw new BadRequestException("Post data cannot be empty");
+     }
 
-        String substanceOwner = bundleData.getSubstanceOwner();
-        if (substanceOwner == null || substanceOwner.isEmpty()) {
-            throw new BadRequestException("Field substanceOwner cannot be empty.");
-        }
+     String substanceOwner = bundleData.getSubstanceOwner();
+     if (substanceOwner == null || substanceOwner.isEmpty()) {
+     throw new BadRequestException("Field substanceOwner cannot be empty.");
+     }
 
-        String userName = securityContext.getUserPrincipal().getName();
+     String userName = securityContext.getUserPrincipal().getName();
 
-        String result = ambitClient.createBundle(bundleData,userName,subjectId);
+     String result = ambitClient.createBundle(bundleData,userName,subjectId);
 
-       try {
-           return Response.created(new URI(result.replaceAll("\\s+",""))).entity(result).build();
-        } catch (URISyntaxException ex) {
-            return Response.status(Response.Status.BAD_GATEWAY)
-                    .entity(ErrorReportFactory.remoteError(result, ErrorReportFactory.internalServerError(), ex))
-                    .build();
-        }
-    }*/
-
+     try {
+     return Response.created(new URI(result.replaceAll("\\s+",""))).entity(result).build();
+     } catch (URISyntaxException ex) {
+     return Response.status(Response.Status.BAD_GATEWAY)
+     .entity(ErrorReportFactory.remoteError(result, ErrorReportFactory.internalServerError(), ex))
+     .build();
+     }
+     }*/
     @GET
     @Path("/property/categories")
     /*@ApiOperation(value = "Retrieves property categories",
-            response = Map.class
-    )*/
+     response = Map.class
+     )*/
     @Operation(summary = "Retrieves property categories",
-               responses = {
-                   @ApiResponse(content = @Content(schema = @Schema(implementation = Map.class)))
-               })
+            responses = {
+                @ApiResponse(content = @Content(schema = @Schema(implementation = Map.class)))
+            })
     public Response getPropertyCategories() {
 
         Map<String, List<String>> categories = new HashMap<>();
@@ -339,12 +340,12 @@ public class EnanomapperResource {
     @GET
     @Path("/descriptor/categories")
     /*@ApiOperation(value = "Retrieves descriptor calculation categories",
-            response = List.class
-    )*/
-     @Operation(summary = "Retrieves descriptor calculation categories",
-               responses = {
-                   @ApiResponse(content = @Content(schema = @Schema(implementation = List.class)))
-               })
+     response = List.class
+     )*/
+    @Operation(summary = "Retrieves descriptor calculation categories",
+            responses = {
+                @ApiResponse(content = @Content(schema = @Schema(implementation = List.class)))
+            })
     public Response getDescriptorCategories() {
         List<DescriptorCategory> descriptorCategories = new ArrayList<>();
 

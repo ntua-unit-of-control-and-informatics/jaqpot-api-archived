@@ -40,6 +40,8 @@ package org.jaqpot.core.service.resource;
 //import io.swagger.annotations.ApiResponses;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.extensions.Extension;
 import io.swagger.v3.oas.annotations.extensions.ExtensionProperty;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -77,7 +79,7 @@ import org.jaqpot.core.sessions.SessionClient;
  *
  * @author pantelispanka
  */
-@Path("search")
+@Path("/search")
 //@Api(value = "/search", description = "Search API")
 @Produces({"application/json", "text/uri-list"})
 @Tag(name = "search")
@@ -99,25 +101,28 @@ public class SearchResource {
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     /*@ApiOperation(
-            value = "Searches for Jaqpot Entities",
-            notes = "Searches for Jaqpot Entities"
-    )
-    @ApiResponses(value = {
-        @ApiResponse(code = 401, response = ErrorReport.class, message = "Wrong, missing or insufficient credentials. Error report is produced.")
-        ,
-            @ApiResponse(code = 200, response = JaqpotEntity.class, responseContainer = "List", message = "A list of jaqpot entities found")
-        ,
-            @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
+     value = "Searches for Jaqpot Entities",
+     notes = "Searches for Jaqpot Entities"
+     )
+     @ApiResponses(value = {
+     @ApiResponse(code = 401, response = ErrorReport.class, message = "Wrong, missing or insufficient credentials. Error report is produced.")
+     ,
+     @ApiResponse(code = 200, response = JaqpotEntity.class, responseContainer = "List", message = "A list of jaqpot entities found")
+     ,
+     @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
 
-    })*/
+     })*/
+    @Parameters({
+        @Parameter(name = "term", description = "term", schema = @Schema(implementation = String.class), in = ParameterIn.QUERY)
+    })
     @Operation(summary = "Searches for Jaqpot Entities",
-               description = "Searches for Jaqpot Entities",
-               responses = {
-                   @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = JaqpotEntity.class)),
-                       description = "A list of jaqpot entities found"),
-                   @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = ErrorReport.class)), description = "Wrong, missing or insufficient credentials. Error report is produced."),
-                   @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorReport.class)), description = "Internal server error - this request cannot be served.")
-               })
+            description = "Searches for Jaqpot Entities",
+            responses = {
+                @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = JaqpotEntity.class)),
+                        description = "A list of jaqpot entities found"),
+                @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = ErrorReport.class)), description = "Wrong, missing or insufficient credentials. Error report is produced."),
+                @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorReport.class)), description = "Internal server error - this request cannot be served.")
+            })
     public Response search(
             @QueryParam("term") String term
     ) {
@@ -159,25 +164,30 @@ public class SearchResource {
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     /*@ApiOperation(
-            value = "List of found entities through session",
-            notes = "List of found entities through session"
-    )
-    @ApiResponses(value = {
-        @ApiResponse(code = 401, response = ErrorReport.class, message = "Wrong, missing or insufficient credentials. Error report is produced.")
-        ,
-            @ApiResponse(code = 200, response = FountEntities.class, responseContainer = "List", message = "A list of jaqpot entities found")
-        ,
-            @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
+     value = "List of found entities through session",
+     notes = "List of found entities through session"
+     )
+     @ApiResponses(value = {
+     @ApiResponse(code = 401, response = ErrorReport.class, message = "Wrong, missing or insufficient credentials. Error report is produced.")
+     ,
+     @ApiResponse(code = 200, response = FountEntities.class, responseContainer = "List", message = "A list of jaqpot entities found")
+     ,
+     @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
 
-    })*/
+     })*/
+    @Parameters({
+        @Parameter(name = "session", description = "session", schema = @Schema(implementation = String.class), in = ParameterIn.QUERY),
+        @Parameter(name = "from", description = "from", schema = @Schema(implementation = Integer.class), in = ParameterIn.QUERY),
+        @Parameter(name = "to", description = "to", schema = @Schema(implementation = Integer.class), in = ParameterIn.QUERY)
+    })
     @Operation(summary = "List of found entities through session",
-               description = "List of found entities through session",
-               responses = {
-                   @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = FountEntities.class)),
-                       description = "A list of jaqpot entities found"),
-                   @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = ErrorReport.class)), description = "Wrong, missing or insufficient credentials. Error report is produced."),
-                   @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorReport.class)), description = "Internal server error - this request cannot be served.")
-               })
+            description = "List of found entities through session",
+            responses = {
+                @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = FountEntities.class)),
+                        description = "A list of jaqpot entities found"),
+                @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = ErrorReport.class)), description = "Wrong, missing or insufficient credentials. Error report is produced."),
+                @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorReport.class)), description = "Internal server error - this request cannot be served.")
+            })
     public Response searchSession(
             @QueryParam("session") String term,
             @QueryParam("from") Integer from,

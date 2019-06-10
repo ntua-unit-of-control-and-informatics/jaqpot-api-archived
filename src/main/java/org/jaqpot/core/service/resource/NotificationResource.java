@@ -39,9 +39,10 @@ package org.jaqpot.core.service.resource;
 //import io.swagger.annotations.ApiParam;
 //import io.swagger.annotations.ApiResponse;
 //import io.swagger.annotations.ApiResponses;
-
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -77,182 +78,187 @@ import org.jaqpot.core.service.exceptions.JaqpotNotAuthorizedException;
  *
  * @author pantelispanka
  */
-@Path("notification")
+@Path("/notification")
 //@Api(value = "/notification", description = "Notifications API", position = 1)
 @Produces({"application/json"})
 @Tag(name = "notification")
 public class NotificationResource {
-    
+
     @EJB
     NotificationHandler notifHandler;
-    
+
     @EJB
     OrganizationHandler orgHandler;
-    
+
     @Context
     SecurityContext securityContext;
-    
+
     @GET
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces({MediaType.APPLICATION_JSON})
     /*@ApiOperation(value = "Lists all Users notifications",
-            notes = "Lists all Notifications of Jaqpot Users. ",
-            response = Notification.class,
-            responseContainer = "List")
-    @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Notifications found and are listed in the response body")
-        ,
-        @ApiResponse(code = 401, message = "You are not authorized to access this resource")
-        ,
-        @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)")
-        ,
-        @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
-    })*/
-    @Operation(summary = "Lists all Users notifications",
-               description = "Lists all Notifications of Jaqpot Users. ",
-               responses = {
-                   @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = Notification.class)), description = "Notifications found and are listed in the response body"),
-                   @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = Notification.class)), description = "You are not authorized to access this resource"),
-                   @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(implementation = Notification.class)), description = "This request is forbidden (e.g., no authentication token is provided)"),
-                   @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = Notification.class)), description = "Internal server error - this request cannot be served.")
+     notes = "Lists all Notifications of Jaqpot Users. ",
+     response = Notification.class,
+     responseContainer = "List")
+     @ApiResponses(value = {
+     @ApiResponse(code = 200, message = "Notifications found and are listed in the response body")
+     ,
+     @ApiResponse(code = 401, message = "You are not authorized to access this resource")
+     ,
+     @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)")
+     ,
+     @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
+     })*/
+    @Parameters({
+        @Parameter(name = "Authorization", description = "Clients need to authenticate in order to access notifications", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
+        @Parameter(name = "query", description = "query", schema = @Schema(type = "String", allowableValues = {"UNREAD", "ALL"})) ,
+        @Parameter(name = "start", description = "start", schema = @Schema(implementation = Integer.class, defaultValue = "0"), in = ParameterIn.QUERY),
+        @Parameter(name = "max", description = "max", schema = @Schema(implementation = Integer.class, defaultValue = "10"), in = ParameterIn.QUERY)
     })
+    @Operation(summary = "Lists all Users notifications",
+            description = "Lists all Notifications of Jaqpot Users. ",
+            responses = {
+                @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = Notification.class)), description = "Notifications found and are listed in the response body"),
+                @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = Notification.class)), description = "You are not authorized to access this resource"),
+                @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(implementation = Notification.class)), description = "This request is forbidden (e.g., no authentication token is provided)"),
+                @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = Notification.class)), description = "Internal server error - this request cannot be served.")
+            })
     public Response listUsersNotifications(
             //@ApiParam(value = "Clients need to authenticate in order to access notifications") @HeaderParam("Authorization") String api_key,
             //@ApiParam(value = "query", allowableValues = "UNREAD, ALL") @QueryParam("query") String query,
             //@ApiParam(value = "start", defaultValue = "0") @QueryParam("start") Integer start,
             //@ApiParam(value = "max", defaultValue = "10") @QueryParam("max") Integer max
-            @Parameter(description = "Clients need to authenticate in order to access notifications") @HeaderParam("Authorization") String api_key,
-            @Parameter(description = "query", schema = @Schema(type = "String", allowableValues = "UNREAD, ALL")) @QueryParam("query") String query,
-            @Parameter(description = "start", schema = @Schema(type = "String",defaultValue = "0")) @QueryParam("start") Integer start,
-            @Parameter(description = "max", schema = @Schema(type = "String",defaultValue = "10")) @QueryParam("max") Integer max
+            @HeaderParam("Authorization") String api_key,
+            @QueryParam("query") String query,
+            @QueryParam("start") Integer start,
+            @QueryParam("max") Integer max
     ) throws JaqpotNotAuthorizedException {
-
 
         String currentUserID = securityContext.getUserPrincipal().getName();
         Long countedNots = notifHandler.countAllOfOwnersUnviewed(currentUserID);
-        
-        if(start == null){
+
+        if (start == null) {
             start = 0;
         }
-        if(max ==null){
+        if (max == null) {
             max = 10;
         }
-        
-        List<Notification> nots = notifHandler.getOwnersNotifs(currentUserID, query , start, max);
+
+        List<Notification> nots = notifHandler.getOwnersNotifs(currentUserID, query, start, max);
 
         return Response
                 .ok(nots).header("total", countedNots)
                 .build();
     }
-    
+
     @POST
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces({MediaType.APPLICATION_JSON})
     /*@ApiOperation(value = "Creates notification",
-            notes = "Creates Notifications for Jaqpot Users. ",
-            response = Notification.class)
-    @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Notifications created")
-        ,
-        @ApiResponse(code = 401, message = "You are not authorized to access this resource")
-        ,
-        @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)")
-        ,
-        @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
-    })*/
+     notes = "Creates Notifications for Jaqpot Users. ",
+     response = Notification.class)
+     @ApiResponses(value = {
+     @ApiResponse(code = 200, message = "Notifications created")
+     ,
+     @ApiResponse(code = 401, message = "You are not authorized to access this resource")
+     ,
+     @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)")
+     ,
+     @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
+     })*/
+    @Parameters({
+        @Parameter(name = "Authorization", description = "Clients need to authenticate in order to create notification", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER)
+    })
     @Operation(summary = "Creates notification",
             description = "Creates Notifications for Jaqpot Users. ",
             responses = {
-                   @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = Notification.class)), description = "Notifications found and are listed in the response body"),
-                   @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = Notification.class)), description = "You are not authorized to access this resource"),
-                   @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(implementation = Notification.class)), description = "This request is forbidden (e.g., no authentication token is provided)"),
-                   @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = Notification.class)), description = "Internal server error - this request cannot be served.")
+                @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = Notification.class)), description = "Notifications found and are listed in the response body"),
+                @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = Notification.class)), description = "You are not authorized to access this resource"),
+                @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(implementation = Notification.class)), description = "This request is forbidden (e.g., no authentication token is provided)"),
+                @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = Notification.class)), description = "Internal server error - this request cannot be served.")
             })
     public Response createNotification(
             //@ApiParam(value = "Clients need to authenticate in order to create notification") @HeaderParam("Authorization") String api_key,
-            @Parameter(description = "Clients need to authenticate in order to create notification") @HeaderParam("Authorization") String api_key,
+            @HeaderParam("Authorization") String api_key,
             Notification notif
     ) throws JaqpotNotAuthorizedException {
 
-
         String currentUserID = securityContext.getUserPrincipal().getName();
-        
-        if(notif.getType().equals(Type.AFFILIATION.toString())){
+
+        if (notif.getType().equals(Type.AFFILIATION.toString())) {
             Organization org = orgHandler.find(notif.getOrganizationShared());
-            if(org == null){
+            if (org == null) {
                 throw new BadRequestException("Organization not found");
             }
-            if(!org.getMeta().getCreators().contains(currentUserID) || org.getMeta().getContributors() != null && !org.getMeta().getContributors().contains(currentUserID)){
+            if (!org.getMeta().getCreators().contains(currentUserID) || org.getMeta().getContributors() != null && !org.getMeta().getContributors().contains(currentUserID)) {
                 throw new JaqpotNotAuthorizedException("Cannot create the affiliation");
             }
             Organization orgAffil = orgHandler.find(notif.getAffiliatedOrg());
-            if(orgAffil == null){
+            if (orgAffil == null) {
                 throw new BadRequestException("Organization not found");
             }
-            if(!orgAffil.getMeta().getCreators().contains(currentUserID) || orgAffil.getMeta().getContributors() != null && !orgAffil.getMeta().getContributors().contains(currentUserID)){
+            if (!orgAffil.getMeta().getCreators().contains(currentUserID) || orgAffil.getMeta().getContributors() != null && !orgAffil.getMeta().getContributors().contains(currentUserID)) {
                 throw new JaqpotNotAuthorizedException("Cannot create the affiliation");
             }
         }
-        
+
         ROG randomStringGenerator = new ROG(true);
         notif.setId("NOT" + randomStringGenerator.nextString(24));
-        
-        try{
+
+        try {
             notifHandler.create(notif);
-        }catch(Exception e){
+        } catch (Exception e) {
             throw new BadRequestException("Could not create Notification, cause: " + e.getMessage());
         }
-        
+
         return Response
                 .ok(notif)
                 .build();
     }
-    
+
     @PUT
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces({MediaType.APPLICATION_JSON})
     /*@ApiOperation(value = "Updates notification",
-            notes = "Updates Notifications for Jaqpot Users. ",
-            response = Notification.class)
-    @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Notifications updated")
-        ,
-        @ApiResponse(code = 401, message = "You are not authorized to access this resource")
-        ,
-        @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)")
-        ,
-        @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
-    })*/
+     notes = "Updates Notifications for Jaqpot Users. ",
+     response = Notification.class)
+     @ApiResponses(value = {
+     @ApiResponse(code = 200, message = "Notifications updated")
+     ,
+     @ApiResponse(code = 401, message = "You are not authorized to access this resource")
+     ,
+     @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)")
+     ,
+     @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
+     })*/
+    @Parameters({
+        @Parameter(name = "Authorization", description = "Clients need to authenticate in order to create notification", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER)
+    })
     @Operation(summary = "Updates notification",
-               description = "Updates Notifications for Jaqpot Users. ",
+            description = "Updates Notifications for Jaqpot Users. ",
             responses = {
-                   @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = Notification.class)), description = "Notifications found and are listed in the response body"),
-                   @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = Notification.class)), description = "You are not authorized to access this resource"),
-                   @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(implementation = Notification.class)), description = "This request is forbidden (e.g., no authentication token is provided)"),
-                   @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = Notification.class)), description = "Internal server error - this request cannot be served.")
+                @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = Notification.class)), description = "Notifications found and are listed in the response body"),
+                @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = Notification.class)), description = "You are not authorized to access this resource"),
+                @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(implementation = Notification.class)), description = "This request is forbidden (e.g., no authentication token is provided)"),
+                @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = Notification.class)), description = "Internal server error - this request cannot be served.")
             })
     public Response updateNotification(
             //@ApiParam(value = "Clients need to authenticate in order to create notification") @HeaderParam("Authorization") String api_key,
-            @Parameter(description = "Clients need to authenticate in order to create notification") @HeaderParam("Authorization") String api_key,
+            @HeaderParam("Authorization") String api_key,
             Notification notif
     ) throws JaqpotNotAuthorizedException {
 
-
         String currentUserID = securityContext.getUserPrincipal().getName();
-        
-        
-        try{
+
+        try {
             notifHandler.edit(notif);
-        }catch(Exception e){
+        } catch (Exception e) {
             throw new BadRequestException("Could not create Notification, cause: " + e.getMessage());
         }
-        
+
         return Response
                 .ok(notif)
                 .build();
     }
-    
-    
-    
-    
+
 }

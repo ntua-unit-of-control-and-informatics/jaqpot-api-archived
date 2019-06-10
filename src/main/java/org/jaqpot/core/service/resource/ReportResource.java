@@ -38,6 +38,8 @@ import com.github.fge.jsonpatch.JsonPatchException;
 //import io.swagger.annotations.ApiResponses;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -83,12 +85,12 @@ import org.jaqpot.core.service.exceptions.JaqpotForbiddenException;
  * @author Charalampos Chomenidis
  * @author Pantelis Sopasakis
  */
-@Path("report")
+@Path("/report")
 //@Api(value = "/report", description = "Report API")
 @Produces(MediaType.APPLICATION_JSON)
 @Tag(name = "report")
 public class ReportResource {
-    
+
     private static final String DEFAULT_PATCH = "[\n"
             + "  {\n"
             + "    \"op\": \"add\",\n"
@@ -105,23 +107,29 @@ public class ReportResource {
 
     @Inject
     ReportService reportService;
-    
+
     @Inject
     @Jackson
     JSONSerializer serializer;
 
     @GET
-    //@ApiOperation(value = "Retrieves Reports of User")
-    @Operation(summary = "Retrieves Reports of User")
     @TokenSecured({RoleEnum.DEFAULT_USER})
+    //@ApiOperation(value = "Retrieves Reports of User")
+    @Parameters({
+        @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
+        @Parameter(name = "start", description = "start", schema = @Schema(implementation = Integer.class, defaultValue = "0"), in = ParameterIn.QUERY),
+        @Parameter(name = "max", description = "max - the server imposes an upper limit of 500 on this "
+                + "parameter.", schema = @Schema(implementation = Integer.class, defaultValue = "10"), in = ParameterIn.QUERY)
+
+    })
+    @Operation(summary = "Retrieves Reports of User")
     public Response getReports(
             //@ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key,
-            @Parameter(description = "Authorization token") @HeaderParam("Authorization") String api_key,
+            @HeaderParam("Authorization") String api_key,
             //@ApiParam(value = "start", defaultValue = "0") @QueryParam("start") Integer start,
-            @Parameter(description = "start", schema = @Schema(implementation = Integer.class, defaultValue = "0")) @QueryParam("start") Integer start,
+            @QueryParam("start") Integer start,
             //@ApiParam(value = "max - the server imposes an upper limit of 500 on this "
-            @Parameter(description = "max - the server imposes an upper limit of 500 on this "
-                    + "parameter.", schema = @Schema(implementation = Integer.class, defaultValue = "20")) @QueryParam("max") Integer max
+            @QueryParam("max") Integer max
     ) {
         if (max == null || max > 500) {
             max = 500;
@@ -137,10 +145,13 @@ public class ReportResource {
     @Path("/{id}")
     @TokenSecured({RoleEnum.DEFAULT_USER})
     //@ApiOperation(value = "Retrieves Report by id")
+    @Parameters({
+        @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
+        @Parameter(name = "id", description = "id", schema = @Schema(implementation = String.class), in = ParameterIn.PATH)})
     @Operation(summary = "Retrieves Report by id")
     public Response getReport(
             //@ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key,
-            @Parameter(description = "Authorization token") @HeaderParam("Authorization") String api_key,
+            @HeaderParam("Authorization") String api_key,
             @PathParam("id") String id) {
 
         Report report = reportHandler.find(id);
@@ -154,10 +165,13 @@ public class ReportResource {
     @Path("/{id}")
     @TokenSecured({RoleEnum.DEFAULT_USER})
     //@ApiOperation(value = "Removes Report by id")
+    @Parameters({
+        @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
+        @Parameter(name = "id", description = "id", schema = @Schema(implementation = String.class), in = ParameterIn.PATH)})
     @Operation(description = "Removes Report by id")
     public Response removeReport(
             //@ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key,
-            @Parameter(description = "Authorization token") @HeaderParam("Authorization") String api_key,
+            @HeaderParam("Authorization") String api_key,
             @PathParam("id") String id
     ) throws JaqpotForbiddenException {
         Report report = reportHandler.find(id);
@@ -166,8 +180,9 @@ public class ReportResource {
         }
 
         MetaInfo metaInfo = report.getMeta();
-        if (metaInfo.getLocked())
+        if (metaInfo.getLocked()) {
             throw new JaqpotForbiddenException("You cannot delete a Report that is locked.");
+        }
 
         String userName = securityContext.getUserPrincipal().getName();
         if (!report.getMeta().getCreators().contains(userName)) {
@@ -182,10 +197,13 @@ public class ReportResource {
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces("application/json; charset=UTF-8")
     //@ApiOperation(value = "Creates PDF from report")
+    @Parameters({
+        @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
+        @Parameter(name = "id", description = "id", schema = @Schema(implementation = String.class), in = ParameterIn.PATH)})
     @Operation(summary = "Creates PDF from report")
     public Response createPDF(
             //@ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key,
-            @Parameter(description = "Authorization token") @HeaderParam("Authorization") String api_key,
+            @HeaderParam("Authorization") String api_key,
             @PathParam("id") String id) {
         Report report = reportHandler.find(id);
         if (report == null) {
@@ -204,50 +222,54 @@ public class ReportResource {
                 .header("Content-Disposition", "attachment; filename=" + "report-" + report.getId() + ".pdf")
                 .build();
     }
-    
+
     //@PATCH
     @Path("/{id}")
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @Consumes("application/json-patch+json")
     /*@ApiOperation(value = "Modifies a particular Report resource",
-            notes = "Modifies (applies a patch on) a Report resource of a given ID. "
+     notes = "Modifies (applies a patch on) a Report resource of a given ID. "
+     + "This implementation of PATCH follows the RFC 6902 proposed standard. "
+     + "See https://tools.ietf.org/rfc/rfc6902.txt for details.",
+     position = 5)
+     @ApiResponses(value = {
+     @ApiResponse(code = 200, message = "Report entry was modified successfully."),
+     @ApiResponse(code = 404, message = "No such Report - the patch will not be applied"),
+     @ApiResponse(code = 401, message = "You are not authorized to modify this resource (e.g., no authentication token is provided)"),
+     @ApiResponse(code = 403, message = "This request is forbidden (e.g., you don't have permission from the owner)"),
+     @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
+     })*/
+    @Parameters({
+        @Parameter(name = "Authorization", description = "Clients need to authenticate in order to create resources on the server", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
+        @Parameter(name = "id", description = "ID of an existing Report.", schema = @Schema(implementation = String.class), in = ParameterIn.PATH),
+        @Parameter(name = "patch", description = "The patch in JSON according to the RFC 6902 specs", required = true, schema = @Schema(implementation = String.class, defaultValue = DEFAULT_PATCH), in = ParameterIn.QUERY)})
+    @Operation(summary = "Modifies a particular Report resource",
+            description = "Modifies (applies a patch on) a Report resource of a given ID."
             + "This implementation of PATCH follows the RFC 6902 proposed standard. "
             + "See https://tools.ietf.org/rfc/rfc6902.txt for details.",
-            position = 5)
-    @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Report entry was modified successfully."),
-        @ApiResponse(code = 404, message = "No such Report - the patch will not be applied"),
-        @ApiResponse(code = 401, message = "You are not authorized to modify this resource (e.g., no authentication token is provided)"),
-        @ApiResponse(code = 403, message = "This request is forbidden (e.g., you don't have permission from the owner)"),
-        @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
-    })*/
-    @Operation(summary = "Modifies a particular Report resource",
-               description = "Modifies (applies a patch on) a Report resource of a given ID."
-               + "This implementation of PATCH follows the RFC 6902 proposed standard. "
-               + "See https://tools.ietf.org/rfc/rfc6902.txt for details.",
-               responses = {
-                   @ApiResponse(responseCode = "200", description = "Report entry was modified successfully."),
-                   @ApiResponse(responseCode = "404", description = "No such Report - the patch will not be applied"),
-                   @ApiResponse(responseCode = "401", description = "You are not authorized to access this resource"),
-                   @ApiResponse(responseCode = "403", description = "This request is forbidden (e.g., no authentication token is provided)"),
-                   @ApiResponse(responseCode = "500", description = "Internal server error - this request cannot be served.")
-               },
-               method = "patch")
+            responses = {
+                @ApiResponse(responseCode = "200", description = "Report entry was modified successfully."),
+                @ApiResponse(responseCode = "404", description = "No such Report - the patch will not be applied"),
+                @ApiResponse(responseCode = "401", description = "You are not authorized to access this resource"),
+                @ApiResponse(responseCode = "403", description = "This request is forbidden (e.g., no authentication token is provided)"),
+                @ApiResponse(responseCode = "500", description = "Internal server error - this request cannot be served.")
+            },
+            method = "patch")
     public Response modifyReport(
             //@ApiParam("Clients need to authenticate in order to create resources on the server") @HeaderParam("Authorization") String api_key,
             //@ApiParam(value = "ID of an existing Report.", required = true) @PathParam("id") String id,
             //@ApiParam(value = "The patch in JSON according to the RFC 6902 specs", required = true, defaultValue = DEFAULT_PATCH) String patch
-            @Parameter(description = "Clients need to authenticate in order to create resources on the server") @HeaderParam("Authorization") String api_key,
-            @Parameter(description = "ID of an existing Report.", required = true) @PathParam("id") String id,
-            @Parameter(description = "The patch in JSON according to the RFC 6902 specs", required = true, schema = @Schema(implementation = String.class, defaultValue = DEFAULT_PATCH)) String patch
+            @HeaderParam("Authorization") String api_key,
+            @PathParam("id") String id,
+            String patch
     ) throws JsonPatchException, JsonProcessingException {
-        
+
         Report originalReport = reportHandler.find(id);
         if (originalReport == null) {
             throw new NotFoundException("Report " + id + " not found.");
         }
-        
+
         Report modifiedReport = serializer.patch(originalReport, patch, Report.class);
         if (modifiedReport == null) {
             return Response
@@ -268,5 +290,5 @@ public class ReportResource {
                 .ok(modifiedReport)
                 .build();
     }
-    
+
 }
