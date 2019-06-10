@@ -105,7 +105,7 @@ public class SwaggerLdHandler {
         String jaqBase = pm.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_BASE);
         String port = pm.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_PORT);
         String host = pm.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_HOST);
-        String swagUri = "http://" + host + ":" + port + jaqBase + "/swagger.json";
+        String swagUri = "http://" + host + ":" + port + jaqBase + "/openapi.json";
         on.put("x-orn-@id", swagUri);
         return on;
     }
