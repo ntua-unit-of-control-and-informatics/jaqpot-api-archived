@@ -36,7 +36,13 @@ package org.jaqpot.core.service.resource;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.models.OpenAPI;
 //import io.swagger.annotations.Api;
 //import io.swagger.annotations.ApiOperation;
 //import io.swagger.annotations.SwaggerDefinition;
@@ -68,10 +74,11 @@ import org.jaqpot.core.service.mdb.TrainingProcedure;
  *
  * @author pantelispanka
  */
-@Path("swagger")
+@Path("/swagger")
 //@Api(value = "/swaggerld")
 //@SwaggerDefinition
 @Tag(name = "swagger")
+@OpenAPIDefinition
 public class SwaggerLdResource {
 
     private static final Logger LOG = Logger.getLogger(SwaggerLdResource.class.getName());
@@ -88,6 +95,11 @@ public class SwaggerLdResource {
     //        notes = "Implements long polling",
       //      response = Swagger.class)
     @Produces({MediaType.APPLICATION_JSON})
+    @Operation(summary = "Implements long polling",
+        description = "Get the openapi.json with the Ld annotations",
+        responses = {
+        @ApiResponse(content = @Content(schema = @Schema(implementation = OpenAPI.class)))
+    })
     public Response getSwaggerLd() {
 
 //        String jaqpot_uri_l = pm.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_LOCAL_IP);
@@ -105,7 +117,8 @@ public class SwaggerLdResource {
 //        }else{
 //            swagUri = schema + "://" + host + ":" + port + jaqBase + "/swagger.json";
 //        }
-        String swagUri = "http://localhost:8080/jaqpot/services/swagger.json";
+        //String swagUri = "http://localhost:8080/jaqpot/services/swagger.json";
+          String swagUri = "http://localhost:8080/jaqpot/services/openapi.json";
 //        LOG.log(Level.INFO, "Fetched schema : {0}", schema);
 //        LOG.log(Level.INFO, "Fetched jaqBase : {0}", jaqBase);
 //        LOG.log(Level.INFO, "Fetched port : {0}", port);
@@ -147,10 +160,16 @@ public class SwaggerLdResource {
       //      notes = "Implements long polling",
         //    response = Swagger.class)
     @Produces({MediaType.APPLICATION_OCTET_STREAM})
+    @Operation(summary = "Implements long polling",
+        description = "Get the openapi.json with the Ld annotations as octet stream",
+        responses = {
+        @ApiResponse(content = @Content(schema = @Schema(implementation = OpenAPI.class)))
+    })
     public Response getSwaggerLdOct() throws IOException {
 
-        String swagUri = "http://localhost:8080/jaqpot/services/swagger.json";
-
+        //String swagUri = "http://localhost:8080/jaqpot/services/swagger.json";
+        String swagUri = "http://localhost:8080/jaqpot/services/openapi.json";
+        
         URL url = null;
         HttpURLConnection con = null;
         InputStream response = null;
