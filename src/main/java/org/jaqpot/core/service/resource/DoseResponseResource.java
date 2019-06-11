@@ -111,11 +111,11 @@ public class DoseResponseResource {
     )*/
     @Parameters({
         @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
-        @Parameter(name = "title", description = "title", required = true, schema = @Schema(implementation = String.class), in = ParameterIn.QUERY),
-        @Parameter(name = "description", description = "description", required = true, schema = @Schema(implementation = String.class), in = ParameterIn.QUERY),
-        @Parameter(name = "dataset_uri", description = "dataset_uri", schema = @Schema(implementation = String.class), in = ParameterIn.QUERY),
-        @Parameter(name = "prediction_feature", description = "prediction_feature", schema = @Schema(type = "string"), in = ParameterIn.QUERY),
-        @Parameter(name = "parameters", description = "parameters", schema = @Schema(implementation = String.class), in = ParameterIn.QUERY)
+        @Parameter(name = "title", description = "title", schema = @Schema(implementation = String.class)),
+        @Parameter(name = "description", description = "description", schema = @Schema(implementation = String.class)),
+        @Parameter(name = "dataset_uri", description = "dataset_uri", schema = @Schema(implementation = String.class)),
+        @Parameter(name = "prediction_feature", description = "prediction_feature", schema = @Schema(type = "string")),
+        @Parameter(name = "parameters", description = "parameters", schema = @Schema(implementation = String.class))
     })
     
     @Operation(summary = "Creates Dose Response Report",

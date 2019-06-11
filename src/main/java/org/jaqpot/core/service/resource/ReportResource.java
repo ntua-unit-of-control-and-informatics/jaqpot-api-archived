@@ -60,6 +60,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.NotFoundException;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -224,6 +225,7 @@ public class ReportResource {
     }
 
     //@PATCH
+    @PUT
     @Path("/{id}")
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
@@ -243,7 +245,7 @@ public class ReportResource {
     @Parameters({
         @Parameter(name = "Authorization", description = "Clients need to authenticate in order to create resources on the server", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
         @Parameter(name = "id", description = "ID of an existing Report.", schema = @Schema(implementation = String.class), in = ParameterIn.PATH),
-        @Parameter(name = "patch", description = "The patch in JSON according to the RFC 6902 specs", required = true, schema = @Schema(implementation = String.class, defaultValue = DEFAULT_PATCH), in = ParameterIn.QUERY)})
+        @Parameter(name = "patch", description = "The patch in JSON according to the RFC 6902 specs", required = true, schema = @Schema(implementation = String.class, defaultValue = DEFAULT_PATCH))})
     @Operation(summary = "Modifies a particular Report resource",
             description = "Modifies (applies a patch on) a Report resource of a given ID."
             + "This implementation of PATCH follows the RFC 6902 proposed standard. "
@@ -254,8 +256,7 @@ public class ReportResource {
                 @ApiResponse(responseCode = "401", description = "You are not authorized to access this resource"),
                 @ApiResponse(responseCode = "403", description = "This request is forbidden (e.g., no authentication token is provided)"),
                 @ApiResponse(responseCode = "500", description = "Internal server error - this request cannot be served.")
-            },
-            method = "patch")
+            })
     public Response modifyReport(
             //@ApiParam("Clients need to authenticate in order to create resources on the server") @HeaderParam("Authorization") String api_key,
             //@ApiParam(value = "ID of an existing Report.", required = true) @PathParam("id") String id,

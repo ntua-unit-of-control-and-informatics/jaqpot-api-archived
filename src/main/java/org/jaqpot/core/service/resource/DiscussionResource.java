@@ -227,7 +227,7 @@ public class DiscussionResource {
     @Parameters({
         @Parameter(name = "Authorization", description = "Clients need to authenticate in order to create resources on the server", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
         @Parameter(name = "id", description = "ID of the Discussion.", required = true, schema = @Schema(implementation = String.class), in = ParameterIn.PATH),
-        @Parameter(name = "discussion", description = "Discussion in JSON", required = true, schema = @Schema(implementation = Discussion.class), in = ParameterIn.QUERY),})
+        @Parameter(name = "discussion", description = "Discussion in JSON", required = true, schema = @Schema(implementation = Discussion.class))})
     @Operation(summary = "Updates a Discussion at a particular URI",
             responses = {
                 @ApiResponse(responseCode = "200", description = "Discussion entry was created / updated successfully."),
@@ -287,7 +287,7 @@ public class DiscussionResource {
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @Parameters({
         @Parameter(name = "Authorization", description = "Clients need to authenticate in order to create resources on the server", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
-        @Parameter(name = "discussion", description = "Discussion in JSON", required = true, schema = @Schema(implementation = Discussion.class), in = ParameterIn.QUERY)
+        @Parameter(name = "discussion", description = "Discussion in JSON", required = true, schema = @Schema(implementation = Discussion.class))
     })
     @Operation(summary = "Updates a Discussion",
             responses = {

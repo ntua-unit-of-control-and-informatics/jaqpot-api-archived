@@ -111,10 +111,9 @@ public class NotificationResource {
      })*/
     @Parameters({
         @Parameter(name = "Authorization", description = "Clients need to authenticate in order to access notifications", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
-        @Parameter(name = "query", description = "query", schema = @Schema(type = "String", allowableValues = {"UNREAD", "ALL"})) ,
+        @Parameter(name = "query", description = "query", schema = @Schema(type = "String", allowableValues = {"UNREAD", "ALL"})),
         @Parameter(name = "start", description = "start", schema = @Schema(implementation = Integer.class, defaultValue = "0"), in = ParameterIn.QUERY),
-        @Parameter(name = "max", description = "max", schema = @Schema(implementation = Integer.class, defaultValue = "10"), in = ParameterIn.QUERY)
-    })
+        @Parameter(name = "max", description = "max", schema = @Schema(implementation = Integer.class, defaultValue = "10"), in = ParameterIn.QUERY),})
     @Operation(summary = "Lists all Users notifications",
             description = "Lists all Notifications of Jaqpot Users. ",
             responses = {
@@ -167,7 +166,8 @@ public class NotificationResource {
      @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
      })*/
     @Parameters({
-        @Parameter(name = "Authorization", description = "Clients need to authenticate in order to create notification", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER)
+        @Parameter(name = "Authorization", description = "Clients need to authenticate in order to create notification", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
+        @Parameter(name = "notif", schema = @Schema(implementation = Notification.class))
     })
     @Operation(summary = "Creates notification",
             description = "Creates Notifications for Jaqpot Users. ",
@@ -232,7 +232,8 @@ public class NotificationResource {
      @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
      })*/
     @Parameters({
-        @Parameter(name = "Authorization", description = "Clients need to authenticate in order to create notification", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER)
+        @Parameter(name = "Authorization", description = "Clients need to authenticate in order to create notification", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
+        @Parameter(name = "notif", schema = @Schema(implementation = Notification.class))
     })
     @Operation(summary = "Updates notification",
             description = "Updates Notifications for Jaqpot Users. ",

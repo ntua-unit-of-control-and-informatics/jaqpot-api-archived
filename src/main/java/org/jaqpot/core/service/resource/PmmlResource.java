@@ -114,9 +114,9 @@ public class PmmlResource {
      })*/
     @Parameters({
         @Parameter(name = "Authorization", description = "Clients need to authenticate in order to create resources on the server", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
-        @Parameter(name = "pmmlString", description = "PMML in JSON representation.", required = true, schema = @Schema(implementation = String.class), in = ParameterIn.QUERY),
-        @Parameter(name = "title", description = "title", schema = @Schema(implementation = String.class), in = ParameterIn.QUERY),
-        @Parameter(name = "description", description = "description", schema = @Schema(implementation = String.class), in = ParameterIn.QUERY)
+        @Parameter(name = "pmmlString", description = "PMML in JSON representation.", required = true, schema = @Schema(implementation = String.class)),
+        @Parameter(name = "title", description = "title", schema = @Schema(implementation = String.class)),
+        @Parameter(name = "description", description = "description", schema = @Schema(implementation = String.class))
     })
     @Operation(summary = "Creates a new PMML entry",
             description = "Creates a new PMML entry which is assigned a random unique ID",
@@ -180,7 +180,7 @@ public class PmmlResource {
      */
     @Parameters({
         @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
-        @Parameter(name = "features", schema = @Schema(implementation = String.class), in = ParameterIn.QUERY),})
+        @Parameter(name = "features", schema = @Schema(implementation = String.class))})
     @Operation(summary = "Creates a new PMML entry",
             description = "Creates a new PMML entry which is assigned a random unique ID",
             responses = {

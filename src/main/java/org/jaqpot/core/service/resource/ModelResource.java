@@ -758,8 +758,8 @@ public class ModelResource {
     @Parameters({
         @Parameter(name = "Authorization", description = "Authorization required", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
         @Parameter(name = "id", description = "id", schema = @Schema(implementation = String.class), in = ParameterIn.PATH),
-        @Parameter(description = "dataset_uri", required = true, schema = @Schema(implementation = String.class), in = ParameterIn.QUERY),
-        @Parameter(description = "visible", required = true, schema = @Schema(implementation = Boolean.class), in = ParameterIn.QUERY)
+        @Parameter(name = "dataset_uri", description = "dataset_uri", required = true, schema = @Schema(implementation = String.class)),
+        @Parameter(name = "visible", description = "visible", required = true, schema = @Schema(implementation = Boolean.class))
     })
     @Operation(summary = "Creates Prediction",
             description = "Creates Prediction",
@@ -1212,7 +1212,7 @@ public class ModelResource {
     @Parameters({
         @Parameter(name = "Authorization", description = "Authorization required", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
         @Parameter(name = "id", description = "id", required = true, schema = @Schema(implementation = String.class), in = ParameterIn.PATH),
-        @Parameter(name = "modeldataset", description = "description for the dataset", required = true, schema = @Schema(implementation = String.class, allowableValues = {"TRAINEDUPON","ALLEMPTY","EMPTYPREDICTION"})) 
+        @Parameter(name = "modeldataset", description = "description for the dataset", required = true, schema = @Schema(implementation = String.class, allowableValues = {"TRAINEDUPON","ALLEMPTY","EMPTYPREDICTION"}), in = ParameterIn.QUERY) 
     })
     @Operation(summary = "Gets a dataset of a Model",
             description = "Geth the dataset of a model upon the criteria given",
@@ -1275,7 +1275,8 @@ public class ModelResource {
      })*/
     @Parameters({
         @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
-        @Parameter(name = "id", description = "id", required = true, schema = @Schema(implementation = String.class), in = ParameterIn.PATH)
+        @Parameter(name = "id", description = "id", required = true, schema = @Schema(implementation = String.class), in = ParameterIn.PATH),
+        @Parameter(name = "modelForUpdate", schema = @Schema(implementation = Model.class))
     })
     @Operation(summary = "Updates meta info of a dataset",
             description = "TUpdates meta info of a dataset",

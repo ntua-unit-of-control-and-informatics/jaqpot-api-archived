@@ -159,16 +159,15 @@ public class ValidationResource {
      )*/
     @Parameters({
         @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
-        @Parameter(name = "algorithm_uri", schema = @Schema(implementation = String.class), in = ParameterIn.QUERY),
-        @Parameter(name = "training_dataset_uri", schema = @Schema(implementation = String.class), in = ParameterIn.QUERY),
-        @Parameter(name = "algorithm_params", schema = @Schema(implementation = String.class), in = ParameterIn.QUERY),
-        @Parameter(name = "prediction_feature", schema = @Schema(type = "string"), in = ParameterIn.QUERY),
-        @Parameter(name = "transformations", schema = @Schema(implementation = String.class, defaultValue = DEFAULT_TRANSFORMATIONS), in = ParameterIn.QUERY),
-        @Parameter(name = "scaling", schema = @Schema(implementation = String.class, defaultValue = STANDARIZATION), in = ParameterIn.QUERY),
-        @Parameter(name = "folds", schema = @Schema(implementation = String.class), in = ParameterIn.QUERY),
-        @Parameter(name = "stratify", schema = @Schema(implementation = String.class), in = ParameterIn.QUERY),
-        @Parameter(name = "seed", schema = @Schema(implementation = Integer.class), in = ParameterIn.QUERY),
-        @Parameter(name = "id", description = "id", schema = @Schema(implementation = String.class), in = ParameterIn.PATH)
+        @Parameter(name = "algorithm_uri", schema = @Schema(implementation = String.class)),
+        @Parameter(name = "training_dataset_uri", schema = @Schema(implementation = String.class)),
+        @Parameter(name = "algorithm_params", schema = @Schema(implementation = String.class)),
+        @Parameter(name = "prediction_feature", schema = @Schema(type = "string")),
+        @Parameter(name = "transformations", schema = @Schema(implementation = String.class, defaultValue = DEFAULT_TRANSFORMATIONS)),
+        @Parameter(name = "scaling", schema = @Schema(implementation = String.class, defaultValue = STANDARIZATION)),
+        @Parameter(name = "folds", schema = @Schema(implementation = String.class)),
+        @Parameter(name = "stratify", schema = @Schema(implementation = String.class)),
+        @Parameter(name = "seed", schema = @Schema(implementation = Integer.class))
     })  
     @Operation(summary = "Creates Validation Report",
             description = "Creates Validation Report",
@@ -289,16 +288,15 @@ public class ValidationResource {
      )*/
     @Parameters({
         @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
-        @Parameter(name = "algorithm_uri", schema = @Schema(implementation = String.class), in = ParameterIn.QUERY),
-        @Parameter(name = "training_dataset_uri", schema = @Schema(implementation = String.class), in = ParameterIn.QUERY),
-        @Parameter(name = "algorithm_params", schema = @Schema(implementation = String.class), in = ParameterIn.QUERY),
-        @Parameter(name = "prediction_feature", schema = @Schema(type = "string"), in = ParameterIn.QUERY),
-        @Parameter(name = "transformations", schema = @Schema(implementation = String.class, defaultValue = DEFAULT_TRANSFORMATIONS), in = ParameterIn.QUERY),
-        @Parameter(name = "scaling", schema = @Schema(implementation = String.class, defaultValue = STANDARIZATION), in = ParameterIn.QUERY),
-        @Parameter(name = "split_ratio", required = true, schema = @Schema(implementation = Double.class), in = ParameterIn.QUERY),
-        @Parameter(name = "stratify", schema = @Schema(implementation = String.class), in = ParameterIn.QUERY),
-        @Parameter(name = "seed", schema = @Schema(implementation = Integer.class), in = ParameterIn.QUERY),
-        @Parameter(name = "id", description = "id", schema = @Schema(implementation = String.class), in = ParameterIn.PATH)
+        @Parameter(name = "algorithm_uri", schema = @Schema(implementation = String.class)),
+        @Parameter(name = "training_dataset_uri", schema = @Schema(implementation = String.class)),
+        @Parameter(name = "algorithm_params", schema = @Schema(implementation = String.class)),
+        @Parameter(name = "prediction_feature", schema = @Schema(type = "string")),
+        @Parameter(name = "transformations", schema = @Schema(implementation = String.class, defaultValue = DEFAULT_TRANSFORMATIONS)),
+        @Parameter(name = "scaling", schema = @Schema(implementation = String.class, defaultValue = STANDARIZATION)),
+        @Parameter(name = "split_ratio", required = true, schema = @Schema(implementation = Double.class)),
+        @Parameter(name = "stratify", schema = @Schema(implementation = String.class)),
+        @Parameter(name = "seed", schema = @Schema(implementation = Integer.class))
     })  
     @Operation(summary = "Creates Validation Report",
             description = "Creates Validation Report",
@@ -420,9 +418,9 @@ public class ValidationResource {
      )*/
      @Parameters({
         @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
-        @Parameter(name = "model_uri", schema = @Schema(implementation = String.class), in = ParameterIn.QUERY),
-        @Parameter(name = "test_dataset_uri", schema = @Schema(implementation = String.class), in = ParameterIn.QUERY),
-        @Parameter(name = "validation_type", schema = @Schema(implementation = String.class), in = ParameterIn.QUERY),
+        @Parameter(name = "model_uri", schema = @Schema(implementation = String.class)),
+        @Parameter(name = "test_dataset_uri", schema = @Schema(implementation = String.class)),
+        @Parameter(name = "validation_type", schema = @Schema(implementation = String.class)),
         })  
     @Operation(summary = "Creates Validation Report",
             description = "Creates Validation Report",

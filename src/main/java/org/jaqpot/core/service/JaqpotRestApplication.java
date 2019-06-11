@@ -132,7 +132,6 @@ public class JaqpotRestApplication extends Application {
         servers.add(server2);
         
         oas.servers(servers);
-//        oas.se
        
         SwaggerConfiguration oasConfig = new SwaggerConfiguration()
                 //flag

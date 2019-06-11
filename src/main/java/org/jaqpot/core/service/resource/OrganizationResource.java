@@ -247,6 +247,10 @@ public class OrganizationResource {
      @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
 
      })*/
+     @Parameters({
+        @Parameter(name = "org", schema = @Schema(implementation = Organization.class))
+   
+    })
     @Operation(
             summary = "Finds all Organizations",
             description = "Finds all Organizations on Jaqpot",
@@ -427,7 +431,9 @@ public class OrganizationResource {
 
      })*/
     @Parameters({
-        @Parameter(name = "Authorization", description = "Clients need to authenticate in order to access this resource", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER)
+        @Parameter(name = "Authorization", description = "Clients need to authenticate in order to access this resource", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
+        @Parameter(name = "orgForUpdate", schema = @Schema(implementation = Organization.class))
+   
     })
     @Operation(
             summary = "Updates Organization",
@@ -589,8 +595,10 @@ public class OrganizationResource {
 
      })*/
     @Parameters({
-        @Parameter(name = "Authorization", description = "Clients need to authenticate in order to access this resource", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER)
+        @Parameter(name = "Authorization", description = "Clients need to authenticate in order to access this resource", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
+        @Parameter(name = "orgsForUpdate", array = @ArraySchema(schema = @Schema(implementation = Organization.class)))
     })
+    
     @Operation(
             summary = "Updates Organization",
             description = "Updates Organization on Jaqpot by id",

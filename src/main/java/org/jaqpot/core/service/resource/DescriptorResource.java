@@ -169,7 +169,7 @@ public class DescriptorResource {
 
      })*/
     @Parameters({
-        @Parameter(name = "descriptor", description = "Descriptor in JSON", schema = @Schema(implementation = Descriptor.class, defaultValue = DEFAULT_DESCRIPTOR), required = true, in = ParameterIn.QUERY),
+        @Parameter(name = "descriptor", description = "Descriptor in JSON", schema = @Schema(implementation = Descriptor.class, defaultValue = DEFAULT_DESCRIPTOR), required = true),
         @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
         @Parameter(name = "title", description = "Title of your descriptor", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
         @Parameter(name = "description", description = "Short description of your descriptor", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
@@ -315,11 +315,11 @@ public class DescriptorResource {
      })*/
     @Parameters({
         @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
-        @Parameter(name = "title", description = "title", required = true, schema = @Schema(implementation = String.class), in = ParameterIn.QUERY),
-        @Parameter(name = "description", description = "description", required = true, schema = @Schema(implementation = String.class), in = ParameterIn.QUERY),
-        @Parameter(name = "dataset_uri", description = "dataset_uri", schema = @Schema(implementation = String.class), in = ParameterIn.QUERY),
-        @Parameter(name = "description_features", description = "description_features", array = @ArraySchema(schema = @Schema(type = "string")), in = ParameterIn.QUERY),
-        @Parameter(name = "parameters", description = "parameters", schema = @Schema(implementation = String.class), in = ParameterIn.QUERY),
+        @Parameter(name = "title", description = "title", required = true, schema = @Schema(implementation = String.class)),
+        @Parameter(name = "description", description = "description", required = true, schema = @Schema(implementation = String.class)),
+        @Parameter(name = "dataset_uri", description = "dataset_uri", schema = @Schema(implementation = String.class)),
+        @Parameter(name = "description_features", description = "description_features", array = @ArraySchema(schema = @Schema(type = "string"))),
+        @Parameter(name = "parameters", description = "parameters", schema = @Schema(implementation = String.class)),
         @Parameter(name = "id", description = "id", schema = @Schema(implementation = String.class), in = ParameterIn.PATH)
     })
     

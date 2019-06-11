@@ -104,7 +104,6 @@ public class UserResource {
      })*/
     @Parameters({
         @Parameter(name = "Authorization", description = "Clients need to authenticate in order to access models", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
-        @Parameter(name = "id", description = "id", schema = @Schema(implementation = String.class), in = ParameterIn.PATH),
         @Parameter(name = "start", description = "start", schema = @Schema(implementation = Integer.class, defaultValue = "0"), in = ParameterIn.QUERY),
         @Parameter(name = "max", description = "max", schema = @Schema(implementation = Integer.class, defaultValue = "10"), in = ParameterIn.QUERY)
     })
@@ -265,7 +264,8 @@ public class UserResource {
      })*/
     @Parameters({
         @Parameter(name = "Authorization", description = "Clients need to authenticate in order to access this resource", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
-        @Parameter(name = "id", description = "ID of the task to be retrieved", schema = @Schema(implementation = String.class), in = ParameterIn.PATH)})
+        @Parameter(name = "id", description = "ID of the task to be retrieved", schema = @Schema(implementation = String.class), in = ParameterIn.PATH),
+        @Parameter(name = "userForUpadate", schema = @Schema(implementation = User.class))})
 
     @Operation(summary = "Updates User by Id",
             description = "Updates specified user",

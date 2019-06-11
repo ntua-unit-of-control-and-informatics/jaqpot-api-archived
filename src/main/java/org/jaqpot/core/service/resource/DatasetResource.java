@@ -98,7 +98,7 @@ import static org.jaqpot.core.util.CSVUtils.parseLine;
  * @author Charalampos Chomenidis
  * @author Pantelis Sopasakis
  */
-@Path("dataset")
+@Path("/dataset")
 //@Api(value = "dataset", description = "Dataset API")
 @Produces({"application/json", "text/uri-list"})
 @Tag(name = "dataset")
@@ -575,6 +575,11 @@ public class DatasetResource {
      ,
      @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
      })*/
+      @Parameters({
+        @Parameter(name = "title", schema = @Schema(implementation = String.class)),
+        @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
+        @Parameter(name = "description", schema = @Schema(implementation = String.class))
+    })
     @Operation(summary = "Creates a new empty Dataset",
             description = "The new empty Dataset created will be assigned on a random generated Id",
             responses = {
@@ -638,7 +643,7 @@ public class DatasetResource {
      @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
      })*/
     @Parameters({
-        @Parameter(name = "dataset_uris", description = "dataset_uris", schema = @Schema(implementation = String.class), in = ParameterIn.QUERY),
+        @Parameter(name = "dataset_uris", description = "dataset_uris", schema = @Schema(implementation = String.class)),
         @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER)
     })
     @Operation(summary = "Merges Datasets",
@@ -709,6 +714,10 @@ public class DatasetResource {
      ,
      @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
      })*/
+     @Parameters({
+        @Parameter(name = "dataset_uris", schema = @Schema(implementation = String.class)),
+        @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER)
+    })
     @Operation(summary = "Merges the features of two or more Datasets",
             description = "The new intersected Dataset created will be assigned on a random generated Id",
             responses = {
@@ -1036,7 +1045,11 @@ public class DatasetResource {
      @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
      })*/
     @Parameters({
-        @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER)
+        @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
+        @Parameter(name = "id", schema = @Schema(implementation = String.class), in = ParameterIn.PATH),
+        @Parameter(name = "substance_uri", schema = @Schema(implementation = String.class)),
+        @Parameter(name = "title", schema = @Schema(implementation = String.class)),
+        @Parameter(name = "description", schema = @Schema(implementation = String.class))
     })
     @Operation(summary = "Creates QPRF Dummy Report",
             responses = {
@@ -1285,12 +1298,13 @@ public class DatasetResource {
      })*/
     @Parameters({
         @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
-        @Parameter(name = "rowStart", description = "rowStart", schema = @Schema(implementation = Integer.class, defaultValue = "0"), in = ParameterIn.QUERY),
-        @Parameter(name = "rowMax", description = "rowMax", required = true, schema = @Schema(implementation = Integer.class), in = ParameterIn.QUERY),
-        @Parameter(name = "colStart", description = "colStart", required = true, schema = @Schema(implementation = Integer.class), in = ParameterIn.QUERY),
-        @Parameter(name = "colMax", description = "colMax", required = true, schema = @Schema(implementation = Integer.class), in = ParameterIn.QUERY),
-        @Parameter(name = "seed", description = "seed", required = true, schema = @Schema(implementation = Long.class), in = ParameterIn.QUERY),
-        @Parameter(name = "folds", description = "folds", required = true, schema = @Schema(implementation = Integer.class), in = ParameterIn.QUERY)
+        @Parameter(name = "rowStart", description = "rowStart", schema = @Schema(implementation = Integer.class, defaultValue = "0"), required = false, in = ParameterIn.QUERY),
+        @Parameter(name = "rowMax", description = "rowMax", schema = @Schema(implementation = Integer.class), required = false, in = ParameterIn.QUERY),
+        @Parameter(name = "colStart", description = "colStart", schema = @Schema(implementation = Integer.class), in = ParameterIn.QUERY),
+        @Parameter(name = "colMax", description = "colMax", schema = @Schema(implementation = Integer.class), in = ParameterIn.QUERY),
+        @Parameter(name = "seed", description = "seed", schema = @Schema(implementation = Long.class), in = ParameterIn.QUERY),
+        @Parameter(name = "folds", description = "folds", schema = @Schema(implementation = Integer.class), in = ParameterIn.QUERY),
+        @Parameter(name = "id", schema = @Schema(implementation = String.class), in = ParameterIn.PATH)
     })
     @Operation(summary = "Finds Data Entries of Dataset with given id",
             description = "Finds Data entries of specified Dataset",
@@ -1388,6 +1402,10 @@ public class DatasetResource {
      ,
      @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
      })*/
+    @Parameters({
+        @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
+        @Parameter(name = "id", schema = @Schema(implementation = String.class), in = ParameterIn.PATH)
+    })
     @Operation(summary = "Updates meta info of a dataset",
             description = "TUpdates meta info of a dataset",
             responses = {
@@ -1398,7 +1416,7 @@ public class DatasetResource {
             })
     public Response updateMeta(
             //@ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key,
-            @Parameter(description = "Authorization token") @HeaderParam("Authorization") String api_key,
+            @HeaderParam("Authorization") String api_key,
             @PathParam("id") String id,
             Dataset datasetForUpdate) throws URISyntaxException, JaqpotDocumentSizeExceededException, JaqpotNotAuthorizedException {
         String userId = securityContext.getUserPrincipal().getName();
@@ -1479,9 +1497,9 @@ public class DatasetResource {
 
     @Parameters({
         @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
-        @Parameter(name = "file", description = "xls[m,x] file", required = true, schema = @Schema(type = "string", format = "binary"), in = ParameterIn.QUERY, style = ParameterStyle.FORM),
-        @Parameter(name = "title", description = "Title of dataset", required = true, schema = @Schema(type = "string"), in = ParameterIn.QUERY, style = ParameterStyle.FORM),
-        @Parameter(name = "description", description = "Description of dataset", required = true, schema = @Schema(type = "string"), in = ParameterIn.QUERY, style = ParameterStyle.FORM)
+        @Parameter(name = "file", description = "xls[m,x] file", required = true, schema = @Schema(type = "string", format = "binary")),
+        @Parameter(name = "title", description = "Title of dataset", required = true, schema = @Schema(type = "string")),
+        @Parameter(name = "description", description = "Description of dataset", required = true, schema = @Schema(type = "string"))
     })
     @RequestBody(content = {
         @Content(mediaType = "multipart/form-data", schema = @Schema(type = "string", format = "binary")),

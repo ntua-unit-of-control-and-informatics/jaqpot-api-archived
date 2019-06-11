@@ -182,7 +182,7 @@ public class TaskResource {
      @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
      })*/
     @Parameters({
-        @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
+        @Parameter(name = "subjectid", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
         @Parameter(name = "id", description = "ID of the task to be retrieved", schema = @Schema(implementation = String.class), in = ParameterIn.PATH)})
     @Operation(summary = "Finds Task by Id",
             description = "Finds specified Task",

@@ -213,7 +213,7 @@ public class EnanomapperResource {
      )*/
     @Parameters({
         @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
-        @Parameter(name = "datasetData", description = "Data for dataset creation ", schema = @Schema(implementation = DatasetData.class, defaultValue = DEFAULT_DATASET_DATA), in = ParameterIn.QUERY),})
+        @Parameter(name = "datasetData", description = "Data for dataset creation ", schema = @Schema(implementation = DatasetData.class, defaultValue = DEFAULT_DATASET_DATA))})
     @Operation(summary = "Creates Dataset By Study",
             description = "Reads Studies from Bundle's Substances, creates Dataset,"
             + "calculates Descriptors, returns Dataset",
