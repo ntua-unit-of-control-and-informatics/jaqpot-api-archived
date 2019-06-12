@@ -106,18 +106,13 @@ public class JaqpotRestApplication extends Application {
         oas.info(info);
 
         SecurityScheme securityScheme = new SecurityScheme();
-        //ApiKeyAuthDefinition apiKeyDefinition = new ApiKeyAuthDefinition();
-        securityScheme.setName("HTTP");
-        securityScheme.setType(SecurityScheme.Type.HTTP);
+        securityScheme.setName("Authorization");
+        securityScheme.setType(SecurityScheme.Type.APIKEY);
+        securityScheme.setIn(SecurityScheme.In.HEADER);
         SecurityRequirement sr = new SecurityRequirement();
-        sr.addList("HTTP");
+        sr.addList("Authorization");
         oas.addSecurityItem(sr);
-        
-        List<String> schemes =new ArrayList();
-        schemes.add("http");
-        schemes.add("https");
-        ServerVariable protocol = new ServerVariable()._enum(schemes)._default("http");
-        ServerVariables varMap = new ServerVariables().addServerVariable("protocol",protocol);
+
         
         Server server = new Server()
                 //.url(protocol.getDefault() + "://"+host + ":" + port + "/jaqpot/services")

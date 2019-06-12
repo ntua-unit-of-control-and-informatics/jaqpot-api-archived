@@ -69,6 +69,7 @@ public class SwaggerFilter implements ReaderListener {
         securityScheme.setName("Authorization");
         securityScheme.setType(SecurityScheme.Type.APIKEY);
         SecurityRequirement sr = new SecurityRequirement();
+        sr.addList("Authorization");
         swgr.addSecurityItem(sr);
         //apiKeyDefinition.setName("Authorization");
         //apiKeyDefinition.setIn(In.HEADER);
