@@ -92,7 +92,7 @@ import org.jaqpot.core.service.exceptions.JaqpotNotAuthorizedException;
  * @author Charalampos Chomenidis
  *
  */
-@Path("bibtex")
+@Path("/bibtex")
 //@Api(value = "/bibtex", description = "BibTeX API")
 @Produces({"application/json", "text/uri-list"})
 @Tag(name = "bibtex")
