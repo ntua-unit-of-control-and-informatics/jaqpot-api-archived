@@ -233,7 +233,7 @@ public class AAResource {
             })
     public Response validateAccessToken(
             //@ApiParam(value = "Authorization token") @QueryParam("accessToken") String accessToken
-            @Parameter(description = "Authorization token", schema = @Schema(implementation = String.class), in = ParameterIn.QUERY, name = "accessToken") String accessToken
+            @Parameter(description = "Authorization token", schema = @Schema(implementation = String.class), name = "accessToken") String accessToken
     ) throws JaqpotNotAuthorizedException {
         boolean valid = aaService.validateAccessToken(accessToken);
         return Response.ok(valid ? "true" : "false", MediaType.APPLICATION_JSON)
@@ -332,7 +332,7 @@ public class AAResource {
             })
     public Response getClaims(
             //@ApiParam(value = "Authorization token") @QueryParam("accessToken") String accessToken
-            @Parameter(description = "Authorization token", schema = @Schema(type = "String", implementation = String.class), in = ParameterIn.QUERY, name = "accessToken") String accessToken
+            @Parameter(description = "Authorization token", schema = @Schema(type = "String", implementation = String.class), name = "accessToken") String accessToken
     ) throws JaqpotNotAuthorizedException {
         JWTClaimsSet claims = aaService.getClaimsFromAccessToken(accessToken);
         return Response.ok(claims)
@@ -346,8 +346,8 @@ public class AAResource {
             summary = ""
     )
     @Parameters({
-        @Parameter(description = "Username", name = "username", schema = @Schema(implementation = String.class, type = "string"), required = true, in = ParameterIn.QUERY),
-        @Parameter(description = "Password", name = "password", schema = @Schema(implementation = String.class, type = "string"), required = true, in = ParameterIn.QUERY)
+        @Parameter(description = "Username", name = "username", schema = @Schema(implementation = String.class, type = "string"), required = true),
+        @Parameter(description = "Password", name = "password", schema = @Schema(implementation = String.class, type = "string"), required = true)
     })
 
     public Response swaggerLogin(
