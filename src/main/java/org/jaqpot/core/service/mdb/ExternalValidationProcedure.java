@@ -150,7 +150,7 @@ public class ExternalValidationProcedure extends AbstractJaqpotProcedure {
                         errNotFound("Transformation modle with id:" + transModelURI + " was not found.");
                         return;
                     }
-                    dataset = jpdiClient.predict(dataset, transModel, dataset != null ? dataset.getMeta() : null, taskId).get();
+                    dataset = jpdiClient.predict(dataset, transModel, dataset != null ? dataset.getMeta() : null, taskId, null).get();
                     addProgress(5f, "Transformed successfull by model:" + transModel.getId());
                 }
                 progress("Done processing transformations.", "--");
@@ -164,7 +164,7 @@ public class ExternalValidationProcedure extends AbstractJaqpotProcedure {
 
             progress("Starting JPDI Prediction...");
 
-            dataset = jpdiClient.predict(dataset, model, datasetMeta, taskId).get();
+            dataset = jpdiClient.predict(dataset, model, datasetMeta, taskId, null).get();
             progress("JPDI Prediction completed successfully.");
             progress(80f, "Dataset was built successfully.");
             checkCancelled();

@@ -155,7 +155,9 @@ public class DeleteIndexedEntityProducer {
 
     @PreDestroy
     public void destroy() {
-        this.kafkaProducer.close();
+        if(this.kafkaProducer!= null){
+            this.kafkaProducer.close();
+        }
     }
 
 }

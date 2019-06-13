@@ -32,36 +32,35 @@
  * All source files of JAQPOT Quattro that are stored on github are licensed
  * with the aforementioned licence. 
  */
-package org.jaqpot.core.service.client.jpdi;
+package org.jaqpot.core.service.data;
 
-import java.io.Closeable;
-import java.util.Map;
-import java.util.concurrent.CompletableFuture;
+import java.lang.annotation.Annotation;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Future;
-
-import org.jaqpot.core.model.*;
-import org.jaqpot.core.model.dto.dataset.Dataset;
-import org.jaqpot.core.model.dto.jpdi.PredictionResponse;
-import org.jaqpot.core.model.dto.models.QuickPredictionNeeds;
+import javax.ejb.AsyncResult;
+import javax.ejb.Asynchronous;
+import javax.ejb.Stateless;
 
 /**
  *
- * @author Charalampos Chomenidis
- * @author Pantelis Sopasakis
+ * @author pantelispanka
  */
-public interface JPDIClient extends Closeable {
+@Stateless
+public class DoaService {
 
-    Future<Dataset> descriptor(Dataset dataset, Descriptor descriptor, Map<String, Object> parameters, String taskId);
 
-    Future<Dataset> calculate(byte[] file, Algorithm algorithm, Map<String, Object> parameters, String taskId);
-
-    Future<Model> train(Dataset dataset, Algorithm algorithm, Map<String, Object> parameters, String predictionFeature, MetaInfo modelMeta, String taskId);
-
-    Future<Dataset> predict(Dataset dataset, Model model, MetaInfo datasetMeta, String taskId, Doa doa);
-
-    Future<Dataset> transform(Dataset dataset, Algorithm algorithm, Map<String, Object> parameters, String predictionFeature, MetaInfo datasetMeta, String taskId, Doa doa);
-
-    Future<Report> report(Dataset dataset, Algorithm algorithm, Map<String, Object> parameters, MetaInfo reportMeta, String taskId);
+    @Asynchronous
+    public Future<List<Float>> calculateDoa(float[][] newD, float[][] doa) {
+        int r1 = doa[0].length;
+        int c1 = doa.length;
+        List<Float> preds = new ArrayList<>();
+        preds.add((float) r1);
+        preds.add((float) c1);
+        return new AsyncResult<>(preds);
+    }
     
-    boolean cancel(String taskId);
+
+    
 }
+

@@ -53,8 +53,8 @@ import org.jaqpot.core.model.User;
 public class PropertyManager {
 
     public enum PropertyType {
-//        JAQPOT_ENV("jaqpot.env", "config", "dev"),
-        JAQPOT_ENV("jaqpot.env", "config", "prod"),
+        JAQPOT_ENV("jaqpot.env", "config", "dev"),
+//        JAQPOT_ENV("jaqpot.env", "config", "prod"),
         JAQPOT_LOCAL_IP("jaqpot.local.ip", "config", "147.102.86.129"),
         JAQPOT_ADMINISTRATORS("jaqpot.administrators", "config", "admin"),
         JAQPOT_AA("jaqpot.aa", "config", "true"),

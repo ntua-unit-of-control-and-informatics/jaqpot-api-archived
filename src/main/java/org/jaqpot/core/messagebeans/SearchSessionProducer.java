@@ -133,7 +133,9 @@ public class SearchSessionProducer {
 
     @PreDestroy
     public void destroy() {
-        this.kafkaProducer.close();
+        if(this.kafkaProducer!= null){
+            this.kafkaProducer.close();
+        }
     }
 
 }

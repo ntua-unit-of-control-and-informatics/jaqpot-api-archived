@@ -54,6 +54,7 @@ public class PretrainedModel {
     private List<String> title;
     private List<String> description;
     private List<String> algorithm;
+    private boolean batched;
 
     public Object getRawModel() {
         return rawModel;
@@ -143,4 +144,12 @@ public class PretrainedModel {
         this.dependentFeatures = dependentFeatures;
     }
 
+    public boolean isBatched() {
+        return batched;
+    }
+
+    public void setBatched(boolean batched) {
+        this.batched = batched;
+    }
+    
 }

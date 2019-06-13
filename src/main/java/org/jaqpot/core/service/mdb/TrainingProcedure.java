@@ -227,7 +227,7 @@ public class TrainingProcedure extends AbstractJaqpotProcedure implements Messag
 
                     Model transModel = jpdiClient.train(dataset, transAlgorithm, parameterMap, predictionFeature, modelMeta, taskId).get();
                     transformationModels.add(transModel);
-                    dataset = jpdiClient.predict(dataset, transModel, dataset != null ? dataset.getMeta() : null, taskId).get();
+                    dataset = jpdiClient.predict(dataset, transModel, dataset != null ? dataset.getMeta() : null, taskId, null).get();
 
                     addProgress(5f, "Transformation model created successfully:" + transModel.getId());
 

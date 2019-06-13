@@ -20,12 +20,12 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  * Source code:
  * The source code of JAQPOT Quattro is available on github at:
  * https://github.com/KinkyDesign/JaqpotQuattro
  * All source files of JAQPOT Quattro that are stored on github are licensed
- * with the aforementioned licence. 
+ * with the aforementioned licence.
  */
 package org.jaqpot.core.service.resource;
 
@@ -1124,7 +1124,7 @@ public class ModelResource {
         @Parameter(name = "Authorization", description = "Clients need to authenticate in order to create resources on the server", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
         @Parameter(name = "id", description = "Id of the Model.", required = true, schema = @Schema(implementation = String.class), in = ParameterIn.PATH)
     })
-        
+
     @Operation(summary = "Deletes a particular Model resource",
             description = "Deletes a Model of a given ID. The method is idempondent, that is it can be used more than once without "
             + "triggering an exception/error. If the Model does not exist, the method will return without errors. "
@@ -1212,7 +1212,7 @@ public class ModelResource {
     @Parameters({
         @Parameter(name = "Authorization", description = "Authorization required", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
         @Parameter(name = "id", description = "id", required = true, schema = @Schema(implementation = String.class), in = ParameterIn.PATH),
-        @Parameter(name = "modeldataset", description = "description for the dataset", required = true, schema = @Schema(implementation = String.class, allowableValues = {"TRAINEDUPON","ALLEMPTY","EMPTYPREDICTION"}), in = ParameterIn.QUERY) 
+        @Parameter(name = "modeldataset", description = "description for the dataset", required = true, schema = @Schema(implementation = String.class, allowableValues = {"TRAINEDUPON","ALLEMPTY","EMPTYPREDICTION"}), in = ParameterIn.QUERY)
     })
     @Operation(summary = "Gets a dataset of a Model",
             description = "Geth the dataset of a model upon the criteria given",

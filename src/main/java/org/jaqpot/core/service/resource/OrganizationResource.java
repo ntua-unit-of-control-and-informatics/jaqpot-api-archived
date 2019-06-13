@@ -25,12 +25,12 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  * Source code:
  * The source code of JAQPOT Quattro is available on github at:
  * https://github.com/KinkyDesign/JaqpotQuattro
  * All source files of JAQPOT Quattro that are stored on github are licensed
- * with the aforementioned licence. 
+ * with the aforementioned licence.
  */
 package org.jaqpot.core.service.resource;
 
@@ -249,7 +249,7 @@ public class OrganizationResource {
      })*/
      @Parameters({
         @Parameter(name = "org", schema = @Schema(implementation = Organization.class))
-   
+
     })
     @Operation(
             summary = "Finds all Organizations",
@@ -384,15 +384,15 @@ public class OrganizationResource {
 //            @ApiParam(value = "Clients need to authenticate in order to access this resource")
 //            @HeaderParam("Authorization") String api_key,
 //            Organization orgForUpdate) throws JaqpotNotAuthorizedException {
-//        
+//
 //        String userId = securityContext.getUserPrincipal().getName();
-//        
+//
 //        String[] apiA = api_key.split("\\s+");
 //        String apiKey = apiA[1];
 //        if(orgForUpdate.getId().equals("Jaqpot") && aaService.isAdmin(apiKey)){
 //            orgHandler.edit(orgForUpdate);
 //        }
-//        
+//
 //        List<Notification> notifs = notificationHandler.getInvitationsToOrg(userId, orgForUpdate.getId());
 //        if(notifs.size() > 0 || orgForUpdate.getMeta().getCreators().contains(userId)){
 //            orgHandler.edit(orgForUpdate);
@@ -400,12 +400,12 @@ public class OrganizationResource {
 //        else{
 //            throw new JaqpotNotAuthorizedException("You are not authorized to edit this Organization");
 //        }
-//        
+//
 //        return Response
 //                .ok(orgHandler.find(orgForUpdate.getId()))
 //                .build();
 //    }
-//    
+//
     @PUT
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
@@ -433,7 +433,7 @@ public class OrganizationResource {
     @Parameters({
         @Parameter(name = "Authorization", description = "Clients need to authenticate in order to access this resource", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
         @Parameter(name = "orgForUpdate", schema = @Schema(implementation = Organization.class))
-   
+
     })
     @Operation(
             summary = "Updates Organization",
@@ -598,7 +598,7 @@ public class OrganizationResource {
         @Parameter(name = "Authorization", description = "Clients need to authenticate in order to access this resource", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
         @Parameter(name = "orgsForUpdate", array = @ArraySchema(schema = @Schema(implementation = Organization.class)))
     })
-    
+
     @Operation(
             summary = "Updates Organization",
             description = "Updates Organization on Jaqpot by id",

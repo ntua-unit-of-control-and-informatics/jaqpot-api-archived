@@ -523,7 +523,9 @@ public class IndexEntityConsumer {
 
     @PreDestroy
     public void destroy() {
-        this.kafkaConsumer.close();
+        if(this.kafkaConsumer!= null){
+            this.kafkaConsumer.close();
+        }
     }
 
 }

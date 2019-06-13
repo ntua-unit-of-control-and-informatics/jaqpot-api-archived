@@ -87,7 +87,7 @@ public class JPDIClientImpl implements JPDIClient {
 
     private final Map<String, Future> futureMap;
 
-    public JPDIClientImpl(CloseableHttpAsyncClient client, JSONSerializer serializer, FeatureHandler featureHandler, AlgorithmHandler algorithmHandler,  String baseURI) {
+    public JPDIClientImpl(CloseableHttpAsyncClient client, JSONSerializer serializer, FeatureHandler featureHandler, AlgorithmHandler algorithmHandler, String baseURI) {
         this.client = client;
         client.start();
         this.serializer = serializer;
@@ -419,7 +419,7 @@ public class JPDIClientImpl implements JPDIClient {
     }
 
     @Override
-    public Future<Dataset> predict(Dataset inputDataset, Model model, MetaInfo datasetMeta, String taskId) {
+    public Future<Dataset> predict(Dataset inputDataset, Model model, MetaInfo datasetMeta, String taskId, Doa doa) {
 
         CompletableFuture<Dataset> futureDataset = new CompletableFuture<>();
 
@@ -434,7 +434,9 @@ public class JPDIClientImpl implements JPDIClient {
         predictionRequest.setDataset(dataset);
         predictionRequest.setRawModel(model.getActualModel());
         predictionRequest.setAdditionalInfo(model.getAdditionalInfo());
-        
+        if (doa != null) {
+            predictionRequest.setDoaMatrix(doa.getDoaMatrix());
+        }
 //        ObjectMapper mapper = new ObjectMapper();
 //        try{
 //            System.out.println(mapper.writeValueAsString(predictionRequest));
@@ -524,15 +526,25 @@ public class JPDIClientImpl implements JPDIClient {
                                                                 .filter(f -> f.getMeta().getTitles().contains(entry.getKey()))
                                                                 .findFirst()
                                                                 .orElse(null);
+                                                        int size = dataEntry.getValues().size();
+                                                        if (entry.getKey().equals("DOA")) {
+                                                            int sizeForDoa = dataEntry.getValues().size();
+                                                            dataEntry.getValues().put(String.valueOf(size), entry.getValue());
+                                                            FeatureInfo featInfoForDoa = new FeatureInfo(baseURI + "feature/doa", "DOA");
+                                                            featInfoForDoa.setCategory(Dataset.DescriptorCategory.PREDICTED);
+                                                            featInfoForDoa.setKey(String.valueOf(sizeForDoa));
+                                                            dataset.getFeatures().add(featInfoForDoa);
+                                                        }
                                                         if (feature == null) {
                                                             return;
                                                         }
-                                                        int size = dataEntry.getValues().size();
+                                                        
                                                         dataEntry.getValues().put(String.valueOf(size), entry.getValue());
                                                         FeatureInfo featInfo = new FeatureInfo(baseURI + "feature/" + feature.getId(), feature.getMeta().getTitles().stream().findFirst().get());
                                                         featInfo.setCategory(Dataset.DescriptorCategory.PREDICTED);
                                                         featInfo.setKey(String.valueOf(size));
                                                         dataset.getFeatures().add(featInfo);
+
                                                     });
                                         });
                                 dataset.setId(randomStringGenerator.nextString(20));
@@ -592,10 +604,10 @@ public class JPDIClientImpl implements JPDIClient {
     }
 
     @Override
-    public Future<Dataset> transform(Dataset dataset, Algorithm algorithm, Map<String, Object> parameters, String predictionFeature, MetaInfo datasetMeta, String taskId) {
+    public Future<Dataset> transform(Dataset dataset, Algorithm algorithm, Map<String, Object> parameters, String predictionFeature, MetaInfo datasetMeta, String taskId, Doa doa) {
         try {
             Model model = this.train(dataset, algorithm, parameters, predictionFeature, datasetMeta, taskId).get();
-            return this.predict(dataset, model, datasetMeta, taskId);
+            return this.predict(dataset, model, datasetMeta, taskId, doa);
         } catch (InterruptedException ex) {
             throw new RuntimeException("Error while transforming Dataset:" + dataset.getId() + " with Algorithm:" + algorithm.getId(), ex);
         } catch (ExecutionException ex) {
