@@ -254,16 +254,16 @@ public class BiokineticsResource {
         }
 
         User user = userHandler.find(securityContext.getUserPrincipal().getName());
-        long modelCount = modelHandler.countAllOfCreator(user.getId());
-        int maxAllowedModels = new UserFacade(user).getMaxModels();
-
-        if (modelCount > maxAllowedModels) {
-            LOG.info(String.format("User %s has %d models while maximum is %d",
-                    user.getId(), modelCount, maxAllowedModels));
-            throw new QuotaExceededException("Dear " + user.getId()
-                    + ", your quota has been exceeded; you already have " + modelCount + " models. "
-                    + "No more than " + maxAllowedModels + " are allowed with your subscription.");
-        }
+//        long modelCount = modelHandler.countAllOfCreator(user.getId());
+//        int maxAllowedModels = new UserFacade(user).getMaxModels();
+//
+//        if (modelCount > maxAllowedModels) {
+//            LOG.info(String.format("User %s has %d models while maximum is %d",
+//                    user.getId(), modelCount, maxAllowedModels));
+//            throw new QuotaExceededException("Dear " + user.getId()
+//                    + ", your quota has been exceeded; you already have " + modelCount + " models. "
+//                    + "No more than " + maxAllowedModels + " are allowed with your subscription.");
+//        }
 
         Map<String, Object> options = new HashMap<>();
         options.put("title", title);
@@ -332,16 +332,16 @@ public class BiokineticsResource {
         UrlValidator urlValidator = new UrlValidator(UrlValidator.ALLOW_LOCAL_URLS);
 
         User user = userHandler.find(securityContext.getUserPrincipal().getName());
-        long datasetCount = datasetHandler.countAllOfCreator(user.getId());
-        int maxAllowedDatasets = new UserFacade(user).getMaxDatasets();
-
-        if (datasetCount > maxAllowedDatasets) {
-            LOG.info(String.format("User %s has %d datasets while maximum is %d",
-                    user.getId(), datasetCount, maxAllowedDatasets));
-            throw new QuotaExceededException("Dear " + user.getId()
-                    + ", your quota has been exceeded; you already have " + datasetCount + " datasets. "
-                    + "No more than " + maxAllowedDatasets + " are allowed with your subscription.");
-        }
+//        long datasetCount = datasetHandler.countAllOfCreator(user.getId());
+//        int maxAllowedDatasets = new UserFacade(user).getMaxDatasets();
+//
+//        if (datasetCount > maxAllowedDatasets) {
+//            LOG.info(String.format("User %s has %d datasets while maximum is %d",
+//                    user.getId(), datasetCount, maxAllowedDatasets));
+//            throw new QuotaExceededException("Dear " + user.getId()
+//                    + ", your quota has been exceeded; you already have " + datasetCount + " datasets. "
+//                    + "No more than " + maxAllowedDatasets + " are allowed with your subscription.");
+//        }
 
         Model model = modelHandler.find(id);
         if (model == null) {
