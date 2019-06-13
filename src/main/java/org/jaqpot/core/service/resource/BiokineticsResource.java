@@ -268,12 +268,7 @@ public class BiokineticsResource {
      @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
 
      })*/
-    @Parameters({
-        @Parameter(name = "title", required = true, schema = @Schema(implementation = String.class)),
-        @Parameter(name = "description", required = true, schema = @Schema(implementation = String.class)),
-        @Parameter(name = "parameters", schema = @Schema(implementation = String.class), hidden = true),
-        @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER)
-    })
+
     @Operation(summary = "Creates an httk biocinetics Model",
             description = "Creates an httk biocinetics Model",
             responses = {
@@ -291,11 +286,11 @@ public class BiokineticsResource {
             //@FormParam("parameters") String parameters,
             //@ApiParam(name = "algorithmId", required = true) @FormParam("algorithmId") String algorithmId,
             //@ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key) throws QuotaExceededException, ParameterIsNullException, ParameterInvalidURIException, ParameterTypeException, ParameterRangeException, ParameterScopeException, JaqpotDocumentSizeExceededException {
-            @FormParam("title") String title,
-            @FormParam("description") String description,
-            @FormParam("parameters") String parameters,
+            @Parameter(name = "title", required = true, schema = @Schema(implementation = String.class)) @FormParam("title") String title,
+            @Parameter(name = "description", required = true, schema = @Schema(implementation = String.class)) @FormParam("description") String description,
+            @Parameter(name = "parameters", schema = @Schema(implementation = String.class), hidden = true) @FormParam("parameters") String parameters,
             //            @ApiParam(name = "algorithmId", required = true) @FormParam("algorithmId") String algorithmId,
-            @HeaderParam("Authorization") String api_key) throws QuotaExceededException, ParameterIsNullException, ParameterInvalidURIException, ParameterTypeException, ParameterRangeException, ParameterScopeException, JaqpotDocumentSizeExceededException {
+            @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER) @HeaderParam("Authorization") String api_key) throws QuotaExceededException, ParameterIsNullException, ParameterInvalidURIException, ParameterTypeException, ParameterRangeException, ParameterScopeException, JaqpotDocumentSizeExceededException {
 
         UrlValidator urlValidator = new UrlValidator(UrlValidator.ALLOW_LOCAL_URLS);
 

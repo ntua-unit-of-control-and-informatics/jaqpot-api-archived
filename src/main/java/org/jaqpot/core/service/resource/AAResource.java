@@ -41,8 +41,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Content;
 
-
-
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.tags.Tag;
 //import io.swagger.annotations.*;
@@ -342,19 +340,17 @@ public class AAResource {
     @POST
     @Path("/login")
     @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Operation(description = "",
             summary = ""
     )
-    @Parameters({
-        @Parameter(description = "Username", name = "username", schema = @Schema(implementation = String.class, type = "string"), required = true),
-        @Parameter(description = "Password", name = "password", schema = @Schema(implementation = String.class, type = "string"), required = true)
-    })
 
     public Response swaggerLogin(
             //@ApiParam(value = "Username", required = true) @FormParam("username") String username,
             //@ApiParam(value = "Password", required = true) @FormParam("password") String password) throws JaqpotNotAuthorizedException {
-
+            @Parameter(description = "Username", name = "username", schema = @Schema(implementation = String.class, type = "string"), required = true)
             @FormParam("username") String username,
+            @Parameter(description = "Password", name = "password", schema = @Schema(implementation = String.class, type = "string"), required = true)
             @FormParam("password") String password) throws JaqpotNotAuthorizedException {
 
         AccessToken aToken;

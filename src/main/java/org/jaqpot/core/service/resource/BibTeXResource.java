@@ -154,16 +154,7 @@ public class BibTeXResource {
                 @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(implementation = ErrorReport.class)), description = "This request is forbidden (e.g., no authentication token is provided)"),
                 @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorReport.class)), description = "Internal server error - this request cannot be served.")
             })
-    @Parameters({
-        @Parameter(description = "BibTeX type of entry",
-                   name = "bibtype", schema = @Schema(implementation = String.class, allowableValues = {"Article","Conference","Book","PhDThesis","InBook","InCollection",
-                        "InProceedings","Manual","Mastersthesis","Proceedings","TechReport",
-                        "Unpublished","Entry"}, defaultValue = "Entry"), in = ParameterIn.QUERY ),
-        @Parameter(description = "Creator of the BibTeX entry", name = "creator", schema = @Schema(implementation = String.class), in = ParameterIn.QUERY),
-        @Parameter(description = "Generic query (e.g., Article title, journal name, etc)", name = "query", schema = @Schema(implementation = String.class), in = ParameterIn.QUERY),
-        @Parameter(description = "start", name = "start", schema = @Schema(implementation = Integer.class, defaultValue = "0"), in = ParameterIn.QUERY),
-        @Parameter(description = "max", name = "max", schema = @Schema(implementation = Integer.class, defaultValue = "10"), in = ParameterIn.QUERY)
-    })
+
     public Response listBibTeXs(
             /*@ApiParam(value = "BibTeX type of entry",
              allowableValues = "Article,Conference,Book,PhDThesis,InBook,InCollection,"
@@ -174,10 +165,18 @@ public class BibTeXResource {
              @ApiParam(value = "start", defaultValue = "0") @QueryParam("start") Integer start,
              @ApiParam(value = "max", defaultValue = "10") @QueryParam("max") Integer max
              */
+            @Parameter(description = "BibTeX type of entry",
+                    name = "bibtype", schema = @Schema(implementation = String.class, allowableValues = {"Article", "Conference", "Book", "PhDThesis", "InBook", "InCollection",
+                "InProceedings", "Manual", "Mastersthesis", "Proceedings", "TechReport",
+                "Unpublished", "Entry"}, defaultValue = "Entry"))
             @QueryParam("bibtype") String bibtype,
+            @Parameter(description = "Creator of the BibTeX entry", name = "creator", schema = @Schema(implementation = String.class))
             @QueryParam("creator") String creator,
+            @Parameter(description = "Generic query (e.g., Article title, journal name, etc)", name = "query", schema = @Schema(implementation = String.class))
             @QueryParam("query") String query,
+            @Parameter(description = "start", name = "start", schema = @Schema(implementation = Integer.class, defaultValue = "0"))
             @QueryParam("start") Integer start,
+            @Parameter(description = "max", name = "max", schema = @Schema(implementation = Integer.class, defaultValue = "10"))
             @QueryParam("max") Integer max
     ) {
         return Response
@@ -466,5 +465,4 @@ public class BibTeXResource {
 //                .ok(modifiedAsBib)
 //                .build();
 //    }
-
 }
