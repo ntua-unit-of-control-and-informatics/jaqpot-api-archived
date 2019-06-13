@@ -263,7 +263,7 @@ public class DescriptorResource {
      })*/
     @Parameters({
         @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
-        @Parameter(name = "id", description = "id", schema = @Schema(implementation = String.class), in = ParameterIn.PATH),})
+        @Parameter(name = "id", description = "id", schema = @Schema(implementation = String.class), in = ParameterIn.PATH)})
     @Operation(
             summary = "Finds Descriptor",
             description = "Finds Descriptor with provided id",

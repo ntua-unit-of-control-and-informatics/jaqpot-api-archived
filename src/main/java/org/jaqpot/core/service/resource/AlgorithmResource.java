@@ -191,10 +191,10 @@ public class AlgorithmResource {
              @ApiParam(value = "start", defaultValue = "0") @QueryParam("start") Integer start,
              @ApiParam(value = "max", defaultValue = "10") @QueryParam("max") Integer max)
              */
-            @Parameter(description = "Authorization token") @HeaderParam("apiKey") String apiKey,
-            @Parameter(description = "class") @QueryParam("class") String ontologicalClass,
-            @Parameter(description = "start", schema = @Schema(type = "String", defaultValue = "0")) @QueryParam("start") Integer start,
-            @Parameter(description = "max", schema = @Schema(type = "String", defaultValue = "10")) @QueryParam("max") Integer max) {
+            @Parameter(description = "Authorization token", schema = @Schema(implementation = String.class)) @HeaderParam("apiKey") String apiKey,
+            @Parameter(description = "class", schema = @Schema(implementation = String.class)) @QueryParam("class") String ontologicalClass,
+            @Parameter(description = "start", schema = @Schema(implementation = Integer.class, defaultValue = "0")) @QueryParam("start") Integer start,
+            @Parameter(description = "max", schema = @Schema(implementation = Integer.class, defaultValue = "10")) @QueryParam("max") Integer max) {
         if (ontologicalClass != null && !ontologicalClass.isEmpty()) {
             return Response
                     .ok(algorithmHandler.findByOntologicalClass(ontologicalClass, start != null ? start : 0, max != null ? max : Integer.MAX_VALUE))
@@ -271,10 +271,10 @@ public class AlgorithmResource {
              @ApiParam(value = "Tags for your algorithm (in a comma separated list) to facilitate look-up") @HeaderParam("tags") String tags
              */
             @Parameter(description = "Algorithm in JSON", schema = @Schema(implementation = Algorithm.class, defaultValue = DEFAULT_ALGORITHM), required = true) Algorithm algorithm,
-            @Parameter(description = "Authorization token") @HeaderParam("Authorization") String api_key,
-            @Parameter(description = "Title of your algorithm") @HeaderParam("title") String title,
-            @Parameter(description = "Short description of your algorithm") @HeaderParam("description") String description,
-            @Parameter(description = "Tags for your algorithm (in a comma separated list) to facilitate look-up") @HeaderParam("tags") String tags
+            @Parameter(description = "Authorization token", schema = @Schema(implementation = String.class)) @HeaderParam("Authorization") String api_key,
+            @Parameter(description = "Title of your algorithm", schema = @Schema(implementation = String.class)) @HeaderParam("title") String title,
+            @Parameter(description = "Short description of your algorithm", schema = @Schema(implementation = String.class)) @HeaderParam("description") String description,
+            @Parameter(description = "Tags for your algorithm (in a comma separated list) to facilitate look-up", schema = @Schema(implementation = String.class)) @HeaderParam("tags") String tags
     ) throws QuotaExceededException, JaqpotDocumentSizeExceededException {
 
         User user = userHandler.find(securityContext.getUserPrincipal().getName());
@@ -364,7 +364,7 @@ public class AlgorithmResource {
             })
     public Response getAlgorithm(
             //@ApiParam(value = "Authorization token")  @HeaderParam("Authorization") String api_key,
-            @Parameter(description = "Authorization token") @HeaderParam("Authorization") String api_key,
+            @Parameter(description = "Authorization token", schema = @Schema(implementation = String.class)) @HeaderParam("Authorization") String api_key,
             @PathParam("id") String algorithmId) throws ParameterIsNullException {
         //@PathParam("id") String algorithmId) throws ParameterIsNullException {
         if (algorithmId == null) {
@@ -427,14 +427,14 @@ public class AlgorithmResource {
                 @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorReport.class)), description = "Internal server error - this request cannot be served.")
             })
     @Parameters({
-        @Parameter(name = "title", required = true, schema = @Schema(implementation = String.class, type = "String"), in = ParameterIn.QUERY),
-        @Parameter(name = "decription", required = true, schema = @Schema(implementation = String.class, type = "String"), in = ParameterIn.QUERY),
-        @Parameter(name = "dataset_uri", schema = @Schema(type = "String", defaultValue = DEFAULT_DATASET), in = ParameterIn.QUERY),
-        @Parameter(name = "prediction_feature", schema = @Schema(type = "String", defaultValue = DEFAULT_PRED_FEATURE), in = ParameterIn.QUERY),
-        @Parameter(name = "parameters", schema = @Schema(type = "String"), in = ParameterIn.QUERY),
-        @Parameter(name = "transformations", schema = @Schema(type = "String", defaultValue = DEFAULT_TRANSFORMATIONS), in = ParameterIn.QUERY),
-        @Parameter(name = "scaling", schema = @Schema(type = "String", defaultValue = STANDARIZATION), in = ParameterIn.QUERY),
-        @Parameter(name = "doa", schema = @Schema(type = "String", defaultValue = DEFAULT_DOA), in = ParameterIn.QUERY),
+        @Parameter(name = "title", required = true, schema = @Schema(implementation = String.class, type = "String")),
+        @Parameter(name = "decription", required = true, schema = @Schema(implementation = String.class, type = "String")),
+        @Parameter(name = "dataset_uri", schema = @Schema(type = "String", defaultValue = DEFAULT_DATASET)),
+        @Parameter(name = "prediction_feature", schema = @Schema(type = "String", defaultValue = DEFAULT_PRED_FEATURE)),
+        @Parameter(name = "parameters", schema = @Schema(type = "String")),
+        @Parameter(name = "transformations", schema = @Schema(type = "String", defaultValue = DEFAULT_TRANSFORMATIONS)),
+        @Parameter(name = "scaling", schema = @Schema(type = "String", defaultValue = STANDARIZATION)),
+        @Parameter(name = "doa", schema = @Schema(type = "String", defaultValue = DEFAULT_DOA)),
         @Parameter(name = "id", schema = @Schema(type = "String"), in = ParameterIn.PATH),
         @Parameter(name = "Authorization", schema = @Schema(type = "String"), in = ParameterIn.HEADER)
     })
@@ -605,7 +605,7 @@ public class AlgorithmResource {
             })
     public Response deleteAlgorithm(
             //@ApiParam(value = "ID of the algorithm which is to be deleted.", required = true) @PathParam("id") String id,
-            @Parameter(description = "ID of the algorithm which is to be deleted.", required = true) @PathParam("id") String id,
+            @Parameter(description = "ID of the algorithm which is to be deleted.", required = true, schema = @Schema(implementation = String.class)) @PathParam("id") String id,
             @HeaderParam("apiKey") String apiKey) throws ParameterIsNullException, JaqpotForbiddenException {
 
         if (id == null) {
@@ -662,9 +662,9 @@ public class AlgorithmResource {
             //@ApiParam("Clients need to authenticate in order to create resources on the server") @HeaderParam("apiKey") String apiKey,
             //@ApiParam(value = "ID of an existing BibTeX.", required = true) @PathParam("id") String id,
             //@ApiParam(value = "The patch in JSON according to the RFC 6902 specs", required = true) String patch
-            @Parameter(description = "Clients need to authenticate in order to create resources on the server") @HeaderParam("apiKey") String apiKey,
-            @Parameter(description = "ID of an existing BibTeX.", required = true) @PathParam("id") String id,
-            @Parameter(description = "The patch in JSON according to the RFC 6902 specs", required = true) String patch
+            @Parameter(description = "Clients need to authenticate in order to create resources on the server", schema = @Schema(implementation = String.class)) @HeaderParam("apiKey") String apiKey,
+            @Parameter(description = "ID of an existing BibTeX.", required = true, schema = @Schema(implementation = String.class)) @PathParam("id") String id,
+            @Parameter(description = "The patch in JSON according to the RFC 6902 specs", required = true, schema = @Schema(implementation = String.class)) String patch
     ) throws JsonPatchException, JsonProcessingException {
 
         Algorithm originalAlgorithm = algorithmHandler.find(id); // find doc in DB

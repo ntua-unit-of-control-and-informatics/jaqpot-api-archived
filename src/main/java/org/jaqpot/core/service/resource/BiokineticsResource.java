@@ -269,9 +269,9 @@ public class BiokineticsResource {
 
      })*/
     @Parameters({
-        @Parameter(name = "title", required = true, schema = @Schema(implementation = String.class), in = ParameterIn.QUERY),
-        @Parameter(name = "description", required = true, schema = @Schema(implementation = String.class), in = ParameterIn.QUERY),
-        @Parameter(name = "parameters", schema = @Schema(implementation = String.class), in = ParameterIn.QUERY, hidden = true),
+        @Parameter(name = "title", required = true, schema = @Schema(implementation = String.class)),
+        @Parameter(name = "description", required = true, schema = @Schema(implementation = String.class)),
+        @Parameter(name = "parameters", schema = @Schema(implementation = String.class), hidden = true),
         @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER)
     })
     @Operation(summary = "Creates an httk biocinetics Model",

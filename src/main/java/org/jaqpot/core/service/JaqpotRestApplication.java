@@ -105,13 +105,13 @@ public class JaqpotRestApplication extends Application {
         oas.openapi("3.0.1");
         oas.info(info);
 
-        SecurityScheme securityScheme = new SecurityScheme();
+       /* SecurityScheme securityScheme = new SecurityScheme();
         securityScheme.setName("Authorization");
         securityScheme.setType(SecurityScheme.Type.APIKEY);
         securityScheme.setIn(SecurityScheme.In.HEADER);
         SecurityRequirement sr = new SecurityRequirement();
         sr.addList("Authorization");
-        oas.addSecurityItem(sr);
+        oas.addSecurityItem(sr);*/
 
         
         Server server = new Server()
