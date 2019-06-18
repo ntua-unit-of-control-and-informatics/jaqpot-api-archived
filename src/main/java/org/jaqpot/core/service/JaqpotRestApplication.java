@@ -20,12 +20,12 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  * Source code:
  * The source code of JAQPOT Quattro is available on github at:
  * https://github.com/KinkyDesign/JaqpotQuattro
  * All source files of JAQPOT Quattro that are stored on github are licensed
- * with the aforementioned licence. 
+ * with the aforementioned licence.
  */
 package org.jaqpot.core.service;
 
@@ -90,15 +90,15 @@ public class JaqpotRestApplication extends Application {
     PropertyManager propertyManager;
 
     public JaqpotRestApplication() {
-  
+
           super();
     }
 
     //Move constructor logic in @PostConstruct in order to be able to use PropertyManager Injection
     @PostConstruct
-    
+
     public void init() {
-        
+
         String host = propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_HOST);
         String port = propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_PORT);
         String basePath = propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_BASE);
@@ -113,18 +113,18 @@ public class JaqpotRestApplication extends Application {
                 .version("5.0.?");
         oas.openapi("3.0.1");
         oas.info(info);
-        
-        
+
+
 //        SecurityScheme securityScheme = new SecurityScheme();
 //        securityScheme.setName("bearerAuth");
 //        securityScheme.setType(SecurityScheme.Type.HTTP);
 //        securityScheme.scheme("bearer");
 //        SecurityRequirement sr = new SecurityRequirement();
 //        sr.addList("Authorization");
-        
+
 //        oas.addSecurityItem(sr);
-        
-        
+
+
         Server server = new Server()
                 //.url(protocol.getDefault() + "://"+host + ":" + port + "/jaqpot/services")
                // .variables(varMap);
@@ -136,9 +136,9 @@ public class JaqpotRestApplication extends Application {
         List<Server> servers = new ArrayList();
         servers.add(server);
         servers.add(server2);
-        
+
         oas.servers(servers);
-       
+
         SwaggerConfiguration oasConfig = new SwaggerConfiguration()
                 //flag
                 .openAPI(oas)
@@ -160,7 +160,7 @@ public class JaqpotRestApplication extends Application {
 
         /*
          * We are here using reflections to discover and register
-         * resources, filters and providers. 
+         * resources, filters and providers.
          */
         // Resources [Annotated with @Path]
         Reflections reflectedResources = new Reflections("org.jaqpot.core.service.resource");

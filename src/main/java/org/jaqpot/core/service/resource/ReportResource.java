@@ -118,7 +118,8 @@ public class ReportResource {
     @TokenSecured({RoleEnum.DEFAULT_USER})
     //@ApiOperation(value = "Retrieves Reports of User")
     @Parameters({
-        @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
+        //@Parameter(name = "Authorization", description = "Authorization token", in = ParameterIn.HEADER),
+       
         @Parameter(name = "start", description = "start", schema = @Schema(implementation = Integer.class, defaultValue = "0"), in = ParameterIn.QUERY),
         @Parameter(name = "max", description = "max - the server imposes an upper limit of 500 on this "
                 + "parameter.", schema = @Schema(implementation = Integer.class, defaultValue = "10"), in = ParameterIn.QUERY)
@@ -127,6 +128,7 @@ public class ReportResource {
     @Operation(summary = "Retrieves Reports of User")
     public Response getReports(
             //@ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key,
+            @Parameter(name = "Authorization", description = "Authorization token")
             @HeaderParam("Authorization") String api_key,
             //@ApiParam(value = "start", defaultValue = "0") @QueryParam("start") Integer start,
             @QueryParam("start") Integer start,

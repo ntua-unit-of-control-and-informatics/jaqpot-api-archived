@@ -25,12 +25,12 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  * Source code:
  * The source code of JAQPOT Quattro is available on github at:
  * https://github.com/KinkyDesign/JaqpotQuattro
  * All source files of JAQPOT Quattro that are stored on github are licensed
- * with the aforementioned licence. 
+ * with the aforementioned licence.
  */
 package org.jaqpot.core.service.resource;
 
@@ -242,10 +242,10 @@ public class AlgorithmResource {
             })
     public Response createAlgorithm(
             @Parameter(description = "Algorithm in JSON", schema = @Schema(implementation = Algorithm.class, defaultValue = DEFAULT_ALGORITHM), required = true) Algorithm algorithm,
-            @Parameter(description = "Authorization token") @HeaderParam("Authorization") String api_key,
-            @Parameter(description = "Title of your algorithm") @HeaderParam("title") String title,
-            @Parameter(description = "Short description of your algorithm") @HeaderParam("description") String description,
-            @Parameter(description = "Tags for your algorithm (in a comma separated list) to facilitate look-up") @HeaderParam("tags") String tags
+            @Parameter(description = "Authorization token", schema = @Schema(implementation = String.class)) @HeaderParam("Authorization") String api_key,
+            @Parameter(description = "Title of your algorithm", schema = @Schema(implementation = String.class)) @HeaderParam("title") String title,
+            @Parameter(description = "Short description of your algorithm", schema = @Schema(implementation = String.class)) @HeaderParam("description") String description,
+            @Parameter(description = "Tags for your algorithm (in a comma separated list) to facilitate look-up", schema = @Schema(implementation = String.class)) @HeaderParam("tags") String tags
     ) throws QuotaExceededException, JaqpotDocumentSizeExceededException {
 
         User user = userHandler.find(securityContext.getUserPrincipal().getName());
@@ -362,7 +362,7 @@ public class AlgorithmResource {
 ////        @Parameter(name = "id", schema = @Schema(type = "String"), in = ParameterIn.PATH),
 ////        @Parameter(name = "Authorization", schema = @Schema(type = "String"), in = ParameterIn.HEADER)
 //    })
-            
+
     @org.jaqpot.core.service.annotations.Task
     public Response trainModel(
             @Parameter(name = "title", required = true, schema = @Schema(implementation = String.class, type = "String")) @FormParam("title") String title,

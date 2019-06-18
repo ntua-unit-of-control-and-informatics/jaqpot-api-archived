@@ -20,12 +20,12 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  * Source code:
  * The source code of JAQPOT Quattro is available on github at:
  * https://github.com/KinkyDesign/JaqpotQuattro
  * All source files of JAQPOT Quattro that are stored on github are licensed
- * with the aforementioned licence. 
+ * with the aforementioned licence.
  */
 package org.jaqpot.core.service.resource;
 
@@ -42,8 +42,6 @@ import io.swagger.v3.oas.annotations.extensions.ExtensionProperty;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Content;
-
-
 
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.security.OAuthFlow;
@@ -241,7 +239,7 @@ public class AAResource {
             })
     public Response validateAccessToken(
             //@ApiParam(value = "Authorization token") @QueryParam("accessToken") String accessToken
-            @Parameter(description = "Authorization token", schema = @Schema(implementation = String.class), in = ParameterIn.QUERY, name = "accessToken") String accessToken
+            @Parameter(description = "Authorization token", schema = @Schema(implementation = String.class), name = "accessToken") String accessToken
     ) throws JaqpotNotAuthorizedException {
         boolean valid = aaService.validateAccessToken(accessToken);
         return Response.ok(valid ? "true" : "false", MediaType.APPLICATION_JSON)
@@ -340,7 +338,7 @@ public class AAResource {
             })
     public Response getClaims(
             //@ApiParam(value = "Authorization token") @QueryParam("accessToken") String accessToken
-            @Parameter(description = "Authorization token", schema = @Schema(type = "String", implementation = String.class), in = ParameterIn.QUERY, name = "accessToken") String accessToken
+            @Parameter(description = "Authorization token", schema = @Schema(type = "String", implementation = String.class), name = "accessToken") String accessToken
     ) throws JaqpotNotAuthorizedException {
         JWTClaimsSet claims = aaService.getClaimsFromAccessToken(accessToken);
         return Response.ok(claims)
@@ -353,13 +351,6 @@ public class AAResource {
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Operation(description = "",
             summary = ""
-    )
-//    @Parameters({
-//        @Parameter(description = "Username", name = "username", schema = @Schema(implementation = String.class, type = "string"), required = true, in = ParameterIn.QUERY),
-//        @Parameter(description = "Password", name = "password", schema = @Schema(implementation = String.class, type = "string"), required = true, in = ParameterIn.QUERY)
-//    })
-    @SecurityRequirement(name = "security_key",
-            scopes = {"write:pets", "read:pets"}
     )
     public Response swaggerLogin(
             //@ApiParam(value = "Username", required = true) @FormParam("username") String username,

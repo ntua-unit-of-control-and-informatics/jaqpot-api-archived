@@ -41,6 +41,7 @@ import org.jaqpot.core.model.Descriptor;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 
+
 @Stateless
 public class DescriptorHandler extends AbstractHandler<Descriptor> {
 
