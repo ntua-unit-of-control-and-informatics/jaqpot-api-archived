@@ -35,6 +35,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeIn;
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.extensions.Extension;
 import io.swagger.v3.oas.annotations.extensions.ExtensionProperty;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -44,7 +46,13 @@ import io.swagger.v3.oas.annotations.media.Content;
 
 
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
+import io.swagger.v3.oas.annotations.security.OAuthFlow;
+import io.swagger.v3.oas.annotations.security.OAuthFlows;
+import io.swagger.v3.oas.annotations.security.OAuthScope;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import io.swagger.v3.oas.annotations.tags.Tag;
+//import io.swagger.v3.oas.models.security.SecurityRequirement;
 //import io.swagger.annotations.*;
 import org.jaqpot.core.model.ErrorReport;
 import org.jaqpot.core.model.dto.aa.AuthToken;
@@ -342,20 +350,23 @@ public class AAResource {
     @POST
     @Path("/login")
     @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Operation(description = "",
             summary = ""
     )
-    @Parameters({
-        @Parameter(description = "Username", name = "username", schema = @Schema(implementation = String.class, type = "string"), required = true, in = ParameterIn.QUERY),
-        @Parameter(description = "Password", name = "password", schema = @Schema(implementation = String.class, type = "string"), required = true, in = ParameterIn.QUERY)
-    })
-
+//    @Parameters({
+//        @Parameter(description = "Username", name = "username", schema = @Schema(implementation = String.class, type = "string"), required = true, in = ParameterIn.QUERY),
+//        @Parameter(description = "Password", name = "password", schema = @Schema(implementation = String.class, type = "string"), required = true, in = ParameterIn.QUERY)
+//    })
+    @SecurityRequirement(name = "security_key",
+            scopes = {"write:pets", "read:pets"}
+    )
     public Response swaggerLogin(
             //@ApiParam(value = "Username", required = true) @FormParam("username") String username,
             //@ApiParam(value = "Password", required = true) @FormParam("password") String password) throws JaqpotNotAuthorizedException {
 
-            @FormParam("username") String username,
-            @FormParam("password") String password) throws JaqpotNotAuthorizedException {
+            @Parameter(description = "Username", name = "username", schema = @Schema(implementation = String.class, type = "string")) @FormParam("username") String username,
+            @Parameter(description = "Password", name = "password", schema = @Schema(implementation = String.class, type = "string")) @FormParam("password") String password) throws JaqpotNotAuthorizedException {
 
         AccessToken aToken;
 

@@ -35,12 +35,15 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.enums.ParameterStyle;
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeIn;
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Content;
 
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
+import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.io.IOException;
 import java.io.InputStream;
@@ -102,6 +105,13 @@ import static org.jaqpot.core.util.CSVUtils.parseLine;
 //@Api(value = "dataset", description = "Dataset API")
 @Produces({"application/json", "text/uri-list"})
 @Tag(name = "dataset")
+@SecurityScheme(name = "bearerAuth",
+        type = SecuritySchemeType.HTTP,
+        in = SecuritySchemeIn.HEADER,
+        scheme = "bearer",
+        description = "add the token retreived from oidc. Example:  Bearer <API_KEY>"
+        )
+@io.swagger.v3.oas.annotations.security.SecurityRequirement(name = "bearerAuth")
 public class DatasetResource {
 
     private static final Logger LOG = Logger.getLogger(DatasetResource.class.getName());
@@ -156,35 +166,16 @@ public class DatasetResource {
 
     @GET
     @TokenSecured({RoleEnum.DEFAULT_USER})
-//    @Authorize({AuthorizationEnum.ORGANIZATION,AuthorizationEnum.OWNER})
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
-    /* @ApiOperation(value = "Finds all Datasets",
-     notes = "Finds all Datasets in the DB of Jaqpot and returns them in a list. Results can be obtained "
-     + "either in the form of a URI list or as a JSON list as specified by the Accept HTTP header. "
-     + "In the latter case, a list will be returned containing only the IDs of the datasets, their metadata "
-     + "and their ontological classes. The parameter max, which specifies the maximum number of IDs to be "
-     + "listed is limited to 500; if the client specifies a larger value, an HTTP Warning Header will be "
-     + "returned (RFC 2616) with code P670.",
-     position = 1)
-     @ApiResponses(value = {
-     @ApiResponse(code = 200, response = Dataset.class, responseContainer = "List",
-     message = "Datasets found and are listed in the response body")
-     ,
-     @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to access this resource")
-     ,
-     @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)")
-     ,
-     @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
-     })*/
-    @Parameters({
-        @Parameter(name = "start", description = "start", schema = @Schema(implementation = Integer.class, defaultValue = "0"), in = ParameterIn.QUERY),
-        @Parameter(name = "max", description = "max - the server imposes an upper limit of 500 on this "
-                + "parameter.", schema = @Schema(implementation = Integer.class, defaultValue = "10"), in = ParameterIn.QUERY),
-        @Parameter(name = "existence", description = "description for the dataset", required = false, schema = @Schema(implementation = String.class, allowableValues = {"UPLOADED", "CREATED", "TRANSFORMED", "PREDICTED", "FROMPRETRAINED", "DESCRIPTORS", "ALL"}), in = ParameterIn.QUERY),
-        @Parameter(name = "ontrash", description = "onTrash for the dataset", required = false, schema = @Schema(implementation = Boolean.class, allowableValues = {"true", "false"}), in = ParameterIn.QUERY),
-        @Parameter(name = "organization", description = "organization for the dataset", required = false, schema = @Schema(implementation = String.class), in = ParameterIn.QUERY),
-        @Parameter(name = "byModel", description = "by Model", required = false, schema = @Schema(implementation = String.class), in = ParameterIn.QUERY)
-    })
+//    @Parameters({
+////        @Parameter(name = "start", description = "start", schema = @Schema(implementation = Integer.class, defaultValue = "0"), in = ParameterIn.QUERY),
+//        @Parameter(name = "max", description = "max - the server imposes an upper limit of 500 on this "
+//                + "parameter.", schema = @Schema(implementation = Integer.class, defaultValue = "10"), in = ParameterIn.QUERY),
+//        @Parameter(name = "existence", description = "description for the dataset", required = false, schema = @Schema(implementation = String.class, allowableValues = {"UPLOADED", "CREATED", "TRANSFORMED", "PREDICTED", "FROMPRETRAINED", "DESCRIPTORS", "ALL"}), in = ParameterIn.QUERY),
+//        @Parameter(name = "ontrash", description = "onTrash for the dataset", required = false, schema = @Schema(implementation = Boolean.class, allowableValues = {"true", "false"}), in = ParameterIn.QUERY),
+//        @Parameter(name = "organization", description = "organization for the dataset", required = false, schema = @Schema(implementation = String.class), in = ParameterIn.QUERY),
+//        @Parameter(name = "byModel", description = "by Model", required = false, schema = @Schema(implementation = String.class), in = ParameterIn.QUERY)
+//    })
     @Operation(summary = "Finds all Datasets",
             description = "Finds all Datasets in the DB of Jaqpot and returns them in a list. Results can be obtained "
             + "either in the form of a URI list or as a JSON list as specified by the Accept HTTP header. "
@@ -200,19 +191,13 @@ public class DatasetResource {
                 @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorReport.class)), description = "Internal server error - this request cannot be served.")
             })
     public Response listDatasets(
-            //@ApiParam(value = "start", defaultValue = "0") @QueryParam("start") Integer start,
-            //@ApiParam(value = "max - the server imposes an upper limit of 500 on this "
-            //        + "parameter.", defaultValue = "10") @QueryParam("max") Integer max,
-            //@ApiParam(value = "description for the dataset", required = false, allowableValues = "UPLOADED, CREATED, TRANSFORMED, PREDICTED, FROMPRETRAINED, DESCRIPTORS, ALL") @QueryParam("existence") String datasetexistence,
-            //@ApiParam(value = "onTrash for the dataset", required = false, allowableValues = "true, false") @QueryParam("ontrash") Boolean ontrash,
-            //@ApiParam(value = "organization for the dataset", required = false) @QueryParam("organization") String organization,
-            //@ApiParam(value = "by Model", required = false) @QueryParam("byModel") String byModel
-            @QueryParam("start") Integer start,
-            @QueryParam("max") Integer max,
-            @QueryParam("existence") String datasetexistence,
-            @QueryParam("ontrash") Boolean ontrash,
-            @QueryParam("organization") String organization,
-            @QueryParam("byModel") String byModel
+            @Parameter(name = "start", description = "start", schema = @Schema(implementation = Integer.class, defaultValue = "0")) @QueryParam("start") Integer start,
+            @Parameter(name = "max", description = "max - the server imposes an upper limit of 500 on this "
+                + "parameter.", schema = @Schema(implementation = Integer.class, defaultValue = "10")) @QueryParam("max") Integer max,
+            @Parameter(name = "existence", description = "description for the dataset", required = false, schema = @Schema(implementation = String.class, allowableValues = {"UPLOADED", "CREATED", "TRANSFORMED", "PREDICTED", "FROMPRETRAINED", "DESCRIPTORS", "ALL"})) @QueryParam("existence") String datasetexistence,
+            @Parameter(name = "ontrash", description = "onTrash for the dataset", required = false, schema = @Schema(implementation = Boolean.class, allowableValues = {"true", "false"})) @QueryParam("ontrash") Boolean ontrash,
+            @Parameter(name = "organization", description = "organization for the dataset", required = false, schema = @Schema(implementation = String.class)) @QueryParam("organization") String organization,
+            @Parameter(name = "byModel", description = "by Model", required = false, schema = @Schema(implementation = String.class)) @QueryParam("byModel") String byModel
     ) {
         start = start != null ? start : 0;
         if (max == null || max > 500) {
@@ -300,20 +285,6 @@ public class DatasetResource {
     @Produces({"text/csv", MediaType.APPLICATION_JSON})
 
     @Path("{id}")
-    /*@ApiOperation(value = "Finds Dataset by Id",
-     notes = "Finds specified Dataset"
-     )
-     @ApiResponses(value = {
-     @ApiResponse(code = 200, response = Dataset.class, message = "Dataset was found")
-     ,
-     @ApiResponse(code = 404, response = ErrorReport.class, message = "Dataset was not found in the system")
-     ,
-     @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to access this resource")
-     ,
-     @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)")
-     ,
-     @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
-     })*/
     @Parameters({
         @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER)
     })
@@ -359,29 +330,12 @@ public class DatasetResource {
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Path("/featured")
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
-    /*@ApiOperation(value = "Finds all Datasets",
-     notes = "Finds Featured Datasets in the DB of Jaqpot and returns them in a list. Results can be obtained "
-     + "either in the form of a URI list or as a JSON list as specified by the Accept HTTP header. "
-     + "In the latter case, a list will be returned containing only the IDs of the datasets, their metadata "
-     + "and their ontological classes. The parameter max, which specifies the maximum number of IDs to be "
-     + "listed is limited to 500; if the client specifies a larger value, an HTTP Warning Header will be "
-     + "returned (RFC 2616) with code P670.",
-     position = 1)
-     @ApiResponses(value = {
-     @ApiResponse(code = 200, response = Dataset.class, responseContainer = "List", message = "Datasets found and are listed in the response body")
-     ,
-     @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to access this resource")
-     ,
-     @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)")
-     ,
-     @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
-     })*/
-    @Parameters({
-        @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
-        @Parameter(name = "start", description = "start", schema = @Schema(implementation = Integer.class, defaultValue = "0"), in = ParameterIn.QUERY),
-        @Parameter(name = "max", description = "max - the server imposes an upper limit of 500 on this "
-                + "parameter.", schema = @Schema(implementation = Integer.class, defaultValue = "10"), in = ParameterIn.QUERY)
-    })
+//    @Parameters({
+//        @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
+//        @Parameter(name = "start", description = "start", schema = @Schema(implementation = Integer.class, defaultValue = "0"), in = ParameterIn.QUERY),
+//        @Parameter(name = "max", description = "max - the server imposes an upper limit of 500 on this "
+//                + "parameter.", schema = @Schema(implementation = Integer.class, defaultValue = "10"), in = ParameterIn.QUERY)
+//    })
     @Operation(summary = "Finds all Datasets",
             description = "Finds Featured Datasets in the DB of Jaqpot and returns them in a list. Results can be obtained "
             + "either in the form of a URI list or as a JSON list as specified by the Accept HTTP header. "
@@ -397,13 +351,10 @@ public class DatasetResource {
                 @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorReport.class)), description = "Internal server error - this request cannot be served.")
             })
     public Response listFeaturedDatasets(
-            // @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key,
-            // @ApiParam(value = "start", defaultValue = "0") @QueryParam("start") Integer start,
-            // @ApiParam(value = "max - the server imposes an upper limit of 500 on this "
-            //         + "parameter.", defaultValue = "10") @QueryParam("max") Integer max
-            @HeaderParam("Authorization") String api_key,
-            @QueryParam("start") Integer start,
-            @QueryParam("max") Integer max
+            @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class)) @HeaderParam("Authorization") String api_key,
+            @Parameter(name = "start", description = "start", schema = @Schema(implementation = Integer.class, defaultValue = "0") ) @QueryParam("start") Integer start,
+            @Parameter(name = "max", description = "max - the server imposes an upper limit of 500 on this "
+                + "parameter.", schema = @Schema(implementation = Integer.class, defaultValue = "10")) @QueryParam("max") Integer max
     ) {
         start = start != null ? start : 0;
         boolean doWarnMax = false;
@@ -421,19 +372,6 @@ public class DatasetResource {
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces(MediaType.APPLICATION_JSON)
     @Path("{id}/features")
-    /*@ApiOperation(value = "Finds Features of Dataset by Id",
-     notes = "Finds specified Dataset's features")
-     @ApiResponses(value = {
-     @ApiResponse(code = 200, response = Dataset.class, message = "Dataset's features found and are listed in the response body")
-     ,
-     @ApiResponse(code = 404, response = ErrorReport.class, message = "Dataset was not found in the system")
-     ,
-     @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to access this resource")
-     ,
-     @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)")
-     ,
-     @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")})
-     */
     @Parameters({
         @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER)
     })
@@ -449,7 +387,7 @@ public class DatasetResource {
             })
     public Response getDatasetFeatures(
             //@ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key,
-            @HeaderParam("Authorization") String api_key,
+            @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class)) @HeaderParam("Authorization") String api_key,
             @PathParam("id") String id
     ) {
         Dataset dataset = datasetHandler.find(id);
@@ -463,19 +401,6 @@ public class DatasetResource {
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces(MediaType.APPLICATION_JSON)
     @Path("{id}/meta")
-    /*@ApiOperation(value = "Finds MetaData of Dataset by Id",
-     notes = "Finds specified Dataset's MetaData")
-     @ApiResponses(value = {
-     @ApiResponse(code = 200, response = Dataset.class, message = "Dataset's meta data found and are listed in the response body")
-     ,
-     @ApiResponse(code = 404, response = ErrorReport.class, message = "Dataset was not found in the system")
-     ,
-     @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to access this resource")
-     ,
-     @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)")
-     ,
-     @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
-     })*/
     @Operation(summary = "Finds MetaData of Dataset by Id",
             description = "Finds specified Dataset's MetaData",
             responses = {
@@ -487,7 +412,6 @@ public class DatasetResource {
                 @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorReport.class)), description = "Internal server error - this request cannot be served.")
             })
     public Response getDatasetMeta(
-            //@ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key,
             @Parameter(description = "Authorization token") @HeaderParam("Authorization") String api_key,
             @PathParam("id") String id) {
         Dataset dataset = datasetHandler.find(id);
@@ -503,19 +427,6 @@ public class DatasetResource {
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces({"text/uri-list", MediaType.APPLICATION_JSON})
-    /*@ApiOperation(value = "Creates a new Dataset",
-     notes = "The new Dataset created will be assigned on a random generated Id")
-     @ApiResponses(value = {
-     @ApiResponse(code = 200, response = Dataset.class, message = "Dataset was created succesfully")
-     ,
-     @ApiResponse(code = 403, response = ErrorReport.class, message = "Dataset quota has been exceeded")
-     ,
-     @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to access this resource")
-     ,
-     @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)")
-     ,
-     @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
-     })*/
     @Operation(summary = "Creates a new Dataset",
             description = "The new Dataset created will be assigned on a random generated Id",
             responses = {
@@ -562,24 +473,11 @@ public class DatasetResource {
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Path("/empty")
     @Produces({"text/uri-list", MediaType.APPLICATION_JSON})
-    /*@ApiOperation(value = "Creates a new empty Dataset",
-     notes = "The new empty Dataset created will be assigned on a random generated Id")
-     @ApiResponses(value = {
-     @ApiResponse(code = 200, response = Dataset.class, message = "Dataset was created succesfully")
-     ,
-     @ApiResponse(code = 403, response = ErrorReport.class, message = "Dataset quota has been exceeded")
-     ,
-     @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to access this resource")
-     ,
-     @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)")
-     ,
-     @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
-     })*/
-      @Parameters({
-        @Parameter(name = "title", schema = @Schema(implementation = String.class)),
-        @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
-        @Parameter(name = "description", schema = @Schema(implementation = String.class))
-    })
+//      @Parameters({
+//        @Parameter(name = "title", schema = @Schema(implementation = String.class)),
+//        @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
+//        @Parameter(name = "description", schema = @Schema(implementation = String.class))
+//    })
     @Operation(summary = "Creates a new empty Dataset",
             description = "The new empty Dataset created will be assigned on a random generated Id",
             responses = {
@@ -593,8 +491,8 @@ public class DatasetResource {
     public Response createEmptyDataset(
             //@ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key,
             @Parameter(description = "Authorization token") @HeaderParam("Authorization") String api_key,
-            @FormParam("title") String title,
-            @FormParam("description") String description) throws URISyntaxException, QuotaExceededException, JaqpotDocumentSizeExceededException {
+            @Parameter(name = "title", schema = @Schema(implementation = String.class)) @FormParam("title") String title,
+            @Parameter(name = "description", schema = @Schema(implementation = String.class)) @FormParam("description") String description) throws URISyntaxException, QuotaExceededException, JaqpotDocumentSizeExceededException {
 
         User user = userHandler.find(securityContext.getUserPrincipal().getName());
         long datasetCount = datasetHandler.countAllOfCreator(user.getId());
@@ -629,23 +527,6 @@ public class DatasetResource {
     @POST
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Path("/merge")
-    /*@ApiOperation(value = "Merges Datasets",
-     notes = "The new intersected Dataset created will be assigned on a random generated Id")
-     @ApiResponses(value = {
-     @ApiResponse(code = 200, response = Dataset.class, message = "Dataset was created succesfully")
-     ,
-     @ApiResponse(code = 403, response = ErrorReport.class, message = "Dataset quota has been exceeded")
-     ,
-     @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to access this resource")
-     ,
-     @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)")
-     ,
-     @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
-     })*/
-    @Parameters({
-        @Parameter(name = "dataset_uris", description = "dataset_uris", schema = @Schema(implementation = String.class)),
-        @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER)
-    })
     @Operation(summary = "Merges Datasets",
             description = "The new intersected Dataset created will be assigned on a random generated Id",
             responses = {
@@ -657,8 +538,8 @@ public class DatasetResource {
                 @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorReport.class)), description = "Internal server error - this request cannot be served.")
             })
     public Response mergeDatasets(
-            @FormParam("dataset_uris") String datasetURIs,
-            @HeaderParam("Authorization") String api_key) throws URISyntaxException, QuotaExceededException, JaqpotDocumentSizeExceededException {
+            @Parameter(name = "dataset_uris", description = "dataset_uris", schema = @Schema(implementation = String.class)) @FormParam("dataset_uris") String datasetURIs,
+            @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class)) @HeaderParam("Authorization") String api_key) throws URISyntaxException, QuotaExceededException, JaqpotDocumentSizeExceededException {
 
         String[] apiA = api_key.split("\\s+");
         String apiKey = apiA[1];
@@ -703,21 +584,10 @@ public class DatasetResource {
     @POST
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Path("/merge/features")
-    /* @ApiOperation(value = "Merges the features of two or more Datasets",
-     notes = "The new intersected Dataset created will be assigned on a random generated Id")
-     @ApiResponses(value = {
-     @ApiResponse(code = 200, response = Dataset.class, message = "Dataset was created succesfully")
-     ,
-     @ApiResponse(code = 403, response = ErrorReport.class, message = "Dataset quota has been exceeded")
-     ,
-     @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to access this resource")
-     ,
-     @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
-     })*/
-     @Parameters({
-        @Parameter(name = "dataset_uris", schema = @Schema(implementation = String.class)),
-        @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER)
-    })
+//    @Parameters({
+//        @Parameter(name = "dataset_uris", schema = @Schema(implementation = String.class)),
+//        @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER)
+//    })
     @Operation(summary = "Merges the features of two or more Datasets",
             description = "The new intersected Dataset created will be assigned on a random generated Id",
             responses = {
@@ -728,8 +598,8 @@ public class DatasetResource {
                 @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorReport.class)), description = "Internal server error - this request cannot be served.")
             })
     public Response mergeFeaturesDatasets(
-            @FormParam("dataset_uris") String datasetURIs,
-            @HeaderParam("Authorization") String api_key) throws URISyntaxException, QuotaExceededException, JaqpotDocumentSizeExceededException {
+            @Parameter(name = "dataset_uris", schema = @Schema(implementation = String.class)) @FormParam("dataset_uris") String datasetURIs,
+            @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class)) @HeaderParam("Authorization") String api_key) throws URISyntaxException, QuotaExceededException, JaqpotDocumentSizeExceededException {
 
         String[] apiA = api_key.split("\\s+");
         String apiKey = apiA[1];
@@ -774,20 +644,6 @@ public class DatasetResource {
     @DELETE
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Path("{id}")
-    /*@ApiOperation("Deletes dataset")
-     @ApiResponses(value = {
-     @ApiResponse(code = 200, message = "Dataset was succesfully deleted")
-     ,
-     @ApiResponse(code = 404, response = ErrorReport.class, message = "Dataset was not found in the system")
-     ,
-     @ApiResponse(code = 403, response = ErrorReport.class, message = "Dataset quota has been exceeded")
-     ,
-     @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to access this resource")
-     ,
-     @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)")
-     ,
-     @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
-     })*/
     @Operation(summary = "Deletes dataset",
             responses = {
                 @ApiResponse(responseCode = "200", description = "Dataset was succesfully deleted"),
@@ -798,7 +654,6 @@ public class DatasetResource {
                 @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorReport.class)), description = "Internal server error - this request cannot be served.")
             })
     public Response deleteDataset(
-            //@ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key,
             @Parameter(description = "Authorization token") @HeaderParam("Authorization") String api_key,
             @PathParam("id") String id) throws JaqpotForbiddenException {
         Dataset ds = datasetHandler.find(id);
@@ -1028,29 +883,6 @@ public class DatasetResource {
     @POST
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Path("{id}/qprf-dummy")
-    /*@ApiOperation("Creates QPRF Dummy Report")
-     @ApiResponses(value = {
-     @ApiResponse(code = 200, message = "Dataset was succesfully deleted")
-     ,
-     @ApiResponse(code = 400, response = ErrorReport.class, message = "Bad Request. More details can be found in details of ErrorReport")
-     ,
-     @ApiResponse(code = 404, response = ErrorReport.class, message = "Dataset was not found in the system")
-     ,
-     @ApiResponse(code = 403, response = ErrorReport.class, message = "Dataset quota has been exceeded")
-     ,
-     @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to access this resource")
-     ,
-     @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)")
-     ,
-     @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
-     })*/
-    @Parameters({
-        @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
-        @Parameter(name = "id", schema = @Schema(implementation = String.class), in = ParameterIn.PATH),
-        @Parameter(name = "substance_uri", schema = @Schema(implementation = String.class)),
-        @Parameter(name = "title", schema = @Schema(implementation = String.class)),
-        @Parameter(name = "description", schema = @Schema(implementation = String.class))
-    })
     @Operation(summary = "Creates QPRF Dummy Report",
             responses = {
                 @ApiResponse(responseCode = "200", description = "Dataset was succesfully deleted"),
@@ -1063,11 +895,11 @@ public class DatasetResource {
             })
     public Response createQPRFReportDummy(
             //@ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key,
-            @HeaderParam("Authorization") String api_key,
-            @PathParam("id") String id,
-            @FormParam("substance_uri") String substanceURI,
-            @FormParam("title") String title,
-            @FormParam("description") String description
+            @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class)) @HeaderParam("Authorization") String api_key,
+            @Parameter(name = "id", schema = @Schema(implementation = String.class)) @PathParam("id") String id,
+            @Parameter(name = "substance_uri", schema = @Schema(implementation = String.class)) @FormParam("substance_uri") String substanceURI,
+            @Parameter(name = "title", schema = @Schema(implementation = String.class)) @FormParam("title") String title,
+            @Parameter(name = "description", schema = @Schema(implementation = String.class)) @FormParam("description") String description
     ) {
 
         String[] apiA = api_key.split("\\s+");
@@ -1230,23 +1062,6 @@ public class DatasetResource {
     @Produces({"application/json", MediaType.APPLICATION_JSON})
 
     @Path("{did}/dataentry/{id}")
-    /*@ApiOperation(value = "Finds Data Entry by Id",
-     notes = "Finds specified Data Entry"
-     )
-     @ApiResponses(value = {
-     @ApiResponse(code = 200, response = DataEntry.class, message = "Dataset Entry was found")
-     ,
-     @ApiResponse(code = 404, response = ErrorReport.class, message = "Dataset Entry was not found in the system")
-     ,
-     @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to access this resource")
-     ,
-     @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)")
-     ,
-     @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
-     })*/
-    @Parameters({
-        @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER)
-    })
     @Operation(summary = "Finds Data Entry by Id",
             description = "Finds specified Data Entry",
             responses = {
@@ -1258,7 +1073,7 @@ public class DatasetResource {
             })
     public Response getDataEntry(
             //@ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key,
-            @HeaderParam("Authorization") String api_key,
+            @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class)) @HeaderParam("Authorization") String api_key,
             @PathParam("did") String datasetId,
             @PathParam("id") String id)
             throws NotFoundException, IllegalArgumentException {
@@ -1280,32 +1095,7 @@ public class DatasetResource {
     @GET
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces({"application/json", MediaType.APPLICATION_JSON})
-
     @Path("{id}/dataentry")
-    /*@ApiOperation(value = "Finds Data Entries of Dataset with given id",
-     notes = "Finds Data entries of specified Dataset"
-     )
-     @ApiResponses(value = {
-     @ApiResponse(code = 200, response = DataEntry.class, responseContainer = "List", message = "Dataset Entry was found")
-     ,
-     @ApiResponse(code = 404, response = ErrorReport.class, message = "Dataset Entry was not found in the system")
-     ,
-     @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to access this resource")
-     ,
-     @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)")
-     ,
-     @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
-     })*/
-    @Parameters({
-        @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
-        @Parameter(name = "rowStart", description = "rowStart", schema = @Schema(implementation = Integer.class, defaultValue = "0"), required = false, in = ParameterIn.QUERY),
-        @Parameter(name = "rowMax", description = "rowMax", schema = @Schema(implementation = Integer.class), required = false, in = ParameterIn.QUERY),
-        @Parameter(name = "colStart", description = "colStart", schema = @Schema(implementation = Integer.class), in = ParameterIn.QUERY),
-        @Parameter(name = "colMax", description = "colMax", schema = @Schema(implementation = Integer.class), in = ParameterIn.QUERY),
-        @Parameter(name = "seed", description = "seed", schema = @Schema(implementation = Long.class), in = ParameterIn.QUERY),
-        @Parameter(name = "folds", description = "folds", schema = @Schema(implementation = Integer.class), in = ParameterIn.QUERY),
-        @Parameter(name = "id", schema = @Schema(implementation = String.class), in = ParameterIn.PATH)
-    })
     @Operation(summary = "Finds Data Entries of Dataset with given id",
             description = "Finds Data entries of specified Dataset",
             responses = {
@@ -1316,19 +1106,16 @@ public class DatasetResource {
                 @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorReport.class)), description = "Internal server error - this request cannot be served.")
             })
     public Response getDataEntries(
-            //@ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key,
-            @HeaderParam("Authorization") String api_key,
-            @PathParam("id") String id,
-            //@ApiParam(value = "rowStart", defaultValue = "0") @QueryParam("rowStart") Integer rowStart,
-            @QueryParam("rowStart") Integer rowStart,
-            //@ApiParam(value = "rowMax") @QueryParam("rowMax") Integer rowMax,
-            @QueryParam("rowMax") Integer rowMax,
-            @QueryParam("colStart") Integer colStart,
-            @QueryParam("colMax") Integer colMax,
-            @QueryParam("stratify") String stratify,
-            @QueryParam("seed") Long seed,
-            @QueryParam("folds") Integer folds,
-            @QueryParam("target_feature") String targetFeature
+            @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class)) @HeaderParam("Authorization") String api_key,
+            @Parameter(name = "id", schema = @Schema(implementation = String.class)) @PathParam("id") String id,
+            @Parameter(name = "rowStart", description = "rowStart", schema = @Schema(implementation = Integer.class, defaultValue = "0"), required = false) @QueryParam("rowStart") Integer rowStart,
+            @Parameter(name = "rowMax", description = "rowMax", schema = @Schema(implementation = Integer.class), required = false) @QueryParam("rowMax") Integer rowMax,
+            @Parameter(name = "colStart", description = "colStart", schema = @Schema(implementation = Integer.class)) @QueryParam("colStart") Integer colStart,
+            @Parameter(name = "colMax", description = "colMax", schema = @Schema(implementation = Integer.class)) @QueryParam("colMax") Integer colMax,
+            @Parameter(name = "stratify", description = "stratify", schema = @Schema(implementation = Long.class)) @QueryParam("stratify") String stratify,
+            @Parameter(name = "seed", description = "seed", schema = @Schema(implementation = Long.class)) @QueryParam("seed") Long seed,
+            @Parameter(name = "folds", description = "folds", schema = @Schema(implementation = Integer.class)) @QueryParam("folds") Integer folds,
+            @Parameter(name = "target_feature", description = "target_feature", schema = @Schema(implementation = Integer.class)) @QueryParam("target_feature") String targetFeature
     ) throws NotFoundException {
         Dataset dataset = datasetHandler.find(id);
         if (dataset == null) {
@@ -1346,20 +1133,6 @@ public class DatasetResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces({"application/json", MediaType.APPLICATION_JSON})
     @Path("{id}/dataentry")
-    /*@ApiOperation(value = "Creates DataEntry",
-     notes = "The new Data Entry created will be assigned on a random generated Id")
-     @ApiResponses(value = {
-     @ApiResponse(code = 200, response = DataEntry.class, message = "DataEntry was created succesfully")
-     ,
-     @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to access this resource")
-     ,
-     @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)")
-     ,
-     @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
-     })*/
-    @Parameters({
-        @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER)
-    })
     @Operation(summary = "Creates DataEntry",
             description = "The new Data Entry created will be assigned on a random generated Id",
             responses = {
@@ -1370,7 +1143,7 @@ public class DatasetResource {
             })
     public Response createDataEntry(
             //@ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key,
-            @HeaderParam("Authorization") String api_key,
+            @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class)) @HeaderParam("Authorization") String api_key,
             @PathParam("id") String id,
             DataEntry dataentry) throws URISyntaxException, JaqpotDocumentSizeExceededException {
         Dataset dataset = datasetHandler.find(id);
@@ -1391,21 +1164,6 @@ public class DatasetResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces({"application/json", MediaType.APPLICATION_JSON})
     @Path("{id}/meta")
-    /*@ApiOperation(value = "Updates meta info of a dataset",
-     notes = "TUpdates meta info of a dataset")
-     @ApiResponses(value = {
-     @ApiResponse(code = 200, response = DataEntry.class, message = "Meta was updated succesfully")
-     ,
-     @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to access this resource")
-     ,
-     @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)")
-     ,
-     @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
-     })*/
-    @Parameters({
-        @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
-        @Parameter(name = "id", schema = @Schema(implementation = String.class), in = ParameterIn.PATH)
-    })
     @Operation(summary = "Updates meta info of a dataset",
             description = "TUpdates meta info of a dataset",
             responses = {
@@ -1415,9 +1173,8 @@ public class DatasetResource {
                 @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorReport.class)), description = "Internal server error - this request cannot be served.")
             })
     public Response updateMeta(
-            //@ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key,
-            @HeaderParam("Authorization") String api_key,
-            @PathParam("id") String id,
+            @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class)) @HeaderParam("Authorization") String api_key,
+            @Parameter(name = "id", schema = @Schema(implementation = String.class)) @PathParam("id") String id,
             Dataset datasetForUpdate) throws URISyntaxException, JaqpotDocumentSizeExceededException, JaqpotNotAuthorizedException {
         String userId = securityContext.getUserPrincipal().getName();
         Dataset dataset = datasetHandler.find(id);
@@ -1440,17 +1197,6 @@ public class DatasetResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces({"application/json", MediaType.APPLICATION_JSON})
     @Path("{id}/ontrash")
-    /*@ApiOperation(value = "Updates meta info of a dataset",
-     notes = "TUpdates meta info of a dataset")
-     @ApiResponses(value = {
-     @ApiResponse(code = 200, response = DataEntry.class, message = "Meta was updated succesfully")
-     ,
-     @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to access this resource")
-     ,
-     @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)")
-     ,
-     @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
-     })*/
     @Operation(summary = "Updates meta info of a dataset",
             description = "TUpdates meta info of a dataset",
             responses = {
@@ -1460,7 +1206,6 @@ public class DatasetResource {
                 @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorReport.class)), description = "Internal server error - this request cannot be served.")
             })
     public Response updateOnTrash(
-            //@ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key,
             @Parameter(description = "Authorization token") @HeaderParam("Authorization") String api_key,
             @PathParam("id") String id,
             Dataset datasetForUpdate) throws URISyntaxException, JaqpotDocumentSizeExceededException, JaqpotNotAuthorizedException {
@@ -1483,18 +1228,6 @@ public class DatasetResource {
     @POST
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Path("/csv")
-    /*@ApiImplicitParams({
-     @ApiImplicitParam(name = "file", value = "xls[m,x] file", required = true, dataType = "file", paramType = "formData")
-     ,
-     @ApiImplicitParam(name = "title", value = "Title of dataset", required = true, dataType = "string", paramType = "formData")
-     ,
-     @ApiImplicitParam(name = "description", value = "Description of dataset", required = true, dataType = "string", paramType = "formData")
-     })
-     @ApiOperation(value = "Creates dataset By .csv document",
-     notes = "Creates features/substances, returns Dataset",
-     response = Dataset.class
-     )*/
-
     @Parameters({
         @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
         @Parameter(name = "file", description = "xls[m,x] file", required = true, schema = @Schema(type = "string", format = "binary")),
@@ -1512,10 +1245,7 @@ public class DatasetResource {
             }
     )
     public Response createDummyDataset(
-            //@ApiParam(value = "Authorization token") @HeaderParam("Authorization") String subjectId,
             @HeaderParam("Authorization") String subjectId,
-            //@ApiParam(value = "multipartFormData input", hidden = true) MultipartFormDataInput input)
-            //@Parameter(description = "multipartFormData input", hidden = true)
             MultipartFormDataInput input)
             throws ParameterIsNullException, ParameterInvalidURIException, QuotaExceededException, IOException, ParameterScopeException, ParameterRangeException, ParameterTypeException, URISyntaxException, JaqpotDocumentSizeExceededException {
 

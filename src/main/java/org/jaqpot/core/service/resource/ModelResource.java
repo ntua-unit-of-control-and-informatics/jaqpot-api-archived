@@ -112,6 +112,7 @@ import org.jaqpot.core.service.validator.ParameterValidator;
 //@Api(value = "/model", description = "Models API")
 @Produces({"application/json", "text/uri-list"})
 @Tag(name = "model")
+@io.swagger.v3.oas.annotations.security.SecurityRequirement(name = "bearerAuth")
 public class ModelResource {
 
     private static final Logger LOG = Logger.getLogger(ModelResource.class.getName());
@@ -169,41 +170,6 @@ public class ModelResource {
     @GET
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
-    /*@ApiOperation(value = "Finds all Models",
-     notes = "Finds all Models from Jaqpot Dataset. The response will list all models and will return either a URI list "
-     + "of a list of JSON model objects. In the latter case, only the IDs, metadata, ontological classes "
-     + "and reliability of the models will be returned. "
-     + "Use the parameters start and max to get paginated results.",
-     response = Model.class,
-     responseContainer = "List",
-     extensions = {
-     @Extension(properties = {
-     @ExtensionProperty(name = "orn-@type", value = "x-orn:JapotModelList"),}
-     )
-     ,
-     @Extension(name = "orn:expects", properties = {
-     @ExtensionProperty(name = "x-orn-@id", value = "x-orn:AccessToken")
-     })
-     ,
-     @Extension(name = "orn:returns", properties = {
-     @ExtensionProperty(name = "x-orn-@id", value = "x-orn:ModelList")
-     })
-     })
-     @ApiResponses(value = {
-     @ApiResponse(code = 200, message = "Models found and are listed in the response body")
-     ,
-     @ApiResponse(code = 204, message = "No content: The request succeeded, but there are no models "
-     + "matching your search criteria.")
-     ,
-     @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
-     })*/
-    @Parameters({
-        @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
-        @Parameter(name = "start", description = "start", schema = @Schema(implementation = Integer.class, defaultValue = "0"), in = ParameterIn.QUERY),
-        @Parameter(name = "max", description = "max - the server imposes an upper limit of 500 on this "
-                + "parameter.", schema = @Schema(implementation = Integer.class, defaultValue = "10"), in = ParameterIn.QUERY),
-        @Parameter(name = "ontrash", description = "on trash datasets", required = false, schema = @Schema(implementation = Boolean.class, allowableValues = {"true", "false"}), in = ParameterIn.QUERY),
-        @Parameter(name = "organization", description = "organization", schema = @Schema(implementation = String.class), in = ParameterIn.QUERY),})
     @Operation(summary = "Finds all Models",
             description = "Finds all Models from Jaqpot Dataset. The response will list all models and will return either a URI list "
             + "of a list of JSON model objects. In the latter case, only the IDs, metadata, ontological classes "
@@ -227,18 +193,12 @@ public class ModelResource {
                 })
             })
     public Response listModels(
-            /*@ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key,
-             @ApiParam(value = "start", defaultValue = "0") @QueryParam("start") Integer start,
-             @ApiParam(value = "max - the server imposes an upper limit of 500 on this "
-             + "parameter.", defaultValue = "20") @QueryParam("max") Integer max,
-             @ApiParam(value = "on trash datasets", required = false, allowableValues = "true, false") @QueryParam("ontrash") Boolean ontrash,
-             @ApiParam(value = "organization") @QueryParam("organization") String organization
-             */
-            @HeaderParam("Authorization") String api_key,
-            @QueryParam("start") Integer start,
-            @QueryParam("max") Integer max,
-            @QueryParam("ontrash") Boolean ontrash,
-            @QueryParam("organization") String organization
+            @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class)) @HeaderParam("Authorization") String api_key,
+            @Parameter(name = "start", description = "start", schema = @Schema(implementation = Integer.class, defaultValue = "0")) @QueryParam("start") Integer start,
+                    @Parameter(name = "max", description = "max - the server imposes an upper limit of 500 on this "
+                + "parameter.", schema = @Schema(implementation = Integer.class, defaultValue = "10")) @QueryParam("max") Integer max,
+            @Parameter(name = "ontrash", description = "on trash datasets", required = false, schema = @Schema(implementation = Boolean.class, allowableValues = {"true", "false"})) @QueryParam("ontrash") Boolean ontrash,
+            @Parameter(name = "organization", description = "organization", schema = @Schema(implementation = String.class)) @QueryParam("organization") String organization
     ) {
         if (max == null || max > 500) {
             max = 500;
@@ -285,40 +245,12 @@ public class ModelResource {
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Path("/featured")
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
-    /*@ApiOperation(value = "Finds all Models",
-     notes = "Finds featured Models from Jaqpot database. The response will list all models and will return either a URI list "
-     + "of a list of JSON model objects. In the latter case, only the IDs, metadata, ontological classes "
-     + "and reliability of the models will be returned. "
-     + "Use the parameters start and max to get paginated results.",
-     response = Model.class,
-     responseContainer = "List",
-     extensions = {
-     @Extension(properties = {
-     @ExtensionProperty(name = "orn-@type", value = "x-orn:JaqpotModelList"),}
-     )
-     ,
-     @Extension(name = "orn:expects", properties = {
-     @ExtensionProperty(name = "x-orn-@id", value = "x-orn:AccessToken")
-     })
-     ,
-     @Extension(name = "orn:returns", properties = {
-     @ExtensionProperty(name = "x-orn-@id", value = "x-orn:JapotModelList")
-     })
-     })
-     @ApiResponses(value = {
-     @ApiResponse(code = 200, message = "Models found and are listed in the response body")
-     ,
-     @ApiResponse(code = 204, message = "No content: The request succeeded, but there are no models "
-     + "matching your search criteria.")
-     ,
-     @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
-     })*/
-    @Parameters({
-        @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
-        @Parameter(name = "start", description = "start", schema = @Schema(implementation = Integer.class, defaultValue = "0"), in = ParameterIn.QUERY),
-        @Parameter(name = "max", description = "max - the server imposes an upper limit of 500 on this "
-                + "parameter.", schema = @Schema(implementation = Integer.class, defaultValue = "10"), in = ParameterIn.QUERY)
-    })
+//    @Parameters({
+//        @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
+//        @Parameter(name = "start", description = "start", schema = @Schema(implementation = Integer.class, defaultValue = "0"), in = ParameterIn.QUERY),
+//        @Parameter(name = "max", description = "max - the server imposes an upper limit of 500 on this "
+//                + "parameter.", schema = @Schema(implementation = Integer.class, defaultValue = "10"), in = ParameterIn.QUERY)
+//    })
     @Operation(summary = "Finds all Models",
             description = "Finds featured Models from Jaqpot database. The response will list all models and will return either a URI list "
             + "of a list of JSON model objects. In the latter case, only the IDs, metadata, ontological classes "
@@ -342,13 +274,10 @@ public class ModelResource {
                 })
             })
     public Response listFeaturedModels(
-            // @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key,
-            // @ApiParam(value = "start", defaultValue = "0") @QueryParam("start") Integer start,
-            // @ApiParam(value = "max - the server imposes an upper limit of 500 on this "
-            //         + "parameter.", defaultValue = "20") @QueryParam("max") Integer max
-            @HeaderParam("Authorization") String api_key,
-            @QueryParam("start") Integer start,
-            @QueryParam("max") Integer max
+            @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class)) @HeaderParam("Authorization") String api_key,
+            @Parameter(name = "start", description = "start", schema = @Schema(implementation = Integer.class, defaultValue = "0")) @QueryParam("start") Integer start,
+            @Parameter(name = "max", description = "max - the server imposes an upper limit of 500 on this "
+                + "parameter.", schema = @Schema(implementation = Integer.class, defaultValue = "10")) @QueryParam("max") Integer max
     ) {
         if (max == null || max > 500) {
             max = 500;
@@ -362,35 +291,6 @@ public class ModelResource {
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Path("/{id}")
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list", "application/ld+json"})
-    /*@ApiOperation(value = "Finds Model by Id",
-     notes = "Finds specified Model",
-     response = Model.class,
-     extensions = {
-     @Extension(properties = {
-     @ExtensionProperty(name = "orn-@type", value = "x-orn:Model"),}
-     )
-     ,
-     @Extension(name = "orn:expects", properties = {
-     @ExtensionProperty(name = "x-orn-@id", value = "x-orn:AcessToken")
-     ,
-     @ExtensionProperty(name = "x-orn-@id", value = "x-orn:JaqpotModelId")
-     })
-     ,
-     @Extension(name = "orn:returns", properties = {
-     @ExtensionProperty(name = "x-orn-@id", value = "x-orn:JaqpotModel")
-     })
-     })
-     //    @ApiResponses(value = {
-     //        @ApiResponse(code = 200, message = "Model is found"),
-     //        @ApiResponse(code = 401, message = "You are not authorized to access this model"),
-     //        @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)"),
-     //        @ApiResponse(code = 404, message = "This model was not found."),
-     //        @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
-     //    })*/
-    @Parameters({
-        @Parameter(name = "Authorization", description = "Clients need to authenticate in order to access models", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
-        @Parameter(name = "id", description = "id", schema = @Schema(implementation = String.class), in = ParameterIn.PATH)
-    })
     @Operation(summary = "Finds Model by Id",
             description = "Finds specified Model",
             responses = {
@@ -414,9 +314,8 @@ public class ModelResource {
                 })
             })
     public Response getModel(
-            @PathParam("id") String id,
-            //@ApiParam(value = "Clients need to authenticate in order to access models") @HeaderParam("Authorization") String api_key) {
-            @HeaderParam("Authorization") String api_key) {
+            @Parameter(name = "id", description = "id", schema = @Schema(implementation = String.class)) @PathParam("id") String id,
+            @Parameter(name = "Authorization", description = "Clients need to authenticate in order to access models", schema = @Schema(implementation = String.class)) @HeaderParam("Authorization") String api_key) {
         String[] apiA = api_key.split("\\s+");
         String apiKey = apiA[1];
         Model model = modelHandler.findModel(id);
@@ -433,24 +332,10 @@ public class ModelResource {
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces(MediaType.APPLICATION_XML)
     @Path("/{id}/pmml")
-    /*@ApiOperation(value = "Finds Model by Id",
-     notes = "Finds specified Model",
-     response = Model.class)
-     @ApiResponses(value = {
-     @ApiResponse(code = 200, message = "Model is found")
-     ,
-     @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to access this model")
-     ,
-     @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)")
-     ,
-     @ApiResponse(code = 404, response = ErrorReport.class, message = "This model was not found.")
-     ,
-     @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
-     })*/
-    @Parameters({
-        @Parameter(name = "Authorization", description = "Clients need to authenticate in order to access models", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
-        @Parameter(name = "id", description = "id", schema = @Schema(implementation = String.class), in = ParameterIn.PATH)
-    })
+//    @Parameters({
+//        @Parameter(name = "Authorization", description = "Clients need to authenticate in order to access models", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
+//        @Parameter(name = "id", description = "id", schema = @Schema(implementation = String.class), in = ParameterIn.PATH)
+//    })
     @Operation(summary = "Finds Model by Id",
             description = "Finds specified Model",
             responses = {
@@ -462,9 +347,8 @@ public class ModelResource {
                 @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorReport.class)), description = "Internal server error - this request cannot be served.")
             })
     public Response getModelPmml(
-            @PathParam("id") String id,
-            //@ApiParam(value = "Clients need to authenticate in order to access models") @HeaderParam("Authorization") String api_key) throws NotFoundException {
-            @HeaderParam("Authorization") String api_key) throws NotFoundException {
+            @Parameter(name = "id", description = "id", schema = @Schema(implementation = String.class)) @PathParam("id") String id,
+            @Parameter(name = "Authorization", description = "Clients need to authenticate in order to access models", schema = @Schema(implementation = String.class)) @HeaderParam("Authorization") String api_key) throws NotFoundException {
         String[] apiA = api_key.split("\\s+");
         String apiKey = apiA[1];
         Model model = modelHandler.findModelPmml(id);
@@ -496,25 +380,10 @@ public class ModelResource {
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces({MediaType.APPLICATION_JSON})
     @Path("/{id}/independent")
-    /*@ApiOperation(value = "Lists the independent features of a Model",
-     notes = "Lists the independent features of a Model. The result is available as a URI list.",
-     response = String.class,
-     responseContainer = "List")
-     @ApiResponses(value = {
-     @ApiResponse(code = 200, message = "Model is found and its independent features are listed in the response body.")
-     ,
-     @ApiResponse(code = 401, message = "You are not authorized to access this model")
-     ,
-     @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)")
-     ,
-     @ApiResponse(code = 404, message = "This model was not found.")
-     ,
-     @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
-     })*/
-    @Parameters({
-        @Parameter(name = "Authorization", description = "Clients need to authenticate in order to access models", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
-        @Parameter(name = "id", description = "id", schema = @Schema(implementation = String.class), in = ParameterIn.PATH)
-    })
+//    @Parameters({
+//        @Parameter(name = "Authorization", description = "Clients need to authenticate in order to access models", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
+//        @Parameter(name = "id", description = "id", schema = @Schema(implementation = String.class), in = ParameterIn.PATH)
+//    })
     @Operation(summary = "Lists the independent features of a Model",
             description = "Lists the independent features of a Model. The result is available as a URI list.",
             responses = {
@@ -526,9 +395,9 @@ public class ModelResource {
                 @ApiResponse(responseCode = "500", description = "Internal server error - this request cannot be served.")
             })
     public Response listModelIndependentFeatures(
-            @PathParam("id") String id,
+            @Parameter(name = "id", description = "id", schema = @Schema(implementation = String.class)) @PathParam("id") String id,
             //@ApiParam(value = "Clients need to authenticate in order to access models") @HeaderParam("Authorization") String api_key) {
-            @HeaderParam("Authorization") String api_key) {
+            @Parameter(name = "Authorization", description = "Clients need to authenticate in order to access models", schema = @Schema(implementation = String.class)) @HeaderParam("Authorization") String api_key) {
         String[] apiA = api_key.split("\\s+");
         String apiKey = apiA[1];
         Model foundModel = modelHandler.find(id);
@@ -551,22 +420,6 @@ public class ModelResource {
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces({MediaType.APPLICATION_JSON})
     @Path("/{id}/dependent")
-    /*@ApiOperation(value = "Lists the dependent features of a Model",
-     notes = "Lists the dependent features of a Model identified by its ID. The result is available as a URI list.",
-     response = String.class,
-     responseContainer = "List")
-     @ApiResponses(value = {
-     @ApiResponse(code = 200, message = "Model is found and its independent features are listed in the response body.")
-     ,
-     @ApiResponse(code = 401, message = "You are not authorized to access this model")
-     ,
-     @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)")
-     ,
-     @ApiResponse(code = 404, message = "This model was not found.")
-     ,
-     @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
-     }
-    )*/
     @Parameters({
         @Parameter(name = "Authorization", description = "Clients need to authenticate in order to access models", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
         @Parameter(name = "id", description = "id", schema = @Schema(implementation = String.class), in = ParameterIn.PATH)
@@ -582,9 +435,9 @@ public class ModelResource {
                 @ApiResponse(responseCode = "500", description = "Internal server error - this request cannot be served.")
             })
     public Response listModelDependentFeatures(
-            @PathParam("id") String id,
+            @Parameter(name = "id", description = "id", schema = @Schema(implementation = String.class)) @PathParam("id") String id,
             //@ApiParam(value = "Clients need to authenticate in order to access models") @HeaderParam("Authorization") String api_key) {
-            @HeaderParam("Authorization") String api_key) {
+                    @Parameter(name = "Authorization", description = "Clients need to authenticate in order to access models", schema = @Schema(implementation = String.class)) @HeaderParam("Authorization") String api_key) {
         String[] apiA = api_key.split("\\s+");
         String apiKey = apiA[1];
         Model foundModel = modelHandler.find(id);
@@ -607,25 +460,10 @@ public class ModelResource {
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces({MediaType.APPLICATION_JSON})
     @Path("/{id}/predicted")
-    /*@ApiOperation(value = "Lists the dependent features of a Model",
-     notes = "Lists the predicted features of a Model identified by its ID. The result is available as a URI list.",
-     response = String.class,
-     responseContainer = "List")
-     @ApiResponses(value = {
-     @ApiResponse(code = 200, message = "Model is found and its independent features are listed in the response body.")
-     ,
-     @ApiResponse(code = 401, message = "You are not authorized to access this model")
-     ,
-     @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)")
-     ,
-     @ApiResponse(code = 404, message = "This model was not found.")
-     ,
-     @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
-     })*/
-    @Parameters({
-        @Parameter(name = "Authorization", description = "Clients need to authenticate in order to access models", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
-        @Parameter(name = "id", description = "id", schema = @Schema(implementation = String.class), in = ParameterIn.PATH)
-    })
+//    @Parameters({
+//        @Parameter(name = "Authorization", description = "Clients need to authenticate in order to access models", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
+//        @Parameter(name = "id", description = "id", schema = @Schema(implementation = String.class), in = ParameterIn.PATH)
+//    })
     @Operation(summary = "Lists the dependent features of a Model",
             description = "Lists the predicted features of a Model identified by its ID. The result is available as a URI list.",
             responses = {
@@ -637,9 +475,9 @@ public class ModelResource {
                 @ApiResponse(responseCode = "500", description = "Internal server error - this request cannot be served.")
             })
     public Response listModelPredictedFeatures(
-            @PathParam("id") String id,
+             @Parameter(name = "id", description = "id", schema = @Schema(implementation = String.class)) @PathParam("id") String id,
             //@ApiParam(value = "Clients need to authenticate in order to access models") @HeaderParam("Authorization") String api_key) {
-            @HeaderParam("Authorization") String api_key) {
+                    @Parameter(name = "Authorization", description = "Clients need to authenticate in order to access models", schema = @Schema(implementation = String.class)) @HeaderParam("Authorization") String api_key) {
         String[] apiA = api_key.split("\\s+");
         String apiKey = apiA[1];
         Model foundModel = modelHandler.findModel(id);
@@ -673,22 +511,17 @@ public class ModelResource {
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/{id}/required")
-    /*@ApiOperation(value = "Lists the required features of a Model",
-     notes = "Lists the required features of a Model identified by its ID. The result is available as a URI list.",
-     response = String.class,
-     responseContainer = "List")
-     */
-    @Parameters({
-        @Parameter(name = "Authorization", description = "Authorization required", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
-        @Parameter(name = "id", description = "id", schema = @Schema(implementation = String.class), in = ParameterIn.PATH)
-    })
+//    @Parameters({
+//        @Parameter(name = "Authorization", description = "Authorization required", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
+//        @Parameter(name = "id", description = "id", schema = @Schema(implementation = String.class), in = ParameterIn.PATH)
+//    })
     @Operation(summary = "Lists the required features of a Model",
             description = "Lists the required features of a Model identified by its ID. The result is available as a URI list.",
             responses = {
                 @ApiResponse(content = @Content(array = @ArraySchema(schema = @Schema(implementation = String.class)))),})
     public Response listModelRequiredFeatures(
-            @PathParam("id") String id,
-            @HeaderParam("Authorization") String api_key) {
+            @Parameter(name = "id", description = "id", schema = @Schema(implementation = String.class)) @PathParam("id") String id,
+                    @Parameter(name = "Authorization", description = "Authorization required", schema = @Schema(implementation = String.class) ) @HeaderParam("Authorization") String api_key) {
         String[] apiA = api_key.split("\\s+");
         String apiKey = apiA[1];
         Model model = modelHandler.find(id);
@@ -734,33 +567,12 @@ public class ModelResource {
     @Consumes({MediaType.APPLICATION_FORM_URLENCODED})
     @Produces({MediaType.APPLICATION_JSON})
     @Path("/{id}")
-    /*@ApiOperation(value = "Creates Prediction",
-     notes = "Creates Prediction",
-     response = Task.class,
-     extensions = {
-     @Extension(properties = {
-     @ExtensionProperty(name = "orn-@type", value = "x-orn:JaqpotPredictionTaskId"),}
-     )
-     ,
-     @Extension(name = "orn:expects", properties = {
-     @ExtensionProperty(name = "x-orn-@id", value = "x-orn:AcessToken")
-     ,
-     @ExtensionProperty(name = "x-orn-@id", value = "x-orn:JaqpotModelId")
-     ,
-     @ExtensionProperty(name = "x-orn-@id", value = "x-orn:Dataset")
-     })
-     ,
-     @Extension(name = "orn:returns", properties = {
-     @ExtensionProperty(name = "x-orn-@id", value = "x-orn:JaqpotPredictionTaskId")
-     })
-     }
-     )*/
-    @Parameters({
-        @Parameter(name = "Authorization", description = "Authorization required", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
-        @Parameter(name = "id", description = "id", schema = @Schema(implementation = String.class), in = ParameterIn.PATH),
-        @Parameter(name = "dataset_uri", description = "dataset_uri", required = true, schema = @Schema(implementation = String.class)),
-        @Parameter(name = "visible", description = "visible", required = true, schema = @Schema(implementation = Boolean.class))
-    })
+//    @Parameters({
+//        @Parameter(name = "Authorization", description = "Authorization required", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
+//        @Parameter(name = "id", description = "id", schema = @Schema(implementation = String.class), in = ParameterIn.PATH),
+//        @Parameter(name = "dataset_uri", description = "dataset_uri", required = true, schema = @Schema(implementation = String.class)),
+//        @Parameter(name = "visible", description = "visible", required = true, schema = @Schema(implementation = Boolean.class))
+//    })
     @Operation(summary = "Creates Prediction",
             description = "Creates Prediction",
             responses = {
@@ -780,11 +592,10 @@ public class ModelResource {
             })
     @org.jaqpot.core.service.annotations.Task
     public Response makePrediction(
-            //@ApiParam(name = "dataset_uri", required = true) @FormParam("dataset_uri") String datasetURI,
-            @FormParam("dataset_uri") String datasetURI,
-            @FormParam("visible") Boolean visible,
-            @PathParam("id") String id,
-            @HeaderParam("Authorization") String api_key) throws GeneralSecurityException, QuotaExceededException, ParameterIsNullException, ParameterInvalidURIException, JaqpotDocumentSizeExceededException {
+            @Parameter(name = "dataset_uri", description = "dataset_uri", required = true, schema = @Schema(implementation = String.class)) @FormParam("dataset_uri") String datasetURI,
+            @Parameter(name = "visible", description = "visible", required = true, schema = @Schema(implementation = Boolean.class)) @FormParam("visible") Boolean visible,
+            @Parameter(name = "id", description = "id", schema = @Schema(implementation = String.class)) @PathParam("id") String id,
+            @Parameter(name = "Authorization", description = "Authorization required", schema = @Schema(implementation = String.class)) @HeaderParam("Authorization") String api_key) throws GeneralSecurityException, QuotaExceededException, ParameterIsNullException, ParameterInvalidURIException, JaqpotDocumentSizeExceededException {
         String[] apiA = api_key.split("\\s+");
         String apiKey = apiA[1];
         if (datasetURI == null) {
@@ -836,24 +647,6 @@ public class ModelResource {
     @Consumes({MediaType.APPLICATION_JSON})
     @Produces({MediaType.APPLICATION_JSON})
     @Path("/")
-    /*@ApiOperation(value = "Stores a pretrained model",
-     notes = "Stores a pretrained model",
-     //            response = Task.class,
-     extensions = {
-     @Extension(properties = {
-     @ExtensionProperty(name = "orn-@type", value = "x-orn:JaqpotPredictionTaskId"),}
-     )
-     ,
-     @Extension(name = "orn:expects", properties = {
-     @ExtensionProperty(name = "x-orn-@id", value = "x-orn:AcessToken")
-     ,
-     @ExtensionProperty(name = "x-orn-@id", value = "x-orn:PretrainedModel"),})
-     ,
-     @Extension(name = "orn:returns", properties = {
-     @ExtensionProperty(name = "x-orn-@id", value = "x-orn:ModelId")
-     })
-     }
-     )*/
     @Operation(summary = "Stores a pretrained model",
             description = "Stores a pretrained model",
             //            response = Task.class,
@@ -1091,40 +884,6 @@ public class ModelResource {
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Path("/{id}")
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
-    /*@ApiOperation(value = "Deletes a particular Model resource",
-     notes = "Deletes a Model of a given ID. The method is idempondent, that is it can be used more than once without "
-     + "triggering an exception/error. If the Model does not exist, the method will return without errors. "
-     + "Authentication and authorization requirements apply, so clients that are not authenticated with a "
-     + "valid token or do not have sufficient priviledges will not be able to delete Models using this method.",
-     extensions = {
-     @Extension(properties = {
-     @ExtensionProperty(name = "orn-@type", value = "x-orn:DeleteJaqpotModel"),}
-     )
-     ,
-     @Extension(name = "orn:expects", properties = {
-     @ExtensionProperty(name = "x-orn-@id", value = "x-orn:AcessToken")
-     ,
-     @ExtensionProperty(name = "x-orn-@id", value = "x-orn:JaqpotModelId")
-     })
-     ,
-     @Extension(name = "orn:returns", properties = {
-     @ExtensionProperty(name = "x-orn-@id", value = "x-orn:HttpStatus")
-     })
-     })
-     @ApiResponses(value = {
-     @ApiResponse(code = 200, message = "Model entry was deleted successfully (if found).")
-     ,
-     @ApiResponse(code = 401, message = "You are not authorized to delete this resource")
-     ,
-     @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)
-     ,
-     @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
-     })*/
-    @Parameters({
-        @Parameter(name = "Authorization", description = "Clients need to authenticate in order to create resources on the server", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
-        @Parameter(name = "id", description = "Id of the Model.", required = true, schema = @Schema(implementation = String.class), in = ParameterIn.PATH)
-    })
-
     @Operation(summary = "Deletes a particular Model resource",
             description = "Deletes a Model of a given ID. The method is idempondent, that is it can be used more than once without "
             + "triggering an exception/error. If the Model does not exist, the method will return without errors. "
@@ -1150,10 +909,8 @@ public class ModelResource {
             })
 
     public Response deleteModel(
-            //@ApiParam("Clients need to authenticate in order to create resources on the server") @HeaderParam("Authorization") String api_key,
-            @HeaderParam("Authorization") String api_key,
-            //@ApiParam(value = "ID of the Model.", required = true) @PathParam("id") String id
-            @PathParam("id") String id
+            @Parameter(name = "Authorization", description = "Clients need to authenticate in order to create resources on the server", schema = @Schema(implementation = String.class)) @HeaderParam("Authorization") String api_key,
+            @Parameter(name = "id", description = "Id of the Model.", required = true, schema = @Schema(implementation = String.class)) @PathParam("id") String id
     ) throws JaqpotForbiddenException {
         String[] apiA = api_key.split("\\s+");
         String apiKey = apiA[1];
@@ -1205,25 +962,20 @@ public class ModelResource {
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/{id}/dataset")
-    /*@ApiOperation(value = "Gets a dataset of a Model",
-     notes = "Geth the dataset of a model upon the criteria given",
-     response = Dataset.class)
-     */
-    @Parameters({
-        @Parameter(name = "Authorization", description = "Authorization required", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
-        @Parameter(name = "id", description = "id", required = true, schema = @Schema(implementation = String.class), in = ParameterIn.PATH),
-        @Parameter(name = "modeldataset", description = "description for the dataset", required = true, schema = @Schema(implementation = String.class, allowableValues = {"TRAINEDUPON","ALLEMPTY","EMPTYPREDICTION"}), in = ParameterIn.QUERY)
-    })
+//    @Parameters({
+//        @Parameter(name = "Authorization", description = "Authorization required", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
+//        @Parameter(name = "id", description = "id", required = true, schema = @Schema(implementation = String.class), in = ParameterIn.PATH),
+//        @Parameter(name = "modeldataset", description = "description for the dataset", required = true, schema = @Schema(implementation = String.class, allowableValues = {"TRAINEDUPON","ALLEMPTY","EMPTYPREDICTION"}), in = ParameterIn.QUERY)
+//    })
     @Operation(summary = "Gets a dataset of a Model",
             description = "Geth the dataset of a model upon the criteria given",
             responses = {
                 @ApiResponse(content = @Content(schema = @Schema(implementation = Dataset.class)))
             })
     public Response getModelDataset(
-            @PathParam("id") String id,
-            //@ApiParam(value = "description for the dataset", required = true, allowableValues = "TRAINEDUPON,ALLEMPTY,EMPTYPREDICTION") @QueryParam("modeldataset") String modeldataset,
-            @QueryParam("modeldataset") String modeldataset,
-            @HeaderParam("Authorization") String api_key) {
+            @Parameter(name = "id", description = "id", required = true, schema = @Schema(implementation = String.class)) @PathParam("id") String id,
+            @Parameter(name = "modeldataset", description = "description for the dataset", required = true, schema = @Schema(implementation = String.class, allowableValues = {"TRAINEDUPON","ALLEMPTY","EMPTYPREDICTION"})) @QueryParam("modeldataset") String modeldataset,
+            @Parameter(name = "Authorization", description = "Authorization required", schema = @Schema(implementation = String.class)) @HeaderParam("Authorization") String api_key) {
         String[] apiA = api_key.split("\\s+");
         String apiKey = apiA[1];
         Model model = modelHandler.find(id);
@@ -1262,22 +1014,11 @@ public class ModelResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces({"application/json", MediaType.APPLICATION_JSON})
     @Path("{id}/meta")
-    /*@ApiOperation(value = "Updates meta info of a dataset",
-     notes = "TUpdates meta info of a dataset")
-     @ApiResponses(value = {
-     @ApiResponse(code = 200, response = MetaInfo.class, message = "Meta was updated succesfully")
-     ,
-     @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to access this resource")
-     ,
-     @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)")
-     ,
-     @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
-     })*/
-    @Parameters({
-        @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
-        @Parameter(name = "id", description = "id", required = true, schema = @Schema(implementation = String.class), in = ParameterIn.PATH),
-        @Parameter(name = "modelForUpdate", schema = @Schema(implementation = Model.class))
-    })
+//    @Parameters({
+//        @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
+//        @Parameter(name = "id", description = "id", required = true, schema = @Schema(implementation = String.class), in = ParameterIn.PATH),
+//        @Parameter(name = "modelForUpdate", schema = @Schema(implementation = Model.class))
+//    })
     @Operation(summary = "Updates meta info of a dataset",
             description = "TUpdates meta info of a dataset",
             responses = {
@@ -1289,8 +1030,8 @@ public class ModelResource {
             })
     public Response updateMeta(
             //@ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key,
-            @HeaderParam("Authorization") String api_key,
-            @PathParam("id") String id,
+            @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class)) @HeaderParam("Authorization") String api_key,
+            @Parameter(name = "id", description = "id", required = true, schema = @Schema(implementation = String.class)) @PathParam("id") String id,
             Model modelForUpdate) throws URISyntaxException, JaqpotDocumentSizeExceededException, JaqpotNotAuthorizedException {
 
         String userId = securityContext.getUserPrincipal().getName();
@@ -1318,21 +1059,10 @@ public class ModelResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces({"application/json", MediaType.APPLICATION_JSON})
     @Path("{id}/ontrash")
-    /*@ApiOperation(value = "Puths a model on users trash",
-     notes = "Puths a model on users trash")
-     @ApiResponses(value = {
-     @ApiResponse(code = 200, response = MetaInfo.class, message = "Meta was updated succesfully")
-     ,
-     @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to access this resource")
-     ,
-     @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)")
-     ,
-     @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
-     })*/
-    @Parameters({
-        @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
-        @Parameter(name = "id", description = "id", required = true, schema = @Schema(implementation = String.class), in = ParameterIn.PATH)
-    })
+//    @Parameters({
+//        @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
+//        @Parameter(name = "id", description = "id", required = true, schema = @Schema(implementation = String.class), in = ParameterIn.PATH)
+//    })
     @Operation(summary = "Puths a model on users trash",
             description = "Puths a model on users trash",
             responses = {
@@ -1344,8 +1074,8 @@ public class ModelResource {
             })
     public Response updateOnTrash(
             //@ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key,
-            @HeaderParam("Authorization") String api_key,
-            @PathParam("id") String id,
+            @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class)) @HeaderParam("Authorization") String api_key,
+            @Parameter(name = "id", description = "id", required = true, schema = @Schema(implementation = String.class)) @PathParam("id") String id,
             Model modelForUpdate) throws URISyntaxException, JaqpotDocumentSizeExceededException, JaqpotNotAuthorizedException {
 
         String userId = securityContext.getUserPrincipal().getName();

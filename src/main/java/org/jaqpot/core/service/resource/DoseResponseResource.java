@@ -35,12 +35,15 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeIn;
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.extensions.Extension;
 import io.swagger.v3.oas.annotations.extensions.ExtensionProperty;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.jaqpot.core.annotations.Jackson;
 import org.jaqpot.core.data.ReportHandler;
@@ -81,6 +84,13 @@ import org.jaqpot.core.service.authentication.RoleEnum;
 //@Api(value = "/doseresponse", description = "Dose Response API")
 @Produces(MediaType.APPLICATION_JSON)
 @Tag(name = "doseresponse")
+@SecurityScheme(name = "bearerAuth",
+        type = SecuritySchemeType.HTTP,
+        in = SecuritySchemeIn.HEADER,
+        scheme = "bearer",
+        description = "add the token retreived from oidc. Example:  Bearer <API_KEY>"
+        )
+@io.swagger.v3.oas.annotations.security.SecurityRequirement(name = "bearerAuth")
 public class DoseResponseResource {
 
     private static final Logger LOG = Logger.getLogger(DoseResponseResource.class.getName());

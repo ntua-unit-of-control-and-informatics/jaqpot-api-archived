@@ -92,6 +92,7 @@ import org.jaqpot.core.service.exceptions.QuotaExceededException;
 @Produces(MediaType.APPLICATION_JSON)
 @Authorize
 @Tag(name = "validation")
+@io.swagger.v3.oas.annotations.security.SecurityRequirement(name = "bearerAuth")
 public class ValidationResource {
 
     private static final Logger LOG = Logger.getLogger(ValidationResource.class.getName());

@@ -56,6 +56,7 @@ import org.jaqpot.core.service.authentication.RoleEnum;
 //@Api(value = "/readacross", description = "Read Across API")
 @Produces(MediaType.APPLICATION_JSON)
 @Tag(name = "readacross")
+@io.swagger.v3.oas.annotations.security.SecurityRequirement(name = "bearerAuth")
 public class ReadAcrossResource {
 
     private static final Logger LOG = Logger.getLogger(ReadAcrossResource.class.getName());

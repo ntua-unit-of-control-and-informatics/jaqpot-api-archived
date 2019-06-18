@@ -83,6 +83,7 @@ import org.jaqpot.core.sessions.SessionClient;
 //@Api(value = "/search", description = "Search API")
 @Produces({"application/json", "text/uri-list"})
 @Tag(name = "search")
+@io.swagger.v3.oas.annotations.security.SecurityRequirement(name = "bearerAuth")
 public class SearchResource {
 
     @EJB

@@ -82,6 +82,7 @@ import org.jaqpot.core.service.exceptions.JaqpotNotAuthorizedException;
 //@Api(value = "/notification", description = "Notifications API", position = 1)
 @Produces({"application/json"})
 @Tag(name = "notification")
+@io.swagger.v3.oas.annotations.security.SecurityRequirement(name = "bearerAuth")
 public class NotificationResource {
 
     @EJB

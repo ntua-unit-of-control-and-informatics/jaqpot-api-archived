@@ -86,6 +86,7 @@ import static org.jaqpot.core.util.CSVUtils.parseLine;
 
 @Path("/openrisknet")
 @Tag(name = "openrisknet")
+@io.swagger.v3.oas.annotations.security.SecurityRequirement(name = "bearerAuth")
 //@Api(value = "/openrisknet", description = "OpenRiskNet API")
 public class OpenRiskNetResource {
 

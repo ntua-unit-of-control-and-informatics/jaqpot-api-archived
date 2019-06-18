@@ -33,6 +33,11 @@ package org.jaqpot.core.service;
 import io.swagger.v3.jaxrs2.integration.JaxrsOpenApiContextBuilder;
 
 import io.swagger.v3.jaxrs2.integration.resources.OpenApiResource;
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeIn;
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
+import io.swagger.v3.oas.annotations.security.OAuthFlow;
+import io.swagger.v3.oas.annotations.security.OAuthFlows;
+import io.swagger.v3.oas.annotations.security.OAuthScope;
 import io.swagger.v3.oas.integration.OpenApiConfigurationException;
 import io.swagger.v3.oas.integration.SwaggerConfiguration;
 import io.swagger.v3.oas.models.OpenAPI;
@@ -40,8 +45,6 @@ import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.oas.models.servers.Server;
-import io.swagger.v3.oas.models.servers.ServerVariable;
-import io.swagger.v3.oas.models.servers.ServerVariables;
 import java.util.ArrayList;
 import org.jaqpot.core.properties.PropertyManager;
 import org.reflections.Reflections;
@@ -72,6 +75,12 @@ import org.jaqpot.core.service.authentication.TokenRequestFilter;
 @ApplicationPath("/services")
 @Singleton
 @Startup
+//@SecurityScheme(name = "oidConnect bearer key",
+//        type = SecuritySchemeType.APIKEY,
+//        in = SecuritySchemeIn.HEADER,
+//        description = "myOauthSecurity Description"
+//        )
+//@io.swagger.v3.oas.annotations.security.SecurityRequirement(name = "oidConnect bearer key")
 public class JaqpotRestApplication extends Application {
 
     private static final Logger LOG = Logger.getLogger(JaqpotRestApplication.class.getName());
@@ -99,20 +108,22 @@ public class JaqpotRestApplication extends Application {
         LOG.log(Level.INFO, "BasePath:{0}", basePath);
         OpenAPI oas = new OpenAPI();
         Info info = new Info()
-                .title("Jaqpot Quattro")
-                .description("Jaqpot Quattro")
-                .version("4.0.?");
+                .title("Jaqpot")
+                .description("Jaqpot")
+                .version("5.0.?");
         oas.openapi("3.0.1");
         oas.info(info);
-
-        SecurityScheme securityScheme = new SecurityScheme();
-        securityScheme.setName("Authorization");
-        securityScheme.setType(SecurityScheme.Type.APIKEY);
-        securityScheme.setIn(SecurityScheme.In.HEADER);
-        SecurityRequirement sr = new SecurityRequirement();
-        sr.addList("Authorization");
-        oas.addSecurityItem(sr);
-
+        
+        
+//        SecurityScheme securityScheme = new SecurityScheme();
+//        securityScheme.setName("bearerAuth");
+//        securityScheme.setType(SecurityScheme.Type.HTTP);
+//        securityScheme.scheme("bearer");
+//        SecurityRequirement sr = new SecurityRequirement();
+//        sr.addList("Authorization");
+        
+//        oas.addSecurityItem(sr);
+        
         
         Server server = new Server()
                 //.url(protocol.getDefault() + "://"+host + ":" + port + "/jaqpot/services")

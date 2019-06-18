@@ -34,10 +34,19 @@
  */
 package org.jaqpot.core.service.resource;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.enums.ParameterStyle;
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeIn;
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityScheme;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Objects;
@@ -63,6 +72,7 @@ import org.jaqpot.core.model.Doa;
 import org.jaqpot.core.model.ErrorReport;
 import org.jaqpot.core.model.MetaInfo;
 import org.jaqpot.core.model.Model;
+import org.jaqpot.core.model.Task;
 import org.jaqpot.core.model.User;
 import org.jaqpot.core.model.builder.MetaInfoBuilder;
 import org.jaqpot.core.model.factory.ErrorReportFactory;
@@ -78,8 +88,16 @@ import org.jaqpot.core.service.httphandlers.Rights;
  * @author pantelispanka
  */
 @Path("doa")
-@Api(value = "/doa", description = "Doa API")
+//@Api(value = "/doa", description = "Doa API")
 @Produces({"application/json"})
+@Tag(name = "doa")
+@SecurityScheme(name = "bearerAuth",
+        type = SecuritySchemeType.HTTP,
+        in = SecuritySchemeIn.HEADER,
+        scheme = "bearer",
+        description = "add the token retreived from oidc. Example:  Bearer <API_KEY>"
+        )
+@io.swagger.v3.oas.annotations.security.SecurityRequirement(name = "bearerAuth")
 public class DoaResource {
 
     @EJB
@@ -103,20 +121,30 @@ public class DoaResource {
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces({MediaType.APPLICATION_JSON})
     @Consumes(MediaType.APPLICATION_JSON)
-    @ApiOperation(value = "Creates the domain of applicability for a Jaqpot model",
-            notes = "Creates the domain of applicability for a Jaqpot model",
-            response = Discussion.class)
-    @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Doi was created successfully.")
-        ,
-        @ApiResponse(code = 400, message = "Bad request: malformed feature")
-        ,
-        @ApiResponse(code = 401, message = "You are not authorized to access this resource")
-        ,
-        @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)")
-        ,
-        @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
+//    @ApiOperation(value = "Creates the domain of applicability for a Jaqpot model",
+//            notes = "Creates the domain of applicability for a Jaqpot model",
+//            response = Discussion.class)
+//    @ApiResponses(value = {
+//        @ApiResponse(code = 200, message = "Doi was created successfully.")
+//        ,
+//        @ApiResponse(code = 400, message = "Bad request: malformed feature")
+//        ,
+//        @ApiResponse(code = 401, message = "You are not authorized to access this resource")
+//        ,
+//        @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)")
+//        ,
+//        @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
+//    })
+    @RequestBody(content = {
+        @Content(mediaType = "application/json", schema = @Schema(type = "object"))})
+    @Parameters({
+        @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(type = "string"), in = ParameterIn.HEADER)
     })
+    @Operation(summary = "Creates the domain of applicability for a Jaqpot model",
+            description = "Creates the domain of applicability for a Jaqpot model",
+            responses = {
+                @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = Doa.class)))
+            })
     public Response storeDoi(Doa doa) throws JaqpotNotAuthorizedException {
 
         String creator = securityContext.getUserPrincipal().getName();
@@ -148,20 +176,35 @@ public class DoaResource {
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces({MediaType.APPLICATION_JSON})
     @Consumes(MediaType.APPLICATION_JSON)
-    @ApiOperation(value = "Creates the domain of applicability for a Jaqpot model",
-            notes = "Creates the domain of applicability for a Jaqpot model",
-            response = Discussion.class)
-    @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Doi was created successfully.")
-        ,
-        @ApiResponse(code = 400, message = "Bad request: malformed feature")
-        ,
-        @ApiResponse(code = 401, message = "You are not authorized to access this resource")
-        ,
-        @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)")
-        ,
-        @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
+//    @ApiOperation(value = "Creates the domain of applicability for a Jaqpot model",
+//            notes = "Creates the domain of applicability for a Jaqpot model",
+//            response = Discussion.class)
+//    @ApiResponses(value = {
+//        @ApiResponse(code = 200, message = "Doi was created successfully.")
+//        ,
+//        @ApiResponse(code = 400, message = "Bad request: malformed feature")
+//        ,
+//        @ApiResponse(code = 401, message = "You are not authorized to access this resource")
+//        ,
+//        @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)")
+//        ,
+//        @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
+//    })
+    @RequestBody(content = {
+        @Content(mediaType = "application/json", schema = @Schema(type = "object"))})
+    @Parameters({
+        @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(type = "string"), in = ParameterIn.HEADER),
+        @Parameter(name = "id", description = "hasSources", required = true, schema = @Schema(type = "string"), in = ParameterIn.QUERY),
     })
+    @Operation(summary = "Creates the domain of applicability for a Jaqpot model",
+            description = "Creates the domain of applicability for a Jaqpot model",
+            responses = {
+                @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = Doa.class))),
+                @ApiResponse(responseCode = "400", description = "Bad request: malformed feature"),
+                @ApiResponse(responseCode = "401", description = "You are not authorized to access this resource"),
+                @ApiResponse(responseCode = "403", description = "This request is forbidden (e.g., no authentication token is provided)"),
+                @ApiResponse(responseCode = "500", description = "Internal server error - this request cannot be served.")
+            })
     public Response getDoiBySources(
             @QueryParam("hasSources") String hasSources
     ) throws JaqpotNotAuthorizedException {

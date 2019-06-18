@@ -90,6 +90,7 @@ import org.jaqpot.core.service.exceptions.JaqpotForbiddenException;
 //@Api(value = "/report", description = "Report API")
 @Produces(MediaType.APPLICATION_JSON)
 @Tag(name = "report")
+@io.swagger.v3.oas.annotations.security.SecurityRequirement(name = "bearerAuth")
 public class ReportResource {
 
     private static final String DEFAULT_PATCH = "[\n"

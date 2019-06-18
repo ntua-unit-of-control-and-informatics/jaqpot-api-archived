@@ -31,7 +31,7 @@ import javax.enterprise.context.ApplicationScoped;
 @OpenAPIDefinition(
         info = @Info(
                 title = "Jaqpot API",
-                description = "Jaqpot v4 (Quattro) is the 4t"
+                description = "Jaqpot v5 is the 5t"
                         + "h version of a YAQP, a RESTful web platform which can"
                         + " be used to train machine learning models and use "
                         + "them to obtain toxicological predictions for given "
@@ -44,7 +44,7 @@ import javax.enterprise.context.ApplicationScoped;
                         + " and Informatics in the School of Chemical Engineering </a> at"
                         + " the  <a href=\"https://www.ntua.gr/en/\"> National"
                         + " Technical University of Athens.</a> ",
-                version = "4.0.3",
+                version = "5.0.1",
                 contact = @Contact(name = "Charalampos Chomenidis,"
                         + " Pantelis Sopasakis, Evangelia Anagnostopoulou, Angelos Valsamis,"
                         + " George Drakakis, Pantelis Karatzas, Georgia Tsiliki, Philip Doganis,"

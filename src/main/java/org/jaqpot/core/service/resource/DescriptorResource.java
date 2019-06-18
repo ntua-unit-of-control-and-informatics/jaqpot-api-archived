@@ -5,12 +5,15 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeIn;
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.extensions.Extension;
 import io.swagger.v3.oas.annotations.extensions.ExtensionProperty;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import javassist.runtime.Desc;
 import org.apache.commons.validator.routines.UrlValidator;
@@ -45,6 +48,13 @@ import java.util.logging.Logger;
 //@Api(value = "/descriptor", description = "Descriptors API")
 @Produces({"application/json", "text/uri-list"})
 @Tag(name = "descriptor")
+@SecurityScheme(name = "bearerAuth",
+        type = SecuritySchemeType.HTTP,
+        in = SecuritySchemeIn.HEADER,
+        scheme = "bearer",
+        description = "add the token retreived from oidc. Example:  Bearer <API_KEY>"
+        )
+@io.swagger.v3.oas.annotations.security.SecurityRequirement(name = "bearerAuth")
 public class DescriptorResource {
 
     @EJB
@@ -88,30 +98,6 @@ public class DescriptorResource {
     @GET
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
-    /*@ApiOperation(
-     value = "Finds all Descriptors",
-     notes = "Finds all Descriptors JaqpotQuattro supports",
-     extensions = {
-     @Extension(properties = {
-     @ExtensionProperty(name = "orn-@type", value = "x-orn:Descriptor"),
-     }
-     ),
-     @Extension(name = "orn:returns",properties={
-     @ExtensionProperty(name = "x-orn-@id", value = "x-orn:DescriptorList")
-     })
-     }
-     )
-     @ApiResponses(value = {
-     @ApiResponse(code = 401, response=  ErrorReport.class , message = "Wrong, missing or insufficient credentials. Error report is produced."),
-     @ApiResponse(code = 200,  response = Descriptor.class, responseContainer = "List" , message = "A list of descriptors in the Jaqpot framework"),
-     @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
-
-     })*/
-    @Parameters({
-        @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
-        @Parameter(name = "start", description = "start", schema = @Schema(implementation = Integer.class, defaultValue = "0"), in = ParameterIn.QUERY),
-        @Parameter(name = "max", description = "max", schema = @Schema(implementation = Integer.class, defaultValue = "10"), in = ParameterIn.QUERY)
-    })
     @Operation(
             summary = "Finds all Descriptors",
             description = "Finds all Descriptors JaqpotQuattro supports",
@@ -130,12 +116,9 @@ public class DescriptorResource {
 
             })
     public Response getDescriptors(
-            //@ApiParam(value = "Authorization token") @HeaderParam("Authorization") String apiKey,
-            //@ApiParam(value = "start", defaultValue = "0") @QueryParam("start") Integer start,
-            //@ApiParam(value = "max", defaultValue = "10") @QueryParam("max") Integer max) {
-            @HeaderParam("Authorization") String apiKey,
-            @QueryParam("start") Integer start,
-            @QueryParam("max") Integer max) {
+            @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class)) @HeaderParam("Authorization") String apiKey,
+            @Parameter(name = "start", description = "start", schema = @Schema(implementation = Integer.class, defaultValue = "0")) @QueryParam("start") Integer start,
+            @Parameter(name = "max", description = "max", schema = @Schema(implementation = Integer.class, defaultValue = "10")) @QueryParam("max") Integer max) {
         return Response
                 .ok(descriptorHandler.findAll(start != null ? start : 0, max != null ? max : Integer.MAX_VALUE))
                 .header("total", descriptorHandler.countAll())
@@ -145,29 +128,6 @@ public class DescriptorResource {
     @POST
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
-    /*@ApiOperation(
-     value = "Creates Desciptor",
-     notes = "Registers a new JPDI-compliant descriptor service.",
-     extensions = {
-     @Extension(properties = {
-     @ExtensionProperty(name = "orn-@type", value = "x-orn:Descriptor"),
-     }
-     ),
-     @Extension(name = "orn:expects",properties={
-     @ExtensionProperty(name = "x-orn-@id", value = "x-orn:Descriptor")
-     }),
-     @Extension(name = "orn:returns",properties={
-     @ExtensionProperty(name = "x-orn-@id", value = "x-orn:Status")
-     })
-     }
-     )
-     @ApiResponses(value = {
-     @ApiResponse(code = 403, response = ErrorReport.class, message="Descriptor quota has been exceeded"),
-     @ApiResponse(code = 401, response = ErrorReport.class , message = "Wrong, missing or insufficient credentials. Error report is produced."),
-     @ApiResponse(code = 200,  response = Descriptor.class, message = "Descriptor successfully registered in the system"),
-     @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
-
-     })*/
     @Parameters({
         @Parameter(name = "descriptor", description = "Descriptor in JSON", schema = @Schema(implementation = Descriptor.class, defaultValue = DEFAULT_DESCRIPTOR), required = true),
         @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
@@ -195,12 +155,6 @@ public class DescriptorResource {
                 @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorReport.class)), description = "Internal server error - this request cannot be served.")
             })
     public Response createDescriptor(
-            /*@ApiParam(value = "Descriptor in JSON", defaultValue = DEFAULT_DESCRIPTOR, required = true) Descriptor descriptor,
-             @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key,
-             @ApiParam(value = "Title of your descriptor") @HeaderParam("title") String title,
-             @ApiParam(value = "Short description of your descriptor") @HeaderParam("description") String description,
-             @ApiParam(value = "Tags for your descriptor (in a comma separated list) to facilitate look-up") @HeaderParam("tags") String tags
-             */
             Descriptor descriptor,
             @HeaderParam("Authorization") String api_key,
             @HeaderParam("title") String title,
@@ -240,27 +194,6 @@ public class DescriptorResource {
     @Path("/{id}")
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list", "application/ld+json"})
-    /*@ApiOperation(value = "Finds Descriptor",
-     notes = "Finds Descriptor with provided id",
-     extensions = {
-     @Extension(properties = {
-     @ExtensionProperty(name = "orn-@type", value = "x-orn:Descriptor"),
-     }
-     ),
-     @Extension(name = "orn:expects",properties={
-     @ExtensionProperty(name = "x-orn-@id", value = "x-orn:DescriptorId")
-     }),
-     @Extension(name = "orn:returns",properties={
-     @ExtensionProperty(name = "x-orn-@id", value = "x-orn:Descriptor")
-     })
-     }
-     )
-     @ApiResponses(value = {
-     @ApiResponse(code = 401, response=  ErrorReport.class , message = "Wrong, missing or insufficient credentials. Error report is produced."),
-     @ApiResponse(code = 404, response = ErrorReport.class , message = "Descriptor was not found"),
-     @ApiResponse(code = 200,  response = Descriptor.class, message = "Descriptor was found in the system"),
-     @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
-     })*/
     @Parameters({
         @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
         @Parameter(name = "id", description = "id", schema = @Schema(implementation = String.class), in = ParameterIn.PATH),})
@@ -302,17 +235,6 @@ public class DescriptorResource {
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Path("/{id}")
-    /*@ApiOperation(value = "Apply Descriptor",
-     notes = "Applies Descriptor on Dataset and creates a new Dataset."
-     )
-     @ApiResponses(value = {
-     @ApiResponse(code = 400, response=  ErrorReport.class , message = "Bad request. More info can be found in details of Error Report."),
-     @ApiResponse(code = 401, response=  ErrorReport.class , message = "Wrong, missing or insufficient credentials. Error report is produced."),
-     @ApiResponse(code = 404, response = ErrorReport.class , message = "Descriptor was not found."),
-     @ApiResponse(code = 200,  response = Task.class, message = "The process has successfully been started. A task URI is returned."),
-     @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
-
-     })*/
     @Parameters({
         @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
         @Parameter(name = "title", description = "title", required = true, schema = @Schema(implementation = String.class)),
@@ -411,30 +333,6 @@ public class DescriptorResource {
     @TokenSecured({RoleEnum.ADMNISTRATOR})
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/{id}")
-    /*@ApiOperation(value = "Unregisters a descriptor of given ID",
-     notes = "Deletes a descriptor of given ID. The application of this method "
-     + "requires authentication and assumes certain priviledges.",
-     extensions = {
-     @Extension(properties = {
-     @ExtensionProperty(name = "orn-@type", value = "x-orn:DeletesDescriptor"),
-     }
-     ),
-     @Extension(name = "orn:expects",properties={
-     @ExtensionProperty(name = "x-orn-@id", value = "x-orn:DescriptorId"),
-     @ExtensionProperty(name = "x-orn-@id", value = "x-orn:OperationParameters")
-     }),
-     @Extension(name = "orn:returns",properties={
-     @ExtensionProperty(name = "x-orn-@id", value = "x-orn:HttpStatus")
-     })
-     }
-
-     )
-     @ApiResponses(value = {
-     @ApiResponse(code = 200, message = "Descriptor deleted successfully"),
-     @ApiResponse(code = 401, response=  ErrorReport.class,message = "Wrong, missing or insufficient credentials. Error report is produced."),
-     @ApiResponse(code = 403, response=  ErrorReport.class,message = "This is a forbidden operation (do not attempt to repeat it)."),
-     @ApiResponse(code = 500, response=  ErrorReport.class, message = "Internal server error - this request cannot be served.")
-     })*/
     @Parameters({
 	   @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
 	   @Parameter(name = "id", description = "ID of the descriptor which is to be deleted.", required = true, schema = @Schema(implementation = String.class), in = ParameterIn.PATH)

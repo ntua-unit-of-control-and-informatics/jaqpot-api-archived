@@ -188,7 +188,7 @@ public class SwaggerLdHandler {
         contxt.put("delete", "x-orn:Delete");
         contxt.put("put", "x-orn:Put");
         contxt.put("patch", "x-orn:Patch");
-        on.put("@context", contxt);
+        on.put("x-orn-@context", contxt);
         return on;
     }
 }

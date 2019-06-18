@@ -34,10 +34,13 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeIn;
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.jaqpot.core.data.FeatureHandler;
 import org.jaqpot.core.model.ErrorReport;
@@ -69,6 +72,13 @@ import java.util.HashSet;
 //@Api(value = "/feature", description = "Feature API")
 @Produces({"application/json", "text/uri-list"})
 @Tag(name = "feature")
+@SecurityScheme(name = "bearerAuth",
+        type = SecuritySchemeType.HTTP,
+        in = SecuritySchemeIn.HEADER,
+        scheme = "bearer",
+        description = "add the token retreived from oidc. Example:  Bearer <API_KEY>"
+        )
+@io.swagger.v3.oas.annotations.security.SecurityRequirement(name = "bearerAuth")
 public class FeatureResource {
 
     private static final String DEFAULT_FEATURE = "{\n"
@@ -163,9 +173,9 @@ public class FeatureResource {
     //@ApiOperation(value = "Finds Feature by ID",
     //        notes = "Finds specified Feature (by ID)",
     //        response = Feature.class)
-    @Parameters({
-        @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
-        @Parameter(name = "id", description = "id", schema = @Schema(implementation = String.class), in = ParameterIn.PATH)})
+//    @Parameters({
+//        @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
+//        @Parameter(name = "id", description = "feature id", schema = @Schema(implementation = String.class), in = ParameterIn.PATH)})
     @Operation(summary = "Finds Feature by ID",
             description = "Finds specified Feature (by ID)",
             responses = {

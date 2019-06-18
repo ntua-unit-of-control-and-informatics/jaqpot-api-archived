@@ -79,6 +79,7 @@ import java.util.logging.Logger;
 //@Api(value = "/interlab", description = "Interlab Testing API")
 @Produces(MediaType.APPLICATION_JSON)
 @Tag(name = "interlab")
+@io.swagger.v3.oas.annotations.security.SecurityRequirement(name = "bearerAuth")
 public class InterLabTestingResource {
 
     private static final Logger LOG = Logger.getLogger(InterLabTestingResource.class.getName());

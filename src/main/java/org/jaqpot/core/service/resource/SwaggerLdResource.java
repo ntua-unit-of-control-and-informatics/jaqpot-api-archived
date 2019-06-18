@@ -95,7 +95,7 @@ public class SwaggerLdResource {
     //        notes = "Implements long polling",
       //      response = Swagger.class)
     @Produces({MediaType.APPLICATION_JSON})
-    @Operation(summary = "Implements long polling",
+    @Operation(summary = "Json-ld openapi specs",
         description = "Get the openapi.json with the Ld annotations",
         responses = {
         @ApiResponse(content = @Content(schema = @Schema(implementation = OpenAPI.class)))
@@ -154,54 +154,54 @@ public class SwaggerLdResource {
 
     }
 
-    @GET
-    @Path("/ld/oct")
-    //@ApiOperation(value = "Get the swagger.json with the Ld annotations as octet stream",
-      //      notes = "Implements long polling",
-        //    response = Swagger.class)
-    @Produces({MediaType.APPLICATION_OCTET_STREAM})
-    @Operation(summary = "Implements long polling",
-        description = "Get the openapi.json with the Ld annotations as octet stream",
-        responses = {
-        @ApiResponse(content = @Content(schema = @Schema(implementation = OpenAPI.class)))
-    })
-    public Response getSwaggerLdOct() throws IOException {
-
-        //String swagUri = "http://localhost:8080/jaqpot/services/swagger.json";
-        String swagUri = "http://localhost:8080/jaqpot/services/openapi.json";
-        
-        URL url = null;
-        HttpURLConnection con = null;
-        InputStream response = null;
-        StringBuffer respString = new StringBuffer();
-        try {
-            url = new URL(swagUri);
-            con = (HttpURLConnection) url.openConnection();
-            con.setRequestMethod("GET");
-            response = con.getInputStream();
-            BufferedReader in = new BufferedReader(
-                    new InputStreamReader(response));
-            String inputLine;
-
-            while ((inputLine = in.readLine()) != null) {
-                respString.append(inputLine);
-            }
-
-            in.close();
-        } catch (IOException e) {
-            throw new InternalServerErrorException("Mallformed url, or io connection");
-        }
-
-        String swagS = respString.toString();
-        JsonNode swaggerLd = shndl.test(swagS);
-//        String swagtxt = swaggerLd.asText();
-
-        ObjectMapper objectMapper = new ObjectMapper();
-        byte[] swagbyt = objectMapper.writeValueAsBytes(swaggerLd);
-        InputStream targetStream = new ByteArrayInputStream(swagbyt);
-
-        return Response.ok(targetStream).build();
-
-    }
+//    @GET
+//    @Path("/ld/oct")
+//    //@ApiOperation(value = "Get the swagger.json with the Ld annotations as octet stream",
+//      //      notes = "Implements long polling",
+//        //    response = Swagger.class)
+//    @Produces({MediaType.APPLICATION_OCTET_STREAM})
+//    @Operation(summary = "Implements long polling",
+//        description = "Get the openapi.json with the Ld annotations as octet stream",
+//        responses = {
+//        @ApiResponse(content = @Content(schema = @Schema(implementation = OpenAPI.class)))
+//    })
+//    public Response getSwaggerLdOct() throws IOException {
+//
+//        //String swagUri = "http://localhost:8080/jaqpot/services/swagger.json";
+//        String swagUri = "http://localhost:8080/jaqpot/services/openapi.json";
+//        
+//        URL url = null;
+//        HttpURLConnection con = null;
+//        InputStream response = null;
+//        StringBuffer respString = new StringBuffer();
+//        try {
+//            url = new URL(swagUri);
+//            con = (HttpURLConnection) url.openConnection();
+//            con.setRequestMethod("GET");
+//            response = con.getInputStream();
+//            BufferedReader in = new BufferedReader(
+//                    new InputStreamReader(response));
+//            String inputLine;
+//
+//            while ((inputLine = in.readLine()) != null) {
+//                respString.append(inputLine);
+//            }
+//
+//            in.close();
+//        } catch (IOException e) {
+//            throw new InternalServerErrorException("Mallformed url, or io connection");
+//        }
+//
+//        String swagS = respString.toString();
+//        JsonNode swaggerLd = shndl.test(swagS);
+////        String swagtxt = swaggerLd.asText();
+//
+//        ObjectMapper objectMapper = new ObjectMapper();
+//        byte[] swagbyt = objectMapper.writeValueAsBytes(swaggerLd);
+//        InputStream targetStream = new ByteArrayInputStream(swagbyt);
+//
+//        return Response.ok(targetStream).build();
+//
+//    }
 
 }

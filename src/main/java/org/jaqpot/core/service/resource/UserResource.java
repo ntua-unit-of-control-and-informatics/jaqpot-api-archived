@@ -72,6 +72,7 @@ import org.jaqpot.core.service.authentication.RoleEnum;
 //@Api(value = "/user", description = "Users API", position = 1)
 @Produces({"application/json", "text/uri-list"})
 @Tag(name = "user")
+@io.swagger.v3.oas.annotations.security.SecurityRequirement(name = "bearerAuth")
 public class UserResource {
 
     @EJB
