@@ -140,6 +140,7 @@ public class TrainingProcedure extends AbstractJaqpotProcedure implements Messag
         String apiKey = (String) messageBody.get("api_key");
         String baseURI = (String) messageBody.get("base_uri");
         String creator = (String) messageBody.get("creator");
+        String visible = (String) messageBody.get("visible");
         try {
             init(taskId);
             checkCancelled();

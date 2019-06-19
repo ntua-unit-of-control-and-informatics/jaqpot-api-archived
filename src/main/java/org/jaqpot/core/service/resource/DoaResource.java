@@ -121,20 +121,6 @@ public class DoaResource {
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces({MediaType.APPLICATION_JSON})
     @Consumes(MediaType.APPLICATION_JSON)
-//    @ApiOperation(value = "Creates the domain of applicability for a Jaqpot model",
-//            notes = "Creates the domain of applicability for a Jaqpot model",
-//            response = Discussion.class)
-//    @ApiResponses(value = {
-//        @ApiResponse(code = 200, message = "Doi was created successfully.")
-//        ,
-//        @ApiResponse(code = 400, message = "Bad request: malformed feature")
-//        ,
-//        @ApiResponse(code = 401, message = "You are not authorized to access this resource")
-//        ,
-//        @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)")
-//        ,
-//        @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
-//    })
     @RequestBody(content = {
         @Content(mediaType = "application/json", schema = @Schema(type = "object"))})
     @Parameters({
@@ -176,20 +162,6 @@ public class DoaResource {
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces({MediaType.APPLICATION_JSON})
     @Consumes(MediaType.APPLICATION_JSON)
-//    @ApiOperation(value = "Creates the domain of applicability for a Jaqpot model",
-//            notes = "Creates the domain of applicability for a Jaqpot model",
-//            response = Discussion.class)
-//    @ApiResponses(value = {
-//        @ApiResponse(code = 200, message = "Doi was created successfully.")
-//        ,
-//        @ApiResponse(code = 400, message = "Bad request: malformed feature")
-//        ,
-//        @ApiResponse(code = 401, message = "You are not authorized to access this resource")
-//        ,
-//        @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)")
-//        ,
-//        @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
-//    })
     @RequestBody(content = {
         @Content(mediaType = "application/json", schema = @Schema(type = "object"))})
     @Parameters({

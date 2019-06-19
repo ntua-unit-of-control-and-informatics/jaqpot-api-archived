@@ -328,6 +328,7 @@ public class AlgorithmResource {
 
     @POST
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
+    @Consumes({MediaType.APPLICATION_FORM_URLENCODED})
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Path("/{id}")
     @Operation(summary = "Creates Model",
@@ -350,19 +351,6 @@ public class AlgorithmResource {
                 @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = Task.class)), description = "The process has successfully been started. A task URI is returned."),
                 @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorReport.class)), description = "Internal server error - this request cannot be served.")
             })
-//    @Parameters({
-////        @Parameter(name = "title", required = true, schema = @Schema(implementation = String.class, type = "String"), in = ParameterIn.QUERY),
-////        @Parameter(name = "decription", required = true, schema = @Schema(implementation = String.class, type = "String"), in = ParameterIn.QUERY),
-////        @Parameter(name = "dataset_uri", schema = @Schema(type = "String", defaultValue = DEFAULT_DATASET), in = ParameterIn.QUERY),
-////        @Parameter(name = "prediction_feature", schema = @Schema(type = "String", defaultValue = DEFAULT_PRED_FEATURE), in = ParameterIn.QUERY),
-////        @Parameter(name = "parameters", schema = @Schema(type = "String"), in = ParameterIn.QUERY),
-////        @Parameter(name = "transformations", schema = @Schema(type = "String", defaultValue = DEFAULT_TRANSFORMATIONS), in = ParameterIn.QUERY),
-////        @Parameter(name = "scaling", schema = @Schema(type = "String", defaultValue = STANDARIZATION), in = ParameterIn.QUERY),
-////        @Parameter(name = "doa", schema = @Schema(type = "String", defaultValue = DEFAULT_DOA), in = ParameterIn.QUERY),
-////        @Parameter(name = "id", schema = @Schema(type = "String"), in = ParameterIn.PATH),
-////        @Parameter(name = "Authorization", schema = @Schema(type = "String"), in = ParameterIn.HEADER)
-//    })
-
     @org.jaqpot.core.service.annotations.Task
     public Response trainModel(
             @Parameter(name = "title", required = true, schema = @Schema(implementation = String.class, type = "String")) @FormParam("title") String title,

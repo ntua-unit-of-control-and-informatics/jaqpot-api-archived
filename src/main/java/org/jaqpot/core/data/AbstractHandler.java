@@ -169,7 +169,7 @@ public abstract class AbstractHandler<T extends JaqpotEntity> {
         properties.put("visible", true);
         Map<String, Object> notProperties = new HashMap<>();
         notProperties.put("onTrash", true);
-
+        notProperties.put("algorithm._id", "httk");
         return getEntityManager().findSortedDescAndNe(entityClass, properties, notProperties, fields, start, max, Arrays.asList("meta.date"));
     }
 
@@ -183,6 +183,7 @@ public abstract class AbstractHandler<T extends JaqpotEntity> {
         properties.put("visible", true);
         Map<String, Object> notProperties = new HashMap<>();
         notProperties.put("onTrash", true);
+        notProperties.put("algorithm._id", "httk");
         return getEntityManager().countAndNe(entityClass, properties, notProperties);
     }
 

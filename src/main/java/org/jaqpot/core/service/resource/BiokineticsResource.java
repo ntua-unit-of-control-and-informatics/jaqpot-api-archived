@@ -226,6 +226,7 @@ public class BiokineticsResource {
     @POST
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
+    @Consumes({MediaType.APPLICATION_FORM_URLENCODED})
     @Path("httk/createmodel")
     @Operation(summary = "Creates an httk biocinetics Model",
             description = "Creates an httk biocinetics Model",
@@ -241,8 +242,7 @@ public class BiokineticsResource {
     public Response trainHttk(
             @Parameter(name = "title", required = true, schema = @Schema(implementation = String.class)) @FormParam("title") String title,
             @Parameter(name = "description", required = true, schema = @Schema(implementation = String.class)) @FormParam("description") String description,
-            @Parameter(name = "parameters", schema = @Schema(implementation = String.class), hidden = true) @FormParam("parameters") String parameters,
-            //            @ApiParam(name = "algorithmId", required = true) @FormParam("algorithmId") String algorithmId,
+            @Parameter(name = "parameters", schema = @Schema(implementation = String.class)) @FormParam("parameters") String parameters,
             @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class)) @HeaderParam("Authorization") String api_key) throws QuotaExceededException, ParameterIsNullException, ParameterInvalidURIException, ParameterTypeException, ParameterRangeException, ParameterScopeException, JaqpotDocumentSizeExceededException {
 
         UrlValidator urlValidator = new UrlValidator(UrlValidator.ALLOW_LOCAL_URLS);

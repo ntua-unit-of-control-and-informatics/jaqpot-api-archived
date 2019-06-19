@@ -30,6 +30,7 @@
 package org.jaqpot.core.data;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -135,6 +136,15 @@ public class ModelHandler extends AbstractHandler<Model> {
         fields.add("additionalInfo");
         fields.add("meta");
         return em.find(Model.class, keys, fields).stream().findFirst().orElse(null);
+    }
+    
+    public Long countAllOfAlgos(String user,String algo){
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("meta.creators", Arrays.asList(user));
+        properties.put("algorithm._id", algo);
+        Map<String, Object> notProperties = new HashMap<>();
+        notProperties.put("onTrash", true);
+        return getEntityManager().countAndNe(Model.class, properties, notProperties);
     }
 
 }

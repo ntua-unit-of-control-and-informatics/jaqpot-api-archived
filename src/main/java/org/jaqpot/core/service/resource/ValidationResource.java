@@ -52,6 +52,7 @@ import javax.jms.JMSContext;
 import javax.jms.JMSException;
 import javax.jms.Topic;
 import javax.ws.rs.BadRequestException;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
@@ -154,10 +155,7 @@ public class ValidationResource {
     @POST
     @Path("/training_test_cross")
     @TokenSecured({RoleEnum.DEFAULT_USER})
-    /*@ApiOperation(value = "Creates Validation Report",
-     notes = "Creates Validation Report",
-     response = Task.class
-     )*/
+    @Consumes({MediaType.APPLICATION_FORM_URLENCODED})
     @Parameters({
         @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
         @Parameter(name = "algorithm_uri", schema = @Schema(implementation = String.class)),
@@ -282,11 +280,8 @@ public class ValidationResource {
 
     @POST
     @TokenSecured({RoleEnum.DEFAULT_USER})
+    @Consumes({MediaType.APPLICATION_FORM_URLENCODED})
     @Path("/training_test_split")
-    /*@ApiOperation(value = "Creates Validation Report",
-     notes = "Creates Validation Report",
-     response = Task.class
-     )*/
     @Parameters({
         @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
         @Parameter(name = "algorithm_uri", schema = @Schema(implementation = String.class)),
@@ -310,10 +305,6 @@ public class ValidationResource {
             @FormParam("training_dataset_uri") String datasetURI,
             @FormParam("algorithm_params") String algorithmParameters,
             @FormParam("prediction_feature") String predictionFeature,
-            /*@ApiParam(name = "transformations", defaultValue = DEFAULT_TRANSFORMATIONS) @FormParam("transformations") String transformations,
-             @ApiParam(name = "scaling", defaultValue = STANDARIZATION) @FormParam("scaling") String scaling, //, allowableValues = SCALING + "," + STANDARIZATION          
-             @ApiParam(name = "split_ratio",required = true) @FormParam("split_ratio") Double splitRatio,
-             */
             @FormParam("transformations") String transformations,
             @FormParam("scaling") String scaling, //, allowableValues = SCALING + "," + STANDARIZATION          
             @FormParam("split_ratio") Double splitRatio,
@@ -413,6 +404,7 @@ public class ValidationResource {
     @POST
     @Path("/test_set_validation")
     @TokenSecured({RoleEnum.DEFAULT_USER})
+    @Consumes({MediaType.APPLICATION_FORM_URLENCODED})
     /*@ApiOperation(value = "Creates Validation Report",
      notes = "Creates Validation Report",
      response = Task.class

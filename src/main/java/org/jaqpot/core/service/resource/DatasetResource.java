@@ -472,6 +472,7 @@ public class DatasetResource {
     @POST
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Path("/empty")
+    @Consumes({MediaType.APPLICATION_FORM_URLENCODED})
     @Produces({"text/uri-list", MediaType.APPLICATION_JSON})
 //      @Parameters({
 //        @Parameter(name = "title", schema = @Schema(implementation = String.class)),
@@ -527,6 +528,7 @@ public class DatasetResource {
     @POST
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Path("/merge")
+    @Consumes({MediaType.APPLICATION_FORM_URLENCODED})
     @Operation(summary = "Merges Datasets",
             description = "The new intersected Dataset created will be assigned on a random generated Id",
             responses = {
@@ -882,6 +884,7 @@ public class DatasetResource {
 //    }
     @POST
     @TokenSecured({RoleEnum.DEFAULT_USER})
+    @Consumes({MediaType.APPLICATION_FORM_URLENCODED})
     @Path("{id}/qprf-dummy")
     @Operation(summary = "Creates QPRF Dummy Report",
             responses = {

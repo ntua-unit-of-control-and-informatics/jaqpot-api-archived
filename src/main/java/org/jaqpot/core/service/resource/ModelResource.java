@@ -198,7 +198,8 @@ public class ModelResource {
                     @Parameter(name = "max", description = "max - the server imposes an upper limit of 500 on this "
                 + "parameter.", schema = @Schema(implementation = Integer.class, defaultValue = "10")) @QueryParam("max") Integer max,
             @Parameter(name = "ontrash", description = "on trash datasets", required = false, schema = @Schema(implementation = Boolean.class, allowableValues = {"true", "false"})) @QueryParam("ontrash") Boolean ontrash,
-            @Parameter(name = "organization", description = "organization", schema = @Schema(implementation = String.class)) @QueryParam("organization") String organization
+            @Parameter(name = "organization", description = "organization", schema = @Schema(implementation = String.class)) @QueryParam("organization") String organization,
+            @Parameter(name = "byAlgorithm", description = "byAlgorithm", schema = @Schema(implementation = String.class)) @QueryParam("byAlgorithm") String byAlgorithm
     ) {
         if (max == null || max > 500) {
             max = 500;
@@ -208,7 +209,7 @@ public class ModelResource {
 
         List<Model> modelsFound = new ArrayList();
         Long total = null;
-        if (organization == null && ontrash == null) {
+        if (organization == null && ontrash == null && byAlgorithm == null) {
             modelsFound.addAll(modelHandler.listMetaOfCreator(creator, start != null ? start : 0, max));
             total = modelHandler.countAllOfCreator(creator);
         } else if (ontrash != null) {
@@ -222,7 +223,24 @@ public class ModelResource {
             properties.put("meta.creators", Arrays.asList(creator));
             modelsFound.addAll(modelHandler.find(properties, fields, start, max));
             total = modelHandler.countCreatorsInTrash(creator);
-        } else {
+        } else if( byAlgorithm != null){
+            List<String> fields = new ArrayList<>();
+            fields.add("_id");
+            fields.add("meta");
+            fields.add("predictedFeatures");
+            fields.add("independentFeatures");
+            fields.add("algorithm");
+            Map<String, Object> properties = new HashMap<>();
+            properties.put("meta.creators", Arrays.asList(creator));
+            properties.put("visible", true);
+            properties.put("algorithm._id", byAlgorithm);
+            Map<String, Object> neProperties = new HashMap<>();
+            neProperties.put("onTrash", true);
+            modelsFound.addAll(modelHandler.findAllAndNe(properties, neProperties, fields, start, max));
+            total = modelHandler.countAllOfAlgos(creator, byAlgorithm);
+        }
+        
+        else {
             List<String> fields = new ArrayList<>();
             fields.add("_id");
             fields.add("meta");
@@ -230,9 +248,11 @@ public class ModelResource {
             fields.add("independentFeatures");
             Map<String, Object> properties = new HashMap<>();
             properties.put("meta.read", organization);
+            properties.put("visible", true);
 //            properties.put("meta.creators", Arrays.asList(creator));
             Map<String, Object> neProperties = new HashMap<>();
             neProperties.put("onTrash", true);
+            neProperties.put("algorithm._id", "httk");
             modelsFound.addAll(modelHandler.findAllAndNe(properties, neProperties, fields, start, max));
             total = modelHandler.countAllOfOrg(creator, organization);
         }
@@ -567,12 +587,6 @@ public class ModelResource {
     @Consumes({MediaType.APPLICATION_FORM_URLENCODED})
     @Produces({MediaType.APPLICATION_JSON})
     @Path("/{id}")
-//    @Parameters({
-//        @Parameter(name = "Authorization", description = "Authorization required", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
-//        @Parameter(name = "id", description = "id", schema = @Schema(implementation = String.class), in = ParameterIn.PATH),
-//        @Parameter(name = "dataset_uri", description = "dataset_uri", required = true, schema = @Schema(implementation = String.class)),
-//        @Parameter(name = "visible", description = "visible", required = true, schema = @Schema(implementation = Boolean.class))
-//    })
     @Operation(summary = "Creates Prediction",
             description = "Creates Prediction",
             responses = {
