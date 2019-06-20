@@ -73,7 +73,7 @@ import org.jaqpot.core.service.data.PredictionService;
         in = SecuritySchemeIn.HEADER,
         scheme = "bearer",
         description = "add the token retreived from oidc. Example:  Bearer <API_KEY>"
-        )
+)
 @io.swagger.v3.oas.annotations.security.SecurityRequirement(name = "bearerAuth")
 public class BiokineticsResource {
 
@@ -116,20 +116,9 @@ public class BiokineticsResource {
     @POST
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Path("/pksim/createmodel")
-    @RequestBody(content = {
-        @Content(mediaType = "multipart/form-data", schema = @Schema(type = "string", format = "binary")),
-        @Content(mediaType = "application/json", schema = @Schema(type = "object")),
-        @Content(mediaType = "text/plain", schema = @Schema(type = "integer"))})
-    @Parameters({
-        @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(type = "string"), in = ParameterIn.HEADER),
-        @Parameter(name = "file", description = "xml[m,x] file", required = true, schema = @Schema(type = "string", format = "binary"), in = ParameterIn.QUERY),
-        @Parameter(name = "dataset-uri", description = "Dataset uri to be trained upon", required = true, schema = @Schema(type = "string"), in = ParameterIn.QUERY, style = ParameterStyle.FORM),
-        @Parameter(name = "title", description = "Title of model", required = true, schema = @Schema(type = "string"), in = ParameterIn.QUERY, style = ParameterStyle.FORM),
-        @Parameter(name = "description", description = "Description of model", required = true, schema = @Schema(type = "string"), in = ParameterIn.QUERY, style = ParameterStyle.FORM),
-        @Parameter(name = "algorithm-uri", description = "Algorithm URI", required = true, schema = @Schema(type = "string"), in = ParameterIn.QUERY, style = ParameterStyle.FORM),
-        @Parameter(name = "parameters", description = "Parameters for algorithm", required = false, schema = @Schema(type = "string"), in = ParameterIn.QUERY, style = ParameterStyle.FORM)
-    })
+
     @Operation(summary = "Creates Biokinetics model with PkSim",
             description = "Creates a biokinetics model given a pksim .xml file and demographic data",
             responses = {
@@ -137,11 +126,14 @@ public class BiokineticsResource {
             })
     @org.jaqpot.core.service.annotations.Task
     public Response trainBiokineticsModel(
-            //@ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key,
-            //@ApiParam(value = "multipartFormData input", hidden = true) MultipartFormDataInput input)
-            @HeaderParam("Authorization") String api_key,
-            //@Parameter(description = "multipartFormData input", hidden = true)
-            MultipartFormDataInput input)
+            @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(type = "string")) @HeaderParam("Authorization") String api_key,
+            @Parameter(name = "file", description = "xml[m,x] file", required = true, schema = @Schema(type = "string", format = "binary")) @FormParam("file") String file,
+            @Parameter(name = "dataset-uri", description = "Dataset uri to be trained upon", required = true, schema = @Schema(type = "string")) @FormParam("dataset-uri") String datasetUri,
+            @Parameter(name = "title", description = "Title of model", required = true, schema = @Schema(type = "string")) @FormParam("title") String title,
+            @Parameter(name = "description", description = "Description of model", required = true, schema = @Schema(type = "string")) @FormParam("description") String description,
+            @Parameter(name = "algorithm-uri", description = "Algorithm URI", required = true, schema = @Schema(type = "string")) @FormParam("algorithm-uri") String algorithmURI,
+            @Parameter(name = "parameters", description = "Parameters for algorithm", required = false, schema = @Schema(type = "string")) @FormParam("parameters") String parameters,
+            @Parameter(description = "multipartFormData input", hidden = true) MultipartFormDataInput input)
             throws ParameterIsNullException, ParameterInvalidURIException, QuotaExceededException, IOException, ParameterScopeException, ParameterRangeException, ParameterTypeException, JaqpotDocumentSizeExceededException {
 
         String[] apiA = api_key.split("\\s+");
@@ -152,10 +144,14 @@ public class BiokineticsResource {
         byte[] bytes;
         Map<String, List<InputPart>> uploadForm = input.getFormDataMap();
         List<InputPart> inputParts = uploadForm.get("file");
-        String title = uploadForm.get("title").get(0).getBody(String.class, null);
-        String description = uploadForm.get("description").get(0).getBody(String.class, null);
-        String algorithmURI = uploadForm.get("algorithm-uri").get(0).getBody(String.class, null);
-        String datasetUri = uploadForm.get("dataset-uri").get(0).getBody(String.class, null);
+        title = uploadForm.get("title").get(0).getBody(String.class, null);
+        //String title = uploadForm.get("title").get(0).getBody(String.class, null);
+        description = uploadForm.get("description").get(0).getBody(String.class, null);
+        //String description = uploadForm.get("description").get(0).getBody(String.class, null);
+        algorithmURI = uploadForm.get("algorithm-uri").get(0).getBody(String.class, null);
+        //String algorithmURI = uploadForm.get("algorithm-uri").get(0).getBody(String.class, null);
+        datasetUri = uploadForm.get("dataset-uri").get(0).getBody(String.class, null);
+        //String datasetUri = uploadForm.get("dataset-uri").get(0).getBody(String.class, null);
 
         User user = userHandler.find(securityContext.getUserPrincipal().getName());
         long modelCount = modelHandler.countAllOfCreator(user.getId());
@@ -168,8 +164,8 @@ public class BiokineticsResource {
                     + ", your quota has been exceeded; you already have " + modelCount + " models. "
                     + "No more than " + maxAllowedModels + " are allowed with your subscription.");
         }
-
-        String parameters = null;
+        parameters = null;
+        //String parameters = null;
         if (uploadForm.get("parameters") != null) {
             parameters = uploadForm.get("parameters").get(0).getBody(String.class, null);
         }

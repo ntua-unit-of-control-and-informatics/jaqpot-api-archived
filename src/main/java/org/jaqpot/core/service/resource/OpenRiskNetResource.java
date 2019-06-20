@@ -34,9 +34,12 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeIn;
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
+import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.validator.routines.UrlValidator;
@@ -86,6 +89,14 @@ import static org.jaqpot.core.util.CSVUtils.parseLine;
 
 @Path("/openrisknet")
 @Tag(name = "openrisknet")
+@SecurityScheme(name = "bearerAuth",
+        type = SecuritySchemeType.HTTP,
+        in = SecuritySchemeIn.HEADER,
+        scheme = "bearer",
+        description = "add the token retreived from oidc. Example:  Bearer <API_KEY>"
+)
+@io.swagger.v3.oas.annotations.security.SecurityRequirement(name = "bearerAuth")
+
 @io.swagger.v3.oas.annotations.security.SecurityRequirement(name = "bearerAuth")
 //@Api(value = "/openrisknet", description = "OpenRiskNet API")
 public class OpenRiskNetResource {
@@ -148,7 +159,7 @@ public class OpenRiskNetResource {
     //        @ApiImplicitParam(name = "parameters", value = "Parameters for algorithm", required = false, dataType = "string", paramType = "formData")
 
     //})
-    @RequestBody(content = {
+   /* @RequestBody(content = {
         @Content(mediaType = "multipart/form-data", schema = @Schema(type = "string", format = "binary")),
         @Content(mediaType = "text/plain", schema = @Schema(type = "string"))})
     @Parameters({
@@ -157,7 +168,7 @@ public class OpenRiskNetResource {
         @Parameter(name = "description", description = "Description of dataset", required = true, schema = @Schema(type = "string")),
         @Parameter(name = "algorithm-uri", description = "Algorithm URI", required = true, schema = @Schema(type = "string")),
         @Parameter(name = "parameters", description = "Parameters for algorithm", required = false, schema = @Schema(type = "string"))
-    })
+    })*/
     @Operation(summary = "Creates Dataset By SMILES document"
             )
     //@ApiOperation(value = "Creates Dataset By SMILES document",
@@ -166,10 +177,13 @@ public class OpenRiskNetResource {
     //)
     @org.jaqpot.core.service.annotations.Task
     public Response uploadFile(
-            @HeaderParam("Authorization") String api_key,
-            //@ApiParam(value = "multipartFormData input", hidden = true) MultipartFormDataInput input)
-            //@Parameter(hidden = true, schema = @Schema(name = "multipartFormData", description = "multipartFormData input"))
-            MultipartFormDataInput input)
+            @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(type = "string")) @HeaderParam("Authorization") String api_key,
+            @Parameter(name = "smilesFile", description = "xml[m,x] file", required = true, schema = @Schema(type = "string", format = "binary")) @FormParam("file") String file,
+            @Parameter(name = "title", description = "Title of model", required = true, schema = @Schema(type = "string")) @FormParam("title") String title,
+            @Parameter(name = "description", description = "Description of model", required = true, schema = @Schema(type = "string")) @FormParam("description") String description,
+            @Parameter(name = "algorithm-uri", description = "Algorithm URI", required = true, schema = @Schema(type = "string")) @FormParam("algorithm-uri") String algorithmURI,
+            @Parameter(name = "parameters", description = "Parameters for algorithm", required = false, schema = @Schema(type = "string")) @FormParam("parameters") String parameters,
+            @Parameter(description = "multipartFormData input", hidden = true) MultipartFormDataInput input)
             throws ParameterIsNullException, ParameterInvalidURIException, QuotaExceededException, IOException, ParameterScopeException, ParameterRangeException, ParameterTypeException, JaqpotDocumentSizeExceededException {
         UrlValidator urlValidator = new UrlValidator();
         String[] apiA = api_key.split("\\s+");
@@ -193,11 +207,15 @@ public class OpenRiskNetResource {
         byte[] bytes = new byte[0];
         bytes = getBytesFromInputParts(inputParts);
 
-        String title = uploadForm.get("title").get(0).getBody(String.class, null);
-        String description = uploadForm.get("description").get(0).getBody(String.class, null);
-        String algorithmURI = uploadForm.get("algorithm-uri").get(0).getBody(String.class, null);
+        //String title = uploadForm.get("title").get(0).getBody(String.class, null);
+        title = uploadForm.get("title").get(0).getBody(String.class, null);
+        //String description = uploadForm.get("description").get(0).getBody(String.class, null);
+        description = uploadForm.get("description").get(0).getBody(String.class, null);
+        //String algorithmURI = uploadForm.get("algorithm-uri").get(0).getBody(String.class, null);
+        algorithmURI = uploadForm.get("algorithm-uri").get(0).getBody(String.class, null);
 
-        String parameters = null;
+        //String parameters = null;
+        parameters = null;
         if (uploadForm.get("parameters") != null) {
             parameters = uploadForm.get("parameters").get(0).getBody(String.class, null);
         }

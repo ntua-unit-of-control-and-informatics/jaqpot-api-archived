@@ -110,7 +110,7 @@ import static org.jaqpot.core.util.CSVUtils.parseLine;
         in = SecuritySchemeIn.HEADER,
         scheme = "bearer",
         description = "add the token retreived from oidc. Example:  Bearer <API_KEY>"
-        )
+)
 @io.swagger.v3.oas.annotations.security.SecurityRequirement(name = "bearerAuth")
 public class DatasetResource {
 
@@ -193,7 +193,7 @@ public class DatasetResource {
     public Response listDatasets(
             @Parameter(name = "start", description = "start", schema = @Schema(implementation = Integer.class, defaultValue = "0")) @QueryParam("start") Integer start,
             @Parameter(name = "max", description = "max - the server imposes an upper limit of 500 on this "
-                + "parameter.", schema = @Schema(implementation = Integer.class, defaultValue = "10")) @QueryParam("max") Integer max,
+                    + "parameter.", schema = @Schema(implementation = Integer.class, defaultValue = "10")) @QueryParam("max") Integer max,
             @Parameter(name = "existence", description = "description for the dataset", required = false, schema = @Schema(implementation = String.class, allowableValues = {"UPLOADED", "CREATED", "TRANSFORMED", "PREDICTED", "FROMPRETRAINED", "DESCRIPTORS", "ALL"})) @QueryParam("existence") String datasetexistence,
             @Parameter(name = "ontrash", description = "onTrash for the dataset", required = false, schema = @Schema(implementation = Boolean.class, allowableValues = {"true", "false"})) @QueryParam("ontrash") Boolean ontrash,
             @Parameter(name = "organization", description = "organization for the dataset", required = false, schema = @Schema(implementation = String.class)) @QueryParam("organization") String organization,
@@ -285,9 +285,7 @@ public class DatasetResource {
     @Produces({"text/csv", MediaType.APPLICATION_JSON})
 
     @Path("{id}")
-    @Parameters({
-        @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER)
-    })
+
     @Operation(summary = "Finds Dataset by Id",
             description = "Finds specified Dataset",
             responses = {
@@ -300,7 +298,7 @@ public class DatasetResource {
             })
     public Response getDataset(
             //@ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key,
-            @HeaderParam("Authorization") String api_key,
+            @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class)) @HeaderParam("Authorization") String api_key,
             @PathParam("id") String id,
             @QueryParam("dataEntries") Boolean dataEntries,
             @QueryParam("rowStart") Integer rowStart,
@@ -352,9 +350,9 @@ public class DatasetResource {
             })
     public Response listFeaturedDatasets(
             @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class)) @HeaderParam("Authorization") String api_key,
-            @Parameter(name = "start", description = "start", schema = @Schema(implementation = Integer.class, defaultValue = "0") ) @QueryParam("start") Integer start,
+            @Parameter(name = "start", description = "start", schema = @Schema(implementation = Integer.class, defaultValue = "0")) @QueryParam("start") Integer start,
             @Parameter(name = "max", description = "max - the server imposes an upper limit of 500 on this "
-                + "parameter.", schema = @Schema(implementation = Integer.class, defaultValue = "10")) @QueryParam("max") Integer max
+                    + "parameter.", schema = @Schema(implementation = Integer.class, defaultValue = "10")) @QueryParam("max") Integer max
     ) {
         start = start != null ? start : 0;
         boolean doWarnMax = false;
@@ -1231,16 +1229,7 @@ public class DatasetResource {
     @POST
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Path("/csv")
-    @Parameters({
-        @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
-        @Parameter(name = "file", description = "xls[m,x] file", required = true, schema = @Schema(type = "string", format = "binary")),
-        @Parameter(name = "title", description = "Title of dataset", required = true, schema = @Schema(type = "string")),
-        @Parameter(name = "description", description = "Description of dataset", required = true, schema = @Schema(type = "string"))
-    })
-    @RequestBody(content = {
-        @Content(mediaType = "multipart/form-data", schema = @Schema(type = "string", format = "binary")),
-        @Content(mediaType = "application/json", schema = @Schema(type = "object")),
-        @Content(mediaType = "text/plain", schema = @Schema(type = "integer"))})
+    @Consumes( MediaType.MULTIPART_FORM_DATA)
     @Operation(summary = "Creates dataset By .csv document",
             description = "Creates features/substances, returns Dataset",
             responses = {
@@ -1248,8 +1237,11 @@ public class DatasetResource {
             }
     )
     public Response createDummyDataset(
-            @HeaderParam("Authorization") String subjectId,
-            MultipartFormDataInput input)
+            @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(type = "string")) @HeaderParam("Authorization") String subjectId,
+            @Parameter(name = "file", description = "xml[m,x] file", required = true, schema = @Schema(type = "string", format = "binary")) @FormParam("file") String file,
+            @Parameter(name = "title", description = "Title of dataset", required = true, schema = @Schema(type = "string")) @FormParam("title") String title,
+            @Parameter(name = "description", description = "Description of model", required = true, schema = @Schema(type = "string")) @FormParam("description") String description,
+            @Parameter(description = "multipartFormData input", hidden = true) MultipartFormDataInput input) 
             throws ParameterIsNullException, ParameterInvalidURIException, QuotaExceededException, IOException, ParameterScopeException, ParameterRangeException, ParameterTypeException, URISyntaxException, JaqpotDocumentSizeExceededException {
 
         User user = userHandler.find(securityContext.getUserPrincipal().getName());
