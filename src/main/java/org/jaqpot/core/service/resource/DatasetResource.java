@@ -208,7 +208,7 @@ public class DatasetResource {
         List<Dataset> datasets = new ArrayList();
         Number total = null;
         if (datasetexistence == null || datasetexistence.equals("ALL")) {
-            if (organization == null && ontrash == null) {
+            if (organization == null && ontrash == null  && byModel == null) {
                 datasets.addAll(datasetHandler.listMetaOfCreator(creator, start, max));
                 total = datasetHandler.countAllOfCreator(creator);
             } else if (ontrash != null) {
@@ -223,7 +223,26 @@ public class DatasetResource {
                 properties.put("onTrash", ontrash);
                 datasets.addAll(datasetHandler.find(properties, fields, start, max));
                 total = datasetHandler.countCreatorsInTrash(creator);
-            } else {
+            } else if(byModel != null){
+                
+                List<String> fields = new ArrayList<>();
+                fields.add("_id");
+                fields.add("meta");
+                fields.add("ontologicalClasses");
+                fields.add("organizations");
+                fields.add("totalRows");
+                fields.add("totalColumns");
+                fields.add("features");
+                Map<String, Object> properties = new HashMap<>();
+                properties.put("byModel", byModel);
+                properties.put("visible", true);
+                Map<String, Object> neProperties = new HashMap<>();
+                neProperties.put("onTrash", true);
+                datasets.addAll(datasetHandler.findAllAndNe(properties, neProperties, fields, start, max));
+                total = datasetHandler.countCreatorsByModel(creator, byModel);
+                
+            }
+            else {
                 List<String> fields = new ArrayList<>();
                 fields.add("_id");
                 fields.add("meta");
@@ -1231,16 +1250,17 @@ public class DatasetResource {
     @POST
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Path("/csv")
+    @Consumes({(MediaType.MULTIPART_FORM_DATA)})
     @Parameters({
         @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
         @Parameter(name = "file", description = "xls[m,x] file", required = true, schema = @Schema(type = "string", format = "binary")),
         @Parameter(name = "title", description = "Title of dataset", required = true, schema = @Schema(type = "string")),
         @Parameter(name = "description", description = "Description of dataset", required = true, schema = @Schema(type = "string"))
     })
-    @RequestBody(content = {
-        @Content(mediaType = "multipart/form-data", schema = @Schema(type = "string", format = "binary")),
-        @Content(mediaType = "application/json", schema = @Schema(type = "object")),
-        @Content(mediaType = "text/plain", schema = @Schema(type = "integer"))})
+//    @RequestBody(content = {
+//        @Content(mediaType = "multipart/form-data", schema = @Schema(type = "string", format = "binary")),
+//        @Content(mediaType = "application/json", schema = @Schema(type = "object")),
+//        @Content(mediaType = "text/plain", schema = @Schema(type = "integer"))})
     @Operation(summary = "Creates dataset By .csv document",
             description = "Creates features/substances, returns Dataset",
             responses = {
@@ -1248,8 +1268,12 @@ public class DatasetResource {
             }
     )
     public Response createDummyDataset(
-            @HeaderParam("Authorization") String subjectId,
-            MultipartFormDataInput input)
+            @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER) @HeaderParam("Authorization") String subjectId,
+            @Parameter(name = "file", description = "xls[m,x] file", required = true, schema = @Schema(type = "string", format = "binary")) @FormParam("file") String file,
+            @Parameter(name = "title", description = "Title of dataset", required = true, schema = @Schema(type = "string")) @FormParam("title") String title,
+            @Parameter(name = "description", description = "Description of dataset", required = true, schema = @Schema(type = "string")) @FormParam("description") String description,
+            @Parameter(name = "multipart", description = "Multipart", hidden = true) MultipartFormDataInput input
+    )
             throws ParameterIsNullException, ParameterInvalidURIException, QuotaExceededException, IOException, ParameterScopeException, ParameterRangeException, ParameterTypeException, URISyntaxException, JaqpotDocumentSizeExceededException {
 
         User user = userHandler.find(securityContext.getUserPrincipal().getName());
@@ -1350,7 +1374,9 @@ public class DatasetResource {
     }
 
     private void populateFeatures(Dataset dataset) throws JaqpotDocumentSizeExceededException {
+        int key = 0;
         for (FeatureInfo featureInfo : dataset.getFeatures()) {
+            
             String trimmedFeatureURI = propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_BASE_SERVICE) + "feature/" + featureInfo.getName().replaceAll("\\s+", " ").replaceAll("[ .]", "_") + "_" + new ROG(true).nextString(12);
 
             String trimmedFeatureName = featureInfo.getName().replaceAll("\\s+", " ").replaceAll("[.]", "_").replaceAll("[.]", "_");
@@ -1362,11 +1388,13 @@ public class DatasetResource {
             //Update FeatureURIS in Data Entries
             for (DataEntry dataentry : dataset.getDataEntry()) {
                 Object value = dataentry.getValues().remove(featureInfo.getURI());
-                dataentry.getValues().put(trimmedFeatureURI, value);
+                dataentry.getValues().put(String.valueOf(key), value);
             }
             //Update FeatureURI in Feature Info
             featureInfo.setURI(trimmedFeatureURI);
+            featureInfo.setKey(String.valueOf(key));
             featureInfo.setName(trimmedFeatureName);
+            key += 1;
         }
     }
 }

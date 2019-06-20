@@ -139,36 +139,22 @@ public class OpenRiskNetResource {
     @POST
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Path("/upload")
-    @Consumes("multipart/form-data")
-    //@ApiImplicitParams({
-    //        @ApiImplicitParam(name = "smilesFile", value = "xls[m,x] file", required = true, dataType = "file", paramType = "formData"),
-    //        @ApiImplicitParam(name = "title", value = "Title of dataset", required = true, dataType = "string", paramType = "formData"),
-    //        @ApiImplicitParam(name = "description", value = "Description of dataset", required = true, dataType = "string", paramType = "formData"),
-    //        @ApiImplicitParam(name = "algorithm-uri", value = "Algorithm URI", required = true, dataType = "string", paramType = "formData"),
-    //        @ApiImplicitParam(name = "parameters", value = "Parameters for algorithm", required = false, dataType = "string", paramType = "formData")
-
-    //})
+//    @Consumes("multipart/form-data")
     @RequestBody(content = {
         @Content(mediaType = "multipart/form-data", schema = @Schema(type = "string", format = "binary")),
         @Content(mediaType = "text/plain", schema = @Schema(type = "string"))})
     @Parameters({
-        @Parameter(name = "smilesFile", required = true, schema = @Schema( type = "string", format = "binary"), description = "xls[m,x] file"),
-        @Parameter(name = "title", required = true, description = "Title of dataset", schema = @Schema(type = "string")),
-        @Parameter(name = "description", description = "Description of dataset", required = true, schema = @Schema(type = "string")),
-        @Parameter(name = "algorithm-uri", description = "Algorithm URI", required = true, schema = @Schema(type = "string")),
-        @Parameter(name = "parameters", description = "Parameters for algorithm", required = false, schema = @Schema(type = "string"))
+        @Parameter(name = "file", description = "smiles file", required = true, schema = @Schema(type = "string", format = "binary"), in = ParameterIn.QUERY),
+        @Parameter(name = "title", required = true, description = "Title of dataset", schema = @Schema(type = "string"), in=ParameterIn.QUERY),
+        @Parameter(name = "description", description = "Description of dataset", required = true, schema = @Schema(type = "string"), in=ParameterIn.QUERY),
+        @Parameter(name = "algorithm-uri", description = "Algorithm URI", required = true, schema = @Schema(type = "string"), in=ParameterIn.QUERY),
+        @Parameter(name = "parameters", description = "Parameters for algorithm", required = false, schema = @Schema(type = "string"), in=ParameterIn.QUERY)
     })
     @Operation(summary = "Creates Dataset By SMILES document"
             )
-    //@ApiOperation(value = "Creates Dataset By SMILES document",
-    //        notes = "Calculates descriptors from SMILES document, returns Dataset",
-    //        response = Task.class
-    //)
     @org.jaqpot.core.service.annotations.Task
     public Response uploadFile(
             @HeaderParam("Authorization") String api_key,
-            //@ApiParam(value = "multipartFormData input", hidden = true) MultipartFormDataInput input)
-            //@Parameter(hidden = true, schema = @Schema(name = "multipartFormData", description = "multipartFormData input"))
             MultipartFormDataInput input)
             throws ParameterIsNullException, ParameterInvalidURIException, QuotaExceededException, IOException, ParameterScopeException, ParameterRangeException, ParameterTypeException, JaqpotDocumentSizeExceededException {
         UrlValidator urlValidator = new UrlValidator();
@@ -187,7 +173,7 @@ public class OpenRiskNetResource {
         }
 
         Map<String, List<InputPart>> uploadForm = input.getFormDataMap();
-        List<InputPart> inputParts = uploadForm.get("smilesFile");
+        List<InputPart> inputParts = uploadForm.get("file");
         String filename = getFileName(inputParts.get(0).getHeaders());
 
         byte[] bytes = new byte[0];
