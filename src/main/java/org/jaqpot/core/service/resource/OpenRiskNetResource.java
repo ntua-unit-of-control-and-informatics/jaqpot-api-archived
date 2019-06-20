@@ -171,10 +171,6 @@ public class OpenRiskNetResource {
     })*/
     @Operation(summary = "Creates Dataset By SMILES document"
             )
-    //@ApiOperation(value = "Creates Dataset By SMILES document",
-    //        notes = "Calculates descriptors from SMILES document, returns Dataset",
-    //        response = Task.class
-    //)
     @org.jaqpot.core.service.annotations.Task
     public Response uploadFile(
             @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(type = "string")) @HeaderParam("Authorization") String api_key,
@@ -201,7 +197,7 @@ public class OpenRiskNetResource {
         }
 
         Map<String, List<InputPart>> uploadForm = input.getFormDataMap();
-        List<InputPart> inputParts = uploadForm.get("smilesFile");
+        List<InputPart> inputParts = uploadForm.get("file");
         String filename = getFileName(inputParts.get(0).getHeaders());
 
         byte[] bytes = new byte[0];

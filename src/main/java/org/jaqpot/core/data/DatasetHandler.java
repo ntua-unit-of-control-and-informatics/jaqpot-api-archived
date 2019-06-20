@@ -189,5 +189,15 @@ public class DatasetHandler extends AbstractHandler<Dataset> {
         neProperties.put("onTrash", true);
         return getEntityManager().countAndNe(entityClass, properties, neProperties);
     }
+    
+    public long countCreatorsByModel(String creator,String byModel) {
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("meta.creators", Arrays.asList(creator));
+        properties.put("byModel", byModel);
+        properties.put("visible", true);
+        Map<String, Object> neProperties = new HashMap<>();
+        neProperties.put("onTrash", true);
+        return getEntityManager().countAndNe(entityClass, properties, neProperties);
+    }
 
 }

@@ -208,7 +208,7 @@ public class DatasetResource {
         List<Dataset> datasets = new ArrayList();
         Number total = null;
         if (datasetexistence == null || datasetexistence.equals("ALL")) {
-            if (organization == null && ontrash == null) {
+            if (organization == null && ontrash == null  && byModel == null) {
                 datasets.addAll(datasetHandler.listMetaOfCreator(creator, start, max));
                 total = datasetHandler.countAllOfCreator(creator);
             } else if (ontrash != null) {
@@ -223,7 +223,26 @@ public class DatasetResource {
                 properties.put("onTrash", ontrash);
                 datasets.addAll(datasetHandler.find(properties, fields, start, max));
                 total = datasetHandler.countCreatorsInTrash(creator);
-            } else {
+            } else if(byModel != null){
+                
+                List<String> fields = new ArrayList<>();
+                fields.add("_id");
+                fields.add("meta");
+                fields.add("ontologicalClasses");
+                fields.add("organizations");
+                fields.add("totalRows");
+                fields.add("totalColumns");
+                fields.add("features");
+                Map<String, Object> properties = new HashMap<>();
+                properties.put("byModel", byModel);
+                properties.put("visible", true);
+                Map<String, Object> neProperties = new HashMap<>();
+                neProperties.put("onTrash", true);
+                datasets.addAll(datasetHandler.findAllAndNe(properties, neProperties, fields, start, max));
+                total = datasetHandler.countCreatorsByModel(creator, byModel);
+                
+            }
+            else {
                 List<String> fields = new ArrayList<>();
                 fields.add("_id");
                 fields.add("meta");
@@ -1342,7 +1361,9 @@ public class DatasetResource {
     }
 
     private void populateFeatures(Dataset dataset) throws JaqpotDocumentSizeExceededException {
+        int key = 0;
         for (FeatureInfo featureInfo : dataset.getFeatures()) {
+            
             String trimmedFeatureURI = propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_BASE_SERVICE) + "feature/" + featureInfo.getName().replaceAll("\\s+", " ").replaceAll("[ .]", "_") + "_" + new ROG(true).nextString(12);
 
             String trimmedFeatureName = featureInfo.getName().replaceAll("\\s+", " ").replaceAll("[.]", "_").replaceAll("[.]", "_");
@@ -1354,11 +1375,13 @@ public class DatasetResource {
             //Update FeatureURIS in Data Entries
             for (DataEntry dataentry : dataset.getDataEntry()) {
                 Object value = dataentry.getValues().remove(featureInfo.getURI());
-                dataentry.getValues().put(trimmedFeatureURI, value);
+                dataentry.getValues().put(String.valueOf(key), value);
             }
             //Update FeatureURI in Feature Info
             featureInfo.setURI(trimmedFeatureURI);
+            featureInfo.setKey(String.valueOf(key));
             featureInfo.setName(trimmedFeatureName);
+            key += 1;
         }
     }
 }
