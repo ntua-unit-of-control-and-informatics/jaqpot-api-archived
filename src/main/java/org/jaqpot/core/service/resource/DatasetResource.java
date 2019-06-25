@@ -347,12 +347,6 @@ public class DatasetResource {
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Path("/featured")
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
-//    @Parameters({
-//        @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
-//        @Parameter(name = "start", description = "start", schema = @Schema(implementation = Integer.class, defaultValue = "0"), in = ParameterIn.QUERY),
-//        @Parameter(name = "max", description = "max - the server imposes an upper limit of 500 on this "
-//                + "parameter.", schema = @Schema(implementation = Integer.class, defaultValue = "10"), in = ParameterIn.QUERY)
-//    })
     @Operation(summary = "Finds all Datasets",
             description = "Finds Featured Datasets in the DB of Jaqpot and returns them in a list. Results can be obtained "
             + "either in the form of a URI list or as a JSON list as specified by the Accept HTTP header. "
@@ -389,9 +383,6 @@ public class DatasetResource {
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces(MediaType.APPLICATION_JSON)
     @Path("{id}/features")
-    @Parameters({
-        @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER)
-    })
     @Operation(summary = "Finds Features of Dataset by Id",
             description = "Finds specified Dataset's features",
             responses = {
@@ -491,11 +482,6 @@ public class DatasetResource {
     @Path("/empty")
     @Consumes({MediaType.APPLICATION_FORM_URLENCODED})
     @Produces({"text/uri-list", MediaType.APPLICATION_JSON})
-//      @Parameters({
-//        @Parameter(name = "title", schema = @Schema(implementation = String.class)),
-//        @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
-//        @Parameter(name = "description", schema = @Schema(implementation = String.class))
-//    })
     @Operation(summary = "Creates a new empty Dataset",
             description = "The new empty Dataset created will be assigned on a random generated Id",
             responses = {

@@ -112,7 +112,7 @@ public class DiscussionResource {
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @Consumes(MediaType.APPLICATION_JSON)
-    @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER)
+    
     @Operation(summary = "Creates a Discussion on a Jaqpot entity",
             responses
             = {
@@ -122,7 +122,8 @@ public class DiscussionResource {
                 @ApiResponse(responseCode = "403", description = "This request is forbidden (e.g., no authentication token is provided)"),
                 @ApiResponse(responseCode = "500", description = "Internal server error - this request cannot be served.")
             })
-    public Response createNewDiscussion(@HeaderParam("Authorization") String api_key, Discussion discussion)
+    public Response createNewDiscussion(
+            @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class)) @HeaderParam("Authorization") String api_key, Discussion discussion)
             throws JaqpotNotAuthorizedException, JaqpotDocumentSizeExceededException {
 
         ROG rog = new ROG(true);
@@ -137,10 +138,6 @@ public class DiscussionResource {
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces({MediaType.APPLICATION_JSON})
     @Consumes(MediaType.APPLICATION_JSON)
-    @Parameters({
-        @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
-        @Parameter(name = "id", description = "id", schema = @Schema(implementation = String.class), in = ParameterIn.PATH)
-    })
     @Operation(summary = "Get a Discussion from it's id",
             responses
             = {
