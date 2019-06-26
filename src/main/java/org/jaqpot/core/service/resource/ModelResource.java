@@ -1035,8 +1035,8 @@ public class ModelResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces({"application/json", MediaType.APPLICATION_JSON})
     @Path("{id}/ontrash")
-    @Operation(summary = "Puths a model on users trash",
-            description = "Puths a model on users trash",
+    @Operation(summary = "Puts a model on users trash",
+            description = "Puts a model on users trash",
             responses = {
                 @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = MetaInfo.class)),
                         description = "Meta was updated succesfully"),
