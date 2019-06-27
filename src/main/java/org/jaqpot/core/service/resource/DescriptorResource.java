@@ -128,7 +128,7 @@ public class DescriptorResource {
     @POST
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
-   
+    @Consumes({MediaType.APPLICATION_JSON})
     @Operation(
             summary = "Creates Desciptor",
             description = "Registers a new JPDI-compliant descriptor service.",
@@ -149,7 +149,7 @@ public class DescriptorResource {
                 @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorReport.class)), description = "Internal server error - this request cannot be served.")
             })
     public Response createDescriptor(
-            @Parameter(name = "descriptor", description = "Descriptor in JSON", schema = @Schema(implementation = Descriptor.class, defaultValue = DEFAULT_DESCRIPTOR), required = true) Descriptor descriptor,
+            Descriptor descriptor,
             @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class)) @HeaderParam("Authorization") String api_key,
             @Parameter(name = "title", description = "Title of your descriptor", schema = @Schema(implementation = String.class)) @HeaderParam("title") String title,
             @Parameter(name = "description", description = "Short description of your descriptor", schema = @Schema(implementation = String.class)) @HeaderParam("description") String description,
