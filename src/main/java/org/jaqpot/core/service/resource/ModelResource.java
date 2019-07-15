@@ -230,6 +230,7 @@ public class ModelResource {
             fields.add("predictedFeatures");
             fields.add("independentFeatures");
             fields.add("algorithm");
+            fields.add("parameters");
             Map<String, Object> properties = new HashMap<>();
             properties.put("meta.creators", Arrays.asList(creator));
             properties.put("visible", true);
