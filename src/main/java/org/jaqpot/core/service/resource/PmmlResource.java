@@ -100,24 +100,7 @@ public class PmmlResource {
     @POST
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
-    @Consumes({MediaType.APPLICATION_XML, MediaType.TEXT_XML})
-    /*@ApiOperation(value = "Creates a new PMML entry",
-     notes = "Creates a new PMML entry which is assigned a random unique ID",
-     response = Pmml.class)
-     //TODO add code for user's quota exceeded
-     @ApiResponses(value = {
-     @ApiResponse(code = 200, message = "PMML entry was created successfully."),
-     @ApiResponse(code = 400, message = "Bad request: malformed PMML (e.g., mandatory fields are missing)"),
-     @ApiResponse(code = 401, message = "You are not authorized to access this resource"),
-     @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)"),
-     @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
-     })*/
-    @Parameters({
-        @Parameter(name = "Authorization", description = "Clients need to authenticate in order to create resources on the server", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
-        @Parameter(name = "pmmlString", description = "PMML in JSON representation.", required = true, schema = @Schema(implementation = String.class)),
-        @Parameter(name = "title", description = "title", schema = @Schema(implementation = String.class)),
-        @Parameter(name = "description", description = "description", schema = @Schema(implementation = String.class))
-    })
+    @Consumes({MediaType.APPLICATION_XML, MediaType.TEXT_XML,MediaType.APPLICATION_FORM_URLENCODED})
     @Operation(summary = "Creates a new PMML entry",
             description = "Creates a new PMML entry which is assigned a random unique ID",
             responses = {
@@ -129,14 +112,10 @@ public class PmmlResource {
             })
     @Authorize
     public Response createPMML(
-            //@ApiParam(value = "Clients need to authenticate in order to create resources on the server")
-            @HeaderParam("Authorization") String api_key,
-            //@ApiParam(value = "PMML in JSON representation.", required = true) String pmmlString,
-            @Parameter(description = "PMML in JSON representation.", required = true) String pmmlString,
-            //@ApiParam(value = "title") @FormParam("title") String title,
-            @Parameter(description = "title") @FormParam("title") String title,
-            //@ApiParam(value = "description") @FormParam("description") String description
-            @Parameter(description = "description") @FormParam("description") String description
+            @Parameter(name = "Authorization", description = "Clients need to authenticate in order to create resources on the server", schema = @Schema(implementation = String.class)) @HeaderParam("Authorization") String api_key,
+            @Parameter(name = "pmmlString", description = "PMML in JSON representation.", required = true, schema = @Schema(implementation = String.class)) @FormParam("pmmlString") String pmmlString,
+            @Parameter(name = "title", description = "title", schema = @Schema(implementation = String.class)) @FormParam("title") String title,
+            @Parameter(name = "description", description = "description", schema = @Schema(implementation = String.class)) @FormParam("description") String description
     ) throws JaqpotNotAuthorizedException, JaqpotDocumentSizeExceededException {
         // First check the subjectid:
 //        if (subjectId == null || !aaService.validate(subjectId)) {
@@ -174,22 +153,15 @@ public class PmmlResource {
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Path("/selection")
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
-    /*@ApiOperation(value = "Creates a new PMML entry",
-     notes = "Creates a new PMML entry which is assigned a random unique ID",
-     response = Pmml.class)
-     */
-    @Parameters({
-        @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
-        @Parameter(name = "features", schema = @Schema(implementation = String.class))})
+    @Consumes({MediaType.APPLICATION_FORM_URLENCODED})
     @Operation(summary = "Creates a new PMML entry",
             description = "Creates a new PMML entry which is assigned a random unique ID",
             responses = {
                 @ApiResponse(content = @Content(schema = @Schema(implementation = Pmml.class)))
             })
     public Response createPMMLSelection(
-            //@ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key,
-            @HeaderParam("Authorization") String api_key,
-            @FormParam("features") String featuresString) throws JaqpotDocumentSizeExceededException {
+            @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class)) @HeaderParam("Authorization") String api_key,
+            @Parameter(name = "features", schema = @Schema(implementation = String.class)) @FormParam("features") String featuresString) throws JaqpotDocumentSizeExceededException {
 
         List<String> features = Arrays.asList(featuresString.split(","));
         try {
@@ -263,19 +235,6 @@ public class PmmlResource {
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Path("/{id}")
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list", MediaType.APPLICATION_XML, "text/xml"})
-    /*@ApiOperation(value = "Returns PMML entry",
-     notes = "Finds and returns a PMML document by ID",
-     response = Pmml.class)
-     @ApiResponses(value = {
-     @ApiResponse(code = 200, message = "BibTeX entries found and are listed in the response body"),
-     @ApiResponse(code = 401, message = "You are not authorized to access this user"),
-     @ApiResponse(code = 404, message = "No such bibtex entry on the server (not found)"),
-     @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)"),
-     @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
-     })*/
-    @Parameters({
-        @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
-        @Parameter(name = "id", description = "ID of the BibTeX", required = true, schema = @Schema(implementation = String.class), in = ParameterIn.PATH)})
     @Operation(summary = "Returns PMML entry",
             description = "Finds and returns a PMML document by ID",
             responses = {
@@ -286,10 +245,8 @@ public class PmmlResource {
                 @ApiResponse(responseCode = "500", description = "Internal server error - this request cannot be served.")
             })
     public Response getPmml(
-            //@ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key,
-            //@ApiParam(value = "ID of the BibTeX", required = true) @PathParam("id") String id
-            @HeaderParam("Authorization") String api_key,
-            @PathParam("id") String id
+            @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class)) @HeaderParam("Authorization") String api_key,
+            @Parameter(name = "id", description = "ID of the BibTeX", required = true, schema = @Schema(implementation = String.class)) @PathParam("id") String id
     ) {
 
         Pmml retrievedPmml = pmmlHandler.find(id);
@@ -319,11 +276,6 @@ public class PmmlResource {
      @ApiResponse(code = 403, message = "This request is forbidden (e.g., no authentication token is provided)"),
      @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
      })*/
-    @Parameters({
-        @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
-        @Parameter(name = "start", description = "start", schema = @Schema(implementation = Integer.class, defaultValue = "0"), in = ParameterIn.QUERY),
-        @Parameter(name = "max", description = "max", schema = @Schema(implementation = Integer.class, defaultValue = "10"), in = ParameterIn.QUERY)
-    })
     @Operation(summary = "Finds all PMML entries",
             description = "Finds all PMML entries in the DB of Jaqpot and returns them in a list",
             responses = {
@@ -333,12 +285,9 @@ public class PmmlResource {
                 @ApiResponse(responseCode = "500", description = "Internal server error - this request cannot be served.")
             })
     public Response listPmml(
-            //@ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key,
-            //@ApiParam(value = "start", defaultValue = "0") @QueryParam("start") Integer start,
-            //@ApiParam(value = "max", defaultValue = "10") @QueryParam("max") Integer max
-            @HeaderParam("Authorization") String api_key,
-            @QueryParam("start") Integer start,
-            @QueryParam("max") Integer max
+            @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class)) @HeaderParam("Authorization") String api_key,
+            @Parameter(name = "start", description = "start", schema = @Schema(implementation = Integer.class, defaultValue = "0")) @QueryParam("start") Integer start,
+            @Parameter(name = "max", description = "max", schema = @Schema(implementation = Integer.class, defaultValue = "10")) @QueryParam("max") Integer max
     ) {
         String creator = securityContext.getUserPrincipal().getName();
         return Response

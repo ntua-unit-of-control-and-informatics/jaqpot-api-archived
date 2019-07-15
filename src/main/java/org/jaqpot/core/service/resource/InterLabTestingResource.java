@@ -106,31 +106,20 @@ public class InterLabTestingResource {
 
     @POST
     @Path("/test")
-    /*@ApiOperation(value = "Creates Interlab Testing Report",
-            notes = "Creates Interlab Testing Report",
-            response = Report.class
-    )*/
-    @Parameters({
-        @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
-        @Parameter(name = "title", description = "title", schema = @Schema(implementation = String.class)),
-        @Parameter(name = "description", description = "description", schema = @Schema(implementation = String.class)),
-        @Parameter(name = "dataset_uri", description = "dataset_uri", schema = @Schema(implementation = String.class)),
-        @Parameter(name = "prediction_feature", description = "prediction_feature", schema = @Schema(type = "string")),
-        @Parameter(name = "parameters", description = "parameters", schema = @Schema(implementation = String.class))
-    })
      @Operation(summary = "Creates Interlab Testing Report",
                description = "Creates Interlab Testing Report",
                responses = {
                    @ApiResponse(content = @Content(schema = @Schema(implementation = Report.class)))
                })
+    @Consumes({MediaType.APPLICATION_FORM_URLENCODED})
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     public Response interLabTest(
-            @FormParam("title") String title,
-            @FormParam("descriptions") String description,
-            @FormParam("dataset_uri") String datasetURI,
-            @FormParam("prediction_feature") String predictionFeature,
-            @FormParam("parameters") String parameters,
-            @HeaderParam("Authorization") String api_key
+            @Parameter(name = "title", description = "title", schema = @Schema(implementation = String.class)) @FormParam("title") String title,
+            @Parameter(name = "description", description = "description", schema = @Schema(implementation = String.class)) @FormParam("descriptions") String description,
+            @Parameter(name = "dataset_uri", description = "dataset_uri", schema = @Schema(implementation = String.class)) @FormParam("dataset_uri") String datasetURI,
+            @Parameter(name = "prediction_feature", description = "prediction_feature", schema = @Schema(type = "string")) @FormParam("prediction_feature") String predictionFeature,
+            @Parameter(name = "parameters", description = "parameters", schema = @Schema(implementation = String.class)) @FormParam("parameters") String parameters,
+            @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class)) @HeaderParam("Authorization") String api_key
     ) throws QuotaExceededException, JaqpotDocumentSizeExceededException {
 
         String[] apiA = api_key.split("\\s+");

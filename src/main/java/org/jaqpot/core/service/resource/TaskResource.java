@@ -29,11 +29,7 @@
  */
 package org.jaqpot.core.service.resource;
 
-//import io.swagger.annotations.Api;
-//import io.swagger.annotations.ApiOperation;
-//import io.swagger.annotations.ApiParam;
-//import io.swagger.annotations.ApiResponse;
-//import io.swagger.annotations.ApiResponses;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
@@ -103,13 +99,7 @@ public class TaskResource {
     @GET
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @TokenSecured({RoleEnum.DEFAULT_USER})
-//    @Parameters({
-//        @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
-//        @Parameter(name = "status", description = "Status of the task", schema = @Schema(implementation = String.class, allowableValues = {"RUNNING", "QUEUED", "COMPLETED", "ERROR", "CANCELLED", "REJECTED"}), in = ParameterIn.QUERY),
-//        @Parameter(name = "start", description = "start", schema = @Schema(implementation = Integer.class, defaultValue = "0"), in = ParameterIn.QUERY),
-//        @Parameter(name = "max", description = "max - the server imposes an upper limit of 500 on this "
-//                + "parameter.", schema = @Schema(implementation = Integer.class, defaultValue = "10"), in = ParameterIn.QUERY)
-//    })
+
     @Operation(summary = "Finds all Tasks",
             description = "Finds all Tasks from Jaqpot Dataset. One may specify various ",
             responses = {
@@ -117,10 +107,11 @@ public class TaskResource {
                 @ApiResponse(responseCode = "500", description = "Internal server error - this request cannot be served.")
             })
     public Response listTasks(
-            @HeaderParam("Authorization") String api_key,
-            @QueryParam("status") String status,
-            @QueryParam("start") Integer start,
-            @QueryParam("max") Integer max
+            @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER) @HeaderParam("Authorization") String api_key,
+            @Parameter(name = "status", description = "Status of the task", schema = @Schema(implementation = String.class, allowableValues = {"RUNNING", "QUEUED", "COMPLETED", "ERROR", "CANCELLED", "REJECTED"})) @QueryParam("status") String status,
+            @Parameter(name = "start", description = "start", schema = @Schema(implementation = Integer.class, defaultValue = "0")) @QueryParam("start") Integer start,
+            @Parameter(name = "max", description = "max - the server imposes an upper limit of 500 on this "
+                      + "parameter.", schema = @Schema(implementation = Integer.class, defaultValue = "10")) @QueryParam("max") Integer max
     ) {
         start = start != null ? start : 0;
         if (max == null || max > 500) {

@@ -128,13 +128,7 @@ public class DescriptorResource {
     @POST
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
-    @Parameters({
-        @Parameter(name = "descriptor", description = "Descriptor in JSON", schema = @Schema(implementation = Descriptor.class, defaultValue = DEFAULT_DESCRIPTOR), required = true),
-        @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
-        @Parameter(name = "title", description = "Title of your descriptor", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
-        @Parameter(name = "description", description = "Short description of your descriptor", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
-        @Parameter(name = "tags", description = "Tags for your descriptor (in a comma separated list) to facilitate look-up", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER)
-    })
+    @Consumes({MediaType.APPLICATION_JSON})
     @Operation(
             summary = "Creates Desciptor",
             description = "Registers a new JPDI-compliant descriptor service.",
@@ -156,10 +150,10 @@ public class DescriptorResource {
             })
     public Response createDescriptor(
             Descriptor descriptor,
-            @HeaderParam("Authorization") String api_key,
-            @HeaderParam("title") String title,
-            @HeaderParam("description") String description,
-            @HeaderParam("tags") String tags
+            @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class)) @HeaderParam("Authorization") String api_key,
+            @Parameter(name = "title", description = "Title of your descriptor", schema = @Schema(implementation = String.class)) @HeaderParam("title") String title,
+            @Parameter(name = "description", description = "Short description of your descriptor", schema = @Schema(implementation = String.class)) @HeaderParam("description") String description,
+            @Parameter(name = "tags", description = "Tags for your descriptor (in a comma separated list) to facilitate look-up", schema = @Schema(implementation = String.class)) @HeaderParam("tags") String tags
     ) throws JaqpotDocumentSizeExceededException {
         if (descriptor.getId() == null) {
             ROG rog = new ROG(true);
@@ -194,9 +188,7 @@ public class DescriptorResource {
     @Path("/{id}")
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list", "application/ld+json"})
-    @Parameters({
-        @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
-        @Parameter(name = "id", description = "id", schema = @Schema(implementation = String.class), in = ParameterIn.PATH)})
+   
     @Operation(
             summary = "Finds Descriptor",
             description = "Finds Descriptor with provided id",
@@ -218,8 +210,8 @@ public class DescriptorResource {
             })
     public Response getDescriptor(
             //  @ApiParam(value = "Authorization token")  @HeaderParam("Authorization") String api_key,
-            @HeaderParam("Authorization") String api_key,
-            @PathParam("id") String descriptorId) throws ParameterIsNullException {
+            @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class)) @HeaderParam("Authorization") String api_key,
+            @Parameter(name = "id", schema = @Schema(implementation = String.class)) @PathParam("id") String descriptorId) throws ParameterIsNullException {
         if (descriptorId == null) {
             throw new ParameterIsNullException("descriptorId");
         }
@@ -235,16 +227,7 @@ public class DescriptorResource {
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Path("/{id}")
-    @Parameters({
-        @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
-        @Parameter(name = "title", description = "title", required = true, schema = @Schema(implementation = String.class)),
-        @Parameter(name = "description", description = "description", required = true, schema = @Schema(implementation = String.class)),
-        @Parameter(name = "dataset_uri", description = "dataset_uri", schema = @Schema(implementation = String.class)),
-        @Parameter(name = "description_features", description = "description_features", array = @ArraySchema(schema = @Schema(type = "string"))),
-        @Parameter(name = "parameters", description = "parameters", schema = @Schema(implementation = String.class)),
-        @Parameter(name = "id", description = "id", schema = @Schema(implementation = String.class), in = ParameterIn.PATH)
-    })
-    
+    @Consumes({MediaType.APPLICATION_FORM_URLENCODED})
     @Operation(summary = "Apply Descriptor",
             description = "Applies Descriptor on Dataset and creates a new Dataset.",
             responses = {
@@ -261,13 +244,13 @@ public class DescriptorResource {
             // @ApiParam(name = "dataset_uri") @FormParam("dataset_uri") String datasetURI,
             // @ApiParam(name = "description_features") @FormParam("description_features") Set<String> descriptionFeatures,
             // @ApiParam(name = "parameters") @FormParam("parameters") String parameters,
-            @FormParam("title") String title,
-            @FormParam("description") String description,
-            @FormParam("dataset_uri") String datasetURI,
-            @FormParam("description_features") Set<String> descriptionFeatures,
-            @FormParam("parameters") String parameters,
-            @PathParam("id") String descriptorId,
-            @HeaderParam("Authorization") String api_key) throws QuotaExceededException, ParameterIsNullException, ParameterInvalidURIException, ParameterTypeException, ParameterRangeException, ParameterScopeException, JaqpotDocumentSizeExceededException {
+            @Parameter(name = "title", description = "title", required = true, schema = @Schema(implementation = String.class)) @FormParam("title") String title,
+            @Parameter(name = "description", description = "description", required = true, schema = @Schema(implementation = String.class)) @FormParam("description") String description,
+            @Parameter(name = "dataset_uri", description = "dataset_uri", schema = @Schema(implementation = String.class))@FormParam("dataset_uri") String datasetURI,
+            @Parameter(name = "description_features", description = "description_features", array = @ArraySchema(schema = @Schema(type = "string"))) @FormParam("description_features") Set<String> descriptionFeatures,
+            @Parameter(name = "parameters", description = "parameters", schema = @Schema(implementation = String.class)) @FormParam("parameters") String parameters,
+            @Parameter(name = "id", description = "id", schema = @Schema(implementation = String.class)) @PathParam("id") String descriptorId,
+            @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class))@HeaderParam("Authorization") String api_key) throws QuotaExceededException, ParameterIsNullException, ParameterInvalidURIException, ParameterTypeException, ParameterRangeException, ParameterScopeException, JaqpotDocumentSizeExceededException {
         UrlValidator urlValidator = new UrlValidator(UrlValidator.ALLOW_LOCAL_URLS);
 
         String[] apiA = api_key.split("\\s+");
@@ -333,10 +316,7 @@ public class DescriptorResource {
     @TokenSecured({RoleEnum.ADMNISTRATOR})
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/{id}")
-    @Parameters({
-	   @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
-	   @Parameter(name = "id", description = "ID of the descriptor which is to be deleted.", required = true, schema = @Schema(implementation = String.class), in = ParameterIn.PATH)
-   })
+   
     @Operation(summary = "Unregisters a descriptor of given ID",
             description = "Deletes a descriptor of given ID. The application of this method "
             + "requires authentication and assumes certain priviledges.",
@@ -359,8 +339,8 @@ public class DescriptorResource {
             })
     public Response deleteDescriptor(
             //@ApiParam(value = "ID of the descriptor which is to be deleted.", required = true) @PathParam("id") String id,
-            @PathParam("id") String id,
-            @HeaderParam("Authorization") String apiKey) throws NotFoundException, ParameterIsNullException {
+            @Parameter(name = "id", description = "ID of the descriptor which is to be deleted.", required = true, schema = @Schema(implementation = String.class)) @PathParam("id") String id,
+            @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class)) @HeaderParam("Authorization") String apiKey) throws NotFoundException, ParameterIsNullException {
 
         if (id == null) {
             throw new ParameterIsNullException("id");

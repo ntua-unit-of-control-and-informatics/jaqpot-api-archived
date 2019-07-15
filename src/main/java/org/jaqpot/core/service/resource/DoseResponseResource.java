@@ -114,20 +114,6 @@ public class DoseResponseResource {
 
     @POST
     @TokenSecured({RoleEnum.DEFAULT_USER})
-//    @Path("/test")
-    /*@ApiOperation(value = "Creates Dose Response Report",
-            notes = "Creates Dose Response Report",
-            response = Report.class
-    )*/
-    @Parameters({
-        @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
-        @Parameter(name = "title", description = "title", schema = @Schema(implementation = String.class)),
-        @Parameter(name = "description", description = "description", schema = @Schema(implementation = String.class)),
-        @Parameter(name = "dataset_uri", description = "dataset_uri", schema = @Schema(implementation = String.class)),
-        @Parameter(name = "prediction_feature", description = "prediction_feature", schema = @Schema(type = "string")),
-        @Parameter(name = "parameters", description = "parameters", schema = @Schema(implementation = String.class))
-    })
-
     @Operation(summary = "Creates Dose Response Report",
                description = "Creates Dose Response Report",
                responses = {
@@ -135,12 +121,12 @@ public class DoseResponseResource {
                })
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     public Response doseResponse(
-            @FormParam("title") String title,
-            @FormParam("description") String description,
-            @FormParam("dataset_uri") String datasetURI,
-            @FormParam("prediction_feature") String predictionFeature,
-            @FormParam("parameters") String parameters,
-            @HeaderParam("Authorization") String api_key
+            @Parameter(name = "title", description = "title", schema = @Schema(implementation = String.class)) @FormParam("title") String title,
+            @Parameter(name = "description", description = "description", schema = @Schema(implementation = String.class)) @FormParam("description") String description,
+            @Parameter(name = "dataset_uri", description = "dataset_uri", schema = @Schema(implementation = String.class)) @FormParam("dataset_uri") String datasetURI,
+            @Parameter(name = "prediction_feature", description = "prediction_feature", schema = @Schema(type = "string")) @FormParam("prediction_feature") String predictionFeature,
+            @Parameter(name = "parameters", description = "parameters", schema = @Schema(implementation = String.class)) @FormParam("parameters") String parameters,
+            @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class)) @HeaderParam("Authorization") String api_key
     ) throws QuotaExceededException,JaqpotDocumentSizeExceededException {
 
         User user = userHandler.find(securityContext.getUserPrincipal().getName());

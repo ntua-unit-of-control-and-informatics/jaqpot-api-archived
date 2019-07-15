@@ -110,11 +110,6 @@ public class NotificationResource {
      ,
      @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
      })*/
-    @Parameters({
-        @Parameter(name = "Authorization", description = "Clients need to authenticate in order to access notifications", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
-        @Parameter(name = "query", description = "query", schema = @Schema(type = "String", allowableValues = {"UNREAD", "ALL"})),
-        @Parameter(name = "start", description = "start", schema = @Schema(implementation = Integer.class, defaultValue = "0"), in = ParameterIn.QUERY),
-        @Parameter(name = "max", description = "max", schema = @Schema(implementation = Integer.class, defaultValue = "10"), in = ParameterIn.QUERY),})
     @Operation(summary = "Lists all Users notifications",
             description = "Lists all Notifications of Jaqpot Users. ",
             responses = {
@@ -124,14 +119,10 @@ public class NotificationResource {
                 @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = Notification.class)), description = "Internal server error - this request cannot be served.")
             })
     public Response listUsersNotifications(
-            //@ApiParam(value = "Clients need to authenticate in order to access notifications") @HeaderParam("Authorization") String api_key,
-            //@ApiParam(value = "query", allowableValues = "UNREAD, ALL") @QueryParam("query") String query,
-            //@ApiParam(value = "start", defaultValue = "0") @QueryParam("start") Integer start,
-            //@ApiParam(value = "max", defaultValue = "10") @QueryParam("max") Integer max
-            @HeaderParam("Authorization") String api_key,
-            @QueryParam("query") String query,
-            @QueryParam("start") Integer start,
-            @QueryParam("max") Integer max
+            @Parameter(name = "Authorization", description = "Clients need to authenticate in order to access notifications", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER) @HeaderParam("Authorization") String api_key,
+            @Parameter(name = "query", description = "query", schema = @Schema(type = "String", allowableValues = {"UNREAD", "ALL"})) @QueryParam("query") String query,
+            @Parameter(name = "start", description = "start", schema = @Schema(implementation = Integer.class, defaultValue = "0")) @QueryParam("start") Integer start,
+            @Parameter(name = "max", description = "max", schema = @Schema(implementation = Integer.class, defaultValue = "10")) @QueryParam("max") Integer max
     ) throws JaqpotNotAuthorizedException {
 
         String currentUserID = securityContext.getUserPrincipal().getName();
@@ -166,10 +157,6 @@ public class NotificationResource {
      ,
      @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
      })*/
-    @Parameters({
-        @Parameter(name = "Authorization", description = "Clients need to authenticate in order to create notification", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
-        @Parameter(name = "notif", schema = @Schema(implementation = Notification.class))
-    })
     @Operation(summary = "Creates notification",
             description = "Creates Notifications for Jaqpot Users. ",
             responses = {
@@ -179,9 +166,8 @@ public class NotificationResource {
                 @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = Notification.class)), description = "Internal server error - this request cannot be served.")
             })
     public Response createNotification(
-            //@ApiParam(value = "Clients need to authenticate in order to create notification") @HeaderParam("Authorization") String api_key,
-            @HeaderParam("Authorization") String api_key,
-            Notification notif
+            @Parameter(name = "Authorization", description = "Clients need to authenticate in order to create notification", schema = @Schema(implementation = String.class)) @HeaderParam("Authorization") String api_key,
+            @Parameter(name = "notif", schema = @Schema(implementation = Notification.class)) Notification notif
     ) throws JaqpotNotAuthorizedException {
 
         String currentUserID = securityContext.getUserPrincipal().getName();
@@ -232,10 +218,6 @@ public class NotificationResource {
      ,
      @ApiResponse(code = 500, message = "Internal server error - this request cannot be served.")
      })*/
-    @Parameters({
-        @Parameter(name = "Authorization", description = "Clients need to authenticate in order to create notification", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
-        @Parameter(name = "notif", schema = @Schema(implementation = Notification.class))
-    })
     @Operation(summary = "Updates notification",
             description = "Updates Notifications for Jaqpot Users. ",
             responses = {
@@ -245,9 +227,8 @@ public class NotificationResource {
                 @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = Notification.class)), description = "Internal server error - this request cannot be served.")
             })
     public Response updateNotification(
-            //@ApiParam(value = "Clients need to authenticate in order to create notification") @HeaderParam("Authorization") String api_key,
-            @HeaderParam("Authorization") String api_key,
-            Notification notif
+            @Parameter(name = "Authorization", description = "Clients need to authenticate in order to create notification", schema = @Schema(implementation = String.class)) @HeaderParam("Authorization") String api_key,
+            @Parameter(name = "notif", schema = @Schema(implementation = Notification.class)) Notification notif
     ) throws JaqpotNotAuthorizedException {
 
         String currentUserID = securityContext.getUserPrincipal().getName();

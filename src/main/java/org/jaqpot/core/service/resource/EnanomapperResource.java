@@ -211,9 +211,7 @@ public class EnanomapperResource {
      response = Task.class
 
      )*/
-    @Parameters({
-        @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
-        @Parameter(name = "datasetData", description = "Data for dataset creation ", schema = @Schema(implementation = DatasetData.class, defaultValue = DEFAULT_DATASET_DATA))})
+   
     @Operation(summary = "Creates Dataset By Study",
             description = "Reads Studies from Bundle's Substances, creates Dataset,"
             + "calculates Descriptors, returns Dataset",
@@ -223,8 +221,9 @@ public class EnanomapperResource {
     @org.jaqpot.core.service.annotations.Task
     public Response createDatasetByStudy(
             //@ApiParam(name = "Data for dataset creation ", defaultValue = DEFAULT_DATASET_DATA) DatasetData datasetData,
-            DatasetData datasetData,
-            @HeaderParam("Authorization") String api_key) throws QuotaExceededException, ExecutionException, InterruptedException, JaqpotDocumentSizeExceededException {
+            @Parameter(name = "datasetData", description = "Data for dataset creation ", schema = @Schema(implementation = DatasetData.class, defaultValue = DEFAULT_DATASET_DATA)) DatasetData datasetData,
+            @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class)) @HeaderParam("Authorization") String api_key) 
+            throws QuotaExceededException, ExecutionException, InterruptedException, JaqpotDocumentSizeExceededException {
 
         User user = userHandler.find(securityContext.getUserPrincipal().getName());
         long datasetCount = datasetHandler.countAllOfCreator(user.getId());
@@ -339,9 +338,6 @@ public class EnanomapperResource {
 
     @GET
     @Path("/descriptor/categories")
-    /*@ApiOperation(value = "Retrieves descriptor calculation categories",
-     response = List.class
-     )*/
     @Operation(summary = "Retrieves descriptor calculation categories",
             responses = {
                 @ApiResponse(content = @Content(schema = @Schema(implementation = List.class)))

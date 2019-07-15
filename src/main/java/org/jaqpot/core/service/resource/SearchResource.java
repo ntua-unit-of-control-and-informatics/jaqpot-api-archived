@@ -113,9 +113,7 @@ public class SearchResource {
      @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
 
      })*/
-    @Parameters({
-        @Parameter(name = "term", description = "term", schema = @Schema(implementation = String.class), in = ParameterIn.QUERY)
-    })
+   
     @Operation(summary = "Searches for Jaqpot Entities",
             description = "Searches for Jaqpot Entities",
             responses = {
@@ -125,7 +123,7 @@ public class SearchResource {
                 @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorReport.class)), description = "Internal server error - this request cannot be served.")
             })
     public Response search(
-            @QueryParam("term") String term
+            @Parameter(name = "term", description = "term", schema = @Schema(implementation = String.class)) @QueryParam("term") String term
     ) {
 
         String userId = securityContext.getUserPrincipal().getName();
@@ -164,23 +162,6 @@ public class SearchResource {
     @Path("/session")
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
-    /*@ApiOperation(
-     value = "List of found entities through session",
-     notes = "List of found entities through session"
-     )
-     @ApiResponses(value = {
-     @ApiResponse(code = 401, response = ErrorReport.class, message = "Wrong, missing or insufficient credentials. Error report is produced.")
-     ,
-     @ApiResponse(code = 200, response = FountEntities.class, responseContainer = "List", message = "A list of jaqpot entities found")
-     ,
-     @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
-
-     })*/
-    @Parameters({
-        @Parameter(name = "session", description = "session", schema = @Schema(implementation = String.class), in = ParameterIn.QUERY),
-        @Parameter(name = "from", description = "from", schema = @Schema(implementation = Integer.class), in = ParameterIn.QUERY),
-        @Parameter(name = "to", description = "to", schema = @Schema(implementation = Integer.class), in = ParameterIn.QUERY)
-    })
     @Operation(summary = "List of found entities through session",
             description = "List of found entities through session",
             responses = {
@@ -190,9 +171,9 @@ public class SearchResource {
                 @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorReport.class)), description = "Internal server error - this request cannot be served.")
             })
     public Response searchSession(
-            @QueryParam("session") String term,
-            @QueryParam("from") Integer from,
-            @QueryParam("to") Integer to
+           @Parameter(name = "session", description = "session", schema = @Schema(implementation = String.class)) @QueryParam("session") String term,
+           @Parameter(name = "from", description = "from", schema = @Schema(implementation = Integer.class)) @QueryParam("from") Integer from,
+           @Parameter(name = "to", description = "to", schema = @Schema(implementation = Integer.class)) @QueryParam("to") Integer to
     ) {
 
         if (from == null) {

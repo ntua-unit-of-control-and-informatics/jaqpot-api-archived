@@ -266,12 +266,6 @@ public class ModelResource {
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Path("/featured")
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
-//    @Parameters({
-//        @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
-//        @Parameter(name = "start", description = "start", schema = @Schema(implementation = Integer.class, defaultValue = "0"), in = ParameterIn.QUERY),
-//        @Parameter(name = "max", description = "max - the server imposes an upper limit of 500 on this "
-//                + "parameter.", schema = @Schema(implementation = Integer.class, defaultValue = "10"), in = ParameterIn.QUERY)
-//    })
     @Operation(summary = "Finds all Models",
             description = "Finds featured Models from Jaqpot database. The response will list all models and will return either a URI list "
             + "of a list of JSON model objects. In the latter case, only the IDs, metadata, ontological classes "
@@ -353,10 +347,6 @@ public class ModelResource {
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces(MediaType.APPLICATION_XML)
     @Path("/{id}/pmml")
-//    @Parameters({
-//        @Parameter(name = "Authorization", description = "Clients need to authenticate in order to access models", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
-//        @Parameter(name = "id", description = "id", schema = @Schema(implementation = String.class), in = ParameterIn.PATH)
-//    })
     @Operation(summary = "Finds Model by Id",
             description = "Finds specified Model",
             responses = {
@@ -401,10 +391,6 @@ public class ModelResource {
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces({MediaType.APPLICATION_JSON})
     @Path("/{id}/independent")
-//    @Parameters({
-//        @Parameter(name = "Authorization", description = "Clients need to authenticate in order to access models", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
-//        @Parameter(name = "id", description = "id", schema = @Schema(implementation = String.class), in = ParameterIn.PATH)
-//    })
     @Operation(summary = "Lists the independent features of a Model",
             description = "Lists the independent features of a Model. The result is available as a URI list.",
             responses = {
@@ -441,10 +427,6 @@ public class ModelResource {
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces({MediaType.APPLICATION_JSON})
     @Path("/{id}/dependent")
-    @Parameters({
-        @Parameter(name = "Authorization", description = "Clients need to authenticate in order to access models", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
-        @Parameter(name = "id", description = "id", schema = @Schema(implementation = String.class), in = ParameterIn.PATH)
-    })
     @Operation(summary = "Lists the dependent features of a Model",
             description = "Lists the dependent features of a Model identified by its ID. The result is available as a URI list.",
             responses = {
@@ -457,8 +439,7 @@ public class ModelResource {
             })
     public Response listModelDependentFeatures(
             @Parameter(name = "id", description = "id", schema = @Schema(implementation = String.class)) @PathParam("id") String id,
-            //@ApiParam(value = "Clients need to authenticate in order to access models") @HeaderParam("Authorization") String api_key) {
-                    @Parameter(name = "Authorization", description = "Clients need to authenticate in order to access models", schema = @Schema(implementation = String.class)) @HeaderParam("Authorization") String api_key) {
+            @Parameter(name = "Authorization", description = "Clients need to authenticate in order to access models", schema = @Schema(implementation = String.class)) @HeaderParam("Authorization") String api_key) {
         String[] apiA = api_key.split("\\s+");
         String apiKey = apiA[1];
         Model foundModel = modelHandler.find(id);
@@ -481,10 +462,6 @@ public class ModelResource {
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces({MediaType.APPLICATION_JSON})
     @Path("/{id}/predicted")
-//    @Parameters({
-//        @Parameter(name = "Authorization", description = "Clients need to authenticate in order to access models", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
-//        @Parameter(name = "id", description = "id", schema = @Schema(implementation = String.class), in = ParameterIn.PATH)
-//    })
     @Operation(summary = "Lists the dependent features of a Model",
             description = "Lists the predicted features of a Model identified by its ID. The result is available as a URI list.",
             responses = {
@@ -497,8 +474,7 @@ public class ModelResource {
             })
     public Response listModelPredictedFeatures(
              @Parameter(name = "id", description = "id", schema = @Schema(implementation = String.class)) @PathParam("id") String id,
-            //@ApiParam(value = "Clients need to authenticate in order to access models") @HeaderParam("Authorization") String api_key) {
-                    @Parameter(name = "Authorization", description = "Clients need to authenticate in order to access models", schema = @Schema(implementation = String.class)) @HeaderParam("Authorization") String api_key) {
+             @Parameter(name = "Authorization", description = "Clients need to authenticate in order to access models", schema = @Schema(implementation = String.class)) @HeaderParam("Authorization") String api_key) {
         String[] apiA = api_key.split("\\s+");
         String apiKey = apiA[1];
         Model foundModel = modelHandler.findModel(id);
@@ -532,17 +508,13 @@ public class ModelResource {
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/{id}/required")
-//    @Parameters({
-//        @Parameter(name = "Authorization", description = "Authorization required", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
-//        @Parameter(name = "id", description = "id", schema = @Schema(implementation = String.class), in = ParameterIn.PATH)
-//    })
     @Operation(summary = "Lists the required features of a Model",
             description = "Lists the required features of a Model identified by its ID. The result is available as a URI list.",
             responses = {
                 @ApiResponse(content = @Content(array = @ArraySchema(schema = @Schema(implementation = String.class)))),})
     public Response listModelRequiredFeatures(
             @Parameter(name = "id", description = "id", schema = @Schema(implementation = String.class)) @PathParam("id") String id,
-                    @Parameter(name = "Authorization", description = "Authorization required", schema = @Schema(implementation = String.class) ) @HeaderParam("Authorization") String api_key) {
+            @Parameter(name = "Authorization", description = "Authorization required", schema = @Schema(implementation = String.class) ) @HeaderParam("Authorization") String api_key) {
         String[] apiA = api_key.split("\\s+");
         String apiKey = apiA[1];
         Model model = modelHandler.find(id);
@@ -977,11 +949,6 @@ public class ModelResource {
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/{id}/dataset")
-//    @Parameters({
-//        @Parameter(name = "Authorization", description = "Authorization required", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
-//        @Parameter(name = "id", description = "id", required = true, schema = @Schema(implementation = String.class), in = ParameterIn.PATH),
-//        @Parameter(name = "modeldataset", description = "description for the dataset", required = true, schema = @Schema(implementation = String.class, allowableValues = {"TRAINEDUPON","ALLEMPTY","EMPTYPREDICTION"}), in = ParameterIn.QUERY)
-//    })
     @Operation(summary = "Gets a dataset of a Model",
             description = "Geth the dataset of a model upon the criteria given",
             responses = {
@@ -1029,11 +996,6 @@ public class ModelResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces({"application/json", MediaType.APPLICATION_JSON})
     @Path("{id}/meta")
-//    @Parameters({
-//        @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
-//        @Parameter(name = "id", description = "id", required = true, schema = @Schema(implementation = String.class), in = ParameterIn.PATH),
-//        @Parameter(name = "modelForUpdate", schema = @Schema(implementation = Model.class))
-//    })
     @Operation(summary = "Updates meta info of a dataset",
             description = "TUpdates meta info of a dataset",
             responses = {
@@ -1047,7 +1009,7 @@ public class ModelResource {
             //@ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key,
             @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class)) @HeaderParam("Authorization") String api_key,
             @Parameter(name = "id", description = "id", required = true, schema = @Schema(implementation = String.class)) @PathParam("id") String id,
-            Model modelForUpdate) throws URISyntaxException, JaqpotDocumentSizeExceededException, JaqpotNotAuthorizedException {
+            @Parameter(name = "modelForUpdate", schema = @Schema(implementation = Model.class)) Model modelForUpdate) throws URISyntaxException, JaqpotDocumentSizeExceededException, JaqpotNotAuthorizedException {
 
         String userId = securityContext.getUserPrincipal().getName();
         Model model = modelHandler.find(id);
@@ -1074,12 +1036,8 @@ public class ModelResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces({"application/json", MediaType.APPLICATION_JSON})
     @Path("{id}/ontrash")
-//    @Parameters({
-//        @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
-//        @Parameter(name = "id", description = "id", required = true, schema = @Schema(implementation = String.class), in = ParameterIn.PATH)
-//    })
-    @Operation(summary = "Puths a model on users trash",
-            description = "Puths a model on users trash",
+    @Operation(summary = "Puts a model on users trash",
+            description = "Puts a model on users trash",
             responses = {
                 @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = MetaInfo.class)),
                         description = "Meta was updated succesfully"),

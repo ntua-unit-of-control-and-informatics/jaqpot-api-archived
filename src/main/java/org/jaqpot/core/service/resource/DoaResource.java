@@ -55,6 +55,7 @@ import javax.ejb.EJB;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -121,11 +122,7 @@ public class DoaResource {
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces({MediaType.APPLICATION_JSON})
     @Consumes(MediaType.APPLICATION_JSON)
-    @RequestBody(content = {
-        @Content(mediaType = "application/json", schema = @Schema(type = "object"))})
-    @Parameters({
-        @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(type = "string"), in = ParameterIn.HEADER)
-    })
+   
     @Operation(summary = "Creates the domain of applicability for a Jaqpot model",
             description = "Creates the domain of applicability for a Jaqpot model",
             responses = {
@@ -162,12 +159,6 @@ public class DoaResource {
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces({MediaType.APPLICATION_JSON})
     @Consumes(MediaType.APPLICATION_JSON)
-    @RequestBody(content = {
-        @Content(mediaType = "application/json", schema = @Schema(type = "object"))})
-    @Parameters({
-        @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(type = "string"), in = ParameterIn.HEADER),
-        @Parameter(name = "id", description = "hasSources", required = true, schema = @Schema(type = "string"), in = ParameterIn.QUERY),
-    })
     @Operation(summary = "Creates the domain of applicability for a Jaqpot model",
             description = "Creates the domain of applicability for a Jaqpot model",
             responses = {
@@ -178,7 +169,7 @@ public class DoaResource {
                 @ApiResponse(responseCode = "500", description = "Internal server error - this request cannot be served.")
             })
     public Response getDoiBySources(
-            @QueryParam("hasSources") String hasSources
+            @Parameter(name = "id", description = "hasSources", required = true, schema = @Schema(type = "string")) @QueryParam("hasSources") String hasSources
     ) throws JaqpotNotAuthorizedException {
 
         String creator = securityContext.getUserPrincipal().getName();
