@@ -286,10 +286,10 @@
         
         <elastic.host></elastic.host>
         <elastic.port></elastic.port>
-        <elastic.existence></elastic.existence>
+        <elastic.exists></elastic.exists>
 
         <kafka.bootstrap></kafka.bootstrap>
-        <kafka.existence></kafka.existence>
+        <kafka.exists></kafka.exists>
         <kafka.replication></kafka.replication>   
         
         <redis.db></redis.db>
