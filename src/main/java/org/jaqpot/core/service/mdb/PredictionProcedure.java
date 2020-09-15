@@ -108,13 +108,11 @@ public class PredictionProcedure extends AbstractJaqpotProcedure implements Mess
 
 //    @EJB
 //    DoaService doaService;
-    
     @EJB
     DoaHandler doaHandler;
-    
+
 //    @Inject
 //    RabbitMQ rabbitMQClient;
-
     @Inject
     @Jackson
     JSONSerializer serializer;
@@ -172,18 +170,20 @@ public class PredictionProcedure extends AbstractJaqpotProcedure implements Mess
             Dataset dataset;
             if (dataset_uri != null && !dataset_uri.isEmpty()) {
                 progress("Searching dataset...");
-                try{
-                    dataset = client.target(dataset_uri)
-                        .queryParam("dataEntries", true)
-                        .request()
-                        .header("Authorization", "Bearer " + apiKey)
-                        .accept(MediaType.APPLICATION_JSON)
-                        .get(Dataset.class);
-                }catch(NotFoundException e){
-                    String[] splitted = dataset_uri.split("/");
-                    dataset = datasetLegacyWrapper.find(splitted[splitted.length -1]);
-                    //dataset = datasetHandler.find(splitted[splitted.length -1]);
-                }
+                String[] splitted = dataset_uri.split("/");
+                dataset = datasetLegacyWrapper.find(splitted[splitted.length - 1]);
+//                try{
+//                    dataset = client.target(dataset_uri)
+//                        .queryParam("dataEntries", true)
+//                        .request()
+//                        .header("Authorization", "Bearer " + apiKey)
+//                        .accept(MediaType.APPLICATION_JSON)
+//                        .get(Dataset.class);
+//                }catch(NotFoundException e){
+//                    String[] splitted = dataset_uri.split("/");
+//                    dataset = datasetLegacyWrapper.find(splitted[splitted.length -1]);
+//                    //dataset = datasetHandler.find(splitted[splitted.length -1]);
+//                }
                 dataset.setDatasetURI(dataset_uri);
                 progress("Dataset has been retrieved.");
             } else {
@@ -214,10 +214,10 @@ public class PredictionProcedure extends AbstractJaqpotProcedure implements Mess
             datasetMeta.setCreators(creators);
 
             Doa doaM = null;
-            if(doa != null && doa.equals("true")){
+            if (doa != null && doa.equals("true")) {
                 doaM = doaHandler.findBySourcesWithDoaMatrix("model/" + model.getId());
             }
-            
+
             progress("Starting Prediction...");
 
             dataset = jpdiClient.predict(dataset, model, datasetMeta, taskId, doaM).get();

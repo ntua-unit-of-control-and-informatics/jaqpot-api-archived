@@ -159,18 +159,33 @@ public class DescriptorProcedure extends AbstractJaqpotProcedure implements Mess
             if (featureURIs.toString().contains("all")) {
                 Set<String> featUris = new HashSet();
                 initialDataset.getFeatures().stream().forEach(f -> {
-                    featUris.add(f.getURI());
+                    featUris.add(f.getKey());
                 });
                 subDataset = DatasetFactory.copy(initialDataset, featUris);
             } else {
-                subDataset = DatasetFactory.copy(initialDataset, featureURIs);
+                Set<String> featKeys = new HashSet();
+                final Set<String> featureURI = featureURIs;
+                final Set<FeatureInfo> fis = new HashSet();
+                initialDataset.getFeatures().forEach(f ->{
+                    featureURI.stream().forEach(fu ->{
+                        if(fu.equals(f.getName())){
+                            fis.add(f);
+                            featKeys.add(f.getKey());
+                        }
+                    });
+                });
+                subDataset = DatasetFactory.copy(initialDataset, featKeys);
+                subDataset.setFeatures(fis);
             }
-
+            
             subDataset.setMeta(null);
             subDataset.setId(null);
             Future<Dataset> futureDataset = jpdiClient.descriptor(subDataset, descriptor, parameterMap, taskId);
 
             Dataset dataset = futureDataset.get();
+            
+            
+            
             dataset.setId(new ROG(true).nextString(12));
             String newDatasetURI = propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_BASE_SERVICE) + "dataset/" + dataset.getId();
 
@@ -216,6 +231,7 @@ public class DescriptorProcedure extends AbstractJaqpotProcedure implements Mess
 
     //Copies Features that were in the initial Dataset
     private void copyFeatures(@NotNull Dataset dataset, String datasetURI) throws JaqpotDocumentSizeExceededException {
+        int i = 0;
         for (FeatureInfo featureInfo : dataset.getFeatures()) {
             Feature feature = featureHandler.find(featureInfo.getURI().split("feature/")[1]);
             if (feature == null) {
@@ -230,15 +246,18 @@ public class DescriptorProcedure extends AbstractJaqpotProcedure implements Mess
 
             //Update FeatureURIs in Data Entries
             for (DataEntry dataentry : dataset.getDataEntry()) {
-                Object value = dataentry.getValues().remove(featureInfo.getURI());
-                dataentry.getValues().put(featureURI, value);
+                Object value = dataentry.getValues().remove(featureInfo.getKey());
+                dataentry.getValues().put(String.valueOf(i), value);
             }
             featureInfo.setURI(featureURI);
+            featureInfo.setKey(String.valueOf(i));
         }
     }
 
+    
     //Creates Features that were appended to the Dataset
     private void populateFeatures(@NotNull Dataset dataset, String datasetURI) throws JaqpotDocumentSizeExceededException {
+        int i = 0;
         for (FeatureInfo featureInfo : dataset.getFeatures()) {
             String featureURI = null;
             Feature f;
@@ -263,12 +282,14 @@ public class DescriptorProcedure extends AbstractJaqpotProcedure implements Mess
             //Update FeatureURIs in Data Entries
             for (DataEntry dataentry : dataset.getDataEntry()) {
                 Object value = dataentry.getValues().remove(featureInfo.getURI());
-                dataentry.getValues().put(featureURI, value);
+                dataentry.getValues().put(String.valueOf(i), value);
             }
             //Update FeatureURI in Feature Info
             featureInfo.setConditions(null);
             featureInfo.setName(featureInfo.getURI());
             featureInfo.setURI(featureURI);
+            featureInfo.setKey(String.valueOf(i));
+            i++;
         }
     }
 }

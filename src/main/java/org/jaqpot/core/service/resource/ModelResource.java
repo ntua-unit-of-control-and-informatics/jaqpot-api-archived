@@ -199,7 +199,8 @@ public class ModelResource {
                 + "parameter.", schema = @Schema(implementation = Integer.class, defaultValue = "10")) @QueryParam("max") Integer max,
             @Parameter(name = "ontrash", description = "on trash datasets", required = false, schema = @Schema(implementation = Boolean.class, allowableValues = {"true", "false"})) @QueryParam("ontrash") Boolean ontrash,
             @Parameter(name = "organization", description = "organization", schema = @Schema(implementation = String.class)) @QueryParam("organization") String organization,
-            @Parameter(name = "byAlgorithm", description = "byAlgorithm", schema = @Schema(implementation = String.class)) @QueryParam("byAlgorithm") String byAlgorithm
+            @Parameter(name = "byAlgorithm", description = "byAlgorithm", schema = @Schema(implementation = String.class)) @QueryParam("byAlgorithm") String byAlgorithm,
+            @Parameter(name = "tag", description = "tag", schema = @Schema(implementation = String.class)) @QueryParam("tag") String tag
     ) {
         if (max == null || max > 500) {
             max = 500;
@@ -239,6 +240,22 @@ public class ModelResource {
             neProperties.put("onTrash", true);
             modelsFound.addAll(modelHandler.findAllAndNe(properties, neProperties, fields, start, max));
             total = modelHandler.countAllOfAlgos(creator, byAlgorithm);
+        }else if (organization != null && tag != null){
+            List<String> fields = new ArrayList<>();
+            fields.add("_id");
+            fields.add("meta");
+            fields.add("predictedFeatures");
+            fields.add("independentFeatures");
+            Map<String, Object> properties = new HashMap<>();
+            properties.put("meta.read", organization);
+            properties.put("meta.tag", tag);
+            properties.put("visible", true);
+//            properties.put("meta.creators", Arrays.asList(creator));
+            Map<String, Object> neProperties = new HashMap<>();
+            neProperties.put("onTrash", true);
+            neProperties.put("algorithm._id", "httk");
+            modelsFound.addAll(modelHandler.findAllAndNe(properties, neProperties, fields, start, max));
+            total = modelHandler.countAllOfOrgAndTag(organization, tag);
         }
         
         else {
@@ -255,7 +272,7 @@ public class ModelResource {
             neProperties.put("onTrash", true);
             neProperties.put("algorithm._id", "httk");
             modelsFound.addAll(modelHandler.findAllAndNe(properties, neProperties, fields, start, max));
-            total = modelHandler.countAllOfOrg(creator, organization);
+            total = modelHandler.countAllOfOrg(organization);
         }
         return Response.ok(modelsFound)
                 .header("total", total)
@@ -657,17 +674,17 @@ public class ModelResource {
         String apiKey = apiA[1];
 
         User user = userHandler.find(securityContext.getUserPrincipal().getName());
-
-        long modelCount = modelHandler.countAllOfCreator(user.getId());
-        int maxAllowedModels = new UserFacade(user).getMaxModels();
-
-        if (modelCount > maxAllowedModels) {
-            LOG.info(String.format("User %s has %d models while maximum is %d",
-                    user.getId(), modelCount, maxAllowedModels));
-            throw new QuotaExceededException("Dear " + user.getId()
-                    + ", your quota has been exceeded; you already have " + modelCount + " models. "
-                    + "No more than " + maxAllowedModels + " are allowed with your subscription.");
-        }
+//
+//        long modelCount = modelHandler.countAllOfCreator(user.getId());
+//        int maxAllowedModels = new UserFacade(user).getMaxModels();
+//
+//        if (modelCount > maxAllowedModels) {
+//            LOG.info(String.format("User %s has %d models while maximum is %d",
+//                    user.getId(), modelCount, maxAllowedModels));
+//            throw new QuotaExceededException("Dear " + user.getId()
+//                    + ", your quota has been exceeded; you already have " + modelCount + " models. "
+//                    + "No more than " + maxAllowedModels + " are allowed with your subscription.");
+//        }
 
 //        TrainingResponse trainingResponse = serializer.parse(responseStream, TrainingResponse.class);
         Model model = new Model();

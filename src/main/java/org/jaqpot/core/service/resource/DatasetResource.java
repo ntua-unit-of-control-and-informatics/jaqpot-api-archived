@@ -221,6 +221,7 @@ public class DatasetResource {
                 fields.add("totalColumns");
                 Map<String, Object> properties = new HashMap<>();
                 properties.put("onTrash", ontrash);
+                properties.put("meta.creators", Arrays.asList(creator));
                 datasets.addAll(datasetHandler.find(properties, fields, start, max));
                 total = datasetHandler.countCreatorsInTrash(creator);
             } else if(byModel != null){
@@ -256,7 +257,7 @@ public class DatasetResource {
                 Map<String, Object> neProperties = new HashMap<>();
                 neProperties.put("onTrash", true);
                 datasets.addAll(datasetHandler.findAllAndNe(properties, neProperties, fields, start, max));
-                total = datasetHandler.countAllOfOrg(creator, organization);
+                total = datasetHandler.countAllOfOrg(organization);
             }
         } else {
             switch (datasetexistence) {

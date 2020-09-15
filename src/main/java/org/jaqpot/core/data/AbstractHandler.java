@@ -29,6 +29,7 @@
  */
 package org.jaqpot.core.data;
 
+import com.mongodb.BasicDBObject;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -187,10 +188,29 @@ public abstract class AbstractHandler<T extends JaqpotEntity> {
         return getEntityManager().countAndNe(entityClass, properties, notProperties);
     }
 
-    public Long countAllOfOrg(String createdBy, String organization) {
+    public Long countAllOfOrg(String organization) {
         Map<String, Object> properties = new HashMap<>();
-        properties.put("meta.creators", Arrays.asList(createdBy));
+//        properties.put("meta.creators", Arrays.asList(createdBy));
+//        BasicDBObject inQuery = new BasicDBObject();
         properties.put("visible", true);
+//        properties.put("meta.read", new BasicDBObject("$in", Arrays.asList(organization)));
+        properties.put("meta.read",organization);
+//        inQuery.put();
+//        properties.put("meta.read", organization);
+        Map<String, Object> notProperties = new HashMap<>();
+        notProperties.put("onTrash", true);
+        return getEntityManager().countAndNe(entityClass, properties, notProperties);
+    }
+    
+        public Long countAllOfOrgAndTag(String organization, String tag) {
+        Map<String, Object> properties = new HashMap<>();
+//        properties.put("meta.creators", Arrays.asList(createdBy));
+//        BasicDBObject inQuery = new BasicDBObject();
+        properties.put("visible", true);
+//        properties.put("meta.read", new BasicDBObject("$in", Arrays.asList(organization)));
+        properties.put("meta.read",organization);
+        properties.put("meta.tag",tag);
+//        inQuery.put();
 //        properties.put("meta.read", organization);
         Map<String, Object> notProperties = new HashMap<>();
         notProperties.put("onTrash", true);
