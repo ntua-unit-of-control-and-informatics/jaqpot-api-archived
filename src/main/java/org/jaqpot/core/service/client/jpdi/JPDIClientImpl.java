@@ -438,12 +438,12 @@ public class JPDIClientImpl implements JPDIClient {
             predictionRequest.setDoaMatrix(doa.getDoaMatrix());
         }
         
-        ObjectMapper mapper = new ObjectMapper();
-        try{
-            System.out.println(mapper.writeValueAsString(predictionRequest));
-        }catch(Exception e){
-            LOG.log(Level.SEVERE, e.getLocalizedMessage());
-        }
+//        ObjectMapper mapper = new ObjectMapper();
+//        try{
+//            System.out.println(mapper.writeValueAsString(predictionRequest));
+//        }catch(Exception e){
+//            LOG.log(Level.SEVERE, e.getLocalizedMessage());
+//        }
 
         Algorithm algo = algorithmHandler.find(model.getAlgorithm().getId());
         final HttpPost request = new HttpPost(algo.getPredictionService());

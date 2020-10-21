@@ -3,8 +3,6 @@ package org.jaqpot.core.service.resource;
 //import io.swagger.annotations.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.Parameters;
-import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeIn;
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -15,7 +13,8 @@ import io.swagger.v3.oas.annotations.extensions.ExtensionProperty;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import javassist.runtime.Desc;
+import java.security.GeneralSecurityException;
+import java.text.ParseException;
 import org.apache.commons.validator.routines.UrlValidator;
 import org.jaqpot.core.annotations.Jackson;
 import org.jaqpot.core.data.DatasetHandler;
@@ -25,24 +24,26 @@ import org.jaqpot.core.data.serialize.JSONSerializer;
 import org.jaqpot.core.model.*;
 import org.jaqpot.core.model.builder.DescriptorBuilder;
 import org.jaqpot.core.model.dto.dataset.Dataset;
-import org.jaqpot.core.model.dto.descriptor.DescriptorReqDTO;
-import org.jaqpot.core.model.facades.UserFacade;
 import org.jaqpot.core.model.util.ROG;
 import org.jaqpot.core.service.annotations.TokenSecured;
 import org.jaqpot.core.service.authentication.RoleEnum;
 import org.jaqpot.core.service.data.DescriptorService;
 import org.jaqpot.core.service.exceptions.JaqpotDocumentSizeExceededException;
-import org.jaqpot.core.service.exceptions.JaqpotForbiddenException;
 import org.jaqpot.core.service.exceptions.QuotaExceededException;
 import org.jaqpot.core.service.exceptions.parameter.*;
 import org.jaqpot.core.service.validator.ParameterValidator;
-
 import javax.ejb.EJB;
 import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 import java.util.logging.Logger;
+import org.jaqpot.core.service.exceptions.JaqpotNotAuthorizedException;
+import org.jaqpot.core.service.quotas.QuotsClient;
+import xyz.euclia.jquots.models.CanProceed;
+import xyz.euclia.euclia.accounts.client.models.User;
+
 
 @Path("/descriptor")
 //@Api(value = "/descriptor", description = "Descriptors API")
@@ -79,6 +80,11 @@ public class DescriptorResource {
     @Inject
     ParameterValidator parameterValidator;
 
+    @EJB
+    QuotsClient quotsClient;
+    
+    
+    
     @Context
     UriInfo uriInfo;
 
@@ -250,7 +256,7 @@ public class DescriptorResource {
             @Parameter(name = "description_features", description = "description_features", array = @ArraySchema(schema = @Schema(type = "string"))) @FormParam("description_features") Set<String> descriptionFeatures,
             @Parameter(name = "parameters", description = "parameters", schema = @Schema(implementation = String.class)) @FormParam("parameters") String parameters,
             @Parameter(name = "id", description = "id", schema = @Schema(implementation = String.class)) @PathParam("id") String descriptorId,
-            @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class))@HeaderParam("Authorization") String api_key) throws QuotaExceededException, ParameterIsNullException, ParameterInvalidURIException, ParameterTypeException, ParameterRangeException, ParameterScopeException, JaqpotDocumentSizeExceededException {
+            @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class))@HeaderParam("Authorization") String api_key) throws GeneralSecurityException, QuotaExceededException, ParameterIsNullException, ParameterInvalidURIException, JaqpotDocumentSizeExceededException, InterruptedException, ExecutionException, InternalServerErrorException, JaqpotNotAuthorizedException, ParseException, JaqpotNotAuthorizedException, ParseException, ParameterTypeException, ParameterRangeException, ParameterScopeException {
         UrlValidator urlValidator = new UrlValidator(UrlValidator.ALLOW_LOCAL_URLS);
 
         String[] apiA = api_key.split("\\s+");
@@ -271,6 +277,8 @@ public class DescriptorResource {
         String datasetId = datasetURI.split("dataset/")[1];
         Dataset datasetMeta = datasetHandler.findMeta(datasetId);
 
+        
+        
         if (datasetMeta.getTotalRows() != null && datasetMeta.getTotalRows() < 1) {
             throw new BadRequestException("Cannot apply descriptor on dataset with no rows.");
         }
@@ -282,18 +290,14 @@ public class DescriptorResource {
             throw new ParameterIsNullException("description");
         }
 
-        User user = userHandler.find(securityContext.getUserPrincipal().getName());
-        long datasetCount = datasetHandler.countAllOfCreator(user.getId());
-        int maxAllowedDatasets = new UserFacade(user).getMaxDatasets();
+        User user = userHandler.find(securityContext.getUserPrincipal().getName(), apiKey);
 
-        if (datasetCount > maxAllowedDatasets) {
-            LOG.info(String.format("User %s has %d datasets while maximum is %d",
-                    user.getId(), datasetCount, maxAllowedDatasets));
-            throw new QuotaExceededException("Dear " + user.getId()
-                    + ", your quota has been exceeded; you already have " + datasetCount + " datasets. "
-                    + "No more than " + maxAllowedDatasets + " are allowed with your subscription.");
+        Integer rows = datasetMeta.getTotalRows();
+        CanProceed cp = quotsClient.canUserProceedSync(user.get_id(), "DESCRIPTORS", rows.toString(), apiKey);
+        if (cp.isProceed() == false) {
+            throw new QuotaExceededException("Dear user, your credits has been "
+                    + "exceeded. Request for more through accounts.jaqpot.org");
         }
-
         Map<String, Object> options = new HashMap<>();
         options.put("title", title);
         options.put("description", description);

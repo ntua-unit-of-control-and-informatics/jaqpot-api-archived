@@ -32,9 +32,9 @@ package org.jaqpot.core.model.builder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import org.jaqpot.core.model.MetaInfo;
-import org.jaqpot.core.model.User;
 import org.jaqpot.core.model.validator.EmailValidator;
+import xyz.euclia.euclia.accounts.client.models.Meta;
+import xyz.euclia.euclia.accounts.client.models.User;
 
 /**
  *
@@ -55,15 +55,15 @@ public class UserBuilder implements EntityBuilder<User> {
     }
 
     private UserBuilder(String id) {
-        user = new User(id);
-        user.setId(id);
+        user = new User();
+        user.set_id(id);
     }
 
     private UserBuilder(User other) {
         this.user = other;
     }
     
-    public UserBuilder setMeta(MetaInfo mi){
+    public UserBuilder setMeta(Meta mi){
         user.setMeta(mi);
         return this;
     }
@@ -77,95 +77,95 @@ public class UserBuilder implements EntityBuilder<User> {
         if (!EmailValidator.validate(mail)) {
             throw new IllegalArgumentException("Bad email address according to RFC 2822 : '" + mail + "'");
         }
-        user.setMail(mail);
+        user.setEmail(mail);
         return this;
     }
 
-    private void initCapabilities() {
-        if (user.getCapabilities() == null) {
-            user.setCapabilities(new HashMap<>());
-        }
-    }
+//    private void initCapabilities() {
+//        if (user.getCapabilities() == null) {
+//            user.setCapabilities(new HashMap<>());
+//        }
+//    }
 
-    private void initPublicationRatePerWeek() {
-        if (user.getPublicationRatePerWeek() == null) {
-            user.setPublicationRatePerWeek(new HashMap<>());
-        }
-    }
+//    private void initPublicationRatePerWeek() {
+//        if (user.getPublicationRatePerWeek() == null) {
+//            user.setPublicationRatePerWeek(new HashMap<>());
+//        }
+//    }
+//
+//    public UserBuilder setMaxCapability(String capabilityName, int max) {
+//        initCapabilities();
+//        user.getCapabilities().put(capabilityName, max);
+//        return this;
+//    }
+//
+//    public UserBuilder setMaxWeeklyCapability(String weeklyCapabilityName, int max) {
+//        initPublicationRatePerWeek();
+//        user.getPublicationRatePerWeek().
+//                put(weeklyCapabilityName, max);
+//        return this;
+//    }
 
-    public UserBuilder setMaxCapability(String capabilityName, int max) {
-        initCapabilities();
-        user.getCapabilities().put(capabilityName, max);
-        return this;
-    }
-
-    public UserBuilder setMaxWeeklyCapability(String weeklyCapabilityName, int max) {
-        initPublicationRatePerWeek();
-        user.getPublicationRatePerWeek().
-                put(weeklyCapabilityName, max);
-        return this;
-    }
-
-    public UserBuilder setMaxWeeklyPublishedBibTeX(int maxBibTeX) {
-        return setMaxWeeklyCapability("bibtex", maxBibTeX);
-    }
-
-    public UserBuilder setMaxBibTeX(int maxBibTeX) {
-        return setMaxCapability("bibtex", maxBibTeX);
-    }
-
-    public UserBuilder setMaxAlgorithms(int algorithms) {
-        return setMaxCapability("algorithms", algorithms);
-    }
-
-    public UserBuilder setMaxWeeklyPublishedSubstances(int maxSubstances) {
-        return setMaxWeeklyCapability("substances", maxSubstances);
-    }
-
-    public UserBuilder setMaxSubstances(int maxSubstances) {
-        return setMaxCapability("substances", maxSubstances);
-    }
-    
-    public UserBuilder setMaxOrganizations(int maxOrganizations){
-        return setMaxCapability("organizations", maxOrganizations );
-    }
-
-    public UserBuilder setMaxWeeklyPublishedModels(int maxModels) {
-        return setMaxWeeklyCapability("models", maxModels);
-    }
-
-    public UserBuilder setMaxModels(int maxModels) {
-        return setMaxCapability("models", maxModels);
-    }
-
-    public UserBuilder setMaxWeeklyPublishedFeatures(int maxFeatures) {
-        return setMaxWeeklyCapability("features", maxFeatures);
-    }
-
-    public UserBuilder setMaxWeeklyPublishedAlgorithms(int maxAlgorithms) {
-        return setMaxWeeklyCapability("algorithms", maxAlgorithms);
-    }
-
-    public UserBuilder setMaxFeatures(int maxFeatures) {
-        return setMaxCapability("features", maxFeatures);
-    }
-
-    public UserBuilder setMaxParallelTasks(int maxParallelTasks) {
-        return setMaxCapability("tasksParallel", maxParallelTasks);
-    }
-
-    public UserBuilder setMaxDatasets(int maxDatasets) {
-        return setMaxCapability("datasets", maxDatasets);
-    }
-    
-    public UserBuilder setMaxReports(int maxReports) {
-        return setMaxCapability("reports", maxReports);
-    }
-
-    public UserBuilder setHashedPassword(String hashedPassword) {
-        user.setHashedPass(hashedPassword);
-        return this;
-    }
+//    public UserBuilder setMaxWeeklyPublishedBibTeX(int maxBibTeX) {
+//        return setMaxWeeklyCapability("bibtex", maxBibTeX);
+//    }
+//
+//    public UserBuilder setMaxBibTeX(int maxBibTeX) {
+//        return setMaxCapability("bibtex", maxBibTeX);
+//    }
+//
+//    public UserBuilder setMaxAlgorithms(int algorithms) {
+//        return setMaxCapability("algorithms", algorithms);
+//    }
+//
+//    public UserBuilder setMaxWeeklyPublishedSubstances(int maxSubstances) {
+//        return setMaxWeeklyCapability("substances", maxSubstances);
+//    }
+//
+//    public UserBuilder setMaxSubstances(int maxSubstances) {
+//        return setMaxCapability("substances", maxSubstances);
+//    }
+//    
+//    public UserBuilder setMaxOrganizations(int maxOrganizations){
+//        return setMaxCapability("organizations", maxOrganizations );
+//    }
+//
+//    public UserBuilder setMaxWeeklyPublishedModels(int maxModels) {
+//        return setMaxWeeklyCapability("models", maxModels);
+//    }
+//
+//    public UserBuilder setMaxModels(int maxModels) {
+//        return setMaxCapability("models", maxModels);
+//    }
+//
+//    public UserBuilder setMaxWeeklyPublishedFeatures(int maxFeatures) {
+//        return setMaxWeeklyCapability("features", maxFeatures);
+//    }
+//
+//    public UserBuilder setMaxWeeklyPublishedAlgorithms(int maxAlgorithms) {
+//        return setMaxWeeklyCapability("algorithms", maxAlgorithms);
+//    }
+//
+//    public UserBuilder setMaxFeatures(int maxFeatures) {
+//        return setMaxCapability("features", maxFeatures);
+//    }
+//
+//    public UserBuilder setMaxParallelTasks(int maxParallelTasks) {
+//        return setMaxCapability("tasksParallel", maxParallelTasks);
+//    }
+//
+//    public UserBuilder setMaxDatasets(int maxDatasets) {
+//        return setMaxCapability("datasets", maxDatasets);
+//    }
+//    
+//    public UserBuilder setMaxReports(int maxReports) {
+//        return setMaxCapability("reports", maxReports);
+//    }
+//
+//    public UserBuilder setHashedPassword(String hashedPassword) {
+//        user.setHashedPass(hashedPassword);
+//        return this;
+//    }
     
     public UserBuilder setBaseOrganization(String group){
         List<String> organizationIn = new ArrayList<>();

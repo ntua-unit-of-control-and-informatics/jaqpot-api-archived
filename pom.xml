@@ -159,6 +159,12 @@
             <version>1.0.7</version>
         </dependency>
         <dependency>
+            <groupId>xyz.euclia</groupId>
+            <artifactId>euclia-accounts-client</artifactId>
+            <version>0.0.1</version>
+        </dependency>
+        
+        <dependency>
             <groupId>org.mapstruct</groupId>
             <artifactId>mapstruct-jdk8</artifactId>
             <version>1.2.0.Final</version>
@@ -302,7 +308,12 @@
         <redis.exists></redis.exists>    
         <redis.on.cluster></redis.on.cluster>     
         <redis.cluster></redis.cluster> 
-                           
+                                             
+        <quots.url></quots.url>
+        <quots.app></quots.app>
+        <quots.app.id></quots.app.id>  
+        
+        <euclia.accounts.url></euclia.accounts.url>
     </properties>
     
     <repositories>

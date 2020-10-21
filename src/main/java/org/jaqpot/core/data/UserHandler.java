@@ -29,79 +29,108 @@
  */
 package org.jaqpot.core.data;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import org.jaqpot.core.accounts.AccountsHandler;
 import org.jaqpot.core.annotations.MongoDB;
 import org.jaqpot.core.db.entitymanager.JaqpotEntityManager;
-import org.jaqpot.core.model.User;
+import xyz.euclia.euclia.accounts.client.models.User;
+import org.asynchttpclient.Response;
+import java.util.concurrent.Future;
+import javax.ws.rs.InternalServerErrorException;
+import org.jaqpot.core.service.quotas.JQuotsSerializer;
+import org.jaqpot.core.service.quotas.QuotsClient;
+import xyz.euclia.euclia.accounts.client.models.ErrorReport;
+import xyz.euclia.jquots.serialize.Serializer;
 
 /**
  *
  * @author Pantelis Sopasakis
  * @author Charalampos Chomenidis
- *
+ * @author Pantelis Karatzas
  */
 @Stateless
-public class UserHandler extends AbstractHandler<User> {
+public class UserHandler {
 
-    @Inject
-    @MongoDB
-    JaqpotEntityManager em;
+//    @Inject
+//    @MongoDB
+//    JaqpotEntityManager em;
 
-    public UserHandler() {
-        super(User.class);
-    }
+    @EJB
+    AccountsHandler accountsHandler;
 
-    @Override
-    protected JaqpotEntityManager getEntityManager() {
-        return em;
-    }
-
-    public List<User> findAllWithPattern(Map<String, Object> searchFor) {
-        Map<String, Object> properties = new HashMap<>();
-        searchFor.keySet().forEach((key) -> {
-            Object pattern = ".*" + searchFor.get(key) + ".*";
-            properties.put(key, pattern);
-        });
-
-        List<String> fields = new ArrayList<>();
-        fields.add("_id");
-
-        return em.findAllWithReqexp(User.class, properties, fields, 0, Integer.MAX_VALUE);
-    }
-
-    public User getProfPic(String id) {
-        List<String> fields = new ArrayList<>();
-        fields.add("meta.picture");
-        return em.find(User.class, id, fields);
-    }
-
-    public User getOccupation(String id) {
-        List<String> fields = new ArrayList<>();
-        fields.add("occupation");
-        return em.find(User.class, id, fields);
-    }
-
-    public User getOccupationAt(String id) {
-        List<String> fields = new ArrayList<>();
-        fields.add("occupationAt");
-        return em.find(User.class, id, fields);
-    }
+    @EJB
+    QuotsClient quotsClient;
+//    private Serializer serializer;
     
-    public User getName(String id) {
-        List<String> fields = new ArrayList<>();
-        fields.add("name");
-        return em.find(User.class, id, fields);
+//    public UserHandler() {
+//        super(User.class);
+//    }
+//    @Override
+//    protected JaqpotEntityManager getEntityManager() {
+//        return em;
+//    }
+
+    public User find(String id, String apiKey) {
+        Future<Response> eucliaUser = this.accountsHandler.getClient().getUser(id, apiKey);
+        User user = new User();
+        try{
+            Response resp = eucliaUser.get();
+            if(resp.getStatusCode() >= 300){
+                ErrorReport er = this.quotsClient.getSerializer().parse(resp.getResponseBody(), ErrorReport.class);
+            }else{
+                User[] users = this.quotsClient.getSerializer().parse(resp.getResponseBody(), User[].class);
+                user = users[0];
+            }
+        }catch(InterruptedException | ExecutionException e){
+            throw new InternalServerErrorException(e.getMessage());
+        }
+        return user;
     }
-    
-    public User getOrganizations(String id){
-        List<String> fields = new ArrayList<>();
-        fields.add("organizations");
-        return em.find(User.class, id, fields);
-    }
+
+//    public List<User> findAllWithPattern(Map<String, Object> searchFor) {
+//        Map<String, Object> properties = new HashMap<>();
+//        searchFor.keySet().forEach((key) -> {
+//            Object pattern = ".*" + searchFor.get(key) + ".*";
+//            properties.put(key, pattern);
+//        });
+//
+//        List<String> fields = new ArrayList<>();
+//        fields.add("_id");
+//
+//        return em.findAllWithReqexp(User.class, properties, fields, 0, Integer.MAX_VALUE);
+//    }
+
+//    public User getProfPic(String id) {
+//        List<String> fields = new ArrayList<>();
+//        fields.add("meta.picture");
+//        return em.find(User.class, id, fields);
+//    }
+//
+//    public User getOccupation(String id) {
+//        List<String> fields = new ArrayList<>();
+//        fields.add("occupation");
+//        return em.find(User.class, id, fields);
+//    }
+//
+//    public User getOccupationAt(String id) {
+//        List<String> fields = new ArrayList<>();
+//        fields.add("occupationAt");
+//        return em.find(User.class, id, fields);
+//    }
+//
+//    public User getName(String id) {
+//        List<String> fields = new ArrayList<>();
+//        fields.add("name");
+//        return em.find(User.class, id, fields);
+//    }
+//
+//    public User getOrganizations(String id) {
+//        List<String> fields = new ArrayList<>();
+//        fields.add("organizations");
+//        return em.find(User.class, id, fields);
+//    }
 
 }

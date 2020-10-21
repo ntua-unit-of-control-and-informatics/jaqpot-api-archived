@@ -44,7 +44,6 @@ import javax.ws.rs.ext.Provider;
 import org.jaqpot.core.data.TaskHandler;
 import org.jaqpot.core.data.UserHandler;
 import org.jaqpot.core.model.ErrorReport;
-import org.jaqpot.core.model.User;
 import org.jaqpot.core.model.factory.ErrorReportFactory;
 import org.jaqpot.core.service.annotations.Task;
 
@@ -74,24 +73,24 @@ public class TaskRequestFilter implements ContainerRequestFilter {
     public void filter(ContainerRequestContext requestContext) throws IOException {
         String userName = requestContext.getSecurityContext().getUserPrincipal().getName();
 
-        Long queuedTasks = taskHandler.countByUserAndStatus(userName, org.jaqpot.core.model.Task.Status.QUEUED);
-        Long runningTasks = taskHandler.countByUserAndStatus(userName, org.jaqpot.core.model.Task.Status.RUNNING);
-        Long parallelTasks = queuedTasks + runningTasks;
+//        Long queuedTasks = taskHandler.countByUserAndStatus(userName, org.jaqpot.core.model.Task.Status.QUEUED);
+//        Long runningTasks = taskHandler.countByUserAndStatus(userName, org.jaqpot.core.model.Task.Status.RUNNING);
+//        Long parallelTasks = queuedTasks + runningTasks;
 
-        User user = userHandler.find(userName);
+//        User user = userHandler.find(userName);
 
-        Integer maxParallelTasks = user.getCapabilities().get("tasksParallel");
+//        Integer maxParallelTasks = user.getCapabilities().get("tasksParallel");
 
-        if (parallelTasks > maxParallelTasks) {
-            ErrorReport error = ErrorReportFactory.quotaExceeded("Dear " + userName + ", your quota has been exceeded; you already have " + parallelTasks + " tasks running in parallel. "
-                    + "No more than " + maxParallelTasks + " are allowed with your subscription.");
-            requestContext.abortWith(Response
-                    .status(Response.Status.PAYMENT_REQUIRED)
-                    .type(MediaType.APPLICATION_JSON)
-                    .entity(error)
-                    .build()
-            );
-        }
+//        if (parallelTasks > maxParallelTasks) {
+//            ErrorReport error = ErrorReportFactory.quotaExceeded("Dear " + userName + ", your quota has been exceeded; you already have " + parallelTasks + " tasks running in parallel. "
+//                    + "No more than " + maxParallelTasks + " are allowed with your subscription.");
+//            requestContext.abortWith(Response
+//                    .status(Response.Status.PAYMENT_REQUIRED)
+//                    .type(MediaType.APPLICATION_JSON)
+//                    .entity(error)
+//                    .build()
+//            );
+//        }
 
     }
 

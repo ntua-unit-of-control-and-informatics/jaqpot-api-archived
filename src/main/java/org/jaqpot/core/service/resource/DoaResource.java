@@ -36,23 +36,15 @@ package org.jaqpot.core.service.resource;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.Parameters;
-import io.swagger.v3.oas.annotations.enums.ParameterIn;
-import io.swagger.v3.oas.annotations.enums.ParameterStyle;
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeIn;
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Objects;
-import java.util.Set;
 import javax.ejb.EJB;
-import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
@@ -68,13 +60,10 @@ import javax.ws.rs.core.SecurityContext;
 import org.jaqpot.core.data.DoaHandler;
 import org.jaqpot.core.data.ModelHandler;
 import org.jaqpot.core.data.UserHandler;
-import org.jaqpot.core.model.Discussion;
 import org.jaqpot.core.model.Doa;
 import org.jaqpot.core.model.ErrorReport;
 import org.jaqpot.core.model.MetaInfo;
 import org.jaqpot.core.model.Model;
-import org.jaqpot.core.model.Task;
-import org.jaqpot.core.model.User;
 import org.jaqpot.core.model.builder.MetaInfoBuilder;
 import org.jaqpot.core.model.factory.ErrorReportFactory;
 import org.jaqpot.core.model.util.ROG;
@@ -83,6 +72,7 @@ import org.jaqpot.core.service.authentication.RoleEnum;
 import org.jaqpot.core.service.exceptions.JaqpotDocumentSizeExceededException;
 import org.jaqpot.core.service.exceptions.JaqpotNotAuthorizedException;
 import org.jaqpot.core.service.httphandlers.Rights;
+import xyz.euclia.euclia.accounts.client.models.User;
 
 /**
  *
@@ -169,16 +159,19 @@ public class DoaResource {
                 @ApiResponse(responseCode = "500", description = "Internal server error - this request cannot be served.")
             })
     public Response getDoiBySources(
+            @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class)) @HeaderParam("Authorization") String api_key,
             @Parameter(name = "id", description = "hasSources", required = true, schema = @Schema(type = "string")) @QueryParam("hasSources") String hasSources
     ) throws JaqpotNotAuthorizedException {
 
+        String[] apiA = api_key.split("\\s+");
+        String apiKey = apiA[1];
         String creator = securityContext.getUserPrincipal().getName();
         Doa doa = doaHandler.findBySources(hasSources);
 
         String[] source = hasSources.split("/");
 
         Model modelToCheck = modelHandler.findMeta(source[1]);
-        User user = userHandler.find(creator);
+        User user = userHandler.find(creator, apiKey);
         
         if(modelToCheck == null){
             ErrorReport erf = ErrorReportFactory.notFoundError("Model not found");

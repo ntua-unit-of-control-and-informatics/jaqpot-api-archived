@@ -55,6 +55,7 @@ import javax.ejb.EJB;
 import javax.inject.Inject;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -123,9 +124,13 @@ public class SearchResource {
                 @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorReport.class)), description = "Internal server error - this request cannot be served.")
             })
     public Response search(
+            @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class)) @HeaderParam("Authorization") String api_key,
             @Parameter(name = "term", description = "term", schema = @Schema(implementation = String.class)) @QueryParam("term") String term
     ) {
 
+        String[] apiA = api_key.split("\\s+");
+        String apiKey = apiA[1];
+        
         String userId = securityContext.getUserPrincipal().getName();
         ROG rog = new ROG(true);
         String sessionId = rog.nextStringId(12);
@@ -147,7 +152,7 @@ public class SearchResource {
                 .replace(">", " ")
                 .replace("*", " ").replaceAll("[^\\x20-\\x7e]", " ");
         String termf1 = termf.replace("*", "");
-        ssp.startSearchSession(userId, sessionId, termf1);
+        ssp.startSearchSession(userId, sessionId, termf1, apiKey);
         List<String> entityIds = new ArrayList();
         this.sessionClient.searchSession(sessionId, entityIds, Boolean.FALSE);
         SearchSession searchS = new SearchSession();

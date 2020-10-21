@@ -29,7 +29,12 @@
  */
 package org.jaqpot.core.service.resource;
 
+import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.proc.BadJOSEException;
+import com.nimbusds.jose.proc.SecurityContext;
 import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.proc.ConfigurableJWTProcessor;
+import com.nimbusds.jwt.proc.DefaultJWTProcessor;
 import com.nimbusds.oauth2.sdk.token.AccessToken;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -50,6 +55,7 @@ import io.swagger.v3.oas.annotations.security.OAuthScope;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.text.ParseException;
 //import io.swagger.v3.oas.models.security.SecurityRequirement;
 //import io.swagger.annotations.*;
 import org.jaqpot.core.model.ErrorReport;
@@ -61,7 +67,10 @@ import javax.ejb.EJB;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import org.jaqpot.core.model.User;
+import org.jaqpot.core.data.UserHandler;
+import org.jaqpot.core.model.factory.UserFactory;
+import org.jaqpot.core.service.exceptions.JaqpotDocumentSizeExceededException;
+import xyz.euclia.euclia.accounts.client.models.User;
 
 /**
  *
@@ -78,6 +87,9 @@ public class AAResource {
 
     @EJB
     AAService aaService;
+    
+    @EJB
+    UserHandler userHandler;
 
     @POST
     @Path("/validate/accesstoken")
@@ -159,7 +171,31 @@ public class AAResource {
         aToken = aaService.getAccessToken(username, password);
         AuthToken auToken = new AuthToken();
         auToken.setAuthToken(aToken.getValue());
-        User user = aaService.getUserFromSSO(aToken.getValue());
+        String userId = aaService.getUserIdFromSSO(aToken.getValue());
+        
+        User user = userHandler.find(userId, aToken.getValue());
+//        if (user == null) {
+//            JWTClaimsSet claimsSet = null;
+//            User userToSave = UserFactory.newNormalUser();
+//            ConfigurableJWTProcessor jwtProcessor = new DefaultJWTProcessor();
+//            try {
+//                SecurityContext ctx = null;
+//                claimsSet = jwtProcessor.process(aToken.getValue(), ctx);
+//                userToSave.setId(userId);
+//                userToSave.setMail(claimsSet.getStringClaim("email"));
+//                userToSave.setName(claimsSet.getStringClaim("preferred_username"));              
+////                userToSave.setMail(claimsSet.getStringClaim("email"));
+////                userToSave.setName(claimsSet.getStringClaim("preferred_username"));
+//                userHandler.create(userToSave);
+//            } catch (JaqpotDocumentSizeExceededException |  ParseException | BadJOSEException | JOSEException e) {
+//                throw new InternalServerErrorException("Could not proceed request. Please try again later", e);
+//            }
+//            return Response.ok(auToken)
+//                .status(Response.Status.OK)
+//                .build();
+//        }
+                      
+//        User user = aaService.getUserFromSSO(aToken.getValue());
         auToken.setUserName(user.getName());
         return Response.ok(auToken)
                 .status(Response.Status.OK)

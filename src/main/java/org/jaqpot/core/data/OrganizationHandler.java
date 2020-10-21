@@ -34,17 +34,21 @@
  */
 package org.jaqpot.core.data;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-import org.jaqpot.core.annotations.MongoDB;
-import org.jaqpot.core.db.entitymanager.JaqpotEntityManager;
-import org.jaqpot.core.model.Model;
-import org.jaqpot.core.model.Organization;
-import org.jaqpot.core.model.User;
+import javax.ws.rs.InternalServerErrorException;
+import org.asynchttpclient.Response;
+import org.jaqpot.core.accounts.AccountsHandler;
+import org.jaqpot.core.model.ErrorReport;
+import org.jaqpot.core.service.exceptions.JaqpotWebException;
+import org.jaqpot.core.service.quotas.JQuotsSerializer;
+import org.jaqpot.core.service.quotas.QuotsClient;
+//import xyz.euclia.euclia.accounts.client.models.ErrorReport;
+import xyz.euclia.euclia.accounts.client.models.Organization;
+import xyz.euclia.jquots.serialize.Serializer;
 
 
 
@@ -53,33 +57,59 @@ import org.jaqpot.core.model.User;
  * @author pantelispanka
  */
 @Stateless
-public class OrganizationHandler extends AbstractHandler<Organization> {
+public class OrganizationHandler{
     
+    @EJB
+    AccountsHandler accountsHandler;
+
+    @EJB
+    QuotsClient quotsClient;
+
+    public Organization find(String id, String apiKey) throws JaqpotWebException {
+        Future<Response> eucliaUser = this.accountsHandler.getClient().getUser(id, apiKey);
+        Organization org = new Organization();
+        try{
+            Response resp = eucliaUser.get();
+            if(resp.getStatusCode() >= 300){
+                xyz.euclia.euclia.accounts.client.models.ErrorReport er = this.quotsClient.getSerializer().parse(eucliaUser.get().getResponseBody(), xyz.euclia.euclia.accounts.client.models.ErrorReport.class);
+                ErrorReport jer = new ErrorReport();
+                jer.setHttpStatus(er.getStatus());
+                jer.setMessage(er.getMessage());
+                throw new JaqpotWebException(jer);
+            }else{
+                org = this.quotsClient.getSerializer().parse(eucliaUser.get().getResponseBody(), Organization.class);
+//                user = users[0];
+            }
+        }catch(InterruptedException | ExecutionException e){
+            throw new InternalServerErrorException(e.getMessage());
+        }
+        return org;
+    }
     
-    @Inject
-    @MongoDB
-    JaqpotEntityManager em;
-
-    public OrganizationHandler() {
-        super(Organization.class);
-    }
-
-    @Override
-    protected JaqpotEntityManager getEntityManager() {
-        return em;
-    }
-    
-    public List<Organization> findAllWithPattern(Map<String, Object> searchFor) {
-        Map<String, Object> properties = new HashMap<>();
-        searchFor.keySet().forEach((key) -> {
-            Object pattern = ".*" + searchFor.get(key) + ".*";
-            properties.put(key, pattern);
-        });
-
-        List<String> fields = new ArrayList<>();
-        fields.add("_id");
-
-        return em.findAllWithReqexp(Organization.class, properties, fields, 0, Integer.MAX_VALUE);
-    }
+//    @Inject
+//    @MongoDB
+//    JaqpotEntityManager em;
+//
+//    public OrganizationHandler() {
+//        super(Organization.class);
+//    }
+//
+//    @Override
+//    protected JaqpotEntityManager getEntityManager() {
+//        return em;
+//    }
+//    
+//    public List<Organization> findAllWithPattern(Map<String, Object> searchFor) {
+//        Map<String, Object> properties = new HashMap<>();
+//        searchFor.keySet().forEach((key) -> {
+//            Object pattern = ".*" + searchFor.get(key) + ".*";
+//            properties.put(key, pattern);
+//        });
+//
+//        List<String> fields = new ArrayList<>();
+//        fields.add("_id");
+//
+//        return em.findAllWithReqexp(Organization.class, properties, fields, 0, Integer.MAX_VALUE);
+//    }
     
 }

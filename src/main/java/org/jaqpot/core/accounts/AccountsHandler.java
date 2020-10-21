@@ -32,24 +32,58 @@
  * All source files of JAQPOT Quattro that are stored on github are licensed
  * with the aforementioned licence. 
  */
-package org.jaqpot.core.model.factory;
+package org.jaqpot.core.accounts;
 
-import org.jaqpot.core.model.builder.OrganizationBuilder;
-import xyz.euclia.euclia.accounts.client.models.Organization;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.ejb.DependsOn;
+import javax.ejb.Singleton;
+import javax.ejb.Startup;
+import javax.inject.Inject;
+import org.jaqpot.core.properties.PropertyManager;
+import xyz.euclia.euclia.accounts.client.EucliaAccounts;
+import xyz.euclia.euclia.accounts.client.EucliaAccountsFactory;
+import xyz.euclia.jquots.serialize.Serializer;
 
 /**
  *
  * @author pantelispanka
  */
-public class OrganizationFactory {
+@Startup
+@Singleton
+@DependsOn("PropertyManager")
+public class AccountsHandler {
+
+    private static final Logger LOG = Logger.getLogger(AccountsHandler.class.getName());
     
-    public static Organization buildOrgFromId(String id){
-        return OrganizationBuilder.builder(id).build();
+    @Inject
+    PropertyManager propertyManager;
+    
+    private EucliaAccounts client;
+
+    
+    
+    @PostConstruct
+    public void init() {
+        String accountsBase = propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.EUCLIA_ACCOUNTS_URL);
+        client = EucliaAccountsFactory.createNewClient(accountsBase);
     }
     
-    public static Organization buildJaqpotOrg(){
-        return OrganizationBuilder.builder("Jaqpot").build();
+    @PreDestroy
+    public void destroy() throws IOException{
+        try{
+            this.client.close();
+        }catch(IOException e){
+            LOG.log(Level.SEVERE, e.getLocalizedMessage());
+        }
+        
     }
     
+    public EucliaAccounts getClient(){
+        return this.client;
+    }
     
 }

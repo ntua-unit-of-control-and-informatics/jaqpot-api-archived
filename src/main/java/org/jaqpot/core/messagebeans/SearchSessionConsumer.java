@@ -34,15 +34,12 @@
  */
 package org.jaqpot.core.messagebeans;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.time.Duration;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
-import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.PostConstruct;
@@ -60,15 +57,14 @@ import org.apache.kafka.common.serialization.StringDeserializer;
 import org.jaqpot.core.data.DatasetHandler;
 import org.jaqpot.core.data.ModelHandler;
 import org.jaqpot.core.data.UserHandler;
-import org.jaqpot.core.model.MetaInfo;
 import org.jaqpot.core.model.Model;
-import org.jaqpot.core.model.User;
 import org.jaqpot.core.model.dto.dataset.Dataset;
 import org.jaqpot.core.properties.PropertyManager;
 import org.jaqpot.core.search.dto.ElasticResponse;
 import org.jaqpot.core.search.engine.JaqpotSearch;
 import org.jaqpot.core.service.httphandlers.Rights;
 import org.jaqpot.core.sessions.SessionClient;
+import xyz.euclia.euclia.accounts.client.models.User;
 
 /**
  *
@@ -151,7 +147,10 @@ public class SearchSessionConsumer {
             String userId = first[4];
             String[] seccond = consumerRecord.value().split(":");
             String term = seccond[1];
-            User user = userHandler.find(userId);
+            String[] api = consumerRecord.value().split("&");
+            String apiKey = api[1];
+            
+            User user = userHandler.find(userId, apiKey);
 
             int from = 0;
             int size = 20;
@@ -165,7 +164,8 @@ public class SearchSessionConsumer {
 //                logger.log(Level.INFO, mapper.writeValueAsString(elResp));
 //            } catch (Exception e) {
 //                logger.log(Level.SEVERE, e.getLocalizedMessage());
-//            }          
+//            }  
+
             elResp.getHits().getHits().forEach(h -> {
 
                 if (h.getSource().getEntity_type().equals("Model")) {

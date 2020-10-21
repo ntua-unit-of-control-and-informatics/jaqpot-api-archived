@@ -44,7 +44,6 @@ import com.nimbusds.oauth2.sdk.auth.Secret;
 import com.nimbusds.oauth2.sdk.token.AccessToken;
 import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
 import org.jaqpot.core.data.UserHandler;
-import org.jaqpot.core.model.User;
 import org.jaqpot.core.model.factory.UserFactory;
 import org.jaqpot.core.service.annotations.UnSecure;
 import org.jaqpot.core.service.exceptions.JaqpotDocumentSizeExceededException;
@@ -58,6 +57,7 @@ import javax.ws.rs.client.Client;
 import java.io.IOException;
 import java.util.List;
 import java.util.logging.Logger;
+import xyz.euclia.euclia.accounts.client.models.User;
 
 /**
  *
@@ -73,8 +73,8 @@ public class AAService {
     @EJB
     OpenIdServiceConfiguration oidcConf;
 
-    @EJB
-    UserHandler userHandler;
+//    @EJB
+//    UserHandler userHandler;
 
     @Inject
     @UnSecure
@@ -115,7 +115,7 @@ public class AAService {
         SecurityContext ctx = null;
         try {
             JWTClaimsSet claimsSet = jwtProcessor.process(accessToken, ctx);
-            this.getUserFromSSO(accessToken);
+//            this.getUserFromSSO(accessToken);
         } catch (java.text.ParseException | BadJOSEException | JOSEException e) {
             throw new JaqpotNotAuthorizedException("It seems your token is not valid", "401 : " + e.getMessage());
         }
@@ -175,6 +175,7 @@ public class AAService {
 //        response.close();
 //        return status == 200;
 //    }
+    
     /**
      * Queries the SSO server to get user attributes and returns a user.
      *
@@ -184,7 +185,7 @@ public class AAService {
      * attributes.
      * @throws org.jaqpot.core.service.exceptions.JaqpotNotAuthorizedException
      */
-    public User getUserFromSSO(String accessToken) throws JaqpotNotAuthorizedException {
+    public String getUserIdFromSSO(String accessToken) throws JaqpotNotAuthorizedException {
         ConfigurableJWTProcessor jwtProcessor = new DefaultJWTProcessor();
 
 //        OIDCProviderMetadata omd = oidcConf.getProviderMetadata();
@@ -201,24 +202,49 @@ public class AAService {
         }
 
         String userId = claimsSet.getSubject();
-        User user = userHandler.find(userId);
-        if (user == null) {
-            User userToSave = UserFactory.newNormalUser();
-            try {
-                userToSave.setId(userId);
-                userToSave.setMail(claimsSet.getStringClaim("email"));
-                userToSave.setName(claimsSet.getStringClaim("preferred_username"));
-                userHandler.create(userToSave);
-            } catch (java.text.ParseException e) {
-                throw new InternalServerErrorException("Could not create user on database", e);
-            } catch (JaqpotDocumentSizeExceededException e) {
-                e.printStackTrace();
-            }
-            return userToSave;
+        
+//        User user = userHandler.find(userId);
+//        if (user == null) {
+//            User userToSave = UserFactory.newNormalUser();
+//            try {
+//                userToSave.setId(userId);
+//                userToSave.setMail(claimsSet.getStringClaim("email"));
+//                userToSave.setName(claimsSet.getStringClaim("preferred_username"));
+//                userHandler.create(userToSave);
+//            } catch (java.text.ParseException e) {
+//                throw new InternalServerErrorException("Could not create user on database", e);
+//            } catch (JaqpotDocumentSizeExceededException e) {
+//                e.printStackTrace();
+//            }
+//            return userToSave;
+//        }
+
+        return userId;
+    }
+    
+    
+    
+    public User getUserFromSSO(String accessToken) throws JaqpotNotAuthorizedException, java.text.ParseException{
+        ConfigurableJWTProcessor jwtProcessor = new DefaultJWTProcessor();
+        JWKSource keySource = this.oidcConf.getJWKSource();
+        JWSAlgorithm expectedJWSAlg = JWSAlgorithm.RS256;
+        JWSKeySelector keySelector = new JWSVerificationKeySelector(expectedJWSAlg, keySource);
+        jwtProcessor.setJWSKeySelector(keySelector);
+        SecurityContext ctx = null;
+        JWTClaimsSet claimsSet = null;
+        try {
+            claimsSet = jwtProcessor.process(accessToken, ctx);
+        } catch (java.text.ParseException | BadJOSEException | JOSEException e) {
+            throw new JaqpotNotAuthorizedException("Problems " + e.getMessage());
         }
+        User user = new User();
+        user.set_id(claimsSet.getSubject());
+        user.setEmail(claimsSet.getStringClaim("email"));
+        user.setName(claimsSet.getStringClaim("preferred_username"));
+        
         return user;
     }
-
+    
 //    public boolean authorize(String token, String httpMethod, String uri) throws JaqpotNotAuthorizedException {
 //        MultivaluedMap<String, String> formData = new MultivaluedHashMap<>();
 //        formData.putSingle("subjectid", token);

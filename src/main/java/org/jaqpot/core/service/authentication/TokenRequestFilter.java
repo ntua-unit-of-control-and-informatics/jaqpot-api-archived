@@ -34,9 +34,7 @@
  */
 package org.jaqpot.core.service.authentication;
 
-import com.fasterxml.jackson.databind.util.Annotations;
 import java.io.Serializable;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import java.security.Principal;
@@ -45,10 +43,6 @@ import java.util.Arrays;
 import java.util.List;
 import javax.annotation.Priority;
 import javax.ejb.EJB;
-import javax.inject.Inject;
-import javax.management.relation.Role;
-import javax.ws.rs.BadRequestException;
-import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.Priorities;
 import javax.ws.rs.Produces;
 import javax.ws.rs.container.ContainerRequestContext;
@@ -61,7 +55,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.ext.Provider;
 import org.jaqpot.core.model.ErrorReport;
-import org.jaqpot.core.model.User;
+//import org.jaqpot.core.model.User;
 import org.jaqpot.core.service.annotations.TokenSecured;
 import org.jaqpot.core.service.exceptions.JaqpotNotAuthorizedException;
 
@@ -146,8 +140,8 @@ public class TokenRequestFilter implements ContainerRequestFilter, Serializable 
     }
 
     private void handleSecurityContext(String api_key, ContainerRequestContext requestContext) throws JaqpotNotAuthorizedException {
-        User user = aaService.getUserFromSSO(api_key);
-        Principal userPrincipal = new UserPrincipal(user.getId());
+        String userId = aaService.getUserIdFromSSO(api_key);
+        Principal userPrincipal = new UserPrincipal(userId);
         SecurityContext securityContext = new SecurityContextImpl(userPrincipal);
         requestContext.setSecurityContext(securityContext);
     }

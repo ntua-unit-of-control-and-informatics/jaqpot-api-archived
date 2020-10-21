@@ -34,9 +34,9 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.jaqpot.core.model.MetaInfo;
-import org.jaqpot.core.model.User;
 import org.jaqpot.core.model.builder.UserBuilder;
+import xyz.euclia.euclia.accounts.client.models.Meta;
+import xyz.euclia.euclia.accounts.client.models.User;
 
 /**
  *
@@ -58,41 +58,27 @@ public class UserFactory {
     public static User newNormalUser(String userName, String password) {
         String hashedPassword = password != null ? new String(Base64.getEncoder().encode(sha256.digest(password.getBytes()))) : null;
         sha256.reset();
-        MetaInfo mi = new MetaInfo();
+        Meta mi = new Meta();
         return UserBuilder.builder(userName).setMeta(mi)
-                .setHashedPassword(hashedPassword)
-                .setMaxBibTeX(100)
-                .setMaxModels(20)
-                .setMaxAlgorithms(0)
-                .setMaxOrganizations(3)
-                .setMaxParallelTasks(5)
-                .setMaxSubstances(1000)
-                .setMaxDatasets(20)
-                .setMaxReports(20)
-                .setMaxWeeklyPublishedModels(10)
-                .setMaxWeeklyPublishedSubstances(10)
-                .setMaxWeeklyPublishedBibTeX(10)
-                .setMaxWeeklyPublishedAlgorithms(1)
-                .setBaseOrganization("Jaqpot")
                 .build();
     }
-
-    public static User newNormalUser() {
-        return UserBuilder.builder((String) null)
-                .setMaxBibTeX(100)
-                .setMaxModels(20)
-                .setMaxAlgorithms(0)
-                .setMaxParallelTasks(5)
-                .setMaxSubstances(1000)
-                .setMaxDatasets(20)
-                .setMaxReports(20)
-                .setMaxOrganizations(3)
-                .setMaxWeeklyPublishedModels(10)
-                .setMaxWeeklyPublishedSubstances(10)
-                .setMaxWeeklyPublishedBibTeX(10)
-                .setMaxWeeklyPublishedAlgorithms(1)
-                .setBaseOrganization("Jaqpot")
-                .build();
-    }
+//
+//    public static User newNormalUser() {
+//        return UserBuilder.builder((String) null)
+//                .setMaxBibTeX(100)
+//                .setMaxModels(20)
+//                .setMaxAlgorithms(0)
+//                .setMaxParallelTasks(5)
+//                .setMaxSubstances(1000)
+//                .setMaxDatasets(20)
+//                .setMaxReports(20)
+//                .setMaxOrganizations(3)
+//                .setMaxWeeklyPublishedModels(10)
+//                .setMaxWeeklyPublishedSubstances(10)
+//                .setMaxWeeklyPublishedBibTeX(10)
+//                .setMaxWeeklyPublishedAlgorithms(1)
+//                .setBaseOrganization("Jaqpot")
+//                .build();
+//    }
 
 }

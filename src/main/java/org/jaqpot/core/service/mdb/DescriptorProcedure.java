@@ -1,7 +1,5 @@
 package org.jaqpot.core.service.mdb;
 
-import java.lang.reflect.Array;
-import java.util.ArrayList;
 import org.jaqpot.core.annotations.Jackson;
 import org.jaqpot.core.data.DescriptorHandler;
 import org.jaqpot.core.data.FeatureHandler;
@@ -52,7 +50,7 @@ import java.util.logging.Logger;
 })
 public class DescriptorProcedure extends AbstractJaqpotProcedure implements MessageListener {
 
-    private static final Logger LOG = Logger.getLogger(PreparationProcedure.class.getName());
+    private static final Logger LOG = Logger.getLogger(DescriptorProcedure.class.getName());
 
     @Inject
     JPDIClient jpdiClient;
@@ -202,7 +200,7 @@ public class DescriptorProcedure extends AbstractJaqpotProcedure implements Mess
                     .addTitles((String) messageBody.get("title"))
                     .addDescriptions((String) messageBody.get("description"))
                     .addComments("Created by task " + taskId)
-                    .addCreators(aaService.getUserFromSSO(apiKey).getId())
+                    .addCreators(aaService.getUserIdFromSSO(apiKey))
                     .addSources(datasetURI)
                     .build();
             dataset.setMeta(datasetMeta);

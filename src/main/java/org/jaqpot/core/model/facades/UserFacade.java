@@ -31,7 +31,7 @@ package org.jaqpot.core.model.facades;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.jaqpot.core.model.User;
+import xyz.euclia.euclia.accounts.client.models.User;
 
 /**
  *
@@ -56,80 +56,80 @@ public class UserFacade {
         return user;
     }
 
-    public int getMaxCapability(String capability) {
-        if (capability == null) {
-            throw new NullPointerException("You need to provide the name of a capability!");
-        }
-        int maxCapability = -1;
-        if (user.getCapabilities() != null && user.getCapabilities().containsKey(capability)) {
-            Integer maxCapabilityRetrieved = user.getCapabilities().get(capability);
-            if (maxCapabilityRetrieved != null) {
-                return (int) maxCapabilityRetrieved;
-            }
-        }
-        return maxCapability;
-    }
-
-    public int getMaxWeeklyPublicationRate(String capability) {
-        if (capability == null) {
-            throw new NullPointerException("You need to provide the name of a publication rate capability!");
-        }
-        int maxPublicationRateCapability = -1;
-        if (user.getPublicationRatePerWeek() != null && user.getPublicationRatePerWeek().containsKey(capability)) {
-            Integer maxPublicationRateCapabilityRetrieved = user.getPublicationRatePerWeek().get(capability);
-            if (maxPublicationRateCapabilityRetrieved != null) {
-                return (int) maxPublicationRateCapabilityRetrieved;
-            }
-        }
-        return maxPublicationRateCapability;
-    }
-
-    public int getMaxSubstnaces() {
-        return getMaxCapability("substances");
-    }
-
-    public int getMaxFeatures() {
-        return getMaxCapability("features");
-    }
-
-    public int getMaxDatasets() {
-        return getMaxCapability("datasets");
-    }
-
-    public int getMaxBibTeX() {
-        return getMaxCapability("bibtex");
-    }
-
-    public int getMaxAlgorithms() {
-        return getMaxCapability("algorithms");
-    }
-
-    public int getMaxModels() {
-        return getMaxCapability("models");
-    }
-
-    public int getMaxReports() {
-        return getMaxCapability("reports");
-    }
-
-    public int getMaxPublishedSubstancesPerWeek() {
-        return getMaxWeeklyPublicationRate("substances");
-    }
-
-    public int getMaxPublishedFeaturesPerWeek() {
-        return getMaxWeeklyPublicationRate("features");
-    }
-
-    public int getMaxPublishedDatasetsPerWeek() {
-        return getMaxWeeklyPublicationRate("datasets");
-    }
-
-    public int getMaxPublishedAlgorithmsPerWeek() {
-        return getMaxWeeklyPublicationRate("algorithms");
-    }
-    
-    public int getMaxOrganizationsCreator(){
-        return getMaxCapability("organizations");
-    }
+//    public int getMaxCapability(String capability) {
+//        if (capability == null) {
+//            throw new NullPointerException("You need to provide the name of a capability!");
+//        }
+//        int maxCapability = -1;
+//        if (user.getCapabilities() != null && user.getCapabilities().containsKey(capability)) {
+//            Integer maxCapabilityRetrieved = user.getCapabilities().get(capability);
+//            if (maxCapabilityRetrieved != null) {
+//                return (int) maxCapabilityRetrieved;
+//            }
+//        }
+//        return maxCapability;
+//    }
+//
+//    public int getMaxWeeklyPublicationRate(String capability) {
+//        if (capability == null) {
+//            throw new NullPointerException("You need to provide the name of a publication rate capability!");
+//        }
+//        int maxPublicationRateCapability = -1;
+//        if (user.getPublicationRatePerWeek() != null && user.getPublicationRatePerWeek().containsKey(capability)) {
+//            Integer maxPublicationRateCapabilityRetrieved = user.getPublicationRatePerWeek().get(capability);
+//            if (maxPublicationRateCapabilityRetrieved != null) {
+//                return (int) maxPublicationRateCapabilityRetrieved;
+//            }
+//        }
+//        return maxPublicationRateCapability;
+//    }
+//
+//    public int getMaxSubstnaces() {
+//        return getMaxCapability("substances");
+//    }
+//
+//    public int getMaxFeatures() {
+//        return getMaxCapability("features");
+//    }
+//
+//    public int getMaxDatasets() {
+//        return getMaxCapability("datasets");
+//    }
+//
+//    public int getMaxBibTeX() {
+//        return getMaxCapability("bibtex");
+//    }
+//
+//    public int getMaxAlgorithms() {
+//        return getMaxCapability("algorithms");
+//    }
+//
+//    public int getMaxModels() {
+//        return getMaxCapability("models");
+//    }
+//
+//    public int getMaxReports() {
+//        return getMaxCapability("reports");
+//    }
+//
+//    public int getMaxPublishedSubstancesPerWeek() {
+//        return getMaxWeeklyPublicationRate("substances");
+//    }
+//
+//    public int getMaxPublishedFeaturesPerWeek() {
+//        return getMaxWeeklyPublicationRate("features");
+//    }
+//
+//    public int getMaxPublishedDatasetsPerWeek() {
+//        return getMaxWeeklyPublicationRate("datasets");
+//    }
+//
+//    public int getMaxPublishedAlgorithmsPerWeek() {
+//        return getMaxWeeklyPublicationRate("algorithms");
+//    }
+//    
+//    public int getMaxOrganizationsCreator(){
+//        return getMaxCapability("organizations");
+//    }
 
 }

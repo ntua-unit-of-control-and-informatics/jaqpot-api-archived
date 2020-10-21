@@ -40,9 +40,12 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.security.GeneralSecurityException;
+import java.text.ParseException;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Resource;
@@ -55,6 +58,7 @@ import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.HeaderParam;
+import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -70,7 +74,6 @@ import org.jaqpot.core.data.TaskHandler;
 import org.jaqpot.core.data.UserHandler;
 import org.jaqpot.core.data.serialize.JSONSerializer;
 import org.jaqpot.core.model.Task;
-import org.jaqpot.core.model.User;
 import org.jaqpot.core.model.builder.MetaInfoBuilder;
 import org.jaqpot.core.model.facades.UserFacade;
 import org.jaqpot.core.model.util.ROG;
@@ -78,9 +81,13 @@ import org.jaqpot.core.service.annotations.Authorize;
 import org.jaqpot.core.service.exceptions.JaqpotDocumentSizeExceededException;
 import org.jaqpot.core.service.annotations.TokenSecured;
 import org.jaqpot.core.service.authentication.RoleEnum;
+import org.jaqpot.core.service.exceptions.JaqpotNotAuthorizedException;
 import org.jaqpot.core.service.exceptions.parameter.ParameterInvalidURIException;
 import org.jaqpot.core.service.exceptions.parameter.ParameterIsNullException;
 import org.jaqpot.core.service.exceptions.QuotaExceededException;
+import org.jaqpot.core.service.quotas.QuotsClient;
+import xyz.euclia.euclia.accounts.client.models.User;
+import xyz.euclia.jquots.models.CanProceed;
 
 /**
  * @author Angelos Valsamis
@@ -96,6 +103,9 @@ import org.jaqpot.core.service.exceptions.QuotaExceededException;
 @io.swagger.v3.oas.annotations.security.SecurityRequirement(name = "bearerAuth")
 public class ValidationResource {
 
+    @EJB
+    QuotsClient quotsClient;
+    
     private static final Logger LOG = Logger.getLogger(ValidationResource.class.getName());
 
     private static final String DEFAULT_ALGORITHM = "{\n"
@@ -187,17 +197,7 @@ public class ValidationResource {
 
         String[] apiA = api_key.split("\\s+");
         String apiKey = apiA[1];
-        User user = userHandler.find(securityContext.getUserPrincipal().getName());
-        long reportCount = reportHandler.countAllOfCreator(user.getId());
-        int maxAllowedReports = new UserFacade(user).getMaxReports();
-
-        if (reportCount > maxAllowedReports) {
-            LOG.info(String.format("User %s has %d algorithms while maximum is %d",
-                    user.getId(), reportCount, maxAllowedReports));
-            throw new QuotaExceededException("Dear " + user.getId()
-                    + ", your quota has been exceeded; you already have " + reportCount + " reports. "
-                    + "No more than " + maxAllowedReports + " are allowed with your subscription.");
-        }
+        User user = userHandler.find(securityContext.getUserPrincipal().getName(), apiKey);
 
         UrlValidator urlValidator = new UrlValidator();
         if (!urlValidator.isValid(algorithmURI)) {
@@ -222,12 +222,12 @@ public class ValidationResource {
         Task task = new Task(new ROG(true).nextString(12));
         task.setMeta(
                 MetaInfoBuilder.builder()
-                .setCurrentDate()
-                .addTitles("Validation on algorithm: " + algorithmURI)
-                .addComments("Validation task created")
-                .addDescriptions("Validation task using algorithm " + algorithmURI + " and dataset " + datasetURI)
-                .addCreators(securityContext.getUserPrincipal().getName())
-                .build());
+                        .setCurrentDate()
+                        .addTitles("Validation on algorithm: " + algorithmURI)
+                        .addComments("Validation task created")
+                        .addDescriptions("Validation task using algorithm " + algorithmURI + " and dataset " + datasetURI)
+                        .addCreators(securityContext.getUserPrincipal().getName())
+                        .build());
         task.setType(Task.Type.VALIDATION);
         task.setHttpStatus(202);
         task.setStatus(Task.Status.QUEUED);
@@ -241,7 +241,7 @@ public class ValidationResource {
         options.put("folds", folds);
         options.put("stratify", stratify);
         options.put("seed", seed);
-        options.put("creator", user.getId());
+        options.put("creator", user.get_id());
         options.put("api_key", apiKey);
 
         Map<String, String> transformationAlgorithms = new LinkedHashMap<>();
@@ -298,17 +298,7 @@ public class ValidationResource {
         }
         String[] apiA = api_key.split("\\s+");
         String apiKey = apiA[1];
-        User user = userHandler.find(securityContext.getUserPrincipal().getName());
-        long reportCount = reportHandler.countAllOfCreator(user.getId());
-        int maxAllowedReports = new UserFacade(user).getMaxReports();
-
-        if (reportCount > maxAllowedReports) {
-            LOG.info(String.format("User %s has %d reports while maximum is %d",
-                    user.getId(), reportCount, maxAllowedReports));
-            throw new QuotaExceededException("Dear " + user.getId()
-                    + ", your quota has been exceeded; you already have " + reportCount + " reports. "
-                    + "No more than " + maxAllowedReports + " are allowed with your subscription.");
-        }
+//        User user = userHandler.find(securityContext.getUserPrincipal().getName(), apiKey);
 
         UrlValidator urlValidator = new UrlValidator();
         if (!urlValidator.isValid(algorithmURI)) {
@@ -333,12 +323,12 @@ public class ValidationResource {
         Task task = new Task(new ROG(true).nextString(12));
         task.setMeta(
                 MetaInfoBuilder.builder()
-                .setCurrentDate()
-                .addTitles("Validation on algorithm: " + algorithmURI)
-                .addComments("Validation task created")
-                .addDescriptions("Validation task using algorithm " + algorithmURI + " and dataset " + datasetURI)
-                .addCreators(securityContext.getUserPrincipal().getName())
-                .build());
+                        .setCurrentDate()
+                        .addTitles("Validation on algorithm: " + algorithmURI)
+                        .addComments("Validation task created")
+                        .addDescriptions("Validation task using algorithm " + algorithmURI + " and dataset " + datasetURI)
+                        .addCreators(securityContext.getUserPrincipal().getName())
+                        .build());
         task.setType(Task.Type.VALIDATION);
         task.setHttpStatus(202);
         task.setStatus(Task.Status.QUEUED);
@@ -393,7 +383,7 @@ public class ValidationResource {
             @Parameter(name = "test_dataset_uri", schema = @Schema(implementation = String.class)) @FormParam("test_dataset_uri") String datasetURI,
             @Parameter(name = "validation_type", schema = @Schema(implementation = String.class)) @FormParam("validation_type") String validationType,
             @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class)) @HeaderParam("Authorization") String api_key
-    ) throws QuotaExceededException, ParameterIsNullException, ParameterInvalidURIException, JaqpotDocumentSizeExceededException {
+    ) throws GeneralSecurityException, QuotaExceededException, ParameterIsNullException, ParameterInvalidURIException, JaqpotDocumentSizeExceededException, InterruptedException, ExecutionException, InternalServerErrorException, JaqpotNotAuthorizedException, ParseException, JaqpotNotAuthorizedException, ParseException {
         if (modelURI == null) {
             throw new ParameterIsNullException("modelURI");
         }
@@ -402,34 +392,22 @@ public class ValidationResource {
         }
         String[] apiA = api_key.split("\\s+");
         String apiKey = apiA[1];
-        User user = userHandler.find(securityContext.getUserPrincipal().getName());
-        long reportCount = reportHandler.countAllOfCreator(user.getId());
-        int maxAllowedReports = new UserFacade(user).getMaxReports();
-
-        if (reportCount > maxAllowedReports) {
-            LOG.info(String.format("User %s has %d algorithms while maximum is %d",
-                    user.getId(), reportCount, maxAllowedReports));
-            throw new QuotaExceededException("Dear " + user.getId()
-                    + ", your quota has been exceeded; you already have " + reportCount + " reports. "
-                    + "No more than " + maxAllowedReports + " are allowed with your subscription.");
+        User user = userHandler.find(securityContext.getUserPrincipal().getName(), apiKey);
+        CanProceed cp = quotsClient.canUserProceedSync(user.get_id(), "VALIDATION", "1", apiKey);
+        if (cp.isProceed() == false) {
+            throw new QuotaExceededException("Dear user, your credits has been "
+                    + "exceeded. Request for more through accounts.jaqpot.org");
         }
 
-//        UrlValidator urlValidator = new UrlValidator();
-//        if (!urlValidator.isValid(modelURI)) {
-//            throw new ParameterInvalidURIException("Not valid model URI.");
-//        }
-//        if (!urlValidator.isValid(datasetURI)) {
-//            throw new ParameterInvalidURIException("Not valid dataset URI.");
-//        }
         Task task = new Task(new ROG(true).nextString(12));
         task.setMeta(
                 MetaInfoBuilder.builder()
-                .setCurrentDate()
-                .addTitles("Validation on model: " + modelURI)
-                .addComments("Validation task created")
-                .addDescriptions("Validation task using model " + modelURI + " and dataset " + datasetURI)
-                .addCreators(securityContext.getUserPrincipal().getName())
-                .build());
+                        .setCurrentDate()
+                        .addTitles("Validation on model: " + modelURI)
+                        .addComments("Validation task created")
+                        .addDescriptions("Validation task using model " + modelURI + " and dataset " + datasetURI)
+                        .addCreators(securityContext.getUserPrincipal().getName())
+                        .build());
         task.setType(Task.Type.VALIDATION);
         task.setHttpStatus(202);
         task.setStatus(Task.Status.QUEUED);
@@ -442,7 +420,7 @@ public class ValidationResource {
         options.put("base_uri", uriInfo.getBaseUri().toString());
         options.put("type", "EXTERNAL");
         options.put("api_key", apiKey);
-        options.put("creator", user.getId());
+        options.put("creator", user.get_id());
         options.put("validation_type", validationType);
 
         taskHandler.create(task);

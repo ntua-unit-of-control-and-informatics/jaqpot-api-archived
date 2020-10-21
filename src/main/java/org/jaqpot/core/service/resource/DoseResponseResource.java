@@ -33,15 +33,10 @@ package org.jaqpot.core.service.resource;
 //import io.swagger.annotations.ApiOperation;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.Parameters;
-import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeIn;
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
-import io.swagger.v3.oas.annotations.extensions.Extension;
-import io.swagger.v3.oas.annotations.extensions.ExtensionProperty;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -50,13 +45,11 @@ import org.jaqpot.core.data.ReportHandler;
 import org.jaqpot.core.data.UserHandler;
 import org.jaqpot.core.data.serialize.JSONSerializer;
 import org.jaqpot.core.model.Report;
-import org.jaqpot.core.model.User;
 import org.jaqpot.core.model.builder.MetaInfoBuilder;
 import org.jaqpot.core.model.dto.dataset.Dataset;
 import org.jaqpot.core.model.dto.jpdi.TrainingRequest;
 import org.jaqpot.core.model.facades.UserFacade;
 import org.jaqpot.core.model.util.ROG;
-import org.jaqpot.core.service.annotations.Authorize;
 import org.jaqpot.core.service.annotations.UnSecure;
 import org.jaqpot.core.service.exceptions.JaqpotDocumentSizeExceededException;
 import org.jaqpot.core.service.exceptions.QuotaExceededException;
@@ -74,6 +67,7 @@ import java.util.HashMap;
 import java.util.logging.Logger;
 import org.jaqpot.core.service.annotations.TokenSecured;
 import org.jaqpot.core.service.authentication.RoleEnum;
+import xyz.euclia.euclia.accounts.client.models.User;
 
 /**
  *
@@ -129,19 +123,10 @@ public class DoseResponseResource {
             @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class)) @HeaderParam("Authorization") String api_key
     ) throws QuotaExceededException,JaqpotDocumentSizeExceededException {
 
-        User user = userHandler.find(securityContext.getUserPrincipal().getName());
-        long reportCount = reportHandler.countAllOfCreator(user.getId());
-        int maxAllowedReports = new UserFacade(user).getMaxReports();
-
-        if (reportCount > maxAllowedReports) {
-            LOG.info(String.format("User %s has %d reports while maximum is %d",
-                    user.getId(), reportCount, maxAllowedReports));
-            throw new QuotaExceededException("Dear " + user.getId()
-                    + ", your quota has been exceeded; you already have " + reportCount + " reports. "
-                    + "No more than " + maxAllowedReports + " are allowed with your subscription.");
-        }
         String[] apiA = api_key.split("\\s+");
         String apiKey = apiA[1];
+        User user = userHandler.find(securityContext.getUserPrincipal().getName(), apiKey);
+
         Dataset dataset = client.target(datasetURI)
                 .request()
                 .header("Authorization", "Bearer " + apiKey)

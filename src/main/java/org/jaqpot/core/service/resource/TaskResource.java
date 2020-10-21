@@ -141,9 +141,9 @@ public class TaskResource {
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @Path("/{id}")
-    @Parameters({
-        @Parameter(name = "subjectid", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
-        @Parameter(name = "id", description = "ID of the task to be retrieved", schema = @Schema(implementation = String.class), in = ParameterIn.PATH)})
+//    @Parameters({
+//        @Parameter(name = "subjectid", schema = @Schema(implementation = String.class), in = ParameterIn.HEADER),
+//        @Parameter(name = "id", description = "ID of the task to be retrieved", schema = @Schema(implementation = String.class), in = ParameterIn.PATH)})
     @Operation(summary = "Finds Task by Id",
             description = "Finds specified Task",
             responses = {
@@ -154,7 +154,6 @@ public class TaskResource {
                 @ApiResponse(responseCode = "500", description = "Internal server error - this request cannot be served.")
             })
     public Response getTask(  
-            @HeaderParam("subjectid") String subjectId,
             @PathParam("id") String id) {
         Task task = taskHandler.find(id);
         if (task == null) {

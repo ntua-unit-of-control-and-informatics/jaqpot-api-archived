@@ -23,7 +23,6 @@ import org.jaqpot.core.data.ReportHandler;
 import org.jaqpot.core.data.UserHandler;
 import org.jaqpot.core.data.serialize.JSONSerializer;
 import org.jaqpot.core.model.Report;
-import org.jaqpot.core.model.User;
 import org.jaqpot.core.model.builder.MetaInfoBuilder;
 import org.jaqpot.core.model.dto.dataset.Dataset;
 import org.jaqpot.core.model.dto.jpdi.TrainingRequest;
@@ -47,6 +46,7 @@ import java.util.HashMap;
 import java.util.logging.Logger;
 import org.jaqpot.core.service.annotations.TokenSecured;
 import org.jaqpot.core.service.authentication.RoleEnum;
+import xyz.euclia.euclia.accounts.client.models.User;
 
 /**
  *
@@ -98,17 +98,7 @@ public class ReadAcrossResource {
 
         String[] apiA = api_key.split("\\s+");
         String apiKey = apiA[1];
-        User user = userHandler.find(securityContext.getUserPrincipal().getName());
-        long reportCount = reportHandler.countAllOfCreator(user.getId());
-        int maxAllowedReports = new UserFacade(user).getMaxReports();
-
-        if (reportCount > maxAllowedReports) {
-            LOG.info(String.format("User %s has %d reports while maximum is %d",
-                    user.getId(), reportCount, maxAllowedReports));
-            throw new QuotaExceededException("Dear " + user.getId()
-                    + ", your quota has been exceeded; you already have " + reportCount + " reports. "
-                    + "No more than " + maxAllowedReports + " are allowed with your subscription.");
-        }
+        User user = userHandler.find(securityContext.getUserPrincipal().getName(), apiKey);
 
         Dataset dataset = client.target(datasetURI)
                 .request()

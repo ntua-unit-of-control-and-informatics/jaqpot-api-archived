@@ -36,7 +36,7 @@ package org.jaqpot.core.service.httphandlers;
 
 import javax.ejb.Stateless;
 import org.jaqpot.core.model.MetaInfo;
-import org.jaqpot.core.model.User;
+import xyz.euclia.euclia.accounts.client.models.User;
 
 /**
  *
@@ -47,7 +47,7 @@ public class Rights {
 
     public Boolean canWrite(MetaInfo metaInfo, User user) {
         Boolean canWrite = false;
-        if (metaInfo.getCreators().contains(user.getId())) {
+        if (metaInfo.getCreators().contains(user.get_id())) {
             canWrite = true;
         }
         for (String org : user.getOrganizations()) {
@@ -60,7 +60,7 @@ public class Rights {
 
     public Boolean canTrash(MetaInfo metaInfo, User user) {
         Boolean canTrash = false;
-        if (metaInfo.getCreators().contains(user.getId())) {
+        if (metaInfo.getCreators().contains(user.get_id())) {
             canTrash = true;
         }
         return canTrash;
@@ -68,7 +68,7 @@ public class Rights {
 
     public Boolean canView(MetaInfo mf, User user) {
         Boolean canView = false;
-        if (mf.getCreators() != null && mf.getCreators().contains(user.getId())) {
+        if (mf.getCreators() != null && mf.getCreators().contains(user.get_id())) {
             canView = true;
         }
         if (mf.getRead() != null) {

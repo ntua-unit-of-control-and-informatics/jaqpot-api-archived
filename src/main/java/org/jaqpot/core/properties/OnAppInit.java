@@ -43,9 +43,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.PostConstruct;
@@ -60,15 +58,8 @@ import org.jaqpot.core.data.AlgorithmHandler;
 import org.jaqpot.core.data.DatasetHandler;
 import org.jaqpot.core.data.ModelHandler;
 import org.jaqpot.core.data.OrganizationHandler;
-import org.jaqpot.core.data.UserHandler;
 import org.jaqpot.core.messagebeans.IndexEntityProducer;
 import org.jaqpot.core.model.Algorithm;
-import org.jaqpot.core.model.MetaInfo;
-import org.jaqpot.core.model.Model;
-import org.jaqpot.core.model.Organization;
-import org.jaqpot.core.model.User;
-import org.jaqpot.core.model.builder.MetaInfoBuilder;
-import org.jaqpot.core.model.factory.OrganizationFactory;
 
 /**
  *
@@ -83,9 +74,6 @@ public class OnAppInit {
 
     @Inject
     PropertyManager propertyManager;
-
-    @Inject
-    UserHandler userHandler;
 
     @Inject
     AlgorithmHandler algoHandler;
@@ -107,16 +95,6 @@ public class OnAppInit {
 
     @PostConstruct
     void init() {
-        String userToSearch = "guest";
-        User user = userHandler.find(userToSearch);
-        if (user == null) {
-            User initialUser = this.firstUser();
-            try {
-                userHandler.create(initialUser);
-            } catch (JaqpotDocumentSizeExceededException e) {
-                e.printStackTrace();
-            }
-        }
 
         Algorithm algo = algoHandler.find("weka-svm");
         if (algo == null) {
@@ -126,70 +104,43 @@ public class OnAppInit {
                 try {
                     algoHandler.create(alg);
                 } catch (JaqpotDocumentSizeExceededException e) {
-                    e.printStackTrace();
+                    LOG.log(Level.SEVERE, e.getMessage());
                 }
             });
         }
-
-//        Long counted = datasetHandler.countAll();
-//
-//        if (counted.intValue() == 0) {
-//            this.restoreDatasets();
-//        }
        
     }
 
-    public User firstUser() {
-        User initialUser = new User();
-        initialUser.setId("guest");
-        initialUser.setName("guest");
-        Map<String, Integer> cap = new HashMap<>();
-        cap.put("models", 180);
-        cap.put("reports", 180);
-        cap.put("algorithms", 200);
-        cap.put("tasksParallel", 80);
-        cap.put("substances", 3000);
-        cap.put("bibtex", 200);
-        cap.put("datasets", 220);
-        initialUser.setCapabilities(cap);
-        Map<String, Integer> pub = new HashMap<>();
-        pub.put("models", 100);
-        pub.put("algorithms", 10);
-        pub.put("substances", 100);
-        pub.put("bibtex", 100);
-        initialUser.setPublicationRatePerWeek(pub);
-        return initialUser;
-    }
 
-    public Organization jaqpotOrganization() {
-        Organization org = null;
-        try {
-            org = OrganizationFactory.buildJaqpotOrg();
-//            String pic = this.getFile("jaqpot/jaqpotpng");
-            org.setCity("Athens");
-            org.setCountry("Greece");
-            org.setVisible(Boolean.TRUE);
-            org.setAbout("Jaqpot organization is created for all users."
-                    + " Once a user is created is automatically added to"
-                    + " this organization. A model or a dataset shared "
-                    + "on this organization will "
-                    + "automatically be shared with all the users of Jaqpot application");
-            org.setWebsite("https://app.jaqpot.org");
-            org.setContact("pantelispanka@gmail.com");
-            MetaInfo mf = MetaInfoBuilder
-                    .builder()
-                    .addDescriptions()
-                    .addSubjects()
-                    .addAudiences()
-                    .addComments().build();
-            org.setMeta(mf);
-//            org.setOrganizationPic(pic);
-        } catch (Exception e) {
-            LOG.log(Level.SEVERE, e.getMessage());
-        }
-
-        return org;
-    }
+//    public Organization jaqpotOrganization() {
+//        Organization org = null;
+//        try {
+//            org = OrganizationFactory.buildJaqpotOrg();
+////            String pic = this.getFile("jaqpot/jaqpotpng");
+//            org.setCity("Athens");
+//            org.setCountry("Greece");
+//            org.setVisible(Boolean.TRUE);
+//            org.setAbout("Jaqpot organization is created for all users."
+//                    + " Once a user is created is automatically added to"
+//                    + " this organization. A model or a dataset shared "
+//                    + "on this organization will "
+//                    + "automatically be shared with all the users of Jaqpot application");
+//            org.setWebsite("https://app.jaqpot.org");
+//            org.setContact("pantelispanka@gmail.com");
+//            MetaInfo mf = MetaInfoBuilder
+//                    .builder()
+//                    .addDescriptions()
+//                    .addSubjects()
+//                    .addAudiences()
+//                    .addComments().build();
+//            org.setMeta(mf);
+////            org.setOrganizationPic(pic);
+//        } catch (Exception e) {
+//            LOG.log(Level.SEVERE, e.getMessage());
+//        }
+//
+//        return org;
+//    }
 
     public List<Algorithm> readAlgorithms() {
 

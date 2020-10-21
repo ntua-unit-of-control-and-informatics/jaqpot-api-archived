@@ -104,7 +104,7 @@ public class SearchSessionProducer {
         }
     }
 
-    public void startSearchSession(String userId, String sessionId, String term) {
+    public void startSearchSession(String userId, String sessionId, String term, String apiKey) {
         if (pm.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_ENV).equals("dev")) {
             ProducerRecord<Long, String> record = new ProducerRecord<>(DEVTOPIC, 
                     "Search_session_" + sessionId + "_user_" +
@@ -119,7 +119,7 @@ public class SearchSessionProducer {
         } else {
             ProducerRecord<Long, String> record = new ProducerRecord<>(PRODTOPIC, 
                     "Search_session_" + sessionId + "_user_" +
-                    userId + "_term:" + term);
+                    userId + "_term:" + term + "&" + apiKey );
             try {
                 this.kafkaProducer.send(record).get();
             } catch (InterruptedException | ExecutionException e) {

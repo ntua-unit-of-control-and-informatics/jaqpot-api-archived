@@ -32,9 +32,6 @@ package org.jaqpot.core.service.resource;
 //import io.swagger.annotations.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.Parameters;
-import io.swagger.v3.oas.annotations.enums.ParameterIn;
-import io.swagger.v3.oas.annotations.enums.ParameterStyle;
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeIn;
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -42,7 +39,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Content;
 
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.io.IOException;
@@ -93,8 +89,9 @@ import org.jaqpot.core.service.exceptions.parameter.ParameterTypeException;
 import org.jaqpot.core.service.httphandlers.Rights;
 import org.jboss.resteasy.plugins.providers.multipart.InputPart;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput;
-
 import static org.jaqpot.core.util.CSVUtils.parseLine;
+import org.jaqpot.core.util.ObjectSizeEstimator;
+import xyz.euclia.euclia.accounts.client.models.User;
 
 /**
  *
@@ -160,6 +157,9 @@ public class DatasetResource {
 
     @Inject
     PropertyManager properyManager;
+    
+    @Inject
+    ObjectSizeEstimator ob;
 
     @Context
     SecurityContext securityContext;
@@ -167,15 +167,6 @@ public class DatasetResource {
     @GET
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
-//    @Parameters({
-////        @Parameter(name = "start", description = "start", schema = @Schema(implementation = Integer.class, defaultValue = "0"), in = ParameterIn.QUERY),
-//        @Parameter(name = "max", description = "max - the server imposes an upper limit of 500 on this "
-//                + "parameter.", schema = @Schema(implementation = Integer.class, defaultValue = "10"), in = ParameterIn.QUERY),
-//        @Parameter(name = "existence", description = "description for the dataset", required = false, schema = @Schema(implementation = String.class, allowableValues = {"UPLOADED", "CREATED", "TRANSFORMED", "PREDICTED", "FROMPRETRAINED", "DESCRIPTORS", "ALL"}), in = ParameterIn.QUERY),
-//        @Parameter(name = "ontrash", description = "onTrash for the dataset", required = false, schema = @Schema(implementation = Boolean.class, allowableValues = {"true", "false"}), in = ParameterIn.QUERY),
-//        @Parameter(name = "organization", description = "organization for the dataset", required = false, schema = @Schema(implementation = String.class), in = ParameterIn.QUERY),
-//        @Parameter(name = "byModel", description = "by Model", required = false, schema = @Schema(implementation = String.class), in = ParameterIn.QUERY)
-//    })
     @Operation(summary = "Finds all Datasets",
             description = "Finds all Datasets in the DB of Jaqpot and returns them in a list. Results can be obtained "
             + "either in the form of a URI list or as a JSON list as specified by the Accept HTTP header. "
@@ -204,7 +195,6 @@ public class DatasetResource {
             max = 500;
         }
         String creator = securityContext.getUserPrincipal().getName();
-
         List<Dataset> datasets = new ArrayList();
         Number total = null;
         if (datasetexistence == null || datasetexistence.equals("ALL")) {
@@ -451,18 +441,12 @@ public class DatasetResource {
             @Parameter(description = "Authorization token") @HeaderParam("Authorization") String api_key,
             Dataset dataset) throws QuotaExceededException, URISyntaxException, JaqpotDocumentSizeExceededException {
 
-        User user = userHandler.find(securityContext.getUserPrincipal().getName());
-        long datasetCount = datasetHandler.countCreatorsExistenseDatasets(user.getId(), Dataset.DatasetExistence.UPLOADED);
-        int maxAllowedDatasets = new UserFacade(user).getMaxDatasets();
-
-        if (datasetCount > maxAllowedDatasets) {
-            LOG.info(String.format("User %s has %d datasets while maximum is %d",
-                    user.getId(), datasetCount, maxAllowedDatasets));
-            throw new QuotaExceededException("Dear " + user.getId()
-                    + ", your quota has been exceeded; you already have " + datasetCount + " datasets. "
-                    + "No more than " + maxAllowedDatasets + " are allowed with your subscription.");
-        }
-
+        String[] apiA = api_key.split("\\s+");
+        String apiKey = apiA[1];
+//        User user = userHandler.find(securityContext.getUserPrincipal().getName(), apiKey);
+        
+        
+                
         ROG randomStringGenerator = new ROG(true);
         dataset.setId(randomStringGenerator.nextStringId(22));
         dataset.setFeatured(Boolean.FALSE);
@@ -494,22 +478,9 @@ public class DatasetResource {
                 @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorReport.class)), description = "Internal server error - this request cannot be served.")
             })
     public Response createEmptyDataset(
-            //@ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key,
             @Parameter(description = "Authorization token") @HeaderParam("Authorization") String api_key,
             @Parameter(name = "title", schema = @Schema(implementation = String.class)) @FormParam("title") String title,
             @Parameter(name = "description", schema = @Schema(implementation = String.class)) @FormParam("description") String description) throws URISyntaxException, QuotaExceededException, JaqpotDocumentSizeExceededException {
-
-        User user = userHandler.find(securityContext.getUserPrincipal().getName());
-        long datasetCount = datasetHandler.countAllOfCreator(user.getId());
-        int maxAllowedDatasets = new UserFacade(user).getMaxDatasets();
-
-        if (datasetCount > maxAllowedDatasets) {
-            LOG.info(String.format("User %s has %d datasets while maximum is %d",
-                    user.getId(), datasetCount, maxAllowedDatasets));
-            throw new QuotaExceededException("Dear " + user.getId()
-                    + ", your quota has been exceeded; you already have " + datasetCount + " datasets. "
-                    + "No more than " + maxAllowedDatasets + " are allowed with your subscription.");
-        }
 
         Dataset emptyDataset = DatasetFactory.createEmpty(0);
         ROG randomStringGenerator = new ROG(true);
@@ -549,17 +520,7 @@ public class DatasetResource {
 
         String[] apiA = api_key.split("\\s+");
         String apiKey = apiA[1];
-        User user = userHandler.find(securityContext.getUserPrincipal().getName());
-        long datasetCount = datasetHandler.countAllOfCreator(user.getId());
-        int maxAllowedDatasets = new UserFacade(user).getMaxDatasets();
-
-        if (datasetCount > maxAllowedDatasets) {
-            LOG.info(String.format("User %s has %d datasets while maximum is %d",
-                    user.getId(), datasetCount, maxAllowedDatasets));
-            throw new QuotaExceededException("Dear " + user.getId()
-                    + ", your quota has been exceeded; you already have " + datasetCount + " datasets. "
-                    + "No more than " + maxAllowedDatasets + " are allowed with your subscription.");
-        }
+//        User user = userHandler.find(securityContext.getUserPrincipal().getName(), apiKey);
 
         String[] datasets = datasetURIs.split(",");
         Dataset dataset = null;
@@ -569,7 +530,6 @@ public class DatasetResource {
                     .accept(MediaType.APPLICATION_JSON)
                     .header("Authorization", "Bearer " + apiKey)
                     .get(Dataset.class);
-            //dataset = DatasetFactory.mergeRows(dataset, d);
         }
         ROG randomStringGenerator = new ROG(true);
         dataset.setId(randomStringGenerator.nextString(14));
@@ -581,7 +541,6 @@ public class DatasetResource {
         dataset.getMeta().setCreators(new HashSet<>(Arrays.asList(securityContext.getUserPrincipal().getName())));
 
         datasetLegacyWrapper.create(dataset);
-        //datasetHandler.create(dataset);
 
         return Response.created(new URI(dataset.getId())).entity(dataset).build();
 
@@ -609,17 +568,7 @@ public class DatasetResource {
 
         String[] apiA = api_key.split("\\s+");
         String apiKey = apiA[1];
-        User user = userHandler.find(securityContext.getUserPrincipal().getName());
-        long datasetCount = datasetHandler.countAllOfCreator(user.getId());
-        int maxAllowedDatasets = new UserFacade(user).getMaxDatasets();
-
-        if (datasetCount > maxAllowedDatasets) {
-            LOG.info(String.format("User %s has %d datasets while maximum is %d",
-                    user.getId(), datasetCount, maxAllowedDatasets));
-            throw new QuotaExceededException("Dear " + user.getId()
-                    + ", your quota has been exceeded; you already have " + datasetCount + " datasets. "
-                    + "No more than " + maxAllowedDatasets + " are allowed with your subscription.");
-        }
+//        User user = userHandler.find(securityContext.getUserPrincipal().getName(), apiKey);
 
         String[] datasets = datasetURIs.split(",");
         Dataset dataset = null;
@@ -901,7 +850,6 @@ public class DatasetResource {
                 @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorReport.class)), description = "Internal server error - this request cannot be served.")
             })
     public Response createQPRFReportDummy(
-            //@ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key,
             @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class)) @HeaderParam("Authorization") String api_key,
             @Parameter(name = "id", schema = @Schema(implementation = String.class)) @PathParam("id") String id,
             @Parameter(name = "substance_uri", schema = @Schema(implementation = String.class)) @FormParam("substance_uri") String substanceURI,
@@ -1018,14 +966,12 @@ public class DatasetResource {
             structuresList.add(structuresMap);
             parameters.put("structures", structuresList);
         }
-
         parameters.put("predictedFeature",
                 model
                 .getPredictedFeatures()
                 .stream()
                 .findFirst()
                 .orElseThrow(() -> new BadRequestException("Model does not have a valid predicted feature")));
-
         parameters.put("algorithm", algorithmHandler.find(model.getAlgorithm().getId()));
         parameters.put("substanceURI", substanceURI);
         if (model.getLinkedModels() != null && !model.getLinkedModels().isEmpty()) {
@@ -1036,7 +982,6 @@ public class DatasetResource {
             }
         }
         TrainingRequest request = new TrainingRequest();
-
         request.setDataset(trainingDS);
         request.setParameters(parameters);
         request.setPredictionFeature(model.getDependentFeatures()
@@ -1045,29 +990,11 @@ public class DatasetResource {
                 .orElseThrow(() -> new BadRequestException("Model does not have a valid prediction feature")));
 
         return Response.ok(request).build();
-//        Report report = client.target("http://147.102.82.32:8094/pws/qprf")
-//                .request()
-//                .header("Content-Type", MediaType.APPLICATION_JSON)
-//                .accept(MediaType.APPLICATION_JSON)
-//                .post(Entity.json(request), Report.class);
-//
-//        report.setMeta(MetaInfoBuilder.builder()
-//                .addTitles(title)
-//                .addDescriptions(description)
-//                .addCreators(securityContext.getUserPrincipal().getName())
-//                .build()
-//        );
-//        report.setId(new ROG(true).nextString(15));
-//        report.setVisible(Boolean.TRUE);
-//        reportHandler.create(report);
-//
-//        return Response.ok(report).build();
     }
 
     @GET
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces({"application/json", MediaType.APPLICATION_JSON})
-
     @Path("{did}/dataentry/{id}")
     @Operation(summary = "Finds Data Entry by Id",
             description = "Finds specified Data Entry",
@@ -1185,10 +1112,12 @@ public class DatasetResource {
             Dataset datasetForUpdate) throws URISyntaxException, JaqpotDocumentSizeExceededException, JaqpotNotAuthorizedException {
         String userId = securityContext.getUserPrincipal().getName();
         Dataset dataset = datasetHandler.find(id);
+        String[] apiA = api_key.split("\\s+");
+        String apiKey = apiA[1];
         if (dataset == null) {
             throw new NotFoundException("Could not find Dataset with id:" + id);
         }
-        Boolean canUpdate = rights.canWrite(datasetForUpdate.getMeta(), userHandler.find(userId));
+        Boolean canUpdate = rights.canWrite(datasetForUpdate.getMeta(), userHandler.find(userId, apiKey));
         if (canUpdate == true) {
             datasetHandler.updateMeta(id, datasetForUpdate.getMeta());
         } else {
@@ -1217,11 +1146,13 @@ public class DatasetResource {
             @PathParam("id") String id,
             Dataset datasetForUpdate) throws URISyntaxException, JaqpotDocumentSizeExceededException, JaqpotNotAuthorizedException {
         String userId = securityContext.getUserPrincipal().getName();
+        String[] apiA = api_key.split("\\s+");
+        String apiKey = apiA[1];
         Dataset dataset = datasetHandler.find(id);
         if (dataset == null) {
             throw new NotFoundException("Could not find Dataset with id:" + id);
         }
-        Boolean canTrash = rights.canTrash(dataset.getMeta(), userHandler.find(userId));
+        Boolean canTrash = rights.canTrash(dataset.getMeta(), userHandler.find(userId, apiKey));
         if (canTrash == true) {
             datasetHandler.updateField(id, "onTrash", datasetForUpdate.getOnTrash());
         } else {
@@ -1243,25 +1174,15 @@ public class DatasetResource {
             }
     )
     public Response createDummyDataset(
-            @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(type = "string")) @HeaderParam("Authorization") String subjectId,
+            @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(type = "string")) @HeaderParam("Authorization") String api_key,
             @Parameter(name = "file", description = "xml[m,x] file", required = true, schema = @Schema(type = "string", format = "binary")) @FormParam("file") String file,
             @Parameter(name = "title", description = "Title of dataset", required = true, schema = @Schema(type = "string")) @FormParam("title") String title,
             @Parameter(name = "description", description = "Description of model", required = true, schema = @Schema(type = "string")) @FormParam("description") String description,
             @Parameter(description = "multipartFormData input", hidden = true) MultipartFormDataInput input) 
             throws ParameterIsNullException, ParameterInvalidURIException, QuotaExceededException, IOException, ParameterScopeException, ParameterRangeException, ParameterTypeException, URISyntaxException, JaqpotDocumentSizeExceededException {
 
-        User user = userHandler.find(securityContext.getUserPrincipal().getName());
-        long datasetCount = datasetHandler.countAllOfCreator(user.getId());
-        int maxAllowedDatasets = new UserFacade(user).getMaxDatasets();
-
-        if (datasetCount > maxAllowedDatasets) {
-            LOG.info(String.format("User %s has %d datasets while maximum is %d",
-                    user.getId(), datasetCount, maxAllowedDatasets));
-            throw new QuotaExceededException("Dear " + user.getId()
-                    + ", your quota has been exceeded; you already have " + datasetCount + " datasets. "
-                    + "No more than " + maxAllowedDatasets + " are allowed with your subscription.");
-        }
-
+        String[] apiA = api_key.split("\\s+");
+        String apiKey = apiA[1];
         Dataset dataset = new Dataset();
         Map<String, List<InputPart>> uploadForm = input.getFormDataMap();
         dataset.setFeatured(Boolean.FALSE);

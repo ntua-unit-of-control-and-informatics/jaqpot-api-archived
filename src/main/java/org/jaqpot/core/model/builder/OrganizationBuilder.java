@@ -34,13 +34,13 @@
  */
 package org.jaqpot.core.model.builder;
 
-import org.jaqpot.core.model.Organization;
+import xyz.euclia.euclia.accounts.client.models.Organization;
 
 /**
  *
  * @author pantelispanka
  */
-public class OrganizationBuilder implements EntityBuilder<Organization> {
+public class OrganizationBuilder {
 
     private final Organization organization;
 
@@ -49,16 +49,12 @@ public class OrganizationBuilder implements EntityBuilder<Organization> {
     }
 
     private OrganizationBuilder(String id){
-        organization = new Organization(id);
-        organization.setId(id);
+        organization = new Organization();
+        organization.set_id(id);
     }
 
-//    public OrganizationBuilder setOrganizationPic(String orgPic){
-//        organization.setOrganizationPic(orgPic);
-//        return this;
-//    }
     
-    @Override
+//    @Override
     public Organization build() {
         return organization;
     }

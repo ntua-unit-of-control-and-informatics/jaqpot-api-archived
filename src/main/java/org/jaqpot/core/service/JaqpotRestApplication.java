@@ -69,7 +69,7 @@ import org.jaqpot.core.service.authentication.TokenRequestFilter;
  *
  * @author Pantelis Sopasakis
  * @author Charalampos Chomenidis
- *
+ * @author pantelispanka
  */
 
 @ApplicationPath("/services")

@@ -26,7 +26,6 @@ import org.jaqpot.core.data.UserHandler;
 import org.jaqpot.core.data.serialize.JSONSerializer;
 import org.jaqpot.core.model.Algorithm;
 import org.jaqpot.core.model.Task;
-import org.jaqpot.core.model.User;
 import org.jaqpot.core.model.facades.UserFacade;
 import org.jaqpot.core.service.annotations.Authorize;
 import org.jaqpot.core.service.authentication.AAService;
@@ -59,6 +58,7 @@ import org.jaqpot.core.model.dto.dataset.Dataset;
 import org.jaqpot.core.service.annotations.TokenSecured;
 import org.jaqpot.core.service.authentication.RoleEnum;
 import org.jaqpot.core.service.data.PredictionService;
+import xyz.euclia.euclia.accounts.client.models.User;
 
 /**
  * Created by Angelos Valsamis on 23/10/2017.
@@ -153,17 +153,8 @@ public class BiokineticsResource {
         datasetUri = uploadForm.get("dataset-uri").get(0).getBody(String.class, null);
         //String datasetUri = uploadForm.get("dataset-uri").get(0).getBody(String.class, null);
 
-        User user = userHandler.find(securityContext.getUserPrincipal().getName());
-        long modelCount = modelHandler.countAllOfCreator(user.getId());
-        int maxAllowedModels = new UserFacade(user).getMaxModels();
-
-        if (modelCount > maxAllowedModels) {
-            LOG.info(String.format("User %s has %d model while maximum is %d",
-                    user.getId(), modelCount, maxAllowedModels));
-            throw new QuotaExceededException("Dear " + user.getId()
-                    + ", your quota has been exceeded; you already have " + modelCount + " models. "
-                    + "No more than " + maxAllowedModels + " are allowed with your subscription.");
-        }
+        User user = userHandler.find(securityContext.getUserPrincipal().getName(), apiKey);
+        long modelCount = modelHandler.countAllOfCreator(user.get_id());
         parameters = null;
         //String parameters = null;
         if (uploadForm.get("parameters") != null) {
@@ -259,17 +250,7 @@ public class BiokineticsResource {
             throw new ParameterIsNullException("description");
         }
 
-        User user = userHandler.find(securityContext.getUserPrincipal().getName());
-//        long modelCount = modelHandler.countAllOfCreator(user.getId());
-//        int maxAllowedModels = new UserFacade(user).getMaxModels();
-//
-//        if (modelCount > maxAllowedModels) {
-//            LOG.info(String.format("User %s has %d models while maximum is %d",
-//                    user.getId(), modelCount, maxAllowedModels));
-//            throw new QuotaExceededException("Dear " + user.getId()
-//                    + ", your quota has been exceeded; you already have " + modelCount + " models. "
-//                    + "No more than " + maxAllowedModels + " are allowed with your subscription.");
-//        }
+        User user = userHandler.find(securityContext.getUserPrincipal().getName(), apiKey);
 
         Map<String, Object> options = new HashMap<>();
         options.put("title", title);
@@ -292,7 +273,6 @@ public class BiokineticsResource {
 
         parameterValidator.validate(parameters, algorithm.getParameters());
 
-        //return Response.ok().build();
         Task task = trainingService.initiateTraining(options, securityContext.getUserPrincipal().getName());
 
         return Response.ok(task).build();
@@ -335,7 +315,7 @@ public class BiokineticsResource {
 
         UrlValidator urlValidator = new UrlValidator(UrlValidator.ALLOW_LOCAL_URLS);
 
-        User user = userHandler.find(securityContext.getUserPrincipal().getName());
+        User user = userHandler.find(securityContext.getUserPrincipal().getName(), apiKey);
 //        long datasetCount = datasetHandler.countAllOfCreator(user.getId());
 //        int maxAllowedDatasets = new UserFacade(user).getMaxDatasets();
 //

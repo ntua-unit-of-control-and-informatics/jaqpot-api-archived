@@ -69,13 +69,12 @@ import org.jaqpot.core.data.NotificationHandler;
 import org.jaqpot.core.data.OrganizationHandler;
 import org.jaqpot.core.model.Notification;
 import org.jaqpot.core.model.Notification.Type;
-import org.jaqpot.core.model.Organization;
-import org.jaqpot.core.model.User;
 import org.jaqpot.core.model.util.ROG;
-import org.jaqpot.core.properties.PropertyManager;
 import org.jaqpot.core.service.annotations.TokenSecured;
 import org.jaqpot.core.service.authentication.RoleEnum;
 import org.jaqpot.core.service.exceptions.JaqpotNotAuthorizedException;
+import org.jaqpot.core.service.exceptions.JaqpotWebException;
+import xyz.euclia.euclia.accounts.client.models.Organization;
 
 /**
  *
@@ -172,23 +171,25 @@ public class NotificationResource {
     public Response createNotification(
             @Parameter(name = "Authorization", description = "Clients need to authenticate in order to create notification", schema = @Schema(implementation = String.class)) @HeaderParam("Authorization") String api_key,
             Notification notif
-    ) throws JaqpotNotAuthorizedException {
+    ) throws JaqpotNotAuthorizedException, JaqpotWebException {
 
+        String[] apiA = api_key.split("\\s+");
+        String apiKey = apiA[1];
         String currentUserID = securityContext.getUserPrincipal().getName();
         
         if(notif.getType().equals(Type.AFFILIATION.toString())){
-            Organization org = orgHandler.find(notif.getOrganizationShared());
+            Organization org = orgHandler.find(notif.getOrganizationShared(), apiKey);
             if(org == null){
                 throw new BadRequestException("Organization not found");
             }
-            if(!org.getMeta().getCreators().contains(currentUserID) || org.getMeta().getContributors() != null && !org.getMeta().getContributors().contains(currentUserID)){
+            if(!org.getCreator().contains(currentUserID) || org.getAdmins() != null && !org.getUsers().contains(currentUserID)){
                 throw new JaqpotNotAuthorizedException("Cannot create the affiliation");
             }
-            Organization orgAffil = orgHandler.find(notif.getAffiliatedOrg());
+            Organization orgAffil = orgHandler.find(notif.getAffiliatedOrg(), apiKey);
             if(orgAffil == null){
                 throw new BadRequestException("Organization not found");
             }
-            if(!orgAffil.getMeta().getCreators().contains(currentUserID) || orgAffil.getMeta().getContributors() != null && !orgAffil.getMeta().getContributors().contains(currentUserID)){
+            if(!org.getCreator().contains(currentUserID) || org.getAdmins() != null && !org.getUsers().contains(currentUserID)){
                 throw new JaqpotNotAuthorizedException("Cannot create the affiliation");
             }
         }

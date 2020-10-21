@@ -36,11 +36,8 @@ package org.jaqpot.core.service.resource;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.github.fge.jsonpatch.JsonPatchException;
-//import io.swagger.annotations.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.Parameters;
-import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeIn;
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.extensions.Extension;
@@ -51,7 +48,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import io.swagger.v3.oas.annotations.tags.Tag;
-//import io.swagger.jaxrs.PATCH;
 import org.apache.commons.validator.routines.UrlValidator;
 import org.jaqpot.core.annotations.Jackson;
 import org.jaqpot.core.data.AlgorithmHandler;
@@ -62,16 +58,15 @@ import org.jaqpot.core.data.serialize.JSONSerializer;
 import org.jaqpot.core.model.*;
 import org.jaqpot.core.model.builder.AlgorithmBuilder;
 import org.jaqpot.core.model.dto.dataset.Dataset;
-import org.jaqpot.core.model.facades.UserFacade;
 import org.jaqpot.core.model.factory.ErrorReportFactory;
 import org.jaqpot.core.model.util.ROG;
-import org.jaqpot.core.service.annotations.TokenSecured;
 import org.jaqpot.core.service.data.TrainingService;
 import org.jaqpot.core.service.exceptions.JaqpotDocumentSizeExceededException;
 import org.jaqpot.core.service.exceptions.JaqpotForbiddenException;
 import org.jaqpot.core.service.exceptions.parameter.*;
 import org.jaqpot.core.service.exceptions.QuotaExceededException;
 import org.jaqpot.core.service.validator.ParameterValidator;
+import xyz.euclia.euclia.accounts.client.models.User;
 
 import javax.ejb.EJB;
 import javax.inject.Inject;
@@ -91,9 +86,7 @@ import org.jaqpot.core.service.authentication.RoleEnum;
  *
  */
 @Path("/algorithm")
-//@Api(value = "/algorithm", description = "Algorithms API")
 @Produces({"application/json", "text/uri-list"})
-//@Authorize
 @Tag(name = "algorithm")
 @SecurityScheme(name = "bearerAuth",
         type = SecuritySchemeType.HTTP,
@@ -160,25 +153,6 @@ public class AlgorithmResource {
     @GET
     @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
-    /*@ApiOperation(
-     value = "Finds all Algorithms",
-     notes = "Finds all Algorithms JaqpotQuattro supports",
-     extensions = {
-     @Extension(properties = {
-     @ExtensionProperty(name = "orn-@type", value = "x-orn:Algorithm"),
-     }
-     ),
-     @Extension(name = "orn:returns",properties={
-     @ExtensionProperty(name = "x-orn-@id", value = "x-orn:AlgorithmList")
-     })
-     }
-     )
-     @ApiResponses(value = {
-     @ApiResponse(code = 401, response=  ErrorReport.class , message = "Wrong, missing or insufficient credentials. Error report is produced."),
-     @ApiResponse(code = 200,  response = Algorithm.class, responseContainer = "List" , message = "A list of algorithms in the Jaqpot framework"),
-     @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
-
-     })*/
     @Operation(
             summary = "Finds all Algorithms",
             extensions = {
@@ -248,17 +222,11 @@ public class AlgorithmResource {
             @Parameter(description = "Tags for your algorithm (in a comma separated list) to facilitate look-up", schema = @Schema(implementation = String.class)) @HeaderParam("tags") String tags
     ) throws QuotaExceededException, JaqpotDocumentSizeExceededException {
 
-        User user = userHandler.find(securityContext.getUserPrincipal().getName());
-        long algorithmCount = algorithmHandler.countAllOfCreator(user.getId());
-        int maxAllowedAlgorithms = new UserFacade(user).getMaxAlgorithms();
-
-        if (algorithmCount > maxAllowedAlgorithms) {
-            LOG.info(String.format("User %s has %d algorithms while maximum is %d",
-                    user.getId(), algorithmCount, maxAllowedAlgorithms));
-            throw new QuotaExceededException("Dear " + user.getId()
-                    + ", your quota has been exceeded; you already have " + algorithmCount + " algorithms. "
-                    + "No more than " + maxAllowedAlgorithms + " are allowed with your subscription.");
-        }
+        
+        String[] apiA = api_key.split("\\s+");
+        String apiKey = apiA[1];
+        
+        User user = userHandler.find(securityContext.getUserPrincipal().getName(), apiKey);
 
         if (algorithm.getId() == null) {
             ROG rog = new ROG(true);
@@ -409,17 +377,7 @@ public class AlgorithmResource {
             throw new ParameterIsNullException("description");
         }
 
-        User user = userHandler.find(securityContext.getUserPrincipal().getName());
-        long modelCount = modelHandler.countAllOfCreator(user.getId());
-        int maxAllowedModels = new UserFacade(user).getMaxModels();
-
-        if (modelCount > maxAllowedModels) {
-            LOG.info(String.format("User %s has %d models while maximum is %d",
-                    user.getId(), modelCount, maxAllowedModels));
-            throw new QuotaExceededException("Dear " + user.getId()
-                    + ", your quota has been exceeded; you already have " + modelCount + " models. "
-                    + "No more than " + maxAllowedModels + " are allowed with your subscription.");
-        }
+        User user = userHandler.find(securityContext.getUserPrincipal().getName(), apiKey);
 
         Map<String, Object> options = new HashMap<>();
         options.put("title", title);

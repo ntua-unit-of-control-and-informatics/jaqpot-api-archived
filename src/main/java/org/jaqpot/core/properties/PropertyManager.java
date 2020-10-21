@@ -42,7 +42,6 @@ import javax.ejb.Singleton;
 import javax.ejb.Startup;
 import org.bson.types.ObjectId;
 import org.jaqpot.core.data.UserHandler;
-import org.jaqpot.core.model.User;
 
 /**
  * @author Angelos Valsamis
@@ -109,8 +108,13 @@ public class PropertyManager {
         REDIS_EXISTS("redis.exists", "config", "false"),
         REDIS_DB("redis.db", "config", "localhost"),
         REDIS_ON_CLUSTER("redis.on.cluster", "config", "false"),
-        REDIS_CLUSTER("redis.cluster", "config", "redis-cluster.redis:6379");
+        REDIS_CLUSTER("redis.cluster", "config", "redis-cluster.redis:6379"),
         
+        QUOTS_URL("quots.url", "config", "http://localhost:8000"),
+        QUOTS_APP("quots.app", "config", "jaqpot"),
+        QUOTS_APP_ID("quots.app.id", "config", "VHChwwYKgsvmKQRF"),
+        
+        EUCLIA_ACCOUNTS_URL("euclia.accounts.url", "config", "https://accountsapi.jaqpot.org");
         
         private final String name;
         private final String bundle;
