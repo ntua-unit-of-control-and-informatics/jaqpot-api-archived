@@ -204,27 +204,27 @@ public class IndexEntityProducer {
                 }
                 break;
             case DATASET:
-                if (pm.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_ENV).equals("dev")) {
-                    ProducerRecord<Long, String> record
-                            = new ProducerRecord<>(DEVTOPIC, "Index_dataset_" + enityId);
-                    try {
-                        this.kafkaProducer.send(record).get();
-                    } catch (InterruptedException | ExecutionException e) {
-                        logger.log(Level.SEVERE, "Cannot send {0}", enityId);
-                    } finally {
-                        this.kafkaProducer.flush();
-                    }
-                } else if(pm.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_ENV).equals("prod")){
-                    ProducerRecord<Long, String> record = new ProducerRecord<>(PRODTOPIC, "Index_dataset_" + enityId);
-                    try {
-                        this.kafkaProducer.send(record).get();
-                    } catch (InterruptedException | ExecutionException e) {
-                        logger.log(Level.SEVERE, "Cannot send {0}", enityId);
-                    } finally {
-                        this.kafkaProducer.flush();
-                    }
-                }
                 break;
+                // if (pm.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_ENV).equals("dev")) {
+                //     ProducerRecord<Long, String> record
+                //             = new ProducerRecord<>(DEVTOPIC, "Index_dataset_" + enityId);
+                //     try {
+                //         this.kafkaProducer.send(record).get();
+                //     } catch (InterruptedException | ExecutionException e) {
+                //         logger.log(Level.SEVERE, "Cannot send {0}", enityId);
+                //     } finally {
+                //         this.kafkaProducer.flush();
+                //     }
+                // } else if(pm.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_ENV).equals("prod")){
+                //     ProducerRecord<Long, String> record = new ProducerRecord<>(PRODTOPIC, "Index_dataset_" + enityId);
+                //     try {
+                //         this.kafkaProducer.send(record).get();
+                //     } catch (InterruptedException | ExecutionException e) {
+                //         logger.log(Level.SEVERE, "Cannot send {0}", enityId);
+                //     } finally {
+                //         this.kafkaProducer.flush();
+                //     }
+                // }
         }
 
     }

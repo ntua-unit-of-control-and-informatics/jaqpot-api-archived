@@ -21,13 +21,15 @@
         }
     },
     "mappings": {
-        "meta_doc": {
+        "properties": { 
+          "true_name": {
             "properties": {
-                "meta": {
-                    "type":     "text",
-                    "analyzer": "trigrams" 
-                }
+              "correct": {
+                "type": "text",
+                "analyzer": "trigrams"
+              }
             }
+          }
         }
-    }
+      }
 }

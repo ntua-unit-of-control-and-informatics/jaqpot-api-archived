@@ -96,11 +96,14 @@ public class PropertyManager {
         OIDC_CLIENT_ID("oidc.client.id", "config", "jaqpot-api"),
         OIDC_CLIENT_PASS("oidc.client.pass", "config", "9dccac19-23c6-49be-83be-8f07859d263f"),
         OIDC_PROVIDER_CONF("oidc.provider.conf", "config", ".well-known/openid-configuration"),
-        
-        ELASTIC_HOST("elastic.host","config", "192.168.10.80"),
-        ELASTIC_PORT("elastic.port", "config", "30995"),
-        ELASTIC_EXISTS("elastic.exists", "config", "false"),
-        
+        ELASTIC_HOST("elastic.host","config", "192.168.10.100"),
+        ELASTIC_PORT("elastic.port", "config", "31643"),
+        ELASTIC_EXISTS("elastic.exists", "config", "true"),
+        ELASTIC_AUTH("elastic.auth", "config", "true"),
+        ELASTIC_USER("elastic.user", "config", "elastic"),
+        ELASTIC_PASS("elastic.pass", "config", "52Uj482Q00djvkJ5VYfP0n6L"),
+
+
         KAFKA_BOOTSTRAP("kafka.bootstrap","config", "192.168.10.84:32400,192.168.10.84:32401,192.168.10.84:32402"),
         KAFKA_EXISTS("kafka.exists", "config", "false"),
         KAFKA_REPLICATION("kafka.replication", "config", "3"),
@@ -112,7 +115,7 @@ public class PropertyManager {
         
         QUOTS_URL("quots.url", "config", "http://localhost:8000"),
         QUOTS_APP("quots.app", "config", "jaqpot"),
-        QUOTS_APP_ID("quots.app.id", "config", "VHChwwYKgsvmKQRF"),
+        QUOTS_APP_SECRET("quots.app.secret", "config", "VHChwwYKgsvmKQRF"),
         
         EUCLIA_ACCOUNTS_URL("euclia.accounts.url", "config", "https://accountsapi.jaqpot.org");
         

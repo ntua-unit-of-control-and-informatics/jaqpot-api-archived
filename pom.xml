@@ -4,7 +4,7 @@
 
     <groupId>org.jaqpot</groupId>
     <artifactId>jaqpot-api</artifactId>
-    <version>5.0.1</version>
+    <version>5.0.22</version>
     <packaging>war</packaging>
     
     <dependencies>
@@ -156,7 +156,7 @@
         <dependency>
             <groupId>org.jaqpot</groupId>
             <artifactId>ambit-client</artifactId>
-            <version>1.0.7</version>
+            <version>1.0.3</version>
         </dependency>
         <dependency>
             <groupId>xyz.euclia</groupId>
@@ -299,7 +299,9 @@
         <elastic.host></elastic.host>
         <elastic.port></elastic.port>
         <elastic.exists></elastic.exists>
-
+        <elastic.auth></elastic.auth>
+        <elastic.user></elastic.user>
+        <elastic.pass></elastic.pass>
         <kafka.bootstrap></kafka.bootstrap>
         <kafka.exists></kafka.exists>
         <kafka.replication></kafka.replication>   
@@ -311,7 +313,7 @@
                                              
         <quots.url></quots.url>
         <quots.app></quots.app>
-        <quots.app.id></quots.app.id>  
+        <quots.app.secret></quots.app.secret>  
         
         <euclia.accounts.url></euclia.accounts.url>
     </properties>

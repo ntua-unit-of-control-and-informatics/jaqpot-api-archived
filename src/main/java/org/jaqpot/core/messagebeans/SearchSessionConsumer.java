@@ -61,6 +61,7 @@ import org.jaqpot.core.model.Model;
 import org.jaqpot.core.model.dto.dataset.Dataset;
 import org.jaqpot.core.properties.PropertyManager;
 import org.jaqpot.core.search.dto.ElasticResponse;
+import org.jaqpot.core.search.dto.Total;
 import org.jaqpot.core.search.engine.JaqpotSearch;
 import org.jaqpot.core.service.httphandlers.Rights;
 import org.jaqpot.core.sessions.SessionClient;
@@ -191,10 +192,10 @@ public class SearchSessionConsumer {
 
             redis.searchSession(sessionId, foundEntities, Boolean.FALSE);
 
-            Integer total = elResp.getHits().getTotal();
+            Total total = elResp.getHits().getTotal();
             List<String> foundEntities2 = new ArrayList();
-            if (size < total) {
-                while (size < total) {
+            if (size < total.getValue()) {
+                while (size < total.getValue()) {
                     from = size;
                     size = size + 20;
                     elResp = jSearch.search(term, from, size);

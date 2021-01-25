@@ -40,7 +40,12 @@ import javax.inject.Inject;
 import javax.ws.rs.InternalServerErrorException;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.CredentialsProvider;
 import org.apache.http.entity.ContentType;
+import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;
 import org.apache.http.nio.entity.NStringEntity;
 import org.apache.http.util.EntityUtils;
 import org.elasticsearch.client.Request;
@@ -48,7 +53,7 @@ import org.elasticsearch.client.Response;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestClientBuilder;
 import org.jaqpot.core.properties.PropertyManager;
-
+import org.elasticsearch.client.RestClientBuilder.HttpClientConfigCallback;
 /**
  *
  * @author Pantelis Karatzas
@@ -89,11 +94,55 @@ public class JaqpotElasticSearch {
             LOG.log(Level.INFO, "ElasticSearch host : {0}", this.elasticHost);
             LOG.log(Level.INFO, "ElasticSearch port : {0}", this.elasticPort);
 
-            RestClientBuilder builder = RestClient.builder(
-                    new HttpHost(this.elasticHost, this.elasticPort)
-            );
-            builder.setMaxRetryTimeoutMillis(10000);
-            this.elCl = builder.build();
+            if(propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.ELASTIC_AUTH) == "true"){
+                
+                String usrname = propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.ELASTIC_USER);
+                String pass = propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.ELASTIC_PASS);
+                final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
+                credentialsProvider.setCredentials(AuthScope.ANY,
+                    new UsernamePasswordCredentials(usrname, pass));
+
+                RestClientBuilder builder = RestClient.builder(
+                    new HttpHost(this.elasticHost, this.elasticPort))
+                        .setHttpClientConfigCallback(new HttpClientConfigCallback() {
+                            @Override
+                            public HttpAsyncClientBuilder customizeHttpClient(
+                                    HttpAsyncClientBuilder httpClientBuilder) {
+                                return httpClientBuilder
+                                    .setDefaultCredentialsProvider(credentialsProvider);
+                            }
+                });
+
+
+                // String usrname = propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.ELASTIC_USER);
+                // String pass = propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.ELASTIC_PASS);
+                // final CredentialsProvider credentialsProvider =
+                // new BasicCredentialsProvider();
+                //     credentialsProvider.setCredentials(AuthScope.ANY,
+                // new UsernamePasswordCredentials(usrname,pass));
+                // RestClientBuilder builder = RestClient.builder(
+                //     new HttpHost(this.elasticHost, this.elasticPort))
+                //     .setHttpClientConfigCallback(new HttpClientConfigCallback() {
+                //         @Override
+                //         public HttpAsyncClientBuilder customizeHttpClient(
+                //                 HttpAsyncClientBuilder httpClientBuilder) {
+                //             return httpClientBuilder
+                //                 .setDefaultCredentialsProvider(credentialsProvider);
+                //         }
+                //     });
+
+
+                builder.setMaxRetryTimeoutMillis(10000);
+                this.elCl = builder.build();
+            }else{
+                RestClientBuilder builder = RestClient.builder(
+                        new HttpHost(this.elasticHost, this.elasticPort)
+                );
+                builder.setMaxRetryTimeoutMillis(10000);
+                this.elCl = builder.build();
+
+            }
+
 
             this.checkForIndices();
         }

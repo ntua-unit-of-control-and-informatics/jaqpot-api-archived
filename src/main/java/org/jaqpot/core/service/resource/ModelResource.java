@@ -32,8 +32,6 @@ package org.jaqpot.core.service.resource;
 //import io.swagger.annotations.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.Parameters;
-import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.extensions.Extension;
 import io.swagger.v3.oas.annotations.extensions.ExtensionProperty;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -632,6 +630,7 @@ public class ModelResource {
     @org.jaqpot.core.service.annotations.Task
     public Response makePrediction(
             @Parameter(name = "dataset_uri", description = "dataset_uri", required = true, schema = @Schema(implementation = String.class)) @FormParam("dataset_uri") String datasetURI,
+            @Parameter(name = "doa", description = "doa", required = true, schema = @Schema(implementation = String.class)) @FormParam("doa") String doa,
             @Parameter(name = "visible", description = "visible", required = true, schema = @Schema(implementation = Boolean.class)) @FormParam("visible") Boolean visible,
             @Parameter(name = "id", description = "id", schema = @Schema(implementation = String.class)) @PathParam("id") String id,
             @Parameter(name = "Authorization", description = "Authorization required", schema = @Schema(implementation = String.class)) @HeaderParam("Authorization") String api_key) throws GeneralSecurityException, QuotaExceededException, ParameterIsNullException, ParameterInvalidURIException, JaqpotDocumentSizeExceededException, InterruptedException, ExecutionException, InternalServerErrorException, JaqpotNotAuthorizedException, ParseException, JaqpotNotAuthorizedException, ParseException {
@@ -673,6 +672,7 @@ public class ModelResource {
         options.put("dataset_uri", datasetURI);
         options.put("api_key", apiKey);
         options.put("modelId", id);
+        options.put("doa", doa);
         options.put("creator", securityContext.getUserPrincipal().getName());
         options.put("base_uri", uriInfo.getBaseUri().toString());
         Task task = predictionService.initiatePrediction(options);
@@ -716,6 +716,7 @@ public class ModelResource {
             throw new QuotaExceededException("Dear user, your credits has been "
                     + "exceeded. Request for more through accounts.jaqpot.org");
         }
+        
         Model model = new Model();
 
         model.setId(randomStringGenerator.nextStringId(20));
@@ -859,49 +860,6 @@ public class ModelResource {
         model.setAdditionalInfo(additionalInfo);
         model.setPretrained(Boolean.TRUE);
 
-//        Dataset datasetForPretrained = DatasetFactory.createEmpty(0);
-//        ROG randomStringGenerator = new ROG(true);
-//        datasetForPretrained.setId(randomStringGenerator.nextString(14));
-//        datasetForPretrained.setFeatured(Boolean.FALSE);
-//        datasetForPretrained.setMeta(MetaInfoBuilder.builder()
-//                .addTitles("Dataset for pretrained model " + model.getMeta().getTitles().toArray()[0])
-//                .addDescriptions("Dataset created to hold the independent and predictes features for "
-//                        + "the pretrained model " + model.getMeta().getTitles().toArray()[0])
-//                .addCreators(apiA)
-//                .build()
-//        );
-//
-//        datasetForPretrained.getMeta().setCreators(new HashSet<>(Arrays.asList(securityContext.getUserPrincipal().getName())));
-//        datasetForPretrained.setVisible(Boolean.TRUE);
-//        datasetForPretrained.setExistence(Dataset.DatasetExistence.FROMPRETRAINED);
-//        datasetForPretrained = DatasetFactory.addNullFeaturesFromPretrained(datasetForPretrained, pretrainedIndependentFeatures, pretrainedPredictedFeatures);
-//
-//        Set<FeatureInfo> featureInfos = new HashSet();
-//        for (String indFeat : model.getIndependentFeatures()) {
-//            String[] indFs = indFeat.split("/");
-//            Feature feature = featureHandler.find(indFs[indFs.length - 1]);
-//            FeatureInfo featInfo = new FeatureInfo();
-//            featInfo.setName(feature.getMeta().getTitles().toArray()[0].toString());
-//            String featureURI = propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_BASE_SERVICE) + "feature/" + feature.getId();
-//            featInfo.setURI(featureURI);
-//            featureInfos.add(featInfo);
-//        }
-//        for (String depFeat : model.getPredictedFeatures()) {
-//            String[] indFs = depFeat.split("/");
-//            Feature feature = featureHandler.find(indFs[indFs.length - 1]);
-//            FeatureInfo featInfo = new FeatureInfo();
-//            featInfo.setName(feature.getMeta().getTitles().toArray()[0].toString());
-//            String featureURI = propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_BASE_SERVICE) + "feature/" + feature.getId();
-//            featInfo.setURI(featureURI);
-//            featureInfos.add(featInfo);
-//        }
-//
-//        datasetForPretrained.setFeatures(featureInfos);
-//
-//        datasetLegacyWrapper.create(datasetForPretrained);
-        //datasetHandler.create(datasetForPretrained);
-//        String datasetURI = propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_BASE_SERVICE) + "dataset/" + datasetForPretrained.getId();
-//        model.setDatasetUri(datasetURI);
         modelHandler.create(model);
 
         if (propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.KAFKA_EXISTS).equals("true")) {

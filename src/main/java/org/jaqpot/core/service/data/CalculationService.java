@@ -2,8 +2,6 @@ package org.jaqpot.core.service.data;
 
 import org.jaqpot.core.data.TaskHandler;
 import org.jaqpot.core.model.Task;
-import org.jaqpot.core.model.dto.dataset.Dataset;
-import org.jaqpot.core.model.dto.dataset.FeatureInfo;
 import org.jaqpot.core.model.factory.TaskFactory;
 import org.jaqpot.core.service.exceptions.JaqpotDocumentSizeExceededException;
 
@@ -14,10 +12,9 @@ import javax.inject.Inject;
 import javax.jms.JMSContext;
 import javax.jms.Topic;
 import java.util.Map;
-import java.util.Set;
 
 /**
- * Created by Angelos Valsamis on 29/3/2017.
+ *  @author pantelispanka
  */
 
 @Stateless

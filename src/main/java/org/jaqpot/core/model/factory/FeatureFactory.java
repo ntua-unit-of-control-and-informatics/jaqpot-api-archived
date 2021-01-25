@@ -31,8 +31,6 @@ package org.jaqpot.core.model.factory;
 
 import java.util.HashSet;
 import java.util.Set;
-import javax.ejb.EJB;
-import org.jaqpot.core.data.FeatureHandler;
 import org.jaqpot.core.model.Feature;
 import org.jaqpot.core.model.MetaInfo;
 import org.jaqpot.core.model.builder.MetaInfoBuilder;

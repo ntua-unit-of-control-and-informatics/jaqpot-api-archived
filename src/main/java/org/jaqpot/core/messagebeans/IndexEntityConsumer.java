@@ -143,162 +143,165 @@ public class IndexEntityConsumer {
                     this.indexModel(r);
                     break;
                 case "dataset":
-                    this.indexDataset(r);
+                    // this.indexDataset(r);
                     break;
             }
 
         });
     }
 
-    public void indexDataset(ConsumerRecord<Long, String> consumerRecord) {
-        String[] message = consumerRecord.value().toString().split("_");
-        String datasetId = message[message.length - 1];
-        String indexType = message[0];
-        Dataset dataset = dh.find(datasetId);
-        StringBuilder sb = new StringBuilder();
-        if (dataset.getMeta() != null) {
-            if (dataset.getMeta().getTitles() != null) {
-                dataset.getMeta().getTitles().forEach(t -> {
-                    sb.append(t).append(" ");
-                });
-            }
-            if (dataset.getMeta().getAudiences() != null) {
-                dataset.getMeta().getAudiences().forEach(a -> {
-                    sb.append(a).append(" ");
-                });
-            }
-            if (dataset.getMeta().getComments() != null) {
-                dataset.getMeta().getComments().forEach(c -> {
-                    sb.append(c).append(" ");
-                });
-            }
-            if (dataset.getMeta().getTags() != null) {
-                dataset.getMeta().getTags().forEach(t -> {
-                    sb.append(t).append(" ");
-                });
-            }
-            if (dataset.getMeta().getDescriptions() != null) {
-                dataset.getMeta().getDescriptions().forEach(d -> {
-                    sb.append(d).append(" ");
-                });
-            }
-            if (dataset.getMeta().getIdentifiers() != null) {
-                dataset.getMeta().getIdentifiers().forEach(i -> {
-                    sb.append(i).append(" ");
-                });
-            }
-            if (dataset.getMeta().getMarkdown() != null) {
-                String markString = dataset.getMeta().getMarkdown()
-                        .replace("\n", "")
-                        .replace("\r", " ")
-                        .replace("#", " ")
-                        .replace('"', ' ')
-                        .replaceAll("(\\d+)-(?=\\d)", "$1_")
-                        .replace("-", " ")
-                        .replace(".", " ")
-                        .replace(":", " ")
-                        .replace("[", " ")
-                        .replace("]", " ")
-                        .replace(";", " ")
-                        .replaceAll(":", " ")
-                        .replace("<", " ")
-                        .replace(">", " ")
-                        .replace("*", " ");
-                sb.append(markString).append(" ");
-            }
-            if (dataset.getMeta().getRead() != null) {
-                dataset.getMeta().getRead().forEach(i -> {
-                    sb.append(i).append(" ");
-                });
-            }
-            dataset.getFeatures().forEach(depf -> {
-                String[] featUri = depf.getURI().split("/");
-                Feature feat = fh.find(featUri[featUri.length - 1]);
-                if (feat.getMeta() != null) {
-                    if (feat.getMeta().getTitles() != null) {
-                        feat.getMeta().getTitles().forEach(t -> {
-                            sb.append("Predicts ").append(t).append(" ");
-                        });
-                    }
-                    if (feat.getMeta().getAudiences() != null) {
-                        feat.getMeta().getAudiences().forEach(a -> {
-                            sb.append(a).append(" ");
-                        });
-                    }
-                    if (feat.getMeta().getComments() != null) {
-                        feat.getMeta().getComments().forEach(c -> {
-                            sb.append(c).append(" ");
-                        });
-                    }
-                    if (feat.getMeta().getTags() != null) {
-                        feat.getMeta().getTags().forEach(t -> {
-                            sb.append(t).append(" ");
-                        });
-                    }
-                    if (feat.getMeta().getDescriptions() != null) {
-                        feat.getMeta().getDescriptions().forEach(d -> {
-                            sb.append(d).append(" ");
-                        });
-                    }
-                    if (feat.getMeta().getIdentifiers() != null) {
-                        feat.getMeta().getIdentifiers().forEach(i -> {
-                            sb.append(i).append(" ");
-                        });
-                    }
-                    if (feat.getMeta().getMarkdown() != null) {
-                        String markString = feat.getMeta().getMarkdown();
-                        sb.append(markString).append(" ");
-                    }
-                }
-            });
-        }
+    // public void indexDataset(ConsumerRecord<Long, String> consumerRecord) {
+    //     String[] message = consumerRecord.value().toString().split("_");
+    //     String datasetId = message[message.length - 1];
+    //     String indexType = message[0];
+    //     Dataset dataset = dh.find(datasetId);
+    //     StringBuilder sb = new StringBuilder();
+    //     if (dataset.getMeta() != null) {
+    //         if (dataset.getMeta().getTitles() != null) {
+    //             dataset.getMeta().getTitles().forEach(t -> {
+    //                 sb.append(t).append(" ");
+    //             });
+    //         }
+    //         if (dataset.getMeta().getAudiences() != null) {
+    //             dataset.getMeta().getAudiences().forEach(a -> {
+    //                 sb.append(a).append(" ");
+    //             });
+    //         }
+    //         if (dataset.getMeta().getComments() != null) {
+    //             dataset.getMeta().getComments().forEach(c -> {
+    //                 sb.append(c).append(" ");
+    //             });
+    //         }
+    //         if (dataset.getMeta().getTags() != null) {
+    //             dataset.getMeta().getTags().forEach(t -> {
+    //                 sb.append(t).append(" ");
+    //             });
+    //         }
+    //         if (dataset.getMeta().getDescriptions() != null) {
+    //             dataset.getMeta().getDescriptions().forEach(d -> {
+    //                 sb.append(d).append(" ");
+    //             });
+    //         }
+    //         if (dataset.getMeta().getIdentifiers() != null) {
+    //             dataset.getMeta().getIdentifiers().forEach(i -> {
+    //                 sb.append(i).append(" ");
+    //             });
+    //         }
+    //         if (dataset.getMeta().getMarkdown() != null) {
+    //             String markString = dataset.getMeta().getMarkdown()
+    //                     .replace("\n", "")
+    //                     .replace("\r", " ")
+    //                     .replace("#", " ")
+    //                     .replace('"', ' ')
+    //                     .replaceAll("(\\d+)-(?=\\d)", "$1_")
+    //                     .replace("-", " ")
+    //                     .replace(".", " ")
+    //                     .replace(":", " ")
+    //                     .replace("[", " ")
+    //                     .replace("]", " ")
+    //                     .replace(";", " ")
+    //                     .replaceAll(":", " ")
+    //                     .replace("<", " ")
+    //                     .replace(">", " ")
+    //                     .replace("*", " ")
+    //                     .replace("|", " ")
+    //                     .replace("(", "").replace(")", "").replace(",", "").replace("#", " ").replace("!", " ").replace("$", " ").replace("?", " ");
+    //             sb.append(markString).append(" ");
+    //         }
+    //         if (dataset.getMeta().getRead() != null) {
+    //             dataset.getMeta().getRead().forEach(i -> {
+    //                 sb.append(i).append(" ");
+    //             });
+    //         }
+    //         dataset.getFeatures().forEach(depf -> {
+    //             String[] featUri = depf.getURI().split("/");
+    //             Feature feat = fh.find(featUri[featUri.length - 1]);
+    //             if (feat.getMeta() != null) {
+    //                 if (feat.getMeta().getTitles() != null) {
+    //                     feat.getMeta().getTitles().forEach(t -> {
+    //                         sb.append("Predicts ").append(t).append(" ");
+    //                     });
+    //                 }
+    //                 if (feat.getMeta().getAudiences() != null) {
+    //                     feat.getMeta().getAudiences().forEach(a -> {
+    //                         sb.append(a).append(" ");
+    //                     });
+    //                 }
+    //                 if (feat.getMeta().getComments() != null) {
+    //                     feat.getMeta().getComments().forEach(c -> {
+    //                         sb.append(c).append(" ");
+    //                     });
+    //                 }
+    //                 if (feat.getMeta().getTags() != null) {
+    //                     feat.getMeta().getTags().forEach(t -> {
+    //                         sb.append(t).append(" ");
+    //                     });
+    //                 }
+    //                 if (feat.getMeta().getDescriptions() != null) {
+    //                     feat.getMeta().getDescriptions().forEach(d -> {
+    //                         sb.append(d).append(" ");
+    //                     });
+    //                 }
+    //                 if (feat.getMeta().getIdentifiers() != null) {
+    //                     feat.getMeta().getIdentifiers().forEach(i -> {
+    //                         sb.append(i).append(" ");
+    //                     });
+    //                 }
+    //                 if (feat.getMeta().getMarkdown() != null) {
+    //                     String markString = feat.getMeta().getMarkdown();
+    //                     sb.append(markString).append(" ");
+    //                 }
+    //             }
+    //         });
+    //     }
 
-        String forIndex = sb.toString()
-                .replace('\n', ' ')
-                .replace('\r', ' ')
-                .replace('\\', ',')
-                .replace('/', ' ')
-                .replaceAll("/", " ")
-                .replaceAll("\\\\", " ")
-                .replace('"', ' ')
-                .replaceAll("(\\d+)-(?=\\d)", "$1_")
-                .replace("-", " ")
-                .replace(".", " ")
-                .replace(":", " ")
-                .replace("[", " ")
-                .replace("]", " ")
-                .replace(";", " ")
-                .replaceAll(":", " ")
-                .replace("<", " ")
-                .replace(">", " ")
-                .replace("*", " ")
-                .replaceAll("()", " ");
+    //     String forIndex = sb.toString()
+    //             .replace('\n', ' ')
+    //             .replace('\r', ' ')
+    //             .replace('\\', ',')
+    //             .replace('/', ' ')
+    //             .replaceAll("/", " ")
+    //             .replaceAll("\\\\", " ")
+    //             .replace('"', ' ')
+    //             .replaceAll("(\\d+)-(?=\\d)", "$1_")
+    //             .replace("-", " ")
+    //             .replace(".", " ")
+    //             .replace(":", " ")
+    //             .replace("[", " ")
+    //             .replace("]", " ")
+    //             .replace(";", " ")
+    //             .replaceAll(":", " ")
+    //             .replace("<", " ")
+    //             .replace(">", " ")
+    //             .replace("*", " ")
+    //             .replaceAll("()", " ")
+    //             .replace("|", " ").replace("(", "").replace(")", "").replace(",", "").replace("#", " ").replace("!", " ").replace("$", " ").replace("?", " ");
 
-        String jaqpotIndex = elq.getModelIndex();
+    //     String jaqpotIndex = elq.getModelIndex();
 
-        String entity = String.format(jaqpotIndex, forIndex,
-                "Model");
-        HttpEntity httpEntity = new NStringEntity(entity, ContentType.APPLICATION_JSON);
+    //     String entity = String.format(jaqpotIndex, forIndex,
+    //             "Model");
+    //     HttpEntity httpEntity = new NStringEntity(entity, ContentType.APPLICATION_JSON);
 
-        if (pm.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_ENV).equals("dev")) {
-            String path = null;
-            if (indexType.equals("Index")) {
-                path = String.format("jaqpotindexdev/meta_doc/%s/_create", dataset.getId());
-            }
-            if (indexType.equals("Update")) {
-                path = String.format("jaqpotindexdev/meta_doc/%s/", dataset.getId());
-            }
-            Request req = new Request("PUT", path);
-            req.setEntity(httpEntity);
-            this.elc.getClient().performRequestAsync(req, indexListener(dataset.getId(), EntityType.DATASET, sb.toString()));
-        } else {
-            String path = String.format("jaqpotindexprod/_doc/{0}?op_type=create", dataset.getId());
-            Request req = new Request("PUT", path);
-            req.setEntity(httpEntity);
-            this.elc.getClient().performRequestAsync(req, indexListener(dataset.getId(), EntityType.DATASET, sb.toString()));
-        }
+    //     if (pm.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_ENV).equals("dev")) {
+    //         String path = null;
+    //         if (indexType.equals("Index")) {
+    //             path = String.format("jaqpotindexdev/_doc/%s/_create", dataset.getId());
+    //         }
+    //         if (indexType.equals("Update")) {
+    //             path = String.format("jaqpotindexdev/_doc/%s/", dataset.getId());
+    //         }
+    //         Request req = new Request("PUT", path);
+    //         req.setEntity(httpEntity);
+    //         this.elc.getClient().performRequestAsync(req, indexListener(dataset.getId(), EntityType.DATASET, sb.toString()));
+    //     } else {
+    //         String path = String.format("jaqpotindexprod/_doc/{0}?op_type=create", dataset.getId());
+    //         Request req = new Request("PUT", path);
+    //         req.setEntity(httpEntity);
+    //         this.elc.getClient().performRequestAsync(req, indexListener(dataset.getId(), EntityType.DATASET, sb.toString()));
+    //     }
 
-    }
+    // }
 
     public void indexModel(ConsumerRecord<Long, String> consumerRecord) {
         String[] message = consumerRecord.value().toString().split("_");
@@ -448,7 +451,7 @@ public class IndexEntityConsumer {
                 .replaceAll("/", " ")
                 .replaceAll("\\\\", " ")
                 .replace('"', ' ')
-                .replaceAll("(\\d+)-(?=\\d)", "$1_")
+                .replaceAll("(\\d+)-(?=\\d)", " ")
                 .replace("-", " ")
                 .replace(".", " ")
                 .replace(":", " ")
@@ -458,7 +461,13 @@ public class IndexEntityConsumer {
                 .replaceAll(":", " ")
                 .replace("<", " ")
                 .replace(">", " ")
-                .replace("*", " ");
+                .replace("*", "")
+                .replace("`", "")
+                .replace("~", "")
+                .replace("+", "")
+                .replace("_", "")
+                .replace("'", "")
+                .replace("|", " ").replaceAll("[^\\w\\.@-]", " ").replace("(", " ").replace(")", " ").replace(",", " ").replace("#", " ").replace("!", " ").replace("$", " ").replace("?", " ");
 
         String jaqpotIndex = elq.getModelIndex();
 
@@ -469,10 +478,10 @@ public class IndexEntityConsumer {
         if (pm.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_ENV).equals("dev")) {
             String path = null;
             if (indexType.equals("Index")) {
-                path = String.format("jaqpotindexdev/meta_doc/%s/_create", modelId);
+                path = String.format("jaqpotindexdev/_doc/%s", modelId);
             }
             if (indexType.equals("Update")) {
-                path = String.format("jaqpotindexdev/meta_doc/%s/", modelId);
+                path = String.format("jaqpotindexdev/_doc/%s/", modelId);
             }
 
             Request req = new Request("PUT", path);
@@ -483,7 +492,7 @@ public class IndexEntityConsumer {
                 logger.log(Level.SEVERE, "Could not index model {0} ", modelId + " " + e.getMessage());
             }
         } else {
-            String path = String.format("jaqpotindexprod/meta_doc/%s/_create", model.getId());
+            String path = String.format("jaqpotindexprod/_doc/%s", model.getId());
             Request req = new Request("PUT", path);
             req.setEntity(httpEntity);
             try {

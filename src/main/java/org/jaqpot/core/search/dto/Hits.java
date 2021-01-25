@@ -42,17 +42,17 @@ import java.util.List;
  */
 public class Hits {
     
-    private Integer total;
+    private Total total;
     
     private Double max_score; 
     
     private List<Hit> hits;
 
-    public Integer getTotal() {
+    public Total getTotal() {
         return total;
     }
 
-    public void setTotal(Integer total) {
+    public void setTotal(Total total) {
         this.total = total;
     }
 

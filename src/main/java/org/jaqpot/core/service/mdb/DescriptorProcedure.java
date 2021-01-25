@@ -14,7 +14,6 @@ import org.jaqpot.core.model.dto.dataset.FeatureInfo;
 import org.jaqpot.core.model.factory.DatasetFactory;
 import org.jaqpot.core.model.util.ROG;
 import org.jaqpot.core.properties.PropertyManager;
-import org.jaqpot.core.service.annotations.Secure;
 import org.jaqpot.core.service.authentication.AAService;
 import org.jaqpot.core.service.client.jpdi.JPDIClient;
 import org.jaqpot.core.service.exceptions.JaqpotDocumentSizeExceededException;
@@ -28,13 +27,9 @@ import javax.jms.Message;
 import javax.jms.MessageListener;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.BadRequestException;
-import javax.ws.rs.NotFoundException;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.core.MediaType;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Future;
@@ -43,9 +38,8 @@ import java.util.logging.Logger;
 
 @MessageDriven(activationConfig = {
     @ActivationConfigProperty(propertyName = "destinationLookup",
-            propertyValue = "java:jboss/exported/jms/topic/descriptor")
-    ,
-        @ActivationConfigProperty(propertyName = "destinationType",
+            propertyValue = "java:jboss/exported/jms/topic/descriptor"),
+    @ActivationConfigProperty(propertyName = "destinationType",
             propertyValue = "javax.jms.Topic")
 })
 public class DescriptorProcedure extends AbstractJaqpotProcedure implements MessageListener {
@@ -74,9 +68,9 @@ public class DescriptorProcedure extends AbstractJaqpotProcedure implements Mess
     @Inject
     PropertyManager propertyManager;
 
-    @Inject
-    @Secure
-    Client client;
+//    @Inject
+//    @Secure
+//    Client client;
 
     public DescriptorProcedure() {
         super(null);
@@ -126,7 +120,7 @@ public class DescriptorProcedure extends AbstractJaqpotProcedure implements Mess
             }
 
             Descriptor descriptor = descriptorHandler.find(descriptorId);
-
+            progress(15f, "Found descriptor");
             if (descriptor == null) {
                 errNotFound("Descriptor with id:" + descriptorId + " was not found.");
                 return;
@@ -134,17 +128,17 @@ public class DescriptorProcedure extends AbstractJaqpotProcedure implements Mess
 
             checkCancelled();
             Dataset initialDataset;
-            try {
-                initialDataset = client.target(datasetURI)
-                        .queryParam("dataEntries", true)
-                        .request()
-                        .header("Authorization", "Bearer " + apiKey)
-                        .accept(MediaType.APPLICATION_JSON)
-                        .get(Dataset.class);
-            } catch (NotFoundException e) {
-                String[] splitted = datasetURI.split("/");
-                initialDataset = datasetLegacyWrapper.find(splitted[splitted.length - 1]);
-            }
+//            try {
+//                initialDataset = client.target(datasetURI)
+//                        .queryParam("dataEntries", true)
+//                        .request()
+//                        .header("Authorization", "Bearer " + apiKey)
+//                        .accept(MediaType.APPLICATION_JSON)
+//                        .get(Dataset.class);
+//            } catch (Exception e) {
+            String[] splitted = datasetURI.split("/");
+            initialDataset = datasetLegacyWrapper.find(splitted[splitted.length - 1]);
+//            }
 
             if (initialDataset == null) {
                 errNotFound("Dataset with id:" + Arrays.toString(datasetURI.split("/")) + " was not found.");
@@ -153,7 +147,6 @@ public class DescriptorProcedure extends AbstractJaqpotProcedure implements Mess
             Dataset subDataset = null;
 
             //Case of all applying descriptor service to all featureURIs
-            
             if (featureURIs.toString().contains("all")) {
                 Set<String> featUris = new HashSet();
                 initialDataset.getFeatures().stream().forEach(f -> {
@@ -164,9 +157,9 @@ public class DescriptorProcedure extends AbstractJaqpotProcedure implements Mess
                 Set<String> featKeys = new HashSet();
                 final Set<String> featureURI = featureURIs;
                 final Set<FeatureInfo> fis = new HashSet();
-                initialDataset.getFeatures().forEach(f ->{
-                    featureURI.stream().forEach(fu ->{
-                        if(fu.equals(f.getName())){
+                initialDataset.getFeatures().forEach(f -> {
+                    featureURI.stream().forEach(fu -> {
+                        if (fu.equals(f.getName())) {
                             fis.add(f);
                             featKeys.add(f.getKey());
                         }
@@ -175,15 +168,13 @@ public class DescriptorProcedure extends AbstractJaqpotProcedure implements Mess
                 subDataset = DatasetFactory.copy(initialDataset, featKeys);
                 subDataset.setFeatures(fis);
             }
-            
+
             subDataset.setMeta(null);
             subDataset.setId(null);
             Future<Dataset> futureDataset = jpdiClient.descriptor(subDataset, descriptor, parameterMap, taskId);
 
             Dataset dataset = futureDataset.get();
-            
-            
-            
+
             dataset.setId(new ROG(true).nextString(12));
             String newDatasetURI = propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_BASE_SERVICE) + "dataset/" + dataset.getId();
 
@@ -252,7 +243,6 @@ public class DescriptorProcedure extends AbstractJaqpotProcedure implements Mess
         }
     }
 
-    
     //Creates Features that were appended to the Dataset
     private void populateFeatures(@NotNull Dataset dataset, String datasetURI) throws JaqpotDocumentSizeExceededException {
         int i = 0;

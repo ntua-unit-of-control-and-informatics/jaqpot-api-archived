@@ -56,6 +56,7 @@ public class PretrainedModel {
     private List<String> algorithm;
     private boolean batched;
 
+
     public Object getRawModel() {
         return rawModel;
     }

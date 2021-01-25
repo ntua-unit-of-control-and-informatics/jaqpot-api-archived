@@ -93,7 +93,7 @@ public class QuotsClient {
         this.quotsClient = JQuotsClientFactory
                 .createNewClient(propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.QUOTS_URL),
                         propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.QUOTS_APP),
-                        propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.QUOTS_APP_ID),
+                        propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.QUOTS_APP_SECRET),
                         new JQuotsSerializer(new ObjectMapper()));
         serializer = new JQuotsSerializer(new ObjectMapper());
 

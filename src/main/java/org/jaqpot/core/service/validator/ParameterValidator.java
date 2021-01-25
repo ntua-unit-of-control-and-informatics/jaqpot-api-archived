@@ -81,7 +81,7 @@ public class ParameterValidator {
     public void validate(String input, Set<Parameter> parameters) throws ParameterTypeException, ParameterRangeException, ParameterScopeException {
 
         Map<String, Object> parameterMap = null;
-        if (input != null) {
+        if ((input != null) && (input.length() != 0)) {
             parameterMap = serializer.parse(input, new HashMap<String, Object>().getClass());
         }
 

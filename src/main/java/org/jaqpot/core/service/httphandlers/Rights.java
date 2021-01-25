@@ -50,10 +50,14 @@ public class Rights {
         if (metaInfo.getCreators().contains(user.get_id())) {
             canWrite = true;
         }
-        for (String org : user.getOrganizations()) {
-            if (metaInfo.getWrite() != null && metaInfo.getWrite().contains(org)) {
-                canWrite = true;
+        try{
+            for (String org : user.getOrganizations()) {
+                if (metaInfo.getWrite() != null && metaInfo.getWrite().contains(org)) {
+                    canWrite = true;
+                }
             }
+        }catch(NullPointerException e){
+            return canWrite;
         }
         return canWrite;
     }
@@ -75,10 +79,14 @@ public class Rights {
             if (mf.getRead().contains("Jaqpot")) {
                 canView = true;
             }
-            for (String org : user.getOrganizations()) {
-                if (mf.getRead().contains(org)) {
-                    canView = true;
+            try{
+                for (String org : user.getOrganizations()) {
+                    if (mf.getRead().contains(org)) {
+                        canView = true;
+                    }
                 }
+            }catch(NullPointerException e){
+                return canView;
             }
         }
         return canView;
