@@ -98,8 +98,8 @@ public class PropertyManager {
         OIDC_PROVIDER_CONF("oidc.provider.conf", "config", ".well-known/openid-configuration"),
         ELASTIC_HOST("elastic.host","config", "192.168.10.100"),
         ELASTIC_PORT("elastic.port", "config", "31643"),
-        ELASTIC_EXISTS("elastic.exists", "config", "true"),
-        ELASTIC_AUTH("elastic.auth", "config", "true"),
+        ELASTIC_EXISTS("elastic.exists", "config", "false"),
+        ELASTIC_AUTH("elastic.auth", "config", "false"),
         ELASTIC_USER("elastic.user", "config", "elastic"),
         ELASTIC_PASS("elastic.pass", "config", "52Uj482Q00djvkJ5VYfP0n6L"),
 
@@ -113,10 +113,13 @@ public class PropertyManager {
         REDIS_ON_CLUSTER("redis.on.cluster", "config", "false"),
         REDIS_CLUSTER("redis.cluster", "config", "redis-cluster.redis:6379"),
         
+
+        QUOTS_EXISTS("quots.exists", "config", "false"),
         QUOTS_URL("quots.url", "config", "http://localhost:8000"),
         QUOTS_APP("quots.app", "config", "jaqpot"),
         QUOTS_APP_SECRET("quots.app.secret", "config", "VHChwwYKgsvmKQRF"),
         
+        ACCOUNTS_EXISTS("accounts.exists", "config", "false"),
         EUCLIA_ACCOUNTS_URL("euclia.accounts.url", "config", "https://accountsapi.jaqpot.org");
         
         private final String name;

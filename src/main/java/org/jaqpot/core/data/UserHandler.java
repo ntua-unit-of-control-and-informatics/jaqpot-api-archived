@@ -34,16 +34,15 @@ import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import org.jaqpot.core.accounts.AccountsHandler;
-import org.jaqpot.core.annotations.MongoDB;
-import org.jaqpot.core.db.entitymanager.JaqpotEntityManager;
+import org.jaqpot.core.properties.PropertyManager;
+
 import xyz.euclia.euclia.accounts.client.models.User;
 import org.asynchttpclient.Response;
 import java.util.concurrent.Future;
 import javax.ws.rs.InternalServerErrorException;
-import org.jaqpot.core.service.quotas.JQuotsSerializer;
+
 import org.jaqpot.core.service.quotas.QuotsClient;
 import xyz.euclia.euclia.accounts.client.models.ErrorReport;
-import xyz.euclia.jquots.serialize.Serializer;
 
 /**
  *
@@ -57,6 +56,9 @@ public class UserHandler {
 //    @Inject
 //    @MongoDB
 //    JaqpotEntityManager em;
+
+    @Inject
+    PropertyManager propertyManager;
 
     @EJB
     AccountsHandler accountsHandler;
@@ -75,18 +77,26 @@ public class UserHandler {
 
     public User find(String id, String apiKey) {
         Future<Response> eucliaUser = this.accountsHandler.getClient().getUser(id, apiKey);
+        
         User user = new User();
-        try{
-            Response resp = eucliaUser.get();
-            if(resp.getStatusCode() >= 300){
-                ErrorReport er = this.quotsClient.getSerializer().parse(resp.getResponseBody(), ErrorReport.class);
-            }else{
-                User[] users = this.quotsClient.getSerializer().parse(resp.getResponseBody(), User[].class);
-                user = users[0];
+        
+        if(propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.ACCOUNTS_EXISTS) == "true"){
+            try{
+                Response resp = eucliaUser.get();
+                if(resp.getStatusCode() >= 300){
+                    ErrorReport er = this.quotsClient.getSerializer().parse(resp.getResponseBody(), ErrorReport.class);
+                }else{
+                    User[] users = this.quotsClient.getSerializer().parse(resp.getResponseBody(), User[].class);
+                    user = users[0];
+                }
+            }catch(InterruptedException | ExecutionException e){
+                throw new InternalServerErrorException(e.getMessage());
             }
-        }catch(InterruptedException | ExecutionException e){
-            throw new InternalServerErrorException(e.getMessage());
         }
+        else{
+            user.set_id(id);
+        }
+
         return user;
     }
 

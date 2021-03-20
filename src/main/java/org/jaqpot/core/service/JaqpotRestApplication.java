@@ -33,22 +33,20 @@ package org.jaqpot.core.service;
 import io.swagger.v3.jaxrs2.integration.JaxrsOpenApiContextBuilder;
 
 import io.swagger.v3.jaxrs2.integration.resources.OpenApiResource;
-import io.swagger.v3.oas.annotations.enums.SecuritySchemeIn;
-import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
-import io.swagger.v3.oas.annotations.security.OAuthFlow;
-import io.swagger.v3.oas.annotations.security.OAuthFlows;
-import io.swagger.v3.oas.annotations.security.OAuthScope;
+// import io.swagger.v3.oas.annotations.enums.SecuritySchemeIn;
+// import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
+// import io.swagger.v3.oas.annotations.security.OAuthFlow;
+// import io.swagger.v3.oas.annotations.security.OAuthFlows;
+// import io.swagger.v3.oas.annotations.security.OAuthScope;
 import io.swagger.v3.oas.integration.OpenApiConfigurationException;
 import io.swagger.v3.oas.integration.SwaggerConfiguration;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
-import io.swagger.v3.oas.models.security.SecurityRequirement;
-import io.swagger.v3.oas.models.security.SecurityScheme;
+// import io.swagger.v3.oas.models.security.SecurityRequirement;
+// import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.oas.models.servers.Server;
 import java.util.ArrayList;
-import org.jaqpot.core.properties.PropertyManager;
 import org.reflections.Reflections;
-
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.ws.rs.ApplicationPath;
@@ -63,6 +61,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
+import org.jaqpot.core.properties.PropertyManager;
+// import org.jaqpot.core.properties.PropertyManager;
 import org.jaqpot.core.service.authentication.TokenRequestFilter;
 
 /**
@@ -125,16 +125,16 @@ public class JaqpotRestApplication extends Application {
 //        oas.addSecurityItem(sr);
 
 
-        Server server = new Server()
-                //.url(protocol.getDefault() + "://"+host + ":" + port + "/jaqpot/services")
-               // .variables(varMap);
-                .url("http://"+host + ":" + port + "/jaqpot");
+        // Server server = new Server()
+        //         .url(protocol.getDefault() + "://"+host + ":" + port + "/jaqpot/services")
+        //        .variables(varMap);
+        //         .url("http://"+host + ":" + port + "/jaqpot");
         Server server2 = new Server()
                 //.url(protocol.getDefault() + "://"+host + ":" + port + "/jaqpot/services")
                // .variables(varMap);
-                .url("https://"+host + ":" + port + "/jaqpot");
+                .url("https://"+host + ":" + port + "/modelsbase");
         List<Server> servers = new ArrayList();
-        servers.add(server);
+        // servers.add(server);
         servers.add(server2);
 
         oas.servers(servers);

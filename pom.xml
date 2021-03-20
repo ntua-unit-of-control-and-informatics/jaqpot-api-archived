@@ -4,7 +4,7 @@
 
     <groupId>org.jaqpot</groupId>
     <artifactId>jaqpot-api</artifactId>
-    <version>5.0.22</version>
+    <version>5.0.24</version>
     <packaging>war</packaging>
     
     <dependencies>
@@ -310,11 +310,13 @@
         <redis.exists></redis.exists>    
         <redis.on.cluster></redis.on.cluster>     
         <redis.cluster></redis.cluster> 
-                                             
+
+        <quots.exists></quots.exists>                      
         <quots.url></quots.url>
         <quots.app></quots.app>
         <quots.app.secret></quots.app.secret>  
         
+        <accounts.exists></accounts.exists>
         <euclia.accounts.url></euclia.accounts.url>
     </properties>
     

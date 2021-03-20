@@ -100,21 +100,26 @@ public class QuotsClient {
     }
 
     public CanProceed canUserProceedSync(String userId, String usage, String size, String accessToken) throws InterruptedException, ExecutionException, InternalServerErrorException, JaqpotNotAuthorizedException, JaqpotNotAuthorizedException, JaqpotNotAuthorizedException, ParseException {
-        Future<Response> proceed = this.quotsClient.canProceed(userId, usage, size);
         CanProceed cp = new CanProceed();
-        User user = aaService.getUserFromSSO(accessToken);
-        switch (proceed.get().getStatusCode()) {
-            case 400:
-                this.quotsClient.createUser(userId, user.getName(), user.getEmail());
-                cp.setUserid(userId);
-                cp.setProceed(true);
-                break;
-            case 200:
-                cp = serializer.parse(proceed.get().getResponseBody(), CanProceed.class);
-                break;
-            default:
-                ErrorReport er = serializer.parse(proceed.get().getResponseBody(), ErrorReport.class);
-                throw new InternalServerErrorException(er.getMessage());
+        if(propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.QUOTS_EXISTS) == "true"){
+            Future<Response> proceed = this.quotsClient.canProceed(userId, usage, size);
+            User user = aaService.getUserFromSSO(accessToken);
+            switch (proceed.get().getStatusCode()) {
+                case 400:
+                    this.quotsClient.createUser(userId, user.getName(), user.getEmail());
+                    cp.setUserid(userId);
+                    cp.setProceed(true);
+                    break;
+                case 200:
+                    cp = serializer.parse(proceed.get().getResponseBody(), CanProceed.class);
+                    break;
+                default:
+                    ErrorReport er = serializer.parse(proceed.get().getResponseBody(), ErrorReport.class);
+                    throw new InternalServerErrorException(er.getMessage());
+            }
+        }else{
+            cp.setUserid(userId);
+            cp.setProceed(true);
         }
         return cp;
     }

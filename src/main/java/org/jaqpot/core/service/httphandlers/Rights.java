@@ -45,14 +45,20 @@ import xyz.euclia.euclia.accounts.client.models.User;
 @Stateless
 public class Rights {
 
-    public Boolean canWrite(MetaInfo metaInfo, User user) {
+    public Boolean canWrite(MetaInfo mf, User user) {
         Boolean canWrite = false;
-        if (metaInfo.getCreators().contains(user.get_id())) {
+
+        if (mf.getWrite() != null) {
+            if (mf.getWrite().contains("Everyone")) {
+                canWrite = true;
+            }
+        }
+        if (mf.getCreators().contains(user.get_id())) {
             canWrite = true;
         }
         try{
             for (String org : user.getOrganizations()) {
-                if (metaInfo.getWrite() != null && metaInfo.getWrite().contains(org)) {
+                if (mf.getWrite() != null && mf.getWrite().contains(org)) {
                     canWrite = true;
                 }
             }
@@ -76,7 +82,7 @@ public class Rights {
             canView = true;
         }
         if (mf.getRead() != null) {
-            if (mf.getRead().contains("Jaqpot")) {
+            if (mf.getRead().contains("Everyone")) {
                 canView = true;
             }
             try{

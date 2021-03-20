@@ -3,7 +3,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8">
-    <title>Jaqpot API</title>
+    <title>ModelsBase API</title>
     <link rel="stylesheet" type="text/css" href="./swagger-ui.css" >
     <link rel="icon" type="image/png" href="./favicon-32x32.png" sizes="32x32" />
     <link rel="icon" type="image/png" href="./favicon-16x16.png" sizes="16x16" />
@@ -43,7 +43,7 @@
         url = decodeURIComponent(url[1]);
       } else {
         var base_url = window.location.origin;
-        url = base_url + "/jaqpot/services/openapi.json";
+        url = base_url + "/modelsbase/services/openapi.json";
       }
       const ui = SwaggerUIBundle({
         url: url,

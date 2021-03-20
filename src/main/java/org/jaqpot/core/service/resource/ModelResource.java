@@ -732,9 +732,17 @@ public class ModelResource {
         model.setAlgorithm(algo);
 
         MetaInfo mf = new MetaInfo();
-        Set<String> titles = new HashSet();
-        Set<String> descriptions = new HashSet();
-        Set<String> creators = new HashSet();
+        Set<String> read = new HashSet<String>();
+        Set<String> write = new HashSet<String>();
+        Set<String> execute = new HashSet<String>();
+        
+        read.add("Everyone");
+        write.add("Everyone");
+        execute.add("Everyone");
+
+        Set<String> titles = new HashSet<String>();
+        Set<String> descriptions = new HashSet<String>();
+        Set<String> creators = new HashSet<String>();
         creators.add(user.get_id());
         if (pretrainedModelRequest.getTitle().get(0) != null) {
             titles.add(pretrainedModelRequest.getTitle().get(0).toString());
@@ -746,6 +754,9 @@ public class ModelResource {
         mf.setTitles(titles);
         mf.setDescriptions(descriptions);
         mf.setCreators(creators);
+        mf.setRead(read);
+        mf.setWrite(write);
+        mf.setExecute(execute);
         model.setMeta(mf);
         model.setVisible(Boolean.TRUE);
 
@@ -759,7 +770,7 @@ public class ModelResource {
 //        }
         HashMap independentFeaturesForAdd = new HashMap();
 
-        List<String> pretrainedIndependentFeatures = new ArrayList();
+        List<String> pretrainedIndependentFeatures = new ArrayList<String>();
 
         pretrainedModelRequest.getIndependentFeatures().forEach(indf -> {
             String linkedFeatID = randomStringGenerator.nextString(12);

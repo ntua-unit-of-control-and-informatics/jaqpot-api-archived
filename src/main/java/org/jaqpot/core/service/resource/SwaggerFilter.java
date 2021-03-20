@@ -30,8 +30,8 @@ import javax.enterprise.context.ApplicationScoped;
 //@SwaggerDefinition(
 @OpenAPIDefinition(
         info = @Info(
-                title = "Jaqpot API",
-                description = "Jaqpot v5 is the 5t"
+                title = "ModelsBase API",
+                description = "ModelsBase API v5 is the 5t"
                         + "h version of a YAQP, a RESTful web platform which can"
                         + " be used to train machine learning models and use "
                         + "them to obtain toxicological predictions for given "
@@ -44,11 +44,11 @@ import javax.enterprise.context.ApplicationScoped;
                         + " and Informatics in the School of Chemical Engineering </a> at"
                         + " the  <a href=\"https://www.ntua.gr/en/\"> National"
                         + " Technical University of Athens.</a> ",
-                version = "5.0.1",
-                contact = @Contact(name = "Charalampos Chomenidis,"
-                        + " Pantelis Sopasakis, Evangelia Anagnostopoulou, Angelos Valsamis,"
-                        + " George Drakakis, Pantelis Karatzas, Georgia Tsiliki, Philip Doganis,"
-                        + " Haralambos Sarimveis", email = "hampos@me.com",
+                version = "6.0.24",
+                contact = @Contact(name = "Pantelis Karatzas,"
+                        + " Pantelis Sopasakis, Angelos Valsamis,"
+                        + " Philip Doganis, Periklis Tsiros, Iasonas Sotiropoulos"
+                        + " Haralambos Sarimveis", email = "contact@euclia.org",
                         url = "https://github.com/KinkyDesign/jaqpot-web/issues")
         )
 )

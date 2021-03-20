@@ -84,7 +84,8 @@ public class AAService {
 
         Secret pass = new Secret(password);
         AuthorizationGrant passwordGrant = new ResourceOwnerPasswordCredentialsGrant(username, pass);
-        Scope scope = new Scope("read", "write");
+        // Scope scope = new Scope("read", "write");
+        Scope scope = new Scope();
         TokenRequest request = new TokenRequest(
                 oidcConf.getProviderMetadata().getTokenEndpointURI(),
                 oidcConf.getOidcClient(), passwordGrant, scope);
