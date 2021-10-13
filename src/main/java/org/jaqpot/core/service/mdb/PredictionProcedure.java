@@ -192,21 +192,21 @@ public class PredictionProcedure extends AbstractJaqpotProcedure implements Mess
             progress(20f);
             checkCancelled();
 
-            if (model.getTransformationModels() != null && !model.getTransformationModels().isEmpty()) {
-                progress("--", "Processing transformations...");
-                for (String transModelURI : model.getTransformationModels()) {
-                    checkCancelled();
-                    Model transModel = modelHandler.find(transModelURI.split("model/")[1]);
-                    if (transModel == null) {
-                        errNotFound("Transformation model with id:" + transModelURI + " was not found.");
-                        return;
-                    }
-                    dataset = jpdiClient.predict(dataset, transModel, dataset != null ? dataset.getMeta() : null, taskId, null).get();
-                    addProgress(5f, "Transformed successfull by model:" + transModel.getId());
-                }
-                progress("Done processing transformations.", "--");
-            }
-            progress(50f);
+            // if (model.getTransformationModels() != null && !model.getTransformationModels().isEmpty()) {
+            //     progress("--", "Processing transformations...");
+            //     for (String transModelURI : model.getTransformationModels()) {
+            //         checkCancelled();
+            //         Model transModel = modelHandler.find(transModelURI.split("model/")[1]);
+            //         if (transModel == null) {
+            //             errNotFound("Transformation model with id:" + transModelURI + " was not found.");
+            //             return;
+            //         }
+            //         dataset = jpdiClient.predict(dataset, transModel, dataset != null ? dataset.getMeta() : null, taskId, null).get();
+            //         addProgress(5f, "Transformed successfull by model:" + transModel.getId());
+            //     }
+            //     progress("Done processing transformations.", "--");
+            // }
+            // progress(50f);
             checkCancelled();
 
             MetaInfo datasetMeta = dataset.getMeta();

@@ -185,8 +185,16 @@ public class ChempotProcedure extends AbstractJaqpotProcedure implements Message
                     if (featNames.contains(dat.getKey())) {
                         for (FeatureInfo feInf : feats) {
                             if (feInf.getName().equals(dat.getKey())) {
-                                valsForPred.put(feInf.getKey(), dat.getValue());
-                                featsForPred.add(feInf);
+
+                                if(dat.getValue() instanceof String){
+                                    Number val = this.parse(dat.getValue().toString());
+                                    valsForPred.put(feInf.getKey(), val);
+                                    featsForPred.add(feInf);
+                                }else{
+                                    valsForPred.put(feInf.getKey(), dat.getValue());
+                                    featsForPred.add(feInf);
+                                }
+
                             }
                         }
                     }
@@ -241,4 +249,27 @@ public class ChempotProcedure extends AbstractJaqpotProcedure implements Message
 //        }
     }
 
+    private Number parse(String str) {
+        Number number = null;
+        try {
+            number = Float.parseFloat(str);
+        } catch(NumberFormatException e) {
+            try {
+                number = Double.parseDouble(str);
+            } catch(NumberFormatException e1) {
+                try {
+                    number = Integer.parseInt(str);
+                } catch(NumberFormatException e2) {
+                    try {
+                        number = Long.parseLong(str);
+                    } catch(NumberFormatException e3) {
+                        throw e3;
+                    }       
+                }       
+            }       
+        }
+        return number;
+    }
+
 }
+

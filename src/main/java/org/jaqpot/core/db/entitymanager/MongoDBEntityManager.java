@@ -65,6 +65,7 @@ import org.jaqpot.core.data.serialize.JSONSerializer;
 import org.jaqpot.core.model.JaqpotEntity;
 import org.jaqpot.core.model.MetaInfo;
 import org.jaqpot.core.properties.PropertyManager;
+import org.jaqpot.core.properties.PropertyManager.PropertyType;
 import org.reflections.Reflections;
 
 /**
@@ -127,20 +128,29 @@ public class MongoDBEntityManager implements JaqpotEntityManager {
         String dbName = "production"; // Default DB name in case no properties file is found!
         String dbHost = "localhost"; // Default DB host
         int dbPort = 27017; // Default DB port
+        String connectionString = "string";
         try {
-            //dbProperties.load(is);
+            // dbProperties.load(is);
+
+            // dbName = propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_DB_NAME, dbName);
+            // dbHost = propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_DB_HOST, dbHost);
+            // dbPort = Integer.parseInt(propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_DB_PORT, Integer.toString(dbPort)));
+            // LOG.log(Level.INFO, "Database host : {0}", dbHost);
+            // LOG.log(Level.INFO, "Database port : {0}", dbPort);
+            
+
+            connectionString = propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_DB_CONNECTION_STRING, connectionString);
             dbName = propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_DB_NAME, dbName);
-            dbHost = propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_DB_HOST, dbHost);
-            dbPort = Integer.parseInt(propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_DB_PORT, Integer.toString(dbPort)));
-            LOG.log(Level.INFO, "Database host : {0}", dbHost);
-            LOG.log(Level.INFO, "Database port : {0}", dbPort);
+            LOG.log(Level.INFO, "Database connection string : {0}", connectionString);
             LOG.log(Level.INFO, "Database name : {0}", dbName);
+
         } catch (Exception ex) {
             String errorMessage = "No DB properties file found!";
             LOG.log(Level.SEVERE, errorMessage, ex); // Log the event (but use the default properties)
         } finally {
             database = dbName;
-            String mongoUri = "mongodb://" + dbHost + ":" + dbPort + "/" + dbName;
+            // String mongoUri = "mongodb://" + dbHost + ":" + dbPort + "/" + dbName;
+            String mongoUri = connectionString;
             mongoClient = new MongoClient(new MongoClientURI(mongoUri));
 //            mongoClient = new MongoClient(dbHost, dbPort); // Connect to the DB
             LOG.log(Level.INFO, "Database configured and connection established successfully!");

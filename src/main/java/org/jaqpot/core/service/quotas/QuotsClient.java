@@ -109,6 +109,11 @@ public class QuotsClient {
                 cp.setUserid(userId);
                 cp.setProceed(true);
                 break;
+            case 301:
+                this.quotsClient.createUser(userId, user.getName(), user.getEmail());
+                cp.setUserid(userId);
+                cp.setProceed(true);
+                break;
             case 200:
                 cp = serializer.parse(proceed.get().getResponseBody(), CanProceed.class);
                 break;

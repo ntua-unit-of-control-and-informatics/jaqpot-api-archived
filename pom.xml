@@ -4,7 +4,7 @@
 
     <groupId>org.jaqpot</groupId>
     <artifactId>jaqpot-api</artifactId>
-    <version>5.0.22</version>
+    <version>5.0.36</version>
     <packaging>war</packaging>
     
     <dependencies>
@@ -268,6 +268,7 @@
         <jaqpot.db.name></jaqpot.db.name>
         <jaqpot.db.host></jaqpot.db.host>
         <jaqpot.db.port></jaqpot.db.port>
+        <jaqpot.db.connection.string></jaqpot.db.connection.string>
 
         <jaqpot.rabbitmq.host></jaqpot.rabbitmq.host>
         <jaqpot.rabbitmq.username></jaqpot.rabbitmq.username>

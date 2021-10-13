@@ -451,7 +451,7 @@ public class IndexEntityConsumer {
                 .replaceAll("/", " ")
                 .replaceAll("\\\\", " ")
                 .replace('"', ' ')
-                .replaceAll("(\\d+)-(?=\\d)", " ")
+                // .replaceAll("(\\d+)-(?=\\d)", " ")
                 .replace("-", " ")
                 .replace(".", " ")
                 .replace(":", " ")
