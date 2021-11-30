@@ -125,6 +125,9 @@ public class Task extends JaqpotEntity {
     private Long duration;
 
     private Type type;
+    
+    private String batchid;
+    private String batchTask;
 
     public Task() {
         super();
@@ -145,6 +148,33 @@ public class Task extends JaqpotEntity {
         super(id);
     }
 
+    public Status getHasStatus() {
+        return hasStatus;
+    }
+
+    public void setHasStatus(Status hasStatus) {
+        this.hasStatus = hasStatus;
+    }
+
+    public String getBatchid() {
+        return batchid;
+    }
+
+    public void setBatchid(String batchid) {
+        this.batchid = batchid;
+    }
+
+    public String getBatchTask() {
+        return batchTask;
+    }
+
+    public void setBatchTask(String batchTask) {
+        this.batchTask = batchTask;
+    }
+
+    
+    
+    
     public String getResult() {
         return result;
     }

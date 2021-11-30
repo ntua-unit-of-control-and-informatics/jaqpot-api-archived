@@ -94,6 +94,7 @@ public class ChempotProcedure extends AbstractJaqpotProcedure implements Message
             String modelId = (String) messageBody.get("modelId");
             String descriptorId = (String) messageBody.get("descriptors");
             String smiles = (String) messageBody.get("smiles");
+            ArrayList<String> smilesArray = (ArrayList<String>) messageBody.get("smilesArray");
             String doa = (String) messageBody.get("doa");
             String userId = (String) messageBody.get("userId");
 

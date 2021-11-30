@@ -5,6 +5,8 @@
  */
 package org.jaqpot.core.model.dto.models;
 
+import java.util.ArrayList;
+
 /**
  *
  * @author pantelispanka
@@ -12,9 +14,18 @@ package org.jaqpot.core.model.dto.models;
 public class ChempotDto {
     
     private String smiles;
+    private ArrayList<String> smilesArray;
     private String modelId;
     private boolean withDoa;
     private String descriptors;
+
+    public ArrayList<String> getSmilesArray() {
+        return smilesArray;
+    }
+
+    public void setSmilesArray(ArrayList<String> smilesArray) {
+        this.smilesArray = smilesArray;
+    }
 
     public String getSmiles() {
         return smiles;

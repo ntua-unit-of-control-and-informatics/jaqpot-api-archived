@@ -53,6 +53,7 @@ public class MetaInfo {
     private Set<String> titles;
     private Set<String> subjects;
     private Set<String> publishers;
+    private Set<String> favorited;
     private Set<String> creators;
     private Set<String> contributors;
     private Set<String> audiences;
@@ -93,6 +94,14 @@ public class MetaInfo {
     }
 
     public MetaInfo() {}
+
+    public Set<String> getFavorited() {
+        return favorited;
+    }
+
+    public void setFavorited(Set<String> favorited) {
+        this.favorited = favorited;
+    }
 
     public Set<String> getIdentifiers() {
         return identifiers;

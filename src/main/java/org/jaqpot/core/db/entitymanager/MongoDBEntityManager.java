@@ -128,7 +128,7 @@ public class MongoDBEntityManager implements JaqpotEntityManager {
         String dbName = "production"; // Default DB name in case no properties file is found!
         String dbHost = "localhost"; // Default DB host
         int dbPort = 27017; // Default DB port
-        String connectionString = "string";
+        String connectionString = "mongodb://localhost:27017";
         try {
             // dbProperties.load(is);
 

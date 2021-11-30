@@ -202,7 +202,17 @@ public abstract class AbstractHandler<T extends JaqpotEntity> {
         return getEntityManager().countAndNe(entityClass, properties, notProperties);
     }
     
-        public Long countAllOfOrgAndTag(String organization, String tag) {
+    public Long countAllFavourited(String userId){
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("visible", true);
+        properties.put("meta.favorited",userId);
+        Map<String, Object> notProperties = new HashMap<>();
+        notProperties.put("onTrash", true);
+        return getEntityManager().countAndNe(entityClass, properties, notProperties);
+    }
+    
+    
+    public Long countAllOfOrgAndTag(String organization, String tag) {
         Map<String, Object> properties = new HashMap<>();
 //        properties.put("meta.creators", Arrays.asList(createdBy));
 //        BasicDBObject inQuery = new BasicDBObject();

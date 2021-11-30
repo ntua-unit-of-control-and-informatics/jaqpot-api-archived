@@ -30,6 +30,8 @@
 package org.jaqpot.core.service.resource;
 
 //import io.swagger.annotations.*;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.extensions.Extension;
@@ -203,6 +205,7 @@ public class ModelResource {
                     + "parameter.", schema = @Schema(implementation = Integer.class, defaultValue = "10")) @QueryParam("max") Integer max,
             @Parameter(name = "ontrash", description = "on trash datasets", required = false, schema = @Schema(implementation = Boolean.class, allowableValues = {"true", "false"})) @QueryParam("ontrash") Boolean ontrash,
             @Parameter(name = "organization", description = "organization", schema = @Schema(implementation = String.class)) @QueryParam("organization") String organization,
+            @Parameter(name = "favorited", description = "favorited", schema = @Schema(implementation = String.class)) @QueryParam("favorited") String favorited,
             @Parameter(name = "byAlgorithm", description = "byAlgorithm", schema = @Schema(implementation = String.class)) @QueryParam("byAlgorithm") String byAlgorithm,
             @Parameter(name = "tag", description = "tag", schema = @Schema(implementation = String.class)) @QueryParam("tag") String tag
     ) {
@@ -260,6 +263,21 @@ public class ModelResource {
             neProperties.put("algorithm._id", "httk");
             modelsFound.addAll(modelHandler.findAllAndNe(properties, neProperties, fields, start, max));
             total = modelHandler.countAllOfOrgAndTag(organization, tag);
+        }else if (favorited != null) {
+            List<String> fields = new ArrayList<>();
+            fields.add("_id");
+            fields.add("meta");
+            fields.add("predictedFeatures");
+            fields.add("independentFeatures");
+            Map<String, Object> properties = new HashMap<>();
+            properties.put("meta.favourited", favorited);
+            properties.put("visible", true);
+//            properties.put("meta.creators", Arrays.asList(creator));
+            Map<String, Object> neProperties = new HashMap<>();
+            neProperties.put("onTrash", true);
+            neProperties.put("algorithm._id", "httk");
+            modelsFound.addAll(modelHandler.findAllAndNe(properties, neProperties, fields, start, max));
+            total = modelHandler.countAllFavourited(creator);
         } else {
             List<String> fields = new ArrayList<>();
             fields.add("_id");
@@ -678,6 +696,77 @@ public class ModelResource {
         Task task = predictionService.initiatePrediction(options);
         return Response.ok(task).build();
     }
+    
+    @POST
+    @TokenSecured({RoleEnum.DEFAULT_USER})
+    @Consumes({MediaType.APPLICATION_JSON})
+    @Produces({MediaType.APPLICATION_JSON})
+    @Path("/{id}/json")
+    @Operation(summary = "Creates Prediction with Json Dataset",
+            description = "Creates Prediction with Json Dataset",
+            responses = {
+                @ApiResponse(content = @Content(schema = @Schema(implementation = Task.class))),},
+            extensions = {
+                @Extension(properties = {
+            @ExtensionProperty(name = "orn-@type", value = "x-orn:JaqpotPredictionTaskId"),}
+                )
+                ,
+                @Extension(name = "orn:expects", properties = {
+            @ExtensionProperty(name = "x-orn-@id", value = "x-orn:AcessToken")
+            ,
+                    @ExtensionProperty(name = "x-orn-@id", value = "x-orn:JaqpotModelId")
+            ,
+                    @ExtensionProperty(name = "x-orn-@id", value = "x-orn:Dataset")
+        })
+                ,
+                @Extension(name = "orn:returns", properties = {
+            @ExtensionProperty(name = "x-orn-@id", value = "x-orn:JaqpotPredictionTaskId")
+        })
+            })
+    @org.jaqpot.core.service.annotations.Task
+    public Response makePredictionWithDataset(
+            Dataset dataset,
+            @Parameter(name = "id", description = "id", schema = @Schema(implementation = String.class)) @PathParam("id") String id,
+            @Parameter(name = "Authorization", description = "Authorization required", schema = @Schema(implementation = String.class)) @HeaderParam("Authorization") String api_key) throws GeneralSecurityException, QuotaExceededException, ParameterIsNullException, ParameterInvalidURIException, JaqpotDocumentSizeExceededException, InterruptedException, ExecutionException, InternalServerErrorException, JaqpotNotAuthorizedException, ParseException, JaqpotNotAuthorizedException, ParseException {
+        String[] apiA = api_key.split("\\s+");
+        String apiKey = apiA[1];
+
+        if (id == null) {
+            throw new ParameterIsNullException("id");
+        }
+
+
+        User user = userHandler.find(securityContext.getUserPrincipal().getName(), apiKey);
+
+
+
+        Integer predictions = dataset.getTotalRows();
+        CanProceed cp = quotsClient.canUserProceedSync(user.get_id(), "PREDICTION", predictions.toString(), apiKey);
+        if (cp.isProceed() == false) {
+            throw new QuotaExceededException("Dear user, your credits has been "
+                    + "exceeded. Request for more through accounts.jaqpot.org");
+        }
+        ObjectMapper mapper = new ObjectMapper();
+
+        
+        String datasetString = "";
+        try{
+            datasetString = mapper.writeValueAsString(dataset);
+        }catch(JsonProcessingException e){
+            throw new BadRequestException("Cannot handle dataset");
+       }
+        
+        Map<String, Object> options = new HashMap<>();
+        options.put("api_key", apiKey);
+        options.put("modelId", id);
+        options.put("doa", dataset.getDoa());
+        options.put("dataset", datasetString);
+        options.put("creator", securityContext.getUserPrincipal().getName());
+        options.put("base_uri", uriInfo.getBaseUri().toString());
+        Task task = predictionService.initiatePrediction(options);
+        return Response.ok(task).build();
+    }
+    
 
     @POST
     @TokenSecured({RoleEnum.DEFAULT_USER})

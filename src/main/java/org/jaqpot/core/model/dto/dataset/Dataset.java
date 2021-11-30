@@ -121,6 +121,36 @@ public class Dataset extends JaqpotEntity {
 
     private Boolean onTrash;
 
+    
+    private boolean doa;
+    private String batch;
+    private Integer batchId;
+
+    public boolean getDoa() {
+        return doa;
+    }
+
+    public void setDoa(boolean doa) {
+        this.doa = doa;
+    }
+
+    public String getBatch() {
+        return batch;
+    }
+
+    public void setBatch(String batch) {
+        this.batch = batch;
+    }
+
+    public Integer getBatchId() {
+        return batchId;
+    }
+
+    public void setBatchId(Integer batchId) {
+        this.batchId = batchId;
+    }
+    
+    
     public String getDatasetURI() {
         return datasetURI;
     }

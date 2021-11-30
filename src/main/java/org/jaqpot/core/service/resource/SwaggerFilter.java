@@ -45,11 +45,9 @@ import javax.enterprise.context.ApplicationScoped;
                         + " the  <a href=\"https://www.ntua.gr/en/\"> National"
                         + " Technical University of Athens.</a> ",
                 version = "5.0.1",
-                contact = @Contact(name = "Charalampos Chomenidis,"
-                        + " Pantelis Sopasakis, Evangelia Anagnostopoulou, Angelos Valsamis,"
-                        + " George Drakakis, Pantelis Karatzas, Georgia Tsiliki, Philip Doganis,"
-                        + " Haralambos Sarimveis", email = "hampos@me.com",
-                        url = "https://github.com/KinkyDesign/jaqpot-web/issues")
+                contact = @Contact(name = "Pantelis Karatzas, Periklis Tsiros, Iason Sotiropoulos, Philip Doganis,"
+                        + " Haralambos Sarimveis", email = "euclia@euclia.xyz",
+                        url = "https://github.com/euclia/")
         )
 )
 public class SwaggerFilter implements ReaderListener {
