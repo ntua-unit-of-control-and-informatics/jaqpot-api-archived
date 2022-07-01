@@ -49,6 +49,27 @@ import java.util.Map;
 public class Model extends JaqpotEntity {
 
     /**
+     *  The type of the model wether a molecular or material or a simple model
+     */
+    private String type;
+    
+    /**
+     *  JaqpotPy version
+    */
+    private String jaqpotpyVersion;
+    
+    
+    /**
+     *  JaqpotPy version
+    */
+    private String jaqpotpyDockerVersion;
+    
+    
+    private List<String> libraries;
+    
+    private List<String> libraryVersions;
+    
+    /**
      * List of dependent features of the model.
      */
     private List<String> dependentFeatures;
@@ -146,6 +167,7 @@ public class Model extends JaqpotEntity {
      */
     public Model(Model other) {
         super(other);
+        this.type = other.type;
         this.algorithm = other.algorithm != null ? new Algorithm(other.algorithm) : null;
         this.bibtex = other.bibtex != null ? new BibTeX(other.bibtex) : null;
         this.datasetUri = other.datasetUri;
@@ -163,6 +185,46 @@ public class Model extends JaqpotEntity {
         this.pmmlTransformations = other.pmmlTransformations;
     }
 
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public String getJaqpotpyVersion() {
+        return jaqpotpyVersion;
+    }
+
+    public void setJaqpotpyVersion(String jaqpotpyVersion) {
+        this.jaqpotpyVersion = jaqpotpyVersion;
+    }
+
+    public String getJaqpotpyDockerVersion() {
+        return jaqpotpyDockerVersion;
+    }
+
+    public void setJaqpotpyDockerVersion(String jaqpotpyDockerVersion) {
+        this.jaqpotpyDockerVersion = jaqpotpyDockerVersion;
+    }
+    
+    public List<String> getLibraries() {
+        return libraries;
+    }
+
+    public void setLibraries(List<String> libraries) {
+        this.libraries = libraries;
+    }
+
+    public List<String> getLibraryVersions() {
+        return libraryVersions;
+    }
+
+    public void setLibraryVersions(List<String> libraryVrsions) {
+        this.libraryVersions = libraryVrsions;
+    }
+    
     public List<String> getDependentFeatures() {
         return dependentFeatures;
     }

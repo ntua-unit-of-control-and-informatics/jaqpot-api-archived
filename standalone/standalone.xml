@@ -333,6 +333,7 @@
                 <jms-topic name="descriptorspreparation" entries="jms/topic/descriptorspreparation java:jboss/exported/jms/topic/descriptorspreparation"/>
                 <jms-topic name="descriptor" entries="jms/topic/descriptor java:jboss/exported/jms/topic/descriptor"/>
                 <jms-topic name="prediction" entries="jms/topic/prediction java:jboss/exported/jms/topic/prediction"/>
+                <jms-topic name="jsonprediction" entries="jms/topic/jsonprediction java:jboss/exported/jms/topic/jsonprediction"/>
                 <jms-topic name="preparation" entries="jms/topic/preparation java:jboss/exported/jms/topic/preparation"/>
                 <jms-topic name="chempot" entries="jms/topic/chempot java:jboss/exported/jms/topic/chempot"/>
                 <jms-topic name="validationCross" entries="jms/topic/validationCross java:jboss/exported/jms/topic/validationCross"/>

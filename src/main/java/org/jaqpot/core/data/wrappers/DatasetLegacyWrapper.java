@@ -15,13 +15,18 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.logging.Level;
 import java.util.stream.Collectors;
 import org.jaqpot.core.data.FeatureHandler;
 import org.jaqpot.core.model.Feature;
 import org.jaqpot.core.properties.PropertyManager;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.logging.Logger;
 
 @Stateless
 public class DatasetLegacyWrapper {
+
+    private static final Logger LOG = Logger.getLogger(DatasetLegacyWrapper.class.getName());
 
     @EJB
     DataEntryHandler dataEntryHandler;
@@ -38,10 +43,26 @@ public class DatasetLegacyWrapper {
     public void create(Dataset dataset) throws IllegalArgumentException, JaqpotDocumentSizeExceededException {
         ROG randomStringGenerator = new ROG(true);
 
+        ObjectMapper mapper = new ObjectMapper();
+//        try {
+//            System.out.println(mapper.writeValueAsString(dataset));
+//        } catch (Exception e) {
+//            LOG.log(Level.SEVERE, e.getLocalizedMessage());
+//        }
+
         HashSet<String> features = dataset.getFeatures().stream().map(FeatureInfo::getKey).collect(Collectors.toCollection(HashSet::new));
         for (DataEntry dataEntry : dataset.getDataEntry()) {
             HashSet<String> entryFeatures = new HashSet<>(dataEntry.getValues().keySet());
             if (!entryFeatures.equals(features)) {
+                try {
+                    features.removeAll(entryFeatures);
+                    System.out.println(mapper.writeValueAsString(entryFeatures.size()));
+                    System.out.println(mapper.writeValueAsString(features.size()));
+                    System.out.println(mapper.writeValueAsString(entryFeatures));
+                    System.out.println(mapper.writeValueAsString(features));
+                } catch (Exception e) {
+                    LOG.log(Level.SEVERE, e.getLocalizedMessage());
+                }
                 throw new IllegalArgumentException("Invalid Dataset - DataEntry URIs do not match with Feature URIs. "
                         + " Problem was found when parsing " + dataEntry.getEntryId());
             }

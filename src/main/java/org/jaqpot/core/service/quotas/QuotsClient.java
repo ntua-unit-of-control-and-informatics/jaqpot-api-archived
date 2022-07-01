@@ -78,6 +78,8 @@ public class QuotsClient {
     private JQuots quotsClient;
     private Serializer serializer;
 
+    private String quotsExist;
+    
     public QuotsClient() {
 
     }
@@ -85,7 +87,13 @@ public class QuotsClient {
     @PostConstruct
     public void Init() {
 
-        LOG.log(Level.INFO, "Initializing QuotsClient");
+        this.quotsExist = propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.QUOTS_EXIST);
+        
+        if("true".equals(this.quotsExist)){
+            LOG.log(Level.INFO, "Initializing QuotsClient");
+        }else{
+            LOG.log(Level.INFO, "QUOTS WON'T INITIALIZE");
+        }
         String quotsUrl = propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.QUOTS_URL);
         String quotsApp = propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.QUOTS_APP);
         LOG.log(Level.INFO, "Quots URL : {0}", quotsUrl);
@@ -102,7 +110,8 @@ public class QuotsClient {
     public CanProceed canUserProceedSync(String userId, String usage, String size, String accessToken) throws InterruptedException, ExecutionException, InternalServerErrorException, JaqpotNotAuthorizedException, JaqpotNotAuthorizedException, JaqpotNotAuthorizedException, ParseException {
         Future<Response> proceed = this.quotsClient.canProceed(userId, usage, size);
         CanProceed cp = new CanProceed();
-        User user = aaService.getUserFromSSO(accessToken);
+        if("true".equals(this.quotsExist)){
+                User user = aaService.getUserFromSSO(accessToken);
         switch (proceed.get().getStatusCode()) {
             case 400:
                 this.quotsClient.createUser(userId, user.getName(), user.getEmail());
@@ -121,6 +130,11 @@ public class QuotsClient {
                 ErrorReport er = serializer.parse(proceed.get().getResponseBody(), ErrorReport.class);
                 throw new InternalServerErrorException(er.getMessage());
         }
+        }else{
+                cp.setProceed(true);
+                cp.setUserid(userId);
+                }
+        
         return cp;
     }
 

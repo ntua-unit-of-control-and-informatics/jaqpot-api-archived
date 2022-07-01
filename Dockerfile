@@ -1,4 +1,4 @@
-FROM jboss/wildfly
+FROM jboss/wildfly:21.0.1.Final
 
 USER root
 
@@ -23,7 +23,7 @@ EXPOSE 9990
 
 
 
-ADD ./target/jaqpot-api-5.0.36.war /opt/jboss/wildfly/standalone/deployments/
+ADD ./target/jaqpot-api-5.0.43.war /opt/jboss/wildfly/standalone/deployments/
 ADD ./standalone/standalone.xml /opt/jboss/wildfly/standalone/configuration/standalone.xml
 
 

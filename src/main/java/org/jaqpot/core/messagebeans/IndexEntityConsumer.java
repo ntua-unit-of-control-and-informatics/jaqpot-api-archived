@@ -68,6 +68,7 @@ import org.jaqpot.core.model.dto.dataset.Dataset;
 import org.jaqpot.core.properties.PropertyManager;
 import org.jaqpot.core.search.engine.ElasticQueries;
 import org.jaqpot.core.search.engine.JaqpotElasticSearch;
+import org.jaqpot.core.service.exceptions.JaqpotDocumentSizeExceededException;
 
 /**
  *
@@ -517,11 +518,25 @@ public class IndexEntityConsumer {
             public void onSuccess(Response rspns) {
                 switch (et) {
                     case MODEL:
-                        mh.updateField(entityId, "indexed", true);
+                    {
+                        try {
+                            mh.updateField(entityId, "indexed", true);
+                        } catch (JaqpotDocumentSizeExceededException ex) {
+                            Logger.getLogger(IndexEntityConsumer.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                    }
                         break;
+
                     case DATASET:
-                        dh.updateField(entityId, "indexed", true);
+                    {
+                        try {
+                            dh.updateField(entityId, "indexed", true);
+                        } catch (JaqpotDocumentSizeExceededException ex) {
+                            Logger.getLogger(IndexEntityConsumer.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                    }
                         break;
+
                 }
 //                
             }

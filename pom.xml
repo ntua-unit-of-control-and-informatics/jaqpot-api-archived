@@ -4,7 +4,7 @@
 
     <groupId>org.jaqpot</groupId>
     <artifactId>jaqpot-api</artifactId>
-    <version>5.0.36</version>
+    <version>5.0.43</version>
     <packaging>war</packaging>
     
     <dependencies>
@@ -311,7 +311,9 @@
         <redis.exists></redis.exists>    
         <redis.on.cluster></redis.on.cluster>     
         <redis.cluster></redis.cluster> 
+                      
                                              
+        <quots.exist></quots.exist>                                                                                   
         <quots.url></quots.url>
         <quots.app></quots.app>
         <quots.app.secret></quots.app.secret>  

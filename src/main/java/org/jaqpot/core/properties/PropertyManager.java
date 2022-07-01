@@ -34,14 +34,10 @@
  */
 package org.jaqpot.core.properties;
 
-import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.util.ResourceBundle;
-import javax.annotation.PostConstruct;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
-import org.bson.types.ObjectId;
-import org.jaqpot.core.data.UserHandler;
 
 /**
  * @author Angelos Valsamis
@@ -53,7 +49,7 @@ public class PropertyManager {
 
     public enum PropertyType {
         JAQPOT_ENV("jaqpot.env", "config", "dev"),
-//        JAQPOT_ENV("jaqpot.env", "config", "prod"),
+        //        JAQPOT_ENV("jaqpot.env", "config", "prod"),
         JAQPOT_LOCAL_IP("jaqpot.local.ip", "config", "147.102.86.129"),
         JAQPOT_ADMINISTRATORS("jaqpot.administrators", "config", "admin"),
         JAQPOT_AA("jaqpot.aa", "config", "true"),
@@ -75,7 +71,7 @@ public class PropertyManager {
         JAQPOT_DB_NAME("jaqpot.db.name", "db", "test"),
         JAQPOT_DB_HOST("jaqpot.db.host", "db", "localhost"),
         JAQPOT_DB_PORT("jaqpot.db.port", "db", "27017"),
-        JAQPOT_DB_CONNECTION_STRING("jaqpot.db.connection.string","db", "mongodb://localhost:27017"),
+        JAQPOT_DB_CONNECTION_STRING("jaqpot.db.connection.string", "db", "mongodb://localhost:27017"),
         JAQPOT_MAIL_SEND("jaqpot.mail.dosend", "mail", "false"),
         JAQPOT_MAIL_MANDRILL_API_KEY("jaqpot.mail.mandrillApiKey", "mail", ""),
         JAQPOT_MAIL_FROM_MAIL("jaqpot.mail.fromMail", "mail", ""),
@@ -93,36 +89,35 @@ public class PropertyManager {
         PKSIM_BASE("pksim.base", "config", "http://147.102.86.129:9999/"),
         OCPU_LM_BASE("ocpulm.base", "config", "http://test.jaqpot.org:8004/"),
         HTTK_BASE("httk.base", "config", "http://jaqpot.org:8011/"),
-        OIDC_ISSUER("oidc.issuer", "config", "https://login.jaqpot.org/auth/realms/jaqpot/"),
+        
+        //        OIDC_ISSUER("oidc.issuer", "config", "https://login.jaqpot.org/auth/realms/jaqpot/"),
+        //        OIDC_CLIENT_ID("oidc.client.id", "config", "jaqpot-api"),
+        //        OIDC_CLIENT_PASS("oidc.client.pass", "config", "9dccac19-23c6-49be-83be-8f07859d263f"),
+
+        OIDC_ISSUER("oidc.issuer", "config", "https://login.eosc.jaqpot.org/auth/realms/master/"),
         OIDC_CLIENT_ID("oidc.client.id", "config", "jaqpot-api"),
-        OIDC_CLIENT_PASS("oidc.client.pass", "config", "9dccac19-23c6-49be-83be-8f07859d263f"),
-        // OIDC_ISSUER("oidc.issuer", "config", "https://squonk.informaticsmatters.org/auth/realms/squonk/"),
-        // OIDC_CLIENT_ID("oidc.client.id", "config", "jaqpot-api-client"),
-        // OIDC_CLIENT_PASS("oidc.client.pass", "config", "8e076919-228d-440f-8450-31278c038832"),
+        OIDC_CLIENT_PASS("oidc.client.pass", "config", "b478b3f8-42d7-43bf-afa1-5370516bb97f"),
+        
         OIDC_PROVIDER_CONF("oidc.provider.conf", "config", ".well-known/openid-configuration"),
-        ELASTIC_HOST("elastic.host","config", "192.168.10.100"),
+        ELASTIC_HOST("elastic.host", "config", "192.168.10.100"),
         ELASTIC_PORT("elastic.port", "config", "31643"),
         ELASTIC_EXISTS("elastic.exists", "config", "false"),
         ELASTIC_AUTH("elastic.auth", "config", "true"),
         ELASTIC_USER("elastic.user", "config", "elastic"),
         ELASTIC_PASS("elastic.pass", "config", "52Uj482Q00djvkJ5VYfP0n6L"),
-
-
-        KAFKA_BOOTSTRAP("kafka.bootstrap","config", "192.168.10.84:32400,192.168.10.84:32401,192.168.10.84:32402"),
+        KAFKA_BOOTSTRAP("kafka.bootstrap", "config", "192.168.10.84:32400,192.168.10.84:32401,192.168.10.84:32402"),
         KAFKA_EXISTS("kafka.exists", "config", "false"),
         KAFKA_REPLICATION("kafka.replication", "config", "3"),
-        
         REDIS_EXISTS("redis.exists", "config", "false"),
         REDIS_DB("redis.db", "config", "localhost"),
         REDIS_ON_CLUSTER("redis.on.cluster", "config", "false"),
         REDIS_CLUSTER("redis.cluster", "config", "redis-cluster.redis:6379"),
-        
+        QUOTS_EXIST("quots.exist", "config", "false"),
         QUOTS_URL("quots.url", "config", "http://localhost:8000"),
         QUOTS_APP("quots.app", "config", "jaqpot"),
         QUOTS_APP_SECRET("quots.app.secret", "config", "VHChwwYKgsvmKQRF"),
-        
         EUCLIA_ACCOUNTS_URL("euclia.accounts.url", "config", "https://accountsapi.jaqpot.org");
-        
+
         private final String name;
         private final String bundle;
         private final String defaultValue;

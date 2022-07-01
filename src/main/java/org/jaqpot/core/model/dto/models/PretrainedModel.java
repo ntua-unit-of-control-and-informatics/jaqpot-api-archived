@@ -42,6 +42,25 @@ import java.util.List;
  */
 public class PretrainedModel {
     
+    
+    /**
+     *  The type of the model wether a molecular or material or a simple model
+     */
+    private String type;
+    
+    /**
+     *  JaqpotPy version
+    */
+    private String jaqpotpyVersion;
+    
+    /**
+     *  JaqpotPy docker version
+    */
+    private String jaqpotpyDockerVersion;
+    
+    private List<String> libraries;
+    
+    private List<String> versions;
 
     private Object rawModel;
     private Object pmmlModel;
@@ -56,7 +75,46 @@ public class PretrainedModel {
     private List<String> algorithm;
     private boolean batched;
 
+    public String getJaqpotpyDockerVersion() {
+        return jaqpotpyDockerVersion;
+    }
 
+    public void setJaqpotpyDockerVersion(String jaqpotpyDockerVersion) {
+        this.jaqpotpyDockerVersion = jaqpotpyDockerVersion;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public String getJaqpotpyVersion() {
+        return jaqpotpyVersion;
+    }
+
+    public void setJaqpotpyVersion(String jaqpotpyVersion) {
+        this.jaqpotpyVersion = jaqpotpyVersion;
+    }
+
+    public List<String> getLibraries() {
+        return libraries;
+    }
+
+    public void setLibraries(List<String> libraries) {
+        this.libraries = libraries;
+    }
+
+    public List<String> getVersions() {
+        return versions;
+    }
+
+    public void setVersions(List<String> libraryVrsions) {
+        this.versions = libraryVrsions;
+    }
+    
     public Object getRawModel() {
         return rawModel;
     }

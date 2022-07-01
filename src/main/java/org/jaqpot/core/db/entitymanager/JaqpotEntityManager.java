@@ -32,8 +32,11 @@ package org.jaqpot.core.db.entitymanager;
 import java.io.Closeable;
 import java.util.List;
 import java.util.Map;
+import javax.ejb.EJBTransactionRolledbackException;
+import org.bson.BsonMaximumSizeExceededException;
 import org.jaqpot.core.model.JaqpotEntity;
 import org.jaqpot.core.model.MetaInfo;
+import org.jaqpot.core.service.exceptions.JaqpotDocumentSizeExceededException;
 
 /**
  *
@@ -245,7 +248,7 @@ public interface JaqpotEntityManager extends Closeable {
     
     public <T extends JaqpotEntity> List<T> findSortedDesc(Class<T> entityClass, Map<String, Object> properties, Integer start, Integer max, List<String> descendingFields);
 
-    public <T extends JaqpotEntity> void updateField(Class<T> entityClass, Object primaryKey, String key, Object field);
+    public <T extends JaqpotEntity> void updateField(Class<T> entityClass, Object primaryKey, String key, Object field) throws JaqpotDocumentSizeExceededException ,BsonMaximumSizeExceededException, EJBTransactionRolledbackException;
 
-    public <T extends JaqpotEntity> void updateMeta(Class<T> entityClass, Object primaryKey, MetaInfo field);
+    public <T extends JaqpotEntity> void updateMeta(Class<T> entityClass, Object primaryKey, MetaInfo field) throws JaqpotDocumentSizeExceededException;
 }

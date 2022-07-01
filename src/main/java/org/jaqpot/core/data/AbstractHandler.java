@@ -36,6 +36,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.bson.BsonMaximumSizeExceededException;
 
 import org.jaqpot.core.db.entitymanager.JaqpotEntityManager;
 import org.jaqpot.core.model.JaqpotEntity;
@@ -70,11 +71,12 @@ public abstract class AbstractHandler<T extends JaqpotEntity> {
         getEntityManager().merge(entity);
     }
 
-    public void updateField(Object id, String key, Object value) {
+    public void updateField(Object id, String key, Object value) throws JaqpotDocumentSizeExceededException, BsonMaximumSizeExceededException {
         getEntityManager().updateField(entityClass, id, key, value);
+        
     }
 
-    public void updateMeta(Object id, MetaInfo meta) {
+    public void updateMeta(Object id, MetaInfo meta) throws JaqpotDocumentSizeExceededException{
         getEntityManager().updateMeta(entityClass, id, meta);
     }
 
