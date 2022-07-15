@@ -90,13 +90,13 @@ public class PropertyManager {
         OCPU_LM_BASE("ocpulm.base", "config", "http://test.jaqpot.org:8004/"),
         HTTK_BASE("httk.base", "config", "http://jaqpot.org:8011/"),
         
-        //        OIDC_ISSUER("oidc.issuer", "config", "https://login.jaqpot.org/auth/realms/jaqpot/"),
-        //        OIDC_CLIENT_ID("oidc.client.id", "config", "jaqpot-api"),
-        //        OIDC_CLIENT_PASS("oidc.client.pass", "config", "9dccac19-23c6-49be-83be-8f07859d263f"),
-
-        OIDC_ISSUER("oidc.issuer", "config", "https://login.eosc.jaqpot.org/auth/realms/master/"),
+        OIDC_ISSUER("oidc.issuer", "config", "https://login.jaqpot.org/auth/realms/jaqpot/"),
         OIDC_CLIENT_ID("oidc.client.id", "config", "jaqpot-api"),
-        OIDC_CLIENT_PASS("oidc.client.pass", "config", "b478b3f8-42d7-43bf-afa1-5370516bb97f"),
+        OIDC_CLIENT_PASS("oidc.client.pass", "config", "9dccac19-23c6-49be-83be-8f07859d263f"),
+
+//        OIDC_ISSUER("oidc.issuer", "config", "https://login.eosc.jaqpot.org/auth/realms/master/"),
+//        OIDC_CLIENT_ID("oidc.client.id", "config", "jaqpot-api"),
+//        OIDC_CLIENT_PASS("oidc.client.pass", "config", "b478b3f8-42d7-43bf-afa1-5370516bb97f"),
         
         OIDC_PROVIDER_CONF("oidc.provider.conf", "config", ".well-known/openid-configuration"),
         ELASTIC_HOST("elastic.host", "config", "192.168.10.100"),

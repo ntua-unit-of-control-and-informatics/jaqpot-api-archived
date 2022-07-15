@@ -159,10 +159,9 @@ public class ModelResource {
     @EJB
     PredictionService predictionService;
 
-    
     @EJB
     JsonPredictionService jsonPredictionService;
-    
+
     @EJB
     FeatureHandler featureHandler;
 
@@ -846,7 +845,7 @@ public class ModelResource {
                 modelHandler.updateField(parts.getModelId(),
                         "actualModel", actualModel);
             } catch (BsonMaximumSizeExceededException | JaqpotDocumentSizeExceededException | EJBTransactionRolledbackException e) {
-                
+
                 LOG.log(Level.INFO, "Model will be stored as parts");
 //                byte[] bytes = s.toString().getBytes(StandardCharsets.UTF_8);
 
@@ -916,6 +915,18 @@ public class ModelResource {
         if (pretrainedModelRequest.getJaqpotpyVersion() == null) {
             String runtime = pretrainedModelRequest.getRuntime().get(0);
             String algoId = runtime + "-pretrained";
+            Algorithm algo = algoHandler.find(algoId);
+            model.setAlgorithm(algo);
+        }
+
+        if (pretrainedModelRequest.getJaqpotpyDockerVersion() != null) {
+            String constantPart = "jaqpot-docker-";
+            String algoId = constantPart + pretrainedModelRequest.getJaqpotpyDockerVersion() + "-pretrained";
+            Algorithm algo = algoHandler.find(algoId);
+            model.setAlgorithm(algo);
+        } else {
+            String constantPart = "jaqpot-docker-";
+            String algoId = constantPart + "default-pretrained";
             Algorithm algo = algoHandler.find(algoId);
             model.setAlgorithm(algo);
         }
