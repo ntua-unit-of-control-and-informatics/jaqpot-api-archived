@@ -912,24 +912,30 @@ public class ModelResource {
         model.setType(pretrainedModelRequest.getType());
         model.setJaqpotpyVersion(pretrainedModelRequest.getJaqpotpyVersion());
 
-        if (pretrainedModelRequest.getJaqpotpyVersion() == null) {
-            String runtime = pretrainedModelRequest.getRuntime().get(0);
-            String algoId = runtime + "-pretrained";
-            Algorithm algo = algoHandler.find(algoId);
-            model.setAlgorithm(algo);
-        }
-
-        if (pretrainedModelRequest.getJaqpotpyDockerVersion() != null) {
-            String constantPart = "jaqpot-docker-";
-            String algoId = constantPart + pretrainedModelRequest.getJaqpotpyDockerVersion() + "-pretrained";
-            Algorithm algo = algoHandler.find(algoId);
-            model.setAlgorithm(algo);
-        } else {
-            String constantPart = "jaqpot-docker-";
-            String algoId = constantPart + "default-pretrained";
-            Algorithm algo = algoHandler.find(algoId);
-            model.setAlgorithm(algo);
-        }
+        
+        String runtime = pretrainedModelRequest.getRuntime().get(0);
+        String algoId = runtime + "-pretrained";
+        Algorithm algo = algoHandler.find(algoId);
+        model.setAlgorithm(algo);
+        
+//        if (pretrainedModelRequest.getJaqpotpyVersion() == null) {
+//            String runtime = pretrainedModelRequest.getRuntime().get(0);
+//            String algoId = runtime + "-pretrained";
+//            Algorithm algo = algoHandler.find(algoId);
+//            model.setAlgorithm(algo);
+//        }
+//
+//        if (pretrainedModelRequest.getJaqpotpyDockerVersion() != null) {
+//            String constantPart = "jaqpot-docker-";
+//            String algoId = constantPart + pretrainedModelRequest.getJaqpotpyDockerVersion() + "-pretrained";
+//            Algorithm algo = algoHandler.find(algoId);
+//            model.setAlgorithm(algo);
+//        } else {
+//            String constantPart = "jaqpot-docker-";
+//            String algoId = constantPart + "default-pretrained";
+//            Algorithm algo = algoHandler.find(algoId);
+//            model.setAlgorithm(algo);
+//        }
 
         MetaInfo mf = new MetaInfo();
         Set<String> titles = new HashSet();
