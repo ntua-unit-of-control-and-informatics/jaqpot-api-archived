@@ -20,3 +20,11 @@ services:
     environment:
       JAQPOT_DB_CONNECTION_STRING: mongodb://root:example@mongo:27017
       JAQPOT_DB_NAME: admin
+
+  quots:
+    depends_on: [mongo]
+    image: upcintua/quots
+    ports:
+      - "8000:8000"
+    environment:
+      MONGO_URL: mongodb://root:example@mongo:27017
