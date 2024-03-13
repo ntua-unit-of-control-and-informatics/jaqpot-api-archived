@@ -12,14 +12,13 @@ services:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: example
 
-  jaqpot-api:
-    depends_on: [mongo]
-    image: upcintua/jaqpot-api:5.0.45
-    ports:
-      - "8080:8080"
-    environment:
-      JAQPOT_DB_CONNECTION_STRING: mongodb://root:example@mongo:27017
-      JAQPOT_DB_NAME: admin
+#  jaqpot-api:
+#    depends_on: [mongo]
+#    image: upcintua/jaqpot-api:5.0.45
+#    ports:
+#      - "8080:8080"
+#    environment:
+#      JAQPOT_DB_CONNECTION_STRING: mongodb://root:example@mongo:27017
 
   quots:
     depends_on: [mongo]
@@ -28,3 +27,5 @@ services:
       - "8000:8000"
     environment:
       MONGO_URL: mongodb://root:example@mongo:27017
+
+
