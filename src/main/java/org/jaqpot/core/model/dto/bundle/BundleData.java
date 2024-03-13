@@ -31,7 +31,7 @@ package org.jaqpot.core.model.dto.bundle;
 
 
 
-import org.jaqpot.core.model.dto.dataset.Substance;
+import org.jaqpot.core.model.dto.dataset.EntryId;
 
 import java.util.List;
 import java.util.Map;
@@ -45,7 +45,7 @@ public class BundleData {
     private String bundleUri;
     private String description;
     private String substanceOwner;
-    private List<Substance> substances;
+    private List<EntryId> substances;
     private Map<String, List<String>> properties;
 
     public BundleData(){}
@@ -82,11 +82,11 @@ public class BundleData {
         this.substanceOwner = substanceOwner;
     }
 
-    public List<Substance> getSubstances() {
+    public List<EntryId> getSubstances() {
         return substances;
     }
 
-    public void setSubstances(List<Substance> substances) {
+    public void setSubstances(List<EntryId> substances) {
         this.substances = substances;
     }
 

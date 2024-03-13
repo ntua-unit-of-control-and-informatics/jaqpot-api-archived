@@ -20,3 +20,10 @@
 /VideoClub2/build/
 /VideoClub2/dist/
 /JaqpotEAR/nbactions.xml
+/.idea/
+/.settings/
+/.vscode/
+/certs/
+/pkg/
+pkg/
+.DS_Store

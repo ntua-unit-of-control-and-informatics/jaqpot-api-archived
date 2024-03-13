@@ -32,7 +32,11 @@ package org.jaqpot.core.db.entitymanager;
 import java.io.Closeable;
 import java.util.List;
 import java.util.Map;
+import javax.ejb.EJBTransactionRolledbackException;
+import org.bson.BsonMaximumSizeExceededException;
 import org.jaqpot.core.model.JaqpotEntity;
+import org.jaqpot.core.model.MetaInfo;
+import org.jaqpot.core.service.exceptions.JaqpotDocumentSizeExceededException;
 
 /**
  *
@@ -114,6 +118,7 @@ public interface JaqpotEntityManager extends Closeable {
      */
     public <T extends JaqpotEntity> Long count(Class<T> entityClass, Map<String, Object> properties);
 
+    public <T extends JaqpotEntity> Long countAndNe(Class<T> entityClass, Map<String, Object> properties, Map<String, Object> notProperties);
     /**
      * Find by primary keys. Searches for entities of the specified class that
      * match the given primary keys. The returned entity instances will only
@@ -144,7 +149,38 @@ public interface JaqpotEntityManager extends Closeable {
      * @return the total of entity instances that match the given properties
      */
     public <T extends JaqpotEntity> List<T> find(Class<T> entityClass, Map<String, Object> properties, List<String> fields, Integer start, Integer max);
-
+//        /**
+//     * Find by properties, return specific fields. Searches for entities of the
+//     * specified class that match the given properties but returns only fields
+//     * that are present in the fields parameter.
+//     *
+//     * This method has paging capability.
+//     *
+//     * @param <T>
+//     * @param entityClass entity class
+//     * @param properties a map matching field array names with values we wish to find
+//     * @param fields a list of fields to be returned
+//     * @param start the position of the first result to retrieve
+//     * @param max the maximum number of results to retrieve
+//     * @return the total of entity instances that match the given properties
+//     */
+//    public <T extends JaqpotEntity> List<T> findInArray(Class<T> entityClass, Map<String, Object> properties, List<String> fields, Integer start, Integer max);
+   
+    /**
+     * Find all entities. Searches for all entities of the specified class with keys to search.
+     *
+     * This method has paging capability.
+     *
+     * @param <T>
+     * @param entityClass entity class
+     * @param start the position of the first result to retrieve
+     * @param max the maximum number of results to retrieve
+     * @param properties the properties upon to search
+     * @return a list with all entity instances of given class
+     */
+    public <T extends JaqpotEntity> List<T> findAllWithReqexp(Class<T> entityClass, Map<String, Object> properties, List<String> fields, Integer start, Integer max);
+    
+    
     /**
      * Find all entities. Searches for all entities of the specified class.
      *
@@ -195,6 +231,8 @@ public interface JaqpotEntityManager extends Closeable {
      * @return only the specified fields of the entity with given primary key
      */
     public <T extends JaqpotEntity> T find(Class<T> entityClass, Object primaryKey, List<String> fields);
+    
+    public <T extends JaqpotEntity> List<T> findAndNe(Class<T> entityClass, Map<String, Object> properties, Map<String, Object> notProperties, List<String> fields, Integer start, Integer max);
 
     public <T extends JaqpotEntity> List<T> findSorted(Class<T> entityClass, Map<String, Object> properties, List<String> fields, Integer start, Integer max, List<String> ascendingFields, List<String> descendingFields);
     
@@ -202,9 +240,15 @@ public interface JaqpotEntityManager extends Closeable {
     
     public <T extends JaqpotEntity> List<T> findSortedDesc(Class<T> entityClass, Map<String, Object> properties, List<String> fields, Integer start, Integer max, List<String> descendingFields);
 
+    public <T extends JaqpotEntity> List<T> findSortedDescAndNe(Class<T> entityClass, Map<String, Object> properties, Map<String, Object> notProperties, List<String> fields, Integer start, Integer max, List<String> descendingFields);
+    
     public <T extends JaqpotEntity> List<T> findSorted(Class<T> entityClass, Map<String, Object> properties, Integer start, Integer max, List<String> ascendingFields, List<String> descendingFields);
     
     public <T extends JaqpotEntity> List<T> findSortedAsc(Class<T> entityClass, Map<String, Object> properties, Integer start, Integer max, List<String> ascendingFields);
     
     public <T extends JaqpotEntity> List<T> findSortedDesc(Class<T> entityClass, Map<String, Object> properties, Integer start, Integer max, List<String> descendingFields);
+
+    public <T extends JaqpotEntity> void updateField(Class<T> entityClass, Object primaryKey, String key, Object field) throws JaqpotDocumentSizeExceededException ,BsonMaximumSizeExceededException, EJBTransactionRolledbackException;
+
+    public <T extends JaqpotEntity> void updateMeta(Class<T> entityClass, Object primaryKey, MetaInfo field) throws JaqpotDocumentSizeExceededException;
 }

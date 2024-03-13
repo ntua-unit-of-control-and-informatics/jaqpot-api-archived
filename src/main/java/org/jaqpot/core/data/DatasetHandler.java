@@ -34,17 +34,21 @@
  */
 package org.jaqpot.core.data;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import org.jaqpot.core.annotations.MongoDB;
 import org.jaqpot.core.db.entitymanager.JaqpotEntityManager;
-import org.jaqpot.core.model.MetaInfo;
-import org.jaqpot.core.model.dto.dataset.DataEntry;
+import org.jaqpot.core.model.DataEntry;
 import org.jaqpot.core.model.dto.dataset.Dataset;
 import org.jaqpot.core.model.dto.dataset.FeatureInfo;
-import org.jaqpot.core.model.factory.DatasetFactory;
+import org.jaqpot.core.service.exceptions.JaqpotDocumentSizeExceededException;
+
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -54,135 +58,146 @@ import java.util.stream.Collectors;
  */
 @Stateless
 public class DatasetHandler extends AbstractHandler<Dataset> {
-    
+
     @Inject
     @MongoDB
     JaqpotEntityManager em;
-    
+
     public DatasetHandler() {
         super(Dataset.class);
     }
-    
+
     @Override
     protected JaqpotEntityManager getEntityManager() {
         return em;
     }
-    
+
     @Override
-    public void create(Dataset dataset) throws IllegalArgumentException {
-//        if (dataset.getDataEntry() == null || dataset.getDataEntry().isEmpty()) {
-//            throw new IllegalArgumentException("Resulting dataset is empty");
-//        }
-        HashSet<String> features = dataset.getFeatures().stream().map(FeatureInfo::getURI).collect(Collectors.toCollection(HashSet::new));
-        for (DataEntry dataEntry : dataset.getDataEntry()) {
-            HashSet<String> entryFeatures = new HashSet<>(dataEntry.getValues().keySet());
-            if (!entryFeatures.equals(features)) {
-                throw new IllegalArgumentException("Invalid Dataset - DataEntry URIs do not match with Feature URIs. "
-                        + " Problem was found when parsing " + dataEntry.getCompound());
-            }
+    public void create(Dataset dataset) throws IllegalArgumentException, JaqpotDocumentSizeExceededException {
+        if (dataset.toString().length() > 14000000) {
+            throw new JaqpotDocumentSizeExceededException("Resulting Dataset exceeds limit of 14mb on Dataset Resources");
         }
-        dataset.setTotalRows(dataset.getDataEntry().size());
-        dataset.setTotalColumns(dataset.getDataEntry()
-                .stream()
-                .max((e1, e2) -> Integer.compare(e1.getValues().size(), e2.getValues().size()))
-                .orElseGet(() -> {
-                    DataEntry de = new DataEntry();
-                    de.setValues(new TreeMap<>());
-                    return de;
-                })
-                .getValues().size());
-        dataset.setVisible(Boolean.TRUE);
         super.create(dataset);
     }
-    
+
     @Override
     public void edit(Dataset dataset) throws IllegalArgumentException {
-//        if (dataset.getDataEntry().isEmpty()) {
-//            throw new IllegalArgumentException("Resulting dataset is empty");
-//        }
         HashSet<String> features = dataset.getFeatures().stream().map(FeatureInfo::getURI).collect(Collectors.toCollection(HashSet::new));
         for (DataEntry dataEntry : dataset.getDataEntry()) {
             HashSet<String> entryFeatures = new HashSet<>(dataEntry.getValues().keySet());
             if (!entryFeatures.equals(features)) {
                 throw new IllegalArgumentException("Invalid Dataset - DataEntry URIs do not match with Feature URIs. "
-                        + " Problem was found when parsing " + dataEntry.getCompound() + "On dataset" + dataset.getId());
+                        + " Problem was found when parsing " + dataEntry.getEntryId() + "On dataset" + dataset.getId());
             }
         }
         getEntityManager().merge(dataset);
     }
-    
-    public Dataset find(Object id, Integer rowStart, Integer rowMax, Integer colStart, Integer colMax, String stratify, Long seed, Integer folds, String targetFeature) {
+
+    public Dataset find(Object id) {
         Dataset dataset = em.find(Dataset.class, id);
         if (dataset == null) {
             return null;
         }
-        if (stratify != null) {
-            switch (stratify) {
-                case "random":
-                    dataset = DatasetFactory.randomize(dataset, seed);
-                    break;
-                case "normal":
-                    dataset = DatasetFactory.stratify(dataset, folds, targetFeature);
-                    break;
-                default:
-                    break;
-            }
-        }
-        
-        if (rowStart == null) {
-            rowStart = 0;
-        }
-        if (colStart == null) {
-            colStart = 0;
-        }
-        
-        if (dataset.getTotalRows() == null) {
-            dataset.setTotalRows(dataset.getDataEntry().size());
-        }
-        
-        if (dataset.getTotalColumns() == null) {
-            dataset.setTotalColumns(dataset.getDataEntry()
-                    .stream()
-                    .max((e1, e2) -> Integer.compare(e1.getValues().size(), e2.getValues().size()))
-                    .get()
-                    .getValues().size());
-        }
-        
-        int rowEnd;
-        if (rowMax == null || (rowEnd = rowStart + rowMax) > dataset.getTotalRows()) {
-            rowEnd = dataset.getTotalRows();
-        }
-        if (colMax == null || colStart + colMax > dataset.getTotalColumns()) {
-            colMax = dataset.getTotalColumns() - colStart;
-        }
-        
-        dataset.setDataEntry(dataset.getDataEntry().subList(rowStart, rowEnd));
-        
-        for (int j = 0; j < dataset.getDataEntry().size(); j++) {
-            DataEntry de = dataset.getDataEntry().get(j);
-            TreeMap<String, Object> values = (TreeMap) de.getValues();
-            NavigableSet<String> valuesSet = values.navigableKeySet();
-            
-            Iterator<String> it = valuesSet.iterator();
-            for (int i = 0; i < colStart; i++) {
-                it.next();
-                it.remove();
-            }
-            for (int i = 0; i < colMax; i++) {
-                it.next();
-            }
-            while (it.hasNext()) {
-                it.next();
-                it.remove();
-            }
-            if (de.getCompound().getName() == null) {
-                de.getCompound().setName(Integer.toString(j+1));
-            }
-        }
-//        DataEntry blank = new DataEntry();
-//        blank.setValues(new TreeMap<>());
-//        DataEntry firstEntry = dataset.getDataEntry().stream().findFirst().orElse(blank);
-//        dataset.getFeatures().keySet().retainAll(firstEntry.getValues().keySet());                
         return dataset;
     }
+
+    public List<Dataset> listDatasetCreatorsExistence(String creator, Dataset.DatasetExistence existence, Integer start, Integer max) {
+        List<String> fields = new ArrayList<>();
+        fields.add("_id");
+        fields.add("meta");
+        fields.add("ontologicalClasses");
+        fields.add("organizations");
+        fields.add("totalRows");
+        fields.add("totalColumns");
+
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("meta.creators", Arrays.asList(creator));
+        properties.put("existence", existence.getName().toUpperCase());
+
+        Map<String, Object> notProperties = new HashMap<>();
+        notProperties.put("onTrash", true);
+
+        return em.findAndNe(Dataset.class, properties, notProperties, fields, start, max);
+    }
+
+    public List<Dataset> listDatasetByModelExistence(String creator, String byModel, Dataset.DatasetExistence existence, Integer start, Integer max) {
+        List<String> fields = new ArrayList<>();
+        fields.add("_id");
+        fields.add("meta");
+        fields.add("ontologicalClasses");
+        fields.add("organizations");
+        fields.add("totalRows");
+        fields.add("totalColumns");
+
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("meta.creators", Arrays.asList(creator));
+        properties.put("existence", existence.getName().toUpperCase());
+        properties.put("byModel", byModel);
+        Map<String, Object> notProperties = new HashMap<>();
+        notProperties.put("onTrash", true);
+
+        return em.findAndNe(Dataset.class, properties, notProperties, fields, start, max);
+    }
+
+    public List<Dataset> listDatasetOrgsExistence(String organization, Dataset.DatasetExistence existence, Integer start, Integer max) {
+        List<String> fields = new ArrayList<>();
+        fields.add("_id");
+        fields.add("meta");
+        fields.add("ontologicalClasses");
+        fields.add("organizations");
+        fields.add("totalRows");
+        fields.add("totalColumns");
+
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("organizations", Arrays.asList(organization));
+        properties.put("existence", existence.getName().toUpperCase());
+        return em.find(Dataset.class, properties, fields, start, max);
+    }
+
+    public List<Dataset> listOrgsDataset(String organization, Integer start, Integer max) {
+        List<String> fields = new ArrayList<>();
+        fields.add("_id");
+        fields.add("meta");
+        fields.add("ontologicalClasses");
+        fields.add("organizations");
+        fields.add("totalRows");
+        fields.add("totalColumns");
+
+        Map<String, Object> properties = new HashMap<>();
+
+        properties.put("meta.view", organization);
+//        properties.put("visible", true);
+        return em.find(Dataset.class, properties, fields, start, max);
+    }
+
+    public long countModelsPredictedDatasets(String creator, Dataset.DatasetExistence existence) {
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("meta.creators", Arrays.asList(creator));
+        properties.put("existence", existence.getName().toUpperCase());
+        properties.put("visible", true);
+        Map<String, Object> neProperties = new HashMap<>();
+        neProperties.put("onTrash", true);
+        return getEntityManager().countAndNe(entityClass, properties, neProperties);
+    }
+
+    public long countCreatorsExistenseDatasets(String creator, Dataset.DatasetExistence existence) {
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("meta.creators", Arrays.asList(creator));
+        properties.put("existence", existence.getName().toUpperCase());
+        properties.put("visible", true);
+        Map<String, Object> neProperties = new HashMap<>();
+        neProperties.put("onTrash", true);
+        return getEntityManager().countAndNe(entityClass, properties, neProperties);
+    }
+    
+    public long countCreatorsByModel(String creator,String byModel) {
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("meta.creators", Arrays.asList(creator));
+        properties.put("byModel", byModel);
+        properties.put("visible", true);
+        Map<String, Object> neProperties = new HashMap<>();
+        neProperties.put("onTrash", true);
+        return getEntityManager().countAndNe(entityClass, properties, neProperties);
+    }
+
 }

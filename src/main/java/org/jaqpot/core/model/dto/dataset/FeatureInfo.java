@@ -29,38 +29,38 @@
  */
 package org.jaqpot.core.model.dto.dataset;
 
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Map;
 import java.util.Objects;
 
-/**
- *
- * @author Pantelis Sopasakis
- * @author Charalampos Chomenidis
- *
- */
+@XmlRootElement
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class FeatureInfo {
 
     private String URI;
     private String name;
     private String units;
+    private String ont;
     private Map<String, Object> conditions;
     private Dataset.DescriptorCategory category;
-    private String ont;
+    private String key;
 
     public FeatureInfo() {
+    }
+
+    public FeatureInfo(String URI, String name, String units, Map<String, Object> conditions, Dataset.DescriptorCategory category) {
+        this.URI = URI;
+        this.name = name;
+        this.units = units;
+        this.conditions = conditions;
+        this.category = category;
     }
 
     public FeatureInfo(String URI, String name) {
         this.URI = URI;
         this.name = name;
-    }
-
-    public String getOnt() {
-        return ont;
-    }
-
-    public void setOnt(String ont) {
-        this.ont = ont;
     }
 
     public String getURI() {
@@ -103,6 +103,22 @@ public class FeatureInfo {
         this.category = category;
     }
 
+    public String getOnt() {
+        return ont;
+    }
+
+    public void setOnt(String ont) {
+        this.ont = ont;
+    }
+
+    public String getKey() {
+        return key;
+    }
+
+    public void setKey(String key) {
+        this.key = key;
+    }
+    
     @Override
     public int hashCode() {
         int hash = 7;

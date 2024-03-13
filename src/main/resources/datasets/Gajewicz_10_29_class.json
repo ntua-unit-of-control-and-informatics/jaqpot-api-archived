@@ -5,10 +5,10 @@
             "Created by task TSK9OkphghugWPc"
         ],
         "descriptions" : [ 
-            "8 MeOx NPs with 29 descriptors, used for predicting HaCaT toxicity."
+            "10 MeOx NPs with 29 descriptors, used for predicting HaCaT toxicity."
         ],
         "titles" : [ 
-            "Gajewicz et al - 18 Metal Oxide NPs"
+            "Gajewicz et al - 10 Metal Oxide NPs"
         ],
         "subjects" : [ 
             "toxicity", 
@@ -23,7 +23,7 @@
             "informa healthcare"
         ],
         "creators" : [ 
-            "guest"
+            "admin"
         ],
         "contributors" : [ 
             "Danuta Leszczynska", 
@@ -46,7 +46,7 @@
     "featured" : true,
     "dataEntry" : [ 
         {
-            "compound" : {
+            "entryId" : {
                 "name" : "Al2O3",
                 "ownerUUID" : null,
                 "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-07f477ba-44d7-3058-ba0b-e6e5432d04e3"
@@ -84,7 +84,7 @@
             }
         }, 
         {
-            "compound" : {
+            "entryId" : {
                 "name" : "Cr2O3",
                 "ownerUUID" : null,
                 "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-5ce3cffa-d919-31bb-ae67-092df5ac6fbb"
@@ -122,7 +122,7 @@
             }
         }, 
         {
-            "compound" : {
+            "entryId" : {
                 "name" : "Fe2O3",
                 "ownerUUID" : null,
                 "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-2f7a7c5e-66b5-330a-9c0a-dc30f8ef0539"
@@ -160,7 +160,7 @@
             }
         }, 
         {
-            "compound" : {
+            "entryId" : {
                 "name" : "La2O3",
                 "ownerUUID" : null,
                 "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-90c88f44-1c87-3ae3-a0ee-94eb7c33af11"
@@ -198,7 +198,7 @@
             }
         }, 
         {
-            "compound" : {
+            "entryId" : {
                 "name" : "NiO",
                 "ownerUUID" : null,
                 "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-bdd7706f-0640-35f2-bd7c-dba6302cb6fd"
@@ -236,7 +236,7 @@
             }
         }, 
         {
-            "compound" : {
+            "entryId" : {
                 "name" : "SnO2",
                 "ownerUUID" : null,
                 "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-f4eee017-b97d-372c-9e7d-eb82a1c30b32"
@@ -274,7 +274,7 @@
             }
         }, 
         {
-            "compound" : {
+            "entryId" : {
                 "name" : "WO3",
                 "ownerUUID" : null,
                 "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-e3986e91-2f88-3bd4-a40c-a570dd302afa"
@@ -312,7 +312,7 @@
             }
         }, 
         {
-            "compound" : {
+            "entryId" : {
                 "name" : "Y2O3",
                 "ownerUUID" : null,
                 "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-b2a6a8e9-a7d4-349c-9fcc-df05356a508d"
@@ -350,7 +350,7 @@
             }
         }, 
         {
-            "compound" : {
+            "entryId" : {
                 "name" : "Bi2O3",
                 "ownerUUID" : null,
                 "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-8a5cc9f2-eb7a-3602-ab88-c2c16a7d33ec"
@@ -388,7 +388,7 @@
             }
         }, 
         {
-            "compound" : {
+            "entryId" : {
                 "name" : "CoO",
                 "ownerUUID" : null,
                 "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-d3e48cef-d53c-36be-92cc-430823bfcbb0"
@@ -426,7 +426,7 @@
             }
         }, 
         {
-            "compound" : {
+            "entryId" : {
                 "name" : "In2O3",
                 "ownerUUID" : null,
                 "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-91bc33a8-8c7b-3bbb-a4c8-ecd4c3f64399"
@@ -464,7 +464,7 @@
             }
         }, 
         {
-            "compound" : {
+            "entryId" : {
                 "name" : "Mn2O3",
                 "ownerUUID" : null,
                 "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-29ff321b-e874-3a99-850b-4582573c9d1c"
@@ -502,7 +502,7 @@
             }
         }, 
         {
-            "compound" : {
+            "entryId" : {
                 "name" : "Sb2O3",
                 "ownerUUID" : null,
                 "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-07d43c7c-86b8-3297-8b55-de634de389c7"
@@ -540,7 +540,7 @@
             }
         }, 
         {
-            "compound" : {
+            "entryId" : {
                 "name" : "SiO2",
                 "ownerUUID" : null,
                 "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-214f4d13-3158-3210-af4f-bd2c40ce3153"
@@ -578,7 +578,7 @@
             }
         }, 
         {
-            "compound" : {
+            "entryId" : {
                 "name" : "TiO2",
                 "ownerUUID" : null,
                 "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-80b69a12-be6a-3789-ac03-d86d2dad3f57"
@@ -616,7 +616,7 @@
             }
         }, 
         {
-            "compound" : {
+            "entryId" : {
                 "name" : "V2O3",
                 "ownerUUID" : null,
                 "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-8cbc6e82-425a-38ea-ac85-b4e07d3a13a5"
@@ -654,7 +654,7 @@
             }
         }, 
         {
-            "compound" : {
+            "entryId" : {
                 "name" : "ZnO",
                 "ownerUUID" : null,
                 "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-96890ce5-c856-3200-82d1-ba92fec42d9f"
@@ -692,7 +692,7 @@
             }
         }, 
         {
-            "compound" : {
+            "entryId" : {
                 "name" : "ZrO2",
                 "ownerUUID" : null,
                 "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-8c8c4713-618f-37b2-b209-5ef44a45fa7c"

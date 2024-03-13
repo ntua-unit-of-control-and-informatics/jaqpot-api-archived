@@ -56,7 +56,9 @@ public class GenericExceptionMapper implements ExceptionMapper<Throwable> {
         StringWriter sw = new StringWriter();
         exception.printStackTrace(new PrintWriter(sw));
         String details = sw.toString();
-        LOG.log(Level.INFO, "GenericExceptionMapper exception caught", exception);
+        if(!exception.getLocalizedMessage().contains("No resource method found for options, return OK with Allow header")){
+            LOG.log(Level.INFO, "GenericExceptionMapper exception caught", exception);
+        }
         ErrorReport error = ErrorReportBuilder.builderRandomId()
                 .setCode("GenericUnhandledException")
                 .setMessage("Utterly unhandled exception. "

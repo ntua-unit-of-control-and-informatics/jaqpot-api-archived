@@ -31,9 +31,10 @@ package org.jaqpot.core.model.dto.dataset;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import javax.xml.bind.annotation.XmlRootElement;
+
+import org.jaqpot.core.model.DataEntry;
 import org.jaqpot.core.model.JaqpotEntity;
 
 /**
@@ -53,7 +54,8 @@ public class Dataset extends JaqpotEntity {
         GO("GO descriptors", "Descriptors derived by proteomics data."),
         MOPAC("Mopac descriptors", "Descriptors derived by crystallographic data."),
         CDK("CDK descriptors", "Descriptors derived from cdk software."),
-        PREDICTED("Predicted descriptors", "Descriptors derived from algorithm predictions.");
+        PREDICTED("Predicted descriptors", "Descriptors derived from algorithm predictions."),
+        FORPREDICTION("Created for prediction", "Dataset created and is temp for prediction");
 
         private final String name;
         private final String description;
@@ -73,19 +75,82 @@ public class Dataset extends JaqpotEntity {
 
     }
 
+    public enum DatasetExistence {
+
+        UPLOADED("Uploaded", "Dataset uploaded from user"),
+        CREATED("Created", "Dataset created from outer source"),
+        TRANFORMED("Transformed", "Dataset transformed"),
+        PREDICTED("Predicted", "Dataset is a result of a prediction"),
+        DESCRIPTORSADDED("Descriptors added", "Dataset has added descriptors"),
+        FROMPRETRAINED("Pretrained empty", "Dataset empty for pretrained model"),
+        FORPREDICTION("Created for prediction", "Dataset created and is temp for prediction");
+
+        private final String name;
+        private final String description;
+
+        private DatasetExistence(String name, String description) {
+            this.name = name;
+            this.description = description;
+        }
+
+        public String getName() {
+            return this.name;
+        }
+
+        public String getDescription() {
+            return this.description;
+        }
+
+    }
+
     private String datasetURI;
-    
+
     private String byModel;
 
     private List<DataEntry> dataEntry;
 
     private Set<FeatureInfo> features;
 
+    private String datasetPic;
+
     private Integer totalRows;
     private Integer totalColumns;
 
     private Set<DescriptorCategory> descriptors;
+    private DatasetExistence existence;
 
+    private Boolean onTrash;
+
+    
+    private boolean doa;
+    private String batch;
+    private Integer batchId;
+
+    public boolean getDoa() {
+        return doa;
+    }
+
+    public void setDoa(boolean doa) {
+        this.doa = doa;
+    }
+
+    public String getBatch() {
+        return batch;
+    }
+
+    public void setBatch(String batch) {
+        this.batch = batch;
+    }
+
+    public Integer getBatchId() {
+        return batchId;
+    }
+
+    public void setBatchId(Integer batchId) {
+        this.batchId = batchId;
+    }
+    
+    
     public String getDatasetURI() {
         return datasetURI;
     }
@@ -140,6 +205,30 @@ public class Dataset extends JaqpotEntity {
 
     public void setDescriptors(Set<DescriptorCategory> descriptors) {
         this.descriptors = descriptors;
+    }
+
+    public String getDatasetPic() {
+        return datasetPic;
+    }
+
+    public void setDatasetPic(String datasetPic) {
+        this.datasetPic = datasetPic;
+    }
+
+    public DatasetExistence getExistence() {
+        return existence;
+    }
+
+    public void setExistence(DatasetExistence existence) {
+        this.existence = existence;
+    }
+
+    public Boolean getOnTrash() {
+        return onTrash;
+    }
+
+    public void setOnTrash(Boolean onTrash) {
+        this.onTrash = onTrash;
     }
 
     @Override

@@ -2,7 +2,7 @@
     "_id" : "interlab-dummy",
     "dataEntry" : [ 
         {
-            "compound" : {
+            "entryId" : {
                 "name" : "G15.AC_5",
                 "ownerUUID" : "FCSV-8b479138-4775-3aba-b9cc-f01cc967d42b",
                 "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-8b479138-4775-3aba-b9cc-f01cc967d42b"
@@ -19,7 +19,7 @@
             }
         }, 
         {
-            "compound" : {
+            "entryId" : {
                 "name" : "G15.AC_5",
                 "ownerUUID" : "FCSV-8b479138-4775-3aba-b9cc-fasdfasdfasdf",
                 "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-0e1a05ec-6045-3419-89e5-6e48e1c62e3c"
@@ -36,7 +36,7 @@
             }
         }, 
         {
-            "compound" : {
+            "entryId" : {
                 "name" : "G15.AC_5",
                 "ownerUUID" : "FCSV-8b479138-4775-3aba-b9cc-f01certyertye",
                 "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-eb7472d1-a32b-3d11-ac85-3d91f5f7a816"
@@ -53,7 +53,7 @@
             }
         }, 
         {
-            "compound" : {
+            "entryId" : {
                 "name" : "G15.AC_5",
                 "ownerUUID" : "FCSV-8b479138-4775-3aba-b9cc-f01cfghjfrty",
                 "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-9915a0af-9066-3a92-a3ce-bcb8146625a0"
@@ -70,7 +70,7 @@
             }
         }, 
         {
-            "compound" : {
+            "entryId" : {
                 "name" : "G15.AC_5",
                 "ownerUUID" : "FCSV-8b479138-4775-3aba-b9cc-56j5j5j5j56",
                 "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-07ae6d94-6005-361b-a71b-b6f6aa0443d2"
@@ -87,7 +87,7 @@
             }
         }, 
         {
-            "compound" : {
+            "entryId" : {
                 "name" : "G15.AC_5",
                 "ownerUUID" : "FCSV-8b479138-4775-3aba-b9cc-f01w4thfh45jtjh",
                 "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-30c932cc-f944-399f-9ad4-cd99924a0e01"
@@ -104,7 +104,7 @@
             }
         }, 
         {
-            "compound" : {
+            "entryId" : {
                 "name" : "G15.AC_5",
                 "ownerUUID" : "FCSV-8b479138-4775-3aba-b9cc-f04hw24hh46u6i88l",
                 "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-1620ca10-293f-3ca4-89bc-e3f574547221"
@@ -121,7 +121,7 @@
             }
         }, 
         {
-            "compound" : {
+            "entryId" : {
                 "name" : "G15.AC_5",
                 "ownerUUID" : "FCSV-8b479138-4775-3aba-b9cc-f344g4g4yj77j7j44",
                 "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-95517dfc-f248-3e3e-ba26-8a71efdc3853"
@@ -138,7 +138,7 @@
             }
         }, 
         {
-            "compound" : {
+            "entryId" : {
                 "name" : "G15.AC_5",
                 "ownerUUID" : "FCSV-8b479138-4775-3aba-b9cc-f034334y3h3h3h3h77hjhkuiui",
                 "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-428b3b32-a261-3ff2-93f4-af6319bf374a"
@@ -155,7 +155,7 @@
             }
         }, 
         {
-            "compound" : {
+            "entryId" : {
                 "name" : "G15.AC_5",
                 "ownerUUID" : "FCSV-8b479138-4775-3aba-b9cc-f33f3f3fnhhnyht6gbdsdwo9o",
                 "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-b9d1776a-26ee-372a-b41b-2d49ba2ff0be"

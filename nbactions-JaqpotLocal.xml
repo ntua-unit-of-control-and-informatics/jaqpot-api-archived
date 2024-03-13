@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<actions>
+        <action>
+            <actionName>run</actionName>
+            <packagings>
+                <packaging>war</packaging>
+                <packaging>ear</packaging>
+                <packaging>ejb</packaging>
+            </packagings>
+            <goals>
+                <goal>package</goal>
+            </goals>
+            <properties>
+                <JAVA_OPTS>"-Xms2048m -Xmx2048m -XX:MetaspaceSize=2048M -XX:MaxMetaspaceSize=2048m -Djava.net.preferIPv4Stack=true -agentlib:jdwp=transport=dt_socket,address=8787,server=y,suspend=n -Djboss.modules.system.pkgs=$JBOSS_MODULES_SYSTEM_PKGS -Djava.awt.headless=true"</JAVA_OPTS>
+            </properties>
+        </action>
+        <action>
+            <actionName>debug</actionName>
+            <packagings>
+                <packaging>war</packaging>
+            </packagings>
+            <properties>
+                <exec.args>-Xdebug -Xrunjdwp:transport=dt_socket,server=n,address=${jpda.address}</exec.args>
+                <jpda.listen>true</jpda.listen>
+                <netbeans.deploy.debugmode>true</netbeans.deploy.debugmode>
+                <JAVA_OPTS>"-Xms2048m -Xmx2048m -XX:MetaspaceSize=2048M -XX:MaxMetaspaceSize=2048m -Djava.net.preferIPv4Stack=true -agentlib:jdwp=transport=dt_socket,address=8787,server=y,suspend=n -Djboss.modules.system.pkgs=$JBOSS_MODULES_SYSTEM_PKGS -Djava.awt.headless=true"</JAVA_OPTS>
+            </properties>
+        </action>
+    </actions>

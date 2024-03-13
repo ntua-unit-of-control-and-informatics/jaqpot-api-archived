@@ -29,15 +29,31 @@
  */
 package org.jaqpot.core.data;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.instrument.Instrumentation;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.StringJoiner;
+import javax.ejb.EJB;
+import javax.ejb.EJBTransactionRolledbackException;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import javax.ws.rs.InternalServerErrorException;
+import org.bson.BsonMaximumSizeExceededException;
 import org.jaqpot.core.annotations.MongoDB;
+import org.jaqpot.core.data.gridfs.ModelGridFSHandler;
 import org.jaqpot.core.db.entitymanager.JaqpotEntityManager;
 import org.jaqpot.core.model.Model;
+import org.jaqpot.core.model.ModelParts;
+import org.jaqpot.core.service.exceptions.JaqpotDocumentSizeExceededException;
 
 /**
  *
@@ -51,6 +67,15 @@ public class ModelHandler extends AbstractHandler<Model> {
     @MongoDB
     JaqpotEntityManager em;
 
+    @EJB
+    ModelGridFSHandler modelGridFSHandler;
+
+    @EJB
+    ModelPartsHandler modelPartsHandler;
+    
+    
+    private static volatile Instrumentation globalInstrumentation;
+
     public ModelHandler() {
         super(Model.class);
     }
@@ -58,6 +83,30 @@ public class ModelHandler extends AbstractHandler<Model> {
     @Override
     protected JaqpotEntityManager getEntityManager() {
         return em;
+    }
+
+    public void updateActualModel(String id, String actualModel) throws IOException, BsonMaximumSizeExceededException , JaqpotDocumentSizeExceededException , EJBTransactionRolledbackException {
+        try {
+            em.updateField(Model.class, id, "actualModel", actualModel);
+        } catch (JaqpotDocumentSizeExceededException e) {
+            byte[] bytes = actualModel.toString().getBytes(StandardCharsets.UTF_8);
+
+            InputStream in = new ByteArrayInputStream(bytes);
+            Model m = em.find(Model.class, id);
+            modelGridFSHandler.persist(in, m);
+            in.close();
+        }
+
+    }
+
+    public Model findActualModel(String id) {
+        List<String> keys = new ArrayList<>();
+        keys.add(id);
+
+        List<String> fields = new ArrayList<>();
+        fields.add("_id");
+        fields.add("﻿actualModel");
+        return em.find(Model.class, keys, fields).stream().findFirst().orElse(null);
     }
 
     public Model findModelPmml(String id) {
@@ -102,7 +151,7 @@ public class ModelHandler extends AbstractHandler<Model> {
 
     public List<Model> findAllMeta() {
         List<String> fields = new ArrayList<>();
-        fields.add("_id");        
+        fields.add("_id");
         fields.add("dependentFeatures");
         fields.add("independentFeatures");
         fields.add("predictedFeatures");
@@ -110,7 +159,8 @@ public class ModelHandler extends AbstractHandler<Model> {
         fields.add("bibtex");
         fields.add("datasetUri");
         fields.add("parameters");
-
+        fields.add("organizations");
+        fields.add("meta");
         return em.findAll(Model.class, fields, 0, Integer.MAX_VALUE);
     }
 
@@ -120,11 +170,11 @@ public class ModelHandler extends AbstractHandler<Model> {
 
         List<String> fields = new ArrayList<>();
         fields.add("_id");
-        fields.add("meta");        
+        fields.add("meta");
         fields.add("dependentFeatures");
         fields.add("independentFeatures");
         fields.add("predictedFeatures");
-        fields.add("algorithm._id");
+        fields.add("algorithm");
         fields.add("bibtex");
         fields.add("datasetUri");
         fields.add("parameters");
@@ -132,8 +182,50 @@ public class ModelHandler extends AbstractHandler<Model> {
         fields.add("transformationModels");
         fields.add("linkedModels");
         fields.add("additionalInfo");
-
+        fields.add("meta");
+        fields.add("libraries");
+        fields.add("libraryVersions");
+        fields.add("type");
         return em.find(Model.class, keys, fields).stream().findFirst().orElse(null);
+    }
+
+    public Long countAllOfAlgos(String user, String algo) {
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("meta.creators", Arrays.asList(user));
+        properties.put("algorithm._id", algo);
+        Map<String, Object> notProperties = new HashMap<>();
+        notProperties.put("onTrash", true);
+        return getEntityManager().countAndNe(Model.class, properties, notProperties);
+    }
+
+    @Override
+    public Model find(Object id) {
+        Model model = getEntityManager().find(Model.class, id);
+
+        
+        if (model.getActualModel() == null) {
+            
+            StringJoiner s = new StringJoiner("");
+            String oid = (String) id;
+            List<ModelParts> partsStored = modelPartsHandler.getPartsOfModel(oid);
+            for (ModelParts mp : partsStored) {
+                s.add(mp.getPart());
+            }
+            Set<String> actualModel = new HashSet();
+            actualModel.add(s.toString());
+            
+            
+            model.setActualModel(actualModel);
+//            String oid = (String) id;
+//            String actualModelString = new String();
+//            ArrayList<String> actualModelS = new ArrayList();
+//            actualModelString = this.modelGridFSHandler.getObject(oid);
+//            Object actualModel = actualModelString;
+//            actualModelS.add(actualModelString);
+//            model.setActualModel(actualModelString);
+        }
+
+        return model;
     }
 
 }

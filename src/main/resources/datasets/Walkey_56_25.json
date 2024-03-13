@@ -10,45 +10,47 @@
         "titles" : [ 
             "Walkey et al - 56 Gold NPs"
         ],
+        "subjects" : [ 
+            "liquid chromatography tandem mass spectromery", 
+            "structure-activity model", 
+            "protein corona", 
+            "cell uptake", 
+            "nanomedicine", 
+            "nanobiotechnology", 
+            "quantitative proteomics"
+        ],
+        "publishers" : [ 
+            "http://informahealthcare.com/nan", 
+            "Nanotoxicology", 
+            "informa healthcare"
+        ],
         "creators" : [ 
             "admin"
+        ],
+        "contributors" : [ 
+            "Yoram Cohen", 
+            "Hongbo Guo", 
+            "Rong Liu", 
+            "Carl D. Walkey", 
+            "Fayi Song", 
+            "Andrew Emili", 
+            "Warren C. W. Chan", 
+            "Jonathan B. Olsen", 
+            "D. Wesley H. Olsen"
         ],
         "hasSources" : [ 
             "https://apps.ideaconsult.net/enmtest/bundle/113"
         ],
-        "subjects" : [ 
-            "protein corona", 
-            "cell uptake", 
-            "structure-activity model", 
-            "liquid chromatography tandem mass spectromery", 
-            "quantitative proteomics", 
-            "nanomedicine", 
-            "nanobiotechnology"
-        ],
-        "contributors" : [ 
-            "Carl D. Walkey", 
-            "Jonathan B. Olsen", 
-            "Fayi Song", 
-            "Rong Liu", 
-            "Hongbo Guo", 
-            "D. Wesley H. Olsen", 
-            "Yoram Cohen", 
-            "Andrew Emili", 
-            "Warren C. W. Chan"
-        ],
-        "publishers" : [ 
-            "Nanotoxicology", 
-            "informa healthcare", 
-            "http://informahealthcare.com/nan"
-        ],
         "doi" : [ 
             "10.1021/nn406018q"
-        ]
+        ],
+        "locked" : false
     },
     "visible" : true,
+    "featured" : true,
     "dataEntry" : [ 
         {
-            "compound" : {
+            "entryId" : {
                 "name" : "G15.AC_1",
                 "ownerUUID" : "FCSV-b0e5a5ac-fd96-3b36-81f8-242ca92643df",
                 "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-e4078897-687d-30f8-9b87-c9dc64d09ce3"
@@ -83,7 +85,7 @@
             }
         }, 
         {
-            "compound" : {
+            "entryId" : {
                 "name" : "G15.AHT_1",
                 "ownerUUID" : "FCSV-b0e5a5ac-fd96-3b36-81f8-242ca92643df",
                 "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-6aed1296-4079-3ab5-99d4-ca671ec3c9cd"
@@ -118,7 +120,7 @@
             }
         }, 
         {
-            "compound" : {
+            "entryId" : {
                 "name" : "G15.Asn-SH_1",
                 "ownerUUID" : "FCSV-b0e5a5ac-fd96-3b36-81f8-242ca92643df",
                 "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-c6da8841-2f8b-32ce-8948-4309e64a403f"
@@ -153,7 +155,7 @@
             }
         }, 
         {
-            "compound" : {
+            "entryId" : {
                 "name" : "G15.AUT_1",
                 "ownerUUID" : "FCSV-b0e5a5ac-fd96-3b36-81f8-242ca92643df",
                 "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-8b16eb5c-2d21-37d3-971d-aa5c1d297971"
@@ -188,7 +190,7 @@
             }
         }, 
         {
-            "compound" : {
+            "entryId" : {
                 "name" : "G15.CIT_1",
                 "ownerUUID" : "FCSV-b0e5a5ac-fd96-3b36-81f8-242ca92643df",
                 "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-844a15bb-d6e8-39df-98d4-6507c343abbc"
@@ -223,7 +225,7 @@
             }
         }, 
         {
-            "compound" : {
+            "entryId" : {
                 "name" : "G15.CTAB_1",
                 "ownerUUID" : "FCSV-b0e5a5ac-fd96-3b36-81f8-242ca92643df",
                 "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-87aab18f-bb5d-365e-ae63-16b922cc86b3"
@@ -258,7 +260,7 @@
             }
         }, 
         {
-            "compound" : {
+            "entryId" : {
                 "name" : "G15.DDT@CTAB_1",
                 "ownerUUID" : "FCSV-b0e5a5ac-fd96-3b36-81f8-242ca92643df",
                 "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-13715c89-adfb-3d22-b3e6-d99aa5791f5d"
@@ -293,7 +295,7 @@
             }
         }, 
         {
-            "compound" : {
+            "entryId" : {
                 "name" : "G15.DDT@DOTAP_1",
                 "ownerUUID" : "FCSV-b0e5a5ac-fd96-3b36-81f8-242ca92643df",
                 "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-3800cd7c-275a-3ff5-a9a2-b5af8c2fb0ff"
@@ -328,7 +330,7 @@
             }
         }, 
         {
-            "compound" : {
+            "entryId" : {
                 "name" : "G15.DDT@SA_1",
                 "ownerUUID" : "FCSV-b0e5a5ac-fd96-3b36-81f8-242ca92643df",
                 "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-1065a7b2-c053-3d40-990a-036e8640ef01"
@@ -363,7 +365,7 @@
             }
         }, 
         {
-            "compound" : {
+            "entryId" : {
                 "name" : "G15.DDT@SDS_1",
                 "ownerUUID" : "FCSV-b0e5a5ac-fd96-3b36-81f8-242ca92643df",
                 "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-a6d3e8e4-0215-31c7-9f98-b0c8905b6bad"
@@ -398,7 +400,7 @@
             }
         }, 
         {
-            "compound" : {
+            "entryId" : {
                 "name" : "G15.F127_1",
                 "ownerUUID" : "FCSV-b0e5a5ac-fd96-3b36-81f8-242ca92643df",
                 "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-afcfe811-7a63-3acc-bc24-00c3fec41de6"
@@ -433,7 +435,7 @@
             }
         }, 
         {
-            "compound" : {
+            "entryId" : {
                 "name" : "G15.Gly-SH_1",
                 "ownerUUID" : "FCSV-b0e5a5ac-fd96-3b36-81f8-242ca92643df",
                 "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-b243dec7-362c-3890-b993-3dcf5eb5a200"
@@ -468,7 +470,7 @@
             }
         }, 
         {
-            "compound" : {
+            "entryId" : {
                 "name" : "G15.LA_1",
                 "ownerUUID" : "FCSV-b0e5a5ac-fd96-3b36-81f8-242ca92643df",
                 "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-f8810cf3-f817-33b8-919c-fb58b488d13a"
@@ -503,7 +505,7 @@
             }
         }, 
         {
-            "compound" : {
+            "entryId" : {
                 "name" : "G15.MAA_1",
                 "ownerUUID" : "FCSV-b0e5a5ac-fd96-3b36-81f8-242ca92643df",
                 "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-49741514-8c17-3fb8-bb3a-7017550916ed"
@@ -538,7 +540,7 @@
             }
         }, 
         {
-            "compound" : {
+            "entryId" : {
                 "name" : "G15.MES_1",
                 "ownerUUID" : "FCSV-b0e5a5ac-fd96-3b36-81f8-242ca92643df",
                 "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-c29fee91-3526-3402-a6e0-26891b9e0d2b"
@@ -573,7 +575,7 @@
             }
         }, 
         {
-            "compound" : {
+            "entryId" : {
                 "name" : "G15.Met-SH_1",
                 "ownerUUID" : "FCSV-b0e5a5ac-fd96-3b36-81f8-242ca92643df",
                 "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-0ed270da-149f-3265-b24a-a7666f3b8733"
@@ -608,7 +610,7 @@
             }
         }, 
         {
-            "compound" : {
+            "entryId" : {
                 "name" : "G15.MHDA_1",
                 "ownerUUID" : "FCSV-b0e5a5ac-fd96-3b36-81f8-242ca92643df",
                 "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-26860276-d9c9-36b9-a273-0cc976b2c614"
@@ -643,7 +645,7 @@
             }
         }, 
         {
-            "compound" : {
+            "entryId" : {
                 "name" : "G15.MPA_1",
                 "ownerUUID" : "FCSV-b0e5a5ac-fd96-3b36-81f8-242ca92643df",
                 "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-24c7ab6e-dcfc-3267-995c-a580de6275f3"
@@ -678,7 +680,7 @@
             }
         }, 
         {
-            "compound" : {
+            "entryId" : {
                 "name" : "G15.MUA_1",
                 "ownerUUID" : "FCSV-b0e5a5ac-fd96-3b36-81f8-242ca92643df",
                 "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-d8c135d3-d211-3ef0-8301-86fd241d7e0b"
@@ -713,7 +715,7 @@
             }
         }, 
         {
-            "compound" : {
+            "entryId" : {
                 "name" : "G15.MUTA_1",
                 "ownerUUID" : "FCSV-b0e5a5ac-fd96-3b36-81f8-242ca92643df",
                 "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-af0b33cd-bb54-3e5d-9e01-ba64062b88ee"
@@ -748,7 +750,7 @@
             }
         }, 
         {
-            "compound" : {
+            "entryId" : {
                 "name" : "G15.NT@PSMA-AAP_1",
                 "ownerUUID" : "FCSV-b0e5a5ac-fd96-3b36-81f8-242ca92643df",
                 "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-0c1aa2a5-b0c1-3227-8339-c6e4524f80ee"
@@ -783,7 +785,7 @@
             }
         }, 
         {
-            "compound" : {
+            "entryId" : {
                 "name" : "G15.NT@PSMA-EA_1",
                 "ownerUUID" : "FCSV-b0e5a5ac-fd96-3b36-81f8-242ca92643df",
                 "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-4db59acc-6f75-3bec-a34d-f69f8618b440"
@@ -818,7 +820,7 @@
             }
         }, 
         {
-            "compound" : {
+            "entryId" : {
                 "name" : "G15.NT@PSMA-Urea_1",
                 "ownerUUID" : "FCSV-b0e5a5ac-fd96-3b36-81f8-242ca92643df",
                 "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-432fd5b3-946f-3206-91b0-b22d09ad7769"
@@ -853,7 +855,7 @@
             }
         }, 
         {
-            "compound" : {
+            "entryId" : {
                 "name" : "G15.ODA_1",
                 "ownerUUID" : "FCSV-b0e5a5ac-fd96-3b36-81f8-242ca92643df",
                 "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-bba4cca3-6293-32e2-b190-c1cb4609272e"
@@ -888,7 +890,7 @@
             }
         }, 
         {
-            "compound" : {
+            "entryId" : {
                 "name" : "G15.PEI-SH_1",
                 "ownerUUID" : "FCSV-b0e5a5ac-fd96-3b36-81f8-242ca92643df",
                 "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-75f55298-b05a-37e4-8f37-04612f2e6b25"
@@ -923,7 +925,7 @@
             }
         }, 
         {
-            "compound" : {
+            "entryId" : {
                 "name" : "G15.Phe_1",
                 "ownerUUID" : "FCSV-b0e5a5ac-fd96-3b36-81f8-242ca92643df",
                 "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-bbd35151-7592-3c4e-8064-59d290ac795a"
@@ -958,7 +960,7 @@
             }
         }, 
         {
-            "compound" : {
+            "entryId" : {
                 "name" : "G15.PLL-SH_1",
                 "ownerUUID" : "FCSV-b0e5a5ac-fd96-3b36-81f8-242ca92643df",
                 "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-758518cd-9ec5-3d8d-a452-e28b280cae94"
@@ -993,7 +995,7 @@
             }
         }, 
         {
-            "compound" : {
+            "entryId" : {
                 "name" : "G15.PVA_1",
                 "ownerUUID" : "FCSV-b0e5a5ac-fd96-3b36-81f8-242ca92643df",
                 "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-ca2b64f9-fc8c-378f-9c54-34f17bb26986"
@@ -1028,7 +1030,7 @@
             }
         }, 
         {
-            "compound" : {
+            "entryId" : {
                 "name" : "G15.SA_1",
                 "ownerUUID" : "FCSV-b0e5a5ac-fd96-3b36-81f8-242ca92643df",
                 "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-ce48fa1d-0444-3282-9e47-632051cc155f"
@@ -1063,7 +1065,7 @@
             }
         }, 
         {
-            "compound" : {
+            "entryId" : {
                 "name" : "G15.Ser-SH_1",
                 "ownerUUID" : "FCSV-b0e5a5ac-fd96-3b36-81f8-242ca92643df",
                 "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-cd9721aa-9090-36d8-bda9-eabd26313c85"
@@ -1098,7 +1100,7 @@
             }
         }, 
         {
-            "compound" : {
+            "entryId" : {
                 "name" : "G15.T20_1",
                 "ownerUUID" : "FCSV-b0e5a5ac-fd96-3b36-81f8-242ca92643df",
                 "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-c65bbb59-ac08-3c14-8d3c-cf3f58d259a7"
@@ -1133,7 +1135,7 @@
             }
         }, 
         {
-            "compound" : {
+            "entryId" : {
                 "name" : "G15.Thr-SH_1",
                 "ownerUUID" : "FCSV-b0e5a5ac-fd96-3b36-81f8-242ca92643df",
                 "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-bbf766c7-c6dd-3a60-806c-d1dbc761fed6"
@@ -1168,7 +1170,7 @@
             }
         }, 
         {
-            "compound" : {
+            "entryId" : {
                 "name" : "G15.Trp-SH_1",
                 "ownerUUID" : "FCSV-b0e5a5ac-fd96-3b36-81f8-242ca92643df",
                 "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-20483f29-3264-3c0b-aa48-acc8396e428a"
@@ -1203,7 +1205,7 @@
             }
         }, 
         {
-            "compound" : {
+            "entryId" : {
                 "name" : "G30.AC_1",
                 "ownerUUID" : "FCSV-b0e5a5ac-fd96-3b36-81f8-242ca92643df",
                 "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-fa913ced-b729-3b38-863d-9df3369e5691"
@@ -1238,7 +1240,7 @@
             }
         }, 
         {
-            "compound" : {
+            "entryId" : {
                 "name" : "G30.CALNN_1",
                 "ownerUUID" : "FCSV-b0e5a5ac-fd96-3b36-81f8-242ca92643df",
                 "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-a365d361-80bb-39d0-9cab-f417151b7f3a"
@@ -1273,7 +1275,7 @@
             }
         }, 
         {
-            "compound" : {
+            "entryId" : {
                 "name" : "G30.CFGAILS_1",
                 "ownerUUID" : "FCSV-b0e5a5ac-fd96-3b36-81f8-242ca92643df",
                 "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-7cdbd43d-1730-325b-b65d-b52e1b3682b6"
@@ -1308,7 +1310,7 @@
             }
         }, 
         {
-            "compound" : {
+            "entryId" : {
                 "name" : "G30.DDT@CTAB_1",
                 "ownerUUID" : "FCSV-b0e5a5ac-fd96-3b36-81f8-242ca92643df",
                 "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-19933502-a8a9-3d75-8961-efa5d8b07da2"
@@ -1343,7 +1345,7 @@
             }
         }, 
         {
-            "compound" : {
+            "entryId" : {
                 "name" : "G30.DDT@DOTAP_1",
                 "ownerUUID" : "FCSV-b0e5a5ac-fd96-3b36-81f8-242ca92643df",
                 "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-af830b06-1603-3033-bf80-ff7177a43e43"
@@ -1378,7 +1380,7 @@
             }
         }, 
         {
-            "compound" : {
+            "entryId" : {
                 "name" : "G30.LA_1",
                 "ownerUUID" : "FCSV-b0e5a5ac-fd96-3b36-81f8-242ca92643df",
                 "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-35cc0800-0c30-322a-bf8b-9890f07da4b2"
@@ -1413,7 +1415,7 @@
             }
         }, 
         {
-            "compound" : {
+            "entryId" : {
                 "name" : "G30.MAA_1",
                 "ownerUUID" : "FCSV-b0e5a5ac-fd96-3b36-81f8-242ca92643df",
                 "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-26a0b60f-93f4-3653-bb9c-10ea6e9bca2f"
@@ -1448,7 +1450,7 @@
             }
         }, 
         {
-            "compound" : {
+            "entryId" : {
                 "name" : "G30.MHDA_1",
                 "ownerUUID" : "FCSV-b0e5a5ac-fd96-3b36-81f8-242ca92643df",
                 "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-53ebd62b-62ee-3506-9b56-49c4e29333e8"
@@ -1483,7 +1485,7 @@
             }
         }, 
         {
-            "compound" : {
+            "entryId" : {
                 "name" : "G30.MUA_1",
                 "ownerUUID" : "FCSV-b0e5a5ac-fd96-3b36-81f8-242ca92643df",
                 "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-8a83fbb9-1271-3f94-9372-65072d79de96"
@@ -1518,7 +1520,7 @@
             }
         }, 
         {
-            "compound" : {
+            "entryId" : {
                 "name" : "G30.PAH-SH_1",
                 "ownerUUID" : "FCSV-b0e5a5ac-fd96-3b36-81f8-242ca92643df",
                 "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-0bc178cc-86b9-3e05-ad28-0d202e0d9811"
@@ -1553,7 +1555,7 @@
             }
         }, 
         {
-            "compound" : {
+            "entryId" : {
                 "name" : "G30.Thr-SH_1",
                 "ownerUUID" : "FCSV-b0e5a5ac-fd96-3b36-81f8-242ca92643df",
                 "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-1216a808-838f-375c-a1cb-8bef2e692fab"
@@ -1588,7 +1590,7 @@
             }
         }, 
         {
-            "compound" : {
+            "entryId" : {
                 "name" : "G60.AUT_1",
                 "ownerUUID" : "FCSV-b0e5a5ac-fd96-3b36-81f8-242ca92643df",
                 "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-2ac2223a-a56a-321c-a3d2-714e4973ebbf"
@@ -1623,7 +1625,7 @@
             }
         }, 
         {
-            "compound" : {
+            "entryId" : {
                 "name" : "G60.CIT_1",
                 "ownerUUID" : "FCSV-b0e5a5ac-fd96-3b36-81f8-242ca92643df",
                 "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-ae18b48b-e560-3482-b876-348a50b3622f"
@@ -1658,7 +1660,7 @@
             }
         }, 
         {
-            "compound" : {
+            "entryId" : {
                 "name" : "G60.CVVIT_1",
                 "ownerUUID" : "FCSV-b0e5a5ac-fd96-3b36-81f8-242ca92643df",
                 "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-a050f1f9-6dfd-38c3-bb3e-655315460f31"
@@ -1693,7 +1695,7 @@
             }
         }, 
         {
-            "compound" : {
+            "entryId" : {
                 "name" : "G60.DDT@BDHDA_1",
                 "ownerUUID" : "FCSV-b0e5a5ac-fd96-3b36-81f8-242ca92643df",
                 "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-a7e7466f-64f5-3f2f-ad80-9016c4cb21b7"
@@ -1728,7 +1730,7 @@
             }
         }, 
         {
-            "compound" : {
+            "entryId" : {
                 "name" : "G60.DTNB_1",
                 "ownerUUID" : "FCSV-b0e5a5ac-fd96-3b36-81f8-242ca92643df",
                 "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-51272285-2b64-3aad-b323-be9a48ce7fef"
@@ -1763,7 +1765,7 @@
             }
         }, 
         {
-            "compound" : {
+            "entryId" : {
                 "name" : "G60.HDA_1",
                 "ownerUUID" : "FCSV-b0e5a5ac-fd96-3b36-81f8-242ca92643df",
                 "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-95f40eb6-8819-3511-9e1d-497cc8c19bf6"
@@ -1798,7 +1800,7 @@
             }
         }, 
         {
-            "compound" : {
+            "entryId" : {
                 "name" : "G60.MPA_1",
                 "ownerUUID" : "FCSV-b0e5a5ac-fd96-3b36-81f8-242ca92643df",
                 "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-8c2916e2-43fb-39f1-9c24-1bc1afb06db4"
@@ -1833,7 +1835,7 @@
             }
         }, 
         {
-            "compound" : {
+            "entryId" : {
                 "name" : "G60.MUTA_1",
                 "ownerUUID" : "FCSV-b0e5a5ac-fd96-3b36-81f8-242ca92643df",
                 "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-8533a06b-7fd8-3bae-a387-33c97975bdf2"
@@ -1868,7 +1870,7 @@
             }
         }, 
         {
-            "compound" : {
+            "entryId" : {
                 "name" : "G60.ODA_1",
                 "ownerUUID" : "FCSV-b0e5a5ac-fd96-3b36-81f8-242ca92643df",
                 "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-64945275-ffca-3a5c-b1dc-25c80f9fb5f7"
@@ -1903,7 +1905,7 @@
             }
         }, 
         {
-            "compound" : {
+            "entryId" : {
                 "name" : "G60.Phe-SH_1",
                 "ownerUUID" : "FCSV-b0e5a5ac-fd96-3b36-81f8-242ca92643df",
                 "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-6303d473-7350-3ef2-8fc1-067934e65d49"
@@ -1938,7 +1940,7 @@
             }
         }, 
         {
-            "compound" : {
+            "entryId" : {
                 "name" : "G60.Ser-SH_1",
                 "ownerUUID" : "FCSV-b0e5a5ac-fd96-3b36-81f8-242ca92643df",
                 "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-b552be38-d400-3cff-800f-878ed3fa8f8c"
@@ -1973,7 +1975,7 @@
             }
         }, 
         {
-            "compound" : {
+            "entryId" : {
                 "name" : "G60.SPP_1",
                 "ownerUUID" : "FCSV-b0e5a5ac-fd96-3b36-81f8-242ca92643df",
                 "URI" : "https://apps.ideaconsult.net/enmtest/substance/FCSV-1c03dfd6-a7fa-3a94-933a-ccc52da016bd"
@@ -2016,6 +2018,7 @@
                 "MEDIUM" : " "
             },
             "category" : "EXPERIMENTAL",
+            "ont" : null,
             "uri" : "https://apps.ideaconsult.net/enmtest/property/P-CHEM/CRYSTALLITE_AND_GRAIN_SIZE_SECTION/Polydispersity+index/3502F924548105D27B60D6E55373AAE4EB8802DE/3ed642f9-1b42-387a-9966-dea5b91e5f8a"
         }, 
         {
@@ -2027,6 +2030,7 @@
                 "SEQ_NUM" : null
             },
             "category" : "EXPERIMENTAL",
+            "ont" : null,
             "uri" : "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_GRANULOMETRY_SECTION/Z-Average+Hydrodynamic+Diameter/35F4963DCE8AEB2B892EE707B535F39CDA481AAD/3ed642f9-1b42-387a-9966-dea5b91e5f8a"
         }, 
         {
@@ -2038,6 +2042,7 @@
                 "pH" : null
             },
             "category" : "EXPERIMENTAL",
+            "ont" : null,
             "uri" : "https://apps.ideaconsult.net/enmtest/property/P-CHEM/ZETA_POTENTIAL_SECTION/ZETA+POTENTIAL/7F8B3FB82019B1CCF8A8C3FD2B5A2DACBDDDB832/3ed642f9-1b42-387a-9966-dea5b91e5f8a"
         }, 
         {
@@ -2048,6 +2053,7 @@
                 "SEQ_NUM" : null
             },
             "category" : "EXPERIMENTAL",
+            "ont" : null,
             "uri" : "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_GRANULOMETRY_SECTION/MW/DB28F169923FA0AD86096522A448834B4EF682C1/3ed642f9-1b42-387a-9966-dea5b91e5f8a"
         }, 
         {
@@ -2059,6 +2065,7 @@
                 "SEQ_NUM" : null
             },
             "category" : "EXPERIMENTAL",
+            "ont" : null,
             "uri" : "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_GRANULOMETRY_SECTION/Z-Average+Hydrodynamic+Diameter/175A177979C190DC42E87EC1C46BA7AAFAE50DA0/3ed642f9-1b42-387a-9966-dea5b91e5f8a"
         }, 
         {
@@ -2070,6 +2077,7 @@
                 "SEQ_NUM" : null
             },
             "category" : "EXPERIMENTAL",
+            "ont" : null,
             "uri" : "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_GRANULOMETRY_SECTION/Number+Mean+Hydrodynamic+Diameter/4E8BE83EB1813252D1D350BECF2AFE52C0C8B235/3ed642f9-1b42-387a-9966-dea5b91e5f8a"
         }, 
         {
@@ -2079,6 +2087,7 @@
                 "Cell" : "A549"
             },
             "category" : "EXPERIMENTAL",
+            "ont" : null,
             "uri" : "https://apps.ideaconsult.net/enmtest/property/TOX/UNKNOWN_TOXICITY_SECTION/Net+cell+association/8058CA554E48268ECBA8C98A55356854F413673B/3ed642f9-1b42-387a-9966-dea5b91e5f8a"
         }, 
         {
@@ -2088,6 +2097,7 @@
                 "MEDIUM" : "Human serum  Sigma #H4522 "
             },
             "category" : "EXPERIMENTAL",
+            "ont" : null,
             "uri" : "https://apps.ideaconsult.net/enmtest/property/TOX/UNKNOWN_TOXICITY_SECTION/Total+protein++BCA+assay+/A9C67096CC7A57527BCF9AA40FD03C39E71647DA/3ed642f9-1b42-387a-9966-dea5b91e5f8a"
         }, 
         {
@@ -2099,6 +2109,7 @@
                 "SEQ_NUM" : null
             },
             "category" : "EXPERIMENTAL",
+            "ont" : null,
             "uri" : "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_GRANULOMETRY_SECTION/Intensity+Mean+Hydrodynamic+Diameter/DE9B0CC6E6E3A1C8710568860D15AFF9FDB37036/3ed642f9-1b42-387a-9966-dea5b91e5f8a"
         }, 
         {
@@ -2108,6 +2119,7 @@
                 "Cell" : "A549"
             },
             "category" : "EXPERIMENTAL",
+            "ont" : null,
             "uri" : "https://apps.ideaconsult.net/enmtest/property/TOX/UNKNOWN_TOXICITY_SECTION/Log2+transformed/94D664CFE4929A0F400A5AD8CA733B52E049A688/3ed642f9-1b42-387a-9966-dea5b91e5f8a"
         }, 
         {
@@ -2118,6 +2130,7 @@
                 "SEQ_NUM" : null
             },
             "category" : "EXPERIMENTAL",
+            "ont" : null,
             "uri" : "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_GRANULOMETRY_SECTION/SA+NP/021C65DA36B719CCC87A7D0BAEC6FE6D04A522B1/3ed642f9-1b42-387a-9966-dea5b91e5f8a"
         }, 
         {
@@ -2129,6 +2142,7 @@
                 "pH" : null
             },
             "category" : "EXPERIMENTAL",
+            "ont" : null,
             "uri" : "https://apps.ideaconsult.net/enmtest/property/P-CHEM/ZETA_POTENTIAL_SECTION/ZETA+POTENTIAL/06399AE1609F65589E8D7C6DECF4A7E8565336CA/3ed642f9-1b42-387a-9966-dea5b91e5f8a"
         }, 
         {
@@ -2138,6 +2152,7 @@
                 "MEDIUM" : " "
             },
             "category" : "EXPERIMENTAL",
+            "ont" : null,
             "uri" : "https://apps.ideaconsult.net/enmtest/property/TOX/UNKNOWN_TOXICITY_SECTION/Localized+Surface+Plasmon+Resonance+LSPR+index/66110198220A7E1F45D20F4AE15BC71C8A83CDBF/3ed642f9-1b42-387a-9966-dea5b91e5f8a"
         }, 
         {
@@ -2149,6 +2164,7 @@
                 "SEQ_NUM" : null
             },
             "category" : "EXPERIMENTAL",
+            "ont" : null,
             "uri" : "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_GRANULOMETRY_SECTION/Volume+Mean+Hydrodynamic+Diameter/9750F09AD2730099CA5F9739ADCE1AE1E1F8730F/3ed642f9-1b42-387a-9966-dea5b91e5f8a"
         }, 
         {
@@ -2158,6 +2174,7 @@
                 "MEDIUM" : "Human serum  Sigma #H4522 "
             },
             "category" : "EXPERIMENTAL",
+            "ont" : null,
             "uri" : "https://apps.ideaconsult.net/enmtest/property/TOX/UNKNOWN_TOXICITY_SECTION/Localized+Surface+Plasmon+Resonance+LSPR+index/AF617630D8CB6A1C692D9100DE1EC69DF310CFA0/3ed642f9-1b42-387a-9966-dea5b91e5f8a"
         }, 
         {
@@ -2168,6 +2185,7 @@
                 "SEQ_NUM" : null
             },
             "category" : "EXPERIMENTAL",
+            "ont" : null,
             "uri" : "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_GRANULOMETRY_SECTION/Core+size/1AB9490AE860D5D127AC312CD38EBD5D829CCEE0/3ed642f9-1b42-387a-9966-dea5b91e5f8a"
         }, 
         {
@@ -2178,6 +2196,7 @@
                 "SEQ_NUM" : null
             },
             "category" : "EXPERIMENTAL",
+            "ont" : null,
             "uri" : "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_GRANULOMETRY_SECTION/Mol+NP/2C6AD06D5C028B89155C18AEEB8A07284DF16616/3ed642f9-1b42-387a-9966-dea5b91e5f8a"
         }, 
         {
@@ -2187,6 +2206,7 @@
                 "MEDIUM" : "Human serum  Sigma #H4522 "
             },
             "category" : "EXPERIMENTAL",
+            "ont" : null,
             "uri" : "https://apps.ideaconsult.net/enmtest/property/TOX/UNKNOWN_TOXICITY_SECTION/Autot++ICP-AES+/3292CF84D925135ACF22EA7642A66915C068BE23/3ed642f9-1b42-387a-9966-dea5b91e5f8a"
         }, 
         {
@@ -2196,6 +2216,7 @@
                 "MEDIUM" : "Human serum  Sigma #H4522 "
             },
             "category" : "EXPERIMENTAL",
+            "ont" : null,
             "uri" : "https://apps.ideaconsult.net/enmtest/property/TOX/UNKNOWN_TOXICITY_SECTION/Total+surface+area++SAtot+/52D93BC3B68F26C8E787CC7A05E5130A23164405/3ed642f9-1b42-387a-9966-dea5b91e5f8a"
         }, 
         {
@@ -2205,6 +2226,7 @@
                 "MEDIUM" : "Human serum  Sigma #H4522 "
             },
             "category" : "EXPERIMENTAL",
+            "ont" : null,
             "uri" : "https://apps.ideaconsult.net/enmtest/property/TOX/UNKNOWN_TOXICITY_SECTION/Protein+density/D93618A5D0D5EF5E07CE666BC44D054F777AE617/3ed642f9-1b42-387a-9966-dea5b91e5f8a"
         }, 
         {
@@ -2216,6 +2238,7 @@
                 "SEQ_NUM" : null
             },
             "category" : "EXPERIMENTAL",
+            "ont" : null,
             "uri" : "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_GRANULOMETRY_SECTION/Intensity+Mean+Hydrodynamic+Diameter/717D6088735F22206601C7B0819992CDEE5CB98B/3ed642f9-1b42-387a-9966-dea5b91e5f8a"
         }, 
         {
@@ -2226,6 +2249,7 @@
                 "SEQ_NUM" : null
             },
             "category" : "EXPERIMENTAL",
+            "ont" : null,
             "uri" : "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_GRANULOMETRY_SECTION/Density/C6CEA40CD82B544EB92E864A62D32BBD1BFA1362/3ed642f9-1b42-387a-9966-dea5b91e5f8a"
         }, 
         {
@@ -2235,6 +2259,7 @@
                 "MEDIUM" : " "
             },
             "category" : "EXPERIMENTAL",
+            "ont" : null,
             "uri" : "https://apps.ideaconsult.net/enmtest/property/TOX/UNKNOWN_TOXICITY_SECTION/LSPR+peak+position+nm/B9439BC9057F55C0234A5FEAB3BB0869DC75DB67/3ed642f9-1b42-387a-9966-dea5b91e5f8a"
         }, 
         {
@@ -2244,6 +2269,7 @@
                 "MEDIUM" : "Human serum  Sigma #H4522 "
             },
             "category" : "EXPERIMENTAL",
+            "ont" : null,
             "uri" : "https://apps.ideaconsult.net/enmtest/property/P-CHEM/CRYSTALLITE_AND_GRAIN_SIZE_SECTION/Polydispersity+index/E342FD5E5D524E6F234ED6DA934E9225AF5A3A09/3ed642f9-1b42-387a-9966-dea5b91e5f8a"
         }, 
         {
@@ -2255,6 +2281,7 @@
                 "SEQ_NUM" : null
             },
             "category" : "EXPERIMENTAL",
+            "ont" : null,
             "uri" : "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_GRANULOMETRY_SECTION/Number+Mean+Hydrodynamic+Diameter/9C11EA96F03B814FA61ECFF609203F1921289AFA/3ed642f9-1b42-387a-9966-dea5b91e5f8a"
         }, 
         {
@@ -2266,11 +2293,13 @@
                 "SEQ_NUM" : null
             },
             "category" : "EXPERIMENTAL",
+            "ont" : null,
             "uri" : "https://apps.ideaconsult.net/enmtest/property/P-CHEM/PC_GRANULOMETRY_SECTION/Volume+Mean+Hydrodynamic+Diameter/9D6F6C3FDD7A92BCC237B4FB3F2E44B17CC5A328/3ed642f9-1b42-387a-9966-dea5b91e5f8a"
         }
     ],
+    "totalRows" : 56,
+    "totalColumns" : 26,
     "descriptors" : [ 
         "EXPERIMENTAL"
-    ],
-    "featured" : true
+    ]
 }

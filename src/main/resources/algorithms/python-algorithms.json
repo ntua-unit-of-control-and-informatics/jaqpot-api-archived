@@ -5,7 +5,7 @@
                 "Id3 with MCI python algorithm."
             ],
             "titles": [
-                "Id3 - with MCI"
+                "Id3 - with MCI (Implemented in Python-Scikit-Learn)"
             ],
             "subjects": [
                 "decision_tree",
@@ -39,7 +39,7 @@
                 "Linear Regression by Scikit Learn python library."
             ],
             "titles": [
-                "Linear Regression"
+                "Linear Regression (Implemented in Python-Scikit Learn)"
             ],
             "subjects": [
                 "linear",
@@ -63,7 +63,7 @@
         "Lasso Regression by Scikit Learn python library."
       ],
       "titles": [
-        "Lasso Regression"
+        "Lasso Regression (Implemented in Python-Scikit Learn)"
       ],
       "subjects": [
         "lasso",
@@ -98,7 +98,7 @@
         "Decision Tree with ID3 method by Quinlan."
       ],
       "titles": [
-        "ID3 Decision Tree"
+        "ID3 Decision Tree (Implemented in Python-Scikit Learn)"
       ],
       "subjects": [
         "id3",
@@ -133,7 +133,7 @@
         "Decision Tree with splitting criterion: Conditional Mutual Information."
       ],
       "titles": [
-        "CMI Decision Tree"
+        "CMI Decision Tree (Implemented in Python-Scikit Learn)"
       ],
       "subjects": [
         "classification",
@@ -168,7 +168,7 @@
         "Generalised Naive Bayes by Scikit Learn python library."
       ],
       "titles": [
-        "Generalised Naive Bayes"
+        "Generalised Naive Bayes (Implemented in Python-Scikit Learn)"
       ],
       "subjects": [
         "bayes",
@@ -193,7 +193,7 @@
         "Multinomial Naive Bayes by Scikit Learn python library."
       ],
       "titles": [
-        "Multinomial Naive Bayes"
+        "Multinomial Naive Bayes (Implemented in Python-Scikit Learn)"
       ],
       "subjects": [
         "mnb",
@@ -218,7 +218,7 @@
         "Bernoulli Naive Bayes by Scikit Learn python library."
       ],
       "titles": [
-        "Bernoulli Naive Bayes"
+        "Bernoulli Naive Bayes (Implemented in Python-Scikit Learn)"
       ],
       "subjects": [
         "bnb",
@@ -243,7 +243,7 @@
         "PLS with VIP scores python algorithm."
       ],
       "titles": [
-        "PLS - with VIP scores"
+        "PLS - with VIP scores (Implemented in Python)"
       ],
       "subjects": [
         "pls",

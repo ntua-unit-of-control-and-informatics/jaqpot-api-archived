@@ -40,7 +40,7 @@ import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import java.io.IOException;
 import java.util.Map.Entry;
-import org.jaqpot.core.model.dto.dataset.DataEntry;
+import org.jaqpot.core.model.DataEntry;
 
 /**
  *
@@ -52,7 +52,9 @@ public class DataEntrySerializer extends JsonSerializer<DataEntry> {
     @Override
     public void serialize(DataEntry value, JsonGenerator gen, SerializerProvider serializers) throws IOException, JsonProcessingException {
         gen.writeStartObject();
-        gen.writeObjectField("compound", value.getCompound());
+        gen.writeObjectField("_id", value.getId());
+        gen.writeObjectField("entryId", value.getEntryId());
+        gen.writeObjectField("datasetId",value.getDatasetId());
         gen.writeObjectFieldStart("values");
         for (Entry<String, Object> entry : value.getValues().entrySet()) {
             gen.writeObjectField(entry.getKey().replaceAll("\\.", "\\(DOT\\)"), entry.getValue());

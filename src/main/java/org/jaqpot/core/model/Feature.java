@@ -33,6 +33,8 @@ import java.util.Set;
 import javax.xml.bind.annotation.XmlRootElement;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import java.util.HashSet;
+import java.util.List;
+import org.jaqpot.core.model.dto.dataset.Dataset;
 
 /**
  * Feature: The definition of a property, either measured, predicted or computed
@@ -64,7 +66,17 @@ public class Feature extends JaqpotEntity {
      * {@link JaqpotEntity}.
      */
     private Set<String> admissibleValues;
-
+//    /**
+//     * In case the feature is produced from a pretrained model, 
+//     * this field stores it's actual name that is needed for predictions.
+//     * {@link JaqpotEntity}.
+//     */
+//    private String actualIndependentFeatureName;
+    
+//    private Boolean fromPretrained;
+    private org.jaqpot.core.model.dto.dataset.Dataset.DescriptorCategory category;
+    
+    
     public Feature() {
     }
 
@@ -76,6 +88,9 @@ public class Feature extends JaqpotEntity {
         super(other);
         this.admissibleValues = other.admissibleValues != null ? new HashSet<>(other.admissibleValues) : null;
         this.units = other.units;
+        this.predictorFor = other.predictorFor;
+        this.setMeta(other.getMeta());
+
     }
 
     public String getUnits() {
@@ -100,6 +115,32 @@ public class Feature extends JaqpotEntity {
 
     public void setPredictorFor(String predictorFor) {
         this.predictorFor = predictorFor;
+    }
+    
+    
+
+//    public String getActualIndependentFeatureName() {
+//        return actualIndependentFeatureName;
+//    }
+//
+//    public void setActualIndependentFeatureName(String actualIndependentFeatureName) {
+//        this.actualIndependentFeatureName = actualIndependentFeatureName;
+//    }
+//
+//    public Boolean getFromPretrained() {
+//        return fromPretrained;
+//    }
+//
+//    public void setFromPretrained(Boolean fromPretrained) {
+//        this.fromPretrained = fromPretrained;
+//    }
+
+    public Dataset.DescriptorCategory getCategory() {
+        return category;
+    }
+
+    public void setCategory(Dataset.DescriptorCategory category) {
+        this.category = category;
     }
 
 }

@@ -53,6 +53,7 @@ public class MetaInfo {
     private Set<String> titles;
     private Set<String> subjects;
     private Set<String> publishers;
+    private Set<String> favorited;
     private Set<String> creators;
     private Set<String> contributors;
     private Set<String> audiences;
@@ -62,6 +63,12 @@ public class MetaInfo {
     private Set<String> hasSources;
     private Set<String> doi;
     private Date date;
+    private String picture;
+    private String markdown;
+    private Set<String> tags;
+    private Set<String> read;
+    private Set<String> write;
+    private Set<String> execute;
     private boolean locked;
 
     public MetaInfo(MetaInfo other) {
@@ -87,6 +94,14 @@ public class MetaInfo {
     }
 
     public MetaInfo() {}
+
+    public Set<String> getFavorited() {
+        return favorited;
+    }
+
+    public void setFavorited(Set<String> favorited) {
+        this.favorited = favorited;
+    }
 
     public Set<String> getIdentifiers() {
         return identifiers;
@@ -215,4 +230,53 @@ public class MetaInfo {
     public void setLocked(boolean locked) {
         this.locked = locked;
     }
+
+    public String getPicture() {
+        return picture;
+    }
+
+    public void setPicture(String picture) {
+        this.picture = picture;
+    }
+
+    public String getMarkdown() {
+        return markdown;
+    }
+
+    public void setMarkdown(String markdown) {
+        this.markdown = markdown;
+    }
+    
+    public Set<String> getTags() {
+        return tags;
+    }
+
+    public void setTags(Set<String> tags) {
+        this.tags = tags;
+    }
+
+    public Set<String> getRead() {
+        return read;
+    }
+
+    public void setRead(Set<String> read) {
+        this.read = read;
+    }
+
+    public Set<String> getWrite() {
+        return write;
+    }
+
+    public void setWrite(Set<String> write) {
+        this.write = write;
+    }
+
+    public Set<String> getExecute() {
+        return execute;
+    }
+
+    public void setExecute(Set<String> execute) {
+        this.execute = execute;
+    }
+    
 }

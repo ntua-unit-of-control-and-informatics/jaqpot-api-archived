@@ -30,9 +30,9 @@
 package org.jaqpot.core.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
-
+//import io.swagger.annotations.ApiModel;
+//import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import javax.xml.bind.annotation.XmlRootElement;
 
 
@@ -44,36 +44,43 @@ import javax.xml.bind.annotation.XmlRootElement;
  */
 @XmlRootElement
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@ApiModel( value = "ErrorReport", description = "Error report for various exceptions in the Jaqpot Framework" )
+//@ApiModel( value = "ErrorReport", description = "Error report for various exceptions in the Jaqpot Framework" )
+@Schema(name = "ErrorReport", description = "Error report for various exceptions in the Jaqpot Framework")
 public class ErrorReport extends JaqpotEntity {
     
     /** Error code. */
-    @ApiModelProperty(value = "Error code")
+   // @ApiModelProperty(value = "Error code")
+    @Schema(name = "errorCode", description = "Error Code")
     private String code;
     /**
      * Who is to blame.
      */
-    @ApiModelProperty(value = "Who is to blame")
+    //@ApiModelProperty(value = "Who is to blame")
+    @Schema(name = "Who is to blame", description = "Who is to blame")
     private String actor;
     /**
      * Short error message;
      */
-    @ApiModelProperty(value = "Short error message")
+    //@ApiModelProperty(value = "Short error message")
+    @Schema(name = "shotErrorMessage", description = "Short error message")
     private String message;
     /**
      * Details to be used for debugging.
      */
-    @ApiModelProperty(value = "Details to be used for debugging.")
+    //@ApiModelProperty(value = "Details to be used for debugging.")
+    @Schema(name = "details", description = "Details to be used for debugging.")
     private String details;
     /**
      * Accompanying HTTP status.
      */
-    @ApiModelProperty(value = "Accompanying HTTP status.")
+    //@ApiModelProperty(value = "Accompanying HTTP status.")
+    @Schema(name = "",description = "Accompanying HTTP status.")
     private int httpStatus = 0;
     /**
      * Trace error report.
      */
 //    @ApiModelProperty(value = "Trace error report.")
+    //@Schema(value = "Trace error report.")
 //    private ErrorReport trace;
 
     public ErrorReport() {

@@ -1,8 +1,10 @@
 package org.jaqpot.core.service.mdb;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jaqpot.core.annotations.Jackson;
 import org.jaqpot.core.data.*;
 import org.jaqpot.core.data.serialize.JSONSerializer;
+import org.jaqpot.core.data.wrappers.DatasetLegacyWrapper;
 import org.jaqpot.core.model.*;
 import org.jaqpot.core.model.builder.MetaInfoBuilder;
 import org.jaqpot.core.model.dto.dataset.Dataset;
@@ -32,13 +34,13 @@ import java.util.logging.Logger;
 /**
  * @author Angelos Valsamis
  * @author Charalampos Chomenidis
- * @author Georgios Drakakis
  * @author Pantelis Sopasakis
  *
  */
 @MessageDriven(activationConfig = {
     @ActivationConfigProperty(propertyName = "destinationLookup",
-            propertyValue = "java:jboss/exported/jms/topic/validationExternal"),
+            propertyValue = "java:jboss/exported/jms/topic/validationExternal")
+    ,
     @ActivationConfigProperty(propertyName = "destinationType",
             propertyValue = "javax.jms.Topic")
 })
@@ -56,7 +58,7 @@ public class ExternalValidationProcedure extends AbstractJaqpotProcedure {
     ReportHandler reportHandler;
 
     @EJB
-    DatasetHandler datasetHandler;
+    DatasetLegacyWrapper datasetLegacyWrapper;
 
     @Inject
     @Jackson
@@ -96,8 +98,9 @@ public class ExternalValidationProcedure extends AbstractJaqpotProcedure {
         String taskId = (String) messageBody.get("taskId");
         String dataset_uri = (String) messageBody.get("dataset_uri");
         String model_uri = (String) messageBody.get("model_uri");
-        String subjectId = (String) messageBody.get("subjectId");
+        String apiKey = (String) messageBody.get("api_key");
         String creator = (String) messageBody.get("creator");
+        String validation_from_ui = (String) messageBody.get("validation_type");
 
         try {
             init(taskId);
@@ -114,11 +117,27 @@ public class ExternalValidationProcedure extends AbstractJaqpotProcedure {
             progress(10f, "Model retrieved successfully.");
             checkCancelled();
 
-            Dataset dataset = Optional.of(client.target(dataset_uri)
-                    .request()
-                    .accept(MediaType.APPLICATION_JSON)
-                    .header("subjectId", subjectId)
-                    .get(Dataset.class)).orElseThrow(() -> new NotFoundException("Dataset with URI:" + dataset_uri + " was not found."));
+            Dataset dataset = null;
+
+//            if (dataset_uri != null && !dataset_uri.isEmpty()) {
+//                progress("Attempting to download dataset...");
+//                try{
+//                    dataset = client.target(dataset_uri)
+//                        .queryParam("dataEntries", true)
+//                        .request()
+//                        .header("Authorization", "Bearer " + apiKey)
+//                        .accept(MediaType.APPLICATION_JSON)
+//                        .get(Dataset.class);
+//                }catch(NotFoundException e){
+//                    String[] splitted = dataset_uri.split("/");
+//                    dataset = datasetLegacyWrapper.find(splitted[splitted.length -1]);
+//                    //dataset = datasetHandler.find(splitted[splitted.length -1]);
+//                }
+//                dataset.setDatasetURI(dataset_uri);
+//            }
+            String[] splitted = dataset_uri.split("/");
+            dataset = datasetLegacyWrapper.find(splitted[splitted.length - 1]);
+
             progress(10f, "Dataset retrieved successfully.");
             checkCancelled();
 
@@ -131,7 +150,7 @@ public class ExternalValidationProcedure extends AbstractJaqpotProcedure {
                         errNotFound("Transformation modle with id:" + transModelURI + " was not found.");
                         return;
                     }
-                    dataset = jpdiClient.predict(dataset, transModel, dataset != null ? dataset.getMeta() : null, taskId).get();
+                    dataset = jpdiClient.predict(dataset, transModel, dataset != null ? dataset.getMeta() : null, taskId, null).get();
                     addProgress(5f, "Transformed successfull by model:" + transModel.getId());
                 }
                 progress("Done processing transformations.", "--");
@@ -145,15 +164,20 @@ public class ExternalValidationProcedure extends AbstractJaqpotProcedure {
 
             progress("Starting JPDI Prediction...");
 
-            dataset = jpdiClient.predict(dataset, model, datasetMeta, taskId).get();
+            dataset = jpdiClient.predict(dataset, model, datasetMeta, taskId, null).get();
             progress("JPDI Prediction completed successfully.");
             progress(80f, "Dataset was built successfully.");
             checkCancelled();
 
             ValidationType validationType;
-            if (model.getAlgorithm().getOntologicalClasses().contains("ot:Regression")) {
+
+            if (validation_from_ui.contains("REGRESSION")) {
                 validationType = ValidationType.REGRESSION;
-            } else if (model.getAlgorithm().getOntologicalClasses().contains("ot:Classification")) {
+            } else if (validation_from_ui.contains("CLASSIFICATION")) {
+                validationType = ValidationType.CLASSIFICATION;
+            } else if (model.getAlgorithm().getOntologicalClasses() != null && model.getAlgorithm().getOntologicalClasses().contains("ot:Regression")) {
+                validationType = ValidationType.REGRESSION;
+            } else if (model.getAlgorithm().getOntologicalClasses() != null && model.getAlgorithm().getOntologicalClasses().contains("ot:Classification")) {
                 validationType = ValidationType.CLASSIFICATION;
             } else {
                 throw new IllegalArgumentException("Selected Algorithm is neither Regression nor Classification.");
@@ -174,7 +198,14 @@ public class ExternalValidationProcedure extends AbstractJaqpotProcedure {
             progress(92f, "Validation info populated successfully");
             checkCancelled();
 
-            Report report = client.target(propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_BASE_VALIDATION))
+//            ObjectMapper mapper = new ObjectMapper();
+//            try {
+//                System.out.println(mapper.writeValueAsString(reportRequest));
+//            } catch (Exception e) {
+//                LOG.log(Level.SEVERE, e.getLocalizedMessage());
+//            }
+
+            Report report = client.target(propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_BASE_VALIDATION))
                     .request()
                     .header("Content-Type", MediaType.APPLICATION_JSON)
                     .accept(MediaType.APPLICATION_JSON)

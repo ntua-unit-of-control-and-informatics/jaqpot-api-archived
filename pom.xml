@@ -4,12 +4,20 @@
 
     <groupId>org.jaqpot</groupId>
     <artifactId>jaqpot-api</artifactId>
-    <version>4.0.3</version>
+    <version>5.0.45</version>
     <packaging>war</packaging>
     
     <dependencies>
         
+       
+        
         <!-- Java Web API -->
+        <!--dependency>
+            <groupId>io.swagger</groupId>
+            <artifactId>swagger-jaxrs</artifactId>
+            <version>1.5.10</version>
+            <type>jar</type>
+        </dependency-->
         <dependency>
             <groupId>javax</groupId>
             <artifactId>javaee-web-api</artifactId>
@@ -58,18 +66,23 @@
             <version>3.0.10.Final</version>
         </dependency>
         
-        <!-- SWAGGER FOR JAX-RS-->
-        <dependency>
+        <!-- SWAGGER FOR JAX-RS  -for  OpenApi 3.0-->
+        <!--dependency>
             <groupId>io.swagger</groupId>
             <artifactId>swagger-jaxrs</artifactId>
             <version>1.5.10</version>
+        </dependency-->
+        <dependency>
+            <groupId>io.swagger.core.v3</groupId>
+            <artifactId>swagger-jaxrs2</artifactId>
+            <version>2.0.8</version>
         </dependency>
-        
-<!--        <dependency>
+       
+        <!--dependency>
             <groupId>io.swagger</groupId>
             <artifactId>swagger-jaxrs2</artifactId>
             <version>2.0.0-rc1</version>
-        </dependency>-->
+        </dependency-->
         
         <!-- JPMML (bin and javadoc) -->
         <dependency>
@@ -79,7 +92,7 @@
         </dependency>
 
         <!-- javamelody-core -->
-        <!--        <dependency>
+        <!-- <dependency>
             <groupId>net.bull.javamelody</groupId>
             <artifactId>javamelody-core</artifactId>
             <version>1.68.1</version>
@@ -128,7 +141,7 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
-            <version>3.4</version>
+            <version>3.8</version>
         </dependency>
         <dependency>
             <groupId>com.itextpdf.tool</groupId>
@@ -138,27 +151,73 @@
         <dependency>
             <groupId>org.mongodb</groupId>
             <artifactId>mongo-java-driver</artifactId>
-            <version>3.3.0</version>
+            <version>3.8.0</version>
         </dependency>
         <dependency>
             <groupId>org.jaqpot</groupId>
             <artifactId>ambit-client</artifactId>
-            <version>1.0.4</version>
+            <version>1.0.3</version>
         </dependency>
+        <dependency>
+            <groupId>xyz.euclia</groupId>
+            <artifactId>euclia-accounts-client</artifactId>
+            <version>0.0.1</version>
+        </dependency>
+        
         <dependency>
             <groupId>org.mapstruct</groupId>
             <artifactId>mapstruct-jdk8</artifactId>
             <version>1.2.0.Final</version>
         </dependency>
-        
         <dependency>
-            <groupId>com.rabbitmq</groupId>
-            <artifactId>amqp-client</artifactId>
-            <version>4.1.1</version>
+            <groupId>org.reflections</groupId>
+            <artifactId>reflections</artifactId>
+            <version>0.9.10</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.nimbusds</groupId>
+            <artifactId>oauth2-oidc-sdk</artifactId>
+            <version>5.62</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.elasticsearch.client</groupId>
+            <artifactId>elasticsearch-rest-client</artifactId>
+            <version>6.6.0</version>
+        </dependency>
+        
+
+        <dependency>
+            <groupId>org.apache.kafka</groupId>
+            <artifactId>kafka-clients</artifactId>
+            <version>2.1.0</version>
+        </dependency>
+        
+        <!--        <dependency>
+            <groupId>io.lettuce</groupId>
+            <artifactId>lettuce-core</artifactId>
+            <version>5.1.0.RELEASE</version>
+        </dependency>-->
+
+        <dependency>
+            <groupId>redis.clients</groupId>
+            <artifactId>jedis</artifactId>
+            <version>2.8.1</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>xyz.euclia</groupId>
+            <artifactId>jquots</artifactId>
+            <version>0.0.4</version>
+        </dependency>
+
+        <!-- SWAGGER FOR JAX-RS  -for  OpenApi 3.0-->
+       
 
     </dependencies>
+
+    
 
     <build>
         <plugins>
@@ -193,6 +252,9 @@
         <maven.compiler.target>1.8</maven.compiler.target>
         <failOnMissingWebXml>false</failOnMissingWebXml>
         
+        <jaqpot.env></jaqpot.env>
+        <jaqpot.local.ip></jaqpot.local.ip>
+        <jaqpot.schema></jaqpot.schema>
         <jaqpot.host></jaqpot.host>
         <jaqpot.port></jaqpot.port>
         <jaqpot.base></jaqpot.base>
@@ -206,6 +268,7 @@
         <jaqpot.db.name></jaqpot.db.name>
         <jaqpot.db.host></jaqpot.db.host>
         <jaqpot.db.port></jaqpot.db.port>
+        <jaqpot.db.connection.string></jaqpot.db.connection.string>
 
         <jaqpot.rabbitmq.host></jaqpot.rabbitmq.host>
         <jaqpot.rabbitmq.username></jaqpot.rabbitmq.username>
@@ -223,14 +286,45 @@
         <interlab.base></interlab.base>
         <jaqpot.readacross></jaqpot.readacross>
         <pksim.base></pksim.base>
+        <httk.base></httk.base>
+
         <ocpulm.base></ocpulm.base>
         
+        <oidc.issuer></oidc.issuer>
+        <oidc.client.id></oidc.client.id>
+        <oidc.client.pass></oidc.client.pass>
+        <oidc.provider.conf></oidc.provider.conf>
+        
         <jaqpot.qprf></jaqpot.qprf>
+        
+        <elastic.host></elastic.host>
+        <elastic.port></elastic.port>
+        <elastic.exists></elastic.exists>
+        <elastic.auth></elastic.auth>
+        <elastic.user></elastic.user>
+        <elastic.pass></elastic.pass>
+        <kafka.bootstrap></kafka.bootstrap>
+        <kafka.exists></kafka.exists>
+        <kafka.replication></kafka.replication>   
+        
+        <redis.db></redis.db>
+        <redis.exists></redis.exists>    
+        <redis.on.cluster></redis.on.cluster>     
+        <redis.cluster></redis.cluster> 
+                      
+                                             
+        <quots.exist></quots.exist>                                                                                   
+        <quots.url></quots.url>
+        <quots.app></quots.app>
+        <quots.app.secret></quots.app.secret>  
+        
+        <euclia.accounts.url></euclia.accounts.url>
     </properties>
     
     <repositories>
         <repository>
             <id>jaqpot-releases</id>
+            <name>jaqpot-releases</name>
             <url>https://nexus.jaqpot.org/repository/maven-releases/</url>
         </repository>
     </repositories>

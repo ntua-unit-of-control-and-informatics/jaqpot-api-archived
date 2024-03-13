@@ -20,28 +20,39 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  * Source code:
  * The source code of JAQPOT Quattro is available on github at:
  * https://github.com/KinkyDesign/JaqpotQuattro
  * All source files of JAQPOT Quattro that are stored on github are licensed
- * with the aforementioned licence. 
+ * with the aforementioned licence.
  */
 package org.jaqpot.core.service.resource;
 
-import io.swagger.annotations.*;
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.oauth2.sdk.token.AccessToken;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.extensions.Extension;
+import io.swagger.v3.oas.annotations.extensions.ExtensionProperty;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.Content;
+
+import io.swagger.v3.oas.annotations.tags.Tag;
+//import io.swagger.v3.oas.models.security.SecurityRequirement;
+//import io.swagger.annotations.*;
 import org.jaqpot.core.model.ErrorReport;
 import org.jaqpot.core.model.dto.aa.AuthToken;
-import org.jaqpot.core.model.dto.dataset.Dataset;
-import org.jaqpot.core.service.annotations.Authorize;
-import org.jaqpot.core.service.data.AAService;
-import org.jaqpot.core.service.exceptions.JaqpotForbiddenException;
+import org.jaqpot.core.service.authentication.AAService;
 import org.jaqpot.core.service.exceptions.JaqpotNotAuthorizedException;
 
 import javax.ejb.EJB;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import org.jaqpot.core.data.UserHandler;
+import xyz.euclia.euclia.accounts.client.models.User;
 
 /**
  *
@@ -49,167 +60,127 @@ import javax.ws.rs.core.Response;
  * @author Charalampos Chomenidis
  *
  */
-@Path("aa")
-@Api(value = "/aa", description = "AA API")
+@Path("/aa")
+//@Api(value = "/aa", description = "AA API")
 @Produces({"application/json"})
+@Tag(name = "aa")
+
 public class AAResource {
 
     @EJB
     AAService aaService;
+    
+    @EJB
+    UserHandler userHandler;
 
     @POST
-    @Path("/login")
-    @Consumes({"application/x-www-form-urlencoded", MediaType.APPLICATION_FORM_URLENCODED})
-    @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
-    @ApiOperation(
-            value = "Creates Security Token",
-            response = AuthToken.class,
-            notes = "Uses OpenAM server to get a security token.",
-            extensions = {
-                @Extension(properties = {
-                    @ExtensionProperty(name = "orn-@type", value = "x-orn:Authentication"),
-                    }
-                ),
-                @Extension(name = "orn:expects",properties={
-                    @ExtensionProperty(name = "x-orn-@id", value = "x-orn:Credentials")
-                }),
-                @Extension(name = "orn:returns",properties={
-                    @ExtensionProperty(name = "x-orn-@id", value = "x-orn:AccessToken")
-                })
-            }
-    )
-    @ApiResponses(value = {
-        @ApiResponse(code = 401, response = ErrorReport.class, message = "Wrong, missing or insufficient credentials. Error report is produced.")
-        ,        @ApiResponse(code = 200, response = AuthToken.class, message = "Logged in - authentication token can be found in the response body (in JSON)")
-        ,
-        @ApiResponse(code = 200, response = AuthToken.class, message = "Successfully log in")
-        ,
-        @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
-    })
-    public Response login(
-            @ApiParam(value = "Username", required = true) @FormParam("username") String username,
-            @ApiParam(value = "Password", required = true) @FormParam("password") String password) throws JaqpotNotAuthorizedException {
-
-        AuthToken aToken;
-        aToken = aaService.login(username, password);
-        return Response.ok(aToken)
-                .status(Response.Status.OK)
-                .build();
-    }
-
-    @POST
-    @Path("/logout")
-    @Consumes("text/plain")
-    @Authorize
-    @Produces("application/json")
-    @ApiOperation(
-            value = "Logs out a user",
-            notes = "Invalidates a security token and logs out the corresponding user",
-            extensions = {
-                            @Extension(properties = {
-                                @ExtensionProperty(name = "orn-@type", value = "x-orn:Logout"),
-                                }
-                            ),
-                            @Extension(name = "orn:expects",properties={
-                                @ExtensionProperty(name = "x-orn-@id", value = "x-orn:AccessToken")
-                            }),
-                            @Extension(name = "orn:returns",properties={
-                                @ExtensionProperty(name = "x-orn-@id", value = "x-orn:Status")
-                            })
-                        }            
-            
-            )
-            
-    @ApiResponses(value = {
-        @ApiResponse(code = 401, response = ErrorReport.class, message = "Wrong, missing or insufficient credentials. Error report is produced.")
-        ,
-        @ApiResponse(code = 200, response = String.class, message = "Logged out")
-        ,
-        @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
-    })
-    public Response logout(
-            @ApiParam(value = "Authorization token") @HeaderParam("subjectid") String subjectId
-    ) throws JaqpotNotAuthorizedException {
-        boolean loggedOut = aaService.logout(subjectId);
-        return Response
-                .ok(loggedOut, MediaType.APPLICATION_JSON)
-                .status(Response.Status.OK)
-                .build();
-    }
-
-    @POST
-    @Path("/validate")
+    @Path("/validate/accesstoken")
     @Produces(MediaType.APPLICATION_JSON)
-    @Authorize
-    @ApiOperation(
-            value = "Validate authorization token",
-            notes = "Checks whether an authorization token is valid",
+    @Operation(
+            summary = "Validate authorization token",
+            description = "Checks whether an authorization token is valid",
             extensions = {
                 @Extension(properties = {
-                    @ExtensionProperty(name = "orn-@type", value = "x-orn:TokenValidation"),
-                    }
+                    @ExtensionProperty(name = "orn-@type", value = "x-orn:TokenValidation"),}
                 ),
-                @Extension(name = "orn:expects",properties={
+                @Extension(name = "orn:expects", properties = {
                     @ExtensionProperty(name = "x-orn-@id", value = "x-orn:AccessToken")
                 }),
-                @Extension(name = "orn:returns",properties={
+                @Extension(name = "orn:returns", properties = {
                     @ExtensionProperty(name = "x-orn-@id", value = "x-orn:TokenStatus")
                 })
+            },
+            responses = {
+                @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = ErrorReport.class)), description = "Wrong, missing or insufficient credentials. Error report is produced."),
+                @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = String.class)), description = "Your authorization token is valid"),
+                @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorReport.class)), description = "Internal server error - this request cannot be served.")
             })
-    @ApiResponses(value = {
-        @ApiResponse(code = 401, response = ErrorReport.class, message = "Wrong, missing or insufficient credentials. Error report is produced.")
-        ,
-        @ApiResponse(code = 200, response = String.class, message = "Your authorization token is valid")
-        ,
-        @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
-    })
-    public Response validate(
-            @ApiParam(value = "Authorization token") @HeaderParam("subjectid") String subjectId
+    public Response validateAccessToken(
+            //@ApiParam(value = "Authorization token") @QueryParam("accessToken") String accessToken
+            @Parameter(description = "Authorization token", schema = @Schema(implementation = String.class), name = "accessToken") String accessToken
     ) throws JaqpotNotAuthorizedException {
-        boolean valid = aaService.validate(subjectId);
+        boolean valid = aaService.validateAccessToken(accessToken);
         return Response.ok(valid ? "true" : "false", MediaType.APPLICATION_JSON)
                 .status(valid ? Response.Status.OK : Response.Status.UNAUTHORIZED)
                 .build();
     }
 
-    @POST
-    @Path("/authorize")
+    @GET
+    @Path("/claims")
     @Produces(MediaType.APPLICATION_JSON)
-    @Authorize
-    @ApiOperation(
-            value = "Requests authorization from SSO",
-            notes = "Checks whether the client identified by the provided AA token can apply a method to a URI",
+    @Operation(
+            summary = "Requests authorization from SSO",
+            description = "Checks whether the client identified by the provided AA token can apply a method to a URI",
             extensions = {
                 @Extension(properties = {
-                    @ExtensionProperty(name = "orn-@type", value = "x-orn:Authorization"),
-                    }
+                    @ExtensionProperty(name = "orn-@type", value = "x-orn:Authorization"),}
                 ),
-                @Extension(name = "orn:expects",properties={
+                @Extension(name = "orn:expects", properties = {
                     @ExtensionProperty(name = "x-orn-@id", value = "x-orn:AccessToken")
                 }),
-                @Extension(name = "orn:returns",properties={
-                    @ExtensionProperty(name = "x-orn-@id", value = "x-orn:TokenAuthorization")
+                @Extension(name = "orn:returns", properties = {
+                    @ExtensionProperty(name = "x-orn-@id", value = "x-orn:TokenClaims")
                 })
-            }
-    )
-    @ApiResponses(value = {
-        @ApiResponse(code = 403, response = ErrorReport.class, message = "Your authorization token is valid but you are forbidden from applying the specified method.")
-        ,
-        @ApiResponse(code = 401, response = ErrorReport.class, message = "Wrong, missing or insufficient credentials. Error report is produced.")
-        ,
-        @ApiResponse(code = 200, response = String.class, message = "You have authorization for the given URI and HTTP method")
-        ,
-        @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
-    })
-    public Response authorize(
-            @ApiParam(value = "Authorization token") @HeaderParam("subjectid") String subjectId,
-            @ApiParam(value = "HTTP method", required = true, allowableValues = "GET,POST,PUT,DELETE", defaultValue = "GET") @FormParam("method") String method,
-            @ApiParam(value = "URI", required = true) @FormParam("uri") String uri
+            },
+            responses = {
+                @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(implementation = ErrorReport.class)), description = "Your authorization token is valid but you are forbidden from applying the specified method."),
+                @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = ErrorReport.class)), description = "Wrong, missing or insufficient credentials. Error report is produced."),
+                @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = String.class)), description = "You have authorization for the given URI and HTTP method"),
+                @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorReport.class)), description = "Internal server error - this request cannot be served.")
+            })
+    public Response getClaims(
+            //@ApiParam(value = "Authorization token") @QueryParam("accessToken") String accessToken
+            @Parameter(description = "Authorization token", schema = @Schema(type = "String", implementation = String.class), name = "accessToken") String accessToken
     ) throws JaqpotNotAuthorizedException {
-        boolean valid = aaService.authorize(subjectId, method, uri);
-        return Response.ok(valid ? "true" : "false", MediaType.APPLICATION_JSON)
-                .status(valid ? Response.Status.OK : Response.Status.FORBIDDEN)
+        JWTClaimsSet claims = aaService.getClaimsFromAccessToken(accessToken);
+        return Response.ok(claims)
                 .build();
     }
 
+    @POST
+    @Path("/login")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Operation(description = "",
+            summary = ""
+    )
+    public Response swaggerLogin(
+            @Parameter(description = "Username", name = "username", schema = @Schema(implementation = String.class, type = "string")) @FormParam("username") String username,
+            @Parameter(description = "Password", name = "password", schema = @Schema(implementation = String.class, type = "string")) @FormParam("password") String password) throws JaqpotNotAuthorizedException {
+
+        AccessToken aToken;
+
+        aToken = aaService.getAccessToken(username, password);
+        AuthToken auToken = new AuthToken();
+        auToken.setAuthToken(aToken.getValue());
+        String userId = aaService.getUserIdFromSSO(aToken.getValue());
+        
+        User user = userHandler.find(userId, aToken.getValue());
+//        if (user == null) {
+//            JWTClaimsSet claimsSet = null;
+//            User userToSave = UserFactory.newNormalUser();
+//            ConfigurableJWTProcessor jwtProcessor = new DefaultJWTProcessor();
+//            try {
+//                SecurityContext ctx = null;
+//                claimsSet = jwtProcessor.process(aToken.getValue(), ctx);
+//                userToSave.setId(userId);
+//                userToSave.setMail(claimsSet.getStringClaim("email"));
+//                userToSave.setName(claimsSet.getStringClaim("preferred_username"));              
+////                userToSave.setMail(claimsSet.getStringClaim("email"));
+////                userToSave.setName(claimsSet.getStringClaim("preferred_username"));
+//                userHandler.create(userToSave);
+//            } catch (JaqpotDocumentSizeExceededException |  ParseException | BadJOSEException | JOSEException e) {
+//                throw new InternalServerErrorException("Could not proceed request. Please try again later", e);
+//            }
+//            return Response.ok(auToken)
+//                .status(Response.Status.OK)
+//                .build();
+//        }
+                      
+//        User user = aaService.getUserFromSSO(aToken.getValue());
+        auToken.setUserName(user.getName());
+        return Response.ok(auToken)
+                .status(Response.Status.OK)
+                .build();
+    }
 }

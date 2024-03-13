@@ -1,10 +1,9 @@
 package org.jaqpot.core.service.mdb;
 
 import org.jaqpot.core.annotations.Jackson;
-import org.jaqpot.core.data.AlgorithmHandler;
-import org.jaqpot.core.data.ReportHandler;
-import org.jaqpot.core.data.TaskHandler;
+import org.jaqpot.core.data.*;
 import org.jaqpot.core.data.serialize.JSONSerializer;
+import org.jaqpot.core.data.wrappers.DatasetLegacyWrapper;
 import org.jaqpot.core.model.*;
 import org.jaqpot.core.model.builder.MetaInfoBuilder;
 import org.jaqpot.core.model.dto.dataset.Dataset;
@@ -42,7 +41,8 @@ import java.util.logging.Logger;
  */
 @MessageDriven(activationConfig = {
     @ActivationConfigProperty(propertyName = "destinationLookup",
-            propertyValue = "java:jboss/exported/jms/topic/validationSplit"),
+            propertyValue = "java:jboss/exported/jms/topic/validationSplit")
+    ,
     @ActivationConfigProperty(propertyName = "destinationType",
             propertyValue = "javax.jms.Topic")
 })
@@ -56,6 +56,9 @@ public class SplitValidationProcedure extends AbstractJaqpotProcedure {
     @EJB
     ReportHandler reportHandler;
 
+    @EJB
+    DatasetLegacyWrapper datasetLegacyWrapper;
+    
     @Inject
     @Jackson
     JSONSerializer serializer;
@@ -91,7 +94,7 @@ public class SplitValidationProcedure extends AbstractJaqpotProcedure {
         }
 
         String taskId = (String) messageBody.get("taskId");
-        String subjectId = (String) messageBody.get("subjectId");
+        String apiKey = (String) messageBody.get("api_key");
         String algorithmURI = (String) messageBody.get("algorithm_uri");
         String datasetURI = (String) messageBody.get("dataset_uri");
         String predictionFeature = (String) messageBody.get("prediction_feature");
@@ -108,24 +111,39 @@ public class SplitValidationProcedure extends AbstractJaqpotProcedure {
             start(Task.Type.VALIDATION);
 
             progress(1f, "Split validation procedure initiated.");
+            Algorithm algorithm = null;
 
-            Algorithm algorithm = Optional.of(client.target(algorithmURI)
-                    .request()
-                    .accept(MediaType.APPLICATION_JSON)
-                    .header("subjectId", subjectId)
-                    .get(Algorithm.class)).orElseThrow(() -> new NotFoundException("Algorithm with URI:" + algorithmURI + " was not found."));
+            try {
+                algorithm = client.target(algorithmURI)
+                        .request()
+                        .accept(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + apiKey)
+                        .get(Algorithm.class);
+            } catch (NotFoundException e) {
+                String[] algoUriS = algorithmURI.split("/");
+                algorithm = algorithmHandler.find(algoUriS[algoUriS.length - 1]);
+            }
 
             progress(5f, "Algorithm retrieved successfully.");
             checkCancelled();
 
-            Dataset dataset = Optional.of(client.target(datasetURI)
+            Dataset dataset = null;
+            try{
+                dataset = client.target(datasetURI)
                     .queryParam("stratify", stratify)
                     .queryParam("splitRatio", splitRatio)
                     .queryParam("seed", seed)
+                    .queryParam("dataEntries", true)
                     .request()
                     .accept(MediaType.APPLICATION_JSON)
-                    .header("subjectId", subjectId)
-                    .get(Dataset.class)).orElseThrow(() -> new NotFoundException("Dataset with URI:" + datasetURI + " was not found."));
+                    .header("Authorization", "Bearer " + apiKey)
+                    .get(Dataset.class);
+            }catch(NotFoundException e){
+                String[] datasetSlit = datasetURI.split("/");
+                dataset = datasetLegacyWrapper.find(datasetSlit[datasetSlit.length - 1]);
+                //dataset = datasetHandler.find(datasetSlit[datasetSlit.length - 1]);
+
+            }
             progress(10f, "Dataset retrieved successfully.");
             checkCancelled();
 
@@ -158,7 +176,7 @@ public class SplitValidationProcedure extends AbstractJaqpotProcedure {
                     if (transParameters != null && !transParameters.isEmpty()) {
                         parameterMap = serializer.parse(transParameters, new HashMap<String, Object>().getClass());
                     }
-                    dataset = jpdiClient.transform(dataset, transAlgorithm, parameterMap, predictionFeature, dataset.getMeta(), taskId).get();
+                    dataset = jpdiClient.transform(dataset, transAlgorithm, parameterMap, predictionFeature, dataset.getMeta(), taskId, null).get();
                     addProgress(10f, "Done");
                 }
                 progress(30f, "Done processing transformations.", "--");
@@ -185,7 +203,7 @@ public class SplitValidationProcedure extends AbstractJaqpotProcedure {
             Integer indepFeatureSize = 0;
 
             Model model = jpdiClient.train(trainDataset, algorithm, parameterMap, predictionFeature, trainDataset.getMeta(), taskId).get();
-            Dataset predictedDataset = jpdiClient.predict(testDataset, model, testDataset.getMeta(), taskId).get();
+            Dataset predictedDataset = jpdiClient.predict(testDataset, model, testDataset.getMeta(), taskId, null).get();
 
             addProgress(20f, "Finished train and test with train_dataset:" + trainDataset.getDatasetURI() + " test_dataset:" + testDataset.getDatasetURI());
             checkCancelled();

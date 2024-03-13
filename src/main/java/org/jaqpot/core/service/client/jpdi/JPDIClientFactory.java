@@ -30,6 +30,7 @@ import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import org.jaqpot.core.data.AlgorithmHandler;
 
 /**
  *
@@ -49,6 +50,9 @@ public class JPDIClientFactory {
 
     @EJB
     FeatureHandler featureHandler;
+    
+    @EJB
+    AlgorithmHandler algorithmHandler;
 
     @Inject
     PropertyManager propertyManager;
@@ -57,7 +61,7 @@ public class JPDIClientFactory {
     public void init() {
         CloseableHttpAsyncClient asyncClient = HttpAsyncClientBuilder.create()
                 .build();
-        this.client = new JPDIClientImpl(asyncClient, serializer, featureHandler, propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_BASE_SERVICE));
+        this.client = new JPDIClientImpl(asyncClient, serializer, featureHandler, algorithmHandler, propertyManager.getProperty(PropertyManager.PropertyType.JAQPOT_BASE_SERVICE));
     }
 
     @PreDestroy

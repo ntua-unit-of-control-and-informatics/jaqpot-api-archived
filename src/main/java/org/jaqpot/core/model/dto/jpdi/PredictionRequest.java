@@ -29,6 +29,8 @@
  */
 package org.jaqpot.core.model.dto.jpdi;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import org.jaqpot.core.model.dto.dataset.Dataset;
 
 /**
@@ -39,9 +41,12 @@ import org.jaqpot.core.model.dto.dataset.Dataset;
  */
 public class PredictionRequest {
 
-    Dataset dataset;
-    Object rawModel;
-    Object additionalInfo;
+    private Dataset dataset;
+    private Object rawModel;
+    private Object additionalInfo;
+    
+    @JsonInclude(Include.NON_NULL)
+    private float[][] doaMatrix;
 
     public Dataset getDataset() {
         return dataset;
@@ -67,4 +72,12 @@ public class PredictionRequest {
         this.additionalInfo = additionalInfo;
     }
 
+    public float[][] getDoaMatrix() {
+        return doaMatrix;
+    }
+
+    public void setDoaMatrix(float[][] doaMatrix) {
+        this.doaMatrix = doaMatrix;
+    }
+    
 }

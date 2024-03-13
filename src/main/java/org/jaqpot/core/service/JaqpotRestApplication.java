@@ -20,16 +20,32 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  * Source code:
  * The source code of JAQPOT Quattro is available on github at:
  * https://github.com/KinkyDesign/JaqpotQuattro
  * All source files of JAQPOT Quattro that are stored on github are licensed
- * with the aforementioned licence. 
+ * with the aforementioned licence.
  */
 package org.jaqpot.core.service;
 
-import io.swagger.jaxrs.config.BeanConfig;
+//import io.swagger.jaxrs.config.BeanConfig;
+import io.swagger.v3.jaxrs2.integration.JaxrsOpenApiContextBuilder;
+
+import io.swagger.v3.jaxrs2.integration.resources.OpenApiResource;
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeIn;
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
+import io.swagger.v3.oas.annotations.security.OAuthFlow;
+import io.swagger.v3.oas.annotations.security.OAuthFlows;
+import io.swagger.v3.oas.annotations.security.OAuthScope;
+import io.swagger.v3.oas.integration.OpenApiConfigurationException;
+import io.swagger.v3.oas.integration.SwaggerConfiguration;
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.security.SecurityRequirement;
+import io.swagger.v3.oas.models.security.SecurityScheme;
+import io.swagger.v3.oas.models.servers.Server;
+import java.util.ArrayList;
 import org.jaqpot.core.properties.PropertyManager;
 import org.reflections.Reflections;
 
@@ -39,37 +55,50 @@ import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.ext.Provider;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
+import org.jaqpot.core.service.authentication.TokenRequestFilter;
 
 /**
  *
  * @author Pantelis Sopasakis
  * @author Charalampos Chomenidis
- *
+ * @author pantelispanka
  */
+
 @ApplicationPath("/services")
 @Singleton
 @Startup
+//@SecurityScheme(name = "oidConnect bearer key",
+//        type = SecuritySchemeType.APIKEY,
+//        in = SecuritySchemeIn.HEADER,
+//        description = "myOauthSecurity Description"
+//        )
+//@io.swagger.v3.oas.annotations.security.SecurityRequirement(name = "oidConnect bearer key")
 public class JaqpotRestApplication extends Application {
 
     private static final Logger LOG = Logger.getLogger(JaqpotRestApplication.class.getName());
 
-    BeanConfig beanConfig;
-
+    //BeanConfig beanConfig;
     @Inject
     PropertyManager propertyManager;
 
     public JaqpotRestApplication() {
 
+          super();
     }
 
     //Move constructor logic in @PostConstruct in order to be able to use PropertyManager Injection
     @PostConstruct
+
     public void init() {
+
         String host = propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_HOST);
         String port = propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_PORT);
         String basePath = propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_BASE);
@@ -77,21 +106,52 @@ public class JaqpotRestApplication extends Application {
         LOG.log(Level.INFO, "Host:{0}", host);
         LOG.log(Level.INFO, "Port:{0}", port);
         LOG.log(Level.INFO, "BasePath:{0}", basePath);
-        beanConfig = new BeanConfig();
-        beanConfig.setVersion("4.0.3");
-        beanConfig.setResourcePackage("org.jaqpot.core.service.resource");
-        beanConfig.setScan(true);
-        beanConfig.setTitle("Jaqpot Quattro");
-        beanConfig.setDescription("Jaqpot Quattro");
-        if(!"80".equals(port)){
-            beanConfig.setHost(host + ":" + port);
-        }
-        else{
-            beanConfig.setHost(host);
-        }
-        beanConfig.setBasePath(basePath);
-        beanConfig.setSchemes(new String[]{"http","https"});
-        beanConfig.setPrettyPrint(true);
+        OpenAPI oas = new OpenAPI();
+        Info info = new Info()
+                .title("Jaqpot")
+                .description("Jaqpot")
+                .version("5.0.?");
+        oas.openapi("3.0.1");
+        oas.info(info);
+
+
+//        SecurityScheme securityScheme = new SecurityScheme();
+//        securityScheme.setName("bearerAuth");
+//        securityScheme.setType(SecurityScheme.Type.HTTP);
+//        securityScheme.scheme("bearer");
+//        SecurityRequirement sr = new SecurityRequirement();
+//        sr.addList("Authorization");
+
+//        oas.addSecurityItem(sr);
+
+
+        Server server = new Server()
+                //.url(protocol.getDefault() + "://"+host + ":" + port + "/jaqpot/services")
+               // .variables(varMap);
+                .url("http://"+host + ":" + port + "/jaqpot");
+        Server server2 = new Server()
+                //.url(protocol.getDefault() + "://"+host + ":" + port + "/jaqpot/services")
+               // .variables(varMap);
+                .url("https://"+host + ":" + port + "/jaqpot");
+        List<Server> servers = new ArrayList();
+        servers.add(server);
+        servers.add(server2);
+
+        oas.servers(servers);
+
+        SwaggerConfiguration oasConfig = new SwaggerConfiguration()
+                //flag
+                .openAPI(oas)
+                .prettyPrint(true)
+                .resourcePackages(Stream.of("org.jaqpot.core.service.resource").collect(Collectors.toSet()));
+       try{
+        OpenAPI openapi = new JaxrsOpenApiContextBuilder().application(this)
+                .openApiConfiguration(oasConfig)
+                .buildContext(true)
+                .read();
+       }catch (OpenApiConfigurationException e) {
+        throw new RuntimeException(e.getMessage(), e);
+      }
     }
 
     @Override
@@ -100,7 +160,7 @@ public class JaqpotRestApplication extends Application {
 
         /*
          * We are here using reflections to discover and register
-         * resources, filters and providers. 
+         * resources, filters and providers.
          */
         // Resources [Annotated with @Path]
         Reflections reflectedResources = new Reflections("org.jaqpot.core.service.resource");
@@ -118,9 +178,12 @@ public class JaqpotRestApplication extends Application {
         Reflections reflectedWriters = new Reflections("org.jaqpot.core.service.writer");
         resources.addAll(reflectedWriters.getTypesAnnotatedWith(Provider.class));
 
+        resources.add(TokenRequestFilter.class);
         // Swagger-related stuff [Registered directly]
-        resources.add(io.swagger.jaxrs.listing.ApiListingResource.class);
-        resources.add(io.swagger.jaxrs.listing.SwaggerSerializers.class);
+        //resources.add(io.swagger.jaxrs.listing.ApiListingResource.class);
+        //resources.add(io.swagger.jaxrs.listing.SwaggerSerializers.class);
+        resources.add(OpenApiResource.class);
+        //resources.add(AcceptHeaderOpenApiResource.class);
 
         return resources;
     }

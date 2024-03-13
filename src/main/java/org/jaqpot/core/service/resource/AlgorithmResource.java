@@ -25,19 +25,29 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  * Source code:
  * The source code of JAQPOT Quattro is available on github at:
  * https://github.com/KinkyDesign/JaqpotQuattro
  * All source files of JAQPOT Quattro that are stored on github are licensed
- * with the aforementioned licence. 
+ * with the aforementioned licence.
  */
 package org.jaqpot.core.service.resource;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.github.fge.jsonpatch.JsonPatchException;
-import io.swagger.annotations.*;
-import io.swagger.jaxrs.PATCH;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeIn;
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
+import io.swagger.v3.oas.annotations.extensions.Extension;
+import io.swagger.v3.oas.annotations.extensions.ExtensionProperty;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.security.SecurityScheme;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.commons.validator.routines.UrlValidator;
 import org.jaqpot.core.annotations.Jackson;
 import org.jaqpot.core.data.AlgorithmHandler;
@@ -48,19 +58,15 @@ import org.jaqpot.core.data.serialize.JSONSerializer;
 import org.jaqpot.core.model.*;
 import org.jaqpot.core.model.builder.AlgorithmBuilder;
 import org.jaqpot.core.model.dto.dataset.Dataset;
-import org.jaqpot.core.model.facades.UserFacade;
 import org.jaqpot.core.model.factory.ErrorReportFactory;
 import org.jaqpot.core.model.util.ROG;
-import org.jaqpot.core.service.annotations.Authorize;
 import org.jaqpot.core.service.data.TrainingService;
-import org.jaqpot.core.service.exceptions.JaqpotForbiddenException;
-import org.jaqpot.core.service.exceptions.JaqpotNotAuthorizedException;
+import org.jaqpot.core.service.exceptions.JaqpotDocumentSizeExceededException;
 import org.jaqpot.core.service.exceptions.JaqpotForbiddenException;
 import org.jaqpot.core.service.exceptions.parameter.*;
 import org.jaqpot.core.service.exceptions.QuotaExceededException;
-import org.jaqpot.core.service.exceptions.parameter.*;
 import org.jaqpot.core.service.validator.ParameterValidator;
-import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput;
+import xyz.euclia.euclia.accounts.client.models.User;
 
 import javax.ejb.EJB;
 import javax.inject.Inject;
@@ -70,16 +76,25 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.jaqpot.core.service.annotations.TokenSecured;
+import org.jaqpot.core.service.authentication.RoleEnum;
+
 /**
  *
  * @author Pantelis Sopasakis
  * @author Charalampos Chomenidis
  *
  */
-@Path("algorithm")
-@Api(value = "/algorithm", description = "Algorithms API")
+@Path("/algorithm")
 @Produces({"application/json", "text/uri-list"})
-@Authorize
+@Tag(name = "algorithm")
+@SecurityScheme(name = "bearerAuth",
+        type = SecuritySchemeType.HTTP,
+        in = SecuritySchemeIn.HEADER,
+        scheme = "bearer",
+        description = "add the token retreived from oidc. Example:  Bearer <API_KEY>"
+        )
+@io.swagger.v3.oas.annotations.security.SecurityRequirement(name = "bearerAuth")
 public class AlgorithmResource {
 
     private static final Logger LOG = Logger.getLogger(AlgorithmResource.class.getName());
@@ -136,31 +151,29 @@ public class AlgorithmResource {
     ParameterValidator parameterValidator;
 
     @GET
+    @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
-    @ApiOperation(
-            value = "Finds all Algorithms",
-            notes = "Finds all Algorithms JaqpotQuattro supports",
+    @Operation(
+            summary = "Finds all Algorithms",
             extensions = {
                 @Extension(properties = {
-                    @ExtensionProperty(name = "orn-@type", value = "x-orn:Algorithm"),
-                    }
+                    @ExtensionProperty(name = "orn-@type", value = "x-orn:Algorithm"),}
                 ),
-                @Extension(name = "orn:returns",properties={
+                @Extension(name = "orn:returns", properties = {
                     @ExtensionProperty(name = "x-orn-@id", value = "x-orn:AlgorithmList")
                 })
-            }
-    )
-    @ApiResponses(value = {
-            @ApiResponse(code = 401, response=  ErrorReport.class , message = "Wrong, missing or insufficient credentials. Error report is produced."),
-            @ApiResponse(code = 200,  response = Algorithm.class, responseContainer = "List" , message = "A list of algorithms in the Jaqpot framework"),
-            @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
+            },
+            responses = {
+                @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = ErrorReport.class)), description = "Wrong, missing or insufficient credentials. Error report is produced."),
+                @ApiResponse(responseCode = "200", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Algorithm.class, description = "A list of algorithms in the Jaqpot framework")))),
+                @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorReport.class, description = "Internal server error - this request cannot be served.")))
 
-})
+            })
     public Response getAlgorithms(
-            @ApiParam(value = "Authorization token") @HeaderParam("subjectid") String subjectId,
-            @ApiParam(value = "class") @QueryParam("class") String ontologicalClass,
-            @ApiParam(value = "start", defaultValue = "0") @QueryParam("start") Integer start,
-            @ApiParam(value = "max", defaultValue = "10") @QueryParam("max") Integer max) {
+            @Parameter(description = "Authorization token") @HeaderParam("apiKey") String apiKey,
+            @Parameter(description = "class") @QueryParam("class") String ontologicalClass,
+            @Parameter(description = "start", schema = @Schema(type = "String", defaultValue = "0")) @QueryParam("start") Integer start,
+            @Parameter(description = "max", schema = @Schema(type = "String", defaultValue = "10")) @QueryParam("max") Integer max) {
         if (ontologicalClass != null && !ontologicalClass.isEmpty()) {
             return Response
                     .ok(algorithmHandler.findByOntologicalClass(ontologicalClass, start != null ? start : 0, max != null ? max : Integer.MAX_VALUE))
@@ -174,54 +187,46 @@ public class AlgorithmResource {
     }
 
     @POST
+    @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
-    @ApiOperation(
-            value = "Creates Algorithm",
-            notes = "Registers a new JPDI-compliant algorithm service. When registering a new JPDI-compliant algorithm web service "
-                    + "it is crucial to propertly annotate your algorithm with appropriate ontological classes following the "
-                    + "<a href=\"http://opentox.org/dev/apis/api-1.1/Algorithms\">OpenTox algorithms ontology</a>. For instance, a "
-                    + "Clustering algorithm must be annotated with <code>ot:Clustering</code>. It is also important for "
-                    + "discoverability to add tags to your algorithm using the <code>meta.subjects</code> field. An example is "
-                    + "provided below.",
+    @Operation(
+            summary = "Creates Algorithm",
+            description = "Registers a new JPDI-compliant algorithm service. When registering a new JPDI-compliant algorithm web service "
+            + "it is crucial to propertly annotate your algorithm with appropriate ontological classes following the "
+            + "<a href=\"http://opentox.org/dev/apis/api-1.1/Algorithms\">OpenTox algorithms ontology</a>. For instance, a "
+            + "Clustering algorithm must be annotated with <code>ot:Clustering</code>. It is also important for "
+            + "discoverability to add tags to your algorithm using the <code>meta.subjects</code> field. An example is "
+            + "provided below.",
             extensions = {
                 @Extension(properties = {
-                    @ExtensionProperty(name = "orn-@type", value = "x-orn:Algorithm"),
-                    }
+                    @ExtensionProperty(name = "orn-@type", value = "x-orn:Algorithm"),}
                 ),
-                @Extension(name = "orn:expects",properties={
+                @Extension(name = "orn:expects", properties = {
                     @ExtensionProperty(name = "x-orn-@id", value = "x-orn:Algorithm")
                 }),
-                @Extension(name = "orn:returns",properties={
+                @Extension(name = "orn:returns", properties = {
                     @ExtensionProperty(name = "x-orn-@id", value = "x-orn:Status")
                 })
-            }
-    )
-    @ApiResponses(value = {
-            @ApiResponse(code = 403, response = ErrorReport.class, message="Algorithm quota has been exceeded"),
-            @ApiResponse(code = 401, response = ErrorReport.class , message = "Wrong, missing or insufficient credentials. Error report is produced."),
-            @ApiResponse(code = 200,  response = Algorithm.class, message = "Algorithm successfully registered in the system"),
-            @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
-
-})
+            },
+            responses = {
+                @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(implementation = ErrorReport.class)), description = "Algorithm quota has been exceeded"),
+                @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = ErrorReport.class)), description = "Wrong, missing or insufficient credentials. Error report is produced."),
+                @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = Algorithm.class)), description = "Algorithm successfully registered in the system"),
+                @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorReport.class)), description = "Internal server error - this request cannot be served.")
+            })
     public Response createAlgorithm(
-            @ApiParam(value = "Algorithm in JSON", defaultValue = DEFAULT_ALGORITHM, required = true) Algorithm algorithm,
-            @ApiParam(value = "Authorization token") @HeaderParam("subjectid") String subjectId,
-            @ApiParam(value = "Title of your algorithm") @HeaderParam("title") String title,
-            @ApiParam(value = "Short description of your algorithm") @HeaderParam("description") String description,
-            @ApiParam(value = "Tags for your algorithm (in a comma separated list) to facilitate look-up") @HeaderParam("tags") String tags
-    ) throws QuotaExceededException {
+            @Parameter(description = "Algorithm in JSON", schema = @Schema(implementation = Algorithm.class, defaultValue = DEFAULT_ALGORITHM), required = true) Algorithm algorithm,
+            @Parameter(description = "Authorization token", schema = @Schema(implementation = String.class)) @HeaderParam("Authorization") String api_key,
+            @Parameter(description = "Title of your algorithm", schema = @Schema(implementation = String.class)) @HeaderParam("title") String title,
+            @Parameter(description = "Short description of your algorithm", schema = @Schema(implementation = String.class)) @HeaderParam("description") String description,
+            @Parameter(description = "Tags for your algorithm (in a comma separated list) to facilitate look-up", schema = @Schema(implementation = String.class)) @HeaderParam("tags") String tags
+    ) throws QuotaExceededException, JaqpotDocumentSizeExceededException {
 
-        User user = userHandler.find(securityContext.getUserPrincipal().getName());
-        long algorithmCount = algorithmHandler.countAllOfCreator(user.getId());
-        int maxAllowedAlgorithms = new UserFacade(user).getMaxAlgorithms();
-
-        if (algorithmCount > maxAllowedAlgorithms) {
-            LOG.info(String.format("User %s has %d algorithms while maximum is %d",
-                    user.getId(), algorithmCount, maxAllowedAlgorithms));
-            throw new QuotaExceededException("Dear " + user.getId()
-                    + ", your quota has been exceeded; you already have " + algorithmCount + " algorithms. "
-                    + "No more than " + maxAllowedAlgorithms + " are allowed with your subscription.");
-        }
+        
+        String[] apiA = api_key.split("\\s+");
+        String apiKey = apiA[1];
+        
+        User user = userHandler.find(securityContext.getUserPrincipal().getName(), apiKey);
 
         if (algorithm.getId() == null) {
             ROG rog = new ROG(true);
@@ -253,30 +258,30 @@ public class AlgorithmResource {
 
     @GET
     @Path("/{id}")
+    @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list", "application/ld+json"})
-    @ApiOperation(value = "Finds Algorithm",
-            notes = "Finds Algorithm with provided name",
+    @Operation(summary = "Finds Algorithm",
+            description = "Finds Algorithm with provided name",
             extensions = {
                 @Extension(properties = {
-                    @ExtensionProperty(name = "orn-@type", value = "x-orn:Algorithm"),
-                    }
+                    @ExtensionProperty(name = "orn-@type", value = "x-orn:Algorithm"),}
                 ),
-                @Extension(name = "orn:expects",properties={
+                @Extension(name = "orn:expects", properties = {
                     @ExtensionProperty(name = "x-orn-@id", value = "x-orn:AlgorithmId")
                 }),
-                @Extension(name = "orn:returns",properties={
+                @Extension(name = "orn:returns", properties = {
                     @ExtensionProperty(name = "x-orn-@id", value = "x-orn:Algorithm")
                 })
-            }
-    )
-    @ApiResponses(value = {
-            @ApiResponse(code = 401, response=  ErrorReport.class , message = "Wrong, missing or insufficient credentials. Error report is produced."),
-            @ApiResponse(code = 404, response = ErrorReport.class , message = "Algorithm was not found"),
-            @ApiResponse(code = 200,  response = Algorithm.class, message = "Algorithm was found in the system"),
-            @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
-    })
+            },
+            responses = {
+                @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = ErrorReport.class)), description = "Wrong, missing or insufficient credentials. Error report is produced."),
+                @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(implementation = ErrorReport.class)), description = "Algorithm was not found"),
+                @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = Algorithm.class)), description = "Algorithm was found in the system"),
+                @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorReport.class)), description = "Internal server error - this request cannot be served.")
+
+            })
     public Response getAlgorithm(
-            @ApiParam(value = "Authorization token") @HeaderParam("subjectid") String subjectId,
+            @Parameter(description = "Authorization token") @HeaderParam("Authorization") String api_key,
             @PathParam("id") String algorithmId) throws ParameterIsNullException {
         if (algorithmId == null) {
             throw new ParameterIsNullException("algorithmId");
@@ -291,45 +296,45 @@ public class AlgorithmResource {
 
     @POST
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
+    @Consumes({MediaType.APPLICATION_FORM_URLENCODED})
+    @TokenSecured({RoleEnum.DEFAULT_USER})
     @Path("/{id}")
-    @ApiOperation(value = "Creates Model",
-            notes = "Applies Dataset and Parameters on Algorithm and creates Model.",
+    @Operation(summary = "Creates Model",
+            description = "Applies Dataset and Parameters on Algorithm and creates Model.",
             extensions = {
                 @Extension(properties = {
-                    @ExtensionProperty(name = "orn-@type", value = "x-orn:Model"),
-                    }
-                ),
-                @Extension(name = "orn:expects",properties={
+                    @ExtensionProperty(name = "orn-@type", value = "x-orn:Model"),}),
+                @Extension(name = "orn:expects", properties = {
                     @ExtensionProperty(name = "x-orn-@id", value = "x-orn:AlgorithmId"),
                     @ExtensionProperty(name = "x-orn-@id", value = "x-orn:OperrationParameters")
                 }),
-                @Extension(name = "orn:returns",properties={
+                @Extension(name = "orn:returns", properties = {
                     @ExtensionProperty(name = "x-orn-@id", value = "x-orn:JaqpotModelingTaskId")
                 })
-            }
-    )
-    @ApiResponses(value = {
-            @ApiResponse(code = 400, response=  ErrorReport.class , message = "Bad request. More info can be found in details of Error Report."),
-            @ApiResponse(code = 401, response=  ErrorReport.class , message = "Wrong, missing or insufficient credentials. Error report is produced."),
-            @ApiResponse(code = 404, response = ErrorReport.class , message = "Algorithm was not found."),
-            @ApiResponse(code = 200,  response = Task.class, message = "The process has successfully been started. A task URI is returned."),
-            @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
-
-})
+            },
+            responses = {
+                @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(implementation = ErrorReport.class)), description = "Bad request. More info can be found in details of Error Report."),
+                @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = ErrorReport.class)), description = "Wrong, missing or insufficient credentials. Error report is produced."),
+                @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(implementation = ErrorReport.class)), description = "Algorithm was not found."),
+                @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = Task.class)), description = "The process has successfully been started. A task URI is returned."),
+                @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorReport.class)), description = "Internal server error - this request cannot be served.")
+            })
     @org.jaqpot.core.service.annotations.Task
     public Response trainModel(
-            @ApiParam(name = "title", required = true) @FormParam("title") String title,
-            @ApiParam(name = "description", required = true) @FormParam("description") String description,
-            @ApiParam(name = "dataset_uri", defaultValue = DEFAULT_DATASET) @FormParam("dataset_uri") String datasetURI,
-            @ApiParam(name = "prediction_feature", defaultValue = DEFAULT_PRED_FEATURE) @FormParam("prediction_feature") String predictionFeature,
-            @FormParam("parameters") String parameters,
-            @ApiParam(name = "transformations", defaultValue = DEFAULT_TRANSFORMATIONS) @FormParam("transformations") String transformations,
-            @ApiParam(name = "scaling", defaultValue = STANDARIZATION) @FormParam("scaling") String scaling, //, allowableValues = SCALING + "," + STANDARIZATION
-            @ApiParam(name = "doa", defaultValue = DEFAULT_DOA) @FormParam("doa") String doa,
-            @PathParam("id") String algorithmId,
-            @HeaderParam("subjectid") String subjectId) throws QuotaExceededException, ParameterIsNullException, ParameterInvalidURIException, ParameterTypeException, ParameterRangeException, ParameterScopeException {
+            @Parameter(name = "title", required = true, schema = @Schema(implementation = String.class, type = "String")) @FormParam("title") String title,
+            @Parameter(name = "decription", required = true, schema = @Schema(implementation = String.class, type = "String")) @FormParam("description") String description,
+            @Parameter(name = "dataset_uri", schema = @Schema(type = "String", defaultValue = DEFAULT_DATASET)) @FormParam("dataset_uri") String datasetURI,
+            @Parameter(name = "prediction_feature", schema = @Schema(type = "String", defaultValue = DEFAULT_PRED_FEATURE)) @FormParam("prediction_feature") String predictionFeature,
+            @Parameter(name = "parameters", schema = @Schema(type = "String")) @FormParam("parameters") String parameters,
+            @Parameter(name = "transformations", schema = @Schema(type = "String", defaultValue = DEFAULT_TRANSFORMATIONS)) @FormParam("transformations") String transformations,
+            @Parameter(name = "scaling", schema = @Schema(type = "String", defaultValue = STANDARIZATION)) @FormParam("scaling") String scaling, //, allowableValues = SCALING + "," + STANDARIZATION
+            @Parameter(name = "doa", schema = @Schema(type = "String", defaultValue = DEFAULT_DOA)) @FormParam("doa") String doa,
+            @Parameter(name = "id", schema = @Schema(type = "String")) @PathParam("id") String algorithmId,
+             @Parameter(name = "Authorization", schema = @Schema(type = "String")) @HeaderParam("Authorization") String api_key) throws QuotaExceededException, ParameterIsNullException, ParameterInvalidURIException, ParameterTypeException, ParameterRangeException, ParameterScopeException, JaqpotDocumentSizeExceededException {
         UrlValidator urlValidator = new UrlValidator(UrlValidator.ALLOW_LOCAL_URLS);
 
+        String[] apiA = api_key.split("\\s+");
+        String apiKey = apiA[1];
         Algorithm algorithm = algorithmHandler.find(algorithmId);
         if (algorithm == null) {
             throw new NotFoundException("Could not find Algorithm with id:" + algorithmId);
@@ -372,24 +377,14 @@ public class AlgorithmResource {
             throw new ParameterIsNullException("description");
         }
 
-        User user = userHandler.find(securityContext.getUserPrincipal().getName());
-        long modelCount = modelHandler.countAllOfCreator(user.getId());
-        int maxAllowedModels = new UserFacade(user).getMaxModels();
-
-        if (modelCount > maxAllowedModels) {
-            LOG.info(String.format("User %s has %d models while maximum is %d",
-                    user.getId(), modelCount, maxAllowedModels));
-            throw new QuotaExceededException("Dear " + user.getId()
-                    + ", your quota has been exceeded; you already have " + modelCount + " models. "
-                    + "No more than " + maxAllowedModels + " are allowed with your subscription.");
-        }
+        User user = userHandler.find(securityContext.getUserPrincipal().getName(), apiKey);
 
         Map<String, Object> options = new HashMap<>();
         options.put("title", title);
         options.put("description", description);
         options.put("dataset_uri", datasetURI);
         options.put("prediction_feature", predictionFeature);
-        options.put("subjectid", subjectId);
+        options.put("api_key", apiKey);
         options.put("algorithmId", algorithmId);
         options.put("parameters", parameters);
         options.put("base_uri", uriInfo.getBaseUri().toString());
@@ -421,35 +416,33 @@ public class AlgorithmResource {
     }
 
     @DELETE
+    @TokenSecured({RoleEnum.ADMNISTRATOR})
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/{id}")
-    @ApiOperation(value = "Unregisters an algorithm of given ID",
-            notes = "Deletes an algorithm of given ID. The application of this method "
+    @Operation(summary = "Unregisters an algorithm of given ID",
+            description = "Deletes an algorithm of given ID. The application of this method "
             + "requires authentication and assumes certain priviledges.",
             extensions = {
                 @Extension(properties = {
-                    @ExtensionProperty(name = "orn-@type", value = "x-orn:DeletesAlgorithm"),
-                    }
+                    @ExtensionProperty(name = "orn-@type", value = "x-orn:DeletesAlgorithm"),}
                 ),
-                @Extension(name = "orn:expects",properties={
+                @Extension(name = "orn:expects", properties = {
                     @ExtensionProperty(name = "x-orn-@id", value = "x-orn:AlgorithmId"),
                     @ExtensionProperty(name = "x-orn-@id", value = "x-orn:OperrationParameters")
                 }),
-                @Extension(name = "orn:returns",properties={
+                @Extension(name = "orn:returns", properties = {
                     @ExtensionProperty(name = "x-orn-@id", value = "x-orn:HttpStatus")
                 })
-            }
-            
-    )
-    @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Algorithm deleted successfully"),
-        @ApiResponse(code = 401, response=  ErrorReport.class,message = "Wrong, missing or insufficient credentials. Error report is produced."),
-        @ApiResponse(code = 403, response=  ErrorReport.class,message = "This is a forbidden operation (do not attempt to repeat it)."),
-        @ApiResponse(code = 500, response=  ErrorReport.class, message = "Internal server error - this request cannot be served.")
-    })
+            },
+            responses = {
+                @ApiResponse(responseCode = "200", description = "Algorithm deleted successfully"),
+                @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = ErrorReport.class)), description = "Wrong, missing or insufficient credentials. Error report is produced."),
+                @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(implementation = ErrorReport.class)), description = "This is a forbidden operation (do not attempt to repeat it)."),
+                @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorReport.class)), description = "Internal server error - this request cannot be served.")
+            })
     public Response deleteAlgorithm(
-            @ApiParam(value = "ID of the algorithm which is to be deleted.", required = true) @PathParam("id") String id,
-            @HeaderParam("subjectid") String subjectId) throws ParameterIsNullException, JaqpotForbiddenException {
+            @Parameter(description = "ID of the algorithm which is to be deleted.", required = true) @PathParam("id") String id,
+            @HeaderParam("apiKey") String apiKey) throws ParameterIsNullException, JaqpotForbiddenException {
 
         if (id == null) {
             throw new ParameterIsNullException("id");
@@ -458,8 +451,9 @@ public class AlgorithmResource {
         Algorithm algorithm = algorithmHandler.find(id);
 
         MetaInfo metaInfo = algorithm.getMeta();
-        if (metaInfo.getLocked())
+        if (metaInfo.getLocked()) {
             throw new JaqpotForbiddenException("You cannot delete an Algorithm that is locked.");
+        }
 
         String userName = securityContext.getUserPrincipal().getName();
 
@@ -471,25 +465,27 @@ public class AlgorithmResource {
         return Response.ok().build();
     }
 
-    @PATCH
+    //@PATCH
+    @PUT
     @Path("/{id}")
+    @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
-    @Consumes("application/json-patch+json")
-    @ApiOperation(value = "Modifies a particular Algorithm resource",
-            notes = "Modifies (applies a patch on) an Algorithm resource of a given ID. "
-            + "This implementation of PATCH follows the RFC 6902 proposed standard. "
-            + "See https://tools.ietf.org/rfc/rfc6902.txt for details.",
-            position = 5)
-    @ApiResponses(value = {
-        @ApiResponse(code = 200, response = Algorithm.class, message = "Algorithm patched successfully"),
-        @ApiResponse(code = 401, response = ErrorReport.class, message = "Wrong, missing or insufficient credentials. Error report is produced."),
-        @ApiResponse(code = 403, response = ErrorReport.class, message = "This is a forbidden operation (do not attempt to repeat it)."),
-        @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
-    })
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Operation(summary = "Modifies a particular Algorithm resource",
+            description = "Modifies an Algorithm resource of a given ID. ",
+           // description = "Modifies (applies a patch on) an Algorithm resource of a given ID. "
+           // + "This implementation of PATCH follows the RFC 6902 proposed standard. "
+           // + "See https://tools.ietf.org/rfc/rfc6902.txt for details.",
+            responses = {
+                @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = Algorithm.class)), description = "Algorithm patched successfully"),
+                @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = ErrorReport.class)), description = "Wrong, missing or insufficient credentials. Error report is produced."),
+                @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(implementation = ErrorReport.class)), description = "This is a forbidden operation (do not attempt to repeat it)."),
+                @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorReport.class)), description = "Internal server error - this request cannot be served.")
+            })
     public Response modifyAlgorithm(
-            @ApiParam("Clients need to authenticate in order to create resources on the server") @HeaderParam("subjectid") String subjectId,
-            @ApiParam(value = "ID of an existing BibTeX.", required = true) @PathParam("id") String id,
-            @ApiParam(value = "The patch in JSON according to the RFC 6902 specs", required = true) String patch
+            @Parameter(description = "Clients need to authenticate in order to create resources on the server") @HeaderParam("apiKey") String apiKey,
+            @Parameter(description = "ID of an existing BibTeX.", required = true) @PathParam("id") String id,
+            @Parameter(description = "The patch in JSON according to the RFC 6902 specs", required = true) String patch
     ) throws JsonPatchException, JsonProcessingException {
 
         Algorithm originalAlgorithm = algorithmHandler.find(id); // find doc in DB

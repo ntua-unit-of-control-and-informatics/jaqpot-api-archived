@@ -38,7 +38,9 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.util.ArrayList;
 import javax.ws.rs.NameBinding;
+import org.jaqpot.core.service.filter.AuthorizationEnum;
 
 /**
  *
@@ -49,5 +51,6 @@ import javax.ws.rs.NameBinding;
 @Target({ElementType.TYPE, ElementType.METHOD})
 @Retention(value = RetentionPolicy.RUNTIME)
 public @interface Authorize {
-
+    public boolean enabled() default true;
+    AuthorizationEnum[] value() default {};
 }

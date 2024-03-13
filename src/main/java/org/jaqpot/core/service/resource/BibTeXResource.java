@@ -31,12 +31,24 @@ package org.jaqpot.core.service.resource;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.github.fge.jsonpatch.JsonPatchException;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
-import io.swagger.jaxrs.PATCH;
+import static io.netty.handler.codec.http.HttpMethod.PATCH;
+//import io.swagger.annotations.Api;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeIn;
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityScheme;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import static io.swagger.v3.oas.models.PathItem.HttpMethod.PATCH;
+//import io.swagger.annotations.ApiResponses;
+//import io.swagger.jaxrs.PATCH;
+//import io.swagger.v3.jaxrs2.integratPATCH;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.logging.Logger;
@@ -58,6 +70,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
+import static org.asynchttpclient.util.HttpConstants.Methods.PATCH;
 import org.jaqpot.core.annotations.Jackson;
 import org.jaqpot.core.data.BibTeXHandler;
 import org.jaqpot.core.data.serialize.JSONSerializer;
@@ -68,7 +81,11 @@ import org.jaqpot.core.model.factory.ErrorReportFactory;
 import org.jaqpot.core.model.util.ROG;
 import org.jaqpot.core.model.validator.BibTeXValidator;
 import org.jaqpot.core.service.annotations.Authorize;
-import org.jaqpot.core.service.data.AAService;
+import org.jaqpot.core.service.annotations.TokenSecured;
+import org.jaqpot.core.service.authentication.AAService;
+import org.jaqpot.core.service.authentication.RoleEnum;
+import org.jaqpot.core.service.exceptions.JaqpotDocumentSizeExceededException;
+
 import org.jaqpot.core.service.exceptions.JaqpotForbiddenException;
 import org.jaqpot.core.service.exceptions.JaqpotNotAuthorizedException;
 
@@ -78,26 +95,34 @@ import org.jaqpot.core.service.exceptions.JaqpotNotAuthorizedException;
  * @author Charalampos Chomenidis
  *
  */
-@Path("bibtex")
-@Api(value = "/bibtex", description = "BibTeX API")
+@Path("/bibtex")
+//@Api(value = "/bibtex", description = "BibTeX API")
 @Produces({"application/json", "text/uri-list"})
+@Tag(name = "bibtex")
+@SecurityScheme(name = "bearerAuth",
+        type = SecuritySchemeType.HTTP,
+        in = SecuritySchemeIn.HEADER,
+        scheme = "bearer",
+        description = "add the token retreived from oidc. Example:  Bearer <API_KEY>"
+        )
+@io.swagger.v3.oas.annotations.security.SecurityRequirement(name = "bearerAuth")
 public class BibTeXResource {
-    
+
     @EJB
     AAService aaService;
-    
+
     @Context
     SecurityContext securityContext;
-    
+
     @Context
     UriInfo uriInfo;
-    
+
     @Inject
     @Jackson
     JSONSerializer serializer;
-    
+
     private static final Logger LOG = Logger.getLogger(BibTeXResource.class.getName());
-    
+
     private static final String DEFAULT_BIBTEX
             = "{\n"
             + "  \"bibType\":\"Article\",\n"
@@ -114,52 +139,88 @@ public class BibTeXResource {
             + "    \"value\": \"foo\"\n "
             + "  }\n"
             + "]";
-    
+
     @EJB
     BibTeXHandler bibtexHandler;
-    
+
     @GET
+    @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
-    @ApiOperation(value = "Finds all BibTeX entries",
-            notes = "Finds all BibTeX entries in the DB of Jaqpot and returns them in a list", position = 1)
-    @ApiResponses(value = {
-        @ApiResponse(code = 200, response = BibTeX.class, responseContainer = "List",
-                  message = "BibTeX entries found and are listed in the response body"),
-        @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to access this resource"),
-        @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)"),
-        @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
-    })
+    /*@ApiOperation(value = "Finds all BibTeX entries",
+     notes = "Finds all BibTeX entries in the DB of Jaqpot and returns them in a list", position = 1)
+     @ApiResponses(value = {
+     @ApiResponse(code = 200, response = BibTeX.class, responseContainer = "List",
+     message = "BibTeX entries found and are listed in the response body"),
+     @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to access this resource"),
+     @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)"),
+     @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
+     })*/
+    @Operation(summary = "Finds all BibTeX entries",
+            description = "Finds all BibTeX entries in the DB of Jaqpot and returns them in a list",
+            responses = {
+                @ApiResponse(responseCode = "200", content = @Content(array = @ArraySchema(schema = @Schema(implementation = BibTeX.class))),
+                        description = "BibTeX entries found and are listed in the response body"),
+                @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = ErrorReport.class)), description = "You are not authorized to access this resource"),
+                @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(implementation = ErrorReport.class)), description = "This request is forbidden (e.g., no authentication token is provided)"),
+                @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorReport.class)), description = "Internal server error - this request cannot be served.")
+            })
+
     public Response listBibTeXs(
-            @ApiParam(value = "BibTeX type of entry",
-                    allowableValues = "Article,Conference,Book,PhDThesis,InBook,InCollection,"
-                    + "InProceedings,Manual,Mastersthesis,Proceedings,TechReport,"
-                    + "Unpublished,Entry", defaultValue = "Entry") @QueryParam("bibtype") String bibtype,
-            @ApiParam("Creator of the BibTeX entry") @QueryParam("creator") String creator,
-            @ApiParam("Generic query (e.g., Article title, journal name, etc)") @QueryParam("query") String query,
-            @ApiParam(value = "start", defaultValue = "0") @QueryParam("start") Integer start,
-            @ApiParam(value = "max", defaultValue = "10") @QueryParam("max") Integer max
+            /*@ApiParam(value = "BibTeX type of entry",
+             allowableValues = "Article,Conference,Book,PhDThesis,InBook,InCollection,"
+             + "InProceedings,Manual,Mastersthesis,Proceedings,TechReport,"
+             + "Unpublished,Entry", defaultValue = "Entry") @QueryParam("bibtype") String bibtype,
+             @ApiParam("Creator of the BibTeX entry") @QueryParam("creator") String creator,
+             @ApiParam("Generic query (e.g., Article title, journal name, etc)") @QueryParam("query") String query,
+             @ApiParam(value = "start", defaultValue = "0") @QueryParam("start") Integer start,
+             @ApiParam(value = "max", defaultValue = "10") @QueryParam("max") Integer max
+             */
+            @Parameter(description = "BibTeX type of entry",
+                    name = "bibtype", schema = @Schema(implementation = String.class, allowableValues = {"Article", "Conference", "Book", "PhDThesis", "InBook", "InCollection",
+                "InProceedings", "Manual", "Mastersthesis", "Proceedings", "TechReport",
+                "Unpublished", "Entry"}, defaultValue = "Entry"))
+            @QueryParam("bibtype") String bibtype,
+            @Parameter(description = "Creator of the BibTeX entry", name = "creator", schema = @Schema(implementation = String.class))
+            @QueryParam("creator") String creator,
+            @Parameter(description = "Generic query (e.g., Article title, journal name, etc)", name = "query", schema = @Schema(implementation = String.class))
+            @QueryParam("query") String query,
+            @Parameter(description = "start", name = "start", schema = @Schema(implementation = Integer.class, defaultValue = "0"))
+            @QueryParam("start") Integer start,
+            @Parameter(description = "max", name = "max", schema = @Schema(implementation = Integer.class, defaultValue = "10"))
+            @QueryParam("max") Integer max
     ) {
         return Response
                 .ok(bibtexHandler.listMeta(start != null ? start : 0, max != null ? max : Integer.MAX_VALUE))
                 .status(Response.Status.OK)
                 .build();
     }
-    
+
     @GET
     @Path("/{id}")
+    @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
-    @ApiOperation(value = "Returns BibTeX entry",
-            notes = "Finds and returns a BibTeX by ID",
-            position = 2)
-    @ApiResponses(value = {
-        @ApiResponse(code = 200, response = BibTeX.class, message = "BibTeX entries found and are listed in the response body"),
-        @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to access this user"),
-        @ApiResponse(code = 404, response = ErrorReport.class, message = "No such bibtex entry on the server (not found)"),
-        @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)"),
-        @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
-    })
+    /*@ApiOperation(value = "Returns BibTeX entry",
+     notes = "Finds and returns a BibTeX by ID",
+     position = 2)
+     @ApiResponses(value = {
+     @ApiResponse(code = 200, response = BibTeX.class, message = "BibTeX entries found and are listed in the response body"),
+     @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to access this user"),
+     @ApiResponse(code = 404, response = ErrorReport.class, message = "No such bibtex entry on the server (not found)"),
+     @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)"),
+     @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
+     })*/
+    @Operation(summary = "Returns BibTeX entry",
+            description = "Finds and returns a BibTeX by ID",
+            responses = {
+                @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = BibTeX.class)), description = "BibTeX entries found and are listed in the response body"),
+                @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = ErrorReport.class)), description = "You are not authorized to access this user"),
+                @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(implementation = ErrorReport.class)), description = "No such bibtex entry on the server (not found)"),
+                @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(implementation = ErrorReport.class)), description = "This request is forbidden (e.g., no authentication token is provided)"),
+                @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorReport.class)), description = "Internal server error - this request cannot be served.")
+            })
     public Response getBibTeX(
-            @ApiParam(value = "ID of the BibTeX", required = true) @PathParam("id") String id
+            //@ApiParam(value = "ID of the BibTeX", required = true) @PathParam("id") String id
+            @Parameter(description = "ID of the BibTeX", name = "id", schema = @Schema(implementation = String.class), required = true) @PathParam("id") String id
     ) {
         BibTeX b = bibtexHandler.find(id);
         if (b == null) {
@@ -167,31 +228,49 @@ public class BibTeXResource {
         }
         return Response.ok(b).build();
     }
-    
+
     @POST
+    @TokenSecured({RoleEnum.DEFAULT_USER})
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     @Consumes(MediaType.APPLICATION_JSON)
-    @ApiOperation(value = "Creates a new BibTeX entry",
-            notes = "Creates a new BibTeX entry which is assigned a random unique ID. "
+    /*@ApiOperation(value = "Creates a new BibTeX entry",
+     notes = "Creates a new BibTeX entry which is assigned a random unique ID. "
+     + "Clients are not allowed to specify a custom ID when using this method. "
+     + "Clients should use PUT instead in such a case.",
+     position = 3)
+     //TODO add code for user's quota exceeded
+     @ApiResponses(value = {
+     @ApiResponse(code = 200, response = BibTeX.class, message = "BibTeX entry was created successfully."),
+     @ApiResponse(code = 400, response = ErrorReport.class, message = "Bad request: malformed bibtex (e.g., mandatory fields are missing)"),
+     @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to access this resource"),
+     @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)"),
+     @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
+     })*/
+    @Operation(summary = "Creates a new BibTeX entry",
+            description = "Creates a new BibTeX entry which is assigned a random unique ID. "
             + "Clients are not allowed to specify a custom ID when using this method. "
             + "Clients should use PUT instead in such a case.",
-            position = 3)
+            responses = {
+                @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = BibTeX.class)), description = "BibTeX entry was created successfully."),
+                @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(implementation = ErrorReport.class)), description = "Bad request: malformed bibtex (e.g., mandatory fields are missing)"),
+                @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = ErrorReport.class)), description = "You are not authorized to access this resource"),
+                @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(implementation = ErrorReport.class)), description = "This request is forbidden (e.g., no authentication token is provided)"),
+                @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorReport.class)), description = "Internal server error - this request cannot be served.")
+            })
     //TODO add code for user's quota exceeded
-    @ApiResponses(value = {
-        @ApiResponse(code = 200, response = BibTeX.class, message = "BibTeX entry was created successfully."),
-        @ApiResponse(code = 400, response = ErrorReport.class, message = "Bad request: malformed bibtex (e.g., mandatory fields are missing)"),
-        @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to access this resource"),
-        @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)"),
-        @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
-    })
+
     @Authorize
     public Response createBibTeX(
-            @ApiParam(value = "Clients need to authenticate in order to create resources on the server")
-            @HeaderParam("subjectid") String subjectId,
-            @ApiParam(value = "BibTeX in JSON representation compliant with the BibTeX specifications. "
+            /*@ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key,
+             @ApiParam(value = "BibTeX in JSON representation compliant with the BibTeX specifications. "
+             + "Malformed BibTeX entries with missing fields will not be accepted.", required = true,
+             defaultValue = DEFAULT_BIBTEX) BibTeX bib
+             */
+            @Parameter(description = "Authorization token", name = "Authorization", schema = @Schema(implementation = String.class)) @HeaderParam("Authorization") String api_key,
+            @Parameter(description = "BibTeX in JSON representation compliant with the BibTeX specifications. "
                     + "Malformed BibTeX entries with missing fields will not be accepted.", required = true,
-                    defaultValue = DEFAULT_BIBTEX) BibTeX bib
-    ) throws JaqpotNotAuthorizedException {
+                    name = "bib", schema = @Schema(implementation = BibTeX.class, defaultValue = DEFAULT_BIBTEX)) BibTeX bib
+    ) throws JaqpotNotAuthorizedException, JaqpotDocumentSizeExceededException {
         if (bib == null) {
             ErrorReport report = ErrorReportFactory.badRequest("No bibtex provided; check out the API specs",
                     "Clients MUST provide a BibTeX document in JSON to perform this request");
@@ -218,31 +297,49 @@ public class BibTeXResource {
                 .status(Response.Status.CREATED)
                 .header("Location", uriInfo.getBaseUri().toString() + "bibtex/" + bib.getId())
                 .build();
-        
+
     }
-    
+
     @PUT
+    @TokenSecured({RoleEnum.DEFAULT_USER})
     @Path("/{id}")
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
-    @ApiOperation(value = "Places a new BibTeX entry at a particular URI",
-            notes = "Creates a new BibTeX entry at the specified URI. If a BibTeX already exists at this URI,"
+    /*@ApiOperation(value = "Places a new BibTeX entry at a particular URI",
+     notes = "Creates a new BibTeX entry at the specified URI. If a BibTeX already exists at this URI,"
+     + "it will be replaced. If, instead, no BibTeX is stored under the specified URI, a new "
+     + "BibTeX entry will be created. Notice that authentication, authorization and accounting (quota) "
+     + "restrictions may apply.",
+     position = 4)
+     @Consumes(MediaType.APPLICATION_JSON)
+     @ApiResponses(value = {
+     @ApiResponse(code = 200, response = BibTeX.class, message = "BibTeX entry was created successfully."),
+     @ApiResponse(code = 400, response = ErrorReport.class, message = "BibTeX entry was not created because the request was malformed"),
+     @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to create a bibtex on the server"),
+     @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)"),
+     @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
+     })*/
+    @Operation(summary = "Places a new BibTeX entry at a particular URI",
+            description = "Creates a new BibTeX entry at the specified URI. If a BibTeX already exists at this URI,"
             + "it will be replaced. If, instead, no BibTeX is stored under the specified URI, a new "
             + "BibTeX entry will be created. Notice that authentication, authorization and accounting (quota) "
             + "restrictions may apply.",
-            position = 4)
+            responses = {
+                @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = BibTeX.class)), description = "BibTeX entry was created successfully."),
+                @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(implementation = ErrorReport.class)), description = "BibTeX entry was not created because the request was malformed"),
+                @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = ErrorReport.class)), description = "You are not authorized to create a bibtex on the server"),
+                @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(implementation = ErrorReport.class)), description = "This request is forbidden (e.g., no authentication token is provided)"),
+                @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorReport.class)), description = "Internal server error - this request cannot be served.")
+            })
     @Consumes(MediaType.APPLICATION_JSON)
-    @ApiResponses(value = {
-        @ApiResponse(code = 200, response = BibTeX.class, message = "BibTeX entry was created successfully."),
-        @ApiResponse(code = 400, response = ErrorReport.class, message = "BibTeX entry was not created because the request was malformed"),
-        @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to create a bibtex on the server"),
-        @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)"),
-        @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
-    })
     public Response createBibTeXGivenID(
-            @ApiParam(value = "ID of the BibTeX.", required = true) @PathParam("id") String id,
-            @ApiParam(value = "BibTeX in JSON", defaultValue = DEFAULT_BIBTEX, required = true) BibTeX bib,
-            @ApiParam("Clients need to authenticate in order to create resources on the server") @HeaderParam("subjectid") String subjectId
-    ) {
+            /*@ApiParam(value = "ID of the BibTeX.", required = true) @PathParam("id") String id,
+             @ApiParam(value = "BibTeX in JSON", defaultValue = DEFAULT_BIBTEX, required = true) BibTeX bib,
+             @ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key
+             */
+            @Parameter(description = "ID of the BibTeX.", required = true, name = "id", schema = @Schema(implementation = String.class)) @PathParam("id") String id,
+            @Parameter(description = "BibTeX in JSON", schema = @Schema(implementation = BibTeX.class, defaultValue = DEFAULT_BIBTEX), required = true) BibTeX bib,
+            @Parameter(description = "Authorization token", name = "api_key", schema = @Schema(implementation = String.class)) @HeaderParam("Authorization") String api_key
+    ) throws JaqpotDocumentSizeExceededException {
         if (bib == null) {
             ErrorReport report = ErrorReportFactory.badRequest("No bibtex provided; check out the API specs",
                     "Clients MUST provide a BibTeX document in JSON to perform this request");
@@ -256,96 +353,126 @@ public class BibTeXResource {
                     .status(Response.Status.BAD_REQUEST)
                     .build();
         }
-        
+
         BibTeX foundBibTeX = bibtexHandler.find(id);
         if (foundBibTeX != null) {
             bibtexHandler.edit(bib);
         } else {
             bibtexHandler.create(bib);
         }
-        
+
         return Response
                 .ok(bib)
                 .status(Response.Status.CREATED)
                 .header("Location", uriInfo.getBaseUri().toString() + "bibtex/" + bib.getId())
                 .build();
     }
-    
+
     @DELETE
+    @TokenSecured({RoleEnum.DEFAULT_USER})
     @Path("/{id}")
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
-    @ApiOperation(value = "Deletes a particular BibTeX resource",
-            notes = "Deletes a BibTeX resource of a given ID. The method is idempondent, that is, it can be used more than once without "
+    /*@ApiOperation(value = "Deletes a particular BibTeX resource",
+     notes = "Deletes a BibTeX resource of a given ID. The method is idempondent, that is, it can be used more than once without "
+     + "triggering an exception/error. If the BibTeX does not exist, the method will return without errors. "
+     + "Authentication and authorization requirements apply, so clients that are not authenticated with a "
+     + "valid token or do not have sufficient priviledges will not be able to delete a BibTeX using this method.",
+     position = 5)
+     @ApiResponses(value = {
+     @ApiResponse(code = 200, message = "BibTeX entry was deleted successfully."),
+     @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to delete this resource"),
+     @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)"),
+     @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
+     })*/
+    @Operation(summary = "Deletes a particular BibTeX resource",
+            description = "Deletes a BibTeX resource of a given ID. The method is idempondent, that is, it can be used more than once without "
             + "triggering an exception/error. If the BibTeX does not exist, the method will return without errors. "
             + "Authentication and authorization requirements apply, so clients that are not authenticated with a "
             + "valid token or do not have sufficient priviledges will not be able to delete a BibTeX using this method.",
-            position = 5)
-    @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "BibTeX entry was deleted successfully."),
-        @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to delete this resource"),
-        @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)"),
-        @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
-    })
+            responses = {
+                @ApiResponse(responseCode = "200", description = "BibTeX entry was deleted successfully."),
+                @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = ErrorReport.class)), description = "You are not authorized to delete this resource"),
+                @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(implementation = ErrorReport.class)), description = "This request is forbidden (e.g., no authentication token is provided)"),
+                @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorReport.class)), description = "Internal server error - this request cannot be served.")
+            })
     public Response deleteBibTeX(
-            @ApiParam("Clients need to authenticate in order to create resources on the server") @HeaderParam("subjectid") String subjectId,
-            @ApiParam(value = "ID of the BibTeX.", required = true) @PathParam("id") String id
+            //@ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key,
+            //@ApiParam(value = "ID of the BibTeX.", required = true) @PathParam("id") String id
+            @Parameter(description = "Authorization token", name = "api_key", schema = @Schema(implementation = String.class)) @HeaderParam("Authorization") String api_key,
+            @Parameter(description = "ID of the BibTeX.", name = "id", schema = @Schema(implementation = String.class), required = true) @PathParam("id") String id
     ) throws JaqpotForbiddenException {
         BibTeX bibTeX = new BibTeX(id);
 
         MetaInfo metaInfo = bibTeX.getMeta();
-        if (metaInfo.getLocked())
+        if (metaInfo.getLocked()) {
             throw new JaqpotForbiddenException("You cannot delete a Bibtex that is locked.");
+        }
 
         bibtexHandler.remove(new BibTeX(id));
         return Response.ok().build();
     }
-    
-    @PATCH
-    @Path("/{id}")
-    @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
-    @Consumes("application/json-patch+json")
-    @ApiOperation(value = "Modifies a particular BibTeX resource",
-            notes = "Modifies (applies a patch on) a BibTeX resource of a given ID. "
-            + "This implementation of PATCH follows the RFC 6902 proposed standard. "
-            + "See https://tools.ietf.org/rfc/rfc6902.txt for details.",
-            position = 5)
-    @ApiResponses(value = {
-        @ApiResponse(code = 200, response = BibTeX.class, message = "BibTeX entry was modified successfully."),
-        @ApiResponse(code = 404, response = ErrorReport.class, message = "No such BibTeX - the patch will not be applied"),
-        @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to modify this resource"),
-        @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)"),
-        @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
-    })
-    public Response modifyBibTeX(
-            @ApiParam("Clients need to authenticate in order to create resources on the server") @HeaderParam("subjectid") String subjectId,
-            @ApiParam(value = "ID of an existing BibTeX.", required = true) @PathParam("id") String id,
-            @ApiParam(value = "The patch in JSON according to the RFC 6902 specs", required = true, defaultValue = DEFAULT_BIBTEX_PATCH) String patch
-    ) throws JsonPatchException, JsonProcessingException {
-        
-        BibTeX originalBib = bibtexHandler.find(id); // find doc in DB
-        if (originalBib == null) {
-            throw new NotFoundException("BibTeX " + id + " not found.");
-        }
-        
-        BibTeX modifiedAsBib = serializer.patch(originalBib, patch, BibTeX.class);
-        if (modifiedAsBib == null) {
-            return Response
-                    .status(Response.Status.BAD_REQUEST)
-                    .entity(ErrorReportFactory.badRequest("Patch cannot be applied because the request is malformed", "Bad patch"))
-                    .build();
-        }
-        ErrorReport validationError = BibTeXValidator.validate(modifiedAsBib);
-        if (validationError != null) {
-            return Response
-                    .ok(validationError)
-                    .status(Response.Status.BAD_REQUEST)
-                    .build();
-        }
-        bibtexHandler.edit(modifiedAsBib); // update the entry in the DB
 
-        return Response
-                .ok(modifiedAsBib)
-                .build();
-    }
-    
+    //@PATCH
+//    @TokenSecured({RoleEnum.DEFAULT_USER})
+//    @Path("/{id}")
+//    @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
+//    @Consumes("application/json-patch+json")
+//    /*@ApiOperation(value = "Modifies a particular BibTeX resource",
+//     notes = "Modifies (applies a patch on) a BibTeX resource of a given ID. "
+//     + "This implementation of PATCH follows the RFC 6902 proposed standard. "
+//     + "See https://tools.ietf.org/rfc/rfc6902.txt for details.",
+//     position = 5)
+//     @ApiResponses(value = {
+//     @ApiResponse(code = 200, response = BibTeX.class, message = "BibTeX entry was modified successfully."),
+//     @ApiResponse(code = 404, response = ErrorReport.class, message = "No such BibTeX - the patch will not be applied"),
+//     @ApiResponse(code = 401, response = ErrorReport.class, message = "You are not authorized to modify this resource"),
+//     @ApiResponse(code = 403, response = ErrorReport.class, message = "This request is forbidden (e.g., no authentication token is provided)"),
+//     @ApiResponse(code = 500, response = ErrorReport.class, message = "Internal server error - this request cannot be served.")
+//     })*/
+//    @Operation(summary = "Modifies a particular BibTeX resource",
+//            description = "Modifies (applies a patch on) a BibTeX resource of a given ID. "
+//            + "This implementation of PATCH follows the RFC 6902 proposed standard. "
+//            + "See https://tools.ietf.org/rfc/rfc6902.txt for details.",
+//            responses = {
+//                @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = BibTeX.class)), description = "BibTeX entry was modified successfully."),
+//                @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(implementation = ErrorReport.class)), description = "No such BibTeX - the patch will not be applied"),
+//                @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = ErrorReport.class)), description = "You are not authorized to modify this resource"),
+//                @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(implementation = ErrorReport.class)), description = "This request is forbidden (e.g., no authentication token is provided)"),
+//                @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorReport.class)), description = "Internal server error - this request cannot be served.")
+//            },
+//            method = "patch")
+//    public Response modifyBibTeX(
+//            //@ApiParam(value = "Authorization token") @HeaderParam("Authorization") String api_key,
+//            // @ApiParam(value = "ID of an existing BibTeX.", required = true) @PathParam("id") String id,
+//            // @ApiParam(value = "The patch in JSON according to the RFC 6902 specs", required = true, defaultValue = DEFAULT_BIBTEX_PATCH) String patch
+//            @Parameter(description = "Authorization token", name = "api_key", schema = @Schema(implementation = String.class)) @HeaderParam("Authorization") String api_key,
+//            @Parameter(description = "ID of an existing BibTeX.", required = true, name = "id", schema = @Schema(implementation = String.class)) @PathParam("id") String id,
+//            @Parameter(description = "The patch in JSON according to the RFC 6902 specs", required = true, name = "patch", schema = @Schema(implementation = String.class, defaultValue = DEFAULT_BIBTEX_PATCH)) String patch
+//    ) throws JsonPatchException, JsonProcessingException {
+//
+//        BibTeX originalBib = bibtexHandler.find(id); // find doc in DB
+//        if (originalBib == null) {
+//            throw new NotFoundException("BibTeX " + id + " not found.");
+//        }
+//
+//        BibTeX modifiedAsBib = serializer.patch(originalBib, patch, BibTeX.class);
+//        if (modifiedAsBib == null) {
+//            return Response
+//                    .status(Response.Status.BAD_REQUEST)
+//                    .entity(ErrorReportFactory.badRequest("Patch cannot be applied because the request is malformed", "Bad patch"))
+//                    .build();
+//        }
+//        ErrorReport validationError = BibTeXValidator.validate(modifiedAsBib);
+//        if (validationError != null) {
+//            return Response
+//                    .ok(validationError)
+//                    .status(Response.Status.BAD_REQUEST)
+//                    .build();
+//        }
+//        bibtexHandler.edit(modifiedAsBib); // update the entry in the DB
+//
+//        return Response
+//                .ok(modifiedAsBib)
+//                .build();
+//    }
 }

@@ -36,12 +36,13 @@ package org.jaqpot.core.service.client.jpdi;
 
 import java.io.Closeable;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
-import org.jaqpot.core.model.Algorithm;
-import org.jaqpot.core.model.MetaInfo;
-import org.jaqpot.core.model.Model;
-import org.jaqpot.core.model.Report;
+
+import org.jaqpot.core.model.*;
 import org.jaqpot.core.model.dto.dataset.Dataset;
+import org.jaqpot.core.model.dto.jpdi.PredictionResponse;
+import org.jaqpot.core.model.dto.models.QuickPredictionNeeds;
 
 /**
  *
@@ -50,15 +51,17 @@ import org.jaqpot.core.model.dto.dataset.Dataset;
  */
 public interface JPDIClient extends Closeable {
 
+    Future<Dataset> descriptor(Dataset dataset, Descriptor descriptor, Map<String, Object> parameters, String taskId);
+
     Future<Dataset> calculate(byte[] file, Algorithm algorithm, Map<String, Object> parameters, String taskId);
 
     Future<Model> train(Dataset dataset, Algorithm algorithm, Map<String, Object> parameters, String predictionFeature, MetaInfo modelMeta, String taskId);
 
-    Future<Dataset> predict(Dataset dataset, Model model, MetaInfo datasetMeta, String taskId);
+    Future<Dataset> predict(Dataset dataset, Model model, MetaInfo datasetMeta, String taskId, Doa doa);
 
-    Future<Dataset> transform(Dataset dataset, Algorithm algorithm, Map<String, Object> parameters, String predictionFeature, MetaInfo datasetMeta, String taskId);
+    Future<Dataset> transform(Dataset dataset, Algorithm algorithm, Map<String, Object> parameters, String predictionFeature, MetaInfo datasetMeta, String taskId, Doa doa);
 
     Future<Report> report(Dataset dataset, Algorithm algorithm, Map<String, Object> parameters, MetaInfo reportMeta, String taskId);
-
+    
     boolean cancel(String taskId);
 }

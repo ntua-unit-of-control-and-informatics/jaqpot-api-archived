@@ -29,12 +29,23 @@
  */
 package org.jaqpot.core.service.resource;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+//import io.swagger.annotations.Api;
+//import io.swagger.annotations.ApiOperation;
+//import io.swagger.annotations.ApiParam;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import java.security.GeneralSecurityException;
+import java.text.ParseException;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Resource;
@@ -44,8 +55,10 @@ import javax.jms.JMSContext;
 import javax.jms.JMSException;
 import javax.jms.Topic;
 import javax.ws.rs.BadRequestException;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.HeaderParam;
+import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -61,14 +74,20 @@ import org.jaqpot.core.data.TaskHandler;
 import org.jaqpot.core.data.UserHandler;
 import org.jaqpot.core.data.serialize.JSONSerializer;
 import org.jaqpot.core.model.Task;
-import org.jaqpot.core.model.User;
 import org.jaqpot.core.model.builder.MetaInfoBuilder;
 import org.jaqpot.core.model.facades.UserFacade;
 import org.jaqpot.core.model.util.ROG;
 import org.jaqpot.core.service.annotations.Authorize;
+import org.jaqpot.core.service.exceptions.JaqpotDocumentSizeExceededException;
+import org.jaqpot.core.service.annotations.TokenSecured;
+import org.jaqpot.core.service.authentication.RoleEnum;
+import org.jaqpot.core.service.exceptions.JaqpotNotAuthorizedException;
 import org.jaqpot.core.service.exceptions.parameter.ParameterInvalidURIException;
 import org.jaqpot.core.service.exceptions.parameter.ParameterIsNullException;
 import org.jaqpot.core.service.exceptions.QuotaExceededException;
+import org.jaqpot.core.service.quotas.QuotsClient;
+import xyz.euclia.euclia.accounts.client.models.User;
+import xyz.euclia.jquots.models.CanProceed;
 
 /**
  * @author Angelos Valsamis
@@ -76,12 +95,17 @@ import org.jaqpot.core.service.exceptions.QuotaExceededException;
  * @author Charalampos Chomenidis
  *
  */
-@Path("validation")
-@Api(value = "/validation", description = "Validation API")
+@Path("/validation")
+//@Api(value = "/validation", description = "Validation API")
 @Produces(MediaType.APPLICATION_JSON)
 @Authorize
+@Tag(name = "validation")
+@io.swagger.v3.oas.annotations.security.SecurityRequirement(name = "bearerAuth")
 public class ValidationResource {
 
+    @EJB
+    QuotsClient quotsClient;
+    
     private static final Logger LOG = Logger.getLogger(ValidationResource.class.getName());
 
     private static final String DEFAULT_ALGORITHM = "{\n"
@@ -138,44 +162,42 @@ public class ValidationResource {
     @Inject
     private JMSContext jmsContext;
 
-
     @POST
     @Path("/training_test_cross")
-    @ApiOperation(value = "Creates Validation Report",
-            notes = "Creates Validation Report",
-            response = Task.class
+    @TokenSecured({RoleEnum.DEFAULT_USER})
+    @Consumes({MediaType.APPLICATION_FORM_URLENCODED})
+    @Operation(summary = "Creates Validation Report",
+            description = "Creates Validation Report",
+            responses = {
+                @ApiResponse(content = @Content(schema = @Schema(implementation = Task.class)))
+            }
     )
     @org.jaqpot.core.service.annotations.Task
     public Response crossValidateAlgorithm(
-            @FormParam("algorithm_uri") String algorithmURI,
-            @FormParam("training_dataset_uri") String datasetURI,
-            @FormParam("algorithm_params") String algorithmParameters,
-            @FormParam("prediction_feature") String predictionFeature,
-            @ApiParam(name = "transformations", defaultValue = DEFAULT_TRANSFORMATIONS) @FormParam("transformations") String transformations,
-            @ApiParam(name = "scaling", defaultValue = STANDARIZATION) @FormParam("scaling") String scaling, //, allowableValues = SCALING + "," + STANDARIZATION
-            @FormParam("folds") Integer folds,
-            @FormParam("stratify") String stratify,
-            @FormParam("seed") Integer seed,
-            @HeaderParam("subjectId") String subjectId
-    ) throws QuotaExceededException, JMSException, ParameterInvalidURIException, ParameterIsNullException {
-        if (algorithmURI==null)
+            @Parameter(name = "algorithm_uri", schema = @Schema(implementation = String.class)) @FormParam("algorithm_uri") String algorithmURI,
+            @Parameter(name = "training_dataset_uri", schema = @Schema(implementation = String.class)) @FormParam("training_dataset_uri") String datasetURI,
+            @Parameter(name = "algorithm_params", schema = @Schema(implementation = String.class)) @FormParam("algorithm_params") String algorithmParameters,
+            @Parameter(name = "prediction_feature", schema = @Schema(type = "string")) @FormParam("prediction_feature") String predictionFeature,
+            @Parameter(name = "transformations", schema = @Schema(implementation = String.class, defaultValue = DEFAULT_TRANSFORMATIONS)) @FormParam("transformations") String transformations,
+            @Parameter(name = "scaling", schema = @Schema(implementation = String.class, defaultValue = STANDARIZATION)) @FormParam("scaling") String scaling, //, allowableValues = SCALING + "," + STANDARIZATION
+            @Parameter(name = "folds", schema = @Schema(implementation = String.class)) @FormParam("folds") Integer folds,
+            @Parameter(name = "stratify", schema = @Schema(implementation = String.class)) @FormParam("stratify") String stratify,
+            @Parameter(name = "seed", schema = @Schema(implementation = Integer.class)) @FormParam("seed") Integer seed,
+            @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class)) @HeaderParam("Authorization") String api_key
+    ) throws QuotaExceededException, JMSException, ParameterInvalidURIException, ParameterIsNullException, JaqpotDocumentSizeExceededException {
+        if (algorithmURI == null) {
             throw new ParameterIsNullException("algorithmURI");
-        if (datasetURI==null)
-            throw new ParameterIsNullException("datasetURI");
-        if (folds==null)
-            throw new ParameterIsNullException("folds");
-
-        User user = userHandler.find(securityContext.getUserPrincipal().getName());
-        long reportCount = reportHandler.countAllOfCreator(user.getId());
-        int maxAllowedReports = new UserFacade(user).getMaxReports();
-
-        if (reportCount > maxAllowedReports) {
-            LOG.info(String.format("User %s has %d algorithms while maximum is %d",
-                    user.getId(), reportCount, maxAllowedReports));
-            throw new QuotaExceededException("Dear " + user.getId()
-                    + ", your quota has been exceeded; you already have " + reportCount + " reports. "
-                    + "No more than " + maxAllowedReports + " are allowed with your subscription.");
         }
+        if (datasetURI == null) {
+            throw new ParameterIsNullException("datasetURI");
+        }
+        if (folds == null) {
+            throw new ParameterIsNullException("folds");
+        }
+
+        String[] apiA = api_key.split("\\s+");
+        String apiKey = apiA[1];
+        User user = userHandler.find(securityContext.getUserPrincipal().getName(), apiKey);
 
         UrlValidator urlValidator = new UrlValidator();
         if (!urlValidator.isValid(algorithmURI)) {
@@ -200,12 +222,12 @@ public class ValidationResource {
         Task task = new Task(new ROG(true).nextString(12));
         task.setMeta(
                 MetaInfoBuilder.builder()
-                .setCurrentDate()
-                .addTitles("Validation on algorithm: " + algorithmURI)
-                .addComments("Validation task created")
-                .addDescriptions("Validation task using algorithm " + algorithmURI + " and dataset " + datasetURI)
-                .addCreators(securityContext.getUserPrincipal().getName())
-                .build());
+                        .setCurrentDate()
+                        .addTitles("Validation on algorithm: " + algorithmURI)
+                        .addComments("Validation task created")
+                        .addDescriptions("Validation task using algorithm " + algorithmURI + " and dataset " + datasetURI)
+                        .addCreators(securityContext.getUserPrincipal().getName())
+                        .build());
         task.setType(Task.Type.VALIDATION);
         task.setHttpStatus(202);
         task.setStatus(Task.Status.QUEUED);
@@ -219,8 +241,8 @@ public class ValidationResource {
         options.put("folds", folds);
         options.put("stratify", stratify);
         options.put("seed", seed);
-        options.put("creator", user.getId());
-        options.put("subjectId", subjectId);
+        options.put("creator", user.get_id());
+        options.put("api_key", apiKey);
 
         Map<String, String> transformationAlgorithms = new LinkedHashMap<>();
         if (transformations != null && !transformations.isEmpty()) {
@@ -236,7 +258,6 @@ public class ValidationResource {
             options.put("transformations", transformationAlgorithmsString);
         }
 
-
         taskHandler.create(task);
         jmsContext.createProducer().setDeliveryDelay(1000).send(crossValidationQueue, options);
 
@@ -244,42 +265,40 @@ public class ValidationResource {
     }
 
     @POST
+    @TokenSecured({RoleEnum.DEFAULT_USER})
+    @Consumes({MediaType.APPLICATION_FORM_URLENCODED})
     @Path("/training_test_split")
-    @ApiOperation(value = "Creates Validation Report",
-            notes = "Creates Validation Report",
-            response = Task.class
-    )
+
+    @Operation(summary = "Creates Validation Report",
+            description = "Creates Validation Report",
+            responses = {
+                @ApiResponse(content = @Content(schema = @Schema(implementation = Task.class)))
+            })
     @org.jaqpot.core.service.annotations.Task
     public Response splitValidateAlgorithm(
-            @FormParam("algorithm_uri") String algorithmURI,
-            @FormParam("training_dataset_uri") String datasetURI,
-            @FormParam("algorithm_params") String algorithmParameters,
-            @FormParam("prediction_feature") String predictionFeature,
-            @ApiParam(name = "transformations", defaultValue = DEFAULT_TRANSFORMATIONS) @FormParam("transformations") String transformations,
-            @ApiParam(name = "scaling", defaultValue = STANDARIZATION) @FormParam("scaling") String scaling, //, allowableValues = SCALING + "," + STANDARIZATION          
-            @ApiParam(name = "split_ratio",required = true) @FormParam("split_ratio") Double splitRatio,
-            @FormParam("stratify") String stratify,
-            @FormParam("seed") Integer seed,
-            @HeaderParam("subjectId") String subjectId
-    ) throws QuotaExceededException, JMSException, ParameterInvalidURIException, ParameterIsNullException {
-        if (algorithmURI==null)
+            @Parameter(name = "algorithm_uri", schema = @Schema(implementation = String.class)) @FormParam("algorithm_uri") String algorithmURI,
+            @Parameter(name = "training_dataset_uri", schema = @Schema(implementation = String.class)) @FormParam("training_dataset_uri") String datasetURI,
+            @Parameter(name = "algorithm_params", schema = @Schema(implementation = String.class)) @FormParam("algorithm_params") String algorithmParameters,
+            @Parameter(name = "prediction_feature", schema = @Schema(type = "string")) @FormParam("prediction_feature") String predictionFeature,
+            @Parameter(name = "transformations", schema = @Schema(implementation = String.class, defaultValue = DEFAULT_TRANSFORMATIONS)) @FormParam("transformations") String transformations,
+            @Parameter(name = "scaling", schema = @Schema(implementation = String.class, defaultValue = STANDARIZATION)) @FormParam("scaling") String scaling, //, allowableValues = SCALING + "," + STANDARIZATION          
+            @Parameter(name = "split_ratio", required = true, schema = @Schema(implementation = Double.class)) @FormParam("split_ratio") Double splitRatio,
+            @Parameter(name = "stratify", schema = @Schema(implementation = String.class)) @FormParam("stratify") String stratify,
+            @Parameter(name = "seed", schema = @Schema(implementation = Integer.class)) @FormParam("seed") Integer seed,
+            @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class)) @HeaderParam("Authorization") String api_key
+    ) throws QuotaExceededException, JMSException, ParameterInvalidURIException, ParameterIsNullException, JaqpotDocumentSizeExceededException {
+        if (algorithmURI == null) {
             throw new ParameterIsNullException("algorithmURI");
-        if (datasetURI==null)
-            throw new ParameterIsNullException("datasetURI");
-        if (splitRatio==null)
-            throw new ParameterIsNullException("splitRatio");
-
-        User user = userHandler.find(securityContext.getUserPrincipal().getName());
-        long reportCount = reportHandler.countAllOfCreator(user.getId());
-        int maxAllowedReports = new UserFacade(user).getMaxReports();
-
-        if (reportCount > maxAllowedReports) {
-            LOG.info(String.format("User %s has %d reports while maximum is %d",
-                    user.getId(), reportCount, maxAllowedReports));
-            throw new QuotaExceededException("Dear " + user.getId()
-                    + ", your quota has been exceeded; you already have " + reportCount + " reports. "
-                    + "No more than " + maxAllowedReports + " are allowed with your subscription.");
         }
+        if (datasetURI == null) {
+            throw new ParameterIsNullException("datasetURI");
+        }
+        if (splitRatio == null) {
+            throw new ParameterIsNullException("splitRatio");
+        }
+        String[] apiA = api_key.split("\\s+");
+        String apiKey = apiA[1];
+//        User user = userHandler.find(securityContext.getUserPrincipal().getName(), apiKey);
 
         UrlValidator urlValidator = new UrlValidator();
         if (!urlValidator.isValid(algorithmURI)) {
@@ -304,12 +323,12 @@ public class ValidationResource {
         Task task = new Task(new ROG(true).nextString(12));
         task.setMeta(
                 MetaInfoBuilder.builder()
-                .setCurrentDate()
-                .addTitles("Validation on algorithm: " + algorithmURI)
-                .addComments("Validation task created")
-                .addDescriptions("Validation task using algorithm " + algorithmURI + " and dataset " + datasetURI)
-                .addCreators(securityContext.getUserPrincipal().getName())
-                .build());
+                        .setCurrentDate()
+                        .addTitles("Validation on algorithm: " + algorithmURI)
+                        .addComments("Validation task created")
+                        .addDescriptions("Validation task using algorithm " + algorithmURI + " and dataset " + datasetURI)
+                        .addCreators(securityContext.getUserPrincipal().getName())
+                        .build());
         task.setType(Task.Type.VALIDATION);
         task.setHttpStatus(202);
         task.setStatus(Task.Status.QUEUED);
@@ -325,7 +344,7 @@ public class ValidationResource {
         options.put("stratify", stratify);
         options.put("seed", seed);
         options.put("type", "SPLIT");
-        options.put("subjectId", subjectId);
+        options.put("api_key", apiKey);
 
         Map<String, String> transformationAlgorithms = new LinkedHashMap<>();
         if (transformations != null && !transformations.isEmpty()) {
@@ -349,39 +368,35 @@ public class ValidationResource {
 
     @POST
     @Path("/test_set_validation")
-    @ApiOperation(value = "Creates Validation Report",
-            notes = "Creates Validation Report",
-            response = Task.class
+    @TokenSecured({RoleEnum.DEFAULT_USER})
+    @Consumes({MediaType.APPLICATION_FORM_URLENCODED})
+
+    @Operation(summary = "Creates Validation Report",
+            description = "Creates Validation Report",
+            responses = {
+                @ApiResponse(content = @Content(schema = @Schema(implementation = Task.class)))
+            }
     )
     @org.jaqpot.core.service.annotations.Task
     public Response externalValidateAlgorithm(
-            @FormParam("model_uri") String modelURI,
-            @FormParam("test_dataset_uri") String datasetURI,
-            @HeaderParam("subjectId") String subjectId
-    ) throws QuotaExceededException, ParameterIsNullException, ParameterInvalidURIException {
-        if (modelURI==null)
+            @Parameter(name = "model_uri", schema = @Schema(implementation = String.class)) @FormParam("model_uri") String modelURI,
+            @Parameter(name = "test_dataset_uri", schema = @Schema(implementation = String.class)) @FormParam("test_dataset_uri") String datasetURI,
+            @Parameter(name = "validation_type", schema = @Schema(implementation = String.class)) @FormParam("validation_type") String validationType,
+            @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class)) @HeaderParam("Authorization") String api_key
+    ) throws GeneralSecurityException, QuotaExceededException, ParameterIsNullException, ParameterInvalidURIException, JaqpotDocumentSizeExceededException, InterruptedException, ExecutionException, InternalServerErrorException, JaqpotNotAuthorizedException, ParseException, JaqpotNotAuthorizedException, ParseException {
+        if (modelURI == null) {
             throw new ParameterIsNullException("modelURI");
-        if (datasetURI==null)
+        }
+        if (datasetURI == null) {
             throw new ParameterIsNullException("datasetURI");
-
-        User user = userHandler.find(securityContext.getUserPrincipal().getName());
-        long reportCount = reportHandler.countAllOfCreator(user.getId());
-        int maxAllowedReports = new UserFacade(user).getMaxReports();
-
-        if (reportCount > maxAllowedReports) {
-            LOG.info(String.format("User %s has %d algorithms while maximum is %d",
-                    user.getId(), reportCount, maxAllowedReports));
-            throw new QuotaExceededException("Dear " + user.getId()
-                    + ", your quota has been exceeded; you already have " + reportCount + " reports. "
-                    + "No more than " + maxAllowedReports + " are allowed with your subscription.");
         }
-
-        UrlValidator urlValidator = new UrlValidator();
-        if (!urlValidator.isValid(modelURI)) {
-            throw new ParameterInvalidURIException("Not valid model URI.");
-        }
-        if (!urlValidator.isValid(datasetURI)) {
-            throw new ParameterInvalidURIException("Not valid dataset URI.");
+        String[] apiA = api_key.split("\\s+");
+        String apiKey = apiA[1];
+        User user = userHandler.find(securityContext.getUserPrincipal().getName(), apiKey);
+        CanProceed cp = quotsClient.canUserProceedSync(user.get_id(), "VALIDATION", "1", apiKey);
+        if (cp.isProceed() == false) {
+            throw new QuotaExceededException("Dear user, your credits has been "
+                    + "exceeded. Request for more through accounts.jaqpot.org");
         }
 
         Task task = new Task(new ROG(true).nextString(12));
@@ -400,13 +415,13 @@ public class ValidationResource {
         Map<String, Object> options = new HashMap<>();
         options.put("taskId", task.getId());
         options.put("model_uri", modelURI);
-        options.put("subjectId",subjectId);
+        options.put("api_key", apiKey);
         options.put("dataset_uri", datasetURI);
         options.put("base_uri", uriInfo.getBaseUri().toString());
         options.put("type", "EXTERNAL");
-        options.put("subjectId", subjectId);
-        options.put("creator", user.getId());
-
+        options.put("api_key", apiKey);
+        options.put("creator", user.get_id());
+        options.put("validation_type", validationType);
 
         taskHandler.create(task);
         jmsContext.createProducer().setDeliveryDelay(1000).send(externalValidationQueue, options);

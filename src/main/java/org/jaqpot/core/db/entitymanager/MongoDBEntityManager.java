@@ -29,45 +29,46 @@
  */
 package org.jaqpot.core.db.entitymanager;
 
+import com.mongodb.BasicDBObject;
+import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
 import com.mongodb.MongoWriteException;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
-import com.mongodb.client.model.Projections;
+import static com.mongodb.client.model.Filters.eq;
+import com.mongodb.client.result.UpdateResult;
 import com.mongodb.util.JSON;
-import java.io.IOException;
-import java.io.InputStream;
 import static com.mongodb.client.model.Projections.*;
 import com.mongodb.client.model.Sorts;
 
-import org.bson.BsonDocument;
-import org.bson.codecs.configuration.CodecRegistry;
-import org.bson.conversions.Bson;
 import org.jaqpot.core.annotations.MongoDB;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.PostConstruct;
+import javax.ejb.AccessTimeout;
 import javax.ejb.DependsOn;
-import javax.ejb.EJB;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
-import javax.enterprise.context.ApplicationScoped;
+import javax.ejb.Timeout;
 import javax.inject.Inject;
 import javax.xml.bind.annotation.XmlRootElement;
 import org.bson.Document;
 import org.jaqpot.core.data.serialize.JSONSerializer;
 import org.jaqpot.core.model.JaqpotEntity;
-import org.jaqpot.core.model.Model;
+import org.jaqpot.core.model.MetaInfo;
 import org.jaqpot.core.properties.PropertyManager;
+import org.jaqpot.core.properties.PropertyManager.PropertyType;
 import org.reflections.Reflections;
 
 /**
@@ -117,11 +118,12 @@ public class MongoDBEntityManager implements JaqpotEntityManager {
         }
     }
 
-    public MongoDBEntityManager() { }
+    public MongoDBEntityManager() {
+    }
 
     //Move constructor logic in @PostConstruct in order to be able to use PropertyManager Injection
     @PostConstruct
-    public void init(){
+    public void init() {
         LOG.log(Level.INFO, "Initializing MongoDB EntityManager");
 
         //ClassLoader classLoader = this.getClass().getClassLoader();
@@ -129,20 +131,29 @@ public class MongoDBEntityManager implements JaqpotEntityManager {
         String dbName = "production"; // Default DB name in case no properties file is found!
         String dbHost = "localhost"; // Default DB host
         int dbPort = 27017; // Default DB port
+        String connectionString = "mongodb://localhost:27017";
         try {
-            //dbProperties.load(is);
+            // dbProperties.load(is);
+
+            // dbName = propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_DB_NAME, dbName);
+            // dbHost = propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_DB_HOST, dbHost);
+            // dbPort = Integer.parseInt(propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_DB_PORT, Integer.toString(dbPort)));
+            // LOG.log(Level.INFO, "Database host : {0}", dbHost);
+            // LOG.log(Level.INFO, "Database port : {0}", dbPort);
+            
+
+            connectionString = propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_DB_CONNECTION_STRING, connectionString);
             dbName = propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_DB_NAME, dbName);
-            dbHost = propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_DB_HOST, dbHost);
-            dbPort = Integer.parseInt(propertyManager.getPropertyOrDefault(PropertyManager.PropertyType.JAQPOT_DB_PORT, Integer.toString(dbPort)));
-            LOG.log(Level.INFO, "Database host : {0}", dbHost);
-            LOG.log(Level.INFO, "Database port : {0}", dbPort);
+            LOG.log(Level.INFO, "Database connection string : {0}", connectionString);
             LOG.log(Level.INFO, "Database name : {0}", dbName);
+
         } catch (Exception ex) {
             String errorMessage = "No DB properties file found!";
             LOG.log(Level.SEVERE, errorMessage, ex); // Log the event (but use the default properties)
         } finally {
             database = dbName;
-            String mongoUri = "mongodb://" + dbHost + ":" + dbPort + "/" + dbName;
+            // String mongoUri = "mongodb://" + dbHost + ":" + dbPort + "/" + dbName;
+            String mongoUri = connectionString;
             mongoClient = new MongoClient(new MongoClientURI(mongoUri));
 //            mongoClient = new MongoClient(dbHost, dbPort); // Connect to the DB
             LOG.log(Level.INFO, "Database configured and connection established successfully!");
@@ -205,6 +216,26 @@ public class MongoDBEntityManager implements JaqpotEntityManager {
     }
 
     @Override
+    public <T extends JaqpotEntity> void updateField(Class<T> entityClass, Object primaryKey, String key, Object field) {
+        MongoDatabase db = mongoClient.getDatabase(database);
+        MongoCollection<Document> collection = db.getCollection(collectionNames.get(entityClass));
+        //Document retrieved = collection.find(new Document("_id", primaryKey)).first();
+        Document update = new Document().append("$set", new Document().append(key, field));
+        collection.updateOne(new Document("_id", primaryKey), update);
+    }
+
+    @Override
+    public <T extends JaqpotEntity> void updateMeta(Class<T> entityClass, Object primaryKey, MetaInfo field) {
+        MongoDatabase db = mongoClient.getDatabase(database);
+        MongoCollection<Document> collection = db.getCollection(collectionNames.get(entityClass));
+        String metaJson = serializer.write(field);
+//        BasicDBObject newDocument = new BasicDBObject();
+        Document entityMeta = Document.parse(metaJson);
+        Document update = new Document().append("$set", new Document().append("meta", entityMeta));
+        collection.updateOne(new Document("_id", primaryKey), update);
+    }
+
+    @Override
     public <T extends JaqpotEntity> List<T> find(Class<T> entityClass, Map<String, Object> properties, Integer start, Integer max) {
         MongoDatabase db = mongoClient.getDatabase(database);
         MongoCollection<Document> collection = db.getCollection(collectionNames.get(entityClass));
@@ -228,6 +259,23 @@ public class MongoDBEntityManager implements JaqpotEntityManager {
         return result;
     }
 
+//    @Override
+//    public <T extends JaqpotEntity> List<T> findInArray(Class<T> entityClass, Map<String, Object> properties, List<String> fields, Integer start, Integer max){
+//        MongoDatabase db = mongoClient.getDatabase(database);
+//        MongoCollection<Document> collection = db.getCollection(collectionNames.get(entityClass));
+//        List<T> result = new ArrayList<>();
+//        
+//        properties.entrySet().forEach(e ->{ });
+//        
+//        collection.find(new Document(properties))
+//                .projection(include(fields))
+//                .skip(start != null ? start : 0)
+//                .limit(max != null ? max : DEFAULT_PAGE_SIZE)
+//                .map(document -> serializer.parse(JSON.serialize(document), entityClass))
+//                .into(result);
+//        return result;
+//        
+//    };
     @Override
     public <T extends JaqpotEntity> List<T> findSorted(Class<T> entityClass, Map<String, Object> properties, Integer start, Integer max, List<String> ascendingFields, List<String> descendingFields) {
         MongoDatabase db = mongoClient.getDatabase(database);
@@ -321,6 +369,35 @@ public class MongoDBEntityManager implements JaqpotEntityManager {
     }
 
     @Override
+    public <T extends JaqpotEntity> Long countAndNe(Class<T> entityClass, Map<String, Object> properties, Map<String, Object> notProperties) {
+        MongoDatabase db = mongoClient.getDatabase(database);
+        MongoCollection<Document> collection = db.getCollection(collectionNames.get(entityClass));
+        properties.entrySet()
+                .stream()
+                .filter(e -> {
+                    return e.getValue() instanceof List;
+                })
+                .forEach(e -> {
+                    Map<String, Object> all = new HashMap<>();
+                    all.put("$all", e.getValue());
+                    properties.put(e.getKey(), all);
+                });
+        notProperties.entrySet()
+                .stream()
+                .forEach(e -> {
+                    Map<String, Object> all = new HashMap<>();
+                    all.put("$ne", e.getValue());
+                    notProperties.put(e.getKey(), all);
+                });
+        properties.putAll(notProperties);
+        List<DBObject> criteria = new ArrayList();
+        properties.entrySet().forEach(e->{
+            criteria.add(new BasicDBObject(e.getKey(),e.getValue()));
+        });
+        return collection.count(new Document("$and", criteria));
+    }
+
+    @Override
     public <T extends JaqpotEntity> List<T> find(Class<T> entityClass, List<String> keys, List<String> fields) {
         MongoDatabase db = mongoClient.getDatabase(database);
         MongoCollection<Document> collection = db.getCollection(collectionNames.get(entityClass));
@@ -353,6 +430,44 @@ public class MongoDBEntityManager implements JaqpotEntityManager {
         fields.stream().forEach(f -> filter.put(f, 1));
         List<T> result = new ArrayList<>();
         collection.find(new Document(properties))
+                .projection(filter)
+                .skip(start != null ? start : 0)
+                .limit(max != null ? max : DEFAULT_PAGE_SIZE)
+                .map(document -> serializer.parse(JSON.serialize(document), entityClass))
+                .into(result);
+        return result;
+    }
+
+    @Override
+    public <T extends JaqpotEntity> List<T> findAndNe(Class<T> entityClass, Map<String, Object> properties, Map<String, Object> notProperties, List<String> fields, Integer start, Integer max) {
+        MongoDatabase db = mongoClient.getDatabase(database);
+        MongoCollection<Document> collection = db.getCollection(collectionNames.get(entityClass));
+        properties.entrySet()
+                .stream()
+                .filter(e -> {
+                    return e.getValue() instanceof List;
+                })
+                .forEach(e -> {
+                    Map<String, Object> all = new HashMap<>();
+                    all.put("$all", e.getValue());
+                    properties.put(e.getKey(), all);
+                });
+        notProperties.entrySet()
+                .stream()
+                .forEach(e -> {
+                    Map<String, Object> all = new HashMap<>();
+                    all.put("$ne", e.getValue());
+                    notProperties.put(e.getKey(), all);
+                });
+        properties.putAll(notProperties);
+        Document filter = new Document();
+        fields.stream().forEach(f -> filter.put(f, 1));
+        List<T> result = new ArrayList<>();
+        List<DBObject> criteria = new ArrayList();
+        properties.entrySet().forEach(e->{
+            criteria.add(new BasicDBObject(e.getKey(),e.getValue()));
+        });
+        collection.find(new Document("$and", criteria))
                 .projection(filter)
                 .skip(start != null ? start : 0)
                 .limit(max != null ? max : DEFAULT_PAGE_SIZE)
@@ -438,6 +553,68 @@ public class MongoDBEntityManager implements JaqpotEntityManager {
         collection.find(new Document(properties))
                 .projection(filter)
                 .sort(Sorts.descending(descendingFields))
+                .skip(start != null ? start : 0)
+                .limit(max != null ? max : DEFAULT_PAGE_SIZE)
+                .map(document -> serializer.parse(JSON.serialize(document), entityClass))
+                .into(result);
+        return result;
+    }
+
+    @Override
+    public <T extends JaqpotEntity> List<T> findSortedDescAndNe(Class<T> entityClass, Map<String, Object> properties, Map<String, Object> notProperties, List<String> fields, Integer start, Integer max, List<String> descendingFields){
+        MongoDatabase db = mongoClient.getDatabase(database);
+        MongoCollection<Document> collection = db.getCollection(collectionNames.get(entityClass));
+        properties.entrySet()
+                .stream()
+                .filter(e -> {
+                    return e.getValue() instanceof List;
+                })
+                .forEach(e -> {
+                    Map<String, Object> all = new HashMap<>();
+                    all.put("$all", e.getValue());
+                    properties.put(e.getKey(), all);
+                });
+        notProperties.entrySet()
+                .stream()
+                .forEach(e -> {
+                    Map<String, Object> all = new HashMap<>();
+                    all.put("$ne", e.getValue());
+                    notProperties.put(e.getKey(), all);
+                });
+        properties.putAll(notProperties);
+        Document filter = new Document();
+        fields.stream().forEach(f -> filter.put(f, 1));
+        List<T> result = new ArrayList<>();
+        List<DBObject> criteria = new ArrayList();
+        properties.entrySet().forEach(e->{
+            criteria.add(new BasicDBObject(e.getKey(),e.getValue()));
+        });
+        collection.find(new Document("$and",criteria))
+                .projection(filter)
+                .sort(Sorts.descending(descendingFields))
+                .skip(start != null ? start : 0)
+                .limit(max != null ? max : DEFAULT_PAGE_SIZE)
+                .map(document -> serializer.parse(JSON.serialize(document), entityClass))
+                .into(result);
+        return result;
+    
+    };
+    
+    @Override
+    public <T extends JaqpotEntity> List<T> findAllWithReqexp(Class<T> entityClass, Map<String, Object> properties, List<String> fields, Integer start, Integer max) {
+        MongoDatabase db = mongoClient.getDatabase(database);
+        MongoCollection<Document> collection = db.getCollection(collectionNames.get(entityClass));
+        BasicDBObject regexQuery = new BasicDBObject();
+        properties.entrySet().forEach((key) -> {
+            regexQuery.put(key.getKey(),
+                    new BasicDBObject("$regex", properties.get(key.getKey())));
+        });
+
+        Document filter = new Document();
+        fields.stream().forEach(f -> filter.put(f, 1));
+        List<T> result = new ArrayList<>();
+        collection.find(regexQuery)
+                .projection(filter)
                 .skip(start != null ? start : 0)
                 .limit(max != null ? max : DEFAULT_PAGE_SIZE)
                 .map(document -> serializer.parse(JSON.serialize(document), entityClass))

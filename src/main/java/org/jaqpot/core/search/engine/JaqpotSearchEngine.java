@@ -29,12 +29,20 @@
  */
 package org.jaqpot.core.search.engine;
 
+import javax.ejb.Local;
+import org.jaqpot.core.model.JaqpotEntity;
+
 /**
  *
  * @author Pantelis Sopasakis
  * @author Charalampos Chomenidis
  *
  */
+@Local
 public interface JaqpotSearchEngine {
+    
+    
+    public void index(JaqpotEntity entity);
+    
     
 }

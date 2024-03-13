@@ -35,10 +35,9 @@
 package org.jaqpot.core.service.mdb;
 
 import org.jaqpot.core.annotations.Jackson;
-import org.jaqpot.core.data.AlgorithmHandler;
-import org.jaqpot.core.data.ReportHandler;
-import org.jaqpot.core.data.TaskHandler;
+import org.jaqpot.core.data.*;
 import org.jaqpot.core.data.serialize.JSONSerializer;
+import org.jaqpot.core.data.wrappers.DatasetLegacyWrapper;
 import org.jaqpot.core.model.*;
 import org.jaqpot.core.model.builder.MetaInfoBuilder;
 import org.jaqpot.core.model.dto.dataset.Dataset;
@@ -89,12 +88,18 @@ public class CrossValidationProcedure extends AbstractJaqpotProcedure {
     @EJB
     ReportHandler reportHandler;
 
+    @EJB
+    DatasetLegacyWrapper datasetLegacyWrapper;
+
     @Inject
     @Jackson
     JSONSerializer serializer;
 
     @Inject
     JPDIClient jpdiClient;
+
+    @EJB
+    DataEntryHandler dataEntryHandler;
 
     @Inject
     PropertyManager propertyManager;
@@ -124,7 +129,7 @@ public class CrossValidationProcedure extends AbstractJaqpotProcedure {
         }
 
         String taskId = (String) messageBody.get("taskId");
-        String subjectId = (String) messageBody.get("subjectId");
+        String apiKey = (String) messageBody.get("api_key");
         String algorithmURI = (String) messageBody.get("algorithm_uri");
         String datasetURI = (String) messageBody.get("dataset_uri");
         String predictionFeature = (String) messageBody.get("prediction_feature");
@@ -141,25 +146,42 @@ public class CrossValidationProcedure extends AbstractJaqpotProcedure {
             checkCancelled();
             start(Task.Type.VALIDATION);
 
-            Algorithm algorithm = Optional.of(client.target(algorithmURI)
-                    .request()
-                    .accept(MediaType.APPLICATION_JSON)
-                    .header("subjectId", subjectId)
-                    .get(Algorithm.class)).orElseThrow(() -> new NotFoundException("Algorithm with URI:" + algorithmURI + " was not found."));
+            Algorithm algorithm = null;
+
+            try {
+                algorithm = client.target(algorithmURI)
+                        .request()
+                        .accept(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + apiKey)
+                        .get(Algorithm.class);
+            } catch (NotFoundException e) {
+                String[] algoUriS = algorithmURI.split("/");
+                algorithm = algorithmHandler.find(algoUriS[algoUriS.length - 1]);
+            }
 
             progress(5f, "Algorithm retrieved successfully.");
             checkCancelled();
 
-            Dataset dataset = Optional.of(client.target(datasetURI)
-                    .queryParam("stratify", stratify)
-                    .queryParam("folds", folds)
-                    .queryParam("seed", seed)
-                    .request()
-                    .accept(MediaType.APPLICATION_JSON)
-                    .header("subjectId", subjectId)
-                    .get(Dataset.class)).orElseThrow(() -> new NotFoundException("Dataset with URI:" + datasetURI + " was not found."));
-            progress(10f, "Dataset retrieved successfully.");
-            checkCancelled();
+            Dataset dataset = null;
+            if (datasetURI != null && !datasetURI.isEmpty()) {
+                progress("Attempting to download dataset...");
+                try{
+                    dataset = client.target(datasetURI)
+                        .queryParam("dataEntries",true)
+                        .request()
+                        .header("Authorization", "Bearer " + apiKey)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .get(Dataset.class);
+                }catch(NotFoundException e){
+                    String[] datasetSlit = datasetURI.split("/");
+                    dataset = datasetLegacyWrapper.find(datasetSlit[datasetSlit.length - 1]);
+                    //dataset = datasetHandler.find(datasetSlit[datasetSlit.length - 1]);
+                }
+                dataset.setDatasetURI(datasetURI);
+                progress(10f, "Dataset retrieved successfully.");
+            }
+            
+            
 
             LinkedHashMap<String, String> transformations = new LinkedHashMap<>();
             List<Algorithm> transformationAlgorithms = new ArrayList<>();
@@ -190,7 +212,7 @@ public class CrossValidationProcedure extends AbstractJaqpotProcedure {
                     if (transParameters != null && !transParameters.isEmpty()) {
                         parameterMap = serializer.parse(transParameters, new HashMap<String, Object>().getClass());
                     }
-                    dataset = jpdiClient.transform(dataset, transAlgorithm, parameterMap, predictionFeature, dataset.getMeta(), taskId).get();
+                    dataset = jpdiClient.transform(dataset, transAlgorithm, parameterMap, predictionFeature, dataset.getMeta(), taskId, null).get();
                     addProgress(10f, "Done");
                 }
                 progress(30f, "Done processing transformations.", "--");
@@ -238,7 +260,7 @@ public class CrossValidationProcedure extends AbstractJaqpotProcedure {
                         .reduce(DatasetFactory.createEmpty(0),(a, b) -> DatasetFactory.mergeRows(a, b));
                         //.orElseThrow(() -> new InternalServerErrorException("Training dataset merging failed"));
                 Model model = jpdiClient.train(trainingDataset, algorithm, parameterMap, predictionFeature, trainingDataset.getMeta(), taskId).get();
-                Dataset predictedDataset = jpdiClient.predict(predictionDataset, model, predictionDataset.getMeta(), taskId).get();
+                Dataset predictedDataset = jpdiClient.predict(predictionDataset, model, predictionDataset.getMeta(), taskId, null).get();
                 finalDataset = DatasetFactory.mergeRows(finalDataset, predictedDataset);
                 predictedFeature = model.getPredictedFeatures().get(0);
                 indepFeatureSize = Math.max(indepFeatureSize, model.getIndependentFeatures().size());

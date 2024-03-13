@@ -29,22 +29,27 @@
  */
 package org.jaqpot.core.service.resource;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+//import io.swagger.annotations.Api;
+//import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.jaqpot.core.annotations.Jackson;
 import org.jaqpot.core.data.ReportHandler;
 import org.jaqpot.core.data.UserHandler;
 import org.jaqpot.core.data.serialize.JSONSerializer;
 import org.jaqpot.core.model.Report;
-import org.jaqpot.core.model.User;
 import org.jaqpot.core.model.builder.MetaInfoBuilder;
 import org.jaqpot.core.model.dto.dataset.Dataset;
 import org.jaqpot.core.model.dto.jpdi.TrainingRequest;
 import org.jaqpot.core.model.facades.UserFacade;
 import org.jaqpot.core.model.util.ROG;
 import org.jaqpot.core.properties.PropertyManager;
-import org.jaqpot.core.service.annotations.Authorize;
 import org.jaqpot.core.service.annotations.UnSecure;
+import org.jaqpot.core.service.exceptions.JaqpotDocumentSizeExceededException;
 import org.jaqpot.core.service.exceptions.QuotaExceededException;
 
 import javax.ejb.EJB;
@@ -58,16 +63,18 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import java.util.HashMap;
 import java.util.logging.Logger;
+import xyz.euclia.euclia.accounts.client.models.User;
 
 /**
  *
  * @author Charalampos Chomenidis
  * @author Pantelis Sopasakis
  */
-@Path("interlab")
-@Api(value = "/interlab", description = "Interlab Testing API")
+@Path("/interlab")
+//@Api(value = "/interlab", description = "Interlab Testing API")
 @Produces(MediaType.APPLICATION_JSON)
-@Authorize
+@Tag(name = "interlab")
+@io.swagger.v3.oas.annotations.security.SecurityRequirement(name = "bearerAuth")
 public class InterLabTestingResource {
 
     private static final Logger LOG = Logger.getLogger(InterLabTestingResource.class.getName());
@@ -94,35 +101,31 @@ public class InterLabTestingResource {
 
     @POST
     @Path("/test")
-    @ApiOperation(value = "Creates Interlab Testing Report",
-            notes = "Creates Interlab Testing Report",
-            response = Report.class
-    )
+     @Operation(summary = "Creates Interlab Testing Report",
+               description = "Creates Interlab Testing Report",
+               responses = {
+                   @ApiResponse(content = @Content(schema = @Schema(implementation = Report.class)))
+               })
+    @Consumes({MediaType.APPLICATION_FORM_URLENCODED})
     @Produces({MediaType.APPLICATION_JSON, "text/uri-list"})
     public Response interLabTest(
-            @FormParam("title") String title,
-            @FormParam("descriptions") String description,
-            @FormParam("dataset_uri") String datasetURI,
-            @FormParam("prediction_feature") String predictionFeature,
-            @FormParam("parameters") String parameters,
-            @HeaderParam("subjectid") String subjectId
-    ) throws QuotaExceededException {
+            @Parameter(name = "title", description = "title", schema = @Schema(implementation = String.class)) @FormParam("title") String title,
+            @Parameter(name = "description", description = "description", schema = @Schema(implementation = String.class)) @FormParam("descriptions") String description,
+            @Parameter(name = "dataset_uri", description = "dataset_uri", schema = @Schema(implementation = String.class)) @FormParam("dataset_uri") String datasetURI,
+            @Parameter(name = "prediction_feature", description = "prediction_feature", schema = @Schema(type = "string")) @FormParam("prediction_feature") String predictionFeature,
+            @Parameter(name = "parameters", description = "parameters", schema = @Schema(implementation = String.class)) @FormParam("parameters") String parameters,
+            @Parameter(name = "Authorization", description = "Authorization token", schema = @Schema(implementation = String.class)) @HeaderParam("Authorization") String api_key
+    ) throws QuotaExceededException, JaqpotDocumentSizeExceededException {
 
-        User user = userHandler.find(securityContext.getUserPrincipal().getName());
-        long reportCount = reportHandler.countAllOfCreator(user.getId());
-        int maxAllowedReports = new UserFacade(user).getMaxReports();
+        String[] apiA = api_key.split("\\s+");
+        String apiKey = apiA[1];
+        User user = userHandler.find(securityContext.getUserPrincipal().getName(), apiKey);
+        long reportCount = reportHandler.countAllOfCreator(user.get_id());
 
-        if (reportCount > maxAllowedReports) {
-            LOG.info(String.format("User %s has %d reports while maximum is %d",
-                    user.getId(), reportCount, maxAllowedReports));
-            throw new QuotaExceededException("Dear " + user.getId()
-                    + ", your quota has been exceeded; you already have " + reportCount + " reports. "
-                    + "No more than " + maxAllowedReports + " are allowed with your subscription.");
-        }
 
         Dataset dataset = client.target(datasetURI)
                 .request()
-                .header("subjectid", subjectId)
+                .header("Authorization", "Bearer " + apiKey)
                 .accept(MediaType.APPLICATION_JSON)
                 .get(Dataset.class);
         dataset.setDatasetURI(datasetURI);

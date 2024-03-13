@@ -5,11 +5,18 @@
  */
 package org.jaqpot.core.service.client;
 
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
+import javax.net.ssl.SSLContext;
+import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.client.Client;
+import org.apache.http.ssl.SSLContextBuilder;
 import org.jaqpot.core.service.annotations.Secure;
 import org.jaqpot.core.service.annotations.UnSecure;
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
@@ -34,10 +41,24 @@ public class ClientFactory {
                 .socketTimeout(30, TimeUnit.MINUTES)
                 .connectionPoolSize(20)
                 .build();
-        this.secureClient = new ResteasyClientBuilder()
-                .socketTimeout(30, TimeUnit.MINUTES)
-                .connectionPoolSize(10)
-                .build();
+        this.secureClient = setUpSecureClient();
+    }
+
+    private Client setUpSecureClient() {
+        Client client = null;
+        try {
+            SSLContext sslContext = new SSLContextBuilder()
+                    .loadTrustMaterial(null, (certificate, authType) -> true).build();
+            client = new ResteasyClientBuilder().sslContext(sslContext).hostnameVerification(ResteasyClientBuilder.HostnameVerificationPolicy.ANY)
+                    .socketTimeout(30, TimeUnit.MINUTES)
+                    .connectionPoolSize(10)
+                    .build();
+        } catch (NoSuchAlgorithmException | KeyManagementException e) {
+            throw new InternalServerErrorException("Could not create client");
+        } catch (KeyStoreException ex) {
+            Logger.getLogger(ClientFactory.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return client;
     }
 
     @Produces

@@ -5,41 +5,74 @@
  */
 package org.jaqpot.core.service.resource;
 
-import io.swagger.annotations.Contact;
-import io.swagger.annotations.Info;
-import io.swagger.annotations.SwaggerDefinition;
-import io.swagger.jaxrs.Reader;
-import io.swagger.jaxrs.config.ReaderListener;
-import io.swagger.models.Swagger;
-import io.swagger.models.auth.ApiKeyAuthDefinition;
-import io.swagger.models.auth.In;
+import io.swagger.v3.jaxrs2.Reader;
+import io.swagger.v3.jaxrs2.ReaderListener;
+import io.swagger.v3.oas.annotations.info.Contact;
+import io.swagger.v3.oas.annotations.info.Info;
+//import io.swagger.annotations.Contact;
+//import io.swagger.annotations.Info;
+//import io.swagger.annotations.SwaggerDefinition;
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.security.SecurityRequirement;
+import io.swagger.v3.oas.models.security.SecurityScheme;
+//import io.swagger.jaxrs.Reader;
+//import io.swagger.jaxrs.config.ReaderListener;
+//import io.swagger.models.Swagger;
+//import io.swagger.models.auth.ApiKeyAuthDefinition;
+//import io.swagger.models.auth.In;
 import javax.enterprise.context.ApplicationScoped;
 
 /**
  *
  * @author hampos
  */
-@SwaggerDefinition(
+//@SwaggerDefinition(
+@OpenAPIDefinition(
         info = @Info(
                 title = "Jaqpot API",
-                description = "Jaqpot v4 (Quattro) is the 4th version of a YAQP, a RESTful web service which can be used to train machine learning models and use them to obtain toxicological predictions for given chemical compounds or engineered nano materials. The project is written in Java8 and JEE7.",
-                version = "4.0.3",
-                contact = @Contact(name = "Charalampos Chomenidis, Pantelis Sopasakis, Evangelia Anagnostopoulou, Angelos Valsamis, George Drakakis, Pantelis Karatzas, Georgia Tsiliki, Philip Doganis, Haralambos Sarimveis", email = "hampos@me.com", url = "https://github.com/KinkyDesign/jaqpot-web/issues")
+                description = "Jaqpot v5 is the 5t"
+                        + "h version of a YAQP, a RESTful web platform which can"
+                        + " be used to train machine learning models and use "
+                        + "them to obtain toxicological predictions for given "
+                        + "chemical compounds or engineered nano materials. "
+                        + "Jaqpot v4 has integrated read-across, optimal experimental design,"
+                        + " interlaboratory comparison, biokinetics and dose response modelling"
+                        + " functionalities. The project is developed in Java8 and JEE7 by the"
+                        + " <a href=\"http://www.chemeng.ntua.gr/labs/control_lab/\"> Unit of"
+                        + " Process Control"
+                        + " and Informatics in the School of Chemical Engineering </a> at"
+                        + " the  <a href=\"https://www.ntua.gr/en/\"> National"
+                        + " Technical University of Athens.</a> ",
+                version = "5.0.1",
+                contact = @Contact(name = "Pantelis Karatzas, Periklis Tsiros, Iason Sotiropoulos, Philip Doganis,"
+                        + " Haralambos Sarimveis", email = "euclia@euclia.xyz",
+                        url = "https://github.com/euclia/")
         )
 )
 public class SwaggerFilter implements ReaderListener {
 
     @Override
-    public void beforeScan(Reader reader, Swagger swgr) {
+    //public void beforeScan(Reader reader, Swagger swgr) {
+    public void beforeScan(Reader reader, OpenAPI swgr) {
 
     }
 
     @Override
-    public void afterScan(Reader reader, Swagger swgr) {
-        ApiKeyAuthDefinition apiKeyDefinition = new ApiKeyAuthDefinition();
-        apiKeyDefinition.setName("subjectid");
-        apiKeyDefinition.setIn(In.HEADER);
-        swgr.addSecurityDefinition("subjectid", apiKeyDefinition);
+    //public void afterScan(Reader reader, Swagger swgr) {
+    public void afterScan(Reader reader, OpenAPI swgr) {
+        SecurityScheme securityScheme = new SecurityScheme();
+        //ApiKeyAuthDefinition apiKeyDefinition = new ApiKeyAuthDefinition();
+        securityScheme.setIn(SecurityScheme.In.HEADER);
+        securityScheme.setName("Authorization");
+        securityScheme.setType(SecurityScheme.Type.APIKEY);
+        SecurityRequirement sr = new SecurityRequirement();
+        sr.addList("Authorization");
+        swgr.addSecurityItem(sr);
+        //apiKeyDefinition.setName("Authorization");
+        //apiKeyDefinition.setIn(In.HEADER);
+        //apiKeyDefinition.setType("apiKey");
+        //swgr.addSecurityDefinition("apiKey", apiKeyDefinition);
     }
 
 }

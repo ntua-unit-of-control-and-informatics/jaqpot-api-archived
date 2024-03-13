@@ -49,9 +49,32 @@ import java.util.Map;
 public class Model extends JaqpotEntity {
 
     /**
+     *  The type of the model wether a molecular or material or a simple model
+     */
+    private String type;
+    
+    /**
+     *  JaqpotPy version
+    */
+    private String jaqpotpyVersion;
+    
+    
+    /**
+     *  JaqpotPy version
+    */
+    private String jaqpotpyDockerVersion;
+    
+    
+    private List<String> libraries;
+    
+    private List<String> libraryVersions;
+    
+    /**
      * List of dependent features of the model.
      */
     private List<String> dependentFeatures;
+
+//    private List<String> linkedIndependendFeatures;
     /**
      * List of independent features.
      */
@@ -104,6 +127,28 @@ public class Model extends JaqpotEntity {
 
     private List<String> linkedModels;
 
+    private Boolean pretrained;
+
+    /**
+     * The language that the model is implemented with
+     */
+    private String implementedIn;
+
+    /**
+     * The library that the model is implemented with
+     */
+    private String implementedWith;
+    /**
+     * The algorithm a pre trained model is created ad given by the user
+     */
+    private String algorithmForPretrained;
+
+    private Boolean onTrash;
+    
+    private Boolean indexed;
+    
+    private String planguage;
+    
     public Model() {
     }
 
@@ -122,6 +167,7 @@ public class Model extends JaqpotEntity {
      */
     public Model(Model other) {
         super(other);
+        this.type = other.type;
         this.algorithm = other.algorithm != null ? new Algorithm(other.algorithm) : null;
         this.bibtex = other.bibtex != null ? new BibTeX(other.bibtex) : null;
         this.datasetUri = other.datasetUri;
@@ -139,6 +185,46 @@ public class Model extends JaqpotEntity {
         this.pmmlTransformations = other.pmmlTransformations;
     }
 
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public String getJaqpotpyVersion() {
+        return jaqpotpyVersion;
+    }
+
+    public void setJaqpotpyVersion(String jaqpotpyVersion) {
+        this.jaqpotpyVersion = jaqpotpyVersion;
+    }
+
+    public String getJaqpotpyDockerVersion() {
+        return jaqpotpyDockerVersion;
+    }
+
+    public void setJaqpotpyDockerVersion(String jaqpotpyDockerVersion) {
+        this.jaqpotpyDockerVersion = jaqpotpyDockerVersion;
+    }
+    
+    public List<String> getLibraries() {
+        return libraries;
+    }
+
+    public void setLibraries(List<String> libraries) {
+        this.libraries = libraries;
+    }
+
+    public List<String> getLibraryVersions() {
+        return libraryVersions;
+    }
+
+    public void setLibraryVersions(List<String> libraryVrsions) {
+        this.libraryVersions = libraryVrsions;
+    }
+    
     public List<String> getDependentFeatures() {
         return dependentFeatures;
     }
@@ -147,6 +233,14 @@ public class Model extends JaqpotEntity {
         this.dependentFeatures = dependentFeatures;
     }
 
+//    public List<String> getLinkedIndependendFeatures() {
+//        return linkedIndependendFeatures;
+//    }
+//
+//    public void setLinkedIndependendFeatures(List<String> linkedIndependendFeatures) {
+//        this.linkedIndependendFeatures = linkedIndependendFeatures;
+//    }
+//    
     public List<String> getIndependentFeatures() {
         return independentFeatures;
     }
@@ -257,6 +351,62 @@ public class Model extends JaqpotEntity {
 
     public void setLinkedModels(List<String> linkedModels) {
         this.linkedModels = linkedModels;
+    }
+
+    public Boolean getPretrained() {
+        return pretrained;
+    }
+
+    public void setPretrained(Boolean pretrained) {
+        this.pretrained = pretrained;
+    }
+
+    public String getImplementedIn() {
+        return implementedIn;
+    }
+
+    public void setImplementedIn(String implementedIn) {
+        this.implementedIn = implementedIn;
+    }
+
+    public String getImplementedWith() {
+        return implementedWith;
+    }
+
+    public void setImplementedWith(String implementedWith) {
+        this.implementedWith = implementedWith;
+    }
+
+    public String getAlgorithmForPretrained() {
+        return algorithmForPretrained;
+    }
+
+    public void setAlgorithmForPretrained(String algorithmForPretrained) {
+        this.algorithmForPretrained = algorithmForPretrained;
+    }
+    
+    public Boolean getOnTrash() {
+        return onTrash;
+    }
+
+    public void setOnTrash(Boolean onTrash) {
+        this.onTrash = onTrash;
+    }
+
+    public Boolean getIndexed() {
+        return indexed;
+    }
+
+    public void setIndexed(Boolean indexed) {
+        this.indexed = indexed;
+    }
+
+    public String getPlanguage() {
+        return planguage;
+    }
+
+    public void setPlanguage(String planguage) {
+        this.planguage = planguage;
     }
 
 }

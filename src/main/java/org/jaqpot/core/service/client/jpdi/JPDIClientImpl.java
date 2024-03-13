@@ -45,7 +45,7 @@ import org.jaqpot.core.data.FeatureHandler;
 import org.jaqpot.core.data.serialize.JSONSerializer;
 import org.jaqpot.core.model.*;
 import org.jaqpot.core.model.builder.MetaInfoBuilder;
-import org.jaqpot.core.model.dto.dataset.DataEntry;
+import org.jaqpot.core.model.DataEntry;
 import org.jaqpot.core.model.dto.dataset.Dataset;
 import org.jaqpot.core.model.dto.dataset.FeatureInfo;
 import org.jaqpot.core.model.dto.jpdi.*;
@@ -61,10 +61,14 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import org.apache.http.Header;
+import org.jaqpot.core.data.AlgorithmHandler;
+import org.jaqpot.core.model.factory.FeatureFactory;
+
+import org.jaqpot.core.service.exceptions.JaqpotDocumentSizeExceededException;
 
 /**
  *
@@ -72,21 +76,23 @@ import org.apache.http.Header;
  * @author Pantelis Sopasakis
  */
 public class JPDIClientImpl implements JPDIClient {
-    
+
     private static final Logger LOG = Logger.getLogger(JPDIClientImpl.class.getName());
     private final CloseableHttpAsyncClient client;
     private final JSONSerializer serializer;
     private final FeatureHandler featureHandler;
+    private final AlgorithmHandler algorithmHandler;
     private final String baseURI;
     private final ROG randomStringGenerator;
-    
+
     private final Map<String, Future> futureMap;
-    
-    public JPDIClientImpl(CloseableHttpAsyncClient client, JSONSerializer serializer, FeatureHandler featureHandler, String baseURI) {
+
+    public JPDIClientImpl(CloseableHttpAsyncClient client, JSONSerializer serializer, FeatureHandler featureHandler, AlgorithmHandler algorithmHandler, String baseURI) {
         this.client = client;
         client.start();
         this.serializer = serializer;
         this.featureHandler = featureHandler;
+        this.algorithmHandler = algorithmHandler;
         this.baseURI = baseURI;
         this.futureMap = new ConcurrentHashMap<>(20);
         this.randomStringGenerator = new ROG(true);
@@ -99,10 +105,9 @@ public class JPDIClientImpl implements JPDIClient {
         //TODO Create a calculateService for algorithms.
         final HttpPost request = new HttpPost(algorithm.getReportService());
 
-        CalculateRequest calculateRequest= new CalculateRequest();
+        CalculateRequest calculateRequest = new CalculateRequest();
         calculateRequest.setFile(file);
         calculateRequest.setParameters(parameters);
-
 
         PipedOutputStream out = new PipedOutputStream();
         PipedInputStream in;
@@ -184,19 +189,108 @@ public class JPDIClientImpl implements JPDIClient {
     }
 
     @Override
+    public Future<Dataset> descriptor(Dataset dataset, Descriptor descriptor, Map<String, Object> parameters, String taskId) {
+        CompletableFuture<Dataset> futureDataset = new CompletableFuture<>();
+
+        //TODO Create a calculateService for algorithms.
+        final HttpPost request = new HttpPost(descriptor.getDescriptorService());
+
+        DescriptorRequest descriptorRequest = new DescriptorRequest();
+        descriptorRequest.setDataset(dataset);
+        descriptorRequest.setParameters(parameters);
+
+        PipedOutputStream out = new PipedOutputStream();
+        PipedInputStream in;
+        try {
+            in = new PipedInputStream(out);
+        } catch (IOException ex) {
+            futureDataset.completeExceptionally(ex);
+            return futureDataset;
+        }
+        InputStreamEntity entity = new InputStreamEntity(in, ContentType.APPLICATION_JSON);
+        entity.setChunked(true);
+
+        request.setEntity(entity);
+        request.addHeader("Accept", "application/json");
+
+        Future futureResponse = client.execute(request, new FutureCallback<HttpResponse>() {
+
+            @Override
+            public void completed(final HttpResponse response) {
+                futureMap.remove(taskId);
+                int status = response.getStatusLine().getStatusCode();
+                try {
+                    InputStream responseStream = response.getEntity().getContent();
+
+                    switch (status) {
+                        case 200:
+                        case 201:
+                            //TODO handle successful return of Dataset
+                            DescriptorResponse descriptorResponse = serializer.parse(responseStream, DescriptorResponse.class);
+//                            Dataset descriptorResponseDataset = serializer.parse(responseStream,Dataset.class);
+                            Dataset descriptorResponseDataset = descriptorResponse.getResponseDataset();
+                            descriptorResponseDataset.setId(UUID.randomUUID().toString());
+                            descriptorResponseDataset.setVisible(Boolean.TRUE);
+                            ROG randomStringGenerator = new ROG(true);
+                            descriptorResponseDataset.setId(randomStringGenerator.nextString(14));
+                            futureDataset.complete(descriptorResponseDataset);
+                            break;
+                        case 400:
+                            String message = new BufferedReader(new InputStreamReader(responseStream))
+                                    .lines().collect(Collectors.joining("\n"));
+                            futureDataset.completeExceptionally(new BadRequestException(message));
+                            break;
+                        case 500:
+                            message = new BufferedReader(new InputStreamReader(responseStream))
+                                    .lines().collect(Collectors.joining("\n"));
+                            futureDataset.completeExceptionally(new InternalServerErrorException(message));
+                            break;
+                        default:
+                            message = new BufferedReader(new InputStreamReader(responseStream))
+                                    .lines().collect(Collectors.joining("\n"));
+                            futureDataset.completeExceptionally(new InternalServerErrorException(message));
+                    }
+                } catch (IOException | UnsupportedOperationException ex) {
+                    futureDataset.completeExceptionally(ex);
+                }
+            }
+
+            @Override
+            public void failed(final Exception ex) {
+                futureMap.remove(taskId);
+                futureDataset.completeExceptionally(ex);
+            }
+
+            @Override
+            public void cancelled() {
+                futureMap.remove(taskId);
+                futureDataset.cancel(true);
+            }
+
+        });
+        serializer.write(descriptorRequest, out);
+        try {
+            out.close();
+        } catch (IOException ex) {
+            futureDataset.completeExceptionally(ex);
+        }
+
+        futureMap.put(taskId, futureResponse);
+        return futureDataset;
+    }
+
+    @Override
     public Future<Model> train(Dataset dataset, Algorithm algorithm, Map<String, Object> parameters, String predictionFeature, MetaInfo modelMeta, String taskId) {
-        
+
         CompletableFuture<Model> futureModel = new CompletableFuture<>();
-        
+
         TrainingRequest trainingRequest = new TrainingRequest();
         trainingRequest.setDataset(dataset);
         trainingRequest.setParameters(parameters);
-        trainingRequest.setPredictionFeature(predictionFeature);        
-//        String trainingRequestString = serializer.write(trainingRequest);
-//        System.out.println(trainingRequestString);
+        trainingRequest.setPredictionFeature(predictionFeature);
 
         final HttpPost request = new HttpPost(algorithm.getTrainingService());
-        
+
         PipedOutputStream out = new PipedOutputStream();
         PipedInputStream in;
         try {
@@ -207,19 +301,19 @@ public class JPDIClientImpl implements JPDIClient {
         }
         InputStreamEntity entity = new InputStreamEntity(in, ContentType.APPLICATION_JSON);
         entity.setChunked(true);
-        
+
         request.setEntity(entity);
         request.addHeader("Accept", "application/json");
-        
+
         Future futureResponse = client.execute(request, new FutureCallback<HttpResponse>() {
-            
+
             @Override
             public void completed(final HttpResponse response) {
                 futureMap.remove(taskId);
                 int status = response.getStatusLine().getStatusCode();
                 try {
                     InputStream responseStream = response.getEntity().getContent();
-                    
+
                     switch (status) {
                         case 200:
                         case 201:
@@ -234,20 +328,22 @@ public class JPDIClientImpl implements JPDIClient {
                             model.setDatasetUri(dataset != null ? dataset.getDatasetURI() : null);
 
                             //Check if independedFeatures of model exist in dataset
-                            List<String> filteredIndependedFeatures= new ArrayList<String>();
+                            List<String> filteredIndependedFeatures = new ArrayList<String>();
 
-                            if (dataset!=null && dataset.getFeatures()!=null && trainingResponse.getIndependentFeatures()!=null)
-                            for (String feature:trainingResponse.getIndependentFeatures()){
-                                for (FeatureInfo featureInfo: dataset.getFeatures()){
-                                    if (feature.equals(featureInfo.getURI()))
-                                        filteredIndependedFeatures.add(feature);
+                            if (dataset != null && dataset.getFeatures() != null && trainingResponse.getIndependentFeatures() != null) {
+                                for (String feature : trainingResponse.getIndependentFeatures()) {
+                                    for (FeatureInfo featureInfo : dataset.getFeatures()) {
+                                        if (feature.equals(featureInfo.getURI())) {
+                                            filteredIndependedFeatures.add(feature);
+                                        }
+                                    }
                                 }
                             }
 
                             model.setIndependentFeatures(filteredIndependedFeatures);
                             model.setDependentFeatures(Arrays.asList(predictionFeature));
                             model.setMeta(modelMeta);
-                            
+
                             List<String> predictedFeatures = new ArrayList<>();
                             for (String featureTitle : trainingResponse.getPredictedFeatures()) {
                                 Feature predictionFeatureResource = featureHandler.findByTitleAndSource(featureTitle, "algorithm/" + algorithm.getId());
@@ -261,7 +357,7 @@ public class JPDIClientImpl implements JPDIClient {
                                     predictionFeatureResource.setMeta(MetaInfoBuilder
                                             .builder()
                                             .addSources(/*messageBody.get("base_uri") + */"algorithm/" + algorithm.getId())
-                                            .addComments("Feature created to hold predictions by algorithm with ID " + algorithm.getId())
+                                            .addComments("Feature created to hold predictions by algorithm with ID " + model.getId())
                                             .addTitles(featureTitle)
                                             .addSeeAlso(predictionFeature)
                                             .addCreators(algorithm.getMeta().getCreators())
@@ -291,55 +387,69 @@ public class JPDIClientImpl implements JPDIClient {
                     }
                 } catch (IOException | UnsupportedOperationException ex) {
                     futureModel.completeExceptionally(ex);
+                } catch (JaqpotDocumentSizeExceededException e) {
+                    futureModel.completeExceptionally(e);
+                    e.printStackTrace();
                 }
             }
-            
+
             @Override
             public void failed(final Exception ex) {
                 futureMap.remove(taskId);
                 futureModel.completeExceptionally(ex);
             }
-            
+
             @Override
             public void cancelled() {
                 futureMap.remove(taskId);
                 futureModel.cancel(true);
             }
-            
+
         });
-        
+
         serializer.write(trainingRequest, out);
         try {
             out.close();
         } catch (IOException ex) {
             futureModel.completeExceptionally(ex);
         }
-        
+
         futureMap.put(taskId, futureResponse);
         return futureModel;
     }
-    
+
     @Override
-    public Future<Dataset> predict(Dataset inputDataset, Model model, MetaInfo datasetMeta, String taskId) {
-        
+    public Future<Dataset> predict(Dataset inputDataset, Model model, MetaInfo datasetMeta, String taskId, Doa doa) {
+
         CompletableFuture<Dataset> futureDataset = new CompletableFuture<>();
-        
+
         Dataset dataset = DatasetFactory.copy(inputDataset);
         Dataset tempWithDependentFeatures = DatasetFactory.copy(dataset, new HashSet<>(model.getDependentFeatures()));
-        
-        dataset.getDataEntry().parallelStream()
-                .forEach(dataEntry -> {
-                    dataEntry.getValues().keySet().retainAll(model.getIndependentFeatures());
-                });
+
+//        dataset.getDataEntry().parallelStream()
+//                .forEach(dataEntry -> {
+//                    dataEntry.getValues().keySet().retainAll(model.getIndependentFeatures());
+//                });
         PredictionRequest predictionRequest = new PredictionRequest();
         predictionRequest.setDataset(dataset);
         predictionRequest.setRawModel(model.getActualModel());
         predictionRequest.setAdditionalInfo(model.getAdditionalInfo());
+        if (doa != null) {
+            predictionRequest.setDoaMatrix(doa.getDoaMatrix());
+        }
         
-        final HttpPost request = new HttpPost(model.getAlgorithm().getPredictionService());
+//        ObjectMapper mapper = new ObjectMapper();
+//        try{
+//            System.out.println(mapper.writeValueAsString(predictionRequest));
+//        }catch(Exception e){
+//            LOG.log(Level.SEVERE, e.getLocalizedMessage());
+//        }
+
+        Algorithm algo = algorithmHandler.find(model.getAlgorithm().getId());
+        final HttpPost request = new HttpPost(algo.getPredictionService());
         request.addHeader("Accept", "application/json");
         request.addHeader("Content-Type", "application/json");
-        
+
         PipedOutputStream out = new PipedOutputStream();
         PipedInputStream in;
         try {
@@ -349,37 +459,67 @@ public class JPDIClientImpl implements JPDIClient {
             return futureDataset;
         }
         request.setEntity(new InputStreamEntity(in, ContentType.APPLICATION_JSON));
-        
         Future futureResponse = client.execute(request, new FutureCallback<HttpResponse>() {
-            
+
             @Override
             public void completed(final HttpResponse response) {
                 futureMap.remove(taskId);
                 int status = response.getStatusLine().getStatusCode();
                 try {
                     InputStream responseStream = response.getEntity().getContent();
-                    
+
                     switch (status) {
                         case 200:
                         case 201:
                             try {
                                 PredictionResponse predictionResponse = serializer.parse(responseStream, PredictionResponse.class);
-                                
+
                                 List<LinkedHashMap<String, Object>> predictions = predictionResponse.getPredictions();
                                 if (dataset.getDataEntry().isEmpty()) {
                                     DatasetFactory.addEmptyRows(dataset, predictions.size());
                                 }
-                                List<Feature> features = featureHandler.findBySource("algorithm/" + model.getAlgorithm().getId());
+                                if (model.getAlgorithm().getOntologicalClasses() != null && model.getAlgorithm().getOntologicalClasses().contains("ot:PBPK")) {
+                                    DatasetFactory.addEmptyRows(dataset, predictions.size());
+                                }
+                                List<String> depFeats = model.getPredictedFeatures();
+                                List<Feature> features = new ArrayList();
+                                depFeats.forEach((String feat) -> {
+
+                                    String[] splF = feat.split("/");
+                                    String id = splF[splF.length - 1];
+                                    features.add(featureHandler.find(id));
+
+//                                    try {
+//                                        String[] splF = feat.split("/");
+//                                        String id = splF[splF.length - 1];
+//                                        Feature feature = FeatureFactory.predictionFeature(featureHandler.find(id));
+//                                        feature.getMeta().getCreators().clear();
+//                                        feature.getMeta().setCreators(dataset.getMeta().getCreators());
+//                                        featureHandler.create(feature);
+//                                        
+//                                        features.add(feature);
+//                                    } catch (JaqpotDocumentSizeExceededException ex) {
+//                                        futureDataset.completeExceptionally(ex);
+//                                    }
+                                });
+
+//                                features = featureHandler.findBySource("algorithm/" + model.getAlgorithm().getId());
                                 IntStream.range(0, dataset.getDataEntry().size())
                                         // .parallel()
                                         .forEach(i -> {
                                             Map<String, Object> row = predictions.get(i);
                                             DataEntry dataEntry = dataset.getDataEntry().get(i);
-                                            if (model.getAlgorithm().getOntologicalClasses().contains("ot:Scaling")
-                                                    || model.getAlgorithm().getOntologicalClasses().contains("ot:Transformation")) {
-                                                dataEntry.getValues().clear();
-                                                dataset.getFeatures().clear();
+                                            if (model.getAlgorithm().getOntologicalClasses() != null) {
+                                                if (model.getAlgorithm().getOntologicalClasses().contains("ot:Scaling")
+                                                        || model.getAlgorithm().getOntologicalClasses().contains("ot:Transformation")
+                                                        || model.getAlgorithm().getOntologicalClasses().contains("ot:ClearDataset")
+                                                        || model.getAlgorithm().getOntologicalClasses().contains("ot:PBPK")) {
+                                                    dataEntry.getValues().clear();
+                                                    dataset.getFeatures().clear();
+
+                                                }
                                             }
+
                                             row.entrySet()
                                                     .stream()
                                                     .forEach(entry -> {
@@ -388,18 +528,31 @@ public class JPDIClientImpl implements JPDIClient {
                                                                 .filter(f -> f.getMeta().getTitles().contains(entry.getKey()))
                                                                 .findFirst()
                                                                 .orElse(null);
+                                                        int size = dataEntry.getValues().size();
+                                                        if (entry.getKey().equals("DOA")) {
+                                                            int sizeForDoa = dataEntry.getValues().size();
+                                                            dataEntry.getValues().put(String.valueOf(size), entry.getValue());
+                                                            FeatureInfo featInfoForDoa = new FeatureInfo(baseURI + "feature/doa", "DOA");
+                                                            featInfoForDoa.setCategory(Dataset.DescriptorCategory.PREDICTED);
+                                                            featInfoForDoa.setKey(String.valueOf(sizeForDoa));
+                                                            dataset.getFeatures().add(featInfoForDoa);
+                                                        }
                                                         if (feature == null) {
                                                             return;
                                                         }
-                                                        dataEntry.getValues().put(baseURI + "feature/" + feature.getId(), entry.getValue());
+                                                        
+                                                        dataEntry.getValues().put(String.valueOf(size), entry.getValue());
                                                         FeatureInfo featInfo = new FeatureInfo(baseURI + "feature/" + feature.getId(), feature.getMeta().getTitles().stream().findFirst().get());
                                                         featInfo.setCategory(Dataset.DescriptorCategory.PREDICTED);
+                                                        featInfo.setKey(String.valueOf(size));
                                                         dataset.getFeatures().add(featInfo);
+
                                                     });
                                         });
                                 dataset.setId(randomStringGenerator.nextString(20));
                                 dataset.setTotalRows(dataset.getDataEntry().size());
                                 dataset.setMeta(datasetMeta);
+                                dataset.setExistence(Dataset.DatasetExistence.PREDICTED);
                                 futureDataset.complete(DatasetFactory.mergeColumns(dataset, tempWithDependentFeatures));
                             } catch (Exception ex) {
                                 futureDataset.completeExceptionally(ex);
@@ -429,13 +582,13 @@ public class JPDIClientImpl implements JPDIClient {
                     futureDataset.completeExceptionally(ex);
                 }
             }
-            
+
             @Override
             public void failed(final Exception ex) {
                 futureMap.remove(taskId);
                 futureDataset.completeExceptionally(new InternalServerErrorException(ex));
             }
-            
+
             @Override
             public void cancelled() {
                 futureMap.remove(taskId);
@@ -451,24 +604,24 @@ public class JPDIClientImpl implements JPDIClient {
         futureMap.put(taskId, futureResponse);
         return futureDataset;
     }
-    
+
     @Override
-    public Future<Dataset> transform(Dataset dataset, Algorithm algorithm, Map<String, Object> parameters, String predictionFeature, MetaInfo datasetMeta, String taskId) {
+    public Future<Dataset> transform(Dataset dataset, Algorithm algorithm, Map<String, Object> parameters, String predictionFeature, MetaInfo datasetMeta, String taskId, Doa doa) {
         try {
             Model model = this.train(dataset, algorithm, parameters, predictionFeature, datasetMeta, taskId).get();
-            return this.predict(dataset, model, datasetMeta, taskId);
+            return this.predict(dataset, model, datasetMeta, taskId, doa);
         } catch (InterruptedException ex) {
             throw new RuntimeException("Error while transforming Dataset:" + dataset.getId() + " with Algorithm:" + algorithm.getId(), ex);
         } catch (ExecutionException ex) {
             throw new RuntimeException("Error while transforming Dataset:" + dataset.getId() + " with Algorithm:" + algorithm.getId(), ex.getCause());
         }
     }
-    
+
     @Override
     public Future<Report> report(Dataset dataset, Algorithm algorithm, Map<String, Object> parameters, MetaInfo reportMeta, String taskId) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
-    
+
     @Override
     public boolean cancel(String taskId) {
         Future future = futureMap.get(taskId);
@@ -478,10 +631,20 @@ public class JPDIClientImpl implements JPDIClient {
         }
         return false;
     }
-    
+
     @Override
     public void close() throws IOException {
         client.close();
     }
-    
+
 }
+
+//        try {
+//            ObjectMapper mapper = new ObjectMapper();
+//        String jsonInString = mapper.writeValueAsString(predictionRequest);
+//        System.out.println(jsonInString);
+//    }
+//    catch (Exception r
+//        ) {
+//            System.out.println(r);
+//    }
