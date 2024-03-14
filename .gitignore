@@ -27,3 +27,6 @@
 /pkg/
 pkg/
 .DS_Store
+
+# Mongo data
+db

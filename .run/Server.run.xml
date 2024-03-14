@@ -15,6 +15,7 @@
       <option name="USERNAME" value="" />
       <option name="CREDENTIAL_ALIAS" />
     </server-settings>
+    <log_file alias="server.log" path="$USER_HOME$/wildfly/standalone/log/server.log" />
     <predefined_log_file enabled="true" id="JBoss" />
     <RunnerSettings RunnerId="Debug">
       <option name="DEBUG_PORT" value="64833" />
@@ -51,11 +52,6 @@
       <EnvironmentVariables>
         <option name="NAME" value="JAQPOT_DB_CONNECTION_STRING" />
         <option name="VALUE" value="mongodb://root:example@localhost:27017" />
-        <option name="IS_PREDEFINED" value="false" />
-      </EnvironmentVariables>
-      <EnvironmentVariables>
-        <option name="NAME" value="EUCLIA_ACCOUNTS_URL" />
-        <option name="VALUE" value="http://localhost:8000" />
         <option name="IS_PREDEFINED" value="false" />
       </EnvironmentVariables>
     </ConfigurationWrapper>

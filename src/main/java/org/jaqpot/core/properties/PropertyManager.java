@@ -102,7 +102,7 @@ public class PropertyManager {
         ELASTIC_HOST("elastic.host", "config", "192.168.10.100"),
         ELASTIC_PORT("elastic.port", "config", "31643"),
         ELASTIC_EXISTS("elastic.exists", "config", "false"),
-        ELASTIC_AUTH("elastic.auth", "config", "true"),
+        ELASTIC_AUTH("elastic.auth", "config", "false"),
         ELASTIC_USER("elastic.user", "config", "elastic"),
         ELASTIC_PASS("elastic.pass", "config", "52Uj482Q00djvkJ5VYfP0n6L"),
         KAFKA_BOOTSTRAP("kafka.bootstrap", "config", "192.168.10.84:32400,192.168.10.84:32401,192.168.10.84:32402"),

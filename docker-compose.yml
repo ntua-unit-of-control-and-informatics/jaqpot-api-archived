@@ -8,17 +8,19 @@ services:
     restart: always
     ports:
       - "27017:27017"
+    volumes:
+      - ./db:/data/db:rw
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: example
 
-#  jaqpot-api:
-#    depends_on: [mongo]
-#    image: upcintua/jaqpot-api:5.0.45
-#    ports:
-#      - "8080:8080"
-#    environment:
-#      JAQPOT_DB_CONNECTION_STRING: mongodb://root:example@mongo:27017
+  jaqpot-api:
+    depends_on: [mongo]
+    image: upcintua/jaqpot-api:5.0.45
+    ports:
+      - "8080:8080"
+    environment:
+      JAQPOT_DB_CONNECTION_STRING: mongodb://root:example@mongo:27017
 
   quots:
     depends_on: [mongo]
@@ -28,4 +30,16 @@ services:
     environment:
       MONGO_URL: mongodb://root:example@mongo:27017
 
+  generic-r:
+    depends_on: [mongo]
+    image: upcintua/jpdi-r:1.1.9
+    ports:
+      - "8004:8004"
+
+
+#  accounts-api:
+#    depends_on: [mongo]
+#    image: upcintua/accounts-api
+#    environment:
+#      MONGO_URL: mongodb://root:example@mongo:27017
 
