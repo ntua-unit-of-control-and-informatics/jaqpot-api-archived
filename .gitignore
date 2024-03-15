@@ -28,5 +28,5 @@
 pkg/
 .DS_Store
 
-# Mongo data
+# Mongo image db data
 db

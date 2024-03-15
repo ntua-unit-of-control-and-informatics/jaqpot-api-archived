@@ -1,4 +1,3 @@
-# Use root/example as user/password credentials
 version: '3.1'
 
 services:
@@ -6,8 +5,9 @@ services:
   mongo:
     image: mongo
     restart: always
-    ports:
-      - "27017:27017"
+    network_mode: host
+#    ports:
+#      - "27017:27017"
     volumes:
       - ./db:/data/db:rw
     environment:
@@ -17,29 +17,25 @@ services:
   jaqpot-api:
     depends_on: [mongo]
     image: upcintua/jaqpot-api:5.0.45
-    ports:
-      - "8080:8080"
+    network_mode: host
+#    ports:
+#      - "8080:8080"
     environment:
-      JAQPOT_DB_CONNECTION_STRING: mongodb://root:example@mongo:27017
+      JAQPOT_DB_CONNECTION_STRING: mongodb://root:example@localhost:27017
 
   quots:
     depends_on: [mongo]
     image: upcintua/quots
-    ports:
-      - "8000:8000"
+    network_mode: host
+#    ports:
+#      - "8000:8000"
     environment:
-      MONGO_URL: mongodb://root:example@mongo:27017
+      MONGO_URL: mongodb://root:example@localhost:27017
 
   generic-r:
     depends_on: [mongo]
+    network_mode: host
     image: upcintua/jpdi-r:1.1.9
-    ports:
-      - "8004:8004"
-
-
-#  accounts-api:
-#    depends_on: [mongo]
-#    image: upcintua/accounts-api
-#    environment:
-#      MONGO_URL: mongodb://root:example@mongo:27017
+#    ports:
+#      - "8004:8004"
 
