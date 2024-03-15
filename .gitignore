@@ -20,10 +20,13 @@
 /VideoClub2/build/
 /VideoClub2/dist/
 /JaqpotEAR/nbactions.xml
-/.idea/
+.idea
 /.settings/
 /.vscode/
 /certs/
 /pkg/
 pkg/
 .DS_Store
+
+# Mongo image db data
+db
