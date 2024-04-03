@@ -1,7 +1,5 @@
 version: '3.1'
-
 services:
-
   mongo:
     image: mongo
     restart: always
@@ -34,8 +32,15 @@ services:
 
   generic-r:
     depends_on: [mongo]
-    network_mode: host
     image: upcintua/jpdi-r:1.1.9
+    network_mode: host
 #    ports:
 #      - "8004:8004"
+
+  jaqpot-inference:
+    depends_on: [mongo]
+    image: upcintua/jaqpot-inference:1.0.0
+    network_mode: host
+#    ports:
+#      - "8002:8002"
 
