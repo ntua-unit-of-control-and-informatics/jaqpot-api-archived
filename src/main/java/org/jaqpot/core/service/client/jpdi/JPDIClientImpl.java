@@ -25,12 +25,12 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  * Source code:
  * The source code of JAQPOT Quattro is available on github at:
  * https://github.com/KinkyDesign/JaqpotQuattro
  * All source files of JAQPOT Quattro that are stored on github are licensed
- * with the aforementioned licence. 
+ * with the aforementioned licence.
  */
 package org.jaqpot.core.service.client.jpdi;
 
@@ -65,13 +65,13 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+
 import org.jaqpot.core.data.AlgorithmHandler;
 import org.jaqpot.core.model.factory.FeatureFactory;
 
 import org.jaqpot.core.service.exceptions.JaqpotDocumentSizeExceededException;
 
 /**
- *
  * @author Charalampos Chomenidis
  * @author Pantelis Sopasakis
  */
@@ -437,7 +437,7 @@ public class JPDIClientImpl implements JPDIClient {
         if (doa != null) {
             predictionRequest.setDoaMatrix(doa.getDoaMatrix());
         }
-        
+
 //        ObjectMapper mapper = new ObjectMapper();
 //        try{
 //            System.out.println(mapper.writeValueAsString(predictionRequest));
@@ -540,7 +540,7 @@ public class JPDIClientImpl implements JPDIClient {
                                                         if (feature == null) {
                                                             return;
                                                         }
-                                                        
+
                                                         dataEntry.getValues().put(String.valueOf(size), entry.getValue());
                                                         FeatureInfo featInfo = new FeatureInfo(baseURI + "feature/" + feature.getId(), feature.getMeta().getTitles().stream().findFirst().get());
                                                         featInfo.setCategory(Dataset.DescriptorCategory.PREDICTED);
