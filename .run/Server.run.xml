@@ -77,7 +77,7 @@
       </option>
     </method>
   </configuration>
-  <configuration default="false" name="Server" type="JBossConfiguration" factoryName="Local" APPLICATION_SERVER_NAME="JBoss/WildFly 21.0.2.Final" ALTERNATIVE_JRE_ENABLED="false">
+  <configuration default="false" name="Server" type="JBossConfiguration" factoryName="Local" APPLICATION_SERVER_NAME="JBoss/WildFly 21.0.2.Final" ALTERNATIVE_JRE_ENABLED="true" ALTERNATIVE_JRE_PATH="11">
     <option name="UPDATING_POLICY" value="restart-server" />
     <deployment>
       <artifact name="jaqpot-api:war exploded">
@@ -93,6 +93,16 @@
       <option name="CREDENTIAL_ALIAS" />
     </server-settings>
     <predefined_log_file enabled="true" id="JBoss" />
+    <extension name="net.ashald.envfile">
+      <option name="IS_ENABLED" value="false" />
+      <option name="IS_SUBST" value="false" />
+      <option name="IS_PATH_MACRO_SUPPORTED" value="false" />
+      <option name="IS_IGNORE_MISSING_FILES" value="false" />
+      <option name="IS_ENABLE_EXPERIMENTAL_INTEGRATIONS" value="false" />
+      <ENTRIES>
+        <ENTRY IS_ENABLED="true" PARSER="runconfig" IS_EXECUTABLE="false" />
+      </ENTRIES>
+    </extension>
     <extension name="software.aws.toolkits.jetbrains.core.execution.JavaAwsConnectionExtension">
       <option name="credential" />
       <option name="region" />
