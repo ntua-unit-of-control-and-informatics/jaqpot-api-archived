@@ -39,14 +39,6 @@ services:
     ports:
      - "8004:8004"
 
-  accounts-api:
-    image: upcintua/accounts-api
-    ports:
-      - "8006:8006"
-    environment:
-      MONGO_URL: mongodb://root:example@mongo:27017
-      QUOTS_URL: http://localhost:8000
-
   jaqpot-frontend:
     image: upcintua/jaqpot-frontend-dev:1.4.0
     ports:
