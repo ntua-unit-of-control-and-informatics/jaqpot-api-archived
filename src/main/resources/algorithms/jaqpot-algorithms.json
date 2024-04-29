@@ -1,51 +1,638 @@
 [
     {
+        "_id": "ocpu-lm",
         "meta": {
             "descriptions": [
-                "Scaling"
+                "Linear Model by R under OpenCPU"
             ],
             "titles": [
-                "Scaling"
+                "R LM Algorithm"
             ],
             "subjects": [
-                "scaling"
+                "linear",
+                "regression"
             ],
             "locked": false
         },
         "ontologicalClasses": [
             "ot:Algorithm",
-            "ot:Scaling",
-            "ot:Transformation"
+            "ot:Regression",
+            "ot:SupervisedLearning"
         ],
-        "ranking": 0,
-        "trainingService": "http://test.jaqpot.org:8090/algorithms/scaling/training",
-        "predictionService": "http://test.jaqpot.org:8090/algorithms/scaling/prediction",
-        "_id": "scaling"
+        "ranking": 1,
+        "trainingService": "http://localhost:8004/ocpu/library/PLMplusPMMLpkg/R/lm.funct/json",
+        "predictionService": "http://localhost:8004/ocpu/library/PLMplusPMMLpkg/R/pred.funct/json"
     },
     {
+        "_id": "ocpu-expdesign2-xy",
         "meta": {
             "descriptions": [
-                "Standarization"
+                "Experimental Design XY"
             ],
             "titles": [
-                "Standarization"
+                "Experimental Design XY"
             ],
             "subjects": [
-                "standarization"
+                "experimentaldesign"
+            ],
+            "creators": [
+                "hampos"
             ],
             "locked": false
         },
         "ontologicalClasses": [
             "ot:Algorithm",
-            "ot:Scaling",
-            "ot:Transformation"
+            "ot:ExperimentalDesign"
         ],
-        "ranking": 0,
-        "trainingService": "http://test.jaqpot.org:8090/algorithms/std/training",
-        "predictionService": "http://test.jaqpot.org:8090/algorithms/std/prediction",
-        "_id": "standarization"
+        "parameters": [
+            {
+                "name": "Number of Trials",
+                "value": [
+                    11
+                ],
+                "scope": "MANDATORY",
+                "minValue": "5",
+                "maxValue": "Number of substances in dataset",
+                "_id": "nTrials"
+            },
+            {
+                "name": "Optimal design criterion",
+                "value": [
+                    "D"
+                ],
+                "scope": "MANDATORY",
+                "allowedValues": [
+                    [
+                        "D"
+                    ],
+                    [
+                        "A"
+                    ],
+                    [
+                        "I"
+                    ]
+                ],
+                "_id": "criterion"
+            },
+            {
+                "name": "R squared threshold",
+                "value": [
+                    0.9
+                ],
+                "scope": "MANDATORY",
+                "_id": "r2.threshold"
+            },
+            {
+                "name": "Design's formula",
+                "value": [
+                    "linear"
+                ],
+                "scope": "MANDATORY",
+                "allowedValues": [
+                    [
+                        "linear"
+                    ],
+                    [
+                        "quadratic"
+                    ],
+                    [
+                        "cubic"
+                    ],
+                    [
+                        "cubicS"
+                    ]
+                ],
+                "_id": "formula"
+            }
+        ],
+        "ranking": 1,
+        "trainingService": "http://localhost:8004/ocpu/library/ExpDesignPkg4.0/R/exp.design.xy/json",
+        "predictionService": "http://localhost:8004/ocpu/library/ExpDesignPkg4.0/R/suggest.trials.xy/json"
     },
     {
+        "_id": "scikit-learn-nearest-neighbours-model-pretrained",
+        "meta": {
+            "descriptions": [
+                "Decision tree by Scikit Learn python library."
+            ],
+            "titles": [
+                "Neighbours models pretrained"
+            ],
+            "subjects": [
+                "regression",
+                "classification"
+            ],
+            "creators": [
+                "6d9b8261-e255-4fca-9289-0fde48644cf8"
+            ],
+            "locked": false
+        },
+        "ontologicalClasses": [
+            "ot:Pretrained"
+        ],
+        "ranking": 2,
+        "predictionService": "http://localhost:8002/predict/neighboursmodel/"
+    },
+    {
+        "_id": "ocpu-expdesign2-x",
+        "meta": {
+            "descriptions": [
+                "Experimental Design X - v2"
+            ],
+            "titles": [
+                "Iterative experimental design"
+            ],
+            "subjects": [
+                "experimentaldesign"
+            ],
+            "creators": [
+                "guest"
+            ],
+            "locked": false
+        },
+        "ontologicalClasses": [
+            "ot:Algorithm",
+            "ot:ExperimentalDesign",
+            "enm:NoTarget"
+        ],
+        "parameters": [
+            {
+                "name": "Number of Trials",
+                "value": [
+                    11
+                ],
+                "scope": "MANDATORY",
+                "minValue": "5",
+                "maxValue": "Number of substances in dataset",
+                "_id": "nTrials"
+            },
+            {
+                "name": "Optimal design criterion",
+                "value": [
+                    "D"
+                ],
+                "scope": "MANDATORY",
+                "allowedValues": [
+                    [
+                        "D"
+                    ],
+                    [
+                        "A"
+                    ],
+                    [
+                        "I"
+                    ]
+                ],
+                "_id": "criterion"
+            },
+            {
+                "name": "R�� threshold",
+                "value": [
+                    0.9
+                ],
+                "scope": "MANDATORY",
+                "_id": "r2.threshold"
+            },
+            {
+                "name": "Design's formula",
+                "value": [
+                    "linear"
+                ],
+                "scope": "MANDATORY",
+                "allowedValues": [
+                    [
+                        "linear"
+                    ],
+                    [
+                        "quadratic"
+                    ],
+                    [
+                        "cubic"
+                    ],
+                    [
+                        "cubicS"
+                    ]
+                ],
+                "description": "cubicS function produces a non-singular representation of a cubic model",
+                "_id": "form"
+            },
+            {
+                "name": "New Dependent Variable",
+                "value": "New Y",
+                "scope": "MANDATORY",
+                "_id": "newY"
+            }
+        ],
+        "ranking": 1,
+        "trainingService": "http://localhost:8004/ocpu/library/ExpDesignPkg4.0/R/exp.design.xy/json",
+        "predictionService": "http://localhost:8004/ocpu/library/ExpDesignPkg4.0/R/suggest.trials.xy/json"
+    },
+    {
+        "_id": "R-svm-pretrained",
+        "meta": {
+            "descriptions": [
+                "SVM by R"
+            ],
+            "titles": [
+                "SVM by R"
+            ],
+            "subjects": [
+                "regression",
+                "classification"
+            ],
+            "creators": [
+                "6d9b8261-e255-4fca-9289-0fde48644cf8"
+            ],
+            "locked": false
+        },
+        "ontologicalClasses": [
+            "ot:Pretrained"
+        ],
+        "ranking": 2,
+        "predictionService": "http://localhost:8004/ocpu/library/GenericR/R/jaqpot.predict.svm/json"
+    },
+    {
+        "_id": "weka-mlr2",
+        "meta": {
+            "descriptions": [
+                "An MLR algorithm by Weka"
+            ],
+            "titles": [
+                "MLR 2 - Weka Implementation"
+            ],
+            "subjects": [
+                "mlr",
+                "linear",
+                "regression"
+            ],
+            "creators": [
+                "hampos"
+            ],
+            "locked": false
+        },
+        "ontologicalClasses": [
+            "ot:Algorithm",
+            "ot:Regression",
+            "ot:SupervisedLearning"
+        ],
+        "ranking": 2,
+        "trainingService": "http://localhost:8080/algorithms/mlr/training",
+        "predictionService": "http://localhost:8080/algorithms/mlr/prediction"
+    },
+    {
+        "_id": "httk",
+        "meta": {
+            "descriptions": [
+                "Algorithm that produces an httk model"
+            ],
+            "titles": [
+                "Httk"
+            ],
+            "subjects": [
+                "Creates a biokinetics model with the httk R package "
+            ],
+            "creators": [
+                "guest"
+            ],
+            "locked": true
+        },
+        "ontologicalClasses": [
+            "ot:Httk",
+            "ot:Algorithm"
+        ],
+        "parameters": [
+            {
+                "name": "dose",
+                "value": [
+                    1
+                ],
+                "scope": "OPTIONAL",
+                "description": "The dose in  mg/kg",
+                "_id": "dose"
+            },
+            {
+                "name": "Species",
+                "value": [
+                    "Human"
+                ],
+                "scope": "OPTIONAL",
+                "allowedValues": [
+                    [
+                        "Rat"
+                    ],
+                    [
+                        "Rabbit"
+                    ],
+                    [
+                        "Dog"
+                    ],
+                    [
+                        "Mouse"
+                    ],
+                    [
+                        "Human"
+                    ]
+                ],
+                "description": "The species on witch the compount will predict it's concentration",
+                "_id": "species"
+            },
+            {
+                "name": "days",
+                "value": [
+                    "10"
+                ],
+                "scope": "OPTIONAL",
+                "description": "The days of the concentration that we wish to predict ",
+                "_id": "days"
+            },
+            {
+                "name": "Chem name",
+                "value": [
+                    "imazalil"
+                ],
+                "scope": "OPTIONAL",
+                "description": "The compount name that we wish to see how it reacts. Should be a valid cas for Httk",
+                "_id": "chem.name"
+            }
+        ],
+        "ranking": 0,
+        "trainingService": "http://localhost:8004/ocpu/library/httkInt2/R/httk.fun/json",
+        "predictionService": "http://localhost:8004/ocpu/library/httkInt2/R/suggest.httk/json"
+    },
+    {
+        "_id": "R-caret-pretrained",
+        "meta": {
+            "descriptions": [
+                "This is the caret runtime for jaqpot"
+            ],
+            "titles": [
+                "Caret runtime"
+            ],
+            "subjects": [
+                "regression",
+                "classification"
+            ],
+            "creators": [
+                "6d9b8261-e255-4fca-9289-0fde48644cf8"
+            ],
+            "locked": false
+        },
+        "ontologicalClasses": [
+            "ot:Pretrained"
+        ],
+        "ranking": 2,
+        "predictionService": "http://localhost:8004/ocpu/library/GenericR/R/jaqpot.predict.caret/json"
+    },
+    {
+        "_id": "python-cmi",
+        "meta": {
+            "descriptions": [
+                "Decision Tree with splitting criterion: Conditional Mutual Information."
+            ],
+            "titles": [
+                "CMI Decision Tree"
+            ],
+            "subjects": [
+                "classification",
+                "cmi"
+            ],
+            "locked": false
+        },
+        "ontologicalClasses": [
+            "ot:Algorithm",
+            "ot:Classification",
+            "ot:SupervisedLearning"
+        ],
+        "parameters": [
+            {
+                "name": "Log Base",
+                "value": 2,
+                "scope": "MANDATORY",
+                "minValue": 2,
+                "maxValue": "Number of classes on class variable.",
+                "description": "Log base is specified for the entropy function (information gain). Base allows information to correspond to the number of bits required to encode a message.",
+                "_id": "logBase"
+            }
+        ],
+        "ranking": 1,
+        "trainingService": "http://localhost:5000/pws/mci/train",
+        "predictionService": "http://localhost:5000/pws/mci/test"
+    },
+    {
+        "_id": "scikit-learn-tree-model-pretrained",
+        "meta": {
+            "descriptions": [
+                "Decision tree by Scikit Learn python library."
+            ],
+            "titles": [
+                "Decision tree models runtime"
+            ],
+            "subjects": [
+                "regression",
+                "classification"
+            ],
+            "creators": [
+                "6d9b8261-e255-4fca-9289-0fde48644cf8"
+            ],
+            "locked": false
+        },
+        "ontologicalClasses": [
+            "ot:Pretrained"
+        ],
+        "ranking": 2,
+        "predictionService": "http://localhost:8002/predict/treemodel/"
+    },
+    {
+        "_id": "scikit-learn-linear-model-pretrained",
+        "meta": {
+            "descriptions": [
+                "Linear Regression by Scikit Learn python library."
+            ],
+            "titles": [
+                "Linear Models runtime"
+            ],
+            "subjects": [
+                "linear",
+                "regression"
+            ],
+            "creators": [
+                "6d9b8261-e255-4fca-9289-0fde48644cf8"
+            ],
+            "locked": false
+        },
+        "ontologicalClasses": [
+            "ot:Pretrained"
+        ],
+        "ranking": 0,
+        "predictionService": "http://localhost:8002/predict/linearmodel"
+    },
+    {
+        "_id": "R-rf-tree-pretrained",
+        "meta": {
+            "descriptions": [
+                "Random forest R"
+            ],
+            "titles": [
+                "Random forest R"
+            ],
+            "subjects": [
+                "regression",
+                "classification"
+            ],
+            "creators": [
+                "6d9b8261-e255-4fca-9289-0fde48644cf8"
+            ],
+            "locked": false
+        },
+        "ontologicalClasses": [
+            "ot:Pretrained"
+        ],
+        "ranking": 2,
+        "predictionService": "http://localhost:8004/ocpu/library/GenericR/R/jaqpot.predict.randomForest/json"
+    },
+    {
+        "_id": "ocpu-expdesign2-noxy",
+        "meta": {
+            "descriptions": [
+                "Experimental Design No XY - v2"
+            ],
+            "titles": [
+                "Experimental Design No XY - v2"
+            ],
+            "subjects": [
+                "experimentaldesign"
+            ],
+            "creators": [
+                "guest"
+            ],
+            "locked": false
+        },
+        "ontologicalClasses": [
+            "ot:Algorithm",
+            "ot:ExperimentalDesign",
+            "enm:NoTarget"
+        ],
+        "parameters": [
+            {
+                "name": "Optimal Design Criterion",
+                "value": [
+                    "D"
+                ],
+                "scope": "MANDATORY",
+                "allowedValues": [
+                    [
+                        "D"
+                    ],
+                    [
+                        "A"
+                    ],
+                    [
+                        "I"
+                    ]
+                ],
+                "_id": "criterion"
+            },
+            {
+                "name": "Number of trials",
+                "value": [
+                    0
+                ],
+                "scope": "MANDATORY",
+                "minValue": 0,
+                "maxValue": "Length of Y",
+                "_id": "nTrials"
+            },
+            {
+                "name": "Levels of variables",
+                "value": {
+                    "a": [
+                        30,
+                        40
+                    ],
+                    "b": [
+                        10,
+                        20,
+                        30
+                    ],
+                    "c": [
+                        1,
+                        2,
+                        3
+                    ],
+                    "d": [
+                        100,
+                        200,
+                        300
+                    ]
+                },
+                "scope": "MANDATORY",
+                "_id": "levels"
+            },
+            {
+                "name": "Design formula",
+                "value": [
+                    "linear"
+                ],
+                "scope": "MANDATORY",
+                "allowedValues": [
+                    [
+                        "linear"
+                    ],
+                    [
+                        "quadratic"
+                    ],
+                    [
+                        "cubic"
+                    ],
+                    [
+                        "cubicS"
+                    ]
+                ],
+                "_id": "form"
+            },
+            {
+                "name": "New Y",
+                "value": [
+                    "CA"
+                ],
+                "scope": "MANDATORY",
+                "_id": "newY"
+            },
+            {
+                "name": "Names of variables",
+                "value": [
+                    "a",
+                    "b",
+                    "c",
+                    "d"
+                ],
+                "scope": "MANDATORY",
+                "_id": "varNames"
+            },
+            {
+                "name": "Number of variables",
+                "value": [
+                    4
+                ],
+                "scope": "MANDATORY",
+                "_id": "nVars"
+            },
+            {
+                "name": "Factors",
+                "value": [
+                    "0"
+                ],
+                "scope": "MANDATORY",
+                "minValue": "0",
+                "_id": "factors"
+            }
+        ],
+        "ranking": 1,
+        "trainingService": "http://localhost:8004/ocpu/library/ExpDesignPkg4.0/R/exp.design.noxy/json",
+        "predictionService": "http://localhost:8004/ocpu/library/ExpDesignPkg4.0/R/suggest.trials.noxy/json"
+    },
+    {
+        "_id": "pmml",
         "meta": {
             "descriptions": [
                 "PMML Transformation algorithm."
@@ -63,40 +650,539 @@
             "ot:Transformation"
         ],
         "ranking": 2,
-        "trainingService": "http://test.jaqpot.org:8090/algorithms/pmml/training",
-        "predictionService": "http://test.jaqpot.org:8090/algorithms/pmml/prediction",
-        "_id": "pmml"
+        "trainingService": "http://localhost:8080/algorithms/pmml/training",
+        "predictionService": "http://localhost:8080/algorithms/pmml/prediction"
     },
     {
+        "_id": "python-id3",
         "meta": {
             "descriptions": [
-                "DoA calculation"
+                "Decision Tree with ID3 method by Quinlan."
             ],
             "titles": [
-                "Leverage"
+                "ID3 Decision Tree"
             ],
             "subjects": [
-                "doa"
+                "id3",
+                "classification"
             ],
             "locked": false
         },
         "ontologicalClasses": [
             "ot:Algorithm",
-            "ot:ApplicabilityDomain",
-            "ot:Leverage"
+            "ot:Classification",
+            "ot:SupervisedLearning"
         ],
-        "ranking": 0,
-        "trainingService": "http://test.jaqpot.org:8090/algorithms/leverage/training",
-        "predictionService": "http://test.jaqpot.org:8090/algorithms/leverage/prediction",
-        "_id": "leverage"
+        "parameters": [
+            {
+                "name": "Log Base",
+                "value": 2,
+                "scope": "MANDATORY",
+                "minValue": 2,
+                "maxValue": "Number of classes on class variable.",
+                "description": "Log base is specified for the entropy function (information gain). Base allows information to correspond to the number of bits required to encode a message.",
+                "_id": "logBase"
+            }
+        ],
+        "ranking": 1,
+        "trainingService": "http://localhost:5000/pws/id3/train",
+        "predictionService": "http://localhost:5000/pws/id3/test"
     },
     {
+        "_id": "python-id3-mci",
+        "meta": {
+            "descriptions": [
+                "Id3 with MCI python algorithm."
+            ],
+            "titles": [
+                "Id3 - with MCI"
+            ],
+            "subjects": [
+                "decision_tree",
+                "classification"
+            ],
+            "locked": false
+        },
+        "ontologicalClasses": [
+            "ot:Algorithm",
+            "ot:Classification",
+            "ot:SupervisedLearning"
+        ],
+        "parameters": [
+            {
+                "name": "logBase",
+                "value": 10,
+                "scope": "MANDATORY",
+                "minValue": 1,
+                "maxValue": 100,
+                "_id": "logBase"
+            }
+        ],
+        "ranking": 2,
+        "trainingService": "http://localhost:5000/pws/mci/train",
+        "predictionService": "http://localhost:5000/pws/mci/test"
+    },
+    {
+        "_id": "python-readacross",
+        "meta": {
+            "descriptions": [
+                "Readacross python algorithm."
+            ],
+            "titles": [
+                "Readacross"
+            ],
+            "subjects": [
+                "readacross"
+            ],
+            "creators": [
+                "hampos"
+            ],
+            "locked": false
+        },
+        "ontologicalClasses": [
+            "ot:Algorithm",
+            "ot:Regression",
+            "ot:SupervisedLearning"
+        ],
+        "parameters": [
+            {
+                "name": "Confidence",
+                "value": 1,
+                "scope": "MANDATORY",
+                "allowedValues": [
+                    0,
+                    1
+                ],
+                "_id": "confidence"
+            },
+            {
+                "name": "Distance",
+                "value": "euclidean",
+                "scope": "MANDATORY",
+                "allowedValues": [
+                    "euclidean",
+                    "manhattan",
+                    "ensemble"
+                ],
+                "_id": "distance"
+            },
+            {
+                "name": "Threshold",
+                "value": 0.5,
+                "scope": "MANDATORY",
+                "minValue": 0,
+                "maxValue": 1,
+                "_id": "threshold"
+            }
+        ],
+        "ranking": 1,
+        "trainingService": "http://localhost:5000/pws/readacross/train",
+        "predictionService": "http://localhost:5000/pws/readacross/test"
+    },
+    {
+        "_id": "scikit-learn-naive-bayess-model-pretrained",
+        "meta": {
+            "descriptions": [
+                "Decision tree by Scikit Learn python library."
+            ],
+            "titles": [
+                "Naive Bayess models pretrained"
+            ],
+            "subjects": [
+                "regression",
+                "classification"
+            ],
+            "creators": [
+                "6d9b8261-e255-4fca-9289-0fde48644cf8"
+            ],
+            "locked": false
+        },
+        "ontologicalClasses": [
+            "ot:Pretrained"
+        ],
+        "ranking": 2,
+        "predictionService": "http://localhost:8002/predict/sklearn/"
+    },
+    {
+        "_id": "python-gnb",
+        "meta": {
+            "descriptions": [
+                "Generalised Naive Bayes by Scikit Learn python library."
+            ],
+            "titles": [
+                "Generalised Naive Bayes"
+            ],
+            "subjects": [
+                "bayes",
+                "gnb",
+                "classification"
+            ],
+            "locked": false
+        },
+        "ontologicalClasses": [
+            "ot:Algorithm",
+            "ot:Classification",
+            "ot:SupervisedLearning"
+        ],
+        "ranking": 1,
+        "trainingService": "http://localhost:5000/pws/gnb/train",
+        "predictionService": "http://localhost:5000/pws/gnb/test"
+    },
+    {
+        "_id": "R-lm-glm-pretrained",
+        "meta": {
+            "descriptions": [
+                "R lm / glm models"
+            ],
+            "titles": [
+                "Lm / GLM models pretrained"
+            ],
+            "subjects": [
+                "regression",
+                "classification"
+            ],
+            "creators": [
+                "6d9b8261-e255-4fca-9289-0fde48644cf8"
+            ],
+            "locked": false
+        },
+        "ontologicalClasses": [
+            "ot:Pretrained"
+        ],
+        "ranking": 2,
+        "predictionService": "http://localhost:8004/ocpu/library/GenericR/R/jaqpot.predict.base.lm.glm/json"
+    },
+    {
+        "_id": "scikit-learn-pipeline-pretrained",
+        "meta": {
+            "descriptions": [
+                "Pipeline model by Scikit Learn python library."
+            ],
+            "titles": [
+                "SK-learn pipeline"
+            ],
+            "subjects": [
+                "pipeline",
+                "model"
+            ],
+            "creators": [
+                "6d9b8261-e255-4fca-9289-0fde48644cf8"
+            ],
+            "locked": false
+        },
+        "ontologicalClasses": [
+            "ot:Algorithm",
+            "ot:Classification",
+            "ot:Regression",
+            "ot:SupervisedLearning"
+        ],
+        "ranking": 2,
+        "predictionService": "http://localhost:8002/predict/pipeline"
+    },
+    {
+        "_id": "R-tree-pretrained",
+        "meta": {
+            "descriptions": [
+                "Tree R library."
+            ],
+            "titles": [
+                "Tree R library."
+            ],
+            "subjects": [
+                "regression",
+                "classification"
+            ],
+            "creators": [
+                "6d9b8261-e255-4fca-9289-0fde48644cf8"
+            ],
+            "locked": false
+        },
+        "ontologicalClasses": [
+            "ot:Pretrained"
+        ],
+        "ranking": 2,
+        "predictionService": "http://localhost:8004/ocpu/library/GenericR/R/jaqpot.predict.tree.class/json"
+    },
+    {
+        "_id": "scikit-learn-clustering-model-pretrained",
+        "meta": {
+            "descriptions": [
+                "Decision tree by Scikit Learn python library."
+            ],
+            "titles": [
+                "Clustrerring models pretrained"
+            ],
+            "subjects": [
+                "regression",
+                "classification"
+            ],
+            "creators": [
+                "6d9b8261-e255-4fca-9289-0fde48644cf8"
+            ],
+            "locked": false
+        },
+        "ontologicalClasses": [
+            "ot:Pretrained"
+        ],
+        "ranking": 2,
+        "predictionService": "http://localhost:8002/predict/clustermodel/"
+    },
+    {
+        "_id": "python-mnb",
+        "meta": {
+            "descriptions": [
+                "Multinomial Naive Bayes by Scikit Learn python library."
+            ],
+            "titles": [
+                "Multinomial Naive Bayes"
+            ],
+            "subjects": [
+                "mnb",
+                "bayes",
+                "classification"
+            ],
+            "locked": false
+        },
+        "ontologicalClasses": [
+            "ot:Algorithm",
+            "ot:Classification",
+            "ot:SupervisedLearning"
+        ],
+        "ranking": 1,
+        "trainingService": "http://localhost:5000/pws/mnb/train",
+        "predictionService": "http://localhost:5000/pws/mnb/test"
+    },
+    {
+        "_id": "pk-sim",
+        "meta": {
+            "descriptions": [
+                "PKSim desc"
+            ],
+            "titles": [
+                "PKSim title"
+            ],
+            "subjects": [
+                "PKSim subject"
+            ],
+            "creators": [
+                "guest"
+            ],
+            "locked": false
+        },
+        "ontologicalClasses": [
+            "ot:Algorithm",
+            "ot:PKSim"
+        ],
+        "parameters": [
+            {
+                "name": "Calculation Method",
+                "value": [
+                    "organ vascularization"
+                ],
+                "scope": "OPTIONAL",
+                "allowedValues": [
+                    [
+                        "organ vascularization"
+                    ],
+                    [
+                        "blood flow"
+                    ]
+                ],
+                "_id": "calculationMethod"
+            },
+            {
+                "name": "Age unit",
+                "value": [
+                    "years"
+                ],
+                "scope": "MANDATORY",
+                "allowedValues": [
+                    [
+                        "years"
+                    ],
+                    [
+                        "months"
+                    ],
+                    [
+                        "weeks"
+                    ],
+                    [
+                        "days"
+                    ]
+                ],
+                "_id": "ageUnit"
+            },
+            {
+                "name": "Species",
+                "value": [
+                    "kg"
+                ],
+                "scope": "OPTIONAL",
+                "allowedValues": [
+                    [
+                        "Human"
+                    ],
+                    [
+                        "Monkey"
+                    ],
+                    [
+                        "Beagle"
+                    ],
+                    [
+                        "Dog"
+                    ],
+                    [
+                        "Minipig"
+                    ],
+                    [
+                        "Rat"
+                    ],
+                    [
+                        "Mouse"
+                    ]
+                ],
+                "_id": "species"
+            },
+            {
+                "name": "Individual",
+                "value": [
+                    "1"
+                ],
+                "scope": "MANDATORY",
+                "_id": "individual"
+            },
+            {
+                "name": "Gender",
+                "value": [
+                    "male"
+                ],
+                "scope": "OPTIONAL",
+                "allowedValues": [
+                    [
+                        "male"
+                    ],
+                    [
+                        "female"
+                    ]
+                ],
+                "_id": "gender"
+            },
+            {
+                "name": "Xml file",
+                "value": [
+                    "xml_file"
+                ],
+                "scope": "OPTIONAL",
+                "_id": "xml"
+            },
+            {
+                "name": "Height unit",
+                "value": [
+                    "m"
+                ],
+                "scope": "MANDATORY",
+                "allowedValues": [
+                    [
+                        "cm"
+                    ],
+                    [
+                        "m"
+                    ]
+                ],
+                "_id": "heightUnit"
+            },
+            {
+                "name": "Population",
+                "value": [
+                    "European"
+                ],
+                "scope": "OPTIONAL",
+                "allowedValues": [
+                    [
+                        "Asian"
+                    ],
+                    [
+                        "Black American"
+                    ],
+                    [
+                        "European"
+                    ],
+                    [
+                        "Mexican American -White"
+                    ],
+                    [
+                        "White American"
+                    ],
+                    [
+                        "Japanese"
+                    ],
+                    [
+                        "Preterm"
+                    ]
+                ],
+                "_id": "population"
+            },
+            {
+                "name": "Weight unit",
+                "value": [
+                    "kg"
+                ],
+                "scope": "MANDATORY",
+                "allowedValues": [
+                    [
+                        "kg"
+                    ],
+                    [
+                        "g"
+                    ]
+                ],
+                "_id": "weightUnit"
+            },
+            {
+                "name": "Drug",
+                "value": [
+                    "drug name "
+                ],
+                "scope": "MANDATORY",
+                "_id": "drug"
+            }
+        ],
+        "ranking": 0,
+        "trainingService": "http://localhost:9999/pksim/api/services/train",
+        "predictionService": "http://localhost:9999/pksim/api/services/predict"
+    },
+    {
+        "_id": "scikit-learn-svm-model-pretrained",
+        "meta": {
+            "descriptions": [
+                "Decision tree by Scikit Learn python library."
+            ],
+            "titles": [
+                "Svm models runtime"
+            ],
+            "subjects": [
+                "regression",
+                "classification"
+            ],
+            "creators": [
+                "6d9b8261-e255-4fca-9289-0fde48644cf8"
+            ],
+            "locked": false
+        },
+        "ontologicalClasses": [
+            "ot:Pretrained"
+        ],
+        "ranking": 2,
+        "predictionService": "http://localhost:8002/predict/svmmodel/"
+    },
+    {
+        "_id": "weka-mlr",
         "meta": {
             "descriptions": [
                 "An MLR algorithm by Weka"
             ],
             "titles": [
-                "MLR - Weka (multi-response linear regression implemented in Java-WEKA)"
+                "MLR - Weka Implementation"
             ],
             "subjects": [
                 "mlr",
@@ -111,103 +1197,17 @@
             "ot:SupervisedLearning"
         ],
         "ranking": 2,
-        "trainingService": "http://test.jaqpot.org:8090/algorithms/mlr/training",
-        "predictionService": "http://test.jaqpot.org:8090/algorithms/mlr/prediction",
-        "_id": "weka-mlr"
+        "trainingService": "http://localhost:8080/algorithms/mlr/training",
+        "predictionService": "http://localhost:8080/algorithms/mlr/prediction"
     },
     {
-        "meta": {
-            "descriptions": [
-                "LibSVM implementation for training a support vector classifier."
-            ],
-            "titles": [
-                "SVM - Weka (LibSVM, Support vector machines implemented in Java-WEKA)"
-            ],
-            "subjects": [
-                "regression",
-                "svm"
-            ],
-            "locked": false
-        },
-        "ontologicalClasses": [
-            "ot:Algorithm",
-            "ot:Regression",
-            "ot:SupervisedLearning"
-        ],
-        "parameters": [
-            {
-                "name": "cost",
-                "value": 100,
-                "scope": "OPTIONAL",
-                "_id": "cost"
-            },
-            {
-                "name": "gamma",
-                "value": 1.5,
-                "scope": "OPTIONAL",
-                "_id": "gamma"
-            },
-            {
-                "name": "epsilon",
-                "value": 0.1,
-                "scope": "OPTIONAL",
-                "_id": "epsilon"
-            },
-            {
-                "name": "coeff0",
-                "value": 0,
-                "scope": "OPTIONAL",
-                "_id": "coeff0"
-            },
-            {
-                "name": "cacheSize",
-                "value": 25007,
-                "scope": "OPTIONAL",
-                "_id": "cacheSize"
-            },
-            {
-                "name": "kernel",
-                "value": "RBF",
-                "scope": "OPTIONAL",
-                "_id": "kernel"
-            },
-            {
-                "name": "loss",
-                "value": 0.1,
-                "scope": "OPTIONAL",
-                "_id": "loss"
-            },
-            {
-                "name": "nu",
-                "value": 0.5,
-                "scope": "OPTIONAL",
-                "_id": "nu"
-            },
-            {
-                "name": "degree",
-                "value": 3,
-                "scope": "OPTIONAL",
-                "_id": "degree"
-            },
-            {
-                "name": "type",
-                "value": "NU_SVR",
-                "scope": "OPTIONAL",
-                "_id": "type"
-            }
-        ],
-        "ranking": 1,
-        "trainingService": "http://test.jaqpot.org:8090/algorithms/svm/training",
-        "predictionService": "http://test.jaqpot.org:8090/algorithms/svm/prediction",
-        "_id": "weka-svm"
-    },
-    {
+        "_id": "weka-pls",
         "meta": {
             "descriptions": [
                 "Weka PLS filter wrapped as a classifier."
             ],
             "titles": [
-                "PLS - Weka (Partial Least Squares implemented in Java-WEKA)"
+                "PLS - Weka Implementation"
             ],
             "subjects": [
                 "regression",
@@ -217,7 +1217,6 @@
             "creators": [
                 "hampos"
             ],
-            "date": "2016-07-06T07:46:22.790+0000",
             "locked": false
         },
         "ontologicalClasses": [
@@ -246,11 +1245,35 @@
             }
         ],
         "ranking": 2,
-        "trainingService": "http://test.jaqpot.org:8090/algorithms/pls/training",
-        "predictionService": "http://test.jaqpot.org:8090/algorithms/pls/prediction",
-        "_id": "weka-pls"
+        "trainingService": "http://localhost:8080/algorithms/pls/training",
+        "predictionService": "http://localhost:8080/algorithms/pls/prediction"
     },
     {
+        "_id": "scikit-learn-legacy-pretrained",
+        "meta": {
+            "descriptions": [
+                "Decision tree by Scikit Learn python library."
+            ],
+            "titles": [
+                "Ensemble models pretrained"
+            ],
+            "subjects": [
+                "regression",
+                "classification"
+            ],
+            "creators": [
+                "6d9b8261-e255-4fca-9289-0fde48644cf8"
+            ],
+            "locked": false
+        },
+        "ontologicalClasses": [
+            "ot:Pretrained"
+        ],
+        "ranking": 2,
+        "predictionService": "http://localhost:8002/predict/sklearn/"
+    },
+    {
+        "_id": "weka-svm-class",
         "meta": {
             "descriptions": [
                 "LibSVM implementation for training a support vector classifier."
@@ -265,7 +1288,6 @@
             "creators": [
                 "guest"
             ],
-            "date": "2016-09-02T13:32:53.796+0000",
             "locked": false
         },
         "ontologicalClasses": [
@@ -347,11 +1369,83 @@
             }
         ],
         "ranking": 1,
-        "trainingService": "http://test.jaqpot.org:8090/algorithms/svm/training",
-        "predictionService": "http://test.jaqpot.org:8090/algorithms/svm/prediction",
-        "_id": "weka-svm-class"
+        "trainingService": "http://localhost:8080/algorithms/svm/training",
+        "predictionService": "http://localhost:8080/algorithms/svm/prediction"
     },
     {
+        "_id": "scikit-learn-0-24-pretrained",
+        "meta": {
+            "descriptions": [
+                "Decision tree by Scikit Learn python library."
+            ],
+            "titles": [
+                "Ensemble models pretrained"
+            ],
+            "subjects": [
+                "regression",
+                "classification"
+            ],
+            "creators": [
+                "6d9b8261-e255-4fca-9289-0fde48644cf8"
+            ],
+            "locked": false
+        },
+        "ontologicalClasses": [
+            "ot:Pretrained"
+        ],
+        "ranking": 2,
+        "predictionService": "http://localhost:8002/predict/sklearn/"
+    },
+    {
+        "_id": "scikit-learn-0-23-pretrained",
+        "meta": {
+            "descriptions": [
+                "Decision tree by Scikit Learn python library."
+            ],
+            "titles": [
+                "Ensemble models pretrained"
+            ],
+            "subjects": [
+                "regression",
+                "classification"
+            ],
+            "creators": [
+                "6d9b8261-e255-4fca-9289-0fde48644cf8"
+            ],
+            "locked": false
+        },
+        "ontologicalClasses": [
+            "ot:Pretrained"
+        ],
+        "ranking": 2,
+        "predictionService": "http://localhost:8002/predict/sklearn/"
+    },
+    {
+        "_id": "scikit-learn-ensemble-model-pretrained",
+        "meta": {
+            "descriptions": [
+                "Decision tree by Scikit Learn python library."
+            ],
+            "titles": [
+                "Ensemble models pretrained"
+            ],
+            "subjects": [
+                "regression",
+                "classification"
+            ],
+            "creators": [
+                "6d9b8261-e255-4fca-9289-0fde48644cf8"
+            ],
+            "locked": false
+        },
+        "ontologicalClasses": [
+            "ot:Pretrained"
+        ],
+        "ranking": 2,
+        "predictionService": "http://localhost:8002/predict/ensemblemodel/"
+    },
+    {
+        "_id": "smiles",
         "meta": {
             "descriptions": [
                 "Smiles desc"
@@ -365,7 +1459,6 @@
             "creators": [
                 "guest"
             ],
-            "date": "2017-10-17T13:31:12.108+0000",
             "locked": false
         },
         "ontologicalClasses": [
@@ -403,7 +1496,524 @@
             }
         ],
         "ranking": 0,
-        "reportService": "http://test.jaqpot.org:8090/algorithms/smiles/calculate",
-        "_id": "smiles"
+        "reportService": "http://localhost:8080/algorithms/smiles/calculate"
+    },
+    {
+        "_id": "scaling",
+        "meta": {
+            "descriptions": [
+                "Scaling"
+            ],
+            "titles": [
+                "Scaling"
+            ],
+            "subjects": [
+                "scaling"
+            ],
+            "locked": false
+        },
+        "ontologicalClasses": [
+            "ot:Algorithm",
+            "ot:Scaling",
+            "ot:Transformation"
+        ],
+        "ranking": 0,
+        "trainingService": "http://localhost:8080/algorithms/scaling/training",
+        "predictionService": "http://localhost:8080/algorithms/scaling/prediction"
+    },
+    {
+        "_id": "python-bnb",
+        "meta": {
+            "descriptions": [
+                "Bernoulli Naive Bayes by Scikit Learn python library."
+            ],
+            "titles": [
+                "Bernoulli Naive Bayes"
+            ],
+            "subjects": [
+                "bnb",
+                "bayes",
+                "classification"
+            ],
+            "locked": false
+        },
+        "ontologicalClasses": [
+            "ot:Algorithm",
+            "ot:Classification",
+            "ot:SupervisedLearning"
+        ],
+        "ranking": 1,
+        "trainingService": "http://localhost:5000/pws/bnb/train",
+        "predictionService": "http://localhost:5000/pws/bnb/test"
+    },
+    {
+        "_id": "R-gbm-pretrained",
+        "meta": {
+            "descriptions": [
+                "GBM models R."
+            ],
+            "titles": [
+                "GBM models pretrained"
+            ],
+            "subjects": [
+                "regression",
+                "classification"
+            ],
+            "creators": [
+                "6d9b8261-e255-4fca-9289-0fde48644cf8"
+            ],
+            "locked": false
+        },
+        "ontologicalClasses": [
+            "ot:Pretrained"
+        ],
+        "ranking": 2,
+        "predictionService": "http://localhost:8004/ocpu/library/GenericR/R/jaqpot.predict.gbm/json"
+    },
+    {
+        "_id": "python-lm",
+        "meta": {
+            "descriptions": [
+                "Linear Regression by Scikit Learn python library."
+            ],
+            "titles": [
+                "Linear Regression"
+            ],
+            "subjects": [
+                "linear",
+                "regression"
+            ],
+            "locked": false
+        },
+        "ontologicalClasses": [
+            "ot:Algorithm",
+            "ot:Regression",
+            "ot:SupervisedLearning"
+        ],
+        "ranking": 2,
+        "trainingService": "http://localhost:5000/pws/lm/train",
+        "predictionService": "http://localhost:5000/pws/lm/test"
+    },
+    {
+        "_id": "standarization",
+        "meta": {
+            "descriptions": [
+                "Standarization"
+            ],
+            "titles": [
+                "Standarization"
+            ],
+            "subjects": [
+                "standarization"
+            ],
+            "locked": false
+        },
+        "ontologicalClasses": [
+            "ot:Algorithm",
+            "ot:Scaling",
+            "ot:Transformation"
+        ],
+        "ranking": 0,
+        "trainingService": "http://localhost:8080/algorithms/std/training",
+        "predictionService": "http://localhost:8080/algorithms/std/prediction"
+    },
+    {
+        "_id": "scikit-learn-0-22-pretrained",
+        "meta": {
+            "descriptions": [
+                "Decision tree by Scikit Learn python library."
+            ],
+            "titles": [
+                "Ensemble models pretrained"
+            ],
+            "subjects": [
+                "regression",
+                "classification"
+            ],
+            "creators": [
+                "6d9b8261-e255-4fca-9289-0fde48644cf8"
+            ],
+            "locked": false
+        },
+        "ontologicalClasses": [
+            "ot:Pretrained"
+        ],
+        "ranking": 2,
+        "predictionService": "http://localhost:8002/predict/sklearn/"
+    },
+    {
+        "_id": "scikit-learn-neural-network-model-pretrained",
+        "meta": {
+            "descriptions": [
+                "Decision tree by Scikit Learn python library."
+            ],
+            "titles": [
+                "neural network pretrained"
+            ],
+            "subjects": [
+                "regression",
+                "classification"
+            ],
+            "creators": [
+                "6d9b8261-e255-4fca-9289-0fde48644cf8"
+            ],
+            "locked": false
+        },
+        "ontologicalClasses": [
+            "ot:Pretrained"
+        ],
+        "ranking": 2,
+        "predictionService": "http://localhost:8002/predict/neuralnetworkmodel/"
+    },
+    {
+        "_id": "leverage",
+        "meta": {
+            "descriptions": [
+                "DoA calculation"
+            ],
+            "titles": [
+                "Leverage"
+            ],
+            "subjects": [
+                "doa"
+            ],
+            "locked": false
+        },
+        "ontologicalClasses": [
+            "ot:Algorithm",
+            "ot:ApplicabilityDomain",
+            "ot:Leverage"
+        ],
+        "ranking": 0,
+        "trainingService": "http://localhost:8080/algorithms/leverage/training",
+        "predictionService": "http://localhost:8080/algorithms/leverage/prediction"
+    },
+    {
+        "_id": "pbpk-ode-pretrained",
+        "meta": {
+            "descriptions": [
+                "Pretrained pbpk models"
+            ],
+            "titles": [
+                "Pretrained pbpk models"
+            ],
+            "subjects": [
+                "Pretrained pbpk models"
+            ],
+            "creators": [
+                "6d9b8261-e255-4fca-9289-0fde48644cf8"
+            ],
+            "locked": false
+        },
+        "ontologicalClasses": [
+            "ot:ClearDataset",
+            "ot:PBPK",
+            "ot:Pretrained"
+        ],
+        "ranking": 0,
+        "predictionService": "http://localhost:8004/ocpu/library/GenericR/R/predict.pbpk/json"
+    },
+    {
+        "_id": "python-pls-vip",
+        "meta": {
+            "descriptions": [
+                "PLS with VIP scores python algorithm."
+            ],
+            "titles": [
+                "PLS - with VIP scores"
+            ],
+            "subjects": [
+                "pls",
+                "regression"
+            ],
+            "creators": [
+                "hampos"
+            ],
+            "locked": false
+        },
+        "ontologicalClasses": [
+            "ot:Algorithm",
+            "ot:Regression",
+            "ot:SupervisedLearning"
+        ],
+        "parameters": [
+            {
+                "name": "Latent Variables",
+                "value": 10,
+                "scope": "MANDATORY",
+                "minValue": "1",
+                "maxValue": "Columns - 1",
+                "_id": "latentVariables"
+            }
+        ],
+        "ranking": 2,
+        "trainingService": "http://localhost:5000/pws/vip/train",
+        "predictionService": "http://localhost:5000/pws/vip/test"
+    },
+    {
+        "_id": "python-lasso",
+        "meta": {
+            "descriptions": [
+                "Lasso Regression by Scikit Learn python library."
+            ],
+            "titles": [
+                "Lasso Regression"
+            ],
+            "subjects": [
+                "lasso",
+                "regression"
+            ],
+            "locked": false
+        },
+        "ontologicalClasses": [
+            "ot:Algorithm",
+            "ot:Regression",
+            "ot:SupervisedLearning"
+        ],
+        "parameters": [
+            {
+                "name": "Alpha",
+                "value": 1,
+                "scope": "MANDATORY",
+                "minValue": 0,
+                "maxValue": 1,
+                "description": "Constant that multiplies the L1 term (prior used as regularizer). Defaults to 1.0. alpha = 0 is equivalent to an ordinary least square, solved by the LinearRegression object. For numerical reasons, using alpha = 0 is with the Lasso object is not advised.",
+                "_id": "alpha"
+            }
+        ],
+        "ranking": 2,
+        "trainingService": "http://localhost:5000/pws/lasso/train",
+        "predictionService": "http://localhost:5000/pws/lasso/test"
+    },
+    {
+        "_id": "weka-svm",
+        "meta": {
+            "descriptions": [
+                "LibSVM implementation for training a support vector classifier."
+            ],
+            "titles": [
+                "SVM - Weka (LibSVM) Implementation"
+            ],
+            "subjects": [
+                "regression",
+                "svm"
+            ],
+            "locked": false
+        },
+        "ontologicalClasses": [
+            "ot:Algorithm",
+            "ot:Regression",
+            "ot:SupervisedLearning"
+        ],
+        "parameters": [
+            {
+                "name": "cost",
+                "value": 100,
+                "scope": "OPTIONAL",
+                "_id": "cost"
+            },
+            {
+                "name": "gamma",
+                "value": 1.5,
+                "scope": "OPTIONAL",
+                "_id": "gamma"
+            },
+            {
+                "name": "epsilon",
+                "value": 0.1,
+                "scope": "OPTIONAL",
+                "_id": "epsilon"
+            },
+            {
+                "name": "coeff0",
+                "value": 0,
+                "scope": "OPTIONAL",
+                "_id": "coeff0"
+            },
+            {
+                "name": "cacheSize",
+                "value": 25007,
+                "scope": "OPTIONAL",
+                "_id": "cacheSize"
+            },
+            {
+                "name": "kernel",
+                "value": "RBF",
+                "scope": "OPTIONAL",
+                "_id": "kernel"
+            },
+            {
+                "name": "loss",
+                "value": 0.1,
+                "scope": "OPTIONAL",
+                "_id": "loss"
+            },
+            {
+                "name": "nu",
+                "value": 0.5,
+                "scope": "OPTIONAL",
+                "_id": "nu"
+            },
+            {
+                "name": "degree",
+                "value": 3,
+                "scope": "OPTIONAL",
+                "_id": "degree"
+            },
+            {
+                "name": "type",
+                "value": "NU_SVR",
+                "scope": "OPTIONAL",
+                "_id": "type"
+            }
+        ],
+        "ranking": 1,
+        "trainingService": "http://localhost:8080/algorithms/svm/training",
+        "predictionService": "http://localhost:8080/algorithms/svm/prediction"
+    },
+    {
+        "_id": "R-bnlearn-discrete-pretrained",
+        "meta": {
+            "descriptions": [
+                "This is the discrete bnlearn runtime for jaqpot"
+            ],
+            "titles": [
+                "Discrete bnlearn runtime"
+            ],
+            "subjects": [
+                "classification"
+            ],
+            "creators": [
+                "6d9b8261-e255-4fca-9289-0fde48644cf8"
+            ],
+            "locked": false
+        },
+        "ontologicalClasses": [
+            "ot:Pretrained"
+        ],
+        "ranking": 2,
+        "predictionService": "http://localhost:8004/ocpu/library/GenericR/R/jaqpot.predict.bnlearn.discrete/json"
+    },
+    {
+        "_id": "scikit-learn-1-0-pretrained",
+        "meta": {
+            "descriptions": [
+                "Decision tree by Scikit Learn python library."
+            ],
+            "titles": [
+                "Ensemble models pretrained"
+            ],
+            "subjects": [
+                "regression",
+                "classification"
+            ],
+            "creators": [
+                "6d9b8261-e255-4fca-9289-0fde48644cf8"
+            ],
+            "locked": false
+        },
+        "ontologicalClasses": [
+            "ot:Pretrained"
+        ],
+        "ranking": 2,
+        "predictionService": "http://localhost:8002/predict/sklearn/"
+    },
+    {
+        "_id": "XGBoost-model-pretrained",
+        "meta": {
+            "descriptions": [
+                "XGBoost python library."
+            ],
+            "titles": [
+                "XGBoost models pretrained"
+            ],
+            "subjects": [
+                "regression",
+                "classification"
+            ],
+            "creators": [
+                "6d9b8261-e255-4fca-9289-0fde48644cf8"
+            ],
+            "locked": false
+        },
+        "ontologicalClasses": [
+            "ot:Pretrained"
+        ],
+        "ranking": 2,
+        "predictionService": "http://localhost:8002/predict/xgboost/"
+    },
+    {
+        "_id": "scikit-learn-1-1-pretrained",
+        "meta": {
+            "descriptions": [
+                "Decision tree by Scikit Learn python library."
+            ],
+            "titles": [
+                "Ensemble models pretrained"
+            ],
+            "subjects": [
+                "regression",
+                "classification"
+            ],
+            "creators": [
+                "6d9b8261-e255-4fca-9289-0fde48644cf8"
+            ],
+            "locked": false
+        },
+        "ontologicalClasses": [
+            "ot:Pretrained"
+        ],
+        "ranking": 2,
+        "predictionService": "http://localhost:8002/predict/sklearn/"
+    },
+    {
+        "_id": "jaqpot-docker-default-pretrained",
+        "meta": {
+            "descriptions": [
+                "Jaqpotpy library."
+            ],
+            "titles": [
+                "Jaqpotpy pretrained"
+            ],
+            "subjects": [
+                "regression",
+                "classification",
+                "generation"
+            ],
+            "creators": [
+                "6d9b8261-e255-4fca-9289-0fde48644cf8"
+            ],
+            "locked": false
+        },
+        "ontologicalClasses": [
+            "ot:Pretrained"
+        ],
+        "ranking": 2,
+        "predictionService": "http://localhost:8002/predict/"
+    },
+    {
+        "_id": "jaqpotpy-pretrained",
+        "meta": {
+            "descriptions": [
+                "Jaqpotpy library."
+            ],
+            "titles": [
+                "Jaqpotpy pretrained"
+            ],
+            "subjects": [
+                "regression",
+                "classification",
+                "generation"
+            ],
+            "creators": [
+                "6d9b8261-e255-4fca-9289-0fde48644cf8"
+            ],
+            "locked": false
+        },
+        "ontologicalClasses": [
+            "ot:Pretrained"
+        ],
+        "ranking": 2,
+        "predictionService": "http://localhost:8002/predict/"
     }
 ]
